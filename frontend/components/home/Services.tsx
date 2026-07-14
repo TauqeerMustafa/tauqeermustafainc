@@ -1,5 +1,12 @@
-import Link from "next/link";
-import { ArrowRight, Bot, Code2, ShieldCheck } from "lucide-react";
+import { Bot, Code2, ShieldCheck } from "lucide-react";
+
+import {
+  Card,
+  IconFrame,
+  Section,
+  SectionHeader,
+  TextLink,
+} from "@/components/home/ui";
 
 const services = [
   {
@@ -27,52 +34,35 @@ const services = [
 
 export default function Services() {
   return (
-    <section className="bg-slate-950 px-6 py-24" aria-labelledby="services-title">
-      <div className="mx-auto max-w-7xl">
-        <div className="max-w-3xl">
-          <p className="text-sm font-semibold uppercase text-teal-300">
-            Services
-          </p>
-          <h2 id="services-title" className="mt-3 text-4xl font-bold text-white">
-            Enterprise services for secure digital growth
-          </h2>
-          <p className="mt-5 text-lg leading-8 text-slate-400">
-            From architecture to launch and optimization, we deliver production
-            systems that are clear to operate and built to evolve.
-          </p>
-        </div>
+    <Section className="bg-white" labelledBy="services-title">
+      <SectionHeader
+        id="services-title"
+        eyebrow="Services"
+        title="Enterprise services for secure digital growth"
+        description="From architecture to launch and optimization, we deliver production systems that are clear to operate and built to evolve."
+      />
 
-        <div className="mt-14 grid gap-6 lg:grid-cols-3">
-          {services.map((service) => {
-            const Icon = service.icon;
-
-            return (
-              <article
-                key={service.title}
-                className="group rounded-lg border border-slate-800 bg-slate-900 p-8 transition duration-300 hover:-translate-y-1 hover:border-teal-400/60 hover:shadow-2xl hover:shadow-teal-950/30"
+      <div className="mt-14 grid gap-6 lg:grid-cols-3">
+        {services.map((service) => (
+          <Card key={service.title}>
+            <IconFrame icon={service.icon} />
+            <h3 className="mt-7 text-xl font-semibold text-[#111827]">
+              {service.title}
+            </h3>
+            <p className="mt-4 text-base leading-7 text-[#6B7280]">
+              {service.description}
+            </p>
+            <div className="mt-8">
+              <TextLink
+                href={service.href}
+                ariaLabel={`Learn more about ${service.title}`}
               >
-                <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-teal-400/10 text-teal-300 ring-1 ring-teal-400/20">
-                  <Icon className="h-6 w-6" aria-hidden="true" />
-                </div>
-                <h3 className="mt-7 text-2xl font-bold text-white">
-                  {service.title}
-                </h3>
-                <p className="mt-4 text-base leading-7 text-slate-400">
-                  {service.description}
-                </p>
-                <Link
-                  href={service.href}
-                  className="mt-8 inline-flex items-center gap-2 text-sm font-bold text-teal-300 transition group-hover:text-teal-200 focus:outline-none focus:ring-2 focus:ring-teal-300 focus:ring-offset-2 focus:ring-offset-slate-900"
-                  aria-label={`Learn more about ${service.title}`}
-                >
-                  Learn More
-                  <ArrowRight className="h-4 w-4" aria-hidden="true" />
-                </Link>
-              </article>
-            );
-          })}
-        </div>
+                Learn More
+              </TextLink>
+            </div>
+          </Card>
+        ))}
       </div>
-    </section>
+    </Section>
   );
 }

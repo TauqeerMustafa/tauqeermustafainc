@@ -1,5 +1,7 @@
 import { Quote } from "lucide-react";
 
+import { Card, Section, SectionHeader } from "@/components/home/ui";
+
 const testimonials = [
   {
     quote:
@@ -23,35 +25,27 @@ const testimonials = [
 
 export default function Testimonials() {
   return (
-    <section className="bg-slate-900 px-6 py-24" aria-labelledby="testimonials-title">
-      <div className="mx-auto max-w-7xl">
-        <div className="max-w-3xl">
-          <p className="text-sm font-semibold uppercase text-teal-300">
-            Testimonials
-          </p>
-          <h2 id="testimonials-title" className="mt-3 text-4xl font-bold text-white">
-            Trusted by teams that need dependable execution
-          </h2>
-        </div>
+    <Section className="bg-[#F8FAFC]" labelledBy="testimonials-title">
+      <SectionHeader
+        id="testimonials-title"
+        eyebrow="Testimonials"
+        title="Trusted by teams that need dependable execution"
+      />
 
-        <div className="mt-14 grid gap-6 lg:grid-cols-3">
-          {testimonials.map((testimonial) => (
-            <figure
-              key={testimonial.name}
-              className="rounded-lg border border-slate-800 bg-slate-950 p-7"
-            >
-              <Quote className="h-8 w-8 text-teal-300" aria-hidden="true" />
-              <blockquote className="mt-6 text-base leading-7 text-slate-300">
-                <p>&ldquo;{testimonial.quote}&rdquo;</p>
-              </blockquote>
-              <figcaption className="mt-8">
-                <p className="font-bold text-white">{testimonial.name}</p>
-                <p className="mt-1 text-sm text-slate-400">{testimonial.role}</p>
-              </figcaption>
-            </figure>
-          ))}
-        </div>
+      <div className="mt-14 grid gap-6 lg:grid-cols-3">
+        {testimonials.map((testimonial) => (
+          <Card key={testimonial.name} className="flex flex-col">
+            <Quote className="h-7 w-7 text-[#C9A227]" aria-hidden="true" />
+            <blockquote className="mt-6 flex-1 text-base leading-7 text-[#374151]">
+              <p>&ldquo;{testimonial.quote}&rdquo;</p>
+            </blockquote>
+            <figcaption className="mt-8 border-t border-[#E5E7EB] pt-5">
+              <p className="font-semibold text-[#111827]">{testimonial.name}</p>
+              <p className="mt-1 text-sm text-[#6B7280]">{testimonial.role}</p>
+            </figcaption>
+          </Card>
+        ))}
       </div>
-    </section>
+    </Section>
   );
 }

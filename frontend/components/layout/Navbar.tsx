@@ -12,21 +12,22 @@ const navLinks = [
 
 export default function Navbar() {
   return (
-    <header className="border-b border-slate-800 bg-slate-950">
+    <header className="sticky top-0 z-50 border-b border-[#E5E7EB] bg-white/95 backdrop-blur">
       <nav className="mx-auto flex h-16 max-w-7xl items-center justify-between px-6">
         <Link
           href="/"
-          className="text-xl font-bold tracking-wide text-white"
+          className="inline-flex items-center gap-2 text-base font-semibold tracking-tight text-[#111827] transition hover:text-[#A67C00] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#C9A227]"
         >
+          <span className="h-2.5 w-2.5 rounded-full bg-[#C9A227]" aria-hidden="true" />
           Tauqeer Mustafa Inc.
         </Link>
 
-        <ul className="hidden gap-8 md:flex">
+        <ul className="hidden items-center gap-7 md:flex">
           {navLinks.map((link) => (
             <li key={link.name}>
               <Link
                 href={link.href}
-                className="text-sm text-slate-300 transition hover:text-white"
+                className="text-sm font-medium text-[#6B7280] transition hover:text-[#A67C00] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#C9A227]"
               >
                 {link.name}
               </Link>
@@ -36,7 +37,7 @@ export default function Navbar() {
 
         <Link
           href="/login"
-          className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-700"
+          className="rounded-lg bg-[#111827] px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-[#1F2937] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#C9A227]"
         >
           Login
         </Link>

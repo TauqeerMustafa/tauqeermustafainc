@@ -3,6 +3,7 @@ import "./globals.css";
 
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
+import { AppProviders } from "@/providers";
 
 export const metadata: Metadata = {
   title: "Tauqeer Mustafa Inc.",
@@ -19,14 +20,16 @@ export default function RootLayout({
       lang="en"
       className="h-full antialiased"
     >
-      <body className="min-h-screen flex flex-col bg-slate-950 text-white">
-        <Navbar />
+      <body className="min-h-screen flex flex-col bg-white text-[#111827]">
+        <AppProviders>
+          <Navbar />
 
-        <main className="flex-1">
-          {children}
-        </main>
+          <main className="flex-1">
+            {children}
+          </main>
 
-        <Footer />
+          <Footer />
+        </AppProviders>
       </body>
     </html>
   );

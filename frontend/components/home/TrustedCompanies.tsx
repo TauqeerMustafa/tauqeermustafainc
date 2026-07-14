@@ -1,3 +1,5 @@
+import { Section, SectionHeader } from "@/components/home/ui";
+
 const technologies = [
   "Microsoft",
   "Google",
@@ -9,34 +11,24 @@ const technologies = [
 
 export default function TrustedCompanies() {
   return (
-    <section className="bg-slate-950 px-6 py-16" aria-labelledby="trusted-title">
-      <div className="mx-auto max-w-7xl">
-        <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
-          <div>
-            <p className="text-sm font-semibold uppercase text-teal-300">
-              Trusted technology stack
-            </p>
-            <h2 id="trusted-title" className="mt-3 text-3xl font-bold text-white">
-              Built with proven enterprise platforms
-            </h2>
-          </div>
-          <p className="max-w-2xl text-sm leading-6 text-slate-400">
-            We select reliable tools and cloud services that support secure
-            delivery, maintainable systems, and measurable business outcomes.
-          </p>
-        </div>
+    <Section className="bg-[#F8FAFC]" labelledBy="trusted-title">
+      <SectionHeader
+        id="trusted-title"
+        eyebrow="Trusted technology stack"
+        title="Built with proven enterprise platforms"
+        description="We select reliable tools and cloud services that support secure delivery, maintainable systems, and measurable business outcomes."
+      />
 
-        <div className="mt-10 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
-          {technologies.map((technology) => (
-            <div
-              key={technology}
-              className="flex min-h-20 items-center justify-center rounded-lg border border-slate-800 bg-slate-900 px-4 text-center text-sm font-semibold text-slate-200 transition hover:border-teal-400/60 hover:bg-slate-900/70"
-            >
-              {technology}
-            </div>
-          ))}
-        </div>
+      <div className="mt-10 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
+        {technologies.map((technology) => (
+          <div
+            key={technology}
+            className="flex min-h-20 items-center justify-center rounded-lg border border-[#E5E7EB] bg-white px-4 text-center text-sm font-semibold text-[#111827] shadow-sm transition hover:border-[#C9A227]/60 hover:shadow-md"
+          >
+            {technology}
+          </div>
+        ))}
       </div>
-    </section>
+    </Section>
   );
 }

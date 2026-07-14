@@ -1,5 +1,7 @@
 import Link from "next/link";
-import { ArrowRight, Calendar } from "lucide-react";
+import { Calendar } from "lucide-react";
+
+import { Card, Section, SectionHeader, TextLink } from "@/components/home/ui";
 
 const posts = [
   {
@@ -30,55 +32,39 @@ const posts = [
 
 export default function LatestBlogs() {
   return (
-    <section className="bg-slate-950 px-6 py-24" aria-labelledby="blogs-title">
-      <div className="mx-auto max-w-7xl">
-        <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
-          <div className="max-w-3xl">
-            <p className="text-sm font-semibold uppercase text-teal-300">
-              Latest insights
-            </p>
-            <h2 id="blogs-title" className="mt-3 text-4xl font-bold text-white">
-              Practical guidance for digital leaders
-            </h2>
-          </div>
-          <Link
-            href="/blog"
-            className="inline-flex items-center gap-2 text-sm font-bold text-teal-300 transition hover:text-teal-200 focus:outline-none focus:ring-2 focus:ring-teal-300 focus:ring-offset-2 focus:ring-offset-slate-950"
-          >
-            Read All Articles
-            <ArrowRight className="h-4 w-4" aria-hidden="true" />
-          </Link>
-        </div>
+    <Section className="bg-white" labelledBy="blogs-title">
+      <SectionHeader
+        id="blogs-title"
+        eyebrow="Latest insights"
+        title="Practical guidance for digital leaders"
+        action={<TextLink href="/blog">Read All Articles</TextLink>}
+      />
 
-        <div className="mt-14 grid gap-6 lg:grid-cols-3">
-          {posts.map((post) => (
-            <article
-              key={post.title}
-              className="rounded-lg border border-slate-800 bg-slate-900 p-7 transition hover:border-teal-400/60"
-            >
-              <div className="flex flex-wrap items-center gap-3 text-sm text-slate-400">
-                <span className="font-semibold text-cyan-300">{post.category}</span>
-                <span aria-hidden="true">/</span>
-                <span className="inline-flex items-center gap-2">
-                  <Calendar className="h-4 w-4" aria-hidden="true" />
-                  {post.date}
-                </span>
-              </div>
-              <h3 className="mt-5 text-2xl font-bold leading-snug text-white">
-                <Link
-                  href={post.href}
-                  className="transition hover:text-teal-200 focus:outline-none focus:ring-2 focus:ring-teal-300 focus:ring-offset-2 focus:ring-offset-slate-900"
-                >
-                  {post.title}
-                </Link>
-              </h3>
-              <p className="mt-4 text-base leading-7 text-slate-400">
-                {post.excerpt}
-              </p>
-            </article>
-          ))}
-        </div>
+      <div className="mt-14 grid gap-6 lg:grid-cols-3">
+        {posts.map((post) => (
+          <Card key={post.title}>
+            <div className="flex flex-wrap items-center gap-3 text-sm text-[#6B7280]">
+              <span className="font-semibold text-[#A67C00]">{post.category}</span>
+              <span aria-hidden="true">/</span>
+              <span className="inline-flex items-center gap-2">
+                <Calendar className="h-4 w-4" aria-hidden="true" />
+                {post.date}
+              </span>
+            </div>
+            <h3 className="mt-5 text-xl font-semibold leading-snug text-[#111827]">
+              <Link
+                href={post.href}
+                className="transition hover:text-[#A67C00] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#C9A227]"
+              >
+                {post.title}
+              </Link>
+            </h3>
+            <p className="mt-4 text-base leading-7 text-[#6B7280]">
+              {post.excerpt}
+            </p>
+          </Card>
+        ))}
       </div>
-    </section>
+    </Section>
   );
 }

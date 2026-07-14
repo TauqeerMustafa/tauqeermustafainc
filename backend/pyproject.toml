@@ -1,0 +1,24 @@
+[project]
+name = "tauqeer-inc-backend"
+version = "0.1.0"
+description = "FastAPI backend foundation for Tauqeer Inc."
+requires-python = ">=3.12,<3.13"
+dependencies = [
+  "alembic==1.17.2",
+  "fastapi==0.116.1",
+  "passlib[bcrypt]==1.7.4",
+  "psycopg[binary]==3.3.4",
+  "pydantic==2.13.4",
+  "pydantic-settings==2.12.0",
+  "python-dotenv==1.2.1",
+  "python-jose[cryptography]==3.5.0",
+  "SQLAlchemy==2.0.45",
+  "uvicorn[standard]==0.38.0",
+]
+
+[tool.ruff]
+target-version = "py312"
+line-length = 100
+
+[tool.pytest.ini_options]
+pythonpath = ["."]

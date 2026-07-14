@@ -50,7 +50,7 @@ function AnimatedNumber({
     }
 
     const controls = animate(count, value, {
-      duration: 1.6,
+      duration: 1.3,
       ease: "easeOut",
     });
 
@@ -67,7 +67,7 @@ export default function Statistics() {
   return (
     <section
       ref={ref}
-      className="bg-slate-900 px-6 py-20"
+      className="border-y border-[#E5E7EB] bg-[#F8FAFC] px-6 py-16 sm:py-20"
       aria-labelledby="statistics-title"
     >
       <div className="mx-auto max-w-7xl">
@@ -78,16 +78,16 @@ export default function Statistics() {
           {statistics.map((statistic) => (
             <div
               key={statistic.label}
-              className="rounded-lg border border-slate-800 bg-slate-950 p-7"
+              className="rounded-lg border border-[#E5E7EB] bg-white p-7 shadow-sm"
             >
-              <p className="text-4xl font-extrabold text-teal-300 md:text-5xl">
+              <p className="text-4xl font-semibold tracking-tight text-[#C9A227] md:text-5xl">
                 <AnimatedNumber
                   value={statistic.value}
                   suffix={statistic.suffix}
                   start={inView}
                 />
               </p>
-              <p className="mt-4 text-sm font-medium leading-6 text-slate-300">
+              <p className="mt-4 text-sm font-medium leading-6 text-[#6B7280]">
                 {statistic.label}
               </p>
             </div>
