@@ -1,27 +1,19 @@
-import AboutPreview from "@/components/home/AboutPreview";
 import CTA from "@/components/home/CTA";
+import CoreServices from "@/components/home/CoreServices";
+import FeaturedWork from "@/components/home/FeaturedWork";
 import Hero from "@/components/home/Hero";
-import LatestBlogs from "@/components/home/LatestBlogs";
-import PortfolioPreview from "@/components/home/PortfolioPreview";
-import Services from "@/components/home/Services";
-import Statistics from "@/components/home/Statistics";
-import Testimonials from "@/components/home/Testimonials";
-import TrustedCompanies from "@/components/home/TrustedCompanies";
-import WhyChooseUs from "@/components/home/WhyChooseUs";
+import OperatingModel from "@/components/home/OperatingModel";
+import Technology from "@/components/home/Technology";
 
-export default function HomePage() {
+export default function Home() {
   return (
-    <>
+    <main>
       <Hero />
-      <TrustedCompanies />
-      <Services />
-      <AboutPreview />
-      <WhyChooseUs />
-      <Statistics />
-      <PortfolioPreview />
-      <Testimonials />
-      <LatestBlogs />
+      <FeaturedWork />
+      <CoreServices />
+      <OperatingModel />
+      <Technology />
       <CTA />
-    </>
+    </main>
   );
 }

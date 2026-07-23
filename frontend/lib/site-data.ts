@@ -1,3 +1,25 @@
+export const navigation = [
+  { name: "Services", href: "/services" },
+  { name: "Work", href: "/work" },
+  { name: "About", href: "/about" },
+  { name: "Blog", href: "/blog" },
+];
+
+export const footerLinks = {
+  services: [
+    { name: "Web Platforms", href: "/services/enterprise-web-development" },
+    { name: "Cybersecurity", href: "/services/cybersecurity" },
+    { name: "AI Solutions", href: "/services/ai-solutions" },
+  ],
+  company: [
+    { name: "About", href: "/about" },
+    { name: "Blog", href: "/blog" },
+    { name: "Careers", href: "/careers" },
+    { name: "Contact", href: "/contact" },
+  ],
+  legal: [{ name: "Privacy", href: "/privacy" }, { name: "Terms", href: "/terms" }],
+};
+
 export const services = [
   {
     slug: "enterprise-web-development",
@@ -46,7 +68,7 @@ export const services = [
 export const projects = [
   {
     slug: "enterprise-operations-portal",
-    title: "Enterprise Operations Portal",
+    title: "Secure Operations Portal for a Financial Services Firm",
     category: "Web Platform",
     summary:
       "A secure role-based portal for leadership dashboards, internal workflows, and operational reporting.",

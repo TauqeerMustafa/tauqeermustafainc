@@ -1,6 +1,6 @@
 import { FileCheck2, LockKeyhole, MessagesSquare } from "lucide-react";
 
-import { IconFrame, Section, SectionHeader } from "@/components/home/ui";
+import { Section, SectionHeader } from "@/components/home/ui";
 
 const trustPrinciples = [
   {
@@ -23,31 +23,26 @@ const trustPrinciples = [
   },
 ];
 
-export default function Testimonials() {
+export default function Trust() {
   return (
-    <Section className="bg-[#F8F9FA]" labelledBy="trust-title">
+    <Section className="bg-zinc-50" labelledBy="trust-title">
       <div className="grid gap-12 lg:grid-cols-2 lg:gap-16">
         <SectionHeader
           id="trust-title"
-          eyebrow="Trust"
-          title="Building Trust Through Transparent Delivery"
+          eyebrow="Trust & Transparency"
+          title="Building Confidence Through a Disciplined Process"
           description="Our delivery model emphasizes clarity, secure defaults, and maintainable outcomes from planning through launch, ensuring stakeholders remain aligned and confident."
         />
 
-        <div className="grid gap-6">
+        <div className="space-y-8">
           {trustPrinciples.map((principle) => (
-            <article
-              key={principle.title}
-              className="grid gap-4 border-t border-gray-200 pt-6 sm:grid-cols-[auto_1fr] sm:gap-6"
-            >
-              <IconFrame icon={principle.icon} />
+            <article key={principle.title} className="flex gap-6">
+              <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg bg-white shadow-sm">
+                <principle.icon className="h-6 w-6 text-zinc-600" aria-hidden="true" />
+              </div>
               <div>
-                <h3 className="text-xl font-semibold text-gray-900">
-                  {principle.title}
-                </h3>
-                <p className="mt-2 text-base leading-7 text-gray-600">
-                  {principle.description}
-                </p>
+                <h3 className="text-xl font-semibold text-zinc-900">{principle.title}</h3>
+                <p className="mt-1 text-base leading-7 text-zinc-600">{principle.description}</p>
               </div>
             </article>
           ))}

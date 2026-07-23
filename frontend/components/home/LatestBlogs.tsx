@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Calendar } from "lucide-react";
 
-import { Card, Section, SectionHeader, TextLink } from "@/components/home/ui";
+import { ImagePlaceholder, Section, SectionHeader, TextLink } from "@/components/home/ui";
 
 const posts = [
   {
@@ -31,6 +31,8 @@ const posts = [
 ];
 
 export default function LatestBlogs() {
+  const [featuredPost, ...otherPosts] = posts;
+
   return (
     <Section className="bg-white" labelledBy="blogs-title">
       <SectionHeader
@@ -40,30 +42,58 @@ export default function LatestBlogs() {
         action={<TextLink href="/blog">Read All Articles</TextLink>}
       />
 
-      <div className="mt-14 grid gap-6 lg:grid-cols-3">
-        {posts.map((post) => (
-          <Card key={post.title}>
+      <div className="mt-14 grid gap-8 lg:grid-cols-[1.05fr_0.95fr]">
+        <article className="overflow-hidden rounded-[2rem] border border-[#E4E4DE] bg-[#FAFAF8]">
+          <ImagePlaceholder
+            title="Blog image"
+            caption="Local placeholder for insight, article, or research imagery."
+            className="rounded-none border-0 shadow-none"
+          />
+          <div className="p-6 sm:p-8">
             <div className="flex flex-wrap items-center gap-3 text-sm text-[#6B7280]">
-              <span className="font-semibold text-[#A67C00]">{post.category}</span>
+              <span className="font-semibold text-[#9A7400]">{featuredPost.category}</span>
               <span aria-hidden="true">/</span>
               <span className="inline-flex items-center gap-2">
                 <Calendar className="h-4 w-4" aria-hidden="true" />
-                {post.date}
+                {featuredPost.date}
               </span>
             </div>
-            <h3 className="mt-5 text-xl font-semibold leading-snug text-[#111827]">
+            <h3 className="mt-5 text-2xl font-semibold leading-snug text-[#111827] sm:text-3xl">
               <Link
-                href={post.href}
-                className="transition hover:text-[#A67C00] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#C9A227]"
+                href={featuredPost.href}
+                className="transition hover:text-[#9A7400] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#C9A227]"
               >
-                {post.title}
+                {featuredPost.title}
               </Link>
             </h3>
-            <p className="mt-4 text-base leading-7 text-[#6B7280]">
-              {post.excerpt}
+            <p className="mt-4 text-base leading-7 text-[#5F6673]">
+              {featuredPost.excerpt}
             </p>
-          </Card>
-        ))}
+          </div>
+        </article>
+
+        <div className="grid gap-5">
+          {otherPosts.map((post) => (
+            <article key={post.title} className="border-t border-[#D9D9D2] pt-6">
+              <div className="flex flex-wrap items-center gap-3 text-sm text-[#6B7280]">
+                <span className="font-semibold text-[#9A7400]">{post.category}</span>
+                <span aria-hidden="true">/</span>
+                <span>{post.date}</span>
+              </div>
+              <h3 className="mt-4 text-xl font-semibold leading-snug text-[#111827]">
+                <Link
+                  href={post.href}
+                  className="transition hover:text-[#9A7400] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#C9A227]"
+                >
+                  {post.title}
+                </Link>
+              </h3>
+              <p className="mt-3 text-sm leading-6 text-[#5F6673]">
+                {post.excerpt}
+              </p>
+            </article>
+          ))}
+        </div>
       </div>
     </Section>
   );

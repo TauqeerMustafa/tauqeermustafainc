@@ -1,57 +1,102 @@
-import { Eye, Target } from "lucide-react";
+import { BrainCircuit, Building2, Layers3, ShieldCheck } from "lucide-react";
 
 import {
-  Card,
-  IconFrame,
-  PrimaryButton,
+  ButtonLink,
+  ImagePlaceholder,
   Section,
-  SectionHeader,
+  SecondaryButton,
 } from "@/components/home/ui";
 
-const principles = [
+const values = [
+  "Practical innovation",
+  "Security by design",
+  "Operational clarity",
+  "Long-term partnership",
+];
+
+const focusAreas = [
   {
-    title: "Mission",
-    description:
-      "Help organizations ship secure, resilient, and useful software that improves operations and strengthens customer trust.",
-    icon: Target,
+    title: "Enterprise solutions",
+    icon: Building2,
   },
   {
-    title: "Vision",
-    description:
-      "Become a trusted technology partner for enterprises that need practical engineering, responsible automation, and measurable progress.",
-    icon: Eye,
+    title: "AI innovation",
+    icon: BrainCircuit,
+  },
+  {
+    title: "Security first",
+    icon: ShieldCheck,
   },
 ];
 
 export default function AboutPreview() {
   return (
-    <Section className="bg-[#F8FAFC]" labelledBy="about-title">
-      <div className="grid gap-12 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
-        <div>
-          <SectionHeader
+    <Section className="bg-white" labelledBy="about-title">
+      <div className="grid gap-12 lg:grid-cols-[0.95fr_1.05fr] lg:items-center">
+        <ImagePlaceholder
+          title="Office and product strategy"
+          caption="A clean visual placeholder for office, team, or strategy imagery."
+          className="order-2 lg:order-1"
+        />
+
+        <div className="order-1 lg:order-2">
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#9A7400]">
+            About Tauqeer Mustafa Inc.
+          </p>
+
+          <h2
             id="about-title"
-            eyebrow="About Tauqeer Mustafa Inc."
-            title="Strategy, engineering, and security under one accountable team."
-            description="We partner with businesses that need dependable delivery across product strategy, full-stack engineering, cybersecurity, and AI automation. Every engagement is structured around clarity, maintainability, and operational value."
-          />
-          <div className="mt-8">
-            <PrimaryButton href="/about">Learn More</PrimaryButton>
+            className="mt-5 max-w-3xl text-3xl font-semibold leading-[1.08] tracking-tight text-[#111827] sm:text-4xl lg:text-5xl"
+          >
+            Technology leadership for teams that need clarity before complexity.
+          </h2>
+
+          <div className="mt-7 max-w-3xl space-y-5 text-base leading-8 text-[#5F6673] sm:text-lg">
+            <p>
+              Tauqeer Mustafa Inc. is a parent technology company that builds,
+              operates, and grows durable digital businesses, beginning with
+              BUSHAAT and extending to future ventures.
+            </p>
+            <p>
+              The work is shaped around dependable engineering, responsible
+              innovation, and measurable business outcomes without exaggerating
+              claims or hiding technical tradeoffs.
+            </p>
+          </div>
+
+          <ul className="mt-8 grid gap-3 sm:grid-cols-2">
+            {values.map((value) => (
+              <li
+                key={value}
+                className="flex items-center gap-3 text-sm font-semibold text-[#374151]"
+              >
+                <span
+                  className="flex h-7 w-7 items-center justify-center rounded-full bg-[#FAFAF8] text-[#A67C00]"
+                  aria-hidden
+                >
+                  <Layers3 className="h-3.5 w-3.5" />
+                </span>
+                {value}
+              </li>
+            ))}
+          </ul>
+
+          <div className="mt-10 flex flex-col gap-3 sm:flex-row">
+            <ButtonLink href="/about" variant="primary">About Us</ButtonLink>
+            <SecondaryButton href="/contact">Contact</SecondaryButton>
           </div>
         </div>
+      </div>
 
-        <div className="grid gap-6 md:grid-cols-2">
-          {principles.map((principle) => (
-            <Card key={principle.title}>
-              <IconFrame icon={principle.icon} />
-              <h3 className="mt-6 text-xl font-semibold text-[#111827]">
-                {principle.title}
-              </h3>
-              <p className="mt-4 text-base leading-7 text-[#6B7280]">
-                {principle.description}
-              </p>
-            </Card>
-          ))}
-        </div>
+      <div className="mt-14 grid gap-4 border-t border-[#E5E7EB] pt-8 md:grid-cols-3">
+        {focusAreas.map((area) => (
+          <div key={area.title} className="flex items-center gap-4 border-l border-[#C9A227] bg-[#FAFAF8] px-5 py-5">
+            <span className="flex h-11 w-11 items-center justify-center rounded-md border border-[#E4E4DE] bg-white text-[#A67C00]">
+              <area.icon className="h-5 w-5" aria-hidden />
+            </span>
+            <p className="text-sm font-semibold text-[#111827]">{area.title}</p>
+          </div>
+        ))}
       </div>
     </Section>
   );
