@@ -1,5 +1,4 @@
 import { ArrowRight } from "lucide-react";
-import Link from "next/link";
 
 import { Section, SectionHeader } from "@/components/home/ui";
 import { services } from "@/lib/site-data";

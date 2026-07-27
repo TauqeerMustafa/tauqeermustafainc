@@ -1,4 +1,4 @@
-import { ImagePlaceholder, Section, SectionHeader } from "@/components/home/ui";
+import { Section, SectionHeader, ImagePlaceholder } from "./ui";
 
 const technologyGroups = [
   {

@@ -37,7 +37,7 @@ export default function OperatingModel() {
         eyebrow="Our Operating Model"
         title="Enterprise discipline, without the enterprise drag."
         description="Our engagement model is intentionally simple: align on the business problem, make the technical tradeoffs visible, then deliver work that can be maintained after launch."
-        className="mx-auto max-w-3xl text-center"
+        align="center"
       />
 
       <div className="relative mt-16">

@@ -1,7 +1,6 @@
 import { Gauge, Lock, Network, Users } from "lucide-react";
 
-import { cn } from "@/lib/utils";
-import { Section } from "./ui";
+import { Section } from "@/components/home/ui";
 
 const principles = [
   {
@@ -32,7 +31,7 @@ const principles = [
 
 export default function OperatingModel() {
   return (
-    <Section className="bg-zinc-50" labelledBy="operating-model-title">
+    <Section className="bg-white" labelledBy="operating-model-title">
       <div className="mx-auto max-w-3xl text-center">
         <h2
           id="operating-model-title"
@@ -48,6 +47,7 @@ export default function OperatingModel() {
       </div>
 
       <div className="relative mt-20">
+        {/* Vertical line for desktop */}
         <div
           className="absolute left-1/2 top-4 hidden h-[calc(100%-2rem)] w-px -translate-x-1/2 bg-zinc-200 lg:block"
           aria-hidden="true"
@@ -57,15 +57,14 @@ export default function OperatingModel() {
           {principles.map((principle, index) => (
             <div
               key={principle.title}
-              className="relative lg:grid lg:grid-cols-2 lg:items-start lg:gap-24"
+              className="relative lg:grid lg:grid-cols-2 lg:items-start lg:gap-16"
             >
               <div
-                className={cn(
-                  "flex flex-col",
+                className={`flex flex-col ${
                   index % 2 === 0
                     ? "lg:order-1 lg:items-end lg:text-right"
                     : "lg:order-2 lg:items-start"
-                )}
+                }`}
               >
                 <p className="text-sm font-semibold uppercase tracking-widest text-zinc-500">
                   Principle 0{index + 1}
@@ -79,13 +78,12 @@ export default function OperatingModel() {
               </div>
 
               <div
-                className={cn(
-                  "hidden lg:flex lg:items-center",
+                className={`hidden lg:flex lg:items-center ${
                   index % 2 === 0 ? "lg:order-2" : "lg:order-1"
-                )}
+                }`}
               >
                 <div className="absolute left-1/2 -translate-x-1/2">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white ring-8 ring-zinc-50">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white ring-4 ring-white">
                     <principle.icon
                       className="h-5 w-5 text-zinc-500"
                       aria-hidden="true"

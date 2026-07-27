@@ -1,6 +1,6 @@
 import { Gauge, Lock, Network, Users } from "lucide-react";
 
-import { IconFrame, Section, SectionHeader } from "@/components/home/ui";
+import { IconFrame, Section, SectionHeader } from "./ui";
 
 const reasons = [
   {

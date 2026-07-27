@@ -3,7 +3,7 @@ import Link from "next/link";
 
 import { services } from "@/lib/site-data";
 import { cn } from "@/lib/utils";
-import { Section } from "./ui";
+import { Section } from "./Section";
 
 export default function CoreServices() {
   return (
@@ -29,7 +29,7 @@ export default function CoreServices() {
             {services.map((service, index) => (
               <article
                 key={service.slug}
-              className={cn("group rounded-2xl px-1 py-10 transition sm:px-5", {
+                className={cn("py-12", {
                   "border-t border-zinc-200": index > 0,
                 })}
               >
@@ -48,7 +48,7 @@ export default function CoreServices() {
                   ))}
                 </ul>
                 <div className="mt-8">
-                  <Link href={`/services/${service.slug}`} className="inline-flex items-center rounded-md font-semibold text-zinc-900 transition hover:text-[#8A6500] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#B68A12]">
+                  <Link href={`/services/${service.slug}`} className="inline-flex items-center font-semibold text-zinc-900 hover:text-zinc-700">
                     Learn More <ArrowRight className="ml-2 h-4 w-4" />
                   </Link>
                 </div>

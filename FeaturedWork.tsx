@@ -1,27 +1,31 @@
 import { ArrowRight } from "lucide-react";
 import Link from "next/link";
 
+import { Section } from "@/components/home/ui";
 import { projects } from "@/lib/site-data";
-import { Section, ImagePlaceholder } from "./ui";
+
+function ImagePlaceholder({ className }: { className?: string }) {
+  return <div className={`bg-zinc-200 ${className}`} />;
+}
 
 export default function FeaturedWork() {
   const featuredProject = projects[0];
 
   return (
-    <Section className="bg-zinc-50" labelledBy="featured-work-title">
-      <div className="grid items-center gap-12 lg:grid-cols-2 lg:gap-24">
+    <Section className="bg-white" labelledBy="featured-work-title">
+      <div className="grid items-center gap-12 lg:grid-cols-2 lg:gap-16">
         <div className="lg:order-2">
-          <p
+          <h2
             id="featured-work-title"
             className="text-sm font-semibold uppercase tracking-widest text-zinc-500"
           >
             Featured Work
-          </p>
-          <h2 className="mt-4 text-3xl font-semibold tracking-tight text-zinc-900 sm:text-4xl">
-            {featuredProject.title}
           </h2>
+          <p className="mt-4 text-3xl font-semibold tracking-tight text-zinc-900 sm:text-4xl">
+            {featuredProject.title}
+          </p>
           <p className="mt-6 text-lg text-zinc-600">{featuredProject.summary}</p>
-          <dl className="mt-8 grid grid-cols-1 gap-x-6 gap-y-4 text-base sm:grid-cols-2">
+          <dl className="mt-8 grid grid-cols-2 gap-x-6 gap-y-4 text-base">
             <div>
               <dt className="font-semibold text-zinc-900">Impact</dt>
               <dd className="mt-1 text-zinc-600">{featuredProject.impact}</dd>
@@ -41,11 +45,7 @@ export default function FeaturedWork() {
           </div>
         </div>
         <div className="lg:order-1">
-          <ImagePlaceholder
-            title="Featured operations portal"
-            caption="Role-based reporting, workflow visibility, and executive decision support."
-            className="aspect-h-3 aspect-w-4"
-          />
+          <ImagePlaceholder className="aspect-h-3 aspect-w-4 rounded-lg" />
         </div>
       </div>
     </Section>

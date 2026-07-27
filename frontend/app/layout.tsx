@@ -4,10 +4,11 @@ import "./globals.css";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import { AppProviders } from "@/providers";
+import { cn } from "@/lib/utils";
 
 export const metadata: Metadata = {
   title: "Tauqeer Mustafa Inc.",
-  description: "Enterprise Digital Solutions",
+  description: "Enterprise software, cybersecurity, cloud, and AI solutions.",
 };
 
 export default function RootLayout({
@@ -18,9 +19,9 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className="h-full antialiased"
+      className={cn("h-full scroll-smooth antialiased", "font-sans")}
     >
-      <body className="min-h-screen flex flex-col bg-white text-[#111827]">
+      <body className="min-h-screen flex flex-col overflow-x-hidden bg-white text-[#111827]">
         <AppProviders>
           <Navbar />
 

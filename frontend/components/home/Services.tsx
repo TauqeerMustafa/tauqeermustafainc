@@ -16,8 +16,8 @@ import {
   ImagePlaceholder,
   Section,
   SectionHeader,
-  TextLink,
-} from "@/components/home/ui";
+  TextLink
+} from "./ui";
 
 const services = [
   {
