@@ -48,7 +48,7 @@ export default function PortfolioPreview() {
 
       <div className="mt-14 grid gap-8 lg:grid-cols-[1.08fr_0.92fr] lg:items-start">
         <article className="overflow-hidden border border-[#E4E4DE] bg-[#FAFAF8] shadow-[0_12px_32px_rgba(17,24,39,0.08)]">
-          <ImagePlaceholder
+          <ImagePlaceholder src="/images/services/tmi-service-ai-security.jpg"
             title="Project screenshot"
             caption="Local placeholder for product, dashboard, or platform screenshot."
             className="rounded-none border-0 shadow-none"
@@ -139,3 +139,4 @@ export default function PortfolioPreview() {
     </Section>
   );
 }
+

@@ -42,7 +42,7 @@ export default function Statistics() {
           </p>
         </div>
 
-        <ImagePlaceholder
+        <ImagePlaceholder src="/images/dashboard/tmi-dashboard-finance.jpg"
           title="Delivery timeline"
           caption="Local placeholder for process, roadmap, and production-readiness visuals."
         />
@@ -66,3 +66,4 @@ export default function Statistics() {
     </section>
   );
 }
+

@@ -44,7 +44,7 @@ export default function LatestBlogs() {
 
       <div className="mt-14 grid gap-8 lg:grid-cols-[1.05fr_0.95fr]">
         <article className="overflow-hidden rounded-[2rem] border border-[#E4E4DE] bg-[#FAFAF8]">
-          <ImagePlaceholder
+          <ImagePlaceholder src="/images/backgrounds/tmi-bg-abstract.jpg"
             title="Blog image"
             caption="Local placeholder for insight, article, or research imagery."
             className="rounded-none border-0 shadow-none"
@@ -98,3 +98,4 @@ export default function LatestBlogs() {
     </Section>
   );
 }
+

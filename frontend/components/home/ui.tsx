@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import type { ComponentType, ReactNode } from "react";
 import { ArrowRight } from "lucide-react";
@@ -162,6 +163,7 @@ export function PageHero({
           {children ? <div className="mt-8 flex flex-col gap-3 sm:flex-row">{children}</div> : null}
         </div>
         <ImagePlaceholder
+          src="/images/hero/tmi-hero-digital.jpg"
           title={`${eyebrow} workspace`}
           caption="Structured delivery environment"
           className="hidden lg:block"
@@ -220,43 +222,40 @@ export function IconFrame({
 export function ImagePlaceholder({
   title,
   caption,
+  src = "/images/hero/tmi-hero-digital.jpg",
   className,
 }: {
   title: string;
   caption?: string;
+  src?: string;
   className?: string;
 }) {
   return (
-    <div
-      className={cx(
-        "relative overflow-hidden rounded-3xl border border-[#E4E4DE] bg-[#F4F4F2] shadow-[0_22px_60px_rgba(17,24,39,0.1)]",
-        className,
-      )}
-    >
-      <div className="aspect-[4/3] min-h-64 bg-[linear-gradient(135deg,#FFFFFF_0%,#FAFAF8_46%,#EDEBE4_100%)]" />
-      <div className="absolute inset-0 p-5 sm:p-6">
-        <div className="h-full rounded-2xl border border-white/80 bg-white/70 p-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.8)] backdrop-blur">
-          <div className="flex h-full flex-col justify-between">
-            <div className="grid grid-cols-3 gap-2">
-              <span className="h-2 rounded-full bg-[#C9A227]" />
-              <span className="h-2 rounded-full bg-[#D9D9D2]" />
-              <span className="h-2 rounded-full bg-[#111827]" />
-            </div>
-            <div>
-              <p className="text-sm font-semibold text-[#111827]">{title}</p>
-              {caption ? (
-                <p className="mt-2 max-w-sm text-sm leading-6 text-[#5F6673]">
-                  {caption}
-                </p>
-              ) : null}
-            </div>
-          </div>
-        </div>
+    <div className={cx(
+      "relative overflow-hidden rounded-3xl border border-[#E4E4DE] shadow-[0_22px_60px_rgba(17,24,39,0.1)]",
+      className,
+    )}>
+      <div className="relative aspect-[4/3] min-h-64">
+        <Image
+          src={src}
+          alt={title}
+          fill
+          sizes="(min-width:1024px) 40vw, 100vw"
+          priority
+          className="object-cover"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/10 to-transparent" />
+      </div>
+
+      <div className="absolute bottom-0 left-0 right-0 p-6 text-white">
+        <h3 className="text-lg font-semibold">{title}</h3>
+        {caption && (
+          <p className="mt-2 text-sm text-white/80">{caption}</p>
+        )}
       </div>
     </div>
   );
 }
-
 export function TextLink({
   href,
   children,
@@ -334,3 +333,8 @@ export function GhostButton({
     </ButtonLink>
   );
 }
+
+
+
+
+

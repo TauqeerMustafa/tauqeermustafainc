@@ -137,7 +137,7 @@ export default function Services() {
         </article>
 
         <div className="grid gap-8">
-          <ImagePlaceholder
+          <ImagePlaceholder src="/images/services/tmi-service-cyber-shield.jpg"
             title="Service delivery system"
             caption="Architecture, UX, security, and cloud planning aligned before implementation scales."
           />
@@ -183,3 +183,4 @@ export default function Services() {
     </Section>
   );
 }
+

@@ -33,7 +33,7 @@ export default function AboutPreview() {
   return (
     <Section className="bg-white" labelledBy="about-title">
       <div className="grid gap-12 lg:grid-cols-[0.95fr_1.05fr] lg:items-center">
-        <ImagePlaceholder
+        <ImagePlaceholder src="/images/about/tmi-about-office.jpg"
           title="Office and product strategy"
           caption="A clean visual placeholder for office, team, or strategy imagery."
           className="order-2 lg:order-1"
@@ -101,3 +101,4 @@ export default function AboutPreview() {
     </Section>
   );
 }
+

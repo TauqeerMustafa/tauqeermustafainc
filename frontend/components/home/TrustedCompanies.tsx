@@ -26,7 +26,7 @@ export default function TrustedCompanies() {
           description="Tools are selected for reliability, team ownership, security, and long-term maintainability. The stack can flex around the client environment without turning the website into a logo wall."
         />
 
-        <ImagePlaceholder
+        <ImagePlaceholder src="/images/hero/tmi-hero-globe.jpg"
           title="Technology environment"
           caption="Local placeholder for cloud, product, data, and operations imagery."
         />
@@ -54,3 +54,4 @@ export default function TrustedCompanies() {
     </Section>
   );
 }
+
