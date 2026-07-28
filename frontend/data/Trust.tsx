@@ -37,7 +37,7 @@ export default function Trust() {
         <div className="space-y-8">
           {trustPrinciples.map((principle) => (
             <article key={principle.title} className="flex gap-6">
-              <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg bg-white shadow-sm">
+              <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-none bg-white shadow-sm">
                 <principle.icon className="h-6 w-6 text-zinc-600" aria-hidden="true" />
               </div>
               <div>

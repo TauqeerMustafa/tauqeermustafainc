@@ -1,14 +1,24 @@
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { CheckCircle2 } from "lucide-react";
 
 import {
   Card,
+  ImagePlaceholder,
   PageHero,
   PrimaryButton,
   Section,
   SectionHeader,
 } from "@/components/home/ui";
 import { services } from "@/lib/site-data";
+
+const imageBySlug: Record<string, string> = {
+  "enterprise-web-development": "/images/hero/tmi-hero-code.jpg",
+  cybersecurity: "/images/services/tmi-service-cyber-shield.jpg",
+  "ai-solutions": "/images/services/tmi-service-ai-security.jpg",
+  "cloud-engineering": "/images/services/tmi-service-global-network.jpg",
+  "ui-ux-product-design": "/images/backgrounds/tmi-bg-particles.jpg",
+};
 
 export function generateStaticParams() {
   return services.map((service) => ({ slug: service.slug }));
@@ -32,25 +42,53 @@ export default async function ServiceDetailPage({
         eyebrow="Service"
         title={service.title}
         description={service.description}
+        image={imageBySlug[service.slug] ?? "/images/hero/tmi-hero-digital.jpg"}
+        imageTitle={service.title}
+        imageCaption={service.shortDescription}
       >
         <PrimaryButton href="/contact">Discuss This Service</PrimaryButton>
       </PageHero>
 
       <Section className="bg-[#F8FAFC]" labelledBy="service-outcomes">
-        <SectionHeader
-          id="service-outcomes"
-          eyebrow="Outcomes"
-          title="What this engagement can include"
-        />
-        <div className="mt-14 grid gap-4 md:grid-cols-2">
-          {service.outcomes.map((outcome) => (
-            <Card key={outcome} className="hover:translate-y-0">
-              <div className="flex gap-3">
-                <CheckCircle2 className="mt-0.5 h-5 w-5 text-[#C9A227]" aria-hidden />
-                <p className="font-medium text-[#374151]">{outcome}</p>
-              </div>
-            </Card>
-          ))}
+        <div className="grid gap-10 lg:grid-cols-[1.1fr_0.9fr] lg:items-start">
+          <div>
+            <SectionHeader
+              id="service-outcomes"
+              eyebrow="Outcomes"
+              title="What this engagement can include"
+            />
+            <div className="mt-10 grid gap-4 md:grid-cols-2">
+              {service.outcomes.map((outcome) => (
+                <Card key={outcome} className="hover:translate-y-0">
+                  <div className="flex gap-3">
+                    <CheckCircle2 className="mt-0.5 h-5 w-5 text-[#0B5FFF]" aria-hidden />
+                    <p className="font-medium text-[#374151]">{outcome}</p>
+                  </div>
+                </Card>
+              ))}
+            </div>
+          </div>
+
+          <Card className="hover:translate-y-0">
+            <h2 className="text-xl font-semibold text-[#0A1628]">Other services</h2>
+            <p className="mt-3 text-sm leading-6 text-[#6B7280]">
+              Most engagements combine more than one capability &mdash; explore the rest of what we offer.
+            </p>
+            <ul className="mt-6 space-y-3">
+              {services
+                .filter((item) => item.slug !== service.slug)
+                .map((item) => (
+                  <li key={item.slug}>
+                    <Link
+                      href={`/services/${item.slug}`}
+                      className="block border-t border-[#E5E7EB] pt-3 text-sm font-semibold text-[#0A1628] transition hover:text-[#0A46A8]"
+                    >
+                      {item.title}
+                    </Link>
+                  </li>
+                ))}
+            </ul>
+          </Card>
         </div>
       </Section>
     </>

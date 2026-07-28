@@ -103,13 +103,13 @@ export default function Services() {
       />
 
       <div className="mt-14 grid gap-8 lg:grid-cols-[0.95fr_1.05fr] lg:items-start">
-        <article className="border border-[#E4E4DE] border-t-2 border-t-[#C9A227] bg-white p-6 shadow-[0_10px_28px_rgba(17,24,39,0.06)] sm:p-8">
-          <IconFrame icon={featuredService.icon} className="bg-[#FAFAF8]" />
+        <article className="border border-[#D7DEE8] border-t-2 border-t-[#0B5FFF] bg-white p-6 shadow-[0_10px_28px_rgba(17,24,39,0.06)] sm:p-8">
+          <IconFrame icon={featuredService.icon} className="bg-[#F4F7FC]" />
 
-          <p className="mt-8 text-xs font-semibold uppercase tracking-[0.18em] text-[#9A7400]">
+          <p className="mt-8 text-xs font-semibold uppercase tracking-[0.18em] text-[#0A46A8]">
             Featured service
           </p>
-          <h3 className="mt-3 text-3xl font-semibold tracking-tight text-[#111827] sm:text-4xl">
+          <h3 className="mt-3 text-3xl font-semibold tracking-tight text-[#0A1628] sm:text-4xl">
             {featuredService.title}
           </h3>
           <p className="mt-5 text-base leading-7 text-[#5F6673]">
@@ -119,7 +119,7 @@ export default function Services() {
           <ul className="mt-8 grid gap-4">
             {featuredService.features?.map((feature) => (
               <li key={feature} className="flex gap-3 text-sm leading-6 text-[#374151]">
-                <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-[#C9A227]" aria-hidden />
+                <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-none bg-[#0B5FFF]" aria-hidden />
                 <span>{feature}</span>
               </li>
             ))}
@@ -148,7 +148,7 @@ export default function Services() {
                 <div className="flex items-start gap-4">
                   <IconFrame icon={service.icon} />
                   <div>
-                    <h3 className="text-lg font-semibold tracking-tight text-[#111827]">
+                    <h3 className="text-lg font-semibold tracking-tight text-[#0A1628]">
                       {service.title}
                     </h3>
                     <p className="mt-3 text-sm leading-6 text-[#5F6673]">
@@ -173,10 +173,10 @@ export default function Services() {
       <div className="mt-14 grid gap-4 border-t border-[#E5E7EB] pt-8 sm:grid-cols-2 lg:grid-cols-4">
         {process.map((step, index) => (
           <div key={step} className="flex items-center gap-4">
-            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-[#E4E4DE] bg-white text-sm font-semibold text-[#9A7400]">
+            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-none border border-[#D7DEE8] bg-white text-sm font-semibold text-[#0A46A8]">
               0{index + 1}
             </span>
-            <p className="text-sm font-semibold text-[#111827]">{step}</p>
+            <p className="text-sm font-semibold text-[#0A1628]">{step}</p>
           </div>
         ))}
       </div>

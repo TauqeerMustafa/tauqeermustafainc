@@ -30,7 +30,7 @@ const activities = [
 
 export default function RecentActivity() {
   return (
-    <section className="rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-xl">
+    <section className="rounded-none border border-white/10 bg-white/5 p-6 backdrop-blur-xl">
 
       <h2 className="mb-6 text-2xl font-bold text-white">
         Recent Activity
@@ -44,9 +44,9 @@ export default function RecentActivity() {
           return (
             <div
               key={index}
-              className="flex items-start gap-4 rounded-xl border border-white/10 bg-[#08101F] p-4"
+              className="flex items-start gap-4 rounded-none border border-white/10 bg-[#08101F] p-4"
             >
-              <div className="rounded-xl bg-yellow-400/10 p-3 text-yellow-400">
+              <div className="rounded-none bg-yellow-400/10 p-3 text-yellow-400">
                 <Icon size={20} />
               </div>
 

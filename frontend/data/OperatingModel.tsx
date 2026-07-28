@@ -74,7 +74,7 @@ export default function OperatingModel() {
                 }`}
               >
                 <div className="absolute left-1/2 -translate-x-1/2">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-full bg-white ring-8 ring-zinc-50">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-none bg-white ring-8 ring-zinc-50">
                     <principle.icon
                       className="h-7 w-7 text-zinc-600"
                       aria-hidden="true"

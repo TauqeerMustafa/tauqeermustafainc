@@ -38,7 +38,7 @@ const actions = [
 
 export default function QuickActions() {
   return (
-    <section className="rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-xl">
+    <section className="rounded-none border border-white/10 bg-white/5 p-6 backdrop-blur-xl">
 
       <div className="mb-6 flex items-center gap-3">
 
@@ -59,10 +59,10 @@ export default function QuickActions() {
             <Link
               key={action.title}
               href={action.href}
-              className="flex items-center gap-4 rounded-xl border border-white/10 bg-[#08101F] p-5 transition hover:border-yellow-400 hover:bg-white/5"
+              className="flex items-center gap-4 rounded-none border border-white/10 bg-[#08101F] p-5 transition hover:border-yellow-400 hover:bg-white/5"
             >
 
-              <div className="rounded-xl bg-yellow-400/10 p-3 text-yellow-400">
+              <div className="rounded-none bg-yellow-400/10 p-3 text-yellow-400">
                 <Icon size={22} />
               </div>
 

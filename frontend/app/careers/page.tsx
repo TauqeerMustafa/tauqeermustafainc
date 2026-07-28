@@ -23,6 +23,9 @@ export default function CareersPage() {
         eyebrow="Careers"
         title="Join a team focused on serious enterprise delivery."
         description="We look for pragmatic people who care about clarity, technical quality, client trust, and software that works in production."
+        image="/images/backgrounds/tmi-bg-hexagon.jpg"
+        imageTitle="How we work together"
+        imageCaption="Small, focused teams with transparent milestones."
       />
 
       <Section className="bg-[#F8FAFC]" labelledBy="open-positions">
@@ -32,10 +35,10 @@ export default function CareersPage() {
             <Card key={job.slug}>
               <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
                 <div>
-                  <p className="text-sm font-semibold text-[#A67C00]">
+                  <p className="text-sm font-semibold text-[#0A46A8]">
                     {job.location} / {job.type}
                   </p>
-                  <h2 className="mt-2 text-xl font-semibold text-[#111827]">{job.title}</h2>
+                  <h2 className="mt-2 text-xl font-semibold text-[#0A1628]">{job.title}</h2>
                   <p className="mt-3 max-w-3xl text-base leading-7 text-[#6B7280]">
                     {job.summary}
                   </p>
@@ -53,7 +56,7 @@ export default function CareersPage() {
           {benefits.map((benefit) => (
             <Card key={benefit.title}>
               <IconFrame icon={benefit.icon} />
-              <h2 className="mt-6 text-xl font-semibold text-[#111827]">{benefit.title}</h2>
+              <h2 className="mt-6 text-xl font-semibold text-[#0A1628]">{benefit.title}</h2>
               <p className="mt-4 text-base leading-7 text-[#6B7280]">{benefit.description}</p>
             </Card>
           ))}

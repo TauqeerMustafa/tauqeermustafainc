@@ -40,13 +40,13 @@ export default function AboutPreview() {
         />
 
         <div className="order-1 lg:order-2">
-          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#9A7400]">
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#0A46A8]">
             About Tauqeer Mustafa Inc.
           </p>
 
           <h2
             id="about-title"
-            className="mt-5 max-w-3xl text-3xl font-semibold leading-[1.08] tracking-tight text-[#111827] sm:text-4xl lg:text-5xl"
+            className="mt-5 max-w-3xl text-3xl font-semibold leading-[1.08] tracking-tight text-[#0A1628] sm:text-4xl lg:text-5xl"
           >
             Technology leadership for teams that need clarity before complexity.
           </h2>
@@ -71,7 +71,7 @@ export default function AboutPreview() {
                 className="flex items-center gap-3 text-sm font-semibold text-[#374151]"
               >
                 <span
-                  className="flex h-7 w-7 items-center justify-center rounded-full bg-[#FAFAF8] text-[#A67C00]"
+                  className="flex h-7 w-7 items-center justify-center rounded-none bg-[#F4F7FC] text-[#0A46A8]"
                   aria-hidden
                 >
                   <Layers3 className="h-3.5 w-3.5" />
@@ -90,11 +90,11 @@ export default function AboutPreview() {
 
       <div className="mt-14 grid gap-4 border-t border-[#E5E7EB] pt-8 md:grid-cols-3">
         {focusAreas.map((area) => (
-          <div key={area.title} className="flex items-center gap-4 border-l border-[#C9A227] bg-[#FAFAF8] px-5 py-5">
-            <span className="flex h-11 w-11 items-center justify-center rounded-md border border-[#E4E4DE] bg-white text-[#A67C00]">
+          <div key={area.title} className="flex items-center gap-4 border-l border-[#0B5FFF] bg-[#F4F7FC] px-5 py-5">
+            <span className="flex h-11 w-11 items-center justify-center rounded-none border border-[#D7DEE8] bg-white text-[#0A46A8]">
               <area.icon className="h-5 w-5" aria-hidden />
             </span>
-            <p className="text-sm font-semibold text-[#111827]">{area.title}</p>
+            <p className="text-sm font-semibold text-[#0A1628]">{area.title}</p>
           </div>
         ))}
       </div>

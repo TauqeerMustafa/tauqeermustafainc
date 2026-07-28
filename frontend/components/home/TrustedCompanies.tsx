@@ -13,6 +13,10 @@ const technologyGroups = [
     label: "Data",
     items: ["PostgreSQL", "APIs", "Analytics", "Automation"],
   },
+  {
+    label: "Security",
+    items: ["Threat Modeling", "IAM", "Vulnerability Scanning", "Audit Logging"],
+  },
 ];
 
 export default function TrustedCompanies() {
@@ -26,13 +30,14 @@ export default function TrustedCompanies() {
           description="Tools are selected for reliability, team ownership, security, and long-term maintainability. The stack can flex around the client environment without turning the website into a logo wall."
         />
 
-        <ImagePlaceholder src="/images/hero/tmi-hero-globe.jpg"
+        <ImagePlaceholder
+          src="/images/backgrounds/tmi-bg-abstract.jpg"
           title="Technology environment"
-          caption="Local placeholder for cloud, product, data, and operations imagery."
+          caption="Cloud, product, data, and security tooling chosen for long-term ownership."
         />
       </div>
 
-      <div className="mt-14 grid gap-8 lg:grid-cols-3">
+      <div className="mt-14 grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
         {technologyGroups.map((group) => (
           <article key={group.label} className="border-t border-gray-200 pt-6">
             <h3 className="text-xs font-semibold uppercase tracking-[0.18em] text-[#B88A2A]">
@@ -42,7 +47,7 @@ export default function TrustedCompanies() {
               {group.items.map((item) => (
                 <li
                   key={item}
-                  className="rounded-full border border-gray-200 bg-gray-50 px-4 py-2 text-sm font-semibold text-gray-900"
+                  className="rounded-none border border-gray-200 bg-gray-50 px-4 py-2 text-sm font-semibold text-gray-900"
                 >
                   {item}
                 </li>

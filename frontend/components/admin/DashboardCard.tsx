@@ -14,7 +14,7 @@ export default function DashboardCard({
   icon: Icon,
 }: DashboardCardProps) {
   return (
-    <div className="group rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-xl transition-all duration-300 hover:-translate-y-1 hover:border-yellow-400/50">
+    <div className="group rounded-none border border-white/10 bg-white/5 p-6 backdrop-blur-xl transition-all duration-300 hover:-translate-y-1 hover:border-yellow-400/50">
 
       <div className="mb-6 flex items-center justify-between">
 
@@ -28,7 +28,7 @@ export default function DashboardCard({
           </h3>
         </div>
 
-        <div className="rounded-2xl bg-yellow-400/10 p-4 text-yellow-400 transition group-hover:scale-110">
+        <div className="rounded-none bg-yellow-400/10 p-4 text-yellow-400 transition group-hover:scale-110">
           <Icon size={34} />
         </div>
 

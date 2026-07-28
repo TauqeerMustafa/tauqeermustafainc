@@ -21,7 +21,7 @@ export default function RootLayout({
       lang="en"
       className={cn("h-full scroll-smooth antialiased", "font-sans")}
     >
-      <body className="min-h-screen flex flex-col overflow-x-hidden bg-white text-[#111827]">
+      <body className="min-h-screen flex flex-col overflow-x-hidden bg-white text-[#0A1628]">
         <AppProviders>
           <Navbar />
 

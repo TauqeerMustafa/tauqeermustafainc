@@ -8,10 +8,10 @@ export function cx(...classes: Array<string | false | null | undefined>) {
 }
 
 const focusRing =
-  "focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#B68A12]";
+  "focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#0A46A8]";
 
 const buttonBase =
-  "inline-flex items-center justify-center gap-2 rounded-lg font-semibold tracking-tight transition-[background,border-color,color,box-shadow,transform] duration-200 ease-out disabled:pointer-events-none disabled:opacity-50 motion-safe:hover:-translate-y-0.5";
+  "inline-flex items-center justify-center gap-2 rounded-none font-semibold tracking-tight transition-[background,border-color,color,box-shadow,transform] duration-200 ease-out disabled:pointer-events-none disabled:opacity-50 motion-safe:hover:-translate-y-0.5";
 
 const buttonSizes = {
   sm: "min-h-10 px-4 text-sm",
@@ -21,14 +21,14 @@ const buttonSizes = {
 
 const buttonVariants = {
   primary:
-    "bg-[#111827] text-white shadow-[0_10px_30px_rgba(17,24,39,0.18)] hover:bg-black hover:shadow-[0_16px_38px_rgba(17,24,39,0.2)]",
+    "bg-[#0B5FFF] text-white shadow-[0_10px_30px_rgba(11,95,255,0.28)] hover:bg-[#0A46A8] hover:shadow-[0_16px_38px_rgba(11,95,255,0.32)]",
   secondary:
-    "border border-[#D9D9D2] bg-white/90 text-[#111827] shadow-[inset_0_1px_0_rgba(255,255,255,0.8)] hover:border-[#B68A12] hover:bg-[#FAFAF8]",
+    "border border-[#C7D2E0] bg-white/90 text-[#0A1628] shadow-[inset_0_1px_0_rgba(255,255,255,0.8)] hover:border-[#0B5FFF] hover:bg-[#F4F7FC]",
   outline:
-    "border border-[#111827] bg-transparent text-[#111827] hover:bg-[#111827] hover:text-white",
+    "border border-[#0A1628] bg-transparent text-[#0A1628] hover:bg-[#0A1628] hover:text-white",
   ghost:
-    "bg-transparent text-[#111827] hover:bg-[#F4F4F2]",
-  text: "rounded-none px-0 text-[#111827] underline-offset-4 hover:text-[#A67C00] hover:underline",
+    "bg-transparent text-[#0A1628] hover:bg-[#F4F4F2]",
+  text: "rounded-none px-0 text-[#0A1628] underline-offset-4 hover:text-[#0A46A8] hover:underline",
 };
 
 export function ButtonLink({
@@ -89,7 +89,7 @@ export function Section({
 
 export function Eyebrow({ children }: { children: ReactNode }) {
   return (
-    <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#9A7400]">
+    <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#0A46A8]">
       {children}
     </p>
   );
@@ -102,6 +102,7 @@ export function SectionHeader({
   id,
   action,
   align = "left",
+  className,
 }: {
   eyebrow: string;
   title: string;
@@ -109,6 +110,7 @@ export function SectionHeader({
   id: string;
   action?: ReactNode;
   align?: "left" | "center";
+  className?: string;
 }) {
   return (
     <div
@@ -117,13 +119,14 @@ export function SectionHeader({
         align === "center"
           ? "mx-auto max-w-4xl items-center text-center"
           : "md:flex-row md:items-end md:justify-between",
+        className,
       )}
     >
       <div className={cx("max-w-4xl", align === "center" && "mx-auto")}>
         <Eyebrow>{eyebrow}</Eyebrow>
         <h2
           id={id}
-          className="mt-4 text-balance text-3xl font-semibold leading-[1.08] tracking-normal text-[#111827] sm:text-4xl lg:text-5xl"
+          className="mt-4 text-balance text-3xl font-semibold leading-[1.08] tracking-normal text-[#0A1628] sm:text-4xl lg:text-5xl"
         >
           {title}
         </h2>
@@ -143,18 +146,24 @@ export function PageHero({
   title,
   description,
   children,
+  image = "/images/hero/tmi-hero-digital.jpg",
+  imageTitle,
+  imageCaption = "Structured delivery environment",
 }: {
   eyebrow: string;
   title: string;
   description: string;
   children?: ReactNode;
+  image?: string;
+  imageTitle?: string;
+  imageCaption?: string;
 }) {
   return (
     <section className="border-b border-[#E5E7EB] bg-[linear-gradient(180deg,#FFFFFF_0%,#F8F9FB_100%)] px-5 py-16 sm:px-6 sm:py-20 lg:py-24">
       <div className="mx-auto grid max-w-7xl gap-10 lg:grid-cols-[1fr_0.78fr] lg:items-end">
         <div className="max-w-4xl">
           <Eyebrow>{eyebrow}</Eyebrow>
-          <h1 className="mt-5 text-balance text-4xl font-semibold leading-[1.05] tracking-normal text-[#111827] sm:text-5xl lg:text-6xl">
+          <h1 className="mt-5 text-balance text-4xl font-semibold leading-[1.05] tracking-normal text-[#0A1628] sm:text-5xl lg:text-6xl">
             {title}
           </h1>
           <p className="mt-6 max-w-3xl text-pretty text-base leading-8 text-[#5F6673] sm:text-lg">
@@ -163,9 +172,9 @@ export function PageHero({
           {children ? <div className="mt-8 flex flex-col gap-3 sm:flex-row">{children}</div> : null}
         </div>
         <ImagePlaceholder
-          src="/images/hero/tmi-hero-digital.jpg"
-          title={`${eyebrow} workspace`}
-          caption="Structured delivery environment"
+          src={image}
+          title={imageTitle ?? `${eyebrow} workspace`}
+          caption={imageCaption}
           className="hidden lg:block"
         />
       </div>
@@ -175,7 +184,7 @@ export function PageHero({
 
 export function Badge({ children }: { children: ReactNode }) {
   return (
-    <span className="inline-flex items-center rounded-full border border-[#E5E7EB] bg-white px-3 py-1 text-xs font-semibold text-[#374151]">
+    <span className="inline-flex items-center rounded-none border border-[#E5E7EB] bg-white px-3 py-1 text-xs font-semibold text-[#374151]">
       {children}
     </span>
   );
@@ -191,7 +200,7 @@ export function Card({
   return (
     <article
       className={cx(
-        "rounded-2xl border border-[#E4E4DE] bg-white/90 p-6 shadow-[0_1px_2px_rgba(17,24,39,0.04),0_18px_48px_rgba(17,24,39,0.05)] transition-[border-color,box-shadow,transform] duration-200 ease-out motion-safe:hover:-translate-y-1 hover:border-[#C9A227] hover:shadow-[0_18px_50px_rgba(17,24,39,0.09)] sm:p-7",
+        "rounded-none border border-[#D7DEE8] bg-white/90 p-6 shadow-[0_1px_2px_rgba(17,24,39,0.04),0_18px_48px_rgba(17,24,39,0.05)] transition-[border-color,box-shadow,transform] duration-200 ease-out motion-safe:hover:-translate-y-1 hover:border-[#0B5FFF] hover:shadow-[0_18px_50px_rgba(17,24,39,0.09)] sm:p-7",
         className,
       )}
     >
@@ -210,7 +219,7 @@ export function IconFrame({
   return (
     <div
       className={cx(
-        "flex h-11 w-11 items-center justify-center rounded-xl border border-[#E4E4DE] bg-[#FAFAF8] text-[#A67C00] shadow-[inset_0_1px_0_rgba(255,255,255,0.8)]",
+        "flex h-11 w-11 items-center justify-center rounded-none border border-[#D7DEE8] bg-[#F4F7FC] text-[#0A46A8] shadow-[inset_0_1px_0_rgba(255,255,255,0.8)]",
         className,
       )}
     >
@@ -232,7 +241,7 @@ export function ImagePlaceholder({
 }) {
   return (
     <div className={cx(
-      "relative overflow-hidden rounded-3xl border border-[#E4E4DE] shadow-[0_22px_60px_rgba(17,24,39,0.1)]",
+      "relative overflow-hidden rounded-none border border-[#D7DEE8] shadow-[0_22px_60px_rgba(17,24,39,0.1)]",
       className,
     )}>
       <div className="relative aspect-[4/3] min-h-64">

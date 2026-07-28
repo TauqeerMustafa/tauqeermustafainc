@@ -29,7 +29,14 @@ export default async function JobDetailPage({
 
   return (
     <>
-      <PageHero eyebrow="Open role" title={job.title} description={job.summary}>
+      <PageHero
+        eyebrow="Open role"
+        title={job.title}
+        description={job.summary}
+        image="/images/backgrounds/tmi-bg-matrix.jpg"
+        imageTitle={job.title}
+        imageCaption={`${job.location} · ${job.type}`}
+      >
         <div className="flex flex-wrap gap-2">
           <Badge>{job.location}</Badge>
           <Badge>{job.type}</Badge>
@@ -48,7 +55,7 @@ export default async function JobDetailPage({
               {job.responsibilities.map((responsibility) => (
                 <Card key={responsibility} className="hover:translate-y-0">
                   <div className="flex gap-3">
-                    <CheckCircle2 className="mt-0.5 h-5 w-5 text-[#C9A227]" aria-hidden />
+                    <CheckCircle2 className="mt-0.5 h-5 w-5 text-[#0B5FFF]" aria-hidden />
                     <p className="font-medium text-[#374151]">{responsibility}</p>
                   </div>
                 </Card>
@@ -57,7 +64,7 @@ export default async function JobDetailPage({
           </div>
           <div className="lg:w-72">
             <Card>
-              <h2 className="text-xl font-semibold text-[#111827]">Apply</h2>
+              <h2 className="text-xl font-semibold text-[#0A1628]">Apply</h2>
               <p className="mt-4 text-sm leading-6 text-[#6B7280]">
                 Applications will connect to backend workflows in a later milestone.
               </p>

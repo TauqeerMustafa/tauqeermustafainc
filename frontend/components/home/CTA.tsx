@@ -1,24 +1,22 @@
-import Link from "next/link";
-
-import { Button } from "@/components/ui/button";
-import { Section } from "./ui";
+import { Section, PrimaryButton } from "./ui";
 
 export default function CTA() {
   return (
-    <Section className="bg-[linear-gradient(180deg,#F8F9FB_0%,#FFFFFF_100%)]">
-      <div className="mx-auto max-w-3xl rounded-3xl border border-[#E4E4DE] bg-white p-8 text-center shadow-[0_22px_70px_rgba(17,24,39,0.09)] sm:p-12">
-        <h2 className="text-balance text-3xl font-semibold tracking-normal text-zinc-900 sm:text-4xl">
-          Start a conversation
+    <Section className="bg-white">
+      <div className="tmi-corners tmi-grid mx-auto max-w-3xl border border-[#D7DEE8] bg-[#0A1628] p-8 text-center shadow-[0_22px_70px_rgba(10,22,40,0.25)] sm:p-12">
+        <p className="inline-flex items-center gap-2 font-mono text-xs font-semibold uppercase tracking-[0.18em] text-[#7FA8FF]">
+          <span className="h-1.5 w-1.5 bg-[#0B5FFF]" aria-hidden="true" />
+          Start a Conversation
+        </p>
+        <h2 className="mt-4 text-balance text-3xl font-semibold tracking-tight text-white sm:text-4xl">
+          Have a project or a risk you need eyes on?
         </h2>
-        <p className="mx-auto mt-6 max-w-2xl text-pretty text-lg leading-8 text-zinc-600">
-          Have a project in mind or need advice on a technical challenge? We are
-          ready to listen and explore how we can help your organization
-          succeed.
+        <p className="mx-auto mt-6 max-w-2xl text-pretty text-lg leading-8 text-zinc-300">
+          Tell us what you are building or defending. We will tell you plainly
+          whether we are the right team for it.
         </p>
         <div className="mt-10">
-          <Button asChild size="lg" className="min-h-12 px-6">
-            <Link href="/contact">Contact Us</Link>
-          </Button>
+          <PrimaryButton href="/contact">Contact Us</PrimaryButton>
         </div>
       </div>
     </Section>

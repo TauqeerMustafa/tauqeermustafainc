@@ -1,102 +1,75 @@
-import { Gauge, Lock, Network, Users } from "lucide-react";
+import { ClipboardCheck, Hammer, ShieldCheck, Telescope } from "lucide-react";
 
-import { cn } from "@/lib/utils";
 import { Section } from "./ui";
 
-const principles = [
+const phases = [
   {
-    title: "Architecture Before Acceleration",
+    step: "01",
+    title: "Discover",
     description:
-      "We establish clear architecture, ownership, and security controls before scaling implementation to ensure systems are built on a solid foundation.",
-    icon: Network,
+      "We map the business problem, current systems, and risk exposure before writing a line of code or a policy document.",
+    icon: Telescope,
   },
   {
-    title: "Security as a Feature",
+    step: "02",
+    title: "Assess",
     description:
-      "Threat awareness, secure defaults, and remediation planning are integrated throughout the project lifecycle, not bolted on at the end.",
-    icon: Lock,
+      "Architecture, security posture, and compliance gaps are documented against a clear standard, with tradeoffs made visible to stakeholders.",
+    icon: ClipboardCheck,
   },
   {
-    title: "Transparent by Default",
+    step: "03",
+    title: "Build",
     description:
-      "Milestones, risks, tradeoffs, and decisions are kept visible to all stakeholders, enabling teams to move forward with confidence and clarity.",
-    icon: Gauge,
+      "Engineering, security controls, and remediation work proceed together, not as a bolt-on step after launch.",
+    icon: Hammer,
   },
   {
-    title: "Business-Aware Engineering",
+    step: "04",
+    title: "Sustain",
     description:
-      "Technical choices are explicitly tied to operational impact, user needs, and the commercial goals that drive the project.",
-    icon: Users,
+      "Systems are handed over with documentation and monitoring in place, so they stay maintainable long after our engagement ends.",
+    icon: ShieldCheck,
   },
 ];
 
 export default function OperatingModel() {
   return (
-    <Section className="bg-zinc-50" labelledBy="operating-model-title">
+    <Section className="tmi-grid bg-[#F4F7FC]" labelledBy="operating-model-title">
       <div className="mx-auto max-w-3xl text-center">
+        <p className="font-mono text-xs font-semibold uppercase tracking-[0.18em] text-[#0A46A8]">
+          Engagement Model
+        </p>
         <h2
           id="operating-model-title"
-          className="text-3xl font-semibold tracking-tighter text-zinc-900 sm:text-4xl"
+          className="mt-4 text-3xl font-semibold tracking-tight text-[#0A1628] sm:text-4xl"
         >
           Enterprise discipline, without the enterprise drag.
         </h2>
         <p className="mt-6 text-lg text-zinc-600">
-          Our engagement model is intentionally simple: align on the business
-          problem, make the technical tradeoffs visible, then deliver work that
-          can be maintained long after launch.
+          A four-phase engagement, run the same way for a two-person startup
+          or a regulated financial firm: align on the problem, make tradeoffs
+          visible, then deliver work that survives contact with production.
         </p>
       </div>
 
-      <div className="relative mt-20">
-        <div
-          className="absolute left-1/2 top-4 hidden h-[calc(100%-2rem)] w-px -translate-x-1/2 bg-zinc-200 lg:block"
-          aria-hidden="true"
-        />
-
-        <div className="space-y-16 lg:space-y-24">
-          {principles.map((principle, index) => (
-            <div
-              key={principle.title}
-              className="relative lg:grid lg:grid-cols-2 lg:items-start lg:gap-24"
-            >
-              <div
-                className={cn(
-                  "flex flex-col",
-                  index % 2 === 0
-                    ? "lg:order-1 lg:items-end lg:text-right"
-                    : "lg:order-2 lg:items-start"
-                )}
-              >
-                <p className="text-sm font-semibold uppercase tracking-widest text-zinc-500">
-                  Principle 0{index + 1}
-                </p>
-                <h3 className="mt-4 text-2xl font-semibold text-zinc-900">
-                  {principle.title}
-                </h3>
-                <p className="mt-3 text-base text-zinc-600">
-                  {principle.description}
-                </p>
-              </div>
-
-              <div
-                className={cn(
-                  "hidden lg:flex lg:items-center",
-                  index % 2 === 0 ? "lg:order-2" : "lg:order-1"
-                )}
-              >
-                <div className="absolute left-1/2 -translate-x-1/2">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white ring-8 ring-zinc-50">
-                    <principle.icon
-                      className="h-5 w-5 text-zinc-500"
-                      aria-hidden="true"
-                    />
-                  </div>
-                </div>
-                <div className="w-full border-t border-zinc-200" />
-              </div>
+      <div className="mt-16 grid gap-px border border-[#D7DEE8] bg-[#D7DEE8] sm:grid-cols-2 lg:grid-cols-4">
+        {phases.map((phase) => (
+          <div key={phase.step} className="bg-white p-7">
+            <div className="flex items-center justify-between">
+              <span className="font-mono text-xs font-semibold tracking-widest text-[#0A46A8]">
+                {phase.step}
+              </span>
+              <phase.icon className="h-5 w-5 text-[#0B5FFF]" aria-hidden="true" />
             </div>
-          ))}
-        </div>
+            <h3 className="mt-5 text-lg font-semibold text-[#0A1628]">
+              {phase.title}
+            </h3>
+            <p className="mt-3 text-sm leading-6 text-zinc-600">
+              {phase.description}
+            </p>
+          </div>
+        ))}
       </div>
     </Section>
   );

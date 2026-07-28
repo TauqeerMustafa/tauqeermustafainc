@@ -27,12 +27,12 @@ export default function Statistics() {
     >
       <div className="mx-auto grid max-w-7xl gap-12 lg:grid-cols-[0.95fr_1.05fr] lg:items-center">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#9A7400]">
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#0A46A8]">
             Delivery standards
           </p>
           <h2
             id="standards-title"
-            className="mt-4 text-3xl font-semibold leading-[1.08] tracking-tight text-[#111827] sm:text-4xl lg:text-5xl"
+            className="mt-4 text-3xl font-semibold leading-[1.08] tracking-tight text-[#0A1628] sm:text-4xl lg:text-5xl"
           >
             Quality is a delivery system, not a last-minute checklist.
           </h2>
@@ -51,10 +51,10 @@ export default function Statistics() {
       <div className="mx-auto mt-14 grid max-w-7xl gap-6 sm:grid-cols-2 lg:grid-cols-4">
         {standards.map((standard, index) => (
           <article key={standard.label} className="border-t border-[#CFCFC7] pt-5">
-            <p className="text-sm font-semibold text-[#9A7400]">
+            <p className="text-sm font-semibold text-[#0A46A8]">
               0{index + 1}
             </p>
-            <h3 className="mt-4 text-xl font-semibold text-[#111827]">
+            <h3 className="mt-4 text-xl font-semibold text-[#0A1628]">
               {standard.label}
             </h3>
             <p className="mt-4 text-sm leading-6 text-[#5F6673]">

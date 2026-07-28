@@ -52,7 +52,7 @@ export default function Header() {
           <button
             type="button"
             onClick={() => setIsOpen(!isOpen)}
-            className="-m-2.5 inline-flex items-center justify-center rounded-md p-2.5 text-zinc-700"
+            className="-m-2.5 inline-flex items-center justify-center rounded-none p-2.5 text-zinc-700"
             aria-label="Toggle navigation"
           >
             {isOpen ? (
@@ -73,7 +73,7 @@ export default function Header() {
                 href={item.href}
                 onClick={() => setIsOpen(false)}
                 className={cn(
-                  "block rounded-md px-3 py-2 text-base font-medium text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900",
+                  "block rounded-none px-3 py-2 text-base font-medium text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900",
                   pathname.startsWith(item.href) && "bg-zinc-100 text-zinc-900",
                 )}
               >

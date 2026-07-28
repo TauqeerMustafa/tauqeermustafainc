@@ -2,39 +2,13 @@ import Link from "next/link";
 import { Calendar } from "lucide-react";
 
 import { ImagePlaceholder, Section, SectionHeader, TextLink } from "@/components/home/ui";
-
-const posts = [
-  {
-    title: "How Enterprise Teams Should Plan Secure Web Platforms",
-    category: "Engineering",
-    date: "July 3, 2026",
-    excerpt:
-      "A practical framework for aligning architecture, access control, performance, and long-term maintainability before development begins.",
-    href: "/blog",
-  },
-  {
-    title: "AI Automation That Actually Improves Operations",
-    category: "Automation",
-    date: "June 21, 2026",
-    excerpt:
-      "What to automate first, how to measure value, and why responsible rollout matters for internal AI systems.",
-    href: "/blog",
-  },
-  {
-    title: "Security Signals Leaders Should Watch Every Month",
-    category: "Cybersecurity",
-    date: "June 7, 2026",
-    excerpt:
-      "A concise operating view of vulnerabilities, access exposure, remediation aging, and incident readiness.",
-    href: "/blog",
-  },
-];
+import { posts } from "@/lib/site-data";
 
 export default function LatestBlogs() {
-  const [featuredPost, ...otherPosts] = posts;
+  const [featuredPost, ...otherPosts] = posts.slice(0, 3);
 
   return (
-    <Section className="bg-white" labelledBy="blogs-title">
+    <Section className="bg-[#F4F7FC]" labelledBy="blogs-title">
       <SectionHeader
         id="blogs-title"
         eyebrow="Latest insights"
@@ -43,25 +17,26 @@ export default function LatestBlogs() {
       />
 
       <div className="mt-14 grid gap-8 lg:grid-cols-[1.05fr_0.95fr]">
-        <article className="overflow-hidden rounded-[2rem] border border-[#E4E4DE] bg-[#FAFAF8]">
-          <ImagePlaceholder src="/images/backgrounds/tmi-bg-abstract.jpg"
-            title="Blog image"
-            caption="Local placeholder for insight, article, or research imagery."
+        <article className="overflow-hidden rounded-none border border-[#D7DEE8] bg-white">
+          <ImagePlaceholder
+            src="/images/backgrounds/tmi-bg-abstract.jpg"
+            title={featuredPost.category}
+            caption={featuredPost.date}
             className="rounded-none border-0 shadow-none"
           />
           <div className="p-6 sm:p-8">
             <div className="flex flex-wrap items-center gap-3 text-sm text-[#6B7280]">
-              <span className="font-semibold text-[#9A7400]">{featuredPost.category}</span>
+              <span className="font-semibold text-[#0A46A8]">{featuredPost.category}</span>
               <span aria-hidden="true">/</span>
               <span className="inline-flex items-center gap-2">
                 <Calendar className="h-4 w-4" aria-hidden="true" />
                 {featuredPost.date}
               </span>
             </div>
-            <h3 className="mt-5 text-2xl font-semibold leading-snug text-[#111827] sm:text-3xl">
+            <h3 className="mt-5 text-2xl font-semibold leading-snug text-[#0A1628] sm:text-3xl">
               <Link
-                href={featuredPost.href}
-                className="transition hover:text-[#9A7400] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#C9A227]"
+                href={`/blog/${featuredPost.slug}`}
+                className="transition hover:text-[#0A46A8] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#0B5FFF]"
               >
                 {featuredPost.title}
               </Link>
@@ -74,16 +49,16 @@ export default function LatestBlogs() {
 
         <div className="grid gap-5">
           {otherPosts.map((post) => (
-            <article key={post.title} className="border-t border-[#D9D9D2] pt-6">
+            <article key={post.slug} className="border-t border-[#C7D2E0] pt-6">
               <div className="flex flex-wrap items-center gap-3 text-sm text-[#6B7280]">
-                <span className="font-semibold text-[#9A7400]">{post.category}</span>
+                <span className="font-semibold text-[#0A46A8]">{post.category}</span>
                 <span aria-hidden="true">/</span>
                 <span>{post.date}</span>
               </div>
-              <h3 className="mt-4 text-xl font-semibold leading-snug text-[#111827]">
+              <h3 className="mt-4 text-xl font-semibold leading-snug text-[#0A1628]">
                 <Link
-                  href={post.href}
-                  className="transition hover:text-[#9A7400] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#C9A227]"
+                  href={`/blog/${post.slug}`}
+                  className="transition hover:text-[#0A46A8] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#0B5FFF]"
                 >
                   {post.title}
                 </Link>
@@ -98,4 +73,3 @@ export default function LatestBlogs() {
     </Section>
   );
 }
-

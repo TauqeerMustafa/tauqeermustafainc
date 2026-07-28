@@ -1,6 +1,6 @@
 export function SkeletonTable({ rows = 5 }: { rows?: number }) {
   return (
-    <div aria-hidden="true" className="overflow-hidden rounded-lg border border-[#E5E7EB]">
+    <div aria-hidden="true" className="overflow-hidden rounded-none border border-[#E5E7EB]">
       {Array.from({ length: rows }, (_, index) => (
         <div
           key={index}
