@@ -2,27 +2,43 @@
 
 import {
   Bell,
+  Menu,
   Search,
   UserCircle2,
 } from "lucide-react";
 
-export default function AdminHeader() {
+type Props = {
+  onMenuClick: () => void;
+};
+
+export default function AdminHeader({ onMenuClick }: Props) {
   return (
-    <header className="sticky top-0 z-50 flex h-20 items-center justify-between border-b border-white/10 bg-[#050816]/90 px-8 backdrop-blur-xl">
+    <header className="sticky top-0 z-30 flex h-16 items-center justify-between gap-3 border-b border-white/10 bg-[#050816]/90 px-4 backdrop-blur-xl sm:h-20 sm:px-6 lg:px-8">
 
-      <div>
-        <h2 className="text-2xl font-bold text-white">
-          Dashboard
-        </h2>
+      <div className="flex min-w-0 items-center gap-3">
+        <button
+          type="button"
+          onClick={onMenuClick}
+          aria-label="Open menu"
+          className="flex h-10 w-10 shrink-0 items-center justify-center border border-white/10 bg-white/5 text-slate-300 transition hover:border-yellow-400 lg:hidden"
+        >
+          <Menu size={20} />
+        </button>
 
-        <p className="mt-1 text-sm text-slate-400">
-          Welcome back, Administrator
-        </p>
+        <div className="min-w-0">
+          <h2 className="truncate text-lg font-bold text-white sm:text-2xl">
+            Dashboard
+          </h2>
+
+          <p className="mt-0.5 hidden text-sm text-slate-400 sm:block">
+            Welcome back, Administrator
+          </p>
+        </div>
       </div>
 
-      <div className="flex items-center gap-5">
+      <div className="flex items-center gap-2 sm:gap-5">
 
-        <div className="relative">
+        <div className="relative hidden md:block">
 
           <Search
             size={18}
@@ -32,29 +48,29 @@ export default function AdminHeader() {
           <input
             type="text"
             placeholder="Search..."
-            className="w-72 rounded-none border border-white/10 bg-white/5 py-3 pl-11 pr-4 text-white outline-none transition focus:border-yellow-400"
+            className="w-40 rounded-none border border-white/10 bg-white/5 py-2.5 pl-11 pr-4 text-sm text-white outline-none transition focus:border-yellow-400 lg:w-72 lg:py-3"
           />
 
         </div>
 
-        <button className="rounded-none border border-white/10 bg-white/5 p-3 transition hover:border-yellow-400">
+        <button className="flex h-10 w-10 shrink-0 items-center justify-center rounded-none border border-white/10 bg-white/5 transition hover:border-yellow-400 sm:h-auto sm:w-auto sm:p-3">
           <Bell size={20} />
         </button>
 
-        <div className="flex items-center gap-3 rounded-none border border-white/10 bg-white/5 px-4 py-2">
+        <div className="hidden items-center gap-3 rounded-none border border-white/10 bg-white/5 px-4 py-2 sm:flex">
 
           <UserCircle2
-            size={42}
+            size={36}
             className="text-yellow-400"
           />
 
           <div>
 
-            <p className="font-semibold text-white">
+            <p className="text-sm font-semibold text-white">
               Admin
             </p>
 
-            <p className="text-sm text-slate-400">
+            <p className="text-xs text-slate-400">
               Super Administrator
             </p>
 

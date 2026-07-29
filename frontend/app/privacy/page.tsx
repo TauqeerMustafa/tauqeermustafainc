@@ -143,8 +143,8 @@ export default function PrivacyPolicyPage() {
           <h2 className="mb-4 mt-10 text-xl font-semibold text-[#0A1628]">11. Contact Us</h2>
           <p className="text-base leading-8 text-[#374151]">
             If you have questions about this Privacy Policy or our data practices, contact us at{" "}
-            <a href={`mailto:${company.email}`} className="font-medium text-[#0A46A8] underline underline-offset-2">
-              {company.email}
+            <a href={`mailto:${company.emails.legal}`} className="font-medium text-[#0A46A8] underline underline-offset-2">
+              {company.emails.legal}
             </a>{" "}
             or by mail at {company.headquarters}.
           </p>

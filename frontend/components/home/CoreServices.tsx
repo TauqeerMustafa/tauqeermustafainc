@@ -5,7 +5,7 @@ import { services } from "@/lib/site-data";
 import { cn } from "@/lib/utils";
 import { Section } from "./ui";
 
-const tags = ["WEB", "SEC", "AI"];
+const tags = ["WEB", "SEC", "AI", "CLOUD", "UX"];
 
 export default function CoreServices() {
   return (

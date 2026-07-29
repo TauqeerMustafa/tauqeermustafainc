@@ -8,7 +8,7 @@ export default function LoginPage() {
       <PageHero
         eyebrow="Login"
         title="Access your client workspace."
-        description="Sign in UI for future client portal access. Authentication will be connected in a later milestone."
+        description="Sign in to access project updates, deliverables, and communication with your engagement team."
       />
 
       <Section className="bg-[#F8FAFC]" labelledBy="login-title">

@@ -35,7 +35,7 @@ export default function AboutPreview() {
       <div className="grid gap-12 lg:grid-cols-[0.95fr_1.05fr] lg:items-center">
         <ImagePlaceholder src="/images/about/tmi-about-office.jpg"
           title="Office and product strategy"
-          caption="A clean visual placeholder for office, team, or strategy imagery."
+          caption="Founded 2026 · Islamabad, Pakistan"
           className="order-2 lg:order-1"
         />
 
@@ -53,9 +53,10 @@ export default function AboutPreview() {
 
           <div className="mt-7 max-w-3xl space-y-5 text-base leading-8 text-[#5F6673] sm:text-lg">
             <p>
-              Tauqeer Mustafa Inc. is a parent technology company that builds,
-              operates, and grows durable digital businesses, beginning with
-              BUSHAAT and extending to future ventures.
+              Tauqeer Mustafa Inc. is a technology consulting and software
+              engineering company spanning three service lines: AI systems and
+              automation, cybersecurity and risk assurance, and graphic design
+              and brand identity.
             </p>
             <p>
               The work is shaped around dependable engineering, responsible

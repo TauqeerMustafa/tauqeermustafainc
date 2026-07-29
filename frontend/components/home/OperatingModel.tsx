@@ -1,6 +1,6 @@
 import { ClipboardCheck, Hammer, ShieldCheck, Telescope } from "lucide-react";
 
-import { Section } from "./ui";
+import { ImagePlaceholder, Section } from "./ui";
 
 const phases = [
   {
@@ -36,21 +36,29 @@ const phases = [
 export default function OperatingModel() {
   return (
     <Section className="tmi-grid bg-[#F4F7FC]" labelledBy="operating-model-title">
-      <div className="mx-auto max-w-3xl text-center">
-        <p className="font-mono text-xs font-semibold uppercase tracking-[0.18em] text-[#0A46A8]">
-          Engagement Model
-        </p>
-        <h2
-          id="operating-model-title"
-          className="mt-4 text-3xl font-semibold tracking-tight text-[#0A1628] sm:text-4xl"
-        >
-          Enterprise discipline, without the enterprise drag.
-        </h2>
-        <p className="mt-6 text-lg text-zinc-600">
-          A four-phase engagement, run the same way for a two-person startup
-          or a regulated financial firm: align on the problem, make tradeoffs
-          visible, then deliver work that survives contact with production.
-        </p>
+      <div className="mx-auto grid max-w-6xl gap-12 lg:grid-cols-[1fr_0.85fr] lg:items-center">
+        <div className="text-center lg:text-left">
+          <p className="font-mono text-xs font-semibold uppercase tracking-[0.18em] text-[#0A46A8]">
+            Engagement Model
+          </p>
+          <h2
+            id="operating-model-title"
+            className="mt-4 text-3xl font-semibold tracking-tight text-[#0A1628] sm:text-4xl"
+          >
+            Enterprise discipline, without the enterprise drag.
+          </h2>
+          <p className="mt-6 text-lg text-zinc-600">
+            A four-phase engagement, run the same way for a two-person startup
+            or a regulated financial firm: align on the problem, make tradeoffs
+            visible, then deliver work that survives contact with production.
+          </p>
+        </div>
+        <ImagePlaceholder
+          src="/images/dashboard/tmi-dashboard-finance.jpg"
+          title="Delivery timeline"
+          caption="Scope, risk, and milestones stay visible end to end."
+          className="hidden lg:block"
+        />
       </div>
 
       <div className="mt-16 grid gap-px border border-[#D7DEE8] bg-[#D7DEE8] sm:grid-cols-2 lg:grid-cols-4">

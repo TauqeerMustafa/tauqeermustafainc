@@ -35,9 +35,9 @@ export default function WhyChooseUs() {
       <div className="grid gap-12 lg:grid-cols-2 lg:gap-16">
         <SectionHeader
           id="why-title"
-          eyebrow="Our Operating Model"
-          title="Enterprise discipline, without enterprise drag"
-          description="The engagement model is intentionally simple: align on the business problem, make the technical tradeoffs visible, then deliver work that can be maintained after launch."
+          eyebrow="Why Teams Choose Us"
+          title="Reasons clients keep coming back"
+          description="Beyond the process, this is what tends to matter most to the people we work with day to day."
         />
 
         <div className="grid gap-6">

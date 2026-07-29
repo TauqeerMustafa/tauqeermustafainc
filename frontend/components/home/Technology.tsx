@@ -1,4 +1,4 @@
-import { Section } from "./ui";
+import { ImagePlaceholder, Section } from "./ui";
 
 const technologyGroups = [
   {
@@ -24,21 +24,29 @@ const technologyGroups = [
 export default function Technology() {
   return (
     <Section className="bg-white" labelledBy="technology-title">
-      <div className="mx-auto max-w-3xl text-center">
-        <p className="font-mono text-xs font-semibold uppercase tracking-[0.18em] text-[#0A46A8]">
-          Stack Notes
-        </p>
-        <h2
-          id="technology-title"
-          className="mt-4 text-3xl font-semibold tracking-tight text-[#0A1628] sm:text-4xl"
-        >
-          A practical stack selected for ownership, not novelty.
-        </h2>
-        <p className="mt-6 text-lg text-zinc-600">
-          Tools are chosen for reliability, team ownership, security, and
-          long-term maintainability — flexed around the client environment
-          rather than turned into a logo wall.
-        </p>
+      <div className="mx-auto grid max-w-6xl gap-12 lg:grid-cols-[1fr_0.85fr] lg:items-center">
+        <div>
+          <p className="font-mono text-xs font-semibold uppercase tracking-[0.18em] text-[#0A46A8]">
+            Stack Notes
+          </p>
+          <h2
+            id="technology-title"
+            className="mt-4 text-3xl font-semibold tracking-tight text-[#0A1628] sm:text-4xl"
+          >
+            A practical stack selected for ownership, not novelty.
+          </h2>
+          <p className="mt-6 text-lg text-zinc-600">
+            Tools are chosen for reliability, team ownership, security, and
+            long-term maintainability — flexed around the client environment
+            rather than turned into a logo wall.
+          </p>
+        </div>
+        <ImagePlaceholder
+          src="/images/backgrounds/tmi-bg-abstract.jpg"
+          title="Infrastructure & tooling"
+          caption="A stack picked for maintainability, not trend-chasing."
+          className="hidden lg:block"
+        />
       </div>
       <div className="mt-16 grid divide-y divide-[#D7DEE8] border-y border-[#D7DEE8] lg:grid-cols-3 lg:divide-x lg:divide-y-0">
         {technologyGroups.map((group) => (

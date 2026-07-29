@@ -1,9 +1,10 @@
 "use client";
 
+import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Menu } from "lucide-react";
+import { Menu, X } from "lucide-react";
 
 const navLinks = [
   { name: "Home", href: "/" },
@@ -20,6 +21,12 @@ const linkClass =
 
 export default function Navbar() {
   const pathname = usePathname();
+  const [isOpen, setIsOpen] = useState(false);
+  const detailsRef = useRef<HTMLDetailsElement>(null);
+
+  useEffect(() => {
+    setIsOpen(false);
+  }, [pathname]);
 
   return (
     <header className="sticky top-0 z-50 border-b border-[#E5E7EB] bg-white/95 shadow-[0_1px_8px_rgba(17,24,39,0.04)] supports-[backdrop-filter]:bg-white/88 supports-[backdrop-filter]:backdrop-blur-md">
@@ -69,18 +76,32 @@ export default function Navbar() {
           </Link>
         </div>
 
-        <details className="group relative lg:hidden">
-          <summary className="flex h-11 w-11 cursor-pointer list-none items-center justify-center rounded-none border border-[#D7DEE8] bg-white text-[#0A1628] transition hover:bg-[#F4F4F2] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#0B5FFF] [&::-webkit-details-marker]:hidden">
-            <Menu className="h-5 w-5" aria-hidden="true" />
-            <span className="sr-only">Open navigation</span>
+        <details ref={detailsRef} open={isOpen} className="group relative lg:hidden">
+          {isOpen ? (
+            <div
+              className="fixed inset-0 z-40 lg:hidden"
+              aria-hidden="true"
+              onClick={() => setIsOpen(false)}
+            />
+          ) : null}
+          <summary
+            onClick={(event) => {
+              event.preventDefault();
+              setIsOpen((prev) => !prev);
+            }}
+            className="relative z-50 flex h-11 w-11 cursor-pointer list-none items-center justify-center rounded-none border border-[#D7DEE8] bg-white text-[#0A1628] transition hover:bg-[#F4F4F2] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#0B5FFF] [&::-webkit-details-marker]:hidden"
+          >
+            {isOpen ? <X className="h-5 w-5" aria-hidden="true" /> : <Menu className="h-5 w-5" aria-hidden="true" />}
+            <span className="sr-only">{isOpen ? "Close navigation" : "Open navigation"}</span>
           </summary>
 
-          <div className="absolute right-0 top-14 w-[min(22rem,calc(100vw-2.5rem))] border border-[#D7DEE8] bg-white p-3 shadow-[0_16px_36px_rgba(17,24,39,0.12)]">
+          <div className="absolute right-0 top-14 z-50 w-[min(22rem,calc(100vw-2.5rem))] border border-[#D7DEE8] bg-white p-3 shadow-[0_16px_36px_rgba(17,24,39,0.12)]">
             <ul className="grid gap-1">
               {navLinks.map((link) => (
                 <li key={link.name}>
                   <Link
                     href={link.href}
+                    onClick={() => setIsOpen(false)}
                     aria-current={pathname === link.href ? "page" : undefined}
                     className={`block border-l-2 px-4 py-3 text-sm font-semibold transition hover:bg-[#F4F7FC] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0B5FFF] ${pathname === link.href ? "border-[#0B5FFF] bg-[#F4F7FC] text-[#0A1628]" : "border-transparent text-[#4B5563]"}`}
                   >
@@ -92,12 +113,14 @@ export default function Navbar() {
             <div className="mt-3 grid grid-cols-2 gap-2 border-t border-[#E5E7EB] pt-3">
               <Link
                 href="/login"
+                onClick={() => setIsOpen(false)}
                 className="rounded-none border border-[#D7DEE8] px-4 py-3 text-center text-sm font-semibold text-[#0A1628] transition hover:bg-[#F4F4F2] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0B5FFF]"
               >
                 Login
               </Link>
               <Link
                 href="/contact"
+                onClick={() => setIsOpen(false)}
                 className="rounded-none bg-[#0B5FFF] px-4 py-3 text-center text-sm font-semibold text-white transition hover:bg-[#0A46A8] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0B5FFF]"
               >
                 Start

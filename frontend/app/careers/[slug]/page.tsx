@@ -66,10 +66,15 @@ export default async function JobDetailPage({
             <Card>
               <h2 className="text-xl font-semibold text-[#0A1628]">Apply</h2>
               <p className="mt-4 text-sm leading-6 text-[#6B7280]">
-                Applications will connect to backend workflows in a later milestone.
+                Send your resume and a short note on relevant experience to our
+                hiring team, referencing this role.
               </p>
               <div className="mt-6">
-                <PrimaryButton href="/contact">Contact Hiring Team</PrimaryButton>
+                <PrimaryButton
+                  href={`mailto:careers@tauqeermustafa.tech?subject=${encodeURIComponent(`Application: ${job.title}`)}`}
+                >
+                  Apply via Email
+                </PrimaryButton>
               </div>
             </Card>
           </div>
