@@ -23,14 +23,14 @@ const coverImageBySlug: Record<string, string> = {
 };
 
 const galleryImages = [
-  "/images/raw/tmi (2).jpg",
-  "/images/raw/tmi (4).jpg",
-  "/images/raw/tmi (9).jpg",
-  "/images/raw/tmi (13).jpg",
-  "/images/raw/tmi (15).jpg",
-  "/images/raw/tmi (17).jpg",
-  "/images/raw/tmi (19).jpg",
-  "/images/raw/tmi (21).jpg",
+  "/images/dashboard/tmi-dashboard-finance.jpg",
+  "/images/dashboard/tmi-dashboard-growth.jpg",
+  "/images/dashboard/tmi-dashboard-market.jpg",
+  "/images/services/tmi-service-data-security.jpg",
+  "/images/services/tmi-service-cyber-shield.jpg",
+  "/images/services/tmi-service-ai-security.jpg",
+  "/images/hero/tmi-hero-code.jpg",
+  "/images/hero/tmi-hero-network.jpg",
 ];
 
 export function generateStaticParams() {
