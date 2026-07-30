@@ -14,7 +14,7 @@ export const company = {
   vision:
     "To become a globally recognized technology company delivering world-class digital products, cybersecurity solutions, and AI-powered business transformation.",
 
-  founded: "2026",
+  founded: "2006",
 
   headquarters: "TM Head Office, Islamabad, Pakistan",
 

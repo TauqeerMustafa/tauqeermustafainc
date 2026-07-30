@@ -1,4 +1,5 @@
 alembic==1.17.2
+email-validator==2.2.0
 fastapi==0.116.1
 passlib[bcrypt]==1.7.4
 psycopg[binary]==3.3.4

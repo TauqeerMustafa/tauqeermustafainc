@@ -10,6 +10,7 @@ export interface Service extends CommonMetadata {
   shortDescription: string;
   description: string;
   icon?: string;
+  outcomes: string[];
 }
 
 export interface Blog extends CommonMetadata {
@@ -17,6 +18,7 @@ export interface Blog extends CommonMetadata {
   excerpt: string;
   content?: string;
   category: string;
+  isPublished: boolean;
   publishedAt?: string;
 }
 
@@ -24,6 +26,7 @@ export interface Portfolio extends CommonMetadata {
   title: string;
   summary: string;
   category: string;
+  impact?: string;
   technologies: string[];
   gallery?: string[];
 }
@@ -34,6 +37,26 @@ export interface Career extends CommonMetadata {
   type: string;
   summary: string;
   responsibilities?: string[];
+  isOpen: boolean;
+}
+
+export interface Announcement {
+  id: string;
+  title: string;
+  body: string;
+  isPublished: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ContactMessage {
+  id: string;
+  name: string;
+  email: string;
+  company?: string;
+  message: string;
+  isRead: boolean;
+  createdAt: string;
 }
 
 export interface Contact {

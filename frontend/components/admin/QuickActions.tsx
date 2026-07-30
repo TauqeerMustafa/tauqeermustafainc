@@ -30,7 +30,7 @@ const actions = [
     icon: Bell,
   },
   {
-    title: "View Applications",
+    title: "View Messages",
     href: "/admin/messages",
     icon: Users,
   },

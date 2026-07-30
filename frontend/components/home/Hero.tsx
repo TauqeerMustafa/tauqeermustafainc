@@ -1,8 +1,12 @@
+import { company } from "@/data/company";
+
 import { Section, PrimaryButton, OutlineButton, ImagePlaceholder } from "./ui";
 
+const yearsInBusiness = new Date().getFullYear() - Number(company.founded);
+
 const heroStats = [
+  { value: `${yearsInBusiness}+ yrs`, label: "In operation", detail: `Delivering software since ${company.founded}` },
   { value: "3", label: "Integrated service lines", detail: "AI, cybersecurity, and design under one roof" },
-  { value: "24/7", label: "Security-minded delivery", detail: "Secure defaults from day one, not bolted on" },
   { value: "1 biz day", label: "Response time", detail: "Every inquiry reaches the delivery team directly" },
 ];
 

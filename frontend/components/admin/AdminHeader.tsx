@@ -1,17 +1,31 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import {
   Bell,
+  LogOut,
   Menu,
   Search,
   UserCircle2,
 } from "lucide-react";
+
+import { useCurrentUser, useLogout } from "@/hooks/useAuth";
 
 type Props = {
   onMenuClick: () => void;
 };
 
 export default function AdminHeader({ onMenuClick }: Props) {
+  const router = useRouter();
+  const logout = useLogout();
+  const { data } = useCurrentUser();
+  const user = data?.data;
+
+  function handleLogout() {
+    logout();
+    router.replace("/login");
+  }
+
   return (
     <header className="sticky top-0 z-30 flex h-16 items-center justify-between gap-3 border-b border-white/10 bg-[#050816]/90 px-4 backdrop-blur-xl sm:h-20 sm:px-6 lg:px-8">
 
@@ -30,8 +44,8 @@ export default function AdminHeader({ onMenuClick }: Props) {
             Dashboard
           </h2>
 
-          <p className="mt-0.5 hidden text-sm text-slate-400 sm:block">
-            Welcome back, Administrator
+          <p className="mt-0.5 hidden truncate text-sm text-slate-400 sm:block">
+            Welcome back{user?.name ? `, ${user.name}` : ""}
           </p>
         </div>
       </div>
@@ -64,19 +78,28 @@ export default function AdminHeader({ onMenuClick }: Props) {
             className="text-yellow-400"
           />
 
-          <div>
+          <div className="min-w-0">
 
-            <p className="text-sm font-semibold text-white">
-              Admin
+            <p className="truncate text-sm font-semibold text-white">
+              {user?.name ?? "Admin"}
             </p>
 
-            <p className="text-xs text-slate-400">
-              Super Administrator
+            <p className="truncate text-xs text-slate-400">
+              {user?.role === "admin" ? "Super Administrator" : (user?.email ?? "")}
             </p>
 
           </div>
 
         </div>
+
+        <button
+          type="button"
+          onClick={handleLogout}
+          aria-label="Log out"
+          className="flex h-10 w-10 shrink-0 items-center justify-center border border-white/10 bg-white/5 text-slate-300 transition hover:border-red-400 hover:text-red-400"
+        >
+          <LogOut size={18} />
+        </button>
 
       </div>
 

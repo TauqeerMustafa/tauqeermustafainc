@@ -1,0 +1,52 @@
+"use client";
+
+import { useRouter } from "next/navigation";
+import { useEffect, type ReactNode } from "react";
+
+import { useCurrentUser } from "@/hooks/useAuth";
+import { useAuthContext } from "@/providers/auth-provider";
+
+export default function AdminGuard({ children }: { children: ReactNode }) {
+  const router = useRouter();
+  const { isAuthenticated } = useAuthContext();
+  const { data, isLoading, isError } = useCurrentUser();
+
+  const user = data?.data;
+  const isAdmin = Boolean(user && user.role === "admin");
+
+  useEffect(() => {
+    if (!isAuthenticated || isError) {
+      router.replace("/login");
+    }
+  }, [isAuthenticated, isError, router]);
+
+  if (!isAuthenticated) {
+    return null;
+  }
+
+  if (isLoading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-[#050816] text-slate-400">
+        Checking your session…
+      </div>
+    );
+  }
+
+  if (isError || !isAdmin) {
+    return (
+      <div className="flex min-h-screen flex-col items-center justify-center gap-4 bg-[#050816] px-6 text-center text-white">
+        <p className="text-lg font-semibold">
+          {isError ? "Your session has expired." : "This account does not have admin access."}
+        </p>
+        <a
+          href="/login"
+          className="border border-white/10 bg-white/5 px-5 py-2.5 text-sm font-semibold text-white transition hover:border-yellow-400"
+        >
+          Back to login
+        </a>
+      </div>
+    );
+  }
+
+  return <>{children}</>;
+}

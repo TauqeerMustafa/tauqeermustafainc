@@ -15,6 +15,12 @@ export const queryKeys = {
     all: ["careers"] as const,
     detail: (slug: string) => ["careers", slug] as const,
   },
+  announcements: {
+    all: ["announcements"] as const,
+  },
+  messages: {
+    all: ["messages"] as const,
+  },
   auth: {
     me: ["auth", "me"] as const,
   },

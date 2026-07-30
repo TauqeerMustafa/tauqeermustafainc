@@ -8,4 +8,5 @@ export const API_ENDPOINTS = {
   portfolio: "/portfolio",
   careers: "/careers",
   contact: "/contact",
+  announcements: "/announcements",
 } as const;
