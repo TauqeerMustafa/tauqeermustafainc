@@ -42,7 +42,7 @@ export default function Statistics() {
           </p>
         </div>
 
-        <ImagePlaceholder src="/images/dashboard/tmi-dashboard-finance.jpg"
+        <ImagePlaceholder src="https://res.cloudinary.com/b5cle1jv/image/upload/v1785442688/tmi-dashboard-finance_w2mvtk.jpg"
           title="Delivery timeline"
           caption="Local placeholder for process, roadmap, and production-readiness visuals."
         />

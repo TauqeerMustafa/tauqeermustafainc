@@ -31,7 +31,7 @@ export default function TrustedCompanies() {
         />
 
         <ImagePlaceholder
-          src="/images/backgrounds/tmi-bg-abstract.jpg"
+          src="https://res.cloudinary.com/b5cle1jv/image/upload/v1785442689/tmi-bg-abstract_a8lsu9.jpg"
           title="Technology environment"
           caption="Cloud, product, data, and security tooling chosen for long-term ownership."
         />

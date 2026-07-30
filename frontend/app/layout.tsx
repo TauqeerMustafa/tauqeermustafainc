@@ -54,7 +54,7 @@ const organizationJsonLd = {
   "@type": "Organization",
   name: company.name,
   url: appConfig.siteUrl,
-  logo: `${appConfig.siteUrl}https://res.cloudinary.com/b5cle1jv/image/upload/v1785442689/tmi-logo-badge_cfkewe.jpg`,
+  logo: "https://res.cloudinary.com/b5cle1jv/image/upload/v1785442689/tmi-logo-badge_cfkewe.jpg",
   email: company.email,
   telephone: company.phone,
   address: {

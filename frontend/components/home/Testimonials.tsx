@@ -41,7 +41,7 @@ export default function Testimonials() {
             description="Our delivery model emphasizes clarity, secure defaults, and maintainable outcomes from planning through launch, ensuring stakeholders remain aligned and confident."
           />
           <ImagePlaceholder
-            src="/images/dashboard/tmi-dashboard-growth.jpg"
+            src="https://res.cloudinary.com/b5cle1jv/image/upload/v1785442687/tmi-dashboard-growth_pfmdpk.jpg"
             title="Delivery visibility"
             caption="Progress, risks, and decisions stay visible to every stakeholder."
             className="hidden lg:block"
