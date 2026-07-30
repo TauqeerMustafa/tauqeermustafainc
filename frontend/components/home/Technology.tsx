@@ -42,7 +42,7 @@ export default function Technology() {
           </p>
         </div>
         <ImagePlaceholder
-          src="/images/backgrounds/tmi-bg-abstract.jpg"
+          src="https://res.cloudinary.com/b5cle1jv/image/upload/v1785442689/tmi-bg-abstract_a8lsu9.jpg"
           title="Infrastructure & tooling"
           caption="A stack picked for maintainability, not trend-chasing."
           className="hidden lg:block"

@@ -19,7 +19,7 @@ export default function LatestBlogs() {
       <div className="mt-14 grid gap-8 lg:grid-cols-[1.05fr_0.95fr]">
         <article className="overflow-hidden rounded-none border border-[#D7DEE8] bg-white">
           <ImagePlaceholder
-            src="/images/backgrounds/tmi-bg-abstract.jpg"
+            src="https://res.cloudinary.com/b5cle1jv/image/upload/v1785442689/tmi-bg-abstract_a8lsu9.jpg"
             title={featuredPost.category}
             caption={featuredPost.date}
             className="rounded-none border-0 shadow-none"

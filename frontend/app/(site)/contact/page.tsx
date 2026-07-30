@@ -61,7 +61,7 @@ export default function ContactPage() {
         eyebrow="Contact"
         title="Tell us about the problem you're solving."
         description="Whether you need a new platform, a security review, an AI workflow, or help scaling infrastructure, share a few details and we'll follow up with next steps."
-        image="/images/about/tmi-about-business.jpg"
+        image="https://res.cloudinary.com/b5cle1jv/image/upload/v1785442686/tmi-about-business_cbqaaq.jpg"
         imageTitle="Let's talk"
         imageCaption="We usually reply within one business day."
       />

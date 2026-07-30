@@ -10,15 +10,15 @@ export const metadata: Metadata = buildMetadata({
   description:
     "Practical guidance on engineering, cybersecurity, AI automation, cloud infrastructure, and product design.",
   path: "/blog",
-  image: "/images/backgrounds/tmi-bg-particles.jpg",
+  image: "https://res.cloudinary.com/b5cle1jv/image/upload/v1785442687/tmi-bg-particles_pcaegw.jpg",
 });
 
 const imageByCategory: Record<string, string> = {
-  Engineering: "/images/hero/tmi-hero-code.jpg",
-  Automation: "/images/services/tmi-service-ai-security.jpg",
-  Cybersecurity: "/images/services/tmi-service-cyber-shield.jpg",
-  "Cloud Engineering": "/images/services/tmi-service-global-network.jpg",
-  "Product Design": "/images/backgrounds/tmi-bg-bokeh.jpg",
+  Engineering: "https://res.cloudinary.com/b5cle1jv/image/upload/v1785442688/tmi-hero-code_ub9idm.jpg",
+  Automation: "https://res.cloudinary.com/b5cle1jv/image/upload/v1785442690/tmi-service-ai-security_lgghxl.jpg",
+  Cybersecurity: "https://res.cloudinary.com/b5cle1jv/image/upload/v1785442692/tmi-service-cyber-shield_cly3ur.jpg",
+  "Cloud Engineering": "https://res.cloudinary.com/b5cle1jv/image/upload/v1785442692/tmi-service-global-network_cuiryi.jpg",
+  "Product Design": "https://res.cloudinary.com/b5cle1jv/image/upload/v1785442687/tmi-bg-bokeh_lffzh9.jpg",
 };
 
 export default function BlogPage() {
@@ -30,7 +30,7 @@ export default function BlogPage() {
         eyebrow="Blog"
         title="Practical guidance for engineering, security, and automation leaders."
         description="Read concise perspectives on building secure platforms, evaluating operational risk, and adopting automation responsibly."
-        image="/images/backgrounds/tmi-bg-particles.jpg"
+        image="https://res.cloudinary.com/b5cle1jv/image/upload/v1785442687/tmi-bg-particles_pcaegw.jpg"
         imageTitle="Field notes"
         imageCaption="Short, practical writing from the delivery team."
       />
@@ -45,7 +45,7 @@ export default function BlogPage() {
             action={<TextLink href={`/blog/${featured.slug}`}>Read Feature</TextLink>}
           />
           <ImagePlaceholder
-            src={imageByCategory[featured.category] ?? "/images/hero/tmi-hero-digital.jpg"}
+            src={imageByCategory[featured.category] ?? "https://res.cloudinary.com/b5cle1jv/image/upload/v1785442688/tmi-hero-digital_cs7bvl.jpg"}
             title={featured.category}
             caption={featured.date}
             className="hidden lg:block"
@@ -60,7 +60,7 @@ export default function BlogPage() {
             <Card key={post.slug} className="flex flex-col overflow-hidden p-0">
               <div className="relative h-40 w-full overflow-hidden border-b border-[#D7DEE8]">
                 <ImagePlaceholder
-                  src={imageByCategory[post.category] ?? "/images/hero/tmi-hero-digital.jpg"}
+                  src={imageByCategory[post.category] ?? "https://res.cloudinary.com/b5cle1jv/image/upload/v1785442688/tmi-hero-digital_cs7bvl.jpg"}
                   title={post.category}
                   className="h-full"
                 />

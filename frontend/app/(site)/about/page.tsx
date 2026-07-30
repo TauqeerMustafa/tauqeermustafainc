@@ -18,7 +18,7 @@ export const metadata: Metadata = buildMetadata({
   description:
     "Since 2006, Tauqeer Mustafa Inc. has helped organizations build secure, scalable software across web development, cybersecurity, AI, cloud engineering, and design.",
   path: "/about",
-  image: "/images/about/tmi-about-office.jpg",
+  image: "https://res.cloudinary.com/b5cle1jv/image/upload/v1785442686/tmi-about-office_ugfz0w.jpg",
 });
 
 const values = [
@@ -49,7 +49,7 @@ export default function AboutPage() {
         eyebrow="About"
         title="Two decades of focused engineering work."
         description="Since 2006, Tauqeer Mustafa Inc. has helped organizations plan, build, and improve secure software systems with a practical blend of product thinking, full-stack engineering, cybersecurity, and automation."
-        image="/images/about/tmi-about-office.jpg"
+        image="https://res.cloudinary.com/b5cle1jv/image/upload/v1785442686/tmi-about-office_ugfz0w.jpg"
         imageTitle="Our operating environment"
         imageCaption="Founded 2006 · Islamabad, Pakistan"
       >
@@ -101,7 +101,7 @@ export default function AboutPage() {
               description="We keep engagements grounded in concrete milestones, technical constraints, and the business reason behind every major decision."
             />
             <ImagePlaceholder
-              src="/images/about/tmi-about-business.jpg"
+              src="https://res.cloudinary.com/b5cle1jv/image/upload/v1785442686/tmi-about-business_cbqaaq.jpg"
               title="Discovery to delivery"
               caption="Milestones stay visible from the first conversation to launch."
               className="hidden lg:block"

@@ -26,7 +26,7 @@ export default function Footer() {
             <Link href="/" className="inline-flex items-center gap-2 text-lg font-semibold text-white">
               <span className="relative flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden border border-[#0B5FFF]">
                 <Image
-                  src="/images/logo/tmi-logo-badge.jpg"
+                  src="https://res.cloudinary.com/b5cle1jv/image/upload/v1785442689/tmi-logo-badge_cfkewe.jpg"
                   alt=""
                   fill
                   sizes="32px"

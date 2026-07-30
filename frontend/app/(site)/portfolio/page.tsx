@@ -9,15 +9,15 @@ export const metadata: Metadata = buildMetadata({
   description:
     "Selected case studies: enterprise platforms, security dashboards, AI automation, and cloud engineering projects.",
   path: "/portfolio",
-  image: "/images/dashboard/tmi-dashboard-growth.jpg",
+  image: "https://res.cloudinary.com/b5cle1jv/image/upload/v1785442687/tmi-dashboard-growth_pfmdpk.jpg",
 });
 
 const coverImageBySlug: Record<string, string> = {
-  "enterprise-operations-portal": "/images/dashboard/tmi-dashboard-finance.jpg",
-  "security-compliance-dashboard": "/images/services/tmi-service-data-security.jpg",
-  "ai-workflow-assistant": "/images/services/tmi-service-ai-security.jpg",
-  "healthcare-patient-scheduling-platform": "/images/hero/tmi-hero-code.jpg",
-  "cloud-cost-observability-suite": "/images/dashboard/tmi-dashboard-market.jpg",
+  "enterprise-operations-portal": "https://res.cloudinary.com/b5cle1jv/image/upload/v1785442688/tmi-dashboard-finance_w2mvtk.jpg",
+  "security-compliance-dashboard": "https://res.cloudinary.com/b5cle1jv/image/upload/v1785442692/tmi-service-data-security_oxjb4l.jpg",
+  "ai-workflow-assistant": "https://res.cloudinary.com/b5cle1jv/image/upload/v1785442690/tmi-service-ai-security_lgghxl.jpg",
+  "healthcare-patient-scheduling-platform": "https://res.cloudinary.com/b5cle1jv/image/upload/v1785442688/tmi-hero-code_ub9idm.jpg",
+  "cloud-cost-observability-suite": "https://res.cloudinary.com/b5cle1jv/image/upload/v1785442687/tmi-dashboard-market_pttc2n.jpg",
 };
 
 export default function PortfolioPage() {
@@ -27,7 +27,7 @@ export default function PortfolioPage() {
         eyebrow="Portfolio"
         title="Selected systems designed for measurable business outcomes."
         description="Explore representative enterprise platforms, security dashboards, and automation systems shaped around maintainability and operational value."
-        image="/images/dashboard/tmi-dashboard-growth.jpg"
+        image="https://res.cloudinary.com/b5cle1jv/image/upload/v1785442687/tmi-dashboard-growth_pfmdpk.jpg"
         imageTitle="Outcomes we track"
         imageCaption="Every project is scoped around a measurable business result."
       />
@@ -43,7 +43,7 @@ export default function PortfolioPage() {
             <Card key={project.slug} className="flex flex-col overflow-hidden p-0">
               <div className="relative h-44 w-full overflow-hidden border-b border-[#D7DEE8]">
                 <ImagePlaceholder
-                  src={coverImageBySlug[project.slug] ?? "/images/hero/tmi-hero-digital.jpg"}
+                  src={coverImageBySlug[project.slug] ?? "https://res.cloudinary.com/b5cle1jv/image/upload/v1785442688/tmi-hero-digital_cs7bvl.jpg"}
                   title={project.category}
                   className="h-full"
                 />

@@ -47,7 +47,7 @@ export default function FeaturedWork() {
         </div>
         <div className="tmi-corners lg:order-1">
           <ImagePlaceholder
-            src="/images/dashboard/tmi-dashboard-growth.jpg"
+            src="https://res.cloudinary.com/b5cle1jv/image/upload/v1785442687/tmi-dashboard-growth_pfmdpk.jpg"
             title="Featured operations portal"
             caption="Role-based reporting, workflow visibility, and executive decision support."
             className="aspect-h-3 aspect-w-4"

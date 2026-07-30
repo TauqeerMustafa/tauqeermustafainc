@@ -17,7 +17,7 @@ export const metadata: Metadata = buildMetadata({
   description:
     "Enterprise web development, cybersecurity, AI solutions, cloud engineering, and product design services.",
   path: "/services",
-  image: "/images/services/tmi-service-cyber-shield.jpg",
+  image: "https://res.cloudinary.com/b5cle1jv/image/upload/v1785442692/tmi-service-cyber-shield_cly3ur.jpg",
 });
 
 const iconsBySlug: Record<string, typeof Code2> = {
@@ -35,7 +35,7 @@ export default function ServicesPage() {
         eyebrow="Services"
         title="Enterprise services for secure digital growth."
         description="Choose focused services that support product delivery, operational resilience, cybersecurity posture, and practical AI adoption."
-        image="/images/services/tmi-service-cyber-shield.jpg"
+        image="https://res.cloudinary.com/b5cle1jv/image/upload/v1785442692/tmi-service-cyber-shield_cly3ur.jpg"
         imageTitle="Full-stack service coverage"
         imageCaption="Web, security, AI, cloud, and design under one delivery team."
       />

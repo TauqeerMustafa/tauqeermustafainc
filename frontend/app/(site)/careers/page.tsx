@@ -16,7 +16,7 @@ export const metadata: Metadata = buildMetadata({
   title: "Careers",
   description: "Open roles at Tauqeer Mustafa Inc. across engineering, security, design, and delivery.",
   path: "/careers",
-  image: "/images/backgrounds/tmi-bg-hexagon.jpg",
+  image: "https://res.cloudinary.com/b5cle1jv/image/upload/v1785442686/tmi-bg-hexagon_clrisv.jpg",
 });
 
 const benefits = [
@@ -32,7 +32,7 @@ export default function CareersPage() {
         eyebrow="Careers"
         title="Join a team focused on serious enterprise delivery."
         description="We look for pragmatic people who care about clarity, technical quality, client trust, and software that works in production."
-        image="/images/backgrounds/tmi-bg-hexagon.jpg"
+        image="https://res.cloudinary.com/b5cle1jv/image/upload/v1785442686/tmi-bg-hexagon_clrisv.jpg"
         imageTitle="How we work together"
         imageCaption="Small, focused teams with transparent milestones."
       />

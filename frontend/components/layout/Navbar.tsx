@@ -37,7 +37,7 @@ export default function Navbar() {
         >
           <span className="relative flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden border border-[#D7DEE8] bg-[#F4F7FC]">
             <Image
-              src="/images/logo/tmi-logo-badge.jpg"
+              src="https://res.cloudinary.com/b5cle1jv/image/upload/v1785442689/tmi-logo-badge_cfkewe.jpg"
               alt=""
               fill
               sizes="36px"

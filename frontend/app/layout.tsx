@@ -26,8 +26,8 @@ export const metadata: Metadata = {
   authors: [{ name: company.name, url: appConfig.siteUrl }],
   applicationName: company.name,
   icons: {
-    icon: "/images/logo/tmi-logo-badge.jpg",
-    apple: "/images/logo/tmi-logo-badge.jpg",
+    icon: "https://res.cloudinary.com/b5cle1jv/image/upload/v1785442689/tmi-logo-badge_cfkewe.jpg",
+    apple: "https://res.cloudinary.com/b5cle1jv/image/upload/v1785442689/tmi-logo-badge_cfkewe.jpg",
   },
   openGraph: {
     type: "website",
@@ -37,14 +37,14 @@ export const metadata: Metadata = {
     title: "Tauqeer Mustafa Inc. | Enterprise Software, Security & AI",
     description:
       "Enterprise web development, cybersecurity, AI automation, cloud engineering, and product design.",
-    images: [{ url: "/images/hero/tmi-hero-digital.jpg", width: 1200, height: 630 }],
+    images: [{ url: "https://res.cloudinary.com/b5cle1jv/image/upload/v1785442688/tmi-hero-digital_cs7bvl.jpg", width: 1200, height: 630 }],
   },
   twitter: {
     card: "summary_large_image",
     title: "Tauqeer Mustafa Inc.",
     description:
       "Enterprise web development, cybersecurity, AI automation, cloud engineering, and product design.",
-    images: ["/images/hero/tmi-hero-digital.jpg"],
+    images: ["https://res.cloudinary.com/b5cle1jv/image/upload/v1785442688/tmi-hero-digital_cs7bvl.jpg"],
   },
   robots: { index: true, follow: true },
 };
@@ -54,7 +54,7 @@ const organizationJsonLd = {
   "@type": "Organization",
   name: company.name,
   url: appConfig.siteUrl,
-  logo: `${appConfig.siteUrl}/images/logo/tmi-logo-badge.jpg`,
+  logo: `${appConfig.siteUrl}https://res.cloudinary.com/b5cle1jv/image/upload/v1785442689/tmi-logo-badge_cfkewe.jpg`,
   email: company.email,
   telephone: company.phone,
   address: {

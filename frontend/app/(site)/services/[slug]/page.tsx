@@ -15,11 +15,11 @@ import { services } from "@/lib/site-data";
 import { buildMetadata } from "@/lib/metadata";
 
 const imageBySlug: Record<string, string> = {
-  "enterprise-web-development": "/images/hero/tmi-hero-code.jpg",
-  cybersecurity: "/images/services/tmi-service-cyber-shield.jpg",
-  "ai-solutions": "/images/services/tmi-service-ai-security.jpg",
-  "cloud-engineering": "/images/services/tmi-service-global-network.jpg",
-  "ui-ux-product-design": "/images/backgrounds/tmi-bg-particles.jpg",
+  "enterprise-web-development": "https://res.cloudinary.com/b5cle1jv/image/upload/v1785442688/tmi-hero-code_ub9idm.jpg",
+  cybersecurity: "https://res.cloudinary.com/b5cle1jv/image/upload/v1785442692/tmi-service-cyber-shield_cly3ur.jpg",
+  "ai-solutions": "https://res.cloudinary.com/b5cle1jv/image/upload/v1785442690/tmi-service-ai-security_lgghxl.jpg",
+  "cloud-engineering": "https://res.cloudinary.com/b5cle1jv/image/upload/v1785442692/tmi-service-global-network_cuiryi.jpg",
+  "ui-ux-product-design": "https://res.cloudinary.com/b5cle1jv/image/upload/v1785442687/tmi-bg-particles_pcaegw.jpg",
 };
 
 export function generateStaticParams() {
@@ -40,7 +40,7 @@ export async function generateMetadata({
     title: service.title,
     description: service.shortDescription,
     path: `/services/${service.slug}`,
-    image: imageBySlug[service.slug] ?? "/images/hero/tmi-hero-digital.jpg",
+    image: imageBySlug[service.slug] ?? "https://res.cloudinary.com/b5cle1jv/image/upload/v1785442688/tmi-hero-digital_cs7bvl.jpg",
   });
 }
 
@@ -62,7 +62,7 @@ export default async function ServiceDetailPage({
         eyebrow="Service"
         title={service.title}
         description={service.description}
-        image={imageBySlug[service.slug] ?? "/images/hero/tmi-hero-digital.jpg"}
+        image={imageBySlug[service.slug] ?? "https://res.cloudinary.com/b5cle1jv/image/upload/v1785442688/tmi-hero-digital_cs7bvl.jpg"}
         imageTitle={service.title}
         imageCaption={service.shortDescription}
       >

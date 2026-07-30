@@ -146,7 +146,7 @@ export function PageHero({
   title,
   description,
   children,
-  image = "/images/hero/tmi-hero-digital.jpg",
+  image = "https://res.cloudinary.com/b5cle1jv/image/upload/v1785442688/tmi-hero-digital_cs7bvl.jpg",
   imageTitle,
   imageCaption = "Structured delivery environment",
 }: {
@@ -231,7 +231,7 @@ export function IconFrame({
 export function ImagePlaceholder({
   title,
   caption,
-  src = "/images/hero/tmi-hero-digital.jpg",
+  src = "https://res.cloudinary.com/b5cle1jv/image/upload/v1785442688/tmi-hero-digital_cs7bvl.jpg",
   className,
 }: {
   title: string;

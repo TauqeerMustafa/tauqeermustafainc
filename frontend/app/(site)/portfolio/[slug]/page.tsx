@@ -15,22 +15,22 @@ import { projects } from "@/lib/site-data";
 import { buildMetadata } from "@/lib/metadata";
 
 const coverImageBySlug: Record<string, string> = {
-  "enterprise-operations-portal": "/images/dashboard/tmi-dashboard-finance.jpg",
-  "security-compliance-dashboard": "/images/services/tmi-service-data-security.jpg",
-  "ai-workflow-assistant": "/images/services/tmi-service-ai-security.jpg",
-  "healthcare-patient-scheduling-platform": "/images/hero/tmi-hero-code.jpg",
-  "cloud-cost-observability-suite": "/images/dashboard/tmi-dashboard-market.jpg",
+  "enterprise-operations-portal": "https://res.cloudinary.com/b5cle1jv/image/upload/v1785442688/tmi-dashboard-finance_w2mvtk.jpg",
+  "security-compliance-dashboard": "https://res.cloudinary.com/b5cle1jv/image/upload/v1785442692/tmi-service-data-security_oxjb4l.jpg",
+  "ai-workflow-assistant": "https://res.cloudinary.com/b5cle1jv/image/upload/v1785442690/tmi-service-ai-security_lgghxl.jpg",
+  "healthcare-patient-scheduling-platform": "https://res.cloudinary.com/b5cle1jv/image/upload/v1785442688/tmi-hero-code_ub9idm.jpg",
+  "cloud-cost-observability-suite": "https://res.cloudinary.com/b5cle1jv/image/upload/v1785442687/tmi-dashboard-market_pttc2n.jpg",
 };
 
 const galleryImages = [
-  "/images/dashboard/tmi-dashboard-finance.jpg",
-  "/images/dashboard/tmi-dashboard-growth.jpg",
-  "/images/dashboard/tmi-dashboard-market.jpg",
-  "/images/services/tmi-service-data-security.jpg",
-  "/images/services/tmi-service-cyber-shield.jpg",
-  "/images/services/tmi-service-ai-security.jpg",
-  "/images/hero/tmi-hero-code.jpg",
-  "/images/hero/tmi-hero-network.jpg",
+  "https://res.cloudinary.com/b5cle1jv/image/upload/v1785442688/tmi-dashboard-finance_w2mvtk.jpg",
+  "https://res.cloudinary.com/b5cle1jv/image/upload/v1785442687/tmi-dashboard-growth_pfmdpk.jpg",
+  "https://res.cloudinary.com/b5cle1jv/image/upload/v1785442687/tmi-dashboard-market_pttc2n.jpg",
+  "https://res.cloudinary.com/b5cle1jv/image/upload/v1785442692/tmi-service-data-security_oxjb4l.jpg",
+  "https://res.cloudinary.com/b5cle1jv/image/upload/v1785442692/tmi-service-cyber-shield_cly3ur.jpg",
+  "https://res.cloudinary.com/b5cle1jv/image/upload/v1785442690/tmi-service-ai-security_lgghxl.jpg",
+  "https://res.cloudinary.com/b5cle1jv/image/upload/v1785442688/tmi-hero-code_ub9idm.jpg",
+  "https://res.cloudinary.com/b5cle1jv/image/upload/v1785442688/tmi-hero-network_ecqwdg.jpg",
 ];
 
 export function generateStaticParams() {
@@ -51,7 +51,7 @@ export async function generateMetadata({
     title: project.title,
     description: project.summary,
     path: `/portfolio/${project.slug}`,
-    image: coverImageBySlug[project.slug] ?? "/images/hero/tmi-hero-digital.jpg",
+    image: coverImageBySlug[project.slug] ?? "https://res.cloudinary.com/b5cle1jv/image/upload/v1785442688/tmi-hero-digital_cs7bvl.jpg",
   });
 }
 
@@ -75,7 +75,7 @@ export default async function ProjectDetailPage({
         eyebrow={project.category}
         title={project.title}
         description={project.summary}
-        image={coverImageBySlug[project.slug] ?? "/images/hero/tmi-hero-digital.jpg"}
+        image={coverImageBySlug[project.slug] ?? "https://res.cloudinary.com/b5cle1jv/image/upload/v1785442688/tmi-hero-digital_cs7bvl.jpg"}
         imageTitle={project.category}
         imageCaption={project.impact}
       >

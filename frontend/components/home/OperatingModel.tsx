@@ -54,7 +54,7 @@ export default function OperatingModel() {
           </p>
         </div>
         <ImagePlaceholder
-          src="/images/dashboard/tmi-dashboard-finance.jpg"
+          src="https://res.cloudinary.com/b5cle1jv/image/upload/v1785442688/tmi-dashboard-finance_w2mvtk.jpg"
           title="Delivery timeline"
           caption="Scope, risk, and milestones stay visible end to end."
           className="hidden lg:block"

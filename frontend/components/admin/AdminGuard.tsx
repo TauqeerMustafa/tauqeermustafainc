@@ -9,10 +9,15 @@ import { useAuthContext } from "@/providers/auth-provider";
 export default function AdminGuard({ children }: { children: ReactNode }) {
   const router = useRouter();
   const { isAuthenticated } = useAuthContext();
-  const { data, isLoading, isError } = useCurrentUser();
+  const { data, isError } = useCurrentUser();
 
   const user = data?.data;
   const isAdmin = Boolean(user && user.role === "admin");
+  // Don't trust isLoading alone - right after isAuthenticated flips to true,
+  // there's a render where the query is enabled but hasn't started fetching
+  // yet, so isLoading can read false with no data and no error. Treat "no
+  // answer yet" as still checking, not as denied.
+  const stillChecking = !user && !isError;
 
   useEffect(() => {
     if (!isAuthenticated || isError) {
@@ -24,7 +29,7 @@ export default function AdminGuard({ children }: { children: ReactNode }) {
     return null;
   }
 
-  if (isLoading) {
+  if (stillChecking) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-[#050816] text-slate-400">
         Checking your session…

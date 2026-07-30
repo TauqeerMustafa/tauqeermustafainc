@@ -31,7 +31,7 @@ export async function generateMetadata({
     title: job.title,
     description: job.summary,
     path: `/careers/${job.slug}`,
-    image: "/images/backgrounds/tmi-bg-matrix.jpg",
+    image: "https://res.cloudinary.com/b5cle1jv/image/upload/v1785442686/tmi-bg-matrix_w1xjjh.jpg",
   });
 }
 
@@ -53,7 +53,7 @@ export default async function JobDetailPage({
         eyebrow="Open role"
         title={job.title}
         description={job.summary}
-        image="/images/backgrounds/tmi-bg-matrix.jpg"
+        image="https://res.cloudinary.com/b5cle1jv/image/upload/v1785442686/tmi-bg-matrix_w1xjjh.jpg"
         imageTitle={job.title}
         imageCaption={`${job.location} · ${job.type}`}
       >

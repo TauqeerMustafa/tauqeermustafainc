@@ -38,7 +38,7 @@ export default function Hero() {
         </div>
 
         <ImagePlaceholder
-          src="/images/hero/tmi-hero-globe.jpg"
+          src="https://res.cloudinary.com/b5cle1jv/image/upload/v1785442688/tmi-hero-globe_qob1ag.jpg"
           title="Global-ready delivery"
           caption="Secure systems, designed to operate across markets and time zones."
           className="hidden lg:block"
