@@ -23,7 +23,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setTokenState(getStoredToken());
     setIsHydrated(true);
 
-    return subscribeToToken(() => setTokenState(getStoredToken()));
+    const unsubscribe = subscribeToToken(() => setTokenState(getStoredToken()));
+    return () => {
+      unsubscribe();
+    };
   }, []);
 
   const value: AuthContextValue = {

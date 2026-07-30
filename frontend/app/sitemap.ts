@@ -6,7 +6,7 @@ import { jobs, posts, projects, services } from "@/lib/site-data";
 export default function sitemap(): MetadataRoute.Sitemap {
   const now = new Date();
 
-  const staticRoutes: MetadataRoute.Sitemap = [
+  const staticRoutes = [
     { url: "", changeFrequency: "weekly", priority: 1 },
     { url: "/about", changeFrequency: "monthly", priority: 0.8 },
     { url: "/services", changeFrequency: "monthly", priority: 0.9 },
@@ -18,7 +18,9 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: "/terms", changeFrequency: "yearly", priority: 0.3 },
     { url: "/cookies", changeFrequency: "yearly", priority: 0.3 },
     { url: "/accessibility", changeFrequency: "yearly", priority: 0.3 },
-  ].map((route) => ({
+  ] as const;
+
+  const staticSitemapRoutes: MetadataRoute.Sitemap = staticRoutes.map((route) => ({
     url: `${appConfig.siteUrl}${route.url}`,
     lastModified: now,
     changeFrequency: route.changeFrequency,
@@ -53,5 +55,5 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: 0.5,
   }));
 
-  return [...staticRoutes, ...serviceRoutes, ...projectRoutes, ...postRoutes, ...jobRoutes];
+  return [...staticSitemapRoutes, ...serviceRoutes, ...projectRoutes, ...postRoutes, ...jobRoutes];
 }
