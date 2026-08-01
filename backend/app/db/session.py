@@ -5,9 +5,16 @@ from sqlalchemy.orm import Session, sessionmaker
 
 from app.core.config import settings
 
+# Remote Postgres providers (Supabase, RDS, etc.) require SSL; local dev DBs
+# typically don't have it configured at all, so only force it for non-local hosts.
+_connect_args: dict = {}
+if "localhost" not in settings.database_url and "127.0.0.1" not in settings.database_url:
+    _connect_args["sslmode"] = "require"
+
 engine = create_engine(
     settings.database_url,
     pool_pre_ping=True,
+    connect_args=_connect_args,
 )
 
 SessionLocal = sessionmaker(

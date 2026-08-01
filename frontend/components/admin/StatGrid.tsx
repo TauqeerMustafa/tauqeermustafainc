@@ -8,7 +8,6 @@ import {
 } from "lucide-react";
 
 import { useBlogs } from "@/hooks/useBlogs";
-import { useCareers } from "@/hooks/useCareers";
 import { useMessages } from "@/hooks/useMessages";
 import { usePortfolio } from "@/hooks/usePortfolio";
 import { useServices } from "@/hooks/useServices";
@@ -29,28 +28,28 @@ export default function StatGrid() {
 
       <DashboardCard
         title="Services"
-        value={loading ? "…" : (services.data?.data.pagination.total ?? 0)}
+        value={loading ? "..." : (services.data?.data.pagination.total ?? 0)}
         subtitle="Active service lines"
         icon={Briefcase}
       />
 
       <DashboardCard
         title="Portfolio"
-        value={loading ? "…" : (portfolio.data?.data.pagination.total ?? 0)}
+        value={loading ? "..." : (portfolio.data?.data.pagination.total ?? 0)}
         subtitle="Case studies published"
         icon={FolderOpen}
       />
 
       <DashboardCard
         title="Blog Posts"
-        value={loading ? "…" : (blogs.data?.data.pagination.total ?? 0)}
+        value={loading ? "..." : (blogs.data?.data.pagination.total ?? 0)}
         subtitle="Articles (all statuses)"
         icon={FileText}
       />
 
       <DashboardCard
         title="Unread Messages"
-        value={loading ? "…" : (messages.data?.data.pagination.total ?? 0)}
+        value={loading ? "..." : (messages.data?.data.pagination.total ?? 0)}
         subtitle="Awaiting a response"
         icon={Mail}
       />

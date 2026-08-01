@@ -5,7 +5,6 @@ import { CheckCircle2 } from "lucide-react";
 
 import {
   Card,
-  ImagePlaceholder,
   PageHero,
   PrimaryButton,
   Section,

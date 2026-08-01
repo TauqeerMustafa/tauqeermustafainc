@@ -32,7 +32,7 @@ export default function AdminGuard({ children }: { children: ReactNode }) {
   if (stillChecking) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-[#050816] text-slate-400">
-        Checking your session…
+        Checking your session...
       </div>
     );
   }

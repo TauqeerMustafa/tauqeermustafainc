@@ -1,21 +1,19 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 const CONSENT_KEY = "tmi_cookie_consent";
 
 type ConsentValue = "accepted" | "rejected";
 
-export default function CookieConsent() {
-  const [visible, setVisible] = useState(false);
+function shouldShowConsent() {
+  if (typeof window === "undefined") return false;
+  return !window.localStorage.getItem(CONSENT_KEY);
+}
 
-  useEffect(() => {
-    const stored = window.localStorage.getItem(CONSENT_KEY);
-    if (!stored) {
-      setVisible(true);
-    }
-  }, []);
+export default function CookieConsent() {
+  const [visible, setVisible] = useState(shouldShowConsent);
 
   function setConsent(value: ConsentValue) {
     window.localStorage.setItem(CONSENT_KEY, value);
@@ -34,7 +32,7 @@ export default function CookieConsent() {
     >
       <div className="mx-auto flex max-w-6xl flex-col items-start gap-4 sm:flex-row sm:items-center sm:justify-between">
         <p className="text-sm leading-6 text-[#374151]">
-          We use essential cookies to run this site and optional cookies to understand how it's used.
+          We use essential cookies to run this site and optional cookies to understand how it is used.
           Read our{" "}
           <Link href="/cookies" className="font-semibold text-[#0A46A8] underline underline-offset-2">
             Cookie Policy
