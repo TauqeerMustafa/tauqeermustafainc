@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 
-import { Badge, Card, ImagePlaceholder, PageHero, Section, SectionHeader, TextLink } from "@/components/home/ui";
+import { PageHero, Section, SectionHeader, TextLink, ImagePlaceholder } from "@/components/home/ui";
+import { BlogGrid } from "@/components/blog/BlogGrid";
 import { posts } from "@/lib/site-data";
 import { buildMetadata } from "@/lib/metadata";
+import { readingTime } from "@/lib/utils";
 
 export const metadata: Metadata = buildMetadata({
   title: "Blog",
@@ -13,16 +14,21 @@ export const metadata: Metadata = buildMetadata({
   image: "https://res.cloudinary.com/b5cle1jv/image/upload/v1785442687/tmi-bg-particles_pcaegw.jpg",
 });
 
+const FALLBACK_IMAGE =
+  "https://res.cloudinary.com/b5cle1jv/image/upload/v1785442688/tmi-hero-digital_cs7bvl.jpg";
+
 const imageByCategory: Record<string, string> = {
   Engineering: "https://res.cloudinary.com/b5cle1jv/image/upload/v1785442688/tmi-hero-code_ub9idm.jpg",
   Automation: "https://res.cloudinary.com/b5cle1jv/image/upload/v1785442690/tmi-service-ai-security_lgghxl.jpg",
   Cybersecurity: "https://res.cloudinary.com/b5cle1jv/image/upload/v1785442692/tmi-service-cyber-shield_cly3ur.jpg",
   "Cloud Engineering": "https://res.cloudinary.com/b5cle1jv/image/upload/v1785442692/tmi-service-global-network_cuiryi.jpg",
   "Product Design": "https://res.cloudinary.com/b5cle1jv/image/upload/v1785442687/tmi-bg-bokeh_lffzh9.jpg",
+  Culture: "https://res.cloudinary.com/b5cle1jv/image/upload/v1785442687/tmi-bg-particles_pcaegw.jpg",
+  "Product Strategy": "https://res.cloudinary.com/b5cle1jv/image/upload/v1785442688/tmi-hero-digital_cs7bvl.jpg",
 };
 
 export default function BlogPage() {
-  const [featured, ...latest] = posts;
+  const [featured, ...rest] = posts;
 
   return (
     <>
@@ -42,10 +48,10 @@ export default function BlogPage() {
             eyebrow="Featured article"
             title={featured.title}
             description={featured.excerpt}
-            action={<TextLink href={`/blog/${featured.slug}`}>Read Feature</TextLink>}
+            action={<TextLink href={`/blog/${featured.slug}`}>Read Feature · {readingTime(featured.body)}</TextLink>}
           />
           <ImagePlaceholder
-            src={imageByCategory[featured.category] ?? "https://res.cloudinary.com/b5cle1jv/image/upload/v1785442688/tmi-hero-digital_cs7bvl.jpg"}
+            src={imageByCategory[featured.category] ?? FALLBACK_IMAGE}
             title={featured.category}
             caption={featured.date}
             className="hidden lg:block"
@@ -54,34 +60,14 @@ export default function BlogPage() {
       </Section>
 
       <Section className="bg-white" labelledBy="latest-posts">
-        <SectionHeader id="latest-posts" eyebrow="Latest posts" title="Recent insights" />
-        <div className="mt-14 grid gap-6 lg:grid-cols-2">
-          {latest.map((post) => (
-            <Card key={post.slug} className="flex flex-col overflow-hidden p-0">
-              <div className="relative h-40 w-full overflow-hidden border-b border-[#D7DEE8]">
-                <ImagePlaceholder
-                  src={imageByCategory[post.category] ?? "https://res.cloudinary.com/b5cle1jv/image/upload/v1785442688/tmi-hero-digital_cs7bvl.jpg"}
-                  title={post.category}
-                  className="h-full"
-                />
-              </div>
-              <div className="flex flex-1 flex-col p-6 sm:p-7">
-                <div className="flex flex-wrap gap-2">
-                  <Badge>{post.category}</Badge>
-                  <Badge>{post.date}</Badge>
-                </div>
-                <h2 className="mt-5 text-xl font-semibold leading-snug text-[#0A1628]">
-                  <Link
-                    href={`/blog/${post.slug}`}
-                    className="transition hover:text-[#0A46A8] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#0B5FFF]"
-                  >
-                    {post.title}
-                  </Link>
-                </h2>
-                <p className="mt-4 text-base leading-7 text-[#6B7280]">{post.excerpt}</p>
-              </div>
-            </Card>
-          ))}
+        <SectionHeader
+          id="latest-posts"
+          eyebrow="Latest posts"
+          title="Recent insights"
+          description={`${posts.length} articles across engineering, security, cloud, design, and how we work.`}
+        />
+        <div className="mt-10">
+          <BlogGrid posts={rest} imageByCategory={imageByCategory} fallbackImage={FALLBACK_IMAGE} />
         </div>
       </Section>
     </>

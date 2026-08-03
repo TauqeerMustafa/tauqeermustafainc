@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 import { Badge, PageHero, Section, SectionHeader } from "@/components/home/ui";
 import { posts } from "@/lib/site-data";
 import { buildMetadata } from "@/lib/metadata";
+import { readingTime } from "@/lib/utils";
 
 const imageByCategory: Record<string, string> = {
   Engineering: "https://res.cloudinary.com/b5cle1jv/image/upload/v1785442688/tmi-hero-code_ub9idm.jpg",
@@ -12,6 +13,8 @@ const imageByCategory: Record<string, string> = {
   Cybersecurity: "https://res.cloudinary.com/b5cle1jv/image/upload/v1785442692/tmi-service-cyber-shield_cly3ur.jpg",
   "Cloud Engineering": "https://res.cloudinary.com/b5cle1jv/image/upload/v1785442692/tmi-service-global-network_cuiryi.jpg",
   "Product Design": "https://res.cloudinary.com/b5cle1jv/image/upload/v1785442687/tmi-bg-bokeh_lffzh9.jpg",
+  Culture: "https://res.cloudinary.com/b5cle1jv/image/upload/v1785442687/tmi-bg-particles_pcaegw.jpg",
+  "Product Strategy": "https://res.cloudinary.com/b5cle1jv/image/upload/v1785442688/tmi-hero-digital_cs7bvl.jpg",
 };
 
 export function generateStaticParams() {
@@ -64,6 +67,7 @@ export default async function BlogDetailPage({
         <div className="flex flex-wrap gap-2">
           <Badge>{post.date}</Badge>
           <Badge>{post.category}</Badge>
+          <Badge>{readingTime(post.body)}</Badge>
         </div>
       </PageHero>
 
