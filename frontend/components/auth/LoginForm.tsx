@@ -20,10 +20,15 @@ const loginSchema = z.object({
 
 type LoginFormData = z.infer<typeof loginSchema>;
 
-export default function LoginForm() {
+type LoginFormProps = {
+  nextPath?: string | null;
+};
+
+export default function LoginForm({ nextPath: rawNextPath }: LoginFormProps) {
   const router = useRouter();
   const { isAuthenticated } = useAuthContext();
   const loginMutation = useLogin();
+  const nextPath = getSafeNextPath(rawNextPath);
 
   const {
     register,
@@ -36,14 +41,14 @@ export default function LoginForm() {
 
   useEffect(() => {
     if (isAuthenticated) {
-      router.replace("/admin/dashboard");
+      router.replace(nextPath);
     }
-  }, [isAuthenticated, router]);
+  }, [isAuthenticated, nextPath, router]);
 
   async function onSubmit(data: LoginFormData) {
     try {
       await loginMutation.mutateAsync(data);
-      router.replace("/admin/dashboard");
+      router.replace(nextPath);
     } catch {
       // surfaced via loginMutation.isError below
     }
@@ -122,4 +127,19 @@ export default function LoginForm() {
       </Section>
     </>
   );
+}
+
+function getSafeNextPath(nextPath: string | null | undefined) {
+  if (!nextPath) return "/admin/dashboard";
+  try {
+    const url = new URL(nextPath, "http://localhost");
+    const isSameOrigin = url.origin === "http://localhost";
+    const isAdminPath = url.pathname === "/admin" || url.pathname.startsWith("/admin/");
+
+    if (!isSameOrigin || !isAdminPath) return "/admin/dashboard";
+
+    return `${url.pathname}${url.search}${url.hash}`;
+  } catch {
+    return "/admin/dashboard";
+  }
 }

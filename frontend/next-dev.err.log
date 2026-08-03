@@ -1,0 +1,538 @@
+⚠ Slow filesystem detected. The benchmark took 748ms. If E:\Projects\tauqeer-inc\frontend\.next/dev is a network drive, consider moving it to a local folder.
+See more: https://nextjs.org/docs/app/guides/local-development
+Error [TimeoutError]: The operation was aborted due to timeout
+    at ignore-listed frames {
+  code: 23,
+  INDEX_SIZE_ERR: 1,
+  DOMSTRING_SIZE_ERR: 2,
+  HIERARCHY_REQUEST_ERR: 3,
+  WRONG_DOCUMENT_ERR: 4,
+  INVALID_CHARACTER_ERR: 5,
+  NO_DATA_ALLOWED_ERR: 6,
+  NO_MODIFICATION_ALLOWED_ERR: 7,
+  NOT_FOUND_ERR: 8,
+  NOT_SUPPORTED_ERR: 9,
+  INUSE_ATTRIBUTE_ERR: 10,
+  INVALID_STATE_ERR: 11,
+  SYNTAX_ERR: 12,
+  INVALID_MODIFICATION_ERR: 13,
+  NAMESPACE_ERR: 14,
+  INVALID_ACCESS_ERR: 15,
+  VALIDATION_ERR: 16,
+  TYPE_MISMATCH_ERR: 17,
+  SECURITY_ERR: 18,
+  NETWORK_ERR: 19,
+  ABORT_ERR: 20,
+  URL_MISMATCH_ERR: 21,
+  QUOTA_EXCEEDED_ERR: 22,
+  TIMEOUT_ERR: 23,
+  INVALID_NODE_TYPE_ERR: 24,
+  DATA_CLONE_ERR: 25
+}
+Error [TimeoutError]: The operation was aborted due to timeout
+    at ignore-listed frames {
+  code: 23,
+  INDEX_SIZE_ERR: 1,
+  DOMSTRING_SIZE_ERR: 2,
+  HIERARCHY_REQUEST_ERR: 3,
+  WRONG_DOCUMENT_ERR: 4,
+  INVALID_CHARACTER_ERR: 5,
+  NO_DATA_ALLOWED_ERR: 6,
+  NO_MODIFICATION_ALLOWED_ERR: 7,
+  NOT_FOUND_ERR: 8,
+  NOT_SUPPORTED_ERR: 9,
+  INUSE_ATTRIBUTE_ERR: 10,
+  INVALID_STATE_ERR: 11,
+  SYNTAX_ERR: 12,
+  INVALID_MODIFICATION_ERR: 13,
+  NAMESPACE_ERR: 14,
+  INVALID_ACCESS_ERR: 15,
+  VALIDATION_ERR: 16,
+  TYPE_MISMATCH_ERR: 17,
+  SECURITY_ERR: 18,
+  NETWORK_ERR: 19,
+  ABORT_ERR: 20,
+  URL_MISMATCH_ERR: 21,
+  QUOTA_EXCEEDED_ERR: 22,
+  TIMEOUT_ERR: 23,
+  INVALID_NODE_TYPE_ERR: 24,
+  DATA_CLONE_ERR: 25
+}
+[browser] Uncaught Error: Hydration failed because the server rendered HTML didn't match the client. As a result this tree will be regenerated on the client. This can happen if a SSR-ed Client Component used:
+
+- A server/client branch `if (typeof window !== 'undefined')`.
+- Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+- Date formatting in a user's locale which doesn't match the server.
+- External changing data without sending a snapshot of it along with the HTML.
+- Invalid HTML tag nesting.
+
+It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+
+https://react.dev/link/hydration-mismatch
+
+  ...
+    <RedirectErrorBoundary router={{...}}>
+      <Head>
+      <__next_root_layout_boundary__>
+        <SegmentViewNode type="layout" pagePath="layout.tsx">
+          <SegmentTrieNode>
+          <link>
+          <script>
+          <script>
+          <script>
+          <script>
+          <script>
+          <script>
+          <script>
+          <script>
+          <RootLayout>
+            <html lang="en" className="h-full scr...">
+              <head>
+              <body className="min-h-scre...">
+                <AppProviders>
+                  <AppConfigProvider>
+                    <QueryProvider>
+                      <QueryClientProvider client={{}}>
+                        <AuthProvider>
+                          <OuterLayoutRouter>
+                          <CookieConsent>
+                            <div
++                             role="dialog"
+-                             role={null}
++                             aria-live="polite"
+-                             aria-live={null}
++                             aria-label="Cookie consent"
+-                             aria-label={null}
++                             className="fixed inset-x-0 bottom-0 z-[100] border-t border-[#E5E7EB] bg-white px-4 py-4..."
+-                             className="tsqd-parent-container"
+-                             dir="ltr"
+                            >
++                             <div
++                               className="mx-auto flex max-w-6xl flex-col items-start gap-4 sm:flex-row sm:items-cent..."
++                             >
+                        ...
+      ...
+
+    at <unknown> (https://react.dev/link/hydration-mismatch)
+    at div (<anonymous>)
+    at CookieConsent (components/common/CookieConsent.tsx:33:7)
+    at RootLayout (app\layout.tsx:86:11)
+  31 |       className="fixed inset-x-0 bottom-0 z-[100] border-t border-[#E5E7EB] bg-white px-4 ...
+  32 |     >
+> 33 |       <div className="mx-auto flex max-w-6xl flex-col items-start gap-4 sm:flex-row sm:ite...
+     |       ^
+  34 |         <p className="text-sm leading-6 text-[#374151]">
+  35 |           We use essential cookies to run this site and optional cookies to understand how...
+  36 |           Read our{" "}
+Error [TimeoutError]: The operation was aborted due to timeout
+    at ignore-listed frames {
+  code: 23,
+  INDEX_SIZE_ERR: 1,
+  DOMSTRING_SIZE_ERR: 2,
+  HIERARCHY_REQUEST_ERR: 3,
+  WRONG_DOCUMENT_ERR: 4,
+  INVALID_CHARACTER_ERR: 5,
+  NO_DATA_ALLOWED_ERR: 6,
+  NO_MODIFICATION_ALLOWED_ERR: 7,
+  NOT_FOUND_ERR: 8,
+  NOT_SUPPORTED_ERR: 9,
+  INUSE_ATTRIBUTE_ERR: 10,
+  INVALID_STATE_ERR: 11,
+  SYNTAX_ERR: 12,
+  INVALID_MODIFICATION_ERR: 13,
+  NAMESPACE_ERR: 14,
+  INVALID_ACCESS_ERR: 15,
+  VALIDATION_ERR: 16,
+  TYPE_MISMATCH_ERR: 17,
+  SECURITY_ERR: 18,
+  NETWORK_ERR: 19,
+  ABORT_ERR: 20,
+  URL_MISMATCH_ERR: 21,
+  QUOTA_EXCEEDED_ERR: 22,
+  TIMEOUT_ERR: 23,
+  INVALID_NODE_TYPE_ERR: 24,
+  DATA_CLONE_ERR: 25
+}
+[browser] Image with src "https://res.cloudinary.com/b5cle1jv/image/upload/v1785442688/tmi-hero-globe_qob1ag.jpg" has "fill" and a height value of 0. This is likely because the parent element of the image has not been styled to have a set height.
+⨯ upstream image response timed out for https://res.cloudinary.com/b5cle1jv/image/upload/v1785442688/tmi-hero-globe_qob1ag.jpg
+⨯ upstream image response timed out for https://res.cloudinary.com/b5cle1jv/image/upload/v1785442689/tmi-bg-abstract_a8lsu9.jpg
+[TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo ENOTFOUND res.cloudinary.com
+      at ignore-listed frames {
+    errno: -3008,
+    code: 'ENOTFOUND',
+    syscall: 'getaddrinfo',
+    hostname: 'res.cloudinary.com'
+  }
+}
+[TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo ENOTFOUND res.cloudinary.com
+      at ignore-listed frames {
+    errno: -3008,
+    code: 'ENOTFOUND',
+    syscall: 'getaddrinfo',
+    hostname: 'res.cloudinary.com'
+  }
+}
+[TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo ENOTFOUND res.cloudinary.com
+      at ignore-listed frames {
+    errno: -3008,
+    code: 'ENOTFOUND',
+    syscall: 'getaddrinfo',
+    hostname: 'res.cloudinary.com'
+  }
+}
+[TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo ENOTFOUND res.cloudinary.com
+      at ignore-listed frames {
+    errno: -3008,
+    code: 'ENOTFOUND',
+    syscall: 'getaddrinfo',
+    hostname: 'res.cloudinary.com'
+  }
+}
+[TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo ENOTFOUND res.cloudinary.com
+      at ignore-listed frames {
+    errno: -3008,
+    code: 'ENOTFOUND',
+    syscall: 'getaddrinfo',
+    hostname: 'res.cloudinary.com'
+  }
+}
+[TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo ENOTFOUND res.cloudinary.com
+      at ignore-listed frames {
+    errno: -3008,
+    code: 'ENOTFOUND',
+    syscall: 'getaddrinfo',
+    hostname: 'res.cloudinary.com'
+  }
+}
+[TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo ENOTFOUND res.cloudinary.com
+      at ignore-listed frames {
+    errno: -3008,
+    code: 'ENOTFOUND',
+    syscall: 'getaddrinfo',
+    hostname: 'res.cloudinary.com'
+  }
+}
+[TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo ENOTFOUND res.cloudinary.com
+      at ignore-listed frames {
+    errno: -3008,
+    code: 'ENOTFOUND',
+    syscall: 'getaddrinfo',
+    hostname: 'res.cloudinary.com'
+  }
+}
+[TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo ENOTFOUND res.cloudinary.com
+      at ignore-listed frames {
+    errno: -3008,
+    code: 'ENOTFOUND',
+    syscall: 'getaddrinfo',
+    hostname: 'res.cloudinary.com'
+  }
+}
+[browser] Detected `scroll-behavior: smooth` on the `<html>` element. To disable smooth scrolling during route transitions, add `data-scroll-behavior="smooth"` to your <html> element. Learn more: https://nextjs.org/docs/messages/missing-data-scroll-behavior
+[TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo ENOTFOUND res.cloudinary.com
+      at ignore-listed frames {
+    errno: -3008,
+    code: 'ENOTFOUND',
+    syscall: 'getaddrinfo',
+    hostname: 'res.cloudinary.com'
+  }
+}
+⨯ upstream image response timed out for https://res.cloudinary.com/b5cle1jv/image/upload/v1785442688/tmi-dashboard-finance_w2mvtk.jpg
+⨯ upstream image response timed out for https://res.cloudinary.com/b5cle1jv/image/upload/v1785442692/tmi-service-data-security_oxjb4l.jpg
+⨯ upstream image response timed out for https://res.cloudinary.com/b5cle1jv/image/upload/v1785442690/tmi-service-ai-security_lgghxl.jpg
+⨯ upstream image response timed out for https://res.cloudinary.com/b5cle1jv/image/upload/v1785442687/tmi-dashboard-market_pttc2n.jpg
+⨯ upstream image response timed out for https://res.cloudinary.com/b5cle1jv/image/upload/v1785442688/tmi-hero-code_ub9idm.jpg
+[TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo ENOTFOUND res.cloudinary.com
+      at ignore-listed frames {
+    errno: -3008,
+    code: 'ENOTFOUND',
+    syscall: 'getaddrinfo',
+    hostname: 'res.cloudinary.com'
+  }
+}
+[TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo ENOTFOUND res.cloudinary.com
+      at ignore-listed frames {
+    errno: -3008,
+    code: 'ENOTFOUND',
+    syscall: 'getaddrinfo',
+    hostname: 'res.cloudinary.com'
+  }
+}
+[TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo ENOTFOUND res.cloudinary.com
+      at ignore-listed frames {
+    errno: -3008,
+    code: 'ENOTFOUND',
+    syscall: 'getaddrinfo',
+    hostname: 'res.cloudinary.com'
+  }
+}
+[browser] Uncaught Error: Hydration failed because the server rendered HTML didn't match the client. As a result this tree will be regenerated on the client. This can happen if a SSR-ed Client Component used:
+
+- A server/client branch `if (typeof window !== 'undefined')`.
+- Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+- Date formatting in a user's locale which doesn't match the server.
+- External changing data without sending a snapshot of it along with the HTML.
+- Invalid HTML tag nesting.
+
+It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+
+https://react.dev/link/hydration-mismatch
+
+  ...
+    <RedirectErrorBoundary router={{...}}>
+      <Head>
+      <__next_root_layout_boundary__>
+        <SegmentViewNode type="layout" pagePath="layout.tsx">
+          <SegmentTrieNode>
+          <link>
+          <script>
+          <script>
+          <script>
+          <script>
+          <script>
+          <script>
+          <script>
+          <script>
+          <RootLayout>
+            <html lang="en" className="h-full scr...">
+              <head>
+              <body className="min-h-scre...">
+                <AppProviders>
+                  <AppConfigProvider>
+                    <QueryProvider>
+                      <QueryClientProvider client={{}}>
+                        <AuthProvider>
+                          <OuterLayoutRouter>
+                          <CookieConsent>
+                            <div
++                             role="dialog"
+-                             role={null}
++                             aria-live="polite"
+-                             aria-live={null}
++                             aria-label="Cookie consent"
+-                             aria-label={null}
++                             className="fixed inset-x-0 bottom-0 z-[100] border-t border-[#E5E7EB] bg-white px-4 py-4..."
+-                             className="tsqd-parent-container"
+-                             dir="ltr"
+                            >
++                             <div
++                               className="mx-auto flex max-w-6xl flex-col items-start gap-4 sm:flex-row sm:items-cent..."
++                             >
+                        ...
+      ...
+
+    at <unknown> (https://react.dev/link/hydration-mismatch)
+    at div (<anonymous>)
+    at CookieConsent (components/common/CookieConsent.tsx:33:7)
+    at RootLayout (app\layout.tsx:86:11)
+  31 |       className="fixed inset-x-0 bottom-0 z-[100] border-t border-[#E5E7EB] bg-white px-4 ...
+  32 |     >
+> 33 |       <div className="mx-auto flex max-w-6xl flex-col items-start gap-4 sm:flex-row sm:ite...
+     |       ^
+  34 |         <p className="text-sm leading-6 text-[#374151]">
+  35 |           We use essential cookies to run this site and optional cookies to understand how...
+  36 |           Read our{" "}
+[browser] Uncaught Error: Hydration failed because the server rendered HTML didn't match the client. As a result this tree will be regenerated on the client. This can happen if a SSR-ed Client Component used:
+
+- A server/client branch `if (typeof window !== 'undefined')`.
+- Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+- Date formatting in a user's locale which doesn't match the server.
+- External changing data without sending a snapshot of it along with the HTML.
+- Invalid HTML tag nesting.
+
+It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+
+https://react.dev/link/hydration-mismatch
+
+  ...
+    <RedirectErrorBoundary router={{...}}>
+      <Head>
+      <__next_root_layout_boundary__>
+        <SegmentViewNode type="layout" pagePath="layout.tsx">
+          <SegmentTrieNode>
+          <link>
+          <script>
+          <script>
+          <script>
+          <script>
+          <script>
+          <script>
+          <script>
+          <script>
+          <RootLayout>
+            <html lang="en" className="h-full scr...">
+              <head>
+              <body className="min-h-scre...">
+                <AppProviders>
+                  <AppConfigProvider>
+                    <QueryProvider>
+                      <QueryClientProvider client={{}}>
+                        <AuthProvider>
+                          <OuterLayoutRouter>
+                          <CookieConsent>
+                            <div
++                             role="dialog"
+-                             role={null}
++                             aria-live="polite"
+-                             aria-live={null}
++                             aria-label="Cookie consent"
+-                             aria-label={null}
++                             className="fixed inset-x-0 bottom-0 z-[100] border-t border-[#E5E7EB] bg-white px-4 py-4..."
+-                             className="tsqd-parent-container"
+-                             dir="ltr"
+                            >
++                             <div
++                               className="mx-auto flex max-w-6xl flex-col items-start gap-4 sm:flex-row sm:items-cent..."
++                             >
+                        ...
+      ...
+
+    at <unknown> (https://react.dev/link/hydration-mismatch)
+    at div (<anonymous>)
+    at CookieConsent (components/common/CookieConsent.tsx:33:7)
+    at RootLayout (app\layout.tsx:86:11)
+  31 |       className="fixed inset-x-0 bottom-0 z-[100] border-t border-[#E5E7EB] bg-white px-4 ...
+  32 |     >
+> 33 |       <div className="mx-auto flex max-w-6xl flex-col items-start gap-4 sm:flex-row sm:ite...
+     |       ^
+  34 |         <p className="text-sm leading-6 text-[#374151]">
+  35 |           We use essential cookies to run this site and optional cookies to understand how...
+  36 |           Read our{" "}
+[browser] Detected `scroll-behavior: smooth` on the `<html>` element. To disable smooth scrolling during route transitions, add `data-scroll-behavior="smooth"` to your <html> element. Learn more: https://nextjs.org/docs/messages/missing-data-scroll-behavior
+[TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo ENOTFOUND res.cloudinary.com
+      at ignore-listed frames {
+    errno: -3008,
+    code: 'ENOTFOUND',
+    syscall: 'getaddrinfo',
+    hostname: 'res.cloudinary.com'
+  }
+}
+[TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo ENOTFOUND res.cloudinary.com
+      at ignore-listed frames {
+    errno: -3008,
+    code: 'ENOTFOUND',
+    syscall: 'getaddrinfo',
+    hostname: 'res.cloudinary.com'
+  }
+}
+[TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo ENOTFOUND res.cloudinary.com
+      at ignore-listed frames {
+    errno: -3008,
+    code: 'ENOTFOUND',
+    syscall: 'getaddrinfo',
+    hostname: 'res.cloudinary.com'
+  }
+}
+[TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo ENOTFOUND res.cloudinary.com
+      at ignore-listed frames {
+    errno: -3008,
+    code: 'ENOTFOUND',
+    syscall: 'getaddrinfo',
+    hostname: 'res.cloudinary.com'
+  }
+}
+[TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo ENOTFOUND res.cloudinary.com
+      at ignore-listed frames {
+    errno: -3008,
+    code: 'ENOTFOUND',
+    syscall: 'getaddrinfo',
+    hostname: 'res.cloudinary.com'
+  }
+}
+[TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo ENOTFOUND res.cloudinary.com
+      at ignore-listed frames {
+    errno: -3008,
+    code: 'ENOTFOUND',
+    syscall: 'getaddrinfo',
+    hostname: 'res.cloudinary.com'
+  }
+}
+[TypeError: fetch failed] {
+  [cause]: Error: getaddrinfo ENOTFOUND res.cloudinary.com
+      at ignore-listed frames {
+    errno: -3008,
+    code: 'ENOTFOUND',
+    syscall: 'getaddrinfo',
+    hostname: 'res.cloudinary.com'
+  }
+}
+⨯ upstream image response timed out for https://res.cloudinary.com/b5cle1jv/image/upload/v1785442688/tmi-hero-globe_qob1ag.jpg
+⨯ upstream image response timed out for https://res.cloudinary.com/b5cle1jv/image/upload/v1785442692/tmi-service-cyber-shield_cly3ur.jpg
+⨯ upstream image response timed out for https://res.cloudinary.com/b5cle1jv/image/upload/v1785442689/tmi-bg-abstract_a8lsu9.jpg
+Error [TimeoutError]: The operation was aborted due to timeout
+    at ignore-listed frames {
+  code: 23,
+  INDEX_SIZE_ERR: 1,
+  DOMSTRING_SIZE_ERR: 2,
+  HIERARCHY_REQUEST_ERR: 3,
+  WRONG_DOCUMENT_ERR: 4,
+  INVALID_CHARACTER_ERR: 5,
+  NO_DATA_ALLOWED_ERR: 6,
+  NO_MODIFICATION_ALLOWED_ERR: 7,
+  NOT_FOUND_ERR: 8,
+  NOT_SUPPORTED_ERR: 9,
+  INUSE_ATTRIBUTE_ERR: 10,
+  INVALID_STATE_ERR: 11,
+  SYNTAX_ERR: 12,
+  INVALID_MODIFICATION_ERR: 13,
+  NAMESPACE_ERR: 14,
+  INVALID_ACCESS_ERR: 15,
+  VALIDATION_ERR: 16,
+  TYPE_MISMATCH_ERR: 17,
+  SECURITY_ERR: 18,
+  NETWORK_ERR: 19,
+  ABORT_ERR: 20,
+  URL_MISMATCH_ERR: 21,
+  QUOTA_EXCEEDED_ERR: 22,
+  TIMEOUT_ERR: 23,
+  INVALID_NODE_TYPE_ERR: 24,
+  DATA_CLONE_ERR: 25
+}
+Error [TimeoutError]: The operation was aborted due to timeout
+    at ignore-listed frames {
+  code: 23,
+  INDEX_SIZE_ERR: 1,
+  DOMSTRING_SIZE_ERR: 2,
+  HIERARCHY_REQUEST_ERR: 3,
+  WRONG_DOCUMENT_ERR: 4,
+  INVALID_CHARACTER_ERR: 5,
+  NO_DATA_ALLOWED_ERR: 6,
+  NO_MODIFICATION_ALLOWED_ERR: 7,
+  NOT_FOUND_ERR: 8,
+  NOT_SUPPORTED_ERR: 9,
+  INUSE_ATTRIBUTE_ERR: 10,
+  INVALID_STATE_ERR: 11,
+  SYNTAX_ERR: 12,
+  INVALID_MODIFICATION_ERR: 13,
+  NAMESPACE_ERR: 14,
+  INVALID_ACCESS_ERR: 15,
+  VALIDATION_ERR: 16,
+  TYPE_MISMATCH_ERR: 17,
+  SECURITY_ERR: 18,
+  NETWORK_ERR: 19,
+  ABORT_ERR: 20,
+  URL_MISMATCH_ERR: 21,
+  QUOTA_EXCEEDED_ERR: 22,
+  TIMEOUT_ERR: 23,
+  INVALID_NODE_TYPE_ERR: 24,
+  DATA_CLONE_ERR: 25
+}

@@ -1,6 +1,6 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useEffect, type ReactNode } from "react";
 
 import { useCurrentUser } from "@/hooks/useAuth";
@@ -8,7 +8,8 @@ import { useAuthContext } from "@/providers/auth-provider";
 
 export default function AdminGuard({ children }: { children: ReactNode }) {
   const router = useRouter();
-  const { isAuthenticated } = useAuthContext();
+  const pathname = usePathname();
+  const { isAuthenticated, logout } = useAuthContext();
   const { data, isError } = useCurrentUser();
 
   const user = data?.data;
@@ -18,12 +19,21 @@ export default function AdminGuard({ children }: { children: ReactNode }) {
   // yet, so isLoading can read false with no data and no error. Treat "no
   // answer yet" as still checking, not as denied.
   const stillChecking = !user && !isError;
+  const loginPath = getLoginPath(pathname, "");
 
   useEffect(() => {
-    if (!isAuthenticated || isError) {
-      router.replace("/login");
+    const redirectPath = getCurrentLoginPath(pathname);
+
+    if (isError) {
+      logout();
+      router.replace(redirectPath);
+      return;
     }
-  }, [isAuthenticated, isError, router]);
+
+    if (!isAuthenticated) {
+      router.replace(redirectPath);
+    }
+  }, [isAuthenticated, isError, logout, pathname, router]);
 
   if (!isAuthenticated) {
     return null;
@@ -44,7 +54,7 @@ export default function AdminGuard({ children }: { children: ReactNode }) {
           {isError ? "Your session has expired." : "This account does not have admin access."}
         </p>
         <a
-          href="/login"
+          href={loginPath}
           className="border border-white/10 bg-white/5 px-5 py-2.5 text-sm font-semibold text-white transition hover:border-yellow-400"
         >
           Back to login
@@ -54,4 +64,14 @@ export default function AdminGuard({ children }: { children: ReactNode }) {
   }
 
   return <>{children}</>;
+}
+
+function getCurrentLoginPath(pathname: string) {
+  const search = typeof window === "undefined" ? "" : window.location.search;
+  return getLoginPath(pathname, search);
+}
+
+function getLoginPath(pathname: string, search: string) {
+  const nextPath = `${pathname}${search}`;
+  return `/login?next=${encodeURIComponent(nextPath)}`;
 }

@@ -1,0 +1,86 @@
+
+> frontend@0.1.0 dev
+> next dev --hostname 127.0.0.1 --port 3000
+
+▲ Next.js 16.2.10 (Turbopack)
+- Local:         http://127.0.0.1:3000
+- Network:       http://127.0.0.1:3000
+- Environments: .env.local
+✓ Ready in 8.1s
+Creating turbopack project { dir: 'E:\\Projects\\tauqeer-inc\\frontend', testMode: true }
+○ Compiling proxy ...
+
+○ Compiling / ...
+ GET /login?next=%2Fadmin%2Fdashboard 200 in 14.0s (next.js: 11.8s, application-code: 2.2s)
+ GET / 200 in 58s (next.js: 49s, application-code: 9.4s)
+○ Compiling /_error ...
+ GET /_next/image?url=https%3A%2F%2Fres.cloudinary.com%2Fb5cle1jv%2Fimage%2Fupload%2Fv1785442688%2Ftmi-hero-globe_qob1ag.jpg&w=828&q=75 500 in 20.4s (next.js: 20.1s, application-code: 254ms)
+ GET /_next/image?url=https%3A%2F%2Fres.cloudinary.com%2Fb5cle1jv%2Fimage%2Fupload%2Fv1785442688%2Ftmi-hero-globe_qob1ag.jpg&w=828&q=75 500 in 20.4s (next.js: 20.1s, application-code: 260ms)
+ GET /_next/image?url=https%3A%2F%2Fres.cloudinary.com%2Fb5cle1jv%2Fimage%2Fupload%2Fv1785442687%2Ftmi-dashboard-growth_pfmdpk.jpg&w=828&q=75 500 in 20.4s (next.js: 20.2s, application-code: 126ms)
+ GET /_next/image?url=https%3A%2F%2Fres.cloudinary.com%2Fb5cle1jv%2Fimage%2Fupload%2Fv1785442687%2Ftmi-dashboard-growth_pfmdpk.jpg&w=828&q=75 500 in 20.4s (next.js: 20.2s, application-code: 127ms)
+ GET /_next/image?url=https%3A%2F%2Fres.cloudinary.com%2Fb5cle1jv%2Fimage%2Fupload%2Fv1785442689%2Ftmi-bg-abstract_a8lsu9.jpg&w=828&q=75 500 in 7.1s (next.js: 7.0s, application-code: 31ms)
+ GET /_next/image?url=https%3A%2F%2Fres.cloudinary.com%2Fb5cle1jv%2Fimage%2Fupload%2Fv1785442689%2Ftmi-bg-abstract_a8lsu9.jpg&w=828&q=75 500 in 7.1s (next.js: 7.0s, application-code: 31ms)
+ GET /_next/image?url=https%3A%2F%2Fres.cloudinary.com%2Fb5cle1jv%2Fimage%2Fupload%2Fv1785442687%2Ftmi-dashboard-growth_pfmdpk.jpg&w=828&q=75 500 in 12.4s (next.js: 12.2s, application-code: 165ms)
+ GET /_next/image?url=https%3A%2F%2Fres.cloudinary.com%2Fb5cle1jv%2Fimage%2Fupload%2Fv1785442687%2Ftmi-dashboard-growth_pfmdpk.jpg&w=828&q=75 500 in 12.4s (next.js: 12.2s, application-code: 167ms)
+ GET /_next/image?url=https%3A%2F%2Fres.cloudinary.com%2Fb5cle1jv%2Fimage%2Fupload%2Fv1785442688%2Ftmi-hero-globe_qob1ag.jpg&w=828&q=75 500 in 12.4s (next.js: 12.3s, application-code: 75ms)
+ GET /_next/image?url=https%3A%2F%2Fres.cloudinary.com%2Fb5cle1jv%2Fimage%2Fupload%2Fv1785442688%2Ftmi-hero-globe_qob1ag.jpg&w=828&q=75 500 in 12.4s (next.js: 12.3s, application-code: 76ms)
+ GET /_next/image?url=https%3A%2F%2Fres.cloudinary.com%2Fb5cle1jv%2Fimage%2Fupload%2Fv1785442689%2Ftmi-bg-abstract_a8lsu9.jpg&w=828&q=75 500 in 12.4s (next.js: 12.3s, application-code: 33ms)
+ GET /_next/image?url=https%3A%2F%2Fres.cloudinary.com%2Fb5cle1jv%2Fimage%2Fupload%2Fv1785442689%2Ftmi-bg-abstract_a8lsu9.jpg&w=828&q=75 500 in 12.4s (next.js: 12.3s, application-code: 34ms)
+ GET / 200 in 553ms (next.js: 66ms, application-code: 487ms)
+ GET /_next/image?url=https%3A%2F%2Fres.cloudinary.com%2Fb5cle1jv%2Fimage%2Fupload%2Fv1785442688%2Ftmi-hero-globe_qob1ag.jpg&w=750&q=75 500 in 166ms (next.js: 78ms, application-code: 88ms)
+ GET /_next/image?url=https%3A%2F%2Fres.cloudinary.com%2Fb5cle1jv%2Fimage%2Fupload%2Fv1785442688%2Ftmi-hero-globe_qob1ag.jpg&w=750&q=75 500 in 168ms (next.js: 78ms, application-code: 89ms)
+ GET /_next/image?url=https%3A%2F%2Fres.cloudinary.com%2Fb5cle1jv%2Fimage%2Fupload%2Fv1785442688%2Ftmi-dashboard-finance_w2mvtk.jpg&w=750&q=75 500 in 455ms (next.js: 93ms, application-code: 362ms)
+ GET /_next/image?url=https%3A%2F%2Fres.cloudinary.com%2Fb5cle1jv%2Fimage%2Fupload%2Fv1785442688%2Ftmi-dashboard-finance_w2mvtk.jpg&w=750&q=75 500 in 469ms (next.js: 93ms, application-code: 376ms)
+ GET /_next/image?url=https%3A%2F%2Fres.cloudinary.com%2Fb5cle1jv%2Fimage%2Fupload%2Fv1785442689%2Ftmi-bg-abstract_a8lsu9.jpg&w=750&q=75 500 in 456ms (next.js: 319ms, application-code: 137ms)
+ GET /_next/image?url=https%3A%2F%2Fres.cloudinary.com%2Fb5cle1jv%2Fimage%2Fupload%2Fv1785442689%2Ftmi-bg-abstract_a8lsu9.jpg&w=750&q=75 500 in 457ms (next.js: 319ms, application-code: 138ms)
+ GET /_next/image?url=https%3A%2F%2Fres.cloudinary.com%2Fb5cle1jv%2Fimage%2Fupload%2Fv1785442692%2Ftmi-service-cyber-shield_cly3ur.jpg&w=640&q=75 500 in 450ms (next.js: 256ms, application-code: 194ms)
+ GET /_next/image?url=https%3A%2F%2Fres.cloudinary.com%2Fb5cle1jv%2Fimage%2Fupload%2Fv1785442692%2Ftmi-service-cyber-shield_cly3ur.jpg&w=640&q=75 500 in 452ms (next.js: 256ms, application-code: 196ms)
+ GET /_next/image?url=https%3A%2F%2Fres.cloudinary.com%2Fb5cle1jv%2Fimage%2Fupload%2Fv1785442688%2Ftmi-hero-globe_qob1ag.jpg&w=640&q=75 500 in 451ms (next.js: 315ms, application-code: 136ms)
+ GET /_next/image?url=https%3A%2F%2Fres.cloudinary.com%2Fb5cle1jv%2Fimage%2Fupload%2Fv1785442688%2Ftmi-hero-globe_qob1ag.jpg&w=640&q=75 500 in 453ms (next.js: 315ms, application-code: 138ms)
+ GET /_next/image?url=https%3A%2F%2Fres.cloudinary.com%2Fb5cle1jv%2Fimage%2Fupload%2Fv1785442689%2Ftmi-bg-abstract_a8lsu9.jpg&w=640&q=75 500 in 451ms (next.js: 367ms, application-code: 84ms)
+ GET /_next/image?url=https%3A%2F%2Fres.cloudinary.com%2Fb5cle1jv%2Fimage%2Fupload%2Fv1785442689%2Ftmi-bg-abstract_a8lsu9.jpg&w=640&q=75 500 in 453ms (next.js: 367ms, application-code: 86ms)
+ GET /careers 200 in 1170ms (next.js: 984ms, application-code: 186ms)
+○ Compiling /privacy ...
+ GET /_next/image?url=https%3A%2F%2Fres.cloudinary.com%2Fb5cle1jv%2Fimage%2Fupload%2Fv1785442686%2Ftmi-bg-hexagon_clrisv.jpg&w=1080&q=75 500 in 122ms (next.js: 32ms, application-code: 90ms)
+ GET /_next/image?url=https%3A%2F%2Fres.cloudinary.com%2Fb5cle1jv%2Fimage%2Fupload%2Fv1785442686%2Ftmi-bg-hexagon_clrisv.jpg&w=1080&q=75 500 in 123ms (next.js: 32ms, application-code: 91ms)
+ GET /privacy 200 in 111s (next.js: 109s, application-code: 2.1s)
+ GET /portfolio 200 in 30.6s (next.js: 28.0s, application-code: 2.6s)
+✓ Finished writing to filesystem cache in 11.1s
+ GET /about 200 in 103s (next.js: 102s, application-code: 652ms)
+✓ Finished filesystem cache database compaction in 22.6s
+ GET /privacy 200 in 377ms (next.js: 115ms, application-code: 263ms)
+○ Compiling /terms ...
+ GET /_next/image?url=https%3A%2F%2Fres.cloudinary.com%2Fb5cle1jv%2Fimage%2Fupload%2Fv1785442692%2Ftmi-service-cyber-shield_cly3ur.jpg&w=828&q=75 500 in 12.6s (next.js: 12.5s, application-code: 142ms)
+ GET /_next/image?url=https%3A%2F%2Fres.cloudinary.com%2Fb5cle1jv%2Fimage%2Fupload%2Fv1785442692%2Ftmi-service-cyber-shield_cly3ur.jpg&w=828&q=75 500 in 12.6s (next.js: 12.5s, application-code: 147ms)
+ GET /_next/image?url=https%3A%2F%2Fres.cloudinary.com%2Fb5cle1jv%2Fimage%2Fupload%2Fv1785442689%2Ftmi-bg-abstract_a8lsu9.jpg&w=828&q=75 500 in 10.8s (next.js: 10.7s, application-code: 85ms)
+ GET /_next/image?url=https%3A%2F%2Fres.cloudinary.com%2Fb5cle1jv%2Fimage%2Fupload%2Fv1785442689%2Ftmi-bg-abstract_a8lsu9.jpg&w=828&q=75 500 in 10.8s (next.js: 10.7s, application-code: 86ms)
+ GET /_next/image?url=https%3A%2F%2Fres.cloudinary.com%2Fb5cle1jv%2Fimage%2Fupload%2Fv1785442688%2Ftmi-hero-globe_qob1ag.jpg&w=828&q=75 500 in 11.1s (next.js: 11.0s, application-code: 48ms)
+ GET /_next/image?url=https%3A%2F%2Fres.cloudinary.com%2Fb5cle1jv%2Fimage%2Fupload%2Fv1785442688%2Ftmi-hero-globe_qob1ag.jpg&w=828&q=75 500 in 11.1s (next.js: 11.0s, application-code: 49ms)
+ GET /terms 200 in 2.6s (next.js: 2.2s, application-code: 432ms)
+ GET /terms 200 in 24.3s (next.js: 23.7s, application-code: 667ms)
+○ Compiling /cookies ...
+ GET /cookies 200 in 25.7s (next.js: 25.6s, application-code: 117ms)
+ GET /cookies 200 in 123ms (next.js: 20ms, application-code: 104ms)
+✓ Finished filesystem cache database compaction in 49s
+ GET /cookies 200 in 906ms (next.js: 49ms, application-code: 857ms)
+ GET /cookies 200 in 401ms (next.js: 16ms, application-code: 385ms)
+ GET /contact 200 in 982ms (next.js: 846ms, application-code: 136ms)
+ GET /_next/image?url=https%3A%2F%2Fres.cloudinary.com%2Fb5cle1jv%2Fimage%2Fupload%2Fv1785442686%2Ftmi-about-business_cbqaaq.jpg&w=750&q=75 500 in 12.1s (next.js: 12.1s, application-code: 27ms)
+ GET /_next/image?url=https%3A%2F%2Fres.cloudinary.com%2Fb5cle1jv%2Fimage%2Fupload%2Fv1785442686%2Ftmi-about-business_cbqaaq.jpg&w=750&q=75 500 in 12.1s (next.js: 12.1s, application-code: 28ms)
+ GET / 200 in 315ms (next.js: 48ms, application-code: 268ms)
+ GET /_next/image?url=https%3A%2F%2Fres.cloudinary.com%2Fb5cle1jv%2Fimage%2Fupload%2Fv1785442688%2Ftmi-hero-globe_qob1ag.jpg&w=750&q=75 500 in 12.2s (next.js: 12.1s, application-code: 162ms)
+ GET /_next/image?url=https%3A%2F%2Fres.cloudinary.com%2Fb5cle1jv%2Fimage%2Fupload%2Fv1785442688%2Ftmi-hero-globe_qob1ag.jpg&w=750&q=75 500 in 12.2s (next.js: 12.1s, application-code: 164ms)
+ GET /_next/image?url=https%3A%2F%2Fres.cloudinary.com%2Fb5cle1jv%2Fimage%2Fupload%2Fv1785442688%2Ftmi-dashboard-finance_w2mvtk.jpg&w=750&q=75 500 in 12.2s (next.js: 12.1s, application-code: 142ms)
+ GET /_next/image?url=https%3A%2F%2Fres.cloudinary.com%2Fb5cle1jv%2Fimage%2Fupload%2Fv1785442688%2Ftmi-dashboard-finance_w2mvtk.jpg&w=750&q=75 500 in 12.2s (next.js: 12.1s, application-code: 144ms)
+ GET /_next/image?url=https%3A%2F%2Fres.cloudinary.com%2Fb5cle1jv%2Fimage%2Fupload%2Fv1785442689%2Ftmi-bg-abstract_a8lsu9.jpg&w=750&q=75 500 in 12.2s (next.js: 12.1s, application-code: 122ms)
+ GET /_next/image?url=https%3A%2F%2Fres.cloudinary.com%2Fb5cle1jv%2Fimage%2Fupload%2Fv1785442689%2Ftmi-bg-abstract_a8lsu9.jpg&w=750&q=75 500 in 12.2s (next.js: 12.1s, application-code: 123ms)
+ GET /_next/image?url=https%3A%2F%2Fres.cloudinary.com%2Fb5cle1jv%2Fimage%2Fupload%2Fv1785442692%2Ftmi-service-cyber-shield_cly3ur.jpg&w=640&q=75 500 in 11.0s (next.js: 10.9s, application-code: 102ms)
+ GET /_next/image?url=https%3A%2F%2Fres.cloudinary.com%2Fb5cle1jv%2Fimage%2Fupload%2Fv1785442692%2Ftmi-service-cyber-shield_cly3ur.jpg&w=640&q=75 500 in 11.0s (next.js: 10.9s, application-code: 104ms)
+ GET /_next/image?url=https%3A%2F%2Fres.cloudinary.com%2Fb5cle1jv%2Fimage%2Fupload%2Fv1785442689%2Ftmi-bg-abstract_a8lsu9.jpg&w=640&q=75 500 in 11.0s (next.js: 11.0s, application-code: 70ms)
+ GET /_next/image?url=https%3A%2F%2Fres.cloudinary.com%2Fb5cle1jv%2Fimage%2Fupload%2Fv1785442689%2Ftmi-bg-abstract_a8lsu9.jpg&w=640&q=75 500 in 11.0s (next.js: 11.0s, application-code: 71ms)
+ GET /_next/image?url=https%3A%2F%2Fres.cloudinary.com%2Fb5cle1jv%2Fimage%2Fupload%2Fv1785442688%2Ftmi-hero-globe_qob1ag.jpg&w=640&q=75 500 in 11.0s (next.js: 10.9s, application-code: 48ms)
+ GET /_next/image?url=https%3A%2F%2Fres.cloudinary.com%2Fb5cle1jv%2Fimage%2Fupload%2Fv1785442688%2Ftmi-hero-globe_qob1ag.jpg&w=640&q=75 500 in 11.0s (next.js: 10.9s, application-code: 49ms)
+ GET /_next/image?url=https%3A%2F%2Fres.cloudinary.com%2Fb5cle1jv%2Fimage%2Fupload%2Fv1785442692%2Ftmi-service-cyber-shield_cly3ur.jpg&w=828&q=75 500 in 8.7s (next.js: 8.6s, application-code: 116ms)
+ GET /_next/image?url=https%3A%2F%2Fres.cloudinary.com%2Fb5cle1jv%2Fimage%2Fupload%2Fv1785442692%2Ftmi-service-cyber-shield_cly3ur.jpg&w=828&q=75 500 in 8.7s (next.js: 8.6s, application-code: 118ms)
+ GET /_next/image?url=https%3A%2F%2Fres.cloudinary.com%2Fb5cle1jv%2Fimage%2Fupload%2Fv1785442689%2Ftmi-bg-abstract_a8lsu9.jpg&w=828&q=75 500 in 8.5s (next.js: 8.4s, application-code: 42ms)
+ GET /_next/image?url=https%3A%2F%2Fres.cloudinary.com%2Fb5cle1jv%2Fimage%2Fupload%2Fv1785442689%2Ftmi-bg-abstract_a8lsu9.jpg&w=828&q=75 500 in 8.5s (next.js: 8.4s, application-code: 43ms)
