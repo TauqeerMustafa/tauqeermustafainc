@@ -1,4 +1,4 @@
-Get-ChildItem -Recurse -Include *.ts,*.tsx | Select-String "NEXT_PUBLIC_API_URL""use client";
+"use client";
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
