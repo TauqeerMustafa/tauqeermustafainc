@@ -26,3 +26,6 @@ pnpm-debug.log*
 # system files
 .DS_Store
 Thumbs.db
+
+.vercel
+.env*
