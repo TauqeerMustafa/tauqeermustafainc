@@ -47,6 +47,45 @@ export const services = [
       "API design and third-party integrations",
       "Post-launch maintenance and support",
     ],
+    process: [
+      {
+        title: "Discovery & architecture",
+        detail:
+          "We map the real workflow the platform needs to support, then define data boundaries, service ownership, and a technical plan before any code is written.",
+      },
+      {
+        title: "Build in reviewable increments",
+        detail:
+          "Work ships in small, testable slices with regular check-ins, so priorities can shift without losing momentum on the parts already validated.",
+      },
+      {
+        title: "Harden for production",
+        detail:
+          "Load testing, security review, and monitoring are built in before launch, not treated as a follow-up phase once something breaks.",
+      },
+      {
+        title: "Support after launch",
+        detail:
+          "We stay engaged post-launch for bug fixes, iteration, and the inevitable adjustments real usage reveals that no amount of planning fully anticipates.",
+      },
+    ],
+    faqs: [
+      {
+        question: "Do you work with an existing codebase, or only greenfield builds?",
+        answer:
+          "Both. Many engagements start with an existing platform that needs a rebuild, a migration, or targeted modernization rather than a start from scratch.",
+      },
+      {
+        question: "What does a typical engagement timeline look like?",
+        answer:
+          "It depends on scope, but most platform builds run 8 to 16 weeks from discovery to launch, with smaller feature work delivered in shorter, focused increments.",
+      },
+      {
+        question: "Do you handle ongoing maintenance after launch?",
+        answer:
+          "Yes. Most clients move into a lighter-weight support arrangement after launch, covering bug fixes, small iterations, and monitoring.",
+      },
+    ],
   },
   {
     slug: "cybersecurity",
@@ -62,6 +101,45 @@ export const services = [
       "Secure application development practices",
       "Incident response and readiness planning",
       "Operational risk reporting for leadership",
+    ],
+    process: [
+      {
+        title: "Baseline assessment",
+        detail:
+          "We review current architecture, access controls, and existing findings to understand where real risk is concentrated, not just where a scanner flags noise.",
+      },
+      {
+        title: "Prioritized remediation plan",
+        detail:
+          "Findings are ranked by realistic business impact, not raw severity scores, so engineering effort goes toward what actually reduces exposure first.",
+      },
+      {
+        title: "Guided or hands-on remediation",
+        detail:
+          "Depending on your team's capacity, we can advise your engineers directly or implement fixes ourselves, tracked to closure rather than left open indefinitely.",
+      },
+      {
+        title: "Ongoing monitoring & reporting",
+        detail:
+          "We help set up recurring review cadences and leadership-level reporting so security posture stays visible instead of becoming a once-a-year fire drill.",
+      },
+    ],
+    faqs: [
+      {
+        question: "Do you perform formal penetration testing?",
+        answer:
+          "We conduct security assessments and vulnerability reviews. For formal, certified penetration testing requiring specific compliance sign-off, we can help scope and coordinate with a specialized partner.",
+      },
+      {
+        question: "Can you help us prepare for a compliance audit?",
+        answer:
+          "Yes. We regularly help teams prepare evidence, close control gaps, and build the documentation auditors expect ahead of SOC 2, ISO 27001, or similar reviews.",
+      },
+      {
+        question: "What if you find something serious during a review?",
+        answer:
+          "We flag critical findings immediately, not at the end of the engagement, along with clear guidance on realistic short-term mitigation while a full fix is planned.",
+      },
     ],
   },
   {
@@ -79,6 +157,45 @@ export const services = [
       "Model evaluation and quality monitoring",
       "Responsible rollout and governance planning",
     ],
+    process: [
+      {
+        title: "Identify the right first workflow",
+        detail:
+          "We look for repetitive, measurable tasks with clear success criteria, not the most exciting use case, since tractable workflows are what actually ship successfully.",
+      },
+      {
+        title: "Build with a human checkpoint",
+        detail:
+          "The first version always includes human review and a clear fallback path, protecting against early-stage mistakes while the system is still being validated.",
+      },
+      {
+        title: "Measure real impact",
+        detail:
+          "We track accuracy, escalation rate, and time saved, not just adoption numbers, so you know whether the system is actually working, not just being used.",
+      },
+      {
+        title: "Expand deliberately",
+        detail:
+          "Once a workflow is proven, we expand scope based on evidence, one team and one use case at a time, rather than a risky, all-at-once rollout.",
+      },
+    ],
+    faqs: [
+      {
+        question: "Do we need our own data infrastructure before starting?",
+        answer:
+          "Not necessarily. We assess what data is available during discovery and can often start with what you have, improving data infrastructure alongside the automation work itself.",
+      },
+      {
+        question: "How do you handle AI accuracy and hallucination risk?",
+        answer:
+          "Every workflow ships with a human review checkpoint initially, plus explicit tracking of escalation and correction rates, so accuracy is measured, not assumed.",
+      },
+      {
+        question: "Will this replace our team's jobs?",
+        answer:
+          "Our engagements are scoped around reducing repetitive workload, not headcount replacement. Most clients redirect the time saved toward higher-value work.",
+      },
+    ],
   },
   {
     slug: "cloud-engineering",
@@ -95,6 +212,45 @@ export const services = [
       "Monitoring, logging, and alerting",
       "Cost optimization and capacity planning",
     ],
+    process: [
+      {
+        title: "Assess current infrastructure",
+        detail:
+          "We review existing traffic patterns, deployment practices, and cost structure to design for the next realistic order of magnitude, not a hypothetical future scale.",
+      },
+      {
+        title: "Build reproducible environments",
+        detail:
+          "Infrastructure as code and consistent environments come first, since this reduces operational risk on every deployment more than any single scaling pattern.",
+      },
+      {
+        title: "Automate the deployment pipeline",
+        detail:
+          "CI/CD is designed around your team's actual release cadence, with rollback paths and testing gates that catch problems before they reach production.",
+      },
+      {
+        title: "Establish cost & reliability visibility",
+        detail:
+          "Tagging, monitoring, and cost dashboards are set up from day one, so spend and system health are visible before they become a surprise.",
+      },
+    ],
+    faqs: [
+      {
+        question: "Which cloud providers do you work with?",
+        answer:
+          "We work across AWS, Azure, and GCP, and help teams choose the right provider based on existing tooling, team familiarity, and cost structure rather than a default preference.",
+      },
+      {
+        question: "Can you migrate us from a different cloud provider?",
+        answer:
+          "Yes. Migrations are planned incrementally, one service or workload at a time, to minimize downtime risk and keep the system operable throughout the transition.",
+      },
+      {
+        question: "Do you help reduce our existing cloud costs?",
+        answer:
+          "Cost review is part of most engagements. We typically find meaningful savings in unused resources, oversized instances, and untagged spend before recommending any new investment.",
+      },
+    ],
   },
   {
     slug: "ui-ux-product-design",
@@ -110,6 +266,45 @@ export const services = [
       "High-fidelity interface design",
       "Usability testing and iteration",
       "Design-to-development handoff",
+    ],
+    process: [
+      {
+        title: "Understand the real workflow",
+        detail:
+          "We start with how people actually work today, not an idealized version, since interfaces designed against real friction hold up far better in practice.",
+      },
+      {
+        title: "Structure before styling",
+        detail:
+          "Information architecture and wireframes come before visual design, so the underlying structure is validated before time is spent on visual polish.",
+      },
+      {
+        title: "Design in context",
+        detail:
+          "High-fidelity screens are designed and reviewed within realistic data and content, not lorem ipsum, so edge cases surface before development begins.",
+      },
+      {
+        title: "Test and hand off cleanly",
+        detail:
+          "Usability testing catches friction early, and a detailed design-to-development handoff keeps implementation faithful to the intended experience.",
+      },
+    ],
+    faqs: [
+      {
+        question: "Do you design and build, or just design?",
+        answer:
+          "Both, depending on the engagement. Many clients use our design work alongside our own engineering team; others take our designs to their in-house developers.",
+      },
+      {
+        question: "Do you conduct user research, or just visual design?",
+        answer:
+          "Research is part of most engagements, ranging from lightweight stakeholder interviews to structured usability testing, depending on project scope and timeline.",
+      },
+      {
+        question: "Can you work within our existing design system?",
+        answer:
+          "Yes, and we're equally comfortable helping build one from scratch if none exists yet, or extending a partial system into something more complete and consistent.",
+      },
     ],
   },
 ];

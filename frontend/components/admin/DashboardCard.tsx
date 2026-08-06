@@ -1,10 +1,22 @@
-import { LucideIcon } from "lucide-react";
+"use client";
 
-type DashboardCardProps = {
+import { useEffect, useRef } from "react";
+import { LucideIcon, TrendingUp } from "lucide-react";
+
+type Props = {
   title: string;
   value: string | number;
   subtitle: string;
   icon: LucideIcon;
+  trend?: number; /* percent change, positive = up */
+  color?: "blue" | "green" | "amber" | "red";
+};
+
+const colorMap = {
+  blue:  { bg: "var(--adm-blue-light)",  icon: "var(--adm-blue)",  border: "var(--adm-blue-mid)" },
+  green: { bg: "var(--adm-green-light)", icon: "var(--adm-green)", border: "#A7F3D0" },
+  amber: { bg: "var(--adm-amber-light)", icon: "var(--adm-amber)", border: "#FDE68A" },
+  red:   { bg: "var(--adm-red-light)",   icon: "var(--adm-red)",   border: "#FECACA" },
 };
 
 export default function DashboardCard({
@@ -12,36 +24,70 @@ export default function DashboardCard({
   value,
   subtitle,
   icon: Icon,
-}: DashboardCardProps) {
+  trend,
+  color = "blue",
+}: Props) {
+  const c = colorMap[color];
+
   return (
-    <div className="group rounded-none border border-white/10 bg-white/5 p-6 backdrop-blur-xl transition-all duration-300 hover:-translate-y-1 hover:border-yellow-400/50">
-
-      <div className="mb-6 flex items-center justify-between">
-
-        <div>
-          <p className="text-sm uppercase tracking-wider text-slate-400">
-            {title}
-          </p>
-
-          <h3 className="mt-3 text-4xl font-bold text-white">
-            {value}
-          </h3>
+    <div
+      className="adm-card group p-5 cursor-default"
+      style={{ animationFillMode: "both" }}
+    >
+      {/* Top row */}
+      <div className="flex items-start justify-between gap-3">
+        <div
+          className="flex h-10 w-10 shrink-0 items-center justify-center border transition-transform duration-300 group-hover:scale-110"
+          style={{ background: c.bg, borderColor: c.border, color: c.icon }}
+        >
+          <Icon size={20} />
         </div>
 
-        <div className="rounded-none bg-yellow-400/10 p-4 text-yellow-400 transition group-hover:scale-110">
-          <Icon size={34} />
-        </div>
-
+        {trend !== undefined && (
+          <div
+            className="flex items-center gap-1 px-2 py-0.5 text-xs font-semibold"
+            style={{
+              background: trend >= 0 ? "var(--adm-green-light)" : "var(--adm-red-light)",
+              color: trend >= 0 ? "var(--adm-green)" : "var(--adm-red)",
+            }}
+          >
+            <TrendingUp
+              size={11}
+              style={{ transform: trend < 0 ? "scaleY(-1)" : undefined }}
+            />
+            {Math.abs(trend)}%
+          </div>
+        )}
       </div>
 
-      <div className="border-t border-white/10 pt-4">
+      {/* Value */}
+      <div className="mt-4">
+        <p className="text-[11px] font-semibold uppercase tracking-widest" style={{ color: "var(--adm-text-3)" }}>
+          {title}
+        </p>
+        <p
+          className="mt-1 text-3xl font-bold tabular-nums tracking-tight adm-stat-value"
+          style={{ color: "var(--adm-text)" }}
+        >
+          {value}
+        </p>
+      </div>
 
-        <p className="text-sm text-slate-400">
+      {/* Divider + subtitle */}
+      <div
+        className="mt-4 border-t pt-3"
+        style={{ borderColor: "var(--adm-border)" }}
+      >
+        <p className="text-xs" style={{ color: "var(--adm-text-3)" }}>
           {subtitle}
         </p>
-
       </div>
 
+      {/* Blue accent line on hover */}
+      <div
+        className="absolute bottom-0 left-0 h-0.5 w-0 transition-all duration-300 group-hover:w-full"
+        style={{ background: c.icon }}
+      />
     </div>
   );
 }

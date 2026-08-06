@@ -1,19 +1,10 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import {
-  Bell,
-  LogOut,
-  Menu,
-  Search,
-  UserCircle2,
-} from "lucide-react";
-
+import { Bell, LogOut, Menu, Search, UserCircle2, ChevronDown } from "lucide-react";
 import { useCurrentUser, useLogout } from "@/hooks/useAuth";
 
-type Props = {
-  onMenuClick: () => void;
-};
+type Props = { onMenuClick: () => void };
 
 export default function AdminHeader({ onMenuClick }: Props) {
   const router = useRouter();
@@ -27,82 +18,95 @@ export default function AdminHeader({ onMenuClick }: Props) {
   }
 
   return (
-    <header className="sticky top-0 z-30 flex h-16 items-center justify-between gap-3 border-b border-white/10 bg-[#050816]/90 px-4 backdrop-blur-xl sm:h-20 sm:px-6 lg:px-8">
-
-      <div className="flex min-w-0 items-center gap-3">
+    <header
+      className="sticky top-0 z-30 flex h-16 items-center justify-between gap-3 border-b px-4 backdrop-blur-md sm:h-[60px] sm:px-6 lg:px-8"
+      style={{
+        background: "rgba(255,255,255,0.95)",
+        borderColor: "var(--adm-border)",
+        boxShadow: "0 1px 0 0 var(--adm-border), 0 4px 12px rgba(0,0,0,0.04)",
+      }}
+    >
+      {/* Left */}
+      <div className="flex items-center gap-3">
         <button
           type="button"
           onClick={onMenuClick}
           aria-label="Open menu"
-          className="flex h-10 w-10 shrink-0 items-center justify-center border border-white/10 bg-white/5 text-slate-300 transition hover:border-yellow-400 lg:hidden"
+          className="flex h-9 w-9 shrink-0 items-center justify-center border transition hover:bg-gray-50 lg:hidden"
+          style={{ borderColor: "var(--adm-border)", color: "var(--adm-text-2)" }}
         >
-          <Menu size={20} />
+          <Menu size={18} />
         </button>
 
-        <div className="min-w-0">
-          <h2 className="truncate text-lg font-bold text-white sm:text-2xl">
-            Dashboard
-          </h2>
-
-          <p className="mt-0.5 hidden truncate text-sm text-slate-400 sm:block">
-            Welcome back{user?.name ? `, ${user.name}` : ""}
-          </p>
+        {/* Search bar */}
+        <div className="relative hidden md:block">
+          <Search
+            size={15}
+            className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none"
+            style={{ color: "var(--adm-text-3)" }}
+          />
+          <input
+            type="text"
+            placeholder="Search anything…"
+            className="w-56 border py-2 pl-9 pr-4 text-sm outline-none transition focus:border-[#0B5FFF] focus:ring-2 focus:ring-[#0B5FFF]/10 lg:w-72"
+            style={{
+              borderColor: "var(--adm-border)",
+              background: "var(--adm-surface-2)",
+              color: "var(--adm-text)",
+            }}
+          />
         </div>
       </div>
 
-      <div className="flex items-center gap-2 sm:gap-5">
-
-        <div className="relative hidden md:block">
-
-          <Search
-            size={18}
-            className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500"
+      {/* Right */}
+      <div className="flex items-center gap-2">
+        {/* Notifications */}
+        <button
+          className="relative flex h-9 w-9 items-center justify-center border transition hover:bg-gray-50"
+          style={{ borderColor: "var(--adm-border)", color: "var(--adm-text-2)" }}
+          aria-label="Notifications"
+        >
+          <Bell size={17} />
+          {/* Notification dot */}
+          <span
+            className="absolute right-2 top-2 h-2 w-2 rounded-full border-2 border-white animate-bounce-subtle"
+            style={{ background: "var(--adm-blue)" }}
           />
-
-          <input
-            type="text"
-            placeholder="Search..."
-            className="w-40 rounded-none border border-white/10 bg-white/5 py-2.5 pl-11 pr-4 text-sm text-white outline-none transition focus:border-yellow-400 lg:w-72 lg:py-3"
-          />
-
-        </div>
-
-        <button className="flex h-10 w-10 shrink-0 items-center justify-center rounded-none border border-white/10 bg-white/5 transition hover:border-yellow-400 sm:h-auto sm:w-auto sm:p-3">
-          <Bell size={20} />
         </button>
 
-        <div className="hidden items-center gap-3 rounded-none border border-white/10 bg-white/5 px-4 py-2 sm:flex">
-
-          <UserCircle2
-            size={36}
-            className="text-yellow-400"
-          />
-
+        {/* User pill */}
+        <div
+          className="hidden items-center gap-2.5 border px-3 py-1.5 transition hover:bg-gray-50 cursor-pointer sm:flex"
+          style={{ borderColor: "var(--adm-border)" }}
+        >
+          <div
+            className="flex h-7 w-7 shrink-0 items-center justify-center text-white text-xs font-semibold"
+            style={{ background: "var(--adm-blue)" }}
+          >
+            {user?.name?.[0]?.toUpperCase() ?? "A"}
+          </div>
           <div className="min-w-0">
-
-            <p className="truncate text-sm font-semibold text-white">
+            <p className="truncate text-sm font-semibold leading-tight" style={{ color: "var(--adm-text)" }}>
               {user?.name ?? "Admin"}
             </p>
-
-            <p className="truncate text-xs text-slate-400">
-              {user?.role === "admin" ? "Super Administrator" : (user?.email ?? "")}
+            <p className="truncate text-[10px]" style={{ color: "var(--adm-text-3)" }}>
+              {user?.role === "admin" ? "Super Admin" : (user?.email ?? "")}
             </p>
-
           </div>
-
+          <ChevronDown size={14} style={{ color: "var(--adm-text-3)" }} />
         </div>
 
+        {/* Logout */}
         <button
           type="button"
           onClick={handleLogout}
           aria-label="Log out"
-          className="flex h-10 w-10 shrink-0 items-center justify-center border border-white/10 bg-white/5 text-slate-300 transition hover:border-red-400 hover:text-red-400"
+          className="flex h-9 w-9 items-center justify-center border transition hover:border-red-300 hover:bg-red-50 hover:text-red-500"
+          style={{ borderColor: "var(--adm-border)", color: "var(--adm-text-2)" }}
         >
-          <LogOut size={18} />
+          <LogOut size={17} />
         </button>
-
       </div>
-
     </header>
   );
 }

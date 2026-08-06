@@ -10,14 +10,6 @@ export const metadata: Metadata = buildMetadata({
   noIndex: true,
 });
 
-type LoginPageProps = {
-  searchParams?: Promise<{
-    next?: string | string[];
-  }>;
-};
-
-export default async function LoginPage({ searchParams }: LoginPageProps) {
-  const params = await searchParams;
-  const nextPath = Array.isArray(params?.next) ? params.next[0] : params?.next;
-  return <LoginForm nextPath={nextPath} />;
+export default function LoginPage() {
+  return <LoginForm />;
 }

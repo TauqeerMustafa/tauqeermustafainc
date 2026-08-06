@@ -15,21 +15,23 @@ interface AuthContextValue {
 const AuthContext = createContext<AuthContextValue | null>(null);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [token, setTokenState] = useState<string | null>(() => getStoredToken());
+  const [token, setTokenState] = useState<string | null>(null);
+  const [isHydrated, setIsHydrated] = useState(false);
 
   useEffect(() => {
     setAuthTokenGetter(getStoredToken);
+    setTokenState(getStoredToken());
+    setIsHydrated(true);
 
     const unsubscribe = subscribeToToken(() => setTokenState(getStoredToken()));
     return () => {
       unsubscribe();
-      setAuthTokenGetter(null);
     };
   }, []);
 
   const value: AuthContextValue = {
     token,
-    isAuthenticated: Boolean(token),
+    isAuthenticated: isHydrated && Boolean(token),
     setToken: setStoredToken,
     logout: () => {
       clearStoredToken();

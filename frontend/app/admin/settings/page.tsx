@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { AdminField, AdminPageHeader, adminInputClass } from "@/components/admin/AdminUI";
 import { useCurrentUser, useUpdateProfile } from "@/hooks/useAuth";
@@ -11,20 +11,21 @@ export default function AdminSettingsPage() {
   const user = data?.data;
   const updateProfile = useUpdateProfile();
 
-  const [nameOverride, setNameOverride] = useState<string | null>(null);
+  const [name, setName] = useState("");
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [passwordError, setPasswordError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
-  const name = nameOverride ?? user?.name ?? "";
+  useEffect(() => {
+    if (user?.name) setName(user.name);
+  }, [user?.name]);
 
   async function handleProfileSubmit(e: React.FormEvent) {
     e.preventDefault();
     setSuccessMessage(null);
     await updateProfile.mutateAsync({ name });
-    setNameOverride(null);
     setSuccessMessage("Profile updated.");
   }
 
@@ -70,7 +71,7 @@ export default function AdminSettingsPage() {
             id="settings-name"
             className={adminInputClass}
             value={name}
-            onChange={(e) => setNameOverride(e.target.value)}
+            onChange={(e) => setName(e.target.value)}
           />
         </AdminField>
         <AdminField label="Email" htmlFor="settings-email">

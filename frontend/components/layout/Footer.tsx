@@ -1,27 +1,50 @@
 import Image from "next/image";
 import Link from "next/link";
-import { Mail, MapPin, Phone } from "lucide-react";
-import { FaGithub, FaLinkedin } from "react-icons/fa";
+import { Mail, MapPin, Phone, FileText } from "lucide-react";
+import { FaGithub, FaLinkedin, FaXTwitter } from "react-icons/fa6";
 
 import { company } from "@/data/company";
 import { footerLinks, navigation } from "@/lib/site-data";
 
 const socialLinks = [
-  { name: "GitHub", href: company.social.github, icon: FaGithub },
-  { name: "LinkedIn", href: company.social.linkedin, icon: FaLinkedin },
+  { name: "GitHub",   href: company.social.github,   icon: FaGithub },
+  { name: "LinkedIn", href: company.social.linkedin,  icon: FaLinkedin },
+  { name: "X",        href: company.social.twitter ?? "https://x.com/tauqeermustafainc", icon: FaXTwitter },
+];
+
+/** Legal, compliance, and policy documents available to clients worldwide. */
+const documents = [
+  { name: "Privacy Policy",              href: "/privacy" },
+  { name: "Terms of Service",            href: "/terms" },
+  { name: "Cookie Policy",               href: "/cookies" },
+  { name: "Accessibility Statement",     href: "/accessibility" },
+  { name: "Service Level Agreement",     href: "/legal/sla" },
+  { name: "Data Processing Agreement",   href: "/legal/dpa" },
+  { name: "Non-Disclosure Agreement",    href: "/legal/nda" },
+  { name: "Security Policy",             href: "/legal/security-policy" },
+  { name: "Responsible Disclosure",      href: "/legal/responsible-disclosure" },
+  { name: "Modern Slavery Statement",    href: "/legal/modern-slavery" },
+  { name: "Anti-Bribery Policy",         href: "/legal/anti-bribery" },
+  { name: "GDPR Compliance",             href: "/legal/gdpr" },
+  { name: "CCPA / CPRA Notice",          href: "/legal/ccpa" },
+  { name: "PDPA Compliance (Asia)",      href: "/legal/pdpa" },
+  { name: "POPIA Compliance (Africa)",   href: "/legal/popia" },
 ];
 
 export default function Footer() {
   return (
     <footer
-      className="tmi-grid border-t border-[#1B2A45] bg-[#0A1628]"
+      className="border-t border-[#1B2A45] bg-[#0A1628]"
       aria-labelledby="footer-heading"
     >
-      <h2 id="footer-heading" className="sr-only">
-        Footer
-      </h2>
+      <h2 id="footer-heading" className="sr-only">Footer</h2>
+
       <div className="mx-auto max-w-7xl px-6 py-16 sm:py-24 lg:px-8">
+
+        {/* ── Top row: brand + nav columns ── */}
         <div className="lg:flex lg:items-start lg:justify-between">
+
+          {/* Brand block */}
           <div className="max-w-xs">
             <Link href="/" className="inline-flex items-center gap-2 text-lg font-semibold text-white">
               <span className="relative flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden border border-[#0B5FFF]">
@@ -35,7 +58,7 @@ export default function Footer() {
               </span>
               {company.name}
             </Link>
-            <p className="mt-3 text-sm text-zinc-400">
+            <p className="mt-3 text-sm leading-6 text-zinc-400">
               {company.description.split(".")[0]}.
             </p>
 
@@ -79,14 +102,16 @@ export default function Footer() {
               ))}
             </div>
           </div>
+
+          {/* Nav columns */}
           <div className="mt-16 grid grid-cols-2 gap-8 sm:grid-cols-3 lg:mt-0">
             {[
               { title: "Navigate", links: navigation },
               { title: "Services", links: footerLinks.services },
-              { title: "Company", links: footerLinks.company },
+              { title: "Company",  links: footerLinks.company },
             ].map((group) => (
               <div key={group.title}>
-                <h3 className="font-mono text-xs font-semibold uppercase tracking-widest text-[#7FA8FF]">
+                <h3 className="font-mono text-[11px] font-semibold uppercase tracking-widest text-[#7FA8FF]">
                   {group.title}
                 </h3>
                 <ul role="list" className="mt-4 space-y-3">
@@ -105,10 +130,47 @@ export default function Footer() {
             ))}
           </div>
         </div>
-        <div className="mt-16 flex flex-col gap-4 border-t border-[#1B2A45] pt-8 sm:mt-20 sm:flex-row sm:items-center sm:justify-between lg:mt-24">
+
+        {/* ── Documents section ── */}
+        <div className="mt-16 border-t border-[#1B2A45] pt-10 sm:mt-20 lg:mt-24">
+          <div className="flex items-center gap-2">
+            <FileText className="h-4 w-4 text-[#7FA8FF]" aria-hidden="true" />
+            <h3 className="font-mono text-[11px] font-semibold uppercase tracking-widest text-[#7FA8FF]">
+              Legal &amp; Compliance Documents
+            </h3>
+          </div>
+          <p className="mt-2 max-w-2xl text-xs leading-5 text-zinc-500">
+            We operate across multiple jurisdictions. The following documents govern our services and
+            data practices in accordance with international law, including GDPR (EU), CCPA/CPRA
+            (California), PDPA (Singapore / Thailand), POPIA (South Africa), and applicable UK and
+            Canadian privacy regulations.
+          </p>
+          <ul
+            role="list"
+            className="mt-6 grid grid-cols-2 gap-x-8 gap-y-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5"
+          >
+            {documents.map((doc) => (
+              <li key={doc.name}>
+                <Link
+                  href={doc.href}
+                  className="group flex items-start gap-1.5 text-xs text-zinc-500 transition hover:text-white"
+                >
+                  <span
+                    className="mt-0.5 h-3 w-3 shrink-0 border border-[#1B2A45] bg-[#0B5FFF]/10 transition group-hover:border-[#0B5FFF]"
+                    aria-hidden="true"
+                  />
+                  {doc.name}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        {/* ── Bottom bar ── */}
+        <div className="mt-12 flex flex-col gap-4 border-t border-[#1B2A45] pt-8 sm:flex-row sm:items-center sm:justify-between">
           <p className="font-mono text-xs leading-5 text-zinc-500">
-            &copy; {new Date().getFullYear()} {company.name}. All rights
-            reserved.
+            &copy; {new Date().getFullYear()} {company.name}. All rights reserved.
+            Registered in England &amp; Wales. Serving clients worldwide.
           </p>
           <div className="flex flex-wrap gap-6">
             {footerLinks.legal.map((item) => (
@@ -122,6 +184,7 @@ export default function Footer() {
             ))}
           </div>
         </div>
+
       </div>
     </footer>
   );

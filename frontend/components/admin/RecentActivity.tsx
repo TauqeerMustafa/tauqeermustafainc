@@ -1,8 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Mail, MailOpen } from "lucide-react";
-
+import { Mail, MailOpen, ArrowRight } from "lucide-react";
 import { useMessages } from "@/hooks/useMessages";
 
 export default function RecentActivity() {
@@ -10,49 +9,85 @@ export default function RecentActivity() {
   const messages = data?.data.items ?? [];
 
   return (
-    <section className="rounded-none border border-white/10 bg-white/5 p-6 backdrop-blur-xl">
-
-      <div className="mb-6 flex items-center justify-between">
-        <h2 className="text-2xl font-bold text-white">
+    <section
+      className="border p-5"
+      style={{ background: "var(--adm-surface)", borderColor: "var(--adm-border)" }}
+    >
+      <div className="mb-4 flex items-center justify-between">
+        <h2 className="text-base font-bold" style={{ color: "var(--adm-text)" }}>
           Recent Messages
         </h2>
-        <Link href="/admin/messages" className="text-sm font-semibold text-yellow-400 hover:underline">
-          View all
+        <Link
+          href="/admin/messages"
+          className="flex items-center gap-1 text-xs font-semibold transition hover:underline"
+          style={{ color: "var(--adm-blue)" }}
+        >
+          View all <ArrowRight size={12} />
         </Link>
       </div>
 
-      {isLoading ? <p className="text-sm text-slate-400">Loading...</p> : null}
-      {isError ? <p className="text-sm text-red-400">Could not load recent messages.</p> : null}
-      {!isLoading && !isError && messages.length === 0 ? (
-        <p className="text-sm text-slate-400">No messages yet. New contact form submissions will show up here.</p>
-      ) : null}
+      {isLoading && (
+        <div className="space-y-2">
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="skeleton h-14 w-full" />
+          ))}
+        </div>
+      )}
 
-      <div className="space-y-3">
+      {isError && (
+        <p className="text-sm" style={{ color: "var(--adm-red)" }}>
+          Could not load recent messages.
+        </p>
+      )}
 
-        {messages.map((message) => (
+      {!isLoading && !isError && messages.length === 0 && (
+        <p className="text-sm" style={{ color: "var(--adm-text-3)" }}>
+          No messages yet. Contact form submissions appear here.
+        </p>
+      )}
+
+      <div className="space-y-2">
+        {messages.map((message, i) => (
           <Link
             key={message.id}
             href="/admin/messages"
-            className="flex items-start gap-4 rounded-none border border-white/10 bg-[#08101F] p-4 transition hover:border-yellow-400/50"
+            className="adm-card flex items-start gap-3 p-3.5"
+            style={{ animationDelay: `${i * 0.06}s` }}
           >
-            <div className="rounded-none bg-yellow-400/10 p-3 text-yellow-400">
-              {message.isRead ? <MailOpen size={20} /> : <Mail size={20} />}
+            <div
+              className="flex h-8 w-8 shrink-0 items-center justify-center border"
+              style={{
+                background: message.isRead ? "var(--adm-surface-2)" : "var(--adm-blue-light)",
+                borderColor: message.isRead ? "var(--adm-border)" : "var(--adm-blue-mid)",
+                color: message.isRead ? "var(--adm-text-3)" : "var(--adm-blue)",
+              }}
+            >
+              {message.isRead ? <MailOpen size={15} /> : <Mail size={15} />}
             </div>
 
-            <div className="min-w-0">
-              <h3 className="truncate font-semibold text-white">
-                {message.name}{message.company ? ` · ${message.company}` : ""}
-              </h3>
-
-              <p className="mt-1 truncate text-sm text-slate-400">
+            <div className="min-w-0 flex-1">
+              <p className="truncate text-sm font-semibold" style={{ color: "var(--adm-text)" }}>
+                {message.name}
+                {message.company ? (
+                  <span className="font-normal" style={{ color: "var(--adm-text-3)" }}>
+                    {" · "}{message.company}
+                  </span>
+                ) : null}
+              </p>
+              <p className="mt-0.5 text-xs" style={{ color: "var(--adm-text-3)" }}>
                 {new Date(message.createdAt).toLocaleString()}
               </p>
             </div>
+
+            {!message.isRead && (
+              <span
+                className="mt-1 h-2 w-2 shrink-0 rounded-full"
+                style={{ background: "var(--adm-blue)" }}
+              />
+            )}
           </Link>
         ))}
-
       </div>
-
     </section>
   );
 }

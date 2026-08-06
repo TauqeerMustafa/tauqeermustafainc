@@ -5,11 +5,14 @@ import { CheckCircle2 } from "lucide-react";
 
 import {
   Card,
+  IconFrame,
+  ImagePlaceholder,
   PageHero,
   PrimaryButton,
   Section,
   SectionHeader,
 } from "@/components/home/ui";
+import { FaqAccordion } from "@/components/services/FaqAccordion";
 import { services } from "@/lib/site-data";
 import { buildMetadata } from "@/lib/metadata";
 
@@ -110,6 +113,43 @@ export default async function ServiceDetailPage({
           </Card>
         </div>
       </Section>
+
+      {service.process && (
+        <Section className="bg-white" labelledBy="service-process">
+          <SectionHeader
+            id="service-process"
+            eyebrow="How we work"
+            title="Our process for this engagement"
+            description="A consistent approach, adapted to your specific scope and timeline."
+          />
+          <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+            {service.process.map((step, index) => (
+              <Card key={step.title} className="hover:translate-y-0">
+                <div className="flex items-center gap-3">
+                  <IconFrame icon={() => <span className="text-sm font-bold">{index + 1}</span>} />
+                </div>
+                <h3 className="mt-4 font-semibold text-[#0A1628]">{step.title}</h3>
+                <p className="mt-2 text-sm leading-6 text-[#6B7280]">{step.detail}</p>
+              </Card>
+            ))}
+          </div>
+        </Section>
+      )}
+
+      {service.faqs && (
+        <Section className="bg-[#F8FAFC]" labelledBy="service-faqs">
+          <div className="grid gap-10 lg:grid-cols-[0.9fr_1.1fr]">
+            <SectionHeader
+              id="service-faqs"
+              eyebrow="Common questions"
+              title="Frequently asked questions"
+              description="If your question isn't covered here, reach out and we'll answer it directly."
+              action={<PrimaryButton href="/contact">Ask a question</PrimaryButton>}
+            />
+            <FaqAccordion faqs={service.faqs} />
+          </div>
+        </Section>
+      )}
     </>
   );
 }
