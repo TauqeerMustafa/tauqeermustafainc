@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { Bell, LogOut, Menu, Search, UserCircle2, ChevronDown } from "lucide-react";
+import { Bell, LogOut, Menu, Search, ChevronDown } from "lucide-react";
 import { useCurrentUser, useLogout } from "@/hooks/useAuth";
 
 type Props = { onMenuClick: () => void };
@@ -48,7 +48,7 @@ export default function AdminHeader({ onMenuClick }: Props) {
           <input
             type="text"
             placeholder="Search anything…"
-            className="w-56 border py-2 pl-9 pr-4 text-sm outline-none transition focus:border-[#0B5FFF] focus:ring-2 focus:ring-[#0B5FFF]/10 lg:w-72"
+            className="w-56 border py-2 pl-9 pr-4 text-sm outline-none transition focus:border-[#0A0A0A] focus:ring-2 focus:ring-[#0A0A0A]/10 lg:w-72"
             style={{
               borderColor: "var(--adm-border)",
               background: "var(--adm-surface-2)",

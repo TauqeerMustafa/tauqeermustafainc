@@ -26,3 +26,6 @@ pnpm-debug.log*
 # system files
 .DS_Store
 Thumbs.db
+
+# Codex CLI tool cache (not part of the project)
+.codex/

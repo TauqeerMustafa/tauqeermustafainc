@@ -30,7 +30,7 @@ const faqs = [
 
 export default function FAQ() {
   return (
-    <Section className="bg-[#F8FAFC]" labelledBy="contact-faq">
+    <Section className="bg-[#FAFAFA]" labelledBy="contact-faq">
       <SectionHeader
         id="contact-faq"
         eyebrow="Questions"
@@ -43,8 +43,8 @@ export default function FAQ() {
             key={item.question}
             className="border-t border-gray-200 pt-6"
           >
-            <h3 className="text-lg font-semibold text-[#0A1628]">{item.question}</h3>
-            <p className="mt-3 text-base leading-7 text-[#6B7280]">{item.answer}</p>
+            <h3 className="text-lg font-semibold text-[#0A0A0A]">{item.question}</h3>
+            <p className="mt-3 text-base leading-7 text-[#737373]">{item.answer}</p>
           </div>
         ))}
       </div>

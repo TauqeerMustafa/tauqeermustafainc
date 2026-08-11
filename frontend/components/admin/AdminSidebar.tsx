@@ -59,9 +59,9 @@ export default function AdminSidebar({ isOpen, onClose }: Props) {
             className="inline-flex items-center gap-2.5 group"
             onClick={onClose}
           >
-            <span className="relative flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden border border-[#D7DEE8] transition group-hover:border-[#0B5FFF]">
+            <span className="relative flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden border border-[#E5E5E5] transition group-hover:border-[#0A0A0A]">
               <Image
-                src="https://res.cloudinary.com/b5cle1jv/image/upload/v1785442689/tmi-logo-badge_cfkewe.jpg"
+                src="/logo-mark.svg"
                 alt=""
                 fill
                 sizes="32px"

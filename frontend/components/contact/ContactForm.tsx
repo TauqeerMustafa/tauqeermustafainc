@@ -5,8 +5,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { contactSchema, ContactFormData } from "@/lib/validation";
 
 const inputClass =
-  "w-full rounded-none border border-[#D7DEE8] bg-white px-4 py-3 text-sm text-[#0A1628] outline-none transition placeholder:text-[#9AA5B4] focus:border-[#0B5FFF] focus:ring-1 focus:ring-[#0B5FFF]";
-const labelClass = "mb-2 block text-sm font-semibold text-[#0A1628]";
+  "w-full rounded-none border border-[#E5E5E5] bg-white px-4 py-3 text-sm text-[#0A0A0A] outline-none transition placeholder:text-[#A3A3A3] focus:border-[#0A0A0A] focus:ring-1 focus:ring-[#0A0A0A]";
+const labelClass = "mb-2 block text-sm font-semibold text-[#0A0A0A]";
 const errorClass = "mt-1 text-sm text-red-600";
 
 const SERVICES = [
@@ -77,11 +77,11 @@ export default function ContactForm() {
   return (
     <form
       onSubmit={handleSubmit(onSubmit)}
-      className="space-y-6 border border-[#D7DEE8] bg-white p-6 shadow-[0_1px_2px_rgba(17,24,39,0.04),0_18px_48px_rgba(17,24,39,0.05)] sm:p-8"
+      className="space-y-6 border border-[#E5E5E5] bg-white p-6 shadow-[0_1px_2px_rgba(17,24,39,0.04),0_18px_48px_rgba(17,24,39,0.05)] sm:p-8"
     >
       {/* ── Identity ── */}
       <div>
-        <p className="font-mono text-[11px] font-semibold uppercase tracking-widest text-[#0B5FFF]">
+        <p className="font-mono text-[11px] font-semibold uppercase tracking-widest text-[#0A0A0A]">
           About you
         </p>
       </div>
@@ -139,7 +139,7 @@ export default function ContactForm() {
 
       {/* ── Company ── */}
       <div className="pt-2">
-        <p className="font-mono text-[11px] font-semibold uppercase tracking-widest text-[#0B5FFF]">
+        <p className="font-mono text-[11px] font-semibold uppercase tracking-widest text-[#0A0A0A]">
           Your organisation
         </p>
       </div>
@@ -170,7 +170,7 @@ export default function ContactForm() {
 
       {/* ── Project ── */}
       <div className="pt-2">
-        <p className="font-mono text-[11px] font-semibold uppercase tracking-widest text-[#0B5FFF]">
+        <p className="font-mono text-[11px] font-semibold uppercase tracking-widest text-[#0A0A0A]">
           About the project
         </p>
       </div>
@@ -259,11 +259,11 @@ export default function ContactForm() {
       </div>
 
       {/* NDA note */}
-      <p className="text-xs leading-5 text-[#9AA5B4]">
+      <p className="text-xs leading-5 text-[#A3A3A3]">
         Need an NDA before sharing details?{" "}
         <a
           href="mailto:legal@tauqeermustafainc.com"
-          className="text-[#0B5FFF] underline-offset-2 hover:underline"
+          className="text-[#0A0A0A] underline-offset-2 hover:underline"
         >
           Email our legal team
         </a>{" "}
@@ -273,13 +273,13 @@ export default function ContactForm() {
       <button
         type="submit"
         disabled={isSubmitting}
-        className="inline-flex w-full items-center justify-center gap-2 bg-[#0B5FFF] px-6 py-4 text-sm font-semibold text-white shadow-[0_10px_30px_rgba(11,95,255,0.28)] transition hover:bg-[#0A46A8] disabled:opacity-50"
+        className="inline-flex w-full items-center justify-center gap-2 bg-[#0A0A0A] px-6 py-4 text-sm font-semibold text-white shadow-[0_10px_30px_rgba(0,0,0,0.28)] transition hover:bg-[#262626] disabled:opacity-50"
       >
         {isSubmitting ? "Sending…" : "Send Message"}
       </button>
 
       {isSubmitSuccessful && (
-        <p className="text-sm font-medium text-[#0A46A8]" role="status">
+        <p className="text-sm font-medium text-[#262626]" role="status">
           ✓ Message received. We will follow up within one business day.
         </p>
       )}

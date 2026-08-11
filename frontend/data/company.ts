@@ -58,12 +58,13 @@ export const company = {
   colors: {
     primary: "#111111",
     secondary: "#FFFFFF",
-    accent: "#18181b",
+    accent: "#171717",
   },
 
   social: {
     github: "https://github.com/tauqeermustafa",
     linkedin: "https://linkedin.com/in/tauqeermustafa",
+    twitter: "https://x.com/tauqeermustafainc",
   },
 };
 

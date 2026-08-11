@@ -10,7 +10,7 @@ export default function ManageCookiePreferences() {
         window.localStorage.removeItem(CONSENT_KEY);
         window.location.reload();
       }}
-      className="border border-[#D7DEE8] bg-white px-5 py-3 text-sm font-semibold text-[#0A1628] transition hover:bg-[#F4F4F2]"
+      className="border border-[#E5E5E5] bg-white px-5 py-3 text-sm font-semibold text-[#0A0A0A] transition hover:bg-[#F4F4F4]"
     >
       Manage cookie preferences
     </button>

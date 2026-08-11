@@ -1,19 +1,19 @@
 "use client";
 
 import Image from "next/image";
+import { motion } from "framer-motion";
 import { imageLibrary } from "@/data/media";
-import { Section, SectionHeader, useScrollReveal } from "./ui";
+import { Section, SectionHeader, stagger, viewportOnce } from "./ui";
 
 const offsets = ["lg:mt-12", "", "lg:mt-20", "lg:mt-6"];
 const aspects = ["aspect-[4/5]", "aspect-[1.1/1]", "aspect-[3/4]", "aspect-[4/5]"];
 
 export default function VisualIndex() {
-  const gridRef = useScrollReveal<HTMLDivElement>();
   const selectedImages = [
-    imageLibrary.about[0],
-    imageLibrary.services[2],
-    imageLibrary.hero[3],
-    imageLibrary.backgrounds[0],
+    imageLibrary.about[1],
+    imageLibrary.services[1],
+    imageLibrary.hero[1],
+    imageLibrary.office[0],
   ];
 
   return (
@@ -26,29 +26,35 @@ export default function VisualIndex() {
         align="center"
       />
 
-      <div ref={gridRef} className="sr anim-up mx-auto mt-14 grid max-w-6xl gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <motion.div
+        initial="hidden"
+        whileInView="show"
+        viewport={viewportOnce}
+        variants={stagger(0.08)}
+        className="mx-auto mt-14 grid max-w-6xl gap-4 sm:grid-cols-2 lg:grid-cols-4"
+      >
         {selectedImages.map((src, i) => (
-          <div
+          <motion.div
             key={src}
-            className={`img-zoom group relative overflow-hidden border border-[#D7DEE8] shadow-[0_4px_20px_rgba(17,24,39,0.07)] transition-all duration-500 hover:shadow-[0_16px_48px_rgba(11,95,255,0.12)] hover:border-[#0B5FFF]/40 ${aspects[i]} ${offsets[i]} d-${i}`}
+            variants={{ hidden: { opacity: 0, y: 24 }, show: { opacity: 1, y: 0 } }}
+            className={`img-zoom group relative overflow-hidden border border-[#E5E5E5] shadow-[0_4px_20px_rgba(0,0,0,0.06)] transition-all duration-500 hover:shadow-[0_16px_48px_rgba(0,0,0,0.12)] hover:border-[#0A0A0A] ${aspects[i]} ${offsets[i]}`}
           >
             <Image
               src={src}
               alt={`TMI selected visual ${i + 1}`}
               fill
               sizes="(min-width:1024px) 24vw,(min-width:640px) 50vw,100vw"
-              className="object-cover"
+              className="object-cover grayscale"
             />
-            {/* Corner accent on hover */}
-            <div className="absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100 bg-gradient-to-br from-[#0B5FFF]/10 to-transparent" aria-hidden />
+            <div className="absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100 bg-black/5" aria-hidden />
             <div className="absolute bottom-3 left-3 opacity-0 transition-all duration-300 group-hover:opacity-100 group-hover:translate-y-0 translate-y-2">
-              <span className="border border-white/30 bg-black/40 px-2.5 py-1 font-mono text-[10px] font-semibold text-white backdrop-blur">
+              <span className="border border-white/30 bg-black/50 px-2.5 py-1 font-mono text-[10px] font-semibold text-white backdrop-blur">
                 0{i + 1}
               </span>
             </div>
-          </div>
+          </motion.div>
         ))}
-      </div>
+      </motion.div>
     </Section>
   );
 }

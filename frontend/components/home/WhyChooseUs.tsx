@@ -1,7 +1,7 @@
 "use client";
 
 import { Gauge, Lock, Network, Users } from "lucide-react";
-import { GlowCard, IconFrame, Section, SectionHeader, useScrollReveal } from "./ui";
+import { GlowCard, IconFrame, Section, SectionHeader } from "./ui";
 
 const reasons = [
   { title: "Architecture before acceleration", description: "Reliability, observability, access control, and ownership are considered before implementation scales.", icon: Network, num: "01" },
@@ -11,12 +11,9 @@ const reasons = [
 ];
 
 export default function WhyChooseUs() {
-  const listRef = useScrollReveal<HTMLDivElement>();
-
   return (
-    <Section className="bg-[#F8F9FA]" labelledBy="why-title">
+    <Section className="bg-[#FAFAFA]" labelledBy="why-title">
       <div className="grid gap-12 lg:grid-cols-2 lg:gap-20">
-
         <SectionHeader
           id="why-title"
           eyebrow="Why Teams Choose Us"
@@ -24,15 +21,15 @@ export default function WhyChooseUs() {
           description="Beyond process, this is what tends to matter most to the people we work with day to day."
         />
 
-        <div ref={listRef} className="sr anim-right grid gap-0">
-          {reasons.map((reason, i) => (
-            <GlowCard key={reason.title} className={`border-t-0 border-x-0 !border-b border-[#E5E7EB] first:border-t py-6 d-${i}`}>
+        <div className="grid gap-0">
+          {reasons.map((reason) => (
+            <GlowCard key={reason.title} className="border-t-0 border-x-0 !border-b border-[#E5E5E5] first:border-t py-6">
               <div className="flex items-start gap-4 sm:gap-6">
                 <IconFrame icon={reason.icon} />
                 <div className="min-w-0">
-                  <span className="font-mono text-xs font-semibold text-[#B88A2A]">{reason.num}</span>
-                  <h3 className="mt-1 text-lg font-semibold text-[#0A1628]">{reason.title}</h3>
-                  <p className="mt-2 text-base leading-7 text-[#5F6673]">{reason.description}</p>
+                  <span className="font-mono text-xs font-semibold text-[#A3A3A3]">{reason.num}</span>
+                  <h3 className="mt-1 text-lg font-semibold text-[#0A0A0A]">{reason.title}</h3>
+                  <p className="mt-2 text-base leading-7 text-[#525252]">{reason.description}</p>
                 </div>
               </div>
             </GlowCard>

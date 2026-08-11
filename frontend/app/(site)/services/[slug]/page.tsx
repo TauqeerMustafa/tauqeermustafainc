@@ -17,11 +17,11 @@ import { services } from "@/lib/site-data";
 import { buildMetadata } from "@/lib/metadata";
 
 const imageBySlug: Record<string, string> = {
-  "enterprise-web-development": "https://res.cloudinary.com/b5cle1jv/image/upload/v1785442688/tmi-hero-code_ub9idm.jpg",
-  cybersecurity: "https://res.cloudinary.com/b5cle1jv/image/upload/v1785442692/tmi-service-cyber-shield_cly3ur.jpg",
-  "ai-solutions": "https://res.cloudinary.com/b5cle1jv/image/upload/v1785442690/tmi-service-ai-security_lgghxl.jpg",
-  "cloud-engineering": "https://res.cloudinary.com/b5cle1jv/image/upload/v1785442692/tmi-service-global-network_cuiryi.jpg",
-  "ui-ux-product-design": "https://res.cloudinary.com/b5cle1jv/image/upload/v1785442687/tmi-bg-particles_pcaegw.jpg",
+  "enterprise-web-development": "https://images.unsplash.com/photo-1483058712412-4245e9b90334?auto=format&fit=crop&w=1600&q=80",
+  cybersecurity: "https://images.unsplash.com/photo-1614064641938-3bbee52942c7?auto=format&fit=crop&w=1600&q=80",
+  "ai-solutions": "https://images.unsplash.com/photo-1620712943543-bcc4688e7485?auto=format&fit=crop&w=1600&q=80",
+  "cloud-engineering": "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&w=1600&q=80",
+  "ui-ux-product-design": "https://images.unsplash.com/photo-1550439062-609e1531270e?auto=format&fit=crop&w=1600&q=80",
 };
 
 export function generateStaticParams() {
@@ -42,7 +42,7 @@ export async function generateMetadata({
     title: service.title,
     description: service.shortDescription,
     path: `/services/${service.slug}`,
-    image: imageBySlug[service.slug] ?? "https://res.cloudinary.com/b5cle1jv/image/upload/v1785442688/tmi-hero-digital_cs7bvl.jpg",
+    image: imageBySlug[service.slug] ?? "https://images.unsplash.com/photo-1518186285589-2f7649de83e0?auto=format&fit=crop&w=1600&q=80",
   });
 }
 
@@ -64,14 +64,14 @@ export default async function ServiceDetailPage({
         eyebrow="Service"
         title={service.title}
         description={service.description}
-        image={imageBySlug[service.slug] ?? "https://res.cloudinary.com/b5cle1jv/image/upload/v1785442688/tmi-hero-digital_cs7bvl.jpg"}
+        image={imageBySlug[service.slug] ?? "https://images.unsplash.com/photo-1518186285589-2f7649de83e0?auto=format&fit=crop&w=1600&q=80"}
         imageTitle={service.title}
         imageCaption={service.shortDescription}
       >
         <PrimaryButton href="/contact">Discuss This Service</PrimaryButton>
       </PageHero>
 
-      <Section className="bg-[#F8FAFC]" labelledBy="service-outcomes">
+      <Section className="bg-[#FAFAFA]" labelledBy="service-outcomes">
         <div className="grid gap-10 lg:grid-cols-[1.1fr_0.9fr] lg:items-start">
           <div>
             <SectionHeader
@@ -83,8 +83,8 @@ export default async function ServiceDetailPage({
               {service.outcomes.map((outcome) => (
                 <Card key={outcome} className="hover:translate-y-0">
                   <div className="flex gap-3">
-                    <CheckCircle2 className="mt-0.5 h-5 w-5 text-[#0B5FFF]" aria-hidden />
-                    <p className="font-medium text-[#374151]">{outcome}</p>
+                    <CheckCircle2 className="mt-0.5 h-5 w-5 text-[#0A0A0A]" aria-hidden />
+                    <p className="font-medium text-[#171717]">{outcome}</p>
                   </div>
                 </Card>
               ))}
@@ -92,8 +92,8 @@ export default async function ServiceDetailPage({
           </div>
 
           <Card className="hover:translate-y-0">
-            <h2 className="text-xl font-semibold text-[#0A1628]">Other services</h2>
-            <p className="mt-3 text-sm leading-6 text-[#6B7280]">
+            <h2 className="text-xl font-semibold text-[#0A0A0A]">Other services</h2>
+            <p className="mt-3 text-sm leading-6 text-[#737373]">
               Most engagements combine more than one capability &mdash; explore the rest of what we offer.
             </p>
             <ul className="mt-6 space-y-3">
@@ -103,7 +103,7 @@ export default async function ServiceDetailPage({
                   <li key={item.slug}>
                     <Link
                       href={`/services/${item.slug}`}
-                      className="block border-t border-[#E5E7EB] pt-3 text-sm font-semibold text-[#0A1628] transition hover:text-[#0A46A8]"
+                      className="block border-t border-[#E5E5E5] pt-3 text-sm font-semibold text-[#0A0A0A] transition hover:text-[#262626]"
                     >
                       {item.title}
                     </Link>
@@ -128,8 +128,8 @@ export default async function ServiceDetailPage({
                 <div className="flex items-center gap-3">
                   <IconFrame icon={() => <span className="text-sm font-bold">{index + 1}</span>} />
                 </div>
-                <h3 className="mt-4 font-semibold text-[#0A1628]">{step.title}</h3>
-                <p className="mt-2 text-sm leading-6 text-[#6B7280]">{step.detail}</p>
+                <h3 className="mt-4 font-semibold text-[#0A0A0A]">{step.title}</h3>
+                <p className="mt-2 text-sm leading-6 text-[#737373]">{step.detail}</p>
               </Card>
             ))}
           </div>
@@ -137,7 +137,7 @@ export default async function ServiceDetailPage({
       )}
 
       {service.faqs && (
-        <Section className="bg-[#F8FAFC]" labelledBy="service-faqs">
+        <Section className="bg-[#FAFAFA]" labelledBy="service-faqs">
           <div className="grid gap-10 lg:grid-cols-[0.9fr_1.1fr]">
             <SectionHeader
               id="service-faqs"

@@ -12,9 +12,9 @@ const items = [
 
 export default function ContactInfo() {
   return (
-    <div className="rounded-none border border-[#D7DEE8] bg-white p-6 shadow-[0_1px_2px_rgba(17,24,39,0.04),0_18px_48px_rgba(17,24,39,0.05)] sm:p-8">
-      <h2 className="text-xl font-semibold text-[#0A1628]">Contact Information</h2>
-      <p className="mt-3 text-sm leading-6 text-[#6B7280]">
+    <div className="rounded-none border border-[#E5E5E5] bg-white p-6 shadow-[0_1px_2px_rgba(17,24,39,0.04),0_18px_48px_rgba(17,24,39,0.05)] sm:p-8">
+      <h2 className="text-xl font-semibold text-[#0A0A0A]">Contact Information</h2>
+      <p className="mt-3 text-sm leading-6 text-[#737373]">
         Reach out directly, or send a message and a member of the team will follow up within one business day.
       </p>
 
@@ -23,13 +23,13 @@ export default function ContactInfo() {
           <div key={item.label} className="flex gap-4">
             <IconFrame icon={item.icon} />
             <div>
-              <h3 className="text-sm font-semibold text-[#0A1628]">{item.label}</h3>
+              <h3 className="text-sm font-semibold text-[#0A0A0A]">{item.label}</h3>
               {item.href ? (
-                <a href={item.href} className="text-sm text-[#6B7280] transition hover:text-[#0A46A8]">
+                <a href={item.href} className="text-sm text-[#737373] transition hover:text-[#262626]">
                   {item.value}
                 </a>
               ) : (
-                <p className="text-sm text-[#6B7280]">{item.value}</p>
+                <p className="text-sm text-[#737373]">{item.value}</p>
               )}
             </div>
           </div>

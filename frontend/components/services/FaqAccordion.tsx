@@ -25,14 +25,14 @@ export function FaqAccordion({ faqs }: { faqs: Faq[] }) {
               aria-expanded={isOpen}
               className="flex w-full items-center justify-between gap-4 p-6 text-left"
             >
-              <span className="font-semibold text-[#0A1628]">{faq.question}</span>
+              <span className="font-semibold text-[#0A0A0A]">{faq.question}</span>
               <ChevronDown
-                className={`h-5 w-5 shrink-0 text-[#0B5FFF] transition-transform ${isOpen ? "rotate-180" : ""}`}
+                className={`h-5 w-5 shrink-0 text-[#0A0A0A] transition-transform ${isOpen ? "rotate-180" : ""}`}
                 aria-hidden
               />
             </button>
             {isOpen && (
-              <p className="px-6 pb-6 text-sm leading-6 text-[#6B7280]">{faq.answer}</p>
+              <p className="px-6 pb-6 text-sm leading-6 text-[#737373]">{faq.answer}</p>
             )}
           </Card>
         );

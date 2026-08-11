@@ -6,6 +6,10 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 # Anchor to backend/.env regardless of the process's current working directory
 # (e.g. running `alembic upgrade head` from the repo root vs. from backend/).
+# This file is optional: local development uses it, but on a PaaS (Render,
+# Railway, Fly.io, etc.) environment variables are injected directly by the
+# platform and no .env file exists on disk - pydantic-settings reads those
+# real env vars natively, so we must not require the file to be present.
 _ENV_FILE = Path(__file__).resolve().parent.parent.parent / ".env"
 
 
@@ -24,7 +28,7 @@ class Settings(BaseSettings):
     cors_origins: str = "http://localhost:3000,http://127.0.0.1:3000"
 
     model_config = SettingsConfigDict(
-        env_file=_ENV_FILE,
+        env_file=_ENV_FILE if _ENV_FILE.exists() else None,
         env_file_encoding="utf-8",
         case_sensitive=False,
         extra="ignore",
@@ -42,16 +46,24 @@ class Settings(BaseSettings):
 @lru_cache
 def get_settings() -> Settings:
     resolved = Settings()
-    if not _ENV_FILE.exists():
+
+    # Guardrails only apply when running locally against the default/dev
+    # database URL. In a real deployment, DATABASE_URL is set via the
+    # platform's env vars and won't match this placeholder, so this check
+    # never fires there - it only protects against forgetting to configure
+    # a local .env file during development.
+    if (
+        not _ENV_FILE.exists()
+        and resolved.environment == "development"
+        and "localhost:5432/tauqeer_inc" in resolved.database_url
+    ):
         raise RuntimeError(
-            f"No .env file found at {_ENV_FILE}. "
-            "Copy backend/.env.example to backend/.env and set your real DATABASE_URL."
-        )
-    if "localhost:5432/tauqeer_inc" in resolved.database_url:
-        raise RuntimeError(
-            f".env was found at {_ENV_FILE} but DATABASE_URL still points to the local "
-            "default (localhost:5432/tauqeer_inc). Open that file and set DATABASE_URL "
-            "to your real Supabase/Postgres connection string."
+            f"No backend/.env file found and no DATABASE_URL environment "
+            f"variable is set. For local development, copy backend/.env.example "
+            f"to backend/.env and set your real DATABASE_URL. For a deployed "
+            f"environment, set DATABASE_URL (and SECRET_KEY, CORS_ORIGINS, "
+            f"ENVIRONMENT) as real environment variables in your hosting "
+            f"platform's dashboard instead."
         )
     return resolved
 

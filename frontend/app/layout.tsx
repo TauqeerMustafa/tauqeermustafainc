@@ -26,8 +26,8 @@ export const metadata: Metadata = {
   authors: [{ name: company.name, url: appConfig.siteUrl }],
   applicationName: company.name,
   icons: {
-    icon: "https://res.cloudinary.com/b5cle1jv/image/upload/v1785442689/tmi-logo-badge_cfkewe.jpg",
-    apple: "https://res.cloudinary.com/b5cle1jv/image/upload/v1785442689/tmi-logo-badge_cfkewe.jpg",
+    icon: "/logo-mark.svg",
+    apple: "/logo-mark.svg",
   },
   openGraph: {
     type: "website",
@@ -37,14 +37,14 @@ export const metadata: Metadata = {
     title: "Tauqeer Mustafa Inc. | Enterprise Software, Security & AI",
     description:
       "Enterprise web development, cybersecurity, AI automation, cloud engineering, and product design.",
-    images: [{ url: "https://res.cloudinary.com/b5cle1jv/image/upload/v1785442688/tmi-hero-digital_cs7bvl.jpg", width: 1200, height: 630 }],
+    images: [{ url: "https://images.unsplash.com/photo-1518186285589-2f7649de83e0?auto=format&fit=crop&w=1600&q=80", width: 1200, height: 630 }],
   },
   twitter: {
     card: "summary_large_image",
     title: "Tauqeer Mustafa Inc.",
     description:
       "Enterprise web development, cybersecurity, AI automation, cloud engineering, and product design.",
-    images: ["https://res.cloudinary.com/b5cle1jv/image/upload/v1785442688/tmi-hero-digital_cs7bvl.jpg"],
+    images: ["https://images.unsplash.com/photo-1518186285589-2f7649de83e0?auto=format&fit=crop&w=1600&q=80"],
   },
   robots: { index: true, follow: true },
 };
@@ -54,7 +54,7 @@ const organizationJsonLd = {
   "@type": "Organization",
   name: company.name,
   url: appConfig.siteUrl,
-  logo: "https://res.cloudinary.com/b5cle1jv/image/upload/v1785442689/tmi-logo-badge_cfkewe.jpg",
+  logo: "/logo-mark.svg",
   email: company.email,
   telephone: company.phone,
   address: {
@@ -81,7 +81,7 @@ export default function RootLayout({
           dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }}
         />
       </head>
-      <body className="min-h-screen flex flex-col overflow-x-hidden bg-white text-[#0A1628]">
+      <body className="min-h-screen flex flex-col overflow-x-hidden bg-white text-[#0A0A0A]">
         <AppProviders>
           {children}
           <CookieConsent />

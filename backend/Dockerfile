@@ -12,4 +12,7 @@ COPY . .
 
 EXPOSE 8000
 
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+# Render (and most PaaS providers) inject $PORT at runtime and expect the
+# process to bind to it; falling back to 8000 keeps local `docker run` usage
+# unchanged. Using the shell form so ${PORT} is expanded at container start.
+CMD uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000}

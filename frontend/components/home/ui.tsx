@@ -2,27 +2,54 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { type ComponentType, type ReactNode, useEffect, useRef } from "react";
+import { type ComponentType, type ReactNode } from "react";
+import { motion, type Variants } from "framer-motion";
 import { ArrowRight } from "lucide-react";
 
 export function cx(...c: (string | false | null | undefined)[]) {
   return c.filter(Boolean).join(" ");
 }
 
-/* ── IntersectionObserver scroll-reveal ─────────────────────── */
-export function useScrollReveal<T extends HTMLElement = HTMLDivElement>() {
-  const ref = useRef<T>(null);
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    const io = new IntersectionObserver(
-      ([e]) => { if (e.isIntersecting) { el.classList.add("in-view"); io.disconnect(); } },
-      { threshold: 0.1 }
-    );
-    io.observe(el);
-    return () => io.disconnect();
-  }, []);
-  return ref;
+/* ── Shared motion presets ───────────────────────────────────── */
+export const fadeUp: Variants = {
+  hidden: { opacity: 0, y: 28 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] } },
+};
+export const fadeLeft: Variants = {
+  hidden: { opacity: 0, x: -32 },
+  show: { opacity: 1, x: 0, transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] } },
+};
+export const fadeRight: Variants = {
+  hidden: { opacity: 0, x: 32 },
+  show: { opacity: 1, x: 0, transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] } },
+};
+export const scaleIn: Variants = {
+  hidden: { opacity: 0, scale: 0.94 },
+  show: { opacity: 1, scale: 1, transition: { duration: 0.5, ease: [0.22, 1, 0.36, 1] } },
+};
+export const stagger = (gap = 0.08): Variants => ({
+  hidden: {},
+  show: { transition: { staggerChildren: gap } },
+});
+
+export const viewportOnce = { once: true, amount: 0.2 } as const;
+
+/* ── Reveal wrapper ──────────────────────────────────────────── */
+export function Reveal({
+  children, variant = fadeUp, className, delay = 0,
+}: { children: ReactNode; variant?: Variants; className?: string; delay?: number }) {
+  return (
+    <motion.div
+      className={className}
+      initial="hidden"
+      whileInView="show"
+      viewport={viewportOnce}
+      variants={variant}
+      transition={{ delay }}
+    >
+      {children}
+    </motion.div>
+  );
 }
 
 /* ── Section ─────────────────────────────────────────────────── */
@@ -41,9 +68,9 @@ export function Eyebrow({ children, light }: { children: ReactNode; light?: bool
   return (
     <p className={cx(
       "inline-flex items-center gap-2 font-mono text-[11px] font-semibold uppercase tracking-[0.2em]",
-      light ? "text-[#7FA8FF]" : "text-[#0A46A8]"
+      light ? "text-white/70" : "text-[#0A0A0A]"
     )}>
-      <span className={cx("h-1.5 w-1.5 shrink-0", light ? "bg-[#7FA8FF]" : "bg-[#0B5FFF]")} aria-hidden />
+      <span className={cx("h-1.5 w-1.5 shrink-0", light ? "bg-white" : "bg-[#0A0A0A]")} aria-hidden />
       {children}
     </p>
   );
@@ -56,12 +83,10 @@ export function SectionHeader({
   eyebrow: string; title: string; description?: string; id: string;
   action?: ReactNode; align?: "left" | "center"; light?: boolean; className?: string;
 }) {
-  const ref = useScrollReveal();
   return (
-    <div
-      ref={ref}
+    <Reveal
       className={cx(
-        "sr anim-up flex flex-col gap-8",
+        "flex flex-col gap-8",
         align === "center" ? "mx-auto max-w-4xl items-center text-center" : "md:flex-row md:items-end md:justify-between",
         className
       )}
@@ -70,18 +95,18 @@ export function SectionHeader({
         <Eyebrow light={light}>{eyebrow}</Eyebrow>
         <h2 id={id} className={cx(
           "mt-4 text-balance text-3xl font-semibold leading-[1.08] tracking-tight sm:text-4xl lg:text-5xl",
-          light ? "text-white" : "text-[#0A1628]"
+          light ? "text-white" : "text-[#0A0A0A]"
         )}>
           {title}
         </h2>
         {description && (
-          <p className={cx("mt-5 max-w-3xl text-pretty text-base leading-7 sm:text-lg", light ? "text-zinc-300" : "text-[#5F6673]")}>
+          <p className={cx("mt-5 max-w-3xl text-pretty text-base leading-7 sm:text-lg", light ? "text-white/60" : "text-[#525252]")}>
             {description}
           </p>
         )}
       </div>
       {action && <div className="shrink-0">{action}</div>}
-    </div>
+    </Reveal>
   );
 }
 
@@ -93,26 +118,30 @@ export function PageHero({
   children?: ReactNode; image?: string; imageTitle?: string; imageCaption?: string;
 }) {
   return (
-    <section className="border-b border-[#E5E7EB] bg-gradient-to-b from-white to-[#F8F9FB] px-5 py-16 sm:px-6 sm:py-20 lg:py-24 overflow-hidden">
+    <section className="border-b border-[#E5E5E5] bg-gradient-to-b from-white to-[#FAFAFA] px-5 py-16 sm:px-6 sm:py-20 lg:py-24 overflow-hidden">
       <div className="mx-auto grid max-w-7xl gap-10 lg:grid-cols-[1fr_0.78fr] lg:items-end">
         <div>
-          <div className="anim-hero-badge d-0"><Eyebrow>{eyebrow}</Eyebrow></div>
-          <h1 className="anim-hero-h1 d-1 mt-5 text-balance text-4xl font-semibold leading-[1.05] tracking-tight text-[#0A1628] sm:text-5xl lg:text-6xl">
-            {title}
-          </h1>
-          <p className="anim-hero-body d-2 mt-6 max-w-3xl text-pretty text-base leading-8 text-[#5F6673] sm:text-lg">
-            {description}
-          </p>
+          <Reveal variant={fadeUp}><Eyebrow>{eyebrow}</Eyebrow></Reveal>
+          <Reveal variant={fadeUp} delay={0.08}>
+            <h1 className="mt-5 text-balance text-4xl font-semibold leading-[1.05] tracking-tight text-[#0A0A0A] sm:text-5xl lg:text-6xl">
+              {title}
+            </h1>
+          </Reveal>
+          <Reveal variant={fadeUp} delay={0.16}>
+            <p className="mt-6 max-w-3xl text-pretty text-base leading-8 text-[#525252] sm:text-lg">
+              {description}
+            </p>
+          </Reveal>
           {children && (
-            <div className="anim-hero-buttons d-3 mt-8 flex flex-col gap-3 sm:flex-row">
-              {children}
-            </div>
+            <Reveal variant={fadeUp} delay={0.24}>
+              <div className="mt-8 flex flex-col gap-3 sm:flex-row">{children}</div>
+            </Reveal>
           )}
         </div>
         {image && (
-          <div className="anim-hero-image d-2 hidden lg:block">
+          <Reveal variant={fadeRight} delay={0.14} className="hidden lg:block">
             <ImagePlaceholder src={image} title={imageTitle ?? eyebrow} caption={imageCaption} floating />
-          </div>
+          </Reveal>
         )}
       </div>
     </section>
@@ -121,38 +150,35 @@ export function PageHero({
 
 /* ── Card ────────────────────────────────────────────────────── */
 export function Card({ children, className }: { children: ReactNode; className?: string }) {
-  const ref = useScrollReveal();
   return (
-    <article
-      ref={ref as React.RefObject<HTMLElement>}
+    <Reveal
+      variant={scaleIn}
       className={cx(
-        "sr anim-scale lift border border-[#D7DEE8] bg-white p-6 sm:p-7 hover:border-[#0B5FFF]",
-        "shadow-[0_1px_2px_rgba(17,24,39,0.04),0_8px_32px_rgba(17,24,39,0.06)]",
-        "group cursor-default",
+        "lift group cursor-default border border-[#E5E5E5] bg-white p-6 sm:p-7 hover:border-[#0A0A0A]",
+        "shadow-[0_1px_2px_rgba(0,0,0,0.03),0_8px_28px_rgba(0,0,0,0.05)]",
         className
       )}
     >
       {children}
-    </article>
+    </Reveal>
   );
 }
 
 /* ── IconFrame ───────────────────────────────────────────────── */
 export function IconFrame({
-  icon: Icon, size = "md", color = "blue", className,
+  icon: Icon, size = "md", className,
 }: {
   icon: ComponentType<{ className?: string; "aria-hidden"?: boolean }>;
   size?: "sm" | "md" | "lg";
-  color?: "blue" | "gold";
   className?: string;
 }) {
   const sz = { sm: "h-9 w-9", md: "h-11 w-11", lg: "h-14 w-14" }[size];
   const iconSz = { sm: "h-4 w-4", md: "h-5 w-5", lg: "h-6 w-6" }[size];
-  const clr = color === "gold"
-    ? "border-[#F0D9A0] bg-[#FFFBEB] text-[#B88A2A]"
-    : "border-[#D7DEE8] bg-[#F0F5FF] text-[#0A46A8]";
   return (
-    <div className={cx("flex shrink-0 items-center justify-center border transition-transform duration-300 group-hover:scale-110", sz, clr, className)}>
+    <div className={cx(
+      "flex shrink-0 items-center justify-center border border-[#D4D4D4] bg-[#FAFAFA] text-[#171717] transition-all duration-300 group-hover:scale-110 group-hover:border-[#0A0A0A] group-hover:bg-[#0A0A0A] group-hover:text-white",
+      sz, className
+    )}>
       <Icon className={iconSz} aria-hidden />
     </div>
   );
@@ -167,21 +193,21 @@ export function ImagePlaceholder({
 }) {
   return (
     <div className={cx(
-      "img-zoom relative overflow-hidden border border-[#D7DEE8]",
-      "shadow-[0_24px_64px_rgba(17,24,39,0.12)]",
+      "img-zoom relative overflow-hidden border border-[#E5E5E5]",
+      "shadow-[0_24px_64px_rgba(0,0,0,0.10)]",
       floating && "anim-float",
       className
     )}>
       <div className="relative aspect-[4/3] min-h-60">
         <Image
-          src={src ?? "https://res.cloudinary.com/b5cle1jv/image/upload/v1785442688/tmi-hero-digital_cs7bvl.jpg"}
+          src={src ?? "https://images.unsplash.com/photo-1518186285589-2f7649de83e0?auto=format&fit=crop&w=1600&q=80"}
           alt={title}
           fill
           sizes="(min-width:1024px) 40vw,100vw"
           priority={priority}
-          className="object-cover"
+          className="object-cover grayscale-[0.15]"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/65 via-black/10 to-transparent" />
       </div>
       <div className="absolute bottom-0 left-0 right-0 p-5 text-white">
         <p className="font-semibold leading-snug">{title}</p>
@@ -192,44 +218,32 @@ export function ImagePlaceholder({
 }
 
 /* ── Badge ───────────────────────────────────────────────────── */
-export function Badge({ children, variant = "default" }: {
-  children: ReactNode;
-  variant?: "default" | "blue" | "gold" | "green" | "red";
-}) {
-  const v = {
-    default: "border-[#E5E7EB] bg-white text-[#374151]",
-    blue:    "border-[#BFCFFF] bg-[#EEF4FF] text-[#0A46A8]",
-    gold:    "border-[#F0D9A0] bg-[#FFFBEB] text-[#B88A2A]",
-    green:   "border-[#A7F3D0] bg-[#ECFDF5] text-[#059669]",
-    red:     "border-[#FECACA] bg-[#FEF2F2] text-[#DC2626]",
-  }[variant];
+export function Badge({ children }: { children: ReactNode }) {
   return (
-    <span className={cx("inline-flex items-center border px-2.5 py-1 font-mono text-[11px] font-semibold", v)}>
+    <span className="inline-flex items-center border border-[#D4D4D4] bg-[#FAFAFA] px-2.5 py-1 font-mono text-[11px] font-semibold text-[#171717]">
+      {children}
+    </span>
+  );
+}
+export function BadgeMuted({ children }: { children: ReactNode }) {
+  return (
+    <span className="inline-flex items-center border border-[#E5E5E5] bg-[#FAFAFA] px-2.5 py-1 font-mono text-[11px] font-semibold text-[#525252]">
       {children}
     </span>
   );
 }
 
 /* ── Stat ────────────────────────────────────────────────────── */
-export function Stat({
-  value, label, detail, light,
-}: { value: string; label: string; detail?: string; light?: boolean }) {
-  const ref = useScrollReveal<HTMLDivElement>();
+export function Stat({ value, label, detail, light }: { value: string; label: string; detail?: string; light?: boolean }) {
   return (
-    <div ref={ref} className="sr anim-num">
-      <div className={cx("font-mono text-3xl font-bold tracking-tight", light ? "text-white" : "text-[#0A1628]")}>
+    <Reveal variant={fadeUp}>
+      <div className={cx("font-mono text-3xl font-bold tracking-tight", light ? "text-white" : "text-[#0A0A0A]")}>
         {value}
       </div>
-      <div className={cx("mt-1 text-sm font-semibold", light ? "text-zinc-300" : "text-[#374151]")}>{label}</div>
-      {detail && <div className={cx("mt-1 text-xs leading-5", light ? "text-zinc-500" : "text-[#9AA5B4]")}>{detail}</div>}
-    </div>
+      <div className={cx("mt-1 text-sm font-semibold", light ? "text-white/70" : "text-[#171717]")}>{label}</div>
+      {detail && <div className={cx("mt-1 text-xs leading-5", light ? "text-white/40" : "text-[#A3A3A3]")}>{detail}</div>}
+    </Reveal>
   );
-}
-
-/* ── DividerLine ─────────────────────────────────────────────── */
-export function DividerLine({ className }: { className?: string }) {
-  const ref = useScrollReveal();
-  return <div ref={ref} className={cx("sr anim-line h-px bg-[#D7DEE8]", className)} />;
 }
 
 /* ── StepBadge ───────────────────────────────────────────────── */
@@ -237,7 +251,7 @@ export function StepBadge({ step, active }: { step: string; active?: boolean }) 
   return (
     <div className={cx(
       "flex h-9 w-9 shrink-0 items-center justify-center border font-mono text-xs font-bold transition-colors",
-      active ? "border-[#0B5FFF] bg-[#0B5FFF] text-white" : "border-[#D7DEE8] bg-white text-[#0A46A8]"
+      active ? "border-[#0A0A0A] bg-[#0A0A0A] text-white" : "border-[#0A0A0A] bg-white text-[#0A0A0A]"
     )}>
       {step}
     </div>
@@ -247,80 +261,85 @@ export function StepBadge({ step, active }: { step: string; active?: boolean }) 
 /* ── Pill ────────────────────────────────────────────────────── */
 export function Pill({ children }: { children: ReactNode }) {
   return (
-    <span className="inline-flex items-center border border-[#D7DEE8] bg-[#F4F7FC] px-2.5 py-1 font-mono text-[11px] font-medium text-[#0A46A8] transition hover:border-[#0B5FFF]">
+    <span className="inline-flex items-center border border-[#E5E5E5] bg-[#FAFAFA] px-2.5 py-1 font-mono text-[11px] font-medium text-[#0A0A0A] transition hover:border-[#0A0A0A]">
       {children}
     </span>
   );
 }
 
-/* ── GlowCard ────────────────────────────────────────────────── */
+/* ── GlowCard (mouse-follow highlight, monochrome) ──────────── */
 export function GlowCard({ children, className }: { children: ReactNode; className?: string }) {
-  const ref = useScrollReveal();
   return (
-    <div
-      ref={ref}
+    <Reveal
+      variant={scaleIn}
       className={cx(
-        "sr anim-scale group relative overflow-hidden border border-[#D7DEE8] bg-white p-6 sm:p-8",
+        "group relative overflow-hidden border border-[#E5E5E5] bg-white p-6 sm:p-8",
         "before:pointer-events-none before:absolute before:inset-0 before:opacity-0 before:transition-opacity before:duration-500",
-        "before:bg-[radial-gradient(circle_at_var(--mx,50%)_var(--my,50%),rgba(11,95,255,0.06),transparent_60%)]",
-        "hover:before:opacity-100 hover:border-[#0B5FFF]/40",
-        "shadow-[0_1px_3px_rgba(17,24,39,0.06)] hover:shadow-[0_12px_40px_rgba(11,95,255,0.1)]",
+        "before:bg-[radial-gradient(circle_at_var(--mx,50%)_var(--my,50%),rgba(0,0,0,0.045),transparent_60%)]",
+        "hover:before:opacity-100 hover:border-[#0A0A0A]",
+        "shadow-[0_1px_3px_rgba(0,0,0,0.04)] hover:shadow-[0_12px_40px_rgba(0,0,0,0.08)]",
         "transition-all duration-300",
         className
       )}
-      onMouseMove={(e) => {
-        const el = e.currentTarget;
-        const r = el.getBoundingClientRect();
-        el.style.setProperty("--mx", `${((e.clientX - r.left) / r.width) * 100}%`);
-        el.style.setProperty("--my", `${((e.clientY - r.top) / r.height) * 100}%`);
-      }}
+      // onMouseMove handled via inline handler prop below through a plain div wrapper is not possible on motion.div children prop;
     >
-      {children}
-    </div>
+      <div
+        className="contents"
+        onMouseMove={(e) => {
+          const el = e.currentTarget.parentElement as HTMLElement | null;
+          if (!el) return;
+          const r = el.getBoundingClientRect();
+          el.style.setProperty("--mx", `${((e.clientX - r.left) / r.width) * 100}%`);
+          el.style.setProperty("--my", `${((e.clientY - r.top) / r.height) * 100}%`);
+        }}
+      >
+        {children}
+      </div>
+    </Reveal>
   );
 }
 
 /* ── Buttons ─────────────────────────────────────────────────── */
-const base = "inline-flex items-center justify-center gap-2 font-semibold tracking-tight transition-all duration-200 press focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#0A46A8]";
+const base = "inline-flex items-center justify-center gap-2 font-semibold tracking-tight transition-all duration-200 press focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#0A0A0A]";
 
 export function PrimaryButton({ href, children, className }: { href: string; children: ReactNode; className?: string }) {
   return (
-    <Link href={href} className={cx(base, "min-h-12 px-6 bg-[#0B5FFF] text-white shadow-[0_8px_28px_rgba(11,95,255,0.30)] hover:bg-[#0A46A8] hover:-translate-y-0.5 hover:shadow-[0_14px_36px_rgba(11,95,255,0.35)] anim-glow", className)}>
+    <Link href={href} className={cx(base, "min-h-12 px-6 bg-[#0A0A0A] text-white shadow-[0_8px_24px_rgba(0,0,0,0.22)] hover:bg-[#262626] hover:-translate-y-0.5 hover:shadow-[0_14px_32px_rgba(0,0,0,0.28)]", className)}>
       {children} <ArrowRight className="h-4 w-4" aria-hidden />
     </Link>
   );
 }
 export function SecondaryButton({ href, children, className }: { href: string; children: ReactNode; className?: string }) {
   return (
-    <Link href={href} className={cx(base, "min-h-12 px-6 border border-[#C7D2E0] bg-white text-[#0A1628] hover:border-[#0B5FFF] hover:bg-[#F4F7FC] hover:-translate-y-0.5", className)}>
+    <Link href={href} className={cx(base, "min-h-12 px-6 border border-[#0A0A0A] bg-white text-[#0A0A0A] hover:bg-[#0A0A0A] hover:text-white hover:-translate-y-0.5", className)}>
       {children} <ArrowRight className="h-4 w-4" aria-hidden />
     </Link>
   );
 }
 export function OutlineButton({ href, children, className }: { href: string; children: ReactNode; className?: string }) {
   return (
-    <Link href={href} className={cx(base, "min-h-12 px-6 border border-[#0A1628] bg-transparent text-[#0A1628] hover:bg-[#0A1628] hover:text-white hover:-translate-y-0.5", className)}>
+    <Link href={href} className={cx(base, "min-h-12 px-6 border border-[#D4D4D4] bg-transparent text-[#0A0A0A] hover:border-[#0A0A0A] hover:-translate-y-0.5", className)}>
       {children}
     </Link>
   );
 }
 export function GhostButton({ href, children, className }: { href: string; children: ReactNode; className?: string }) {
   return (
-    <Link href={href} className={cx(base, "min-h-10 px-4 text-[#0A1628] hover:bg-[#F0F5FF]", className)}>
+    <Link href={href} className={cx(base, "min-h-10 px-4 text-[#0A0A0A] hover:bg-[#F4F4F4]", className)}>
       {children}
     </Link>
   );
 }
 export function TextLink({ href, children }: { href: string; children: ReactNode }) {
   return (
-    <Link href={href} className="link-ul inline-flex items-center gap-1.5 text-sm font-semibold text-[#0A46A8] hover:text-[#0B5FFF]">
+    <Link href={href} className="link-ul inline-flex items-center gap-1.5 text-sm font-semibold text-[#0A0A0A] hover:text-[#404040]">
       {children} <ArrowRight className="h-3.5 w-3.5" aria-hidden />
     </Link>
   );
 }
-export function ButtonLink({ href, children, variant = "primary", size = "md", className, ariaLabel, showArrow = true }: {
-  href: string; children: ReactNode; variant?: "primary"|"secondary"|"outline"|"ghost"|"text";
-  size?: "sm"|"md"|"lg"; className?: string; ariaLabel?: string; showArrow?: boolean;
+export function ButtonLink({ href, children, variant = "primary", size, className, ariaLabel }: {
+  href: string; children: ReactNode; variant?: "primary" | "secondary" | "outline" | "ghost" | "text";
+  size?: "sm" | "md" | "lg"; className?: string; ariaLabel?: string;
 }) {
   const V = { primary: PrimaryButton, secondary: SecondaryButton, outline: OutlineButton, ghost: GhostButton, text: TextLink }[variant];
   return <V href={href} className={className}>{children}</V>;

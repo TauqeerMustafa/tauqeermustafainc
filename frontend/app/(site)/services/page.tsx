@@ -17,7 +17,7 @@ export const metadata: Metadata = buildMetadata({
   description:
     "Enterprise web development, cybersecurity, AI solutions, cloud engineering, and product design services.",
   path: "/services",
-  image: "https://res.cloudinary.com/b5cle1jv/image/upload/v1785442692/tmi-service-cyber-shield_cly3ur.jpg",
+  image: "https://images.unsplash.com/photo-1614064641938-3bbee52942c7?auto=format&fit=crop&w=1600&q=80",
 });
 
 const iconsBySlug: Record<string, typeof Code2> = {
@@ -35,12 +35,12 @@ export default function ServicesPage() {
         eyebrow="Services"
         title="Enterprise services for secure digital growth."
         description="Choose focused services that support product delivery, operational resilience, cybersecurity posture, and practical AI adoption."
-        image="https://res.cloudinary.com/b5cle1jv/image/upload/v1785442692/tmi-service-cyber-shield_cly3ur.jpg"
+        image="https://images.unsplash.com/photo-1614064641938-3bbee52942c7?auto=format&fit=crop&w=1600&q=80"
         imageTitle="Full-stack service coverage"
         imageCaption="Web, security, AI, cloud, and design under one delivery team."
       />
 
-      <Section className="bg-[#F8FAFC]" labelledBy="services-list">
+      <Section className="bg-[#FAFAFA]" labelledBy="services-list">
         <SectionHeader
           id="services-list"
           eyebrow="Capabilities"
@@ -51,10 +51,10 @@ export default function ServicesPage() {
           {services.map((service) => (
             <Card key={service.slug}>
               <IconFrame icon={iconsBySlug[service.slug] ?? Code2} />
-              <h2 className="mt-7 text-xl font-semibold text-[#0A1628]">
+              <h2 className="mt-7 text-xl font-semibold text-[#0A0A0A]">
                 {service.title}
               </h2>
-              <p className="mt-4 text-base leading-7 text-[#6B7280]">
+              <p className="mt-4 text-base leading-7 text-[#737373]">
                 {service.shortDescription}
               </p>
               <div className="mt-8">

@@ -11,20 +11,20 @@ export const metadata: Metadata = buildMetadata({
   description:
     "Practical guidance on engineering, cybersecurity, AI automation, cloud infrastructure, and product design.",
   path: "/blog",
-  image: "https://res.cloudinary.com/b5cle1jv/image/upload/v1785442687/tmi-bg-particles_pcaegw.jpg",
+  image: "https://images.unsplash.com/photo-1550439062-609e1531270e?auto=format&fit=crop&w=1600&q=80",
 });
 
 const FALLBACK_IMAGE =
-  "https://res.cloudinary.com/b5cle1jv/image/upload/v1785442688/tmi-hero-digital_cs7bvl.jpg";
+  "https://images.unsplash.com/photo-1518186285589-2f7649de83e0?auto=format&fit=crop&w=1600&q=80";
 
 const imageByCategory: Record<string, string> = {
-  Engineering: "https://res.cloudinary.com/b5cle1jv/image/upload/v1785442688/tmi-hero-code_ub9idm.jpg",
-  Automation: "https://res.cloudinary.com/b5cle1jv/image/upload/v1785442690/tmi-service-ai-security_lgghxl.jpg",
-  Cybersecurity: "https://res.cloudinary.com/b5cle1jv/image/upload/v1785442692/tmi-service-cyber-shield_cly3ur.jpg",
-  "Cloud Engineering": "https://res.cloudinary.com/b5cle1jv/image/upload/v1785442692/tmi-service-global-network_cuiryi.jpg",
-  "Product Design": "https://res.cloudinary.com/b5cle1jv/image/upload/v1785442687/tmi-bg-bokeh_lffzh9.jpg",
-  Culture: "https://res.cloudinary.com/b5cle1jv/image/upload/v1785442687/tmi-bg-particles_pcaegw.jpg",
-  "Product Strategy": "https://res.cloudinary.com/b5cle1jv/image/upload/v1785442688/tmi-hero-digital_cs7bvl.jpg",
+  Engineering: "https://images.unsplash.com/photo-1483058712412-4245e9b90334?auto=format&fit=crop&w=1600&q=80",
+  Automation: "https://images.unsplash.com/photo-1620712943543-bcc4688e7485?auto=format&fit=crop&w=1600&q=80",
+  Cybersecurity: "https://images.unsplash.com/photo-1614064641938-3bbee52942c7?auto=format&fit=crop&w=1600&q=80",
+  "Cloud Engineering": "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&w=1600&q=80",
+  "Product Design": "https://images.unsplash.com/photo-1519389950473-47ba0277781c?auto=format&fit=crop&w=1600&q=80",
+  Culture: "https://images.unsplash.com/photo-1550439062-609e1531270e?auto=format&fit=crop&w=1600&q=80",
+  "Product Strategy": "https://images.unsplash.com/photo-1518186285589-2f7649de83e0?auto=format&fit=crop&w=1600&q=80",
 };
 
 export default function BlogPage() {
@@ -36,12 +36,12 @@ export default function BlogPage() {
         eyebrow="Blog"
         title="Practical guidance for engineering, security, and automation leaders."
         description="Read concise perspectives on building secure platforms, evaluating operational risk, and adopting automation responsibly."
-        image="https://res.cloudinary.com/b5cle1jv/image/upload/v1785442687/tmi-bg-particles_pcaegw.jpg"
+        image="https://images.unsplash.com/photo-1550439062-609e1531270e?auto=format&fit=crop&w=1600&q=80"
         imageTitle="Field notes"
         imageCaption="Short, practical writing from the delivery team."
       />
 
-      <Section className="bg-[#F8FAFC]" labelledBy="featured-article">
+      <Section className="bg-[#FAFAFA]" labelledBy="featured-article">
         <div className="grid gap-10 lg:grid-cols-[1fr_0.8fr] lg:items-center">
           <SectionHeader
             id="featured-article"

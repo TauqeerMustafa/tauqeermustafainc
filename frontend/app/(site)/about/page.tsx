@@ -18,7 +18,7 @@ export const metadata: Metadata = buildMetadata({
   description:
     "Since 2006, Tauqeer Mustafa Inc. has helped organizations build secure, scalable software across web development, cybersecurity, AI, cloud engineering, and design.",
   path: "/about",
-  image: "https://res.cloudinary.com/b5cle1jv/image/upload/v1785442686/tmi-about-office_ugfz0w.jpg",
+  image: "https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=1600&q=80",
 });
 
 const values = [
@@ -49,7 +49,7 @@ export default function AboutPage() {
         eyebrow="About"
         title="Two decades of focused engineering work."
         description="Since 2006, Tauqeer Mustafa Inc. has helped organizations plan, build, and improve secure software systems with a practical blend of product thinking, full-stack engineering, cybersecurity, and automation."
-        image="https://res.cloudinary.com/b5cle1jv/image/upload/v1785442686/tmi-about-office_ugfz0w.jpg"
+        image="https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=1600&q=80"
         imageTitle="Our operating environment"
         imageCaption="Founded 2006 · Islamabad, Pakistan"
       >
@@ -59,17 +59,17 @@ export default function AboutPage() {
       <Section className="bg-white" labelledBy="about-mission">
         <div className="grid gap-8 lg:grid-cols-2">
           <Card>
-            <h2 id="about-mission" className="text-xl font-semibold text-[#0A1628]">Our mission</h2>
-            <p className="mt-4 text-base leading-7 text-[#6B7280]">{company.mission}</p>
+            <h2 id="about-mission" className="text-xl font-semibold text-[#0A0A0A]">Our mission</h2>
+            <p className="mt-4 text-base leading-7 text-[#737373]">{company.mission}</p>
           </Card>
           <Card>
-            <h2 className="text-xl font-semibold text-[#0A1628]">Our vision</h2>
-            <p className="mt-4 text-base leading-7 text-[#6B7280]">{company.vision}</p>
+            <h2 className="text-xl font-semibold text-[#0A0A0A]">Our vision</h2>
+            <p className="mt-4 text-base leading-7 text-[#737373]">{company.vision}</p>
           </Card>
         </div>
       </Section>
 
-      <Section className="bg-[#F8FAFC]" labelledBy="about-values">
+      <Section className="bg-[#FAFAFA]" labelledBy="about-values">
         <SectionHeader
           id="about-values"
           eyebrow="Operating principles"
@@ -80,10 +80,10 @@ export default function AboutPage() {
           {values.map((value) => (
             <Card key={value.title}>
               <IconFrame icon={value.icon} />
-              <h2 className="mt-6 text-xl font-semibold text-[#0A1628]">
+              <h2 className="mt-6 text-xl font-semibold text-[#0A0A0A]">
                 {value.title}
               </h2>
-              <p className="mt-4 text-base leading-7 text-[#6B7280]">
+              <p className="mt-4 text-base leading-7 text-[#737373]">
                 {value.description}
               </p>
             </Card>
@@ -101,7 +101,7 @@ export default function AboutPage() {
               description="We keep engagements grounded in concrete milestones, technical constraints, and the business reason behind every major decision."
             />
             <ImagePlaceholder
-              src="https://res.cloudinary.com/b5cle1jv/image/upload/v1785442686/tmi-about-business_cbqaaq.jpg"
+              src="https://images.unsplash.com/photo-1600880292203-757bb62b4baf?auto=format&fit=crop&w=1600&q=80"
               title="Discovery to delivery"
               caption="Milestones stay visible from the first conversation to launch."
               className="hidden lg:block"
@@ -116,10 +116,10 @@ export default function AboutPage() {
             ].map((item) => (
               <div
                 key={item}
-                className="flex gap-3 rounded-none border border-[#E5E7EB] bg-white p-5 shadow-sm"
+                className="flex gap-3 rounded-none border border-[#E5E5E5] bg-white p-5 shadow-sm"
               >
-                <CheckCircle2 className="mt-0.5 h-5 w-5 text-[#0B5FFF]" aria-hidden />
-                <p className="text-sm font-medium leading-6 text-[#374151]">{item}</p>
+                <CheckCircle2 className="mt-0.5 h-5 w-5 text-[#0A0A0A]" aria-hidden />
+                <p className="text-sm font-medium leading-6 text-[#171717]">{item}</p>
               </div>
             ))}
           </div>

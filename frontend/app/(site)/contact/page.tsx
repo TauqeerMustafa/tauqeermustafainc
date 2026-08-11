@@ -61,12 +61,12 @@ export default function ContactPage() {
         eyebrow="Contact"
         title="Tell us about the problem you're solving."
         description="Whether you need a new platform, a security review, an AI workflow, or help scaling infrastructure, share a few details and we'll follow up with next steps."
-        image="https://res.cloudinary.com/b5cle1jv/image/upload/v1785442686/tmi-about-business_cbqaaq.jpg"
+        image="https://images.unsplash.com/photo-1600880292203-757bb62b4baf?auto=format&fit=crop&w=1600&q=80"
         imageTitle="Let's talk"
         imageCaption="We usually reply within one business day."
       />
 
-      <Section className="bg-[#F8FAFC]" labelledBy="contact-form">
+      <Section className="bg-[#FAFAFA]" labelledBy="contact-form">
         <SectionHeader
           id="contact-form"
           eyebrow="Get in touch"
@@ -92,14 +92,14 @@ export default function ContactPage() {
           {expectations.map((item) => (
             <Card key={item.title}>
               <IconFrame icon={item.icon} />
-              <h2 className="mt-6 text-xl font-semibold text-[#0A1628]">{item.title}</h2>
-              <p className="mt-4 text-base leading-7 text-[#6B7280]">{item.description}</p>
+              <h2 className="mt-6 text-xl font-semibold text-[#0A0A0A]">{item.title}</h2>
+              <p className="mt-4 text-base leading-7 text-[#737373]">{item.description}</p>
             </Card>
           ))}
         </div>
       </Section>
 
-      <Section className="bg-[#F8FAFC]" labelledBy="contact-departments">
+      <Section className="bg-[#FAFAFA]" labelledBy="contact-departments">
         <SectionHeader
           id="contact-departments"
           eyebrow="Reach the right team"
@@ -111,11 +111,11 @@ export default function ContactPage() {
             <a
               key={dept.title}
               href={`mailto:${dept.email}`}
-              className="group border border-[#D7DEE8] bg-white p-5 shadow-[0_1px_2px_rgba(17,24,39,0.04)] transition hover:border-[#0B5FFF]"
+              className="group border border-[#E5E5E5] bg-white p-5 shadow-[0_1px_2px_rgba(17,24,39,0.04)] transition hover:border-[#0A0A0A]"
             >
               <IconFrame icon={dept.icon} />
-              <h3 className="mt-4 text-sm font-semibold text-[#0A1628]">{dept.title}</h3>
-              <p className="mt-1 break-all text-sm text-[#6B7280] transition group-hover:text-[#0A46A8]">
+              <h3 className="mt-4 text-sm font-semibold text-[#0A0A0A]">{dept.title}</h3>
+              <p className="mt-1 break-all text-sm text-[#737373] transition group-hover:text-[#262626]">
                 {dept.email}
               </p>
             </a>

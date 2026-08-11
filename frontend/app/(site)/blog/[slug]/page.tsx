@@ -8,13 +8,13 @@ import { buildMetadata } from "@/lib/metadata";
 import { readingTime } from "@/lib/utils";
 
 const imageByCategory: Record<string, string> = {
-  Engineering: "https://res.cloudinary.com/b5cle1jv/image/upload/v1785442688/tmi-hero-code_ub9idm.jpg",
-  Automation: "https://res.cloudinary.com/b5cle1jv/image/upload/v1785442690/tmi-service-ai-security_lgghxl.jpg",
-  Cybersecurity: "https://res.cloudinary.com/b5cle1jv/image/upload/v1785442692/tmi-service-cyber-shield_cly3ur.jpg",
-  "Cloud Engineering": "https://res.cloudinary.com/b5cle1jv/image/upload/v1785442692/tmi-service-global-network_cuiryi.jpg",
-  "Product Design": "https://res.cloudinary.com/b5cle1jv/image/upload/v1785442687/tmi-bg-bokeh_lffzh9.jpg",
-  Culture: "https://res.cloudinary.com/b5cle1jv/image/upload/v1785442687/tmi-bg-particles_pcaegw.jpg",
-  "Product Strategy": "https://res.cloudinary.com/b5cle1jv/image/upload/v1785442688/tmi-hero-digital_cs7bvl.jpg",
+  Engineering: "https://images.unsplash.com/photo-1483058712412-4245e9b90334?auto=format&fit=crop&w=1600&q=80",
+  Automation: "https://images.unsplash.com/photo-1620712943543-bcc4688e7485?auto=format&fit=crop&w=1600&q=80",
+  Cybersecurity: "https://images.unsplash.com/photo-1614064641938-3bbee52942c7?auto=format&fit=crop&w=1600&q=80",
+  "Cloud Engineering": "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&w=1600&q=80",
+  "Product Design": "https://images.unsplash.com/photo-1519389950473-47ba0277781c?auto=format&fit=crop&w=1600&q=80",
+  Culture: "https://images.unsplash.com/photo-1550439062-609e1531270e?auto=format&fit=crop&w=1600&q=80",
+  "Product Strategy": "https://images.unsplash.com/photo-1518186285589-2f7649de83e0?auto=format&fit=crop&w=1600&q=80",
 };
 
 export function generateStaticParams() {
@@ -35,7 +35,7 @@ export async function generateMetadata({
     title: post.title,
     description: post.excerpt,
     path: `/blog/${post.slug}`,
-    image: imageByCategory[post.category] ?? "https://res.cloudinary.com/b5cle1jv/image/upload/v1785442688/tmi-hero-digital_cs7bvl.jpg",
+    image: imageByCategory[post.category] ?? "https://images.unsplash.com/photo-1518186285589-2f7649de83e0?auto=format&fit=crop&w=1600&q=80",
   });
 }
 
@@ -60,7 +60,7 @@ export default async function BlogDetailPage({
         eyebrow={post.category}
         title={post.title}
         description={post.excerpt}
-        image={imageByCategory[post.category] ?? "https://res.cloudinary.com/b5cle1jv/image/upload/v1785442688/tmi-hero-digital_cs7bvl.jpg"}
+        image={imageByCategory[post.category] ?? "https://images.unsplash.com/photo-1518186285589-2f7649de83e0?auto=format&fit=crop&w=1600&q=80"}
         imageTitle={post.category}
         imageCaption={post.date}
       >
@@ -71,15 +71,15 @@ export default async function BlogDetailPage({
         </div>
       </PageHero>
 
-      <Section className="bg-[#F8FAFC]" labelledBy="article-content">
+      <Section className="bg-[#FAFAFA]" labelledBy="article-content">
         <article
           id="article-content"
-          className="mx-auto max-w-3xl rounded-none border border-[#E5E7EB] bg-white p-7 shadow-sm sm:p-10"
+          className="mx-auto max-w-3xl rounded-none border border-[#E5E5E5] bg-white p-7 shadow-sm sm:p-10"
         >
           {post.body.map((paragraph) => (
             <p
               key={paragraph}
-              className="mb-6 text-base leading-8 text-[#374151] last:mb-0"
+              className="mb-6 text-base leading-8 text-[#171717] last:mb-0"
             >
               {paragraph}
             </p>
@@ -94,7 +94,7 @@ export default async function BlogDetailPage({
             <Link
               key={item.slug}
               href={`/blog/${item.slug}`}
-              className="border border-[#D7DEE8] bg-white px-5 py-3 text-sm font-semibold text-[#0A1628] transition hover:border-[#0B5FFF] hover:text-[#0A46A8]"
+              className="border border-[#E5E5E5] bg-white px-5 py-3 text-sm font-semibold text-[#0A0A0A] transition hover:border-[#0A0A0A] hover:text-[#262626]"
             >
               {item.title}
             </Link>

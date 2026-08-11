@@ -31,7 +31,7 @@ export default function AdminGuard({ children }: { children: ReactNode }) {
 
   if (stillChecking) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-[#050816] text-slate-400">
+      <div className="flex min-h-screen items-center justify-center bg-[#FAFAFA] text-[#525252]">
         Checking your session…
       </div>
     );
@@ -39,13 +39,13 @@ export default function AdminGuard({ children }: { children: ReactNode }) {
 
   if (isError || !isAdmin) {
     return (
-      <div className="flex min-h-screen flex-col items-center justify-center gap-4 bg-[#050816] px-6 text-center text-white">
+      <div className="flex min-h-screen flex-col items-center justify-center gap-4 bg-[#FAFAFA] px-6 text-center text-[#0A0A0A]">
         <p className="text-lg font-semibold">
           {isError ? "Your session has expired." : "This account does not have admin access."}
         </p>
         <a
           href="/login"
-          className="border border-white/10 bg-white/5 px-5 py-2.5 text-sm font-semibold text-white transition hover:border-yellow-400"
+          className="border border-[#0A0A0A] bg-white px-5 py-2.5 text-sm font-semibold text-[#0A0A0A] transition hover:bg-[#0A0A0A] hover:text-white"
         >
           Back to login
         </a>

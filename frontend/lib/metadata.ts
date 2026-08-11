@@ -6,7 +6,7 @@ export function buildMetadata({
   title,
   description,
   path = "/",
-  image = "https://res.cloudinary.com/b5cle1jv/image/upload/v1785442688/tmi-hero-digital_cs7bvl.jpg",
+  image = "https://images.unsplash.com/photo-1518186285589-2f7649de83e0?auto=format&fit=crop&w=1600&q=80",
   noIndex = false,
 }: {
   title: string;

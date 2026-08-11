@@ -34,7 +34,7 @@ const documents = [
 export default function Footer() {
   return (
     <footer
-      className="border-t border-[#1B2A45] bg-[#0A1628]"
+      className="border-t border-[#E5E5E5] bg-[#FAFAFA]"
       aria-labelledby="footer-heading"
     >
       <h2 id="footer-heading" className="sr-only">Footer</h2>
@@ -46,10 +46,10 @@ export default function Footer() {
 
           {/* Brand block */}
           <div className="max-w-xs">
-            <Link href="/" className="inline-flex items-center gap-2 text-lg font-semibold text-white">
-              <span className="relative flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden border border-[#0B5FFF]">
+            <Link href="/" className="inline-flex items-center gap-2 text-lg font-semibold text-[#0A0A0A]">
+              <span className="relative flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden border border-[#D4D4D4]">
                 <Image
-                  src="https://res.cloudinary.com/b5cle1jv/image/upload/v1785442689/tmi-logo-badge_cfkewe.jpg"
+                  src="/logo-mark.svg"
                   alt=""
                   fill
                   sizes="32px"
@@ -58,7 +58,7 @@ export default function Footer() {
               </span>
               {company.name}
             </Link>
-            <p className="mt-3 text-sm leading-6 text-zinc-400">
+            <p className="mt-3 text-sm leading-6 text-[#525252]">
               {company.description.split(".")[0]}.
             </p>
 
@@ -66,23 +66,23 @@ export default function Footer() {
               <li>
                 <a
                   href={`mailto:${company.email}`}
-                  className="flex items-center gap-2 text-sm text-zinc-400 transition hover:text-white"
+                  className="flex items-center gap-2 text-sm text-[#525252] transition hover:text-[#0A0A0A]"
                 >
-                  <Mail className="h-4 w-4 text-[#7FA8FF]" aria-hidden="true" />
+                  <Mail className="h-4 w-4 text-[#A3A3A3]" aria-hidden="true" />
                   {company.email}
                 </a>
               </li>
               <li>
                 <a
                   href={`tel:${company.phone.replace(/\s+/g, "")}`}
-                  className="flex items-center gap-2 text-sm text-zinc-400 transition hover:text-white"
+                  className="flex items-center gap-2 text-sm text-[#525252] transition hover:text-[#0A0A0A]"
                 >
-                  <Phone className="h-4 w-4 text-[#7FA8FF]" aria-hidden="true" />
+                  <Phone className="h-4 w-4 text-[#A3A3A3]" aria-hidden="true" />
                   {company.phone}
                 </a>
               </li>
-              <li className="flex items-start gap-2 text-sm text-zinc-400">
-                <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-[#7FA8FF]" aria-hidden="true" />
+              <li className="flex items-start gap-2 text-sm text-[#525252]">
+                <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-[#A3A3A3]" aria-hidden="true" />
                 {company.headquarters}
               </li>
             </ul>
@@ -95,7 +95,7 @@ export default function Footer() {
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label={social.name}
-                  className="flex h-9 w-9 items-center justify-center border border-[#1B2A45] text-zinc-400 transition hover:border-[#0B5FFF] hover:text-white"
+                  className="flex h-9 w-9 items-center justify-center border border-[#D4D4D4] text-[#525252] transition hover:border-[#0A0A0A] hover:text-[#0A0A0A]"
                 >
                   <social.icon className="h-4 w-4" aria-hidden="true" />
                 </a>
@@ -111,7 +111,7 @@ export default function Footer() {
               { title: "Company",  links: footerLinks.company },
             ].map((group) => (
               <div key={group.title}>
-                <h3 className="font-mono text-[11px] font-semibold uppercase tracking-widest text-[#7FA8FF]">
+                <h3 className="font-mono text-[11px] font-semibold uppercase tracking-widest text-[#171717]">
                   {group.title}
                 </h3>
                 <ul role="list" className="mt-4 space-y-3">
@@ -119,7 +119,7 @@ export default function Footer() {
                     <li key={item.name}>
                       <Link
                         href={item.href}
-                        className="text-sm text-zinc-400 transition hover:text-white"
+                        className="text-sm text-[#525252] transition hover:text-[#0A0A0A]"
                       >
                         {item.name}
                       </Link>
@@ -132,14 +132,14 @@ export default function Footer() {
         </div>
 
         {/* ── Documents section ── */}
-        <div className="mt-16 border-t border-[#1B2A45] pt-10 sm:mt-20 lg:mt-24">
+        <div className="mt-16 border-t border-[#E5E5E5] pt-10 sm:mt-20 lg:mt-24">
           <div className="flex items-center gap-2">
-            <FileText className="h-4 w-4 text-[#7FA8FF]" aria-hidden="true" />
-            <h3 className="font-mono text-[11px] font-semibold uppercase tracking-widest text-[#7FA8FF]">
+            <FileText className="h-4 w-4 text-[#737373]" aria-hidden="true" />
+            <h3 className="font-mono text-[11px] font-semibold uppercase tracking-widest text-[#171717]">
               Legal &amp; Compliance Documents
             </h3>
           </div>
-          <p className="mt-2 max-w-2xl text-xs leading-5 text-zinc-500">
+          <p className="mt-2 max-w-2xl text-xs leading-5 text-[#737373]">
             We operate across multiple jurisdictions. The following documents govern our services and
             data practices in accordance with international law, including GDPR (EU), CCPA/CPRA
             (California), PDPA (Singapore / Thailand), POPIA (South Africa), and applicable UK and
@@ -153,10 +153,10 @@ export default function Footer() {
               <li key={doc.name}>
                 <Link
                   href={doc.href}
-                  className="group flex items-start gap-1.5 text-xs text-zinc-500 transition hover:text-white"
+                  className="group flex items-start gap-1.5 text-xs text-[#737373] transition hover:text-[#0A0A0A]"
                 >
                   <span
-                    className="mt-0.5 h-3 w-3 shrink-0 border border-[#1B2A45] bg-[#0B5FFF]/10 transition group-hover:border-[#0B5FFF]"
+                    className="mt-0.5 h-3 w-3 shrink-0 border border-[#D4D4D4] bg-white transition group-hover:border-[#0A0A0A]"
                     aria-hidden="true"
                   />
                   {doc.name}
@@ -167,9 +167,9 @@ export default function Footer() {
         </div>
 
         {/* ── Bottom bar ── */}
-        <div className="mt-12 flex flex-col gap-4 border-t border-[#1B2A45] pt-8 sm:flex-row sm:items-center sm:justify-between">
-          <p className="font-mono text-xs leading-5 text-zinc-500">
-            &copy; {new Date().getFullYear()} {company.name}. All rights reserved.
+        <div className="mt-12 flex flex-col gap-4 border-t border-[#E5E5E5] pt-8 sm:flex-row sm:items-center sm:justify-between">
+          <p className="font-mono text-xs leading-5 text-[#A3A3A3]">
+            &copy; <span suppressHydrationWarning>{new Date().getFullYear()}</span> {company.name}. All rights reserved.
             Registered in England &amp; Wales. Serving clients worldwide.
           </p>
           <div className="flex flex-wrap gap-6">
@@ -177,7 +177,7 @@ export default function Footer() {
               <Link
                 key={item.name}
                 href={item.href}
-                className="font-mono text-xs text-zinc-500 transition hover:text-white"
+                className="font-mono text-xs text-[#A3A3A3] transition hover:text-[#0A0A0A]"
               >
                 {item.name}
               </Link>

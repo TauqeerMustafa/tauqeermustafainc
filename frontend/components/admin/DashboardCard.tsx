@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useRef } from "react";
-import { LucideIcon, TrendingUp } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
+import { TrendingUp } from "lucide-react";
 
 type Props = {
   title: string;

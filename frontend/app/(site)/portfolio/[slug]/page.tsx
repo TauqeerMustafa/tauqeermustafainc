@@ -15,22 +15,22 @@ import { projects } from "@/lib/site-data";
 import { buildMetadata } from "@/lib/metadata";
 
 const coverImageBySlug: Record<string, string> = {
-  "enterprise-operations-portal": "https://res.cloudinary.com/b5cle1jv/image/upload/v1785442688/tmi-dashboard-finance_w2mvtk.jpg",
-  "security-compliance-dashboard": "https://res.cloudinary.com/b5cle1jv/image/upload/v1785442692/tmi-service-data-security_oxjb4l.jpg",
-  "ai-workflow-assistant": "https://res.cloudinary.com/b5cle1jv/image/upload/v1785442690/tmi-service-ai-security_lgghxl.jpg",
-  "healthcare-patient-scheduling-platform": "https://res.cloudinary.com/b5cle1jv/image/upload/v1785442688/tmi-hero-code_ub9idm.jpg",
-  "cloud-cost-observability-suite": "https://res.cloudinary.com/b5cle1jv/image/upload/v1785442687/tmi-dashboard-market_pttc2n.jpg",
+  "enterprise-operations-portal": "https://images.unsplash.com/photo-1556155092-490a1ba16284?auto=format&fit=crop&w=1600&q=80",
+  "security-compliance-dashboard": "https://images.unsplash.com/photo-1563986768609-322da13575f3?auto=format&fit=crop&w=1600&q=80",
+  "ai-workflow-assistant": "https://images.unsplash.com/photo-1620712943543-bcc4688e7485?auto=format&fit=crop&w=1600&q=80",
+  "healthcare-patient-scheduling-platform": "https://images.unsplash.com/photo-1483058712412-4245e9b90334?auto=format&fit=crop&w=1600&q=80",
+  "cloud-cost-observability-suite": "https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=1600&q=80",
 };
 
 const galleryImages = [
-  "https://res.cloudinary.com/b5cle1jv/image/upload/v1785442688/tmi-dashboard-finance_w2mvtk.jpg",
-  "https://res.cloudinary.com/b5cle1jv/image/upload/v1785442687/tmi-dashboard-growth_pfmdpk.jpg",
-  "https://res.cloudinary.com/b5cle1jv/image/upload/v1785442687/tmi-dashboard-market_pttc2n.jpg",
-  "https://res.cloudinary.com/b5cle1jv/image/upload/v1785442692/tmi-service-data-security_oxjb4l.jpg",
-  "https://res.cloudinary.com/b5cle1jv/image/upload/v1785442692/tmi-service-cyber-shield_cly3ur.jpg",
-  "https://res.cloudinary.com/b5cle1jv/image/upload/v1785442690/tmi-service-ai-security_lgghxl.jpg",
-  "https://res.cloudinary.com/b5cle1jv/image/upload/v1785442688/tmi-hero-code_ub9idm.jpg",
-  "https://res.cloudinary.com/b5cle1jv/image/upload/v1785442688/tmi-hero-network_ecqwdg.jpg",
+  "https://images.unsplash.com/photo-1556155092-490a1ba16284?auto=format&fit=crop&w=1600&q=80",
+  "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=1600&q=80",
+  "https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=1600&q=80",
+  "https://images.unsplash.com/photo-1563986768609-322da13575f3?auto=format&fit=crop&w=1600&q=80",
+  "https://images.unsplash.com/photo-1614064641938-3bbee52942c7?auto=format&fit=crop&w=1600&q=80",
+  "https://images.unsplash.com/photo-1620712943543-bcc4688e7485?auto=format&fit=crop&w=1600&q=80",
+  "https://images.unsplash.com/photo-1483058712412-4245e9b90334?auto=format&fit=crop&w=1600&q=80",
+  "https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=1600&q=80",
 ];
 
 export function generateStaticParams() {
@@ -51,7 +51,7 @@ export async function generateMetadata({
     title: project.title,
     description: project.summary,
     path: `/portfolio/${project.slug}`,
-    image: coverImageBySlug[project.slug] ?? "https://res.cloudinary.com/b5cle1jv/image/upload/v1785442688/tmi-hero-digital_cs7bvl.jpg",
+    image: coverImageBySlug[project.slug] ?? "https://images.unsplash.com/photo-1518186285589-2f7649de83e0?auto=format&fit=crop&w=1600&q=80",
   });
 }
 
@@ -75,14 +75,14 @@ export default async function ProjectDetailPage({
         eyebrow={project.category}
         title={project.title}
         description={project.summary}
-        image={coverImageBySlug[project.slug] ?? "https://res.cloudinary.com/b5cle1jv/image/upload/v1785442688/tmi-hero-digital_cs7bvl.jpg"}
+        image={coverImageBySlug[project.slug] ?? "https://images.unsplash.com/photo-1518186285589-2f7649de83e0?auto=format&fit=crop&w=1600&q=80"}
         imageTitle={project.category}
         imageCaption={project.impact}
       >
         <PrimaryButton href="/contact">Plan a Similar Project</PrimaryButton>
       </PageHero>
 
-      <Section className="bg-[#F8FAFC]" labelledBy="project-overview">
+      <Section className="bg-[#FAFAFA]" labelledBy="project-overview">
         <div className="grid gap-10 lg:grid-cols-[0.85fr_1.15fr]">
           <SectionHeader
             id="project-overview"
@@ -90,7 +90,7 @@ export default async function ProjectDetailPage({
             title={project.impact}
           />
           <Card>
-            <h2 className="text-xl font-semibold text-[#0A1628]">Technology stack</h2>
+            <h2 className="text-xl font-semibold text-[#0A0A0A]">Technology stack</h2>
             <div className="mt-5 flex flex-wrap gap-2">
               {project.technologies.map((technology) => (
                 <Badge key={technology}>{technology}</Badge>
@@ -111,7 +111,7 @@ export default async function ProjectDetailPage({
           {project.gallery.map((item, i) => (
             <div
               key={item}
-              className="relative aspect-[4/3] overflow-hidden rounded-none border border-[#E5E7EB] shadow-sm"
+              className="relative aspect-[4/3] overflow-hidden rounded-none border border-[#E5E5E5] shadow-sm"
             >
               <ImagePlaceholder
                 src={galleryImages[(projectIndex * 4 + i) % galleryImages.length]}
@@ -123,7 +123,7 @@ export default async function ProjectDetailPage({
         </div>
       </Section>
 
-      <Section className="bg-[#F8FAFC]" labelledBy="project-next">
+      <Section className="bg-[#FAFAFA]" labelledBy="project-next">
         <SectionHeader
           id="project-next"
           eyebrow="More work"
@@ -137,7 +137,7 @@ export default async function ProjectDetailPage({
               <Link
                 key={item.slug}
                 href={`/portfolio/${item.slug}`}
-                className="border border-[#D7DEE8] bg-white px-5 py-3 text-sm font-semibold text-[#0A1628] transition hover:border-[#0B5FFF] hover:text-[#0A46A8]"
+                className="border border-[#E5E5E5] bg-white px-5 py-3 text-sm font-semibold text-[#0A0A0A] transition hover:border-[#0A0A0A] hover:text-[#262626]"
               >
                 {item.title}
               </Link>

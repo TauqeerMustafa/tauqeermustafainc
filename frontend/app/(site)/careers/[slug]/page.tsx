@@ -31,7 +31,7 @@ export async function generateMetadata({
     title: job.title,
     description: job.summary,
     path: `/careers/${job.slug}`,
-    image: "https://res.cloudinary.com/b5cle1jv/image/upload/v1785442686/tmi-bg-matrix_w1xjjh.jpg",
+    image: "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?auto=format&fit=crop&w=1600&q=80",
   });
 }
 
@@ -53,7 +53,7 @@ export default async function JobDetailPage({
         eyebrow="Open role"
         title={job.title}
         description={job.summary}
-        image="https://res.cloudinary.com/b5cle1jv/image/upload/v1785442686/tmi-bg-matrix_w1xjjh.jpg"
+        image="https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?auto=format&fit=crop&w=1600&q=80"
         imageTitle={job.title}
         imageCaption={`${job.location} · ${job.type}`}
       >
@@ -63,7 +63,7 @@ export default async function JobDetailPage({
         </div>
       </PageHero>
 
-      <Section className="bg-[#F8FAFC]" labelledBy="job-responsibilities">
+      <Section className="bg-[#FAFAFA]" labelledBy="job-responsibilities">
         <div className="grid gap-10 lg:grid-cols-[1fr_auto]">
           <div>
             <SectionHeader
@@ -75,8 +75,8 @@ export default async function JobDetailPage({
               {job.responsibilities.map((responsibility) => (
                 <Card key={responsibility} className="hover:translate-y-0">
                   <div className="flex gap-3">
-                    <CheckCircle2 className="mt-0.5 h-5 w-5 text-[#0B5FFF]" aria-hidden />
-                    <p className="font-medium text-[#374151]">{responsibility}</p>
+                    <CheckCircle2 className="mt-0.5 h-5 w-5 text-[#0A0A0A]" aria-hidden />
+                    <p className="font-medium text-[#171717]">{responsibility}</p>
                   </div>
                 </Card>
               ))}
@@ -84,8 +84,8 @@ export default async function JobDetailPage({
           </div>
           <div className="lg:w-72">
             <Card>
-              <h2 className="text-xl font-semibold text-[#0A1628]">Apply</h2>
-              <p className="mt-4 text-sm leading-6 text-[#6B7280]">
+              <h2 className="text-xl font-semibold text-[#0A0A0A]">Apply</h2>
+              <p className="mt-4 text-sm leading-6 text-[#737373]">
                 Send your resume and a short note on relevant experience to our
                 hiring team, referencing this role.
               </p>

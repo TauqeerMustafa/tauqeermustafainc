@@ -210,7 +210,7 @@ export function AdminField({
 }
 
 export const adminInputClass =
-  "w-full border px-4 py-2.5 text-sm outline-none transition focus:border-[#0B5FFF] focus:ring-2 focus:ring-[#0B5FFF]/10";
+  "w-full border px-4 py-2.5 text-sm outline-none transition focus:border-[#0A0A0A] focus:ring-2 focus:ring-[#0A0A0A]/10";
 
 export const adminInputStyle = {
   borderColor: "var(--adm-border)",
