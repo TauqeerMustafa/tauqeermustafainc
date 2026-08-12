@@ -1,6 +1,5 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { ArrowRight, Globe, Shield, Zap } from "lucide-react";
 import Link from "next/link";
@@ -8,7 +7,7 @@ import Image from "next/image";
 
 import { company } from "@/data/company";
 import { imageLibrary } from "@/data/media";
-import { Eyebrow, Stat, fadeUp } from "./ui";
+import { Stat } from "./ui";
 
 const yearsInBusiness = new Date().getFullYear() - Number(company.founded);
 
@@ -25,8 +24,6 @@ const pillars = [
 ];
 
 export default function Hero() {
-  const [mounted, setMounted] = useState(false);
-  useEffect(() => setMounted(true), []);
 
   return (
     <section
@@ -41,7 +38,7 @@ export default function Hero() {
 
             <motion.div
               initial={{ opacity: 0, y: -12, scale: 0.96 }}
-              animate={mounted ? { opacity: 1, y: 0, scale: 1 } : {}}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
               transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
               className="mx-auto inline-flex items-center gap-2.5 border border-[#D4D4D4] bg-white px-4 py-2 lg:mx-0"
             >
@@ -56,7 +53,7 @@ export default function Hero() {
 
             <motion.h1
               initial={{ opacity: 0, y: 28 }}
-              animate={mounted ? { opacity: 1, y: 0 } : {}}
+              animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.7, delay: 0.08, ease: [0.22, 1, 0.36, 1] }}
               className="mt-8 text-balance text-5xl font-semibold leading-[1.04] tracking-tight text-[#0A0A0A] sm:text-6xl lg:text-[68px]"
             >
@@ -65,7 +62,7 @@ export default function Hero() {
                 <span className="relative z-10">serious</span>
                 <motion.span
                   initial={{ scaleX: 0 }}
-                  animate={mounted ? { scaleX: 1 } : {}}
+                  animate={{ scaleX: 1 }}
                   transition={{ duration: 0.6, delay: 0.5, ease: [0.22, 1, 0.36, 1] }}
                   style={{ transformOrigin: "left" }}
                   className="absolute -bottom-1 left-0 right-0 h-1 bg-[#0A0A0A]"
@@ -77,7 +74,7 @@ export default function Hero() {
 
             <motion.p
               initial={{ opacity: 0, y: 20 }}
-              animate={mounted ? { opacity: 1, y: 0 } : {}}
+              animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.18, ease: [0.22, 1, 0.36, 1] }}
               className="mx-auto mt-8 max-w-2xl text-pretty text-lg leading-8 text-[#525252] lg:mx-0 xl:text-xl"
             >
@@ -88,7 +85,7 @@ export default function Hero() {
 
             <motion.div
               initial={{ opacity: 0, y: 16 }}
-              animate={mounted ? { opacity: 1, y: 0 } : {}}
+              animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.26, ease: [0.22, 1, 0.36, 1] }}
               className="mx-auto mt-7 flex flex-wrap items-center justify-center gap-3 lg:justify-start"
             >
@@ -102,7 +99,7 @@ export default function Hero() {
 
             <motion.div
               initial={{ opacity: 0, y: 16 }}
-              animate={mounted ? { opacity: 1, y: 0 } : {}}
+              animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.34, ease: [0.22, 1, 0.36, 1] }}
               className="mx-auto mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row lg:justify-start"
             >
@@ -124,7 +121,7 @@ export default function Hero() {
           {/* ── Right: image card ── */}
           <motion.div
             initial={{ opacity: 0, x: 32, scale: 0.97 }}
-            animate={mounted ? { opacity: 1, x: 0, scale: 1 } : {}}
+            animate={{ opacity: 1, x: 0, scale: 1 }}
             transition={{ duration: 0.8, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
             className="hidden lg:block"
           >

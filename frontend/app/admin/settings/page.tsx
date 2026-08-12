@@ -19,7 +19,9 @@ export default function AdminSettingsPage() {
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   useEffect(() => {
-    if (user?.name) setName(user.name);
+    if (!user?.name) return;
+    const syncName = window.setTimeout(() => setName(user.name), 0);
+    return () => window.clearTimeout(syncName);
   }, [user?.name]);
 
   async function handleProfileSubmit(e: React.FormEvent) {

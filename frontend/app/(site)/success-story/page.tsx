@@ -303,7 +303,7 @@ export default function SuccessStoryPage() {
       <Section className="bg-[#0A0A0A]" labelledBy="success-cta">
         <div className="mx-auto max-w-3xl text-center">
           <p className="font-mono text-[11px] font-semibold uppercase tracking-widest text-[#A3A3A3]">
-            What's next
+            What&apos;s next
           </p>
           <h2
             id="success-cta"

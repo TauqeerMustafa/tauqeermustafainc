@@ -25,7 +25,8 @@ export default function Navbar() {
   const detailsRef = useRef<HTMLDetailsElement>(null);
 
   useEffect(() => {
-    setIsOpen(false);
+    const closeMenu = window.setTimeout(() => setIsOpen(false), 0);
+    return () => window.clearTimeout(closeMenu);
   }, [pathname]);
 
   return (

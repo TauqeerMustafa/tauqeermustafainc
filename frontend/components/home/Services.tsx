@@ -128,7 +128,6 @@ export default function Services() {
           <div className="mt-10">
             <ButtonLink
               href={featuredService.href}
-              ariaLabel={`Learn more about ${featuredService.title}`}
               variant="primary"
             >
               Explore Web Delivery
@@ -159,7 +158,6 @@ export default function Services() {
                 <div className="mt-6">
                   <TextLink
                     href={service.href}
-                    ariaLabel={`Learn more about ${service.title}`}
                   >
                     Learn More
                   </TextLink>

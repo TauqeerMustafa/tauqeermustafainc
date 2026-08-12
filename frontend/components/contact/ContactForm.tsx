@@ -30,7 +30,7 @@ const BUDGET_RANGES = [
   { label: "$50,000 – $150,000  — Full product build", value: "50k-150k" },
   { label: "$150,000 – $500,000  — Enterprise solution", value: "150k-500k" },
   { label: "$500,000+  — Strategic / multi-phase programme", value: "500k-plus" },
-  { label: "Not sure — let's scope it together", value: "unsure" },
+  { label: "Not sure — let us scope it together", value: "unsure" },
 ];
 
 const TIMELINES = [
@@ -105,7 +105,7 @@ export default function ContactForm() {
             Job Title
           </label>
           <input
-            {...register("jobTitle" as any)}
+            {...register("jobTitle")}
             className={inputClass}
             placeholder="CTO, Founder, Project Manager…"
           />
@@ -157,7 +157,7 @@ export default function ContactForm() {
 
         <div>
           <label className={labelClass}>Country</label>
-          <select {...register("country" as any)} className={inputClass}>
+          <select {...register("country")} className={inputClass}>
             <option value="">Select your country</option>
             {COUNTRIES.map((c) => (
               <option key={c} value={c}>
@@ -208,7 +208,7 @@ export default function ContactForm() {
 
         <div>
           <label className={labelClass}>Preferred start timeline</label>
-          <select {...register("timeline" as any)} className={inputClass}>
+          <select {...register("timeline")} className={inputClass}>
             <option value="">Select a timeline</option>
             {TIMELINES.map((t) => (
               <option key={t} value={t}>
@@ -220,7 +220,7 @@ export default function ContactForm() {
 
         <div>
           <label className={labelClass}>How did you hear about us?</label>
-          <select {...register("referral" as any)} className={inputClass}>
+          <select {...register("referral")} className={inputClass}>
             <option value="">Select an option</option>
             <option>Google / Search engine</option>
             <option>LinkedIn</option>
