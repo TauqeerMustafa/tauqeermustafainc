@@ -16,8 +16,12 @@ services:
     dockerContext: ./backend
     # Run migrations, then start the server. Overrides the Dockerfile CMD on
     # Render only (local docker-compose keeps using the plain uvicorn CMD).
+    # Render already runs dockerCommand through /bin/sh, so we pass the raw
+    # command chain here - do NOT wrap it in another `sh -c "..."` (that
+    # double-wraps the quoting and fails with exit 127 / command not found).
+    # `&&` is interpreted by that shell; $PORT is injected by Render at runtime.
     # alembic reads DATABASE_URL via app.core.config, so it targets the real DB.
-    dockerCommand: 'sh -c "alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000}"'
+    dockerCommand: 'alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port $PORT'
     plan: free
     region: oregon
     branch: master
