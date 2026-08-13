@@ -46,6 +46,13 @@ Open http://localhost:3000 for the public site, http://localhost:3000/login
 for the admin portal (http://localhost:8000/docs for the interactive API
 reference once the backend is running).
 
+## Deployment
+
+The frontend deploys to Vercel and the backend to Render (via the repo-root
+`render.yaml` Blueprint), against a managed Postgres database (Supabase). See
+[DEPLOYMENT.md](DEPLOYMENT.md) for the full step-by-step runbook, including the
+exact dashboard values to set.
+
 ## What's implemented
 
 - Public site: home, about, services, portfolio, blog, careers, contact

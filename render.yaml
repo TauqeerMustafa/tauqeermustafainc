@@ -1,0 +1,45 @@
+# Render Blueprint for the FastAPI backend.
+# Docs: https://render.com/docs/blueprint-spec
+#
+# Deploy: Render Dashboard -> New -> Blueprint -> connect this repo.
+# Render reads this file, provisions the service, and prompts for any secret
+# (sync: false) values. The database is external (Supabase / managed Postgres),
+# so it is NOT declared here - only DATABASE_URL is wired in as a secret.
+#
+# See DEPLOYMENT.md at the repo root for the full runbook.
+
+services:
+  - type: web
+    name: tauqeer-inc-backend
+    runtime: docker
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    # Run migrations, then start the server. Overrides the Dockerfile CMD on
+    # Render only (local docker-compose keeps using the plain uvicorn CMD).
+    # alembic reads DATABASE_URL via app.core.config, so it targets the real DB.
+    dockerCommand: 'sh -c "alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000}"'
+    plan: free
+    region: oregon
+    branch: master
+    autoDeploy: true
+    healthCheckPath: /health
+    envVars:
+      - key: ENVIRONMENT
+        value: production
+      - key: APP_DEBUG
+        value: "false"
+      - key: LOG_LEVEL
+        value: INFO
+      - key: ACCESS_TOKEN_EXPIRE_MINUTES
+        value: "30"
+      # Render generates a strong random value on first deploy and keeps it.
+      - key: SECRET_KEY
+        generateValue: true
+      # Set in the dashboard when prompted. Use the psycopg driver scheme:
+      #   postgresql+psycopg://<user>:<password>@<host>:5432/<db>
+      # (Supabase gives postgresql://... - change the scheme to +psycopg.)
+      - key: DATABASE_URL
+        sync: false
+      # Comma-separated, exact scheme+host, no trailing slash, no spaces.
+      - key: CORS_ORIGINS
+        value: https://tauqeermustafa.tech,https://www.tauqeermustafa.tech,https://tauqeermustafainc.vercel.app
