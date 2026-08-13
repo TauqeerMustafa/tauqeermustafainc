@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion";
 import { imageLibrary } from "@/data/media";
-import { Eyebrow, ImagePlaceholder, Pill, Reveal, Section, fadeLeft, fadeUp, stagger, viewportOnce } from "./ui";
+import { Eyebrow, ImagePlaceholder, Pill, Reveal, Section, fadeLeft, stagger, viewportOnce } from "./ui";
 
 const technologyGroups = [
   {

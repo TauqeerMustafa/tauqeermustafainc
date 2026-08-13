@@ -16,7 +16,8 @@ import ContactForm from "@/components/contact/ContactForm";
 import ContactInfo from "@/components/contact/ContactInfo";
 import ContactMap from "@/components/contact/ContactMap";
 import FAQ from "@/components/contact/FAQ";
-import { Card, IconFrame, PageHero, Section, SectionHeader } from "@/components/home/ui";
+import { Card, PageHero, Section, SectionHeader } from "@/components/home/ui";
+import { IconFrame } from "@/components/home/IconFrame";
 import { company } from "@/data/company";
 
 export const metadata: Metadata = {

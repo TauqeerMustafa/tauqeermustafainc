@@ -1,7 +1,14 @@
 import type { ComponentType } from "react";
 
-import { cx } from "@/components/home/ui";
+import { cn } from "@/lib/utils";
 
+/**
+ * Presentational icon badge. Intentionally has no "use client" directive so it
+ * can render inside Server Components: the icon renders to SVG on the server,
+ * which keeps the tree serializable. Passing a raw icon component to a Client
+ * Component would fail, because a component is a function and functions can't
+ * cross the server/client boundary.
+ */
 export function IconFrame({
   icon: Icon,
   size = "md",
@@ -16,10 +23,10 @@ export function IconFrame({
 
   return (
     <div
-      className={cx(
+      className={cn(
         "flex shrink-0 items-center justify-center border border-[#D4D4D4] bg-[#FAFAFA] text-[#171717] transition-all duration-300 group-hover:scale-110 group-hover:border-[#0A0A0A] group-hover:bg-[#0A0A0A] group-hover:text-white",
         sz,
-        className
+        className,
       )}
     >
       <Icon className={iconSz} aria-hidden />

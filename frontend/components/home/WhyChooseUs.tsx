@@ -1,7 +1,8 @@
 "use client";
 
 import { Gauge, Lock, Network, Users } from "lucide-react";
-import { GlowCard, IconFrame, Section, SectionHeader } from "./ui";
+import { GlowCard, Section, SectionHeader } from "./ui";
+import { IconFrame } from "./IconFrame";
 
 const reasons = [
   { title: "Architecture before acceleration", description: "Reliability, observability, access control, and ownership are considered before implementation scales.", icon: Network, num: "01" },

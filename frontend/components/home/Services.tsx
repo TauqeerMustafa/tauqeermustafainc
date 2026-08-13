@@ -12,12 +12,12 @@ import {
 import {
   ButtonLink,
   Card,
-  IconFrame,
   ImagePlaceholder,
   Section,
   SectionHeader,
   TextLink
 } from "./ui";
+import { IconFrame } from "./IconFrame";
 
 const services = [
   {

@@ -3,13 +3,13 @@ import { CheckCircle2, Compass, ShieldCheck, Users } from "lucide-react";
 
 import {
   Card,
-  IconFrame,
   ImagePlaceholder,
   PageHero,
   PrimaryButton,
   Section,
   SectionHeader,
 } from "@/components/home/ui";
+import { IconFrame } from "@/components/home/IconFrame";
 import { company } from "@/data/company";
 import { buildMetadata } from "@/lib/metadata";
 

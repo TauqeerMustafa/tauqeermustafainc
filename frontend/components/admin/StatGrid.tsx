@@ -3,7 +3,6 @@
 import { Briefcase, FolderOpen, FileText, Mail } from "lucide-react";
 
 import { useBlogs } from "@/hooks/useBlogs";
-import { useCareers } from "@/hooks/useCareers";
 import { useMessages } from "@/hooks/useMessages";
 import { usePortfolio } from "@/hooks/usePortfolio";
 import { useServices } from "@/hooks/useServices";

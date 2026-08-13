@@ -3,12 +3,12 @@ import { Bot, Cloud, Code2, PenTool, ShieldCheck } from "lucide-react";
 
 import {
   Card,
-  IconFrame,
   PageHero,
   Section,
   SectionHeader,
   TextLink,
 } from "@/components/home/ui";
+import { IconFrame } from "@/components/home/IconFrame";
 import { services } from "@/lib/site-data";
 import { buildMetadata } from "@/lib/metadata";
 

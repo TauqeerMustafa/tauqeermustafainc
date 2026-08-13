@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { type ComponentType, type ReactNode } from "react";
+import { type ReactNode } from "react";
 import { motion, type Variants } from "framer-motion";
 import { ArrowRight } from "lucide-react";
 
@@ -164,26 +164,6 @@ export function Card({ children, className }: { children: ReactNode; className?:
   );
 }
 
-/* ── IconFrame ───────────────────────────────────────────────── */
-export function IconFrame({
-  icon: Icon, size = "md", className,
-}: {
-  icon: ComponentType<{ className?: string; "aria-hidden"?: boolean }>;
-  size?: "sm" | "md" | "lg";
-  className?: string;
-}) {
-  const sz = { sm: "h-9 w-9", md: "h-11 w-11", lg: "h-14 w-14" }[size];
-  const iconSz = { sm: "h-4 w-4", md: "h-5 w-5", lg: "h-6 w-6" }[size];
-  return (
-    <div className={cx(
-      "flex shrink-0 items-center justify-center border border-[#D4D4D4] bg-[#FAFAFA] text-[#171717] transition-all duration-300 group-hover:scale-110 group-hover:border-[#0A0A0A] group-hover:bg-[#0A0A0A] group-hover:text-white",
-      sz, className
-    )}>
-      <Icon className={iconSz} aria-hidden />
-    </div>
-  );
-}
-
 /* ── ImagePlaceholder ────────────────────────────────────────── */
 export function ImagePlaceholder({
   title, caption, src, className, floating = false, priority = false,
@@ -337,9 +317,9 @@ export function TextLink({ href, children }: { href: string; children: ReactNode
     </Link>
   );
 }
-export function ButtonLink({ href, children, variant = "primary", size, className, ariaLabel }: {
+export function ButtonLink({ href, children, variant = "primary", className }: {
   href: string; children: ReactNode; variant?: "primary" | "secondary" | "outline" | "ghost" | "text";
-  size?: "sm" | "md" | "lg"; className?: string; ariaLabel?: string;
+  className?: string;
 }) {
   const V = { primary: PrimaryButton, secondary: SecondaryButton, outline: OutlineButton, ghost: GhostButton, text: TextLink }[variant];
   return <V href={href} className={className}>{children}</V>;

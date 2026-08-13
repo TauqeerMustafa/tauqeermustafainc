@@ -5,13 +5,12 @@ import { CheckCircle2 } from "lucide-react";
 
 import {
   Card,
-  IconFrame,
-  ImagePlaceholder,
   PageHero,
   PrimaryButton,
   Section,
   SectionHeader,
 } from "@/components/home/ui";
+import { IconFrame } from "@/components/home/IconFrame";
 import { FaqAccordion } from "@/components/services/FaqAccordion";
 import { services } from "@/lib/site-data";
 import { buildMetadata } from "@/lib/metadata";

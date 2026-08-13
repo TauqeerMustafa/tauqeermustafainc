@@ -1,7 +1,7 @@
 import { Mail, Phone, MapPin, Clock } from "lucide-react";
 
 import { company } from "@/data/company";
-import { IconFrame } from "@/components/home/ui";
+import { IconFrame } from "@/components/home/IconFrame";
 
 const items = [
   { label: "Email", value: company.email, icon: Mail, href: `mailto:${company.email}` },

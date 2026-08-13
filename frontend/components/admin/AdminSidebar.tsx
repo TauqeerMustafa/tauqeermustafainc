@@ -98,7 +98,7 @@ export default function AdminSidebar({ isOpen, onClose }: Props) {
             Navigation
           </p>
 
-          {links.map((item, i) => {
+          {links.map((item) => {
             const Icon = item.icon;
             const active = pathname === item.href || pathname.startsWith(item.href + "/");
 

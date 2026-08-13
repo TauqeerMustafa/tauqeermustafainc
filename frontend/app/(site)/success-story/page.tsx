@@ -16,14 +16,13 @@ import {
 
 import {
   Card,
-  IconFrame,
   ImagePlaceholder,
   PageHero,
   PrimaryButton,
   Section,
   SectionHeader,
 } from "@/components/home/ui";
-import { company } from "@/data/company";
+import { IconFrame } from "@/components/home/IconFrame";
 import { buildMetadata } from "@/lib/metadata";
 
 export const metadata: Metadata = buildMetadata({
