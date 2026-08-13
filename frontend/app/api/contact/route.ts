@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
+import { appConfig } from "@/config/app";
+
+const API_BASE_URL = appConfig.apiBaseUrl;
 
 export async function POST(request: Request) {
   let body: Record<string, unknown>;
