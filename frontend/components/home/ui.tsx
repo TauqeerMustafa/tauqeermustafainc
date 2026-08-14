@@ -217,11 +217,11 @@ export function BadgeMuted({ children }: { children: ReactNode }) {
 export function Stat({ value, label, detail, light }: { value: string; label: string; detail?: string; light?: boolean }) {
   return (
     <Reveal variant={fadeUp}>
-      <div className={cx("font-mono text-3xl font-bold tracking-tight", light ? "text-white" : "text-[#0A0A0A]")}>
+      <div className={cx("font-mono text-3xl font-bold tracking-tight", light ? "text-white" : "text-[#E0E7FF]")}>
         {value}
       </div>
-      <div className={cx("mt-1 text-sm font-semibold", light ? "text-white/70" : "text-[#171717]")}>{label}</div>
-      {detail && <div className={cx("mt-1 text-xs leading-5", light ? "text-white/40" : "text-[#A3A3A3]")}>{detail}</div>}
+      <div className={cx("mt-1 text-sm font-semibold", light ? "text-white/70" : "text-white")}>{label}</div>
+      {detail && <div className={cx("mt-1 text-xs leading-5", light ? "text-white/40" : "text-white/60")}>{detail}</div>}
     </Reveal>
   );
 }
@@ -253,15 +253,14 @@ export function GlowCard({ children, className }: { children: ReactNode; classNa
     <Reveal
       variant={scaleIn}
       className={cx(
-        "group relative overflow-hidden border border-[#E5E5E5] bg-white p-6 sm:p-8",
+        "group relative overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-br from-white/[0.05] to-transparent p-6 sm:p-8 backdrop-blur-sm",
         "before:pointer-events-none before:absolute before:inset-0 before:opacity-0 before:transition-opacity before:duration-500",
-        "before:bg-[radial-gradient(circle_at_var(--mx,50%)_var(--my,50%),rgba(0,0,0,0.045),transparent_60%)]",
-        "hover:before:opacity-100 hover:border-[#0A0A0A]",
-        "shadow-[0_1px_3px_rgba(0,0,0,0.04)] hover:shadow-[0_12px_40px_rgba(0,0,0,0.08)]",
+        "before:bg-[radial-gradient(circle_at_var(--mx,50%)_var(--my,50%),rgba(56,189,248,0.15),transparent_50%)]",
+        "hover:before:opacity-100 hover:border-[#38BDF8]/30",
+        "shadow-[0_8px_32px_rgba(0,0,0,0.3)] hover:shadow-[0_16px_48px_rgba(56,189,248,0.2)]",
         "transition-all duration-300",
         className
       )}
-      // onMouseMove handled via inline handler prop below through a plain div wrapper is not possible on motion.div children prop;
     >
       <div
         className="contents"
@@ -280,40 +279,40 @@ export function GlowCard({ children, className }: { children: ReactNode; classNa
 }
 
 /* ── Buttons ─────────────────────────────────────────────────── */
-const base = "inline-flex items-center justify-center gap-2 font-semibold tracking-tight transition-all duration-200 press focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#0A0A0A]";
+const base = "inline-flex items-center justify-center gap-2 font-semibold tracking-tight transition-all duration-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4";
 
 export function PrimaryButton({ href, children, className }: { href: string; children: ReactNode; className?: string }) {
   return (
-    <Link href={href} className={cx(base, "min-h-12 px-6 bg-[#0A0A0A] text-white shadow-[0_8px_24px_rgba(0,0,0,0.22)] hover:bg-[#262626] hover:-translate-y-0.5 hover:shadow-[0_14px_32px_rgba(0,0,0,0.28)]", className)}>
-      {children} <ArrowRight className="h-4 w-4" aria-hidden />
+    <Link href={href} className={cx(base, "group min-h-12 px-6 rounded-full bg-gradient-to-r from-[#38BDF8] to-[#818CF8] text-white shadow-[0_8px_32px_rgba(56,189,248,0.35)] hover:shadow-[0_16px_48px_rgba(56,189,248,0.45)] hover:-translate-y-1 focus-visible:outline-[#38BDF8]", className)}>
+      {children} <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" aria-hidden />
     </Link>
   );
 }
 export function SecondaryButton({ href, children, className }: { href: string; children: ReactNode; className?: string }) {
   return (
-    <Link href={href} className={cx(base, "min-h-12 px-6 border border-[#0A0A0A] bg-white text-[#0A0A0A] hover:bg-[#0A0A0A] hover:text-white hover:-translate-y-0.5", className)}>
-      {children} <ArrowRight className="h-4 w-4" aria-hidden />
+    <Link href={href} className={cx(base, "group min-h-12 px-6 rounded-full border border-white/20 bg-white/5 text-white backdrop-blur-sm hover:border-white/30 hover:bg-white/10 hover:-translate-y-1 focus-visible:outline-white", className)}>
+      {children} <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" aria-hidden />
     </Link>
   );
 }
 export function OutlineButton({ href, children, className }: { href: string; children: ReactNode; className?: string }) {
   return (
-    <Link href={href} className={cx(base, "min-h-12 px-6 border border-[#D4D4D4] bg-transparent text-[#0A0A0A] hover:border-[#0A0A0A] hover:-translate-y-0.5", className)}>
+    <Link href={href} className={cx(base, "min-h-12 px-6 rounded-full border border-white/20 bg-transparent text-white hover:border-[#38BDF8]/30 hover:bg-white/5 hover:-translate-y-1 focus-visible:outline-white", className)}>
       {children}
     </Link>
   );
 }
 export function GhostButton({ href, children, className }: { href: string; children: ReactNode; className?: string }) {
   return (
-    <Link href={href} className={cx(base, "min-h-10 px-4 text-[#0A0A0A] hover:bg-[#F4F4F4]", className)}>
+    <Link href={href} className={cx(base, "min-h-10 px-4 text-white hover:bg-white/5 focus-visible:outline-white", className)}>
       {children}
     </Link>
   );
 }
 export function TextLink({ href, children }: { href: string; children: ReactNode }) {
   return (
-    <Link href={href} className="link-ul inline-flex items-center gap-1.5 text-sm font-semibold text-[#0A0A0A] hover:text-[#404040]">
-      {children} <ArrowRight className="h-3.5 w-3.5" aria-hidden />
+    <Link href={href} className="group inline-flex items-center gap-1.5 text-sm font-semibold text-[#38BDF8] hover:text-[#60C9FF]">
+      {children} <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-1" aria-hidden />
     </Link>
   );
 }

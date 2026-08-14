@@ -10,7 +10,7 @@ export const navigation = [
 
 export const footerLinks = {
   services: [
-    { name: "Enterprise Web Development", href: "/services/enterprise-web-development" },
+    { name: "Web Development", href: "/services/enterprise-web-development" },
     { name: "Cybersecurity", href: "/services/cybersecurity" },
     { name: "AI Solutions", href: "/services/ai-solutions" },
     { name: "Cloud Engineering", href: "/services/cloud-engineering" },
@@ -34,11 +34,11 @@ export const footerLinks = {
 export const services = [
   {
     slug: "enterprise-web-development",
-    title: "Enterprise Web Development",
+    title: "Web Development",
     shortDescription:
-      "Secure web platforms, portals, dashboards, and product systems built for scale.",
+      "Secure web platforms, portals, dashboards, and product systems built to last.",
     description:
-      "We design and build maintainable enterprise web applications with clear architecture, reliable delivery practices, and performance-minded implementation. Every engagement starts with the business workflow, not the framework, so the systems we ship stay easy to operate long after launch.",
+      "We design and build maintainable web applications with clear architecture, reliable delivery practices, and performance-minded implementation. Every engagement starts with the business workflow, not the framework, so the systems we ship stay easy to operate long after launch.",
     outcomes: [
       "Application architecture and technical planning",
       "Customer and internal portals",

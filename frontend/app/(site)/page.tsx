@@ -13,9 +13,9 @@ import WhyChooseUs from "@/components/home/WhyChooseUs";
 import { buildMetadata } from "@/lib/metadata";
 
 export const metadata: Metadata = buildMetadata({
-  title: "Tauqeer Mustafa Inc. | Enterprise Software, Security & AI",
+  title: "Tauqeer Mustafa Inc. | Secure Digital Products for Small Businesses",
   description:
-    "Enterprise web development, cybersecurity, AI automation, cloud engineering, and product design for growing organizations.",
+    "A founder-led digital agency in Islamabad, Pakistan. Web development, cybersecurity, AI automation, cloud engineering, and product design for small businesses and startups.",
   path: "/",
 });
 
