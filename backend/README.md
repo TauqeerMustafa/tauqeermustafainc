@@ -13,7 +13,7 @@ storage.
 - Alembic
 - Pydantic v2 (camelCase JSON via a shared `CamelModel`, matching the
   frontend's TypeScript types)
-- python-jose (JWT) + passlib (bcrypt)
+- python-jose (JWT) + bcrypt (password hashing)
 - Uvicorn
 
 ## Project structure
