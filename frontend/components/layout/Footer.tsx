@@ -15,7 +15,7 @@ const socialLinks = [
 export default function Footer() {
   return (
     <footer
-      className="border-t border-white/10 bg-gradient-to-b from-[#0A0D12] to-[#0F0F14]"
+      className="border-t border-[#e0e0e0] bg-[#f5f5f7]"
       aria-labelledby="footer-heading"
     >
       <h2 id="footer-heading" className="sr-only">Footer</h2>
@@ -27,8 +27,8 @@ export default function Footer() {
 
           {/* Brand block */}
           <div className="max-w-xs">
-            <Link href="/" className="inline-flex items-center gap-2 text-lg font-semibold text-white">
-              <span className="relative flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-white/10 bg-white/5">
+            <Link href="/" className="inline-flex items-center gap-2 text-[17px] font-semibold leading-[1.24] tracking-[-0.374px] text-[#1d1d1f]">
+              <span className="relative flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-[#e0e0e0] bg-white">
                 <Image
                   src="/logo-mark.svg"
                   alt=""
@@ -39,7 +39,7 @@ export default function Footer() {
               </span>
               {company.name}
             </Link>
-            <p className="mt-3 text-sm leading-6 text-[#C7D2FE]">
+            <p className="mt-3 text-[14px] leading-[1.43] tracking-[-0.224px] text-[#7a7a7a]">
               {company.description.split(".")[0]}.
             </p>
 
@@ -47,23 +47,23 @@ export default function Footer() {
               <li>
                 <a
                   href={`mailto:${company.email}`}
-                  className="flex items-center gap-2 text-sm text-[#C7D2FE] transition hover:text-white"
+                  className="flex items-center gap-2 text-[14px] leading-[1.43] tracking-[-0.224px] text-[#7a7a7a] transition hover:text-[#1d1d1f]"
                 >
-                  <Mail className="h-4 w-4 text-[#38BDF8]" aria-hidden="true" />
+                  <Mail className="h-4 w-4 text-[#0066cc]" aria-hidden="true" />
                   {company.email}
                 </a>
               </li>
               <li>
                 <a
                   href={`tel:${company.phone.replace(/\s+/g, "")}`}
-                  className="flex items-center gap-2 text-sm text-[#C7D2FE] transition hover:text-white"
+                  className="flex items-center gap-2 text-[14px] leading-[1.43] tracking-[-0.224px] text-[#7a7a7a] transition hover:text-[#1d1d1f]"
                 >
-                  <Phone className="h-4 w-4 text-[#38BDF8]" aria-hidden="true" />
+                  <Phone className="h-4 w-4 text-[#0066cc]" aria-hidden="true" />
                   {company.phone}
                 </a>
               </li>
-              <li className="flex items-start gap-2 text-sm text-[#C7D2FE]">
-                <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-[#38BDF8]" aria-hidden="true" />
+              <li className="flex items-start gap-2 text-[14px] leading-[1.43] tracking-[-0.224px] text-[#7a7a7a]">
+                <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-[#0066cc]" aria-hidden="true" />
                 {company.headquarters}
               </li>
             </ul>
@@ -76,7 +76,7 @@ export default function Footer() {
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label={social.name}
-                  className="flex h-9 w-9 items-center justify-center rounded-lg border border-white/10 bg-white/5 text-[#C7D2FE] transition hover:border-[#38BDF8]/30 hover:bg-white/10 hover:text-white"
+                  className="flex h-9 w-9 items-center justify-center rounded-lg border border-[#e0e0e0] bg-white text-[#7a7a7a] transition hover:border-[#0066cc] hover:bg-white hover:text-[#1d1d1f]"
                 >
                   <social.icon className="h-4 w-4" aria-hidden="true" />
                 </a>
@@ -92,7 +92,7 @@ export default function Footer() {
               { title: "Company",  links: footerLinks.company },
             ].map((group) => (
               <div key={group.title}>
-                <h3 className="font-mono text-[11px] font-semibold uppercase tracking-widest text-white">
+                <h3 className="text-[12px] font-semibold leading-[1.33] tracking-[-0.12px] text-[#1d1d1f]">
                   {group.title}
                 </h3>
                 <ul role="list" className="mt-4 space-y-3">
@@ -100,7 +100,7 @@ export default function Footer() {
                     <li key={item.name}>
                       <Link
                         href={item.href}
-                        className="text-sm text-[#C7D2FE] transition hover:text-white"
+                        className="text-[14px] leading-[1.43] tracking-[-0.224px] text-[#7a7a7a] transition hover:text-[#1d1d1f]"
                       >
                         {item.name}
                       </Link>
@@ -113,8 +113,8 @@ export default function Footer() {
         </div>
 
         {/* ── Bottom bar ── */}
-        <div className="mt-12 flex flex-col gap-4 border-t border-white/10 pt-8 sm:flex-row sm:items-center sm:justify-between">
-          <p className="font-mono text-xs leading-5 text-white/60">
+        <div className="mt-12 flex flex-col gap-4 border-t border-[#e0e0e0] pt-8 sm:flex-row sm:items-center sm:justify-between">
+          <p className="text-[12px] leading-[1.33] tracking-[-0.12px] text-[#7a7a7a]">
             &copy; <span suppressHydrationWarning>{new Date().getFullYear()}</span> {company.name}. All rights reserved.
           </p>
           <div className="flex flex-wrap gap-6">
@@ -122,7 +122,7 @@ export default function Footer() {
               <Link
                 key={item.name}
                 href={item.href}
-                className="font-mono text-xs text-white/60 transition hover:text-white"
+                className="text-[12px] leading-[1.33] tracking-[-0.12px] text-[#7a7a7a] transition hover:text-[#1d1d1f]"
               >
                 {item.name}
               </Link>

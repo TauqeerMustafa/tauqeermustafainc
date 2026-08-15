@@ -4,6 +4,170 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/* ── Apple design tokens ───────────────────────────────────────── */
+:root {
+  --font-sans: "SF Pro Display", "SF Pro Text", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, sans-serif;
+  --font-mono: "SF Mono", "SFMono-Regular", ui-monospace, Menlo, monospace;
+
+  /* Action Blue — the single interactive color */
+  --apple-blue:        #0066cc;
+  --apple-blue-focus:  #0071e3;
+  --apple-blue-dark:   #2997ff; /* dark-surface only */
+
+  /* Surfaces */
+  --apple-canvas:      #ffffff;
+  --apple-parchment:   #f5f5f7;
+  --apple-pearl:       #fafafc;
+  --apple-tile-1:      #272729;
+  --apple-tile-2:      #2a2a2c;
+  --apple-tile-3:      #252527;
+  --apple-black:       #000000;
+
+  /* Ink */
+  --apple-ink:         #1d1d1f;
+  --apple-ink-80:      #333333;
+  --apple-ink-48:      #7a7a7a;
+  --apple-muted:       #cccccc;
+
+  /* Hairlines */
+  --apple-hairline:    #e0e0e0;
+  --apple-divider:     #f0f0f0;
+
+  /* shadcn compat */
+  --background:        #ffffff;
+  --foreground:        #1d1d1f;
+  --card:              #ffffff;
+  --card-foreground:   #1d1d1f;
+  --popover:           #ffffff;
+  --popover-foreground:#1d1d1f;
+  --primary:           #0066cc;
+  --primary-foreground:#ffffff;
+  --secondary:         #f5f5f7;
+  --secondary-foreground:#1d1d1f;
+  --muted:             #f5f5f7;
+  --muted-foreground:  #7a7a7a;
+  --accent:            #f5f5f7;
+  --accent-foreground: #1d1d1f;
+  --destructive:       oklch(0.45 0.18 27);
+  --border:            #e0e0e0;
+  --input:             #e0e0e0;
+  --ring:              #0066cc;
+  --radius:            0.5rem;
+
+  --adm-bg:            #f5f5f7;
+  --adm-surface:       #ffffff;
+  --adm-surface-2:     #f5f5f7;
+  --adm-border:        #e0e0e0;
+  --adm-border-2:      #cccccc;
+  --adm-text:          #1d1d1f;
+  --adm-text-2:        #7a7a7a;
+  --adm-text-3:        #7a7a7a;
+  --adm-ink:           #1d1d1f;
+  --adm-blue:          #0066cc;
+  --adm-blue-light:    #e8f1fb;
+  --adm-blue-mid:      #0066cc;
+  --adm-green:         #16A34A;
+  --adm-green-light:   #F0FDF4;
+  --adm-amber:         #B45309;
+  --adm-amber-light:   #FFFBEB;
+  --adm-red:           #DC2626;
+  --adm-red-light:     #FEF2F2;
+}
+
+@theme inline {
+  --color-background:          var(--background);
+  --color-foreground:          var(--foreground);
+  --font-sans:                 var(--font-sans);
+  --font-mono:                 var(--font-mono);
+  --color-ring:                var(--ring);
+  --color-input:               var(--input);
+  --color-border:              var(--border);
+  --color-primary:             var(--primary);
+  --color-primary-foreground:  var(--primary-foreground);
+  --color-accent:              var(--accent);
+  --color-accent-foreground:   var(--accent-foreground);
+  --color-muted:               var(--muted);
+  --color-muted-foreground:    var(--muted-foreground);
+  --color-card:                var(--card);
+  --color-card-foreground:     var(--card-foreground);
+  --color-secondary:           var(--secondary);
+  --color-secondary-foreground:var(--secondary-foreground);
+  --color-destructive:         var(--destructive);
+  --radius-sm: 0.5rem; --radius-md: 0.688rem; --radius-lg: 1.125rem; --radius-xl: 1.125rem;
+}
+
+::selection { background: #0066cc; color: #ffffff; }
+
+/* ── Apple press micro-interaction ───────────────────────────── */
+.apple-press { transition: transform 0.1s ease; }
+.apple-press:active { transform: scale(0.95); }
+
+/* ── Keyframes ─────────────────────────────────────────────────── */
+@keyframes reveal-up   { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: none; } }
+@keyframes reveal-fade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes float-y     { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+@keyframes ping-ring   { 75%,100% { transform: scale(2.1); opacity: 0; } }
+@keyframes shimmer     { 0% { background-position: -400% center; } 100% { background-position: 400% center; } }
+@keyframes marquee     { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+
+.anim-float    { animation: float-y 4.5s ease-in-out infinite; }
+.anim-ping     { animation: ping-ring 1.6s cubic-bezier(0,0,0.2,1) infinite; }
+.anim-marquee  { animation: marquee 32s linear infinite; }
+.animate-fade-up { animation: reveal-up 0.5s cubic-bezier(0.22,1,0.36,1) both; }
+.animate-fade-in { animation: reveal-fade 0.4s ease both; }
+
+.skeleton {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e8e8e8 50%, #f0f0f0 75%);
+  background-size: 400% auto;
+  animation: shimmer 1.6s linear infinite;
+}
+
+/* ── Admin ─────────────────────────────────────────────────────── */
+.adm-card {
+  background: var(--adm-surface);
+  border: 1px solid var(--adm-border);
+  border-radius: 18px;
+  position: relative;
+  transition: border-color 0.2s ease, box-shadow 0.22s ease, transform 0.22s cubic-bezier(0.22,1,0.36,1);
+}
+.adm-card:hover { border-color: var(--adm-ink); box-shadow: 0 4px 20px rgba(0,0,0,0.08); transform: translateY(-2px); }
+
+.adm-nav-link { position: relative; transition: background 0.18s ease, color 0.18s ease; }
+.adm-nav-link.active::before {
+  content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: var(--adm-blue);
+  border-radius: 0 2px 2px 0;
+}
+
+@keyframes adm-page-in   { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+@keyframes adm-drawer-in { from { opacity: 0; transform: translateX(100%); } to { opacity: 1; transform: none; } }
+@keyframes adm-dialog-in { from { opacity: 0; transform: scale(0.94); } to { opacity: 1; transform: scale(1); } }
+@keyframes adm-count-in  { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+
+.adm-page       { animation: adm-page-in 0.35s cubic-bezier(0.22,1,0.36,1) both; }
+.adm-drawer     { animation: adm-drawer-in 0.3s cubic-bezier(0.22,1,0.36,1) both; }
+.adm-dialog     { animation: adm-dialog-in 0.25s cubic-bezier(0.22,1,0.36,1) both; }
+.adm-stat-value { animation: adm-count-in 0.5s cubic-bezier(0.22,1,0.36,1) both; }
+
+a, button { text-underline-offset: 4px; }
+
+@layer base {
+  * { @apply border-border outline-ring/50; }
+  body { @apply bg-background text-foreground; font-feature-settings: "cv02","cv03","cv04","cv11"; }
+  html { @apply font-sans; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+
+@custom-variant dark (&:is(.dark *));
+
 @font-face {
   font-family: "TMI Grotesk";
   src: url("/fonts/space-grotesk-400.woff2") format("woff2");

@@ -22,35 +22,43 @@ const miniStats = [
 
 export default function AboutPreview() {
   return (
-    <Section className="bg-gradient-to-b from-[#0A0D12] to-[#161821]" labelledBy="about-title">
+    /* Parchment tile — light alternate canvas */
+    <Section className="bg-[#f5f5f7]" labelledBy="about-title">
       <div className="grid gap-12 lg:grid-cols-[0.95fr_1.05fr] lg:items-center">
 
-        <Reveal variant={fadeLeft} className="order-2 lg:order-1 space-y-4">
-          <ImagePlaceholder
-            src={imageLibrary.about[0]}
-            title="Tauqeer Mustafa — Founder, TMI"
-            caption="Founded 2026 · Islamabad, Pakistan"
-          />
-          <div className="grid grid-cols-3 gap-px rounded-xl border border-white/10 bg-white/5 backdrop-blur-sm overflow-hidden">
+        <Reveal variant={fadeLeft} className="order-2 lg:order-1 space-y-6">
+          <div className="overflow-hidden">
+            <div className="relative aspect-[4/3]">
+              <img
+                src={imageLibrary.about[0]}
+                alt="Tauqeer Mustafa — Founder, TMI"
+                className="h-full w-full object-cover"
+                style={{ boxShadow: "rgba(0,0,0,0.22) 3px 5px 30px 0" }}
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent" />
+              <div className="absolute bottom-4 left-4 text-white">
+                <p className="text-[17px] font-semibold leading-[1.47] tracking-[-0.374px]">Tauqeer Mustafa — Founder</p>
+                <p className="mt-1 text-[14px] leading-[1.43] tracking-[-0.224px] text-white/75">Founded 2026 · Islamabad, Pakistan</p>
+              </div>
+            </div>
+          </div>
+          <div className="grid grid-cols-3 divide-x divide-[#e0e0e0] border border-[#e0e0e0] bg-white">
             {miniStats.map((s) => (
-              <div key={s.label} className="bg-gradient-to-br from-white/[0.05] to-transparent px-4 py-5 text-center transition hover:from-white/[0.1]">
-                <s.icon className="mx-auto h-4 w-4 text-[#38BDF8]" aria-hidden />
-                <p className="mt-2 font-mono text-xl font-bold text-white">{s.value}</p>
-                <p className="mt-0.5 text-xs text-white/60">{s.label}</p>
+              <div key={s.label} className="px-4 py-5 text-center">
+                <s.icon className="mx-auto h-5 w-5 text-[#0066cc]" aria-hidden />
+                <p className="mt-2 text-[28px] font-semibold leading-[1.14] text-[#1d1d1f]">{s.value}</p>
+                <p className="mt-0.5 text-[14px] leading-[1.43] tracking-[-0.224px] text-[#7a7a7a]">{s.label}</p>
               </div>
             ))}
           </div>
         </Reveal>
 
         <Reveal variant={fadeRight} className="order-1 lg:order-2">
-          <div className="inline-flex items-center gap-2.5 rounded-full border border-white/10 bg-white/5 px-5 py-2.5 backdrop-blur-sm">
-            <span className="h-1.5 w-1.5 shrink-0 bg-[#38BDF8]" aria-hidden />
-            <span className="font-mono text-[10px] font-semibold uppercase tracking-[0.2em] text-[#E0E7FF]">About TMI</span>
-          </div>
-          <h2 id="about-title" className="mt-6 max-w-3xl text-3xl font-bold leading-[1.08] tracking-tight text-white sm:text-4xl lg:text-5xl">
+          <p className="text-[21px] font-semibold leading-[1.19] tracking-[0.231px] text-[#1d1d1f]">About TMI</p>
+          <h2 id="about-title" className="mt-4 max-w-3xl text-[40px] font-semibold leading-[1.1] tracking-[-0.374px] text-[#1d1d1f]">
             A lean agency. Honest about being new. Built to grow.
           </h2>
-          <div className="mt-7 max-w-3xl space-y-5 text-base leading-8 text-[#C7D2FE] sm:text-lg">
+          <div className="mt-6 max-w-3xl space-y-5 text-[17px] leading-[1.47] tracking-[-0.374px] text-[#7a7a7a]">
             <p>
               TMI was founded in 2026 by Tauqeer Mustafa in Islamabad, Pakistan. This is a real operating agency, built to serve small businesses and startups who need secure, well-designed digital products without enterprise overhead.
             </p>
@@ -70,9 +78,9 @@ export default function AboutPreview() {
               <motion.li
                 key={v}
                 variants={{ hidden: { opacity: 0, y: 12 }, show: { opacity: 1, y: 0 } }}
-                className="flex items-center gap-3 text-sm font-semibold text-white"
+                className="flex items-center gap-3 text-[17px] font-semibold leading-[1.24] tracking-[-0.374px] text-[#1d1d1f]"
               >
-                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-white/10 bg-white/5 text-[#38BDF8]" aria-hidden>
+                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-[#e0e0e0] text-[#0066cc]" aria-hidden>
                   <Layers3 className="h-4 w-4" />
                 </span>
                 {v}
@@ -87,13 +95,13 @@ export default function AboutPreview() {
         </Reveal>
       </div>
 
-      <div className="mt-14 grid gap-4 border-t border-white/10 pt-10 md:grid-cols-3">
+      <div className="mt-16 grid gap-6 border-t border-[#e0e0e0] pt-12 md:grid-cols-3">
         {focusAreas.map((area) => (
           <GlowCard key={area.title}>
-            <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-[#38BDF8]">
+            <div className="flex h-12 w-12 items-center justify-center rounded-[18px] border border-[#e0e0e0] bg-white text-[#0066cc]">
               <area.icon className="h-6 w-6" aria-hidden />
             </div>
-            <p className="mt-5 text-base font-semibold text-white">{area.title}</p>
+            <p className="mt-5 text-[17px] font-semibold leading-[1.24] tracking-[-0.374px] text-[#1d1d1f]">{area.title}</p>
           </GlowCard>
         ))}
       </div>

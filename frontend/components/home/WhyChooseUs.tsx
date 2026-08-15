@@ -1,8 +1,7 @@
 "use client";
 
 import { Gauge, Lock, Network, Users } from "lucide-react";
-import { GlowCard, Section, SectionHeader } from "./ui";
-import { IconFrame } from "./IconFrame";
+import { Section } from "./ui";
 
 const reasons = [
   { title: "Security built in from day one",                description: "Every project is reviewed with a security mindset. Secure defaults, not bolt-ons.",                                          icon: Lock,    num: "01" },
@@ -13,35 +12,33 @@ const reasons = [
 
 export default function WhyChooseUs() {
   return (
-    <Section className="bg-gradient-to-b from-[#1A1D2E] to-[#0F0F14]" labelledBy="why-title">
+    /* Parchment tile — light alternate canvas */
+    <Section className="bg-[#f5f5f7]" labelledBy="why-title">
       <div className="grid gap-12 lg:grid-cols-2 lg:gap-20">
         <div>
-          <div className="inline-flex items-center gap-2.5 rounded-full border border-white/10 bg-white/5 px-5 py-2.5 backdrop-blur-sm">
-            <span className="h-1.5 w-1.5 shrink-0 bg-[#38BDF8]" aria-hidden />
-            <span className="font-mono text-[10px] font-semibold uppercase tracking-[0.2em] text-[#E0E7FF]">Why Choose TMI</span>
-          </div>
-          <h2 id="why-title" className="mt-6 text-3xl font-bold tracking-tight text-white sm:text-4xl lg:text-5xl">
+          <p className="text-[21px] font-semibold leading-[1.19] tracking-[0.231px] text-[#1d1d1f]">Why Choose TMI</p>
+          <h2 id="why-title" className="mt-4 text-[40px] font-semibold leading-[1.1] tracking-[-0.374px] text-[#1d1d1f]">
             Why TMI works differently
           </h2>
-          <p className="mt-6 text-lg leading-8 text-[#C7D2FE]">
+          <p className="mt-6 text-[17px] leading-[1.47] tracking-[-0.374px] text-[#7a7a7a]">
             A different way to work — and reasons it&apos;s actually better for you.
           </p>
         </div>
 
         <div className="grid gap-0">
           {reasons.map((reason) => (
-            <GlowCard key={reason.title} className="border-t-0 border-x-0 !border-b border-white/10 first:border-t py-6 !rounded-none">
+            <div key={reason.title} className="border-b border-[#e0e0e0] py-6 first:border-t">
               <div className="flex items-start gap-4 sm:gap-6">
-                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-[#38BDF8]">
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-[#e0e0e0] bg-white text-[#0066cc]">
                   <reason.icon className="h-6 w-6" aria-hidden />
                 </div>
                 <div className="min-w-0">
-                  <span className="font-mono text-xs font-semibold text-white/50">{reason.num}</span>
-                  <h3 className="mt-1 text-lg font-bold text-white">{reason.title}</h3>
-                  <p className="mt-2 text-base leading-7 text-[#C7D2FE]">{reason.description}</p>
+                  <span className="text-[14px] font-semibold tracking-[-0.224px] text-[#7a7a7a]">{reason.num}</span>
+                  <h3 className="mt-1 text-[17px] font-semibold leading-[1.24] tracking-[-0.374px] text-[#1d1d1f]">{reason.title}</h3>
+                  <p className="mt-2 text-[14px] leading-[1.43] tracking-[-0.224px] text-[#7a7a7a]">{reason.description}</p>
                 </div>
               </div>
-            </GlowCard>
+            </div>
           ))}
         </div>
       </div>

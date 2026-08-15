@@ -1,161 +1,119 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { ArrowRight, Globe, Shield, Zap } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
+import { ArrowRight, Globe, Shield, Zap } from "lucide-react";
 
 import { company } from "@/data/company";
 import { imageLibrary } from "@/data/media";
-import { Stat } from "./ui";
 
 const heroStats = [
-  { value: "2026",  label: "Founded · Islamabad",  detail: "A new agency, built with care. Growing, learning, honest." },
-  { value: "Sec↑",  label: "Security-first",        detail: "Every project is reviewed with a security mindset from day one." },
-  { value: "1:1",   label: "Founder-led",            detail: "Tauqeer is on every project. Direct access, no middlemen." },
-];
-
-const pillars = [
-  { icon: Shield, label: "Security-first delivery" },
-  { icon: Zap,    label: "AI & automation" },
-  { icon: Globe,  label: "Globally available" },
+  { value: "2026", label: "Founded · Islamabad", detail: "A lean agency, built with care. Growing and honest." },
+  { value: "Sec+", label: "Security-first",       detail: "Every project reviewed with a security mindset from day one." },
+  { value: "1:1",  label: "Founder-led",           detail: "Tauqeer is on every project. Direct access, no middlemen." },
 ];
 
 export default function Hero() {
-
   return (
+    /* Light tile — white canvas, full-bleed */
     <section
-      className="relative overflow-hidden bg-gradient-to-br from-[#0F0F14] via-[#161821] to-[#1A1D2E] pt-32 pb-24 sm:pt-40 sm:pb-32 lg:pt-48 lg:pb-40"
+      className="bg-[#ffffff] px-5 pb-[80px] pt-32 sm:px-6 sm:pt-40"
       aria-label="Hero"
     >
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(56,189,248,0.08),transparent_50%),radial-gradient(circle_at_80%_80%,rgba(139,92,246,0.06),transparent_50%)]" aria-hidden />
-      <div className="absolute inset-0" style={{backgroundImage: 'radial-gradient(rgba(255,255,255,0.07) 1px, transparent 1px)', backgroundSize: '32px 32px'}} aria-hidden />
+      <div className="mx-auto max-w-[980px]">
 
-      <div className="relative mx-auto max-w-7xl px-5 sm:px-6">
-        <div className="grid gap-16 lg:grid-cols-[1.1fr_0.9fr] lg:items-center lg:gap-20">
+        {/* ── Centre stack ── */}
+        <div className="flex flex-col items-center text-center">
 
-          {/* ── Left column ── */}
-          <div className="text-center lg:text-left">
-
-            <motion.div
-              initial={{ opacity: 0, y: -12, scale: 0.96 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-              className="mx-auto inline-flex items-center gap-2.5 rounded-full border border-white/10 bg-white/5 px-5 py-2.5 backdrop-blur-sm lg:mx-0"
-            >
-              <span className="relative flex h-2 w-2" aria-hidden>
-                <span className="anim-ping absolute inline-flex h-full w-full rounded-full bg-[#38BDF8] opacity-75" />
-                <span className="relative inline-flex h-2 w-2 rounded-full bg-[#38BDF8]" />
-              </span>
-              <span className="font-mono text-[10px] font-semibold uppercase tracking-[0.2em] text-[#E0E7FF]">
-                Web · Security · AI · Design
-              </span>
-            </motion.div>
-
-            <motion.h1
-              initial={{ opacity: 0, y: 28 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.7, delay: 0.08, ease: [0.22, 1, 0.36, 1] }}
-              className="mt-8 text-balance text-5xl font-bold leading-[1.08] tracking-tight text-white sm:text-6xl lg:text-[72px]"
-              style={{textShadow: '0 2px 24px rgba(0,0,0,0.4)'}}
-            >
-              Digital products built{" "}
-              <span className="relative inline-block">
-                <span className="relative z-10 bg-gradient-to-r from-[#38BDF8] to-[#818CF8] bg-clip-text text-transparent">secure</span>
-                <motion.span
-                  initial={{ scaleX: 0 }}
-                  animate={{ scaleX: 1 }}
-                  transition={{ duration: 0.6, delay: 0.5, ease: [0.22, 1, 0.36, 1] }}
-                  style={{ transformOrigin: "left" }}
-                  className="absolute -bottom-2 left-0 right-0 h-1 bg-gradient-to-r from-[#38BDF8] to-[#818CF8] blur-sm"
-                  aria-hidden
-                />
-              </span>{" "}
-              from the ground up.
-            </motion.h1>
-
-            <motion.p
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.18, ease: [0.22, 1, 0.36, 1] }}
-              className="mx-auto mt-8 max-w-2xl text-pretty text-lg leading-8 text-[#C7D2FE] lg:mx-0 xl:text-xl"
-            >
-              A founder-led digital agency in Islamabad, Pakistan. We help small businesses and startups build web platforms, secure systems, and AI-powered tools that actually work.
-            </motion.p>
-
-            <motion.div
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.26, ease: [0.22, 1, 0.36, 1] }}
-              className="mx-auto mt-7 flex flex-wrap items-center justify-center gap-3 lg:justify-start"
-            >
-              {pillars.map((p) => (
-                <div key={p.label} className="flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm font-medium text-[#E0E7FF] backdrop-blur-sm transition hover:border-[#38BDF8]/30 hover:bg-white/10">
-                  <p.icon className="h-4 w-4 text-[#38BDF8]" aria-hidden />
-                  {p.label}
-                </div>
-              ))}
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.34, ease: [0.22, 1, 0.36, 1] }}
-              className="mx-auto mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row lg:justify-start"
-            >
-              <Link
-                href="/contact"
-                className="group inline-flex min-h-14 items-center gap-2 rounded-full bg-gradient-to-r from-[#38BDF8] to-[#818CF8] px-8 text-base font-semibold text-white shadow-[0_8px_32px_rgba(56,189,248,0.35)] transition hover:shadow-[0_16px_48px_rgba(56,189,248,0.45)] hover:-translate-y-1 focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#38BDF8]"
-              >
-                Start a Project <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" aria-hidden />
-              </Link>
-              <Link
-                href="/portfolio"
-                className="group inline-flex min-h-14 items-center gap-2 rounded-full border border-white/20 bg-white/5 px-8 text-base font-semibold text-white backdrop-blur-sm transition hover:border-white/30 hover:bg-white/10 hover:-translate-y-1 focus-visible:outline focus-visible:outline-2 focus-visible:outline-white"
-              >
-                View Our Work
-              </Link>
-            </motion.div>
-          </div>
-
-          {/* ── Right: image card ── */}
-          <motion.div
-            initial={{ opacity: 0, x: 32, scale: 0.97 }}
-            animate={{ opacity: 1, x: 0, scale: 1 }}
-            transition={{ duration: 0.8, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
-            className="hidden lg:block"
+          <motion.p
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+            className="text-[21px] font-semibold leading-[1.19] tracking-[0.231px] text-[#1d1d1f]"
           >
-            <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-white/5 shadow-[0_32px_80px_rgba(0,0,0,0.5)] backdrop-blur-sm">
-              <div className="relative aspect-[4/3]">
-                <Image
-                  src={imageLibrary.hero[2]}
-                  alt="Built in Islamabad, 2026"
-                  fill
-                  sizes="40vw"
-                  priority
-                  className="object-cover transition-transform duration-700 hover:scale-105"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#0F0F14]/90 via-[#0F0F14]/30 to-transparent" />
-              </div>
-              <div className="absolute bottom-0 left-0 right-0 p-7 text-white">
-                <p className="text-lg font-bold">Built in 2026</p>
-                <p className="mt-2 text-sm text-white/80">A lean agency from Islamabad — growing, honest, and security-minded.</p>
-              </div>
-              <div className="absolute right-5 top-5 rounded-full border border-white/20 bg-black/40 px-4 py-2 text-xs font-semibold text-white backdrop-blur-md">
-                Islamabad, Pakistan
-              </div>
-            </div>
+            {company.name}
+          </motion.p>
+
+          <motion.h1
+            initial={{ opacity: 0, y: 24 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.07, ease: [0.22, 1, 0.36, 1] }}
+            className="mt-4 max-w-3xl text-balance text-[56px] font-semibold leading-[1.07] tracking-[-0.28px] text-[#1d1d1f]"
+          >
+            Digital products built secure from the ground up.
+          </motion.h1>
+
+          <motion.p
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.14, ease: [0.22, 1, 0.36, 1] }}
+            className="mt-6 max-w-xl text-pretty text-[28px] font-[400] leading-[1.14] tracking-[0.196px] text-[#1d1d1f]"
+          >
+            A founder-led digital agency in Islamabad, Pakistan.
+          </motion.p>
+
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.22, ease: [0.22, 1, 0.36, 1] }}
+            className="mt-8 flex flex-wrap items-center justify-center gap-3"
+          >
+            <Link
+              href="/contact"
+              className="apple-press inline-flex items-center justify-center rounded-full bg-[#0066cc] px-[22px] py-[11px] text-[17px] font-[400] leading-[1.47] tracking-[-0.374px] text-white transition-colors hover:bg-[#0071e3] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0071e3]"
+            >
+              Start a Project
+            </Link>
+            <Link
+              href="/services"
+              className="apple-press inline-flex items-center justify-center gap-1 rounded-full border border-[#0066cc] bg-transparent px-[22px] py-[11px] text-[17px] font-[400] leading-[1.47] tracking-[-0.374px] text-[#0066cc] transition-colors hover:bg-[#0066cc] hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0071e3]"
+            >
+              Learn more
+            </Link>
           </motion.div>
         </div>
 
-        {/* ── Stats bar ── */}
-        <div className="mt-20 grid gap-px rounded-2xl border border-white/10 bg-white/5 backdrop-blur-sm sm:grid-cols-3 overflow-hidden">
-          {heroStats.map((s) => (
-            <div key={s.label} className="bg-gradient-to-br from-white/[0.03] to-transparent px-7 py-7 transition hover:from-white/[0.08]">
-              <div className="relative">
-                <Stat value={s.value} label={s.label} detail={s.detail} />
-              </div>
+        {/* ── Hero image — product shadow only ── */}
+        <motion.div
+          initial={{ opacity: 0, y: 32 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.28, ease: [0.22, 1, 0.36, 1] }}
+          className="mt-16 overflow-hidden"
+        >
+          <div className="relative aspect-[16/9]">
+            <Image
+              src={imageLibrary.hero[2]}
+              alt="TMI — digital agency, Islamabad"
+              fill
+              sizes="100vw"
+              priority
+              className="object-cover"
+              style={{ boxShadow: "rgba(0,0,0,0.22) 3px 5px 30px 0" }}
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-black/10 to-transparent" />
+            <div className="absolute bottom-6 left-6">
+              <span className="rounded-full bg-white/90 px-4 py-1.5 text-[14px] font-semibold text-[#1d1d1f] backdrop-blur-sm">
+                Islamabad, Pakistan · Est. 2026
+              </span>
             </div>
+          </div>
+        </motion.div>
+
+        {/* ── Stats bar ── */}
+        <div className="mt-12 grid grid-cols-1 divide-y divide-[#e0e0e0] border-t border-[#e0e0e0] sm:grid-cols-3 sm:divide-x sm:divide-y-0">
+          {heroStats.map((s, i) => (
+            <motion.div
+              key={s.label}
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.35 + i * 0.07, ease: [0.22, 1, 0.36, 1] }}
+              className="px-6 py-8 text-center"
+            >
+              <div className="text-[40px] font-semibold leading-[1.1] tracking-[-0.374px] text-[#1d1d1f]">{s.value}</div>
+              <div className="mt-1 text-[17px] font-semibold leading-[1.24] tracking-[-0.374px] text-[#1d1d1f]">{s.label}</div>
+              <div className="mt-1 text-[14px] leading-[1.43] tracking-[-0.224px] text-[#7a7a7a]">{s.detail}</div>
+            </motion.div>
           ))}
         </div>
       </div>
