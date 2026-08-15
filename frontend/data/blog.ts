@@ -220,6 +220,192 @@ export const blogPosts: BlogPost[] = [
       },
     ],
   },
+  {
+    slug: "building-design-systems-that-last",
+    title: "Building Design Systems That Actually Last",
+    category: "Product Design",
+    date: "June 12, 2026",
+    excerpt:
+      "Most design systems collapse under the weight of team growth. Here's how to build one that survives the second year.",
+    coverImage:
+      "https://images.unsplash.com/photo-1561070791-2526d30994b5?auto=format&fit=crop&w=1600&q=80",
+    coverAlt: "Design system components and UI kit on screen",
+    tags: ["Design Systems", "Product Design", "Frontend", "UI"],
+    body: [
+      {
+        type: "p",
+        text: "A design system is not a component library. That distinction matters enormously, because teams that conflate the two tend to build elaborate component libraries and then wonder why adoption collapses six months later. A component library is a collection of reusable UI parts. A design system is the set of decisions, constraints, and shared understanding that make those components coherent — and that enable the team to make new decisions consistently without relitigating the same visual and interaction questions every sprint.",
+      },
+      {
+        type: "h2",
+        text: "The trap: building for today's team size",
+      },
+      {
+        type: "p",
+        text: "Most design systems are designed for the team that builds them, not the team that will eventually maintain and extend them. When two designers and three engineers build the system, they can hold the implicit rules in their heads. The color token naming conventions, the spacing logic, the reasons certain components exist and others don't — it's all ambient knowledge. When that team doubles, and the new hires weren't there for any of the founding decisions, the system starts fragmenting. New components get added without respecting the existing constraints. Tokens get duplicated rather than reused. The system that was meant to enforce consistency starts generating new inconsistencies at the edges.",
+      },
+      {
+        type: "img",
+        src: "https://images.unsplash.com/photo-1558655146-d09347e92766?auto=format&fit=crop&w=1400&q=80",
+        alt: "Design tokens and component documentation",
+        caption: "Token naming conventions that make sense to the founding team often confuse everyone else.",
+      },
+      {
+        type: "h2",
+        text: "Foundation: decisions before components",
+      },
+      {
+        type: "p",
+        text: "Before the first component gets built, the team needs documented answers to a small set of foundational questions. What is the complete set of spacing values, and what logic governs when each is appropriate? How does the type scale work, and what should a designer reach for when none of the existing styles quite fits? What are the actual rules for color usage — not just which colors exist, but which colors are appropriate for interactive elements, which for backgrounds, which for status states? These decisions seem tedious to document when the team is small enough to just ask someone. They become essential when the person to ask is no longer around, or is managing four projects at once, or just joined last week.",
+      },
+      {
+        type: "quote",
+        text: "The best design systems are opinionated. They make it easier to do the right thing than the wrong one, and they make the rules visible enough that new contributors can understand them without a guided tour.",
+      },
+      {
+        type: "h2",
+        text: "What actually breaks systems over time",
+      },
+      {
+        type: "p",
+        text: "Three things kill design systems reliably. The first is undocumented exceptions. Every system accumulates places where the standard pattern didn't quite work, and someone built a one-off. If that exception isn't documented — why it exists, under what circumstances it's appropriate — it becomes the seed of a parallel system. The second is ownership ambiguity. When nobody is clearly responsible for the design system, everyone treats it as someone else's problem to keep consistent. Changes accumulate, decisions drift, and the system quietly becomes descriptive rather than prescriptive. The third is treating the system as finished. A design system that isn't actively maintained will be actively ignored.",
+      },
+      {
+        type: "img",
+        src: "https://images.unsplash.com/photo-1531403009284-440f080d1e12?auto=format&fit=crop&w=1400&q=80",
+        alt: "Team reviewing component designs",
+        caption: "Systems that survive require active ownership, not just initial construction.",
+      },
+      {
+        type: "p",
+        text: "The systems that last are boring to describe. Clear token naming. Documented decision rationale. One owner with explicit responsibility for consistency. A lightweight contribution process so the system can grow without becoming a bureaucratic bottleneck. Regular reviews to prune components that nobody actually uses. None of it is glamorous. All of it is the reason the system is still useful two years later.",
+      },
+    ],
+  },
+  {
+    slug: "cloud-cost-control-before-it-becomes-a-problem",
+    title: "Cloud Cost Control Before It Becomes a Problem",
+    category: "Cloud Engineering",
+    date: "May 20, 2026",
+    excerpt:
+      "Cloud bills surprise teams because the visibility wasn't built in from the start. Here's how to build it in.",
+    coverImage:
+      "https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=1600&q=80",
+    coverAlt: "Cloud server infrastructure with blue lighting",
+    tags: ["Cloud", "AWS", "Cost Optimization", "Infrastructure"],
+    body: [
+      {
+        type: "p",
+        text: "Cloud cost surprises are almost always a visibility problem, not a spending problem. The money was being spent for weeks or months before the invoice arrived and someone noticed the number. Untagged resources accumulating in a sandbox account. A misconfigured autoscaling group running at peak capacity overnight. A data transfer charge nobody knew was occurring because the architecture review that would have caught it happened at the wrong level of abstraction. The fix in each of these cases isn't spending less — it's knowing what you're spending and why, in time to make a decision before the bill lands.",
+      },
+      {
+        type: "h2",
+        text: "Tagging is the prerequisite for everything else",
+      },
+      {
+        type: "p",
+        text: "A cloud cost control strategy that doesn't start with tagging is building on sand. Tags are how you answer the questions that matter: which team owns this resource, which product does it serve, which environment is it in? Without that metadata, a cost dashboard shows you total spend but can't tell you whether the finance team's reporting service or the product team's API gateway drove last month's increase. You end up with a spreadsheet exercise, cross-referencing resource IDs against Slack messages and gut memory, trying to reconstruct attribution after the fact. Enforce tagging at provisioning time, with automated policy checks that flag or block untagged resources before they run for a single hour.",
+      },
+      {
+        type: "img",
+        src: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=1400&q=80",
+        alt: "Infrastructure cost analytics dashboard",
+        caption: "Spend attribution by team and environment makes cost conversations concrete rather than political.",
+      },
+      {
+        type: "h2",
+        text: "Budgets and alerts are not optional",
+      },
+      {
+        type: "p",
+        text: "Every environment should have a budget with an alert threshold before any infrastructure is provisioned in it. This is not a financial control measure — it's an operational one. A budget alert that fires at 80% of the expected monthly spend is a signal that something changed. Either usage grew as expected and the budget needs updating, or something unexpected is running, or a misconfiguration is generating cost. In any case, you want to know in the third week of the month, not on the first day of the next one. The alert doesn't have to trigger a PagerDuty incident. A Slack notification to the team is sufficient. The goal is awareness while there's still time to act.",
+      },
+      {
+        type: "quote",
+        text: "A budget alert that fires at 80% of the expected monthly spend is an operational signal, not a financial complaint. Something changed — and you want to know while there's still time to respond.",
+      },
+      {
+        type: "h2",
+        text: "Reserved capacity: commit to what you know",
+      },
+      {
+        type: "p",
+        text: "Reserved instances and savings plans are consistently the highest-leverage cost optimization for teams running stable workloads. A one-year commitment on capacity you know you'll need can cut that portion of the bill by 30 to 40 percent. The objection teams raise — what if we need to change? — is usually misplaced. The question isn't whether the workload will change at all; it's whether a meaningful portion of the baseline capacity will still be needed. For most production services, the answer is yes. Start conservative: commit to 60% of current baseline, leave the rest on-demand, and revisit quarterly as usage patterns become clearer. That approach captures most of the savings with very little commitment risk.",
+      },
+      {
+        type: "img",
+        src: "https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&w=1400&q=80",
+        alt: "Cloud infrastructure planning session",
+        caption: "Reserved capacity decisions are most confident when made against 90 days of actual usage data.",
+      },
+      {
+        type: "p",
+        text: "None of this requires a dedicated FinOps team or a purpose-built cost management platform. It requires three things: a tagging policy enforced from day one, budget alerts on every environment, and a quarterly 30-minute review of spend by service and team. Teams that do those three things consistently rarely get surprised by their cloud bill. Teams that skip them usually get surprised at the worst possible time.",
+      },
+    ],
+  },
+  {
+    slug: "what-good-api-design-actually-looks-like",
+    title: "What Good API Design Actually Looks Like in Production",
+    category: "Engineering",
+    date: "April 30, 2026",
+    excerpt:
+      "APIs are long-lived commitments. The decisions made at v1 are still being worked around at v3. Here's how to make fewer of those mistakes.",
+    coverImage:
+      "https://images.unsplash.com/photo-1516116216624-53e697fedbea?auto=format&fit=crop&w=1600&q=80",
+    coverAlt: "Code on a screen showing API endpoints",
+    tags: ["API Design", "Engineering", "Backend", "Best Practices"],
+    body: [
+      {
+        type: "p",
+        text: "APIs are long-lived commitments. A decision made when building v1 of an endpoint — how it's named, what it returns, how it handles errors, what it does with fields that don't yet exist — is a decision that external consumers will build against. Once external code depends on a behavior, changing that behavior has a cost, even if the original behavior was wrong, underspecified, or simply a placeholder that was never meant to be permanent. The teams that treat API design as implementation detail tend to be the same teams doing painful v2 migrations two years later.",
+      },
+      {
+        type: "h2",
+        text: "Name things for what they mean, not how they work",
+      },
+      {
+        type: "p",
+        text: "The most durable API naming decisions are semantic, not structural. An endpoint named /users/{id}/activate means something clearly to a consumer who doesn't know anything about your internal implementation. An endpoint named /users/{id}/set_active_flag tells the consumer about your database column and will feel wrong the moment the implementation changes. The same principle applies to fields. A field called created_timestamp_unix is a leaky implementation detail — it tells the consumer which format the database uses. A field called created_at with a documented ISO 8601 format is a clean contract that can survive a storage migration.",
+      },
+      {
+        type: "img",
+        src: "https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&w=1400&q=80",
+        alt: "Developer working on backend API code",
+        caption: "Semantic naming decouples your API contract from your implementation details.",
+      },
+      {
+        type: "h2",
+        text: "Error responses are part of the contract",
+      },
+      {
+        type: "p",
+        text: "Most API design attention goes to the happy path. The error path gets whatever seemed reasonable at the time — usually a different shape depending on which engineer wrote that endpoint, using HTTP status codes inconsistently and returning error messages that are useful for debugging but meaningless for programmatic handling. A consumer who wants to display a useful error message to their user, or retry on specific failure conditions, or route errors to different handlers, needs a consistent, structured error response. That means one error shape across all endpoints, machine-readable error codes distinct from HTTP status codes, and a message that's human-readable but not the only information a consumer has to work with.",
+      },
+      {
+        type: "quote",
+        text: "A consumer shouldn't have to parse an English error message to decide whether to retry a request. Error codes are part of the API contract — treat them with the same care as field names.",
+      },
+      {
+        type: "h2",
+        text: "Versioning: when and how",
+      },
+      {
+        type: "p",
+        text: "API versioning is a policy decision, not a technical one. The technical mechanisms — URL path versioning, header versioning, parameter versioning — are all defensible. The policy question is: what constitutes a breaking change, and how much notice do consumers get before one is deployed? Additive changes — new optional fields, new endpoints, new optional parameters — are generally safe to ship without a version bump if the contract is clear that consumers should ignore fields they don't recognize. Removing fields, changing field types, changing error shapes, changing authentication requirements — these are breaking changes and require a versioned path and a deprecation window. Writing that policy down before you have consumers is far easier than reconstructing it retroactively when the first consumer complains about a broken integration.",
+      },
+      {
+        type: "img",
+        src: "https://images.unsplash.com/photo-1504639725590-34d0984388bd?auto=format&fit=crop&w=1400&q=80",
+        alt: "API documentation and testing interface",
+        caption: "API versioning policy should be documented before the first external consumer goes live.",
+      },
+      {
+        type: "p",
+        text: "The teams with the cleanest API histories are not the ones with the most elaborate versioning strategies. They're the ones who asked, before shipping each endpoint, whether the name would still make sense when the implementation changed, whether the error shape was consistent with the rest of the API, and whether a consumer could reasonably build against this contract without knowing anything about the internals. Those three questions, asked consistently at review time, eliminate most of the technical debt that API v2s exist to clean up.",
+      },
+    ],
+  },
 ];
 
 /** Extract plain text from rich body for reading time calculation */
