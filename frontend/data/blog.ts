@@ -406,6 +406,216 @@ export const blogPosts: BlogPost[] = [
       },
     ],
   },
+  {
+    slug: "cloud-cost-optimization-without-engineering-overhead",
+    title: "Cloud Cost Optimization Without Adding Engineering Overhead",
+    category: "Cloud Engineering",
+    date: "June 22, 2026",
+    excerpt:
+      "Most cloud cost reduction strategies look good in a spreadsheet but fail when they require constant manual intervention from the engineering team.",
+    coverImage:
+      "https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=1600&q=80",
+    coverAlt: "Cloud infrastructure dashboard showing metrics",
+    tags: ["Cloud", "Cost Optimization", "Infrastructure", "AWS"],
+    body: [
+      {
+        type: "p",
+        text: "Most cloud cost reduction plans fail not because the recommendations are wrong, but because they require ongoing manual work the team doesn't actually have capacity to sustain. A consultant produces a report identifying twenty percent waste across oversized instances, unattached volumes, and zombie resources. The engineering team implements a few quick wins, then six months later the same waste is back because nobody owns the process of checking for it continuously. Sustainable cost optimization isn't about finding waste once — it's about building systems that prevent waste from accumulating in the first place.",
+      },
+      {
+        type: "h2",
+        text: "Start with tagging, not rightsizing",
+      },
+      {
+        type: "p",
+        text: "The highest-value first step in cloud cost work is enforcing consistent resource tagging across every environment. Without tags, spend is an opaque line item that nobody feels accountable for. With tags — team, project, environment, cost center — spend becomes attributable, which means teams can actually see the cost of their decisions and make different tradeoffs. Rightsizing an instance saves money this month. Tagging infrastructure creates the visibility that prevents waste from reappearing every quarter, because the team that owns the resource sees its cost and has both the context and the authority to act on it.",
+      },
+      {
+        type: "img",
+        src: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=1400&q=80",
+        alt: "Cost analytics and financial dashboard",
+        caption: "Cost visibility by team and project enables informed tradeoff decisions.",
+      },
+      {
+        type: "h2",
+        text: "Automate the cleanup, not the analysis",
+      },
+      {
+        type: "p",
+        text: "Automated analysis tools generate lists of optimization opportunities — idle instances, old snapshots, unattached volumes. The problem is that acting on those lists requires manual review, because the context for whether a resource is genuinely unused lives in someone's head, not in a tag or a metric. A better automation target is the cleanup itself, with guardrails. Set a policy: untagged resources get flagged after seven days and terminated after thirty. Snapshots older than ninety days get archived to cheaper storage automatically unless explicitly tagged for long-term retention. The automation doesn't decide what's waste — the tagging policy does — but it removes the ongoing manual burden of executing the cleanup.",
+      },
+      {
+        type: "quote",
+        text: "Sustainable cost optimization isn't about finding waste once. It's about building systems that prevent waste from accumulating in the first place.",
+      },
+      {
+        type: "h2",
+        text: "Reserve capacity for stable workloads only",
+      },
+      {
+        type: "p",
+        text: "Reserved instances and savings plans offer meaningful discounts, but only if the commitment matches actual stable usage. Teams often over-commit based on current usage peaks, then get stuck paying for capacity they no longer need when a project winds down or traffic patterns shift. A safer approach: reserve capacity only for the baseline load that's been stable for at least three months, and leave the variable portion on-demand. The discount is smaller, but the flexibility is worth it, because cloud costs that can't flex down when usage drops are nearly as problematic as costs that weren't optimized at all.",
+      },
+      {
+        type: "img",
+        src: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=1400&q=80",
+        alt: "Cloud infrastructure monitoring dashboard",
+        caption: "Reserve commitments should track proven baseline load, not projected peaks.",
+      },
+      {
+        type: "h2",
+        text: "Budget alerts are useless without ownership",
+      },
+      {
+        type: "p",
+        text: "Most organizations set budget alerts that email a distribution list nobody actually monitors. A better pattern: tag-based budgets with team-specific alerts that route to the people who can actually act. When the web-platform team gets an alert that their tagged resources are trending toward 120 percent of budget, they have both the context to understand why and the authority to decide what to do about it — scale down a non-production environment, defer a planned migration, or accept the overage as a justified tradeoff. Cost control that relies on a central infrastructure team to enforce caps across every project scales poorly and generates friction. Cost control that gives each team visibility and ownership scales naturally as the organization grows.",
+      },
+      {
+        type: "p",
+        text: "None of these patterns require exotic tooling or a dedicated FinOps team from day one. They require treating cost as an engineering concern, not a finance concern, and building the same kind of automated guardrails around spend that mature teams already build around security, performance, and reliability. The teams that manage cloud costs successfully aren't the ones running the most sophisticated analysis. They're the ones who made cost visibility automatic, cleanup policy-driven, and ownership clear.",
+      },
+    ],
+  },
+  {
+    slug: "designing-apis-for-long-term-maintenance",
+    title: "Designing APIs for Long-Term Maintenance, Not Just Launch Day",
+    category: "Engineering",
+    date: "June 8, 2026",
+    excerpt:
+      "The API design that's easiest to ship quickly is rarely the one that's easiest to support three years later when half the team has turned over.",
+    coverImage:
+      "https://images.unsplash.com/photo-1555949963-aa79dcee981c?auto=format&fit=crop&w=1600&q=80",
+    coverAlt: "API documentation and code on screen",
+    tags: ["API Design", "Engineering", "Architecture", "Maintenance"],
+    body: [
+      {
+        type: "p",
+        text: "API design decisions made under deadline pressure tend to optimize for shipping the first version quickly, which is understandable, but those decisions accumulate as long-term maintenance burden the moment other teams start depending on the API. A field name that made sense in context when it was written becomes ambiguous once five other similar-sounding fields exist. A query parameter that worked fine for the initial use case breaks down when a second client needs slightly different filtering logic. An endpoint that returned a flat list becomes a performance problem when the dataset grows from hundreds of items to tens of thousands. The API that's easy to ship isn't always the API that's easy to live with.",
+      },
+      {
+        type: "h2",
+        text: "Design for the second client, not the first",
+      },
+      {
+        type: "p",
+        text: "The first client of a new API is usually the team that built it, which means they have all the context about what each field means, what the performance characteristics are, and how to work around the rough edges. The second client has none of that context. Designing for the second client means writing the API as if the first consumer will be someone who's never spoken to you: explicit field names, structured error responses, pagination from day one even if the dataset is currently small, and documentation that doesn't assume the reader already understands the domain model. That discipline catches ambiguity and missing functionality early, before the API becomes load-bearing for multiple teams and breaking changes become expensive.",
+      },
+      {
+        type: "img",
+        src: "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?auto=format&fit=crop&w=1400&q=80",
+        alt: "Developer reviewing API specifications",
+        caption: "API contracts designed for clarity reduce integration friction across teams.",
+      },
+      {
+        type: "h2",
+        text: "Explicit versioning beats implicit compatibility guesses",
+      },
+      {
+        type: "p",
+        text: "Many teams avoid API versioning early on because it feels like premature complexity, and instead rely on a promise to maintain backward compatibility indefinitely. That works until a change is genuinely needed — a security fix, a data model correction, or a performance improvement — that can't be made without breaking someone. At that point the team either ships the breaking change and deals with the fallout, or avoids making the change and accumulates technical debt. Explicit versioning from the start, even if version 2 never ships, establishes the expectation that APIs can evolve, and gives the team a clean path forward when a necessary breaking change eventually arrives.",
+      },
+      {
+        type: "quote",
+        text: "The API that's easy to ship isn't always the API that's easy to live with. Design for the second client, the one who doesn't have your context.",
+      },
+      {
+        type: "h2",
+        text: "Error responses should be actionable, not cryptic",
+      },
+      {
+        type: "p",
+        text: "Generic error responses like 'Bad Request' or 'Invalid Input' are fast to implement and nearly useless to debug. An actionable error response tells the client exactly what was wrong and, if possible, how to fix it: which field failed validation, what constraint was violated, whether retrying will help or if the request is fundamentally malformed. This isn't just a developer experience nicety — it's a support load reducer. When a client integration breaks, and the logs show a clear error message identifying the specific problem, the integration team can fix it themselves. When the logs show only a 400 status code with no detail, they open a support ticket, and someone on the API team spends an hour digging through server logs to figure out what the client already could have known if the error had been explicit.",
+      },
+      {
+        type: "img",
+        src: "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=1400&q=80",
+        alt: "Code review and debugging session",
+        caption: "Structured error responses with actionable detail reduce support burden.",
+      },
+      {
+        type: "h2",
+        text: "Pagination and filtering aren't optional",
+      },
+      {
+        type: "p",
+        text: "It's tempting to skip pagination when the dataset is small — returning a flat array of fifty items is simpler than building a cursor-based pagination system. But once clients depend on that endpoint, adding pagination later is a breaking change. The same is true for filtering and sorting: if the initial use case doesn't need it, it's easy to defer, but the moment a second use case does need it, the API is already committed to a contract that doesn't support it cleanly. Building these capabilities from the start, even if the first client doesn't use them, future-proofs the API for the use cases that will inevitably arrive once the endpoint is stable and other teams start building on it.",
+      },
+      {
+        type: "p",
+        text: "None of this requires exotic tooling or heavyweight process. It requires treating API design as a commitment the team is making to future maintainers and future consumers, not just a task to check off before launch. The APIs that age well are the ones where someone thought carefully about the second client, the third use case, and the change that won't be avoidable in two years, and designed with enough flexibility to accommodate those without forcing a disruptive migration.",
+      },
+    ],
+  },
+  {
+    slug: "effective-onboarding-for-remote-engineering-teams",
+    title: "What Effective Onboarding Looks Like for Remote Engineering Teams",
+    category: "Culture",
+    date: "May 24, 2026",
+    excerpt:
+      "Remote onboarding that works doesn't replicate the in-office experience online. It requires a fundamentally different structure.",
+    coverImage:
+      "https://images.unsplash.com/photo-1600880292203-757bb62b4baf?auto=format&fit=crop&w=1600&q=80",
+    coverAlt: "Remote team video conference meeting",
+    tags: ["Remote Work", "Onboarding", "Culture", "Team Building"],
+    body: [
+      {
+        type: "p",
+        text: "Most remote onboarding programs fail not because the company didn't try, but because they tried to replicate in-office onboarding online — the same presentations, the same schedule, the same assumption that proximity creates context. In an office, a new engineer absorbs information passively: they overhear a conversation about a production incident, they see which meetings people actually pay attention to versus which ones they multi-task through, they notice who gets pulled into urgent decisions and who doesn't. Remote work doesn't offer that passive absorption. Information that would have been ambient in an office has to be made explicit, and onboarding has to be structured around that reality instead of pretending the gap doesn't exist.",
+      },
+      {
+        type: "h2",
+        text: "Front-load documentation, not meetings",
+      },
+      {
+        type: "p",
+        text: "The instinct is to schedule the new hire into a dozen intro meetings in their first week — meeting the team, meeting adjacent teams, meeting leadership. Those meetings feel productive in the moment but they're terrible for information retention, especially when the new person has no context yet for why any of it matters. A better structure: spend the first few days reading. Architecture docs, incident postmortems, decision records, recent project retrospectives. Then schedule the meetings as working sessions where the new hire can ask questions about what they've already read. The meetings become far more valuable because the new person actually has enough context to ask good questions, and the reading sticks because it gets reinforced through conversation.",
+      },
+      {
+        type: "img",
+        src: "https://images.unsplash.com/photo-1542744173-8e7e53415bb0?auto=format&fit=crop&w=1400&q=80",
+        alt: "Documentation and knowledge base on laptop",
+        caption: "Written onboarding material gives new hires referenceable context that meetings don't.",
+      },
+      {
+        type: "h2",
+        text: "Pair programming teaches context, not just code",
+      },
+      {
+        type: "p",
+        text: "The most effective remote onboarding tool is structured pair programming with different team members over the first few weeks. Not just for the technical learning, though that matters, but because pairing is where new hires see how decisions actually get made: how much testing is expected before a pull request goes up, what 'good enough' looks like versus 'needs more iteration', which tradeoffs the team makes routinely and which ones require broader discussion. That kind of team context is nearly impossible to document, and it's exactly the information a new remote hire has no natural way to absorb. Pairing makes it explicit.",
+      },
+      {
+        type: "quote",
+        text: "Remote work doesn't offer passive absorption of context. Information that would have been ambient in an office has to be made explicit, and onboarding has to be structured around that reality.",
+      },
+      {
+        type: "h2",
+        text: "Assign a low-stakes first project",
+      },
+      {
+        type: "p",
+        text: "The worst first project for a new hire is one that's on the critical path with a tight deadline. The best first project is one that's useful if it ships but not disruptive if it takes longer than expected, touches multiple parts of the codebase so the new person gets familiar with the architecture, and can be broken into small reviewable chunks so they get frequent feedback rather than working in isolation for two weeks before discovering they misunderstood the requirements. The goal isn't to extract maximum productivity in week one — it's to build confidence and context so by week six the new hire is genuinely effective rather than just busy.",
+      },
+      {
+        type: "img",
+        src: "https://images.unsplash.com/photo-1521737711867-e3b97375f902?auto=format&fit=crop&w=1400&q=80",
+        alt: "Engineer working remotely on laptop",
+        caption: "A well-scoped first project builds confidence and system familiarity without deadline pressure.",
+      },
+      {
+        type: "h2",
+        text: "Check in more frequently early, then taper off",
+      },
+      {
+        type: "p",
+        text: "In an office, it's easy to see when a new hire is stuck — they're visibly not making progress, or they're hesitant to ask questions. Remote, that visibility doesn't exist, which means explicit check-ins matter more. Daily for the first week, every other day for the next few weeks, then weekly once the new hire is demonstrably unblocked. The check-ins don't have to be long, but they need to be consistent, and the manager needs to explicitly ask 'what's blocking you that I can help with' rather than assuming the new person will volunteer it unprompted. Remote work requires defaulting to over-communication early, then scaling it back once trust and context are established.",
+      },
+      {
+        type: "p",
+        text: "Remote onboarding that works doesn't try to simulate the office experience. It acknowledges that remote work requires different structures, more deliberate documentation, and more explicit check-ins, and it treats those differences as design constraints rather than deficiencies. The teams that onboard remote hires well are the ones that stopped trying to replicate what used to work in-person and instead built something purpose-fit for the constraints of distributed work.",
+      },
+    ],
+  },
 ];
 
 /** Extract plain text from rich body for reading time calculation */
