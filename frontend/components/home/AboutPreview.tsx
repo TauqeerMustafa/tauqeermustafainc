@@ -8,7 +8,7 @@ import { ButtonLink, Reveal, Section, fadeLeft, fadeRight, stagger, viewportOnce
 
 const values = [
   "Security in every build — not a bolt-on",
-  "Direct access to the founder on every project",
+  "Senior engineers on every engagement — no outsourcing",
   "Five integrated disciplines, one cohesive team",
   "Honest scope, honest pricing, no markup",
 ];
@@ -23,7 +23,7 @@ const disciplines = [
 
 const miniStats = [
   { value: "5",      label: "Disciplines" },
-  { value: "1:1",    label: "Founder-led" },
+  { value: "100%",   label: "In-house" },
   { value: "8–16w",  label: "Avg. engagement" },
 ];
 
@@ -34,19 +34,38 @@ export default function AboutPreview() {
       <div className="grid gap-12 lg:grid-cols-[0.95fr_1.05fr] lg:items-center">
 
         <Reveal variant={fadeLeft} className="order-2 lg:order-1 space-y-6">
-          <div className="overflow-hidden">
-            <div className="relative aspect-[4/3]">
+          <div className="grid grid-cols-2 gap-3">
+            <div className="overflow-hidden rounded-lg">
               <img
-                src={imageLibrary.about[0]}
-                alt="Tauqeer Mustafa — Founder, TMI"
+                src={imageLibrary.services[0]}
+                alt="Infrastructure & cloud architecture"
                 className="h-full w-full object-cover"
                 style={{ boxShadow: "rgba(0,0,0,0.22) 3px 5px 30px 0" }}
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent" />
-              <div className="absolute bottom-4 left-4 text-white">
-                <p className="text-[17px] font-semibold leading-[1.47] tracking-[-0.374px]">Tauqeer Mustafa — Founder</p>
-                <p className="mt-1 text-[14px] leading-[1.43] tracking-[-0.224px] text-white/75">Leading every engagement</p>
-              </div>
+            </div>
+            <div className="overflow-hidden rounded-lg">
+              <img
+                src={imageLibrary.services[1]}
+                alt="Security & compliance"
+                className="h-full w-full object-cover"
+                style={{ boxShadow: "rgba(0,0,0,0.22) 3px 5px 30px 0" }}
+              />
+            </div>
+            <div className="overflow-hidden rounded-lg">
+              <img
+                src={imageLibrary.services[3]}
+                alt="AI & automation"
+                className="h-full w-full object-cover"
+                style={{ boxShadow: "rgba(0,0,0,0.22) 3px 5px 30px 0" }}
+              />
+            </div>
+            <div className="overflow-hidden rounded-lg">
+              <img
+                src={imageLibrary.dashboard[0]}
+                alt="Analytics & dashboards"
+                className="h-full w-full object-cover"
+                style={{ boxShadow: "rgba(0,0,0,0.22) 3px 5px 30px 0" }}
+              />
             </div>
           </div>
           <div className="grid grid-cols-3 divide-x divide-[#e0e0e0] border border-[#e0e0e0] bg-white">
@@ -72,8 +91,8 @@ export default function AboutPreview() {
               from the start, infrastructure design informs feature scope, and UX reflects the actual data model.
             </p>
             <p>
-              Every engagement is led by Tauqeer Mustafa, the founder. No account managers filtering technical decisions,
-              no handoffs between sales and delivery. The person who scopes your project writes the code, reviews the security
+              Every engagement is staffed by senior engineers — no account managers filtering technical decisions,
+              no handoffs between sales and delivery. The team that scopes your project writes the code, reviews the security
               posture, and stays available through launch. That model works for projects that need depth — authentication systems
               with real threat models, compliance dashboards that handle sensitive data correctly, operational platforms built to
               survive contact with production load.

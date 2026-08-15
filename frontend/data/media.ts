@@ -13,7 +13,7 @@ export const imageLibrary = {
   hero: [
     u("photo-1518186285589-2f7649de83e0"), // dark code on screen
     u("photo-1483058712412-4245e9b90334"), // workspace, laptop, monochrome desk
-    u("photo-1504384308090-c894fdcc538d"), // team meeting, glass office
+    u("photo-1558494949-ef010cbdcc31"), // server room / data center
     u("photo-1451187580459-43490279c0fa"), // earth from space / global network feel
   ],
   about: [

@@ -10,7 +10,7 @@ import { imageLibrary } from "@/data/media";
 const heroStats = [
   { value: "5",      label: "Service lines",   detail: "Web, security, AI, cloud, and product design." },
   { value: "Sec+",   label: "Security-first",  detail: "Security built into every engagement from day one." },
-  { value: "Direct", label: "Founder-led",     detail: "One team. Every project. No account managers." },
+  { value: "Full",   label: "Stack agency",    detail: "End-to-end engineering. One team. Zero handoffs." },
 ];
 
 export default function Hero() {
@@ -87,7 +87,7 @@ export default function Hero() {
               className="object-cover"
               style={{ boxShadow: "rgba(0,0,0,0.22) 3px 5px 30px 0" }}
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-black/10 to-transparent" />
+            <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/50 via-black/10 to-transparent" />
             <div className="absolute bottom-4 left-4 sm:bottom-6 sm:left-6">
               <span className="rounded-full bg-white/90 px-3 py-1.5 text-[12px] font-semibold text-[#1d1d1f] backdrop-blur-sm sm:px-4 sm:text-[14px]">
                 Islamabad
