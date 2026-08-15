@@ -1,24 +1,14 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
-import { Badge, PageHero, Section, SectionHeader } from "@/components/home/ui";
-import { posts } from "@/lib/site-data";
+import { Section } from "@/components/home/ui";
+import { blogPosts, blogReadingTime } from "@/data/blog";
 import { buildMetadata } from "@/lib/metadata";
-import { readingTime } from "@/lib/utils";
-
-const imageByCategory: Record<string, string> = {
-  Engineering: "https://images.unsplash.com/photo-1483058712412-4245e9b90334?auto=format&fit=crop&w=1600&q=80",
-  Automation: "https://images.unsplash.com/photo-1620712943543-bcc4688e7485?auto=format&fit=crop&w=1600&q=80",
-  Cybersecurity: "https://images.unsplash.com/photo-1614064641938-3bbee52942c7?auto=format&fit=crop&w=1600&q=80",
-  "Cloud Engineering": "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&w=1600&q=80",
-  "Product Design": "https://images.unsplash.com/photo-1519389950473-47ba0277781c?auto=format&fit=crop&w=1600&q=80",
-  Culture: "https://images.unsplash.com/photo-1550439062-609e1531270e?auto=format&fit=crop&w=1600&q=80",
-  "Product Strategy": "https://images.unsplash.com/photo-1518186285589-2f7649de83e0?auto=format&fit=crop&w=1600&q=80",
-};
 
 export function generateStaticParams() {
-  return posts.map((post) => ({ slug: post.slug }));
+  return blogPosts.map((post) => ({ slug: post.slug }));
 }
 
 export async function generateMetadata({
@@ -27,7 +17,7 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
-  const post = posts.find((item) => item.slug === slug);
+  const post = blogPosts.find((item) => item.slug === slug);
 
   if (!post) return {};
 
@@ -35,7 +25,7 @@ export async function generateMetadata({
     title: post.title,
     description: post.excerpt,
     path: `/blog/${post.slug}`,
-    image: imageByCategory[post.category] ?? "https://images.unsplash.com/photo-1518186285589-2f7649de83e0?auto=format&fit=crop&w=1600&q=80",
+    image: post.coverImage,
   });
 }
 
@@ -45,60 +35,185 @@ export default async function BlogDetailPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const post = posts.find((item) => item.slug === slug);
+  const post = blogPosts.find((item) => item.slug === slug);
 
   if (!post) {
     notFound();
   }
 
-  const related = posts.filter((item) => item.category === post.category && item.slug !== post.slug).slice(0, 3);
-  const others = related.length > 0 ? related : posts.filter((item) => item.slug !== post.slug).slice(0, 3);
+  const related = blogPosts
+    .filter((item) => item.category === post.category && item.slug !== post.slug)
+    .slice(0, 3);
+  const others = related.length > 0 ? related : blogPosts.filter((item) => item.slug !== post.slug).slice(0, 3);
 
   return (
     <>
-      <PageHero
-        eyebrow={post.category}
-        title={post.title}
-        description={post.excerpt}
-        image={imageByCategory[post.category] ?? "https://images.unsplash.com/photo-1518186285589-2f7649de83e0?auto=format&fit=crop&w=1600&q=80"}
-        imageTitle={post.category}
-        imageCaption={post.date}
-      >
-        <div className="flex flex-wrap gap-2">
-          <Badge>{post.date}</Badge>
-          <Badge>{post.category}</Badge>
-          <Badge>{readingTime(post.body)}</Badge>
+      {/* Hero with cover image */}
+      <div className="relative bg-[#000000]">
+        <div className="relative aspect-[21/9] w-full overflow-hidden">
+          <Image
+            src={post.coverImage}
+            alt={post.coverAlt}
+            fill
+            priority
+            sizes="100vw"
+            className="object-cover opacity-60"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
         </div>
-      </PageHero>
-
-      <Section className="bg-[#FAFAFA]" labelledBy="article-content">
-        <article
-          id="article-content"
-          className="mx-auto max-w-3xl rounded-none border border-[#E5E5E5] bg-white p-7 shadow-sm sm:p-10"
-        >
-          {post.body.map((paragraph) => (
-            <p
-              key={paragraph}
-              className="mb-6 text-base leading-8 text-[#171717] last:mb-0"
-            >
-              {paragraph}
+        <div className="absolute inset-0 flex items-end">
+          <div className="mx-auto w-full max-w-[980px] px-5 pb-12 sm:px-6 sm:pb-16">
+            <div className="flex flex-wrap gap-2">
+              <span className="rounded-full border border-white/20 bg-white/10 px-3 py-1 text-[12px] font-semibold leading-none tracking-[-0.12px] text-white backdrop-blur-sm">
+                {post.category}
+              </span>
+              <span className="rounded-full border border-white/20 bg-white/10 px-3 py-1 text-[12px] font-semibold leading-none tracking-[-0.12px] text-white backdrop-blur-sm">
+                {post.date}
+              </span>
+              <span className="rounded-full border border-white/20 bg-white/10 px-3 py-1 text-[12px] font-semibold leading-none tracking-[-0.12px] text-white backdrop-blur-sm">
+                {blogReadingTime(post.body)}
+              </span>
+            </div>
+            <h1 className="mt-4 max-w-4xl text-[48px] font-semibold leading-[1.08] tracking-[-0.374px] text-white sm:text-[56px]">
+              {post.title}
+            </h1>
+            <p className="mt-4 max-w-2xl text-[21px] font-[400] leading-[1.38] tracking-[-0.374px] text-white/90">
+              {post.excerpt}
             </p>
-          ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Article body */}
+      <Section className="bg-white" labelledBy="article-content">
+        <article id="article-content" className="mx-auto max-w-[720px]">
+          {post.body.map((block, idx) => {
+            if (block.type === "p") {
+              return (
+                <p
+                  key={idx}
+                  className="mt-6 text-[17px] leading-[1.47] tracking-[-0.374px] text-[#1d1d1f] first:mt-0"
+                >
+                  {block.text}
+                </p>
+              );
+            }
+            if (block.type === "h2") {
+              return (
+                <h2
+                  key={idx}
+                  className="mt-12 text-[32px] font-semibold leading-[1.13] tracking-[-0.374px] text-[#1d1d1f] first:mt-0"
+                >
+                  {block.text}
+                </h2>
+              );
+            }
+            if (block.type === "h3") {
+              return (
+                <h3
+                  key={idx}
+                  className="mt-10 text-[24px] font-semibold leading-[1.17] tracking-[-0.374px] text-[#1d1d1f] first:mt-0"
+                >
+                  {block.text}
+                </h3>
+              );
+            }
+            if (block.type === "quote") {
+              return (
+                <blockquote
+                  key={idx}
+                  className="my-12 border-l-4 border-[#0066cc] bg-[#f5f5f7] px-6 py-8 first:mt-0"
+                >
+                  <p className="text-[21px] font-semibold leading-[1.38] tracking-[-0.374px] text-[#1d1d1f]">
+                    {block.text}
+                  </p>
+                  {block.attribution && (
+                    <cite className="mt-3 block text-[14px] leading-[1.43] tracking-[-0.224px] text-[#7a7a7a] not-italic">
+                      — {block.attribution}
+                    </cite>
+                  )}
+                </blockquote>
+              );
+            }
+            if (block.type === "img") {
+              return (
+                <figure key={idx} className="my-12 first:mt-0">
+                  <div className="relative aspect-[16/9] overflow-hidden rounded-[18px]">
+                    <Image
+                      src={block.src}
+                      alt={block.alt}
+                      fill
+                      sizes="(max-width: 768px) 100vw, 720px"
+                      className="object-cover"
+                      style={{ boxShadow: "rgba(0,0,0,0.12) 0px 4px 16px 0" }}
+                    />
+                  </div>
+                  {block.caption && (
+                    <figcaption className="mt-3 text-center text-[14px] leading-[1.43] tracking-[-0.224px] text-[#7a7a7a]">
+                      {block.caption}
+                    </figcaption>
+                  )}
+                </figure>
+              );
+            }
+            return null;
+          })}
         </article>
+
+        {/* Tags */}
+        <div className="mx-auto mt-16 max-w-[720px] border-t border-[#e0e0e0] pt-8">
+          <div className="flex flex-wrap gap-2">
+            {post.tags.map((tag) => (
+              <span
+                key={tag}
+                className="rounded-full border border-[#e0e0e0] bg-[#f5f5f7] px-4 py-2 text-[14px] font-semibold leading-none tracking-[-0.224px] text-[#1d1d1f]"
+              >
+                {tag}
+              </span>
+            ))}
+          </div>
+        </div>
       </Section>
 
-      <Section className="bg-white" labelledBy="related-posts">
-        <SectionHeader id="related-posts" eyebrow="Keep reading" title="More from the blog" />
-        <div className="mt-10 flex flex-wrap gap-4">
-          {others.map((item) => (
-            <Link
-              key={item.slug}
-              href={`/blog/${item.slug}`}
-              className="border border-[#E5E5E5] bg-white px-5 py-3 text-sm font-semibold text-[#0A0A0A] transition hover:border-[#0A0A0A] hover:text-[#262626]"
-            >
-              {item.title}
-            </Link>
-          ))}
+      {/* Related posts */}
+      <Section className="bg-[#f5f5f7]" labelledBy="related-posts">
+        <div className="mx-auto max-w-[980px]">
+          <h2
+            id="related-posts"
+            className="text-[21px] font-semibold leading-[1.19] tracking-[0.231px] text-[#1d1d1f]"
+          >
+            Keep reading
+          </h2>
+          <div className="mt-8 grid gap-6 sm:grid-cols-3">
+            {others.map((item) => (
+              <Link
+                key={item.slug}
+                href={`/blog/${item.slug}`}
+                className="group flex flex-col overflow-hidden rounded-[18px] border border-[#e0e0e0] bg-white transition hover:border-[#0066cc]"
+              >
+                <div className="relative aspect-[16/9] overflow-hidden">
+                  <Image
+                    src={item.coverImage}
+                    alt={item.coverAlt}
+                    fill
+                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 320px"
+                    className="object-cover transition group-hover:scale-105"
+                  />
+                </div>
+                <div className="flex flex-1 flex-col p-5">
+                  <span className="text-[12px] font-semibold leading-none tracking-[-0.12px] text-[#0066cc]">
+                    {item.category}
+                  </span>
+                  <h3 className="mt-3 text-[17px] font-semibold leading-[1.24] tracking-[-0.374px] text-[#1d1d1f]">
+                    {item.title}
+                  </h3>
+                  <p className="mt-2 text-[14px] leading-[1.43] tracking-[-0.224px] text-[#7a7a7a]">
+                    {blogReadingTime(item.body)}
+                  </p>
+                </div>
+              </Link>
+            ))}
+          </div>
         </div>
       </Section>
     </>
