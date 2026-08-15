@@ -22,8 +22,9 @@ export default function CoreServices() {
               Five capabilities. One integrated team.
             </h2>
             <p className="mt-6 text-[17px] leading-[1.47] tracking-[-0.374px] text-[#cccccc]">
-              We plan, build, secure, and ship software systems across the full stack —
-              web platforms, AI workflows, cloud infrastructure, security reviews, and product design.
+              From secure authentication flows to production-grade infrastructure, we deliver systems that handle
+              operational load. Web platforms built for maintainability. Security audits that catch real threats.
+              Cloud architecture designed for the workload you'll actually run, not the demo that launched.
             </p>
             <div className="mt-8">
               <Link

@@ -8,6 +8,10 @@ export const navigation = [
   { name: "Contact", href: "/contact" },
 ];
 
+export const publicNavigation = navigation.filter((item) =>
+  !item.href.includes("/admin") && !item.href.includes("/login") && !item.href.includes("/dashboard")
+);
+
 export const footerLinks = {
   services: [
     { name: "Web Development", href: "/services/enterprise-web-development" },

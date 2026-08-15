@@ -22,9 +22,9 @@ const disciplines = [
 ];
 
 const miniStats = [
-  { value: "5",      label: "Service lines" },
-  { value: "1:1",    label: "Direct access" },
-  { value: "ISB",    label: "Islamabad, PK" },
+  { value: "5",      label: "Disciplines" },
+  { value: "1:1",    label: "Founder-led" },
+  { value: "8–16w",  label: "Avg. engagement" },
 ];
 
 export default function AboutPreview() {
@@ -45,7 +45,7 @@ export default function AboutPreview() {
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent" />
               <div className="absolute bottom-4 left-4 text-white">
                 <p className="text-[17px] font-semibold leading-[1.47] tracking-[-0.374px]">Tauqeer Mustafa — Founder</p>
-                <p className="mt-1 text-[14px] leading-[1.43] tracking-[-0.224px] text-white/75">Islamabad, Pakistan</p>
+                <p className="mt-1 text-[14px] leading-[1.43] tracking-[-0.224px] text-white/75">Leading every engagement</p>
               </div>
             </div>
           </div>
@@ -66,14 +66,22 @@ export default function AboutPreview() {
           </h2>
           <div className="mt-6 space-y-5 text-[17px] leading-[1.47] tracking-[-0.374px] text-[#7a7a7a]">
             <p>
-              TMI designs, builds, and secures software for businesses that need it done properly.
-              Five disciplines — web engineering, cybersecurity, AI, cloud, and product design —
-              delivered as a single integrated practice, not five separate vendors.
+              TMI delivers web engineering, cybersecurity, AI automation, cloud infrastructure, and product design
+              as a single integrated practice. Instead of coordinating five vendors, clients work with one team
+              that understands how those capabilities need to interact — security constraints shape architecture decisions
+              from the start, infrastructure design informs feature scope, and UX reflects the actual data model.
             </p>
             <p>
-              Every engagement is led by the founder. No account managers. No handoffs.
-              The person who scopes your project is the same person who builds it —
-              which means clear communication, faster decisions, and work that reflects real expertise.
+              Every engagement is led by Tauqeer Mustafa, the founder. No account managers filtering technical decisions,
+              no handoffs between sales and delivery. The person who scopes your project writes the code, reviews the security
+              posture, and stays available through launch. That model works for projects that need depth — authentication systems
+              with real threat models, compliance dashboards that handle sensitive data correctly, operational platforms built to
+              survive contact with production load.
+            </p>
+            <p>
+              Most engagements run 8–16 weeks, from discovery through deployment and launch support. Clients typically return
+              for the next phase — new features, scaling work, or security audits — because the systems were built with
+              long-term maintainability in mind, not just enough to demo.
             </p>
           </div>
 

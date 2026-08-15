@@ -4,10 +4,10 @@ import { Gauge, Lock, Network, Users } from "lucide-react";
 import { Section } from "./ui";
 
 const reasons = [
-  { title: "Security designed in, not added later",       description: "Every system is reviewed with a security mindset from discovery through deployment — not as a final checklist.",                icon: Lock,    num: "01" },
-  { title: "Direct access to the founder on every project", description: "Tauqeer leads every engagement. No account managers, no handoffs — direct line to the person building your system.",  icon: Users,   num: "02" },
-  { title: "Five disciplines under one roof",             description: "Web engineering, security, AI, cloud, and design delivered as a single integrated practice — not five separate vendors.", icon: Gauge,   num: "03" },
-  { title: "Clear scope, honest pricing",                 description: "No enterprise markup. You pay for the work, not the overhead. Transparent timeline, fixed milestones.",                      icon: Network, num: "04" },
+  { title: "Security designed in, not added later",       description: "Threat modeling happens during discovery, not after launch. Security controls are embedded in the architecture — authentication flows, data handling, access boundaries — so they don't break under real load.",                icon: Lock,    num: "01" },
+  { title: "Direct access to the founder on every project", description: "Tauqeer leads every engagement from scoping through deployment. The person who makes architecture decisions is the same person who writes the code and reviews the security posture. No layers, no handoffs.",  icon: Users,   num: "02" },
+  { title: "Five disciplines under one roof",             description: "Web engineering, cybersecurity, AI automation, cloud infrastructure, and product design delivered by one team that understands how those capabilities need to interact. No vendor coordination overhead.", icon: Gauge,   num: "03" },
+  { title: "Clear scope, honest pricing",                 description: "Fixed-scope engagements with transparent timelines. You pay for the actual work — engineering, security reviews, infrastructure setup — not enterprise markup or account management overhead.",                      icon: Network, num: "04" },
 ];
 
 export default function WhyChooseUs() {
@@ -21,8 +21,11 @@ export default function WhyChooseUs() {
             Built differently. For a reason.
           </h2>
           <p className="mt-6 text-[17px] leading-[1.47] tracking-[-0.374px] text-[#cccccc]">
-            A focused team, clear processes, and work that reflects real expertise —
-            not the output of a lowest-bid freelancer model.
+            Most agencies either lack security expertise or treat it as a separate audit phase. Most freelancers
+            can't handle the full stack — frontend, backend, infrastructure, threat modeling, and UX — as one
+            coherent system. TMI exists because those gaps create real operational risk. We deliver all five
+            disciplines with the technical depth they require, led by someone who's built production systems
+            that had to survive real threats and real load.
           </p>
         </div>
 

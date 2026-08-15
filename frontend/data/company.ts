@@ -1,22 +1,22 @@
 export const company = {
   name: "Tauqeer Mustafa Inc.",
 
-  shortName: "TM Inc.",
+  shortName: "TMI",
 
-  tagline: "Built to build.",
+  tagline: "Engineering that ships. Security that holds.",
 
   description:
-    "TMI is a founder-led digital agency based in Islamabad, Pakistan. We help small businesses and startups build secure, well-designed digital products — websites, platforms, security audits, and AI tools — at startup-friendly rates.",
+    "A digital agency specializing in secure web platforms, cybersecurity consulting, AI integration, cloud engineering, and product design. We work with growing companies that need systems built to handle real operational load.",
 
   mission:
-    "To deliver honest, security-aware digital work for small businesses and startups who deserve a real agency, not a freelancer guessing their way through.",
+    "To deliver integrated engineering and security work that solves actual business problems — platforms that scale, systems that stay secure, and implementations that teams can maintain.",
 
   vision:
-    "To grow TMI into a trusted agency known for clean work, direct communication, and building things that last.",
+    "To become the engineering partner that growing companies return to when the work matters — where technical depth, clear communication, and delivery discipline are the standard.",
 
   founded: "2026",
 
-  headquarters: "TM Head Office, Islamabad, Pakistan",
+  headquarters: "Islamabad, Pakistan",
 
   email: "contact@tauqeermustafa.tech",
 

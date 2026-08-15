@@ -46,7 +46,7 @@ export default function Hero() {
             transition={{ duration: 0.6, delay: 0.14, ease: [0.22, 1, 0.36, 1] }}
             className="mt-6 max-w-2xl text-pretty text-[28px] font-[400] leading-[1.14] tracking-[0.196px] text-[#1d1d1f]"
           >
-            Full-stack web, AI systems, cloud infrastructure, and cybersecurity — one focused team in Islamabad.
+            A digital agency delivering integrated web, AI, cloud, and security work for companies that need systems built to last.
           </motion.p>
 
           <motion.div
@@ -90,7 +90,7 @@ export default function Hero() {
             <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-black/10 to-transparent" />
             <div className="absolute bottom-6 left-6">
               <span className="rounded-full bg-white/90 px-4 py-1.5 text-[14px] font-semibold text-[#1d1d1f] backdrop-blur-sm">
-                Islamabad, Pakistan
+                Islamabad
               </span>
             </div>
           </div>

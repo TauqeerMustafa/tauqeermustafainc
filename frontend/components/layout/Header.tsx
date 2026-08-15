@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import Link from "next/link";
 import { Menu, X } from "lucide-react";
 
-import { navigation } from "@/lib/site-data";
+import { navigation, publicNavigation } from "@/lib/site-data";
 import { cn } from "@/lib/utils";
 import { company } from "@/data/company";
 
@@ -30,7 +30,7 @@ export default function Header() {
 
         {/* Desktop nav links */}
         <nav className="hidden items-center gap-5 lg:flex" aria-label="Main navigation">
-          {navigation.filter((n) => n.name !== "Home").map((item) => (
+          {publicNavigation.filter((n) => n.name !== "Home").map((item) => (
             <Link
               key={item.name}
               href={item.href}
@@ -76,7 +76,7 @@ export default function Header() {
           className="border-t border-white/10 bg-black lg:hidden"
         >
           <nav className="flex flex-col px-5 pb-6 pt-4" aria-label="Mobile navigation">
-            {navigation.map((item) => (
+            {publicNavigation.map((item) => (
               <Link
                 key={item.name}
                 href={item.href}

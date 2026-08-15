@@ -6,10 +6,10 @@ import { imageLibrary } from "@/data/media";
 import { ImagePlaceholder, Reveal, Section, fadeLeft, fadeUp, stagger, viewportOnce } from "./ui";
 
 const phases = [
-  { step: "01", title: "Discover", description: "Map the business problem, current systems, and risk exposure before any implementation begins.", icon: Telescope },
-  { step: "02", title: "Plan",     description: "Architecture, security requirements, and tradeoffs are documented so every delivery decision has a clear reason.", icon: ClipboardCheck },
-  { step: "03", title: "Build",    description: "Engineering and security controls proceed together in reviewable increments with regular check-ins.", icon: Hammer },
-  { step: "04", title: "Support",  description: "Systems ship with documentation, monitoring, and post-launch support to keep them maintainable.", icon: ShieldCheck },
+  { step: "01", title: "Discover", description: "What problem are we solving? What systems already exist? What risks actually matter? Discovery maps constraints before any architecture decisions are made.", icon: Telescope },
+  { step: "02", title: "Plan",     description: "Design for the operational reality the system will face. Document security requirements, infrastructure tradeoffs, and the actual scope that fits the timeline.", icon: ClipboardCheck },
+  { step: "03", title: "Build",    description: "Incremental delivery with testable milestones. Security and infrastructure work happen in parallel with features, not after. Regular check-ins keep progress visible.", icon: Hammer },
+  { step: "04", title: "Support",  description: "Systems ship with runbooks, monitoring baselines, and post-launch support. The work doesn't end at deployment — it ends when the system runs stably in production.", icon: ShieldCheck },
 ];
 
 export default function OperatingModel() {
@@ -23,9 +23,10 @@ export default function OperatingModel() {
             A clear process, built for delivery.
           </h2>
           <p className="mt-6 text-[17px] leading-[1.47] tracking-[-0.374px] text-[#7a7a7a]">
-            Four phases across every engagement: understand the problem, design for the constraints,
-            build in testable increments, then support what we ship. The same structure whether
-            you&apos;re a solo founder or a distributed team.
+            Every engagement follows the same structure: discover the actual constraints, plan for what the system
+            will face in production, build in testable increments with security embedded from the start, then support
+            the deployment until it runs stably. The timeline scales to the scope, but the phases stay consistent —
+            whether it's an 8-week authentication rebuild or a 16-week operational platform.
           </p>
         </Reveal>
         <div className="relative hidden lg:block overflow-hidden">
