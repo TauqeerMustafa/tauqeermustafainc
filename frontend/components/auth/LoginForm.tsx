@@ -44,12 +44,14 @@ export default function LoginForm() {
     try {
       await loginMutation.mutateAsync(data);
       router.replace("/admin/dashboard");
-    } catch {
+    } catch (error) {
       // surfaced via loginMutation.isError below
+      console.error("Login error:", error);
     }
   }
 
   const apiError = loginMutation.error as ApiError | undefined;
+  const errorMessage = apiError?.message ?? "Unable to connect to the server. Please check if the backend is running or try again later.";
 
   return (
     <>
@@ -105,9 +107,17 @@ export default function LoginForm() {
             </div>
 
             {loginMutation.isError ? (
-              <p className="text-sm font-medium text-red-600" role="alert">
-                {apiError?.message ?? "Incorrect email or password."}
-              </p>
+              <div className="rounded-lg border border-red-200 bg-red-50 p-4">
+                <p className="text-sm font-medium text-red-800" role="alert">
+                  {errorMessage}
+                </p>
+                {apiError?.status === undefined && (
+                  <p className="mt-2 text-xs text-red-600">
+                    Make sure the backend server is running at{" "}
+                    <code className="rounded bg-red-100 px-1 py-0.5">http://localhost:8000</code>
+                  </p>
+                )}
+              </div>
             ) : null}
 
             <button
