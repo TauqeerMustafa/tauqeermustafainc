@@ -3,24 +3,20 @@
 import { motion } from "framer-motion";
 import Link from "next/link";
 import Image from "next/image";
-import { ArrowRight, Globe, Shield, Zap } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 
-import { company } from "@/data/company";
 import { imageLibrary } from "@/data/media";
 
 const heroStats = [
-  { value: "2026", label: "Founded · Islamabad", detail: "A lean agency, built with care. Growing and honest." },
-  { value: "Sec+", label: "Security-first",       detail: "Every project reviewed with a security mindset from day one." },
-  { value: "1:1",  label: "Founder-led",           detail: "Tauqeer is on every project. Direct access, no middlemen." },
+  { value: "5",      label: "Service lines",   detail: "Web, security, AI, cloud, and product design." },
+  { value: "Sec+",   label: "Security-first",  detail: "Security built into every engagement from day one." },
+  { value: "Direct", label: "Founder-led",     detail: "One team. Every project. No account managers." },
 ];
 
 export default function Hero() {
   return (
     /* Light tile — white canvas, full-bleed */
-    <section
-      className="bg-[#ffffff] px-5 pb-[80px] pt-32 sm:px-6 sm:pt-40"
-      aria-label="Hero"
-    >
+    <section className="bg-[#ffffff] px-5 pb-[80px] pt-32 sm:px-6 sm:pt-40" aria-label="Hero">
       <div className="mx-auto max-w-[980px]">
 
         {/* ── Centre stack ── */}
@@ -32,25 +28,25 @@ export default function Hero() {
             transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
             className="text-[21px] font-semibold leading-[1.19] tracking-[0.231px] text-[#1d1d1f]"
           >
-            {company.name}
+            Tauqeer Mustafa Inc.
           </motion.p>
 
           <motion.h1
             initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.07, ease: [0.22, 1, 0.36, 1] }}
-            className="mt-4 max-w-3xl text-balance text-[56px] font-semibold leading-[1.07] tracking-[-0.28px] text-[#1d1d1f]"
+            className="mt-4 max-w-4xl text-balance text-[56px] font-semibold leading-[1.07] tracking-[-0.28px] text-[#1d1d1f]"
           >
-            Digital products built secure from the ground up.
+            Engineering that ships. Security that holds.
           </motion.h1>
 
           <motion.p
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.14, ease: [0.22, 1, 0.36, 1] }}
-            className="mt-6 max-w-xl text-pretty text-[28px] font-[400] leading-[1.14] tracking-[0.196px] text-[#1d1d1f]"
+            className="mt-6 max-w-2xl text-pretty text-[28px] font-[400] leading-[1.14] tracking-[0.196px] text-[#1d1d1f]"
           >
-            A founder-led digital agency in Islamabad, Pakistan.
+            Full-stack web, AI systems, cloud infrastructure, and cybersecurity — one focused team in Islamabad.
           </motion.p>
 
           <motion.div
@@ -66,10 +62,10 @@ export default function Hero() {
               Start a Project
             </Link>
             <Link
-              href="/services"
+              href="/portfolio"
               className="apple-press inline-flex items-center justify-center gap-1 rounded-full border border-[#0066cc] bg-transparent px-[22px] py-[11px] text-[17px] font-[400] leading-[1.47] tracking-[-0.374px] text-[#0066cc] transition-colors hover:bg-[#0066cc] hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0071e3]"
             >
-              Learn more
+              View Our Work <ArrowRight className="h-4 w-4" aria-hidden />
             </Link>
           </motion.div>
         </div>
@@ -94,7 +90,7 @@ export default function Hero() {
             <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-black/10 to-transparent" />
             <div className="absolute bottom-6 left-6">
               <span className="rounded-full bg-white/90 px-4 py-1.5 text-[14px] font-semibold text-[#1d1d1f] backdrop-blur-sm">
-                Islamabad, Pakistan · Est. 2026
+                Islamabad, Pakistan
               </span>
             </div>
           </div>

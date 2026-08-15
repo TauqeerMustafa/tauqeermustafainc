@@ -19,16 +19,16 @@ export default function CoreServices() {
           <div className="lg:sticky lg:top-24">
             <p className="text-[21px] font-semibold leading-[1.19] tracking-[0.231px] text-white">Core Services</p>
             <h2 id="core-services-title" className="mt-4 text-[40px] font-semibold leading-[1.1] tracking-[-0.374px] text-white">
-              A capable partner for your next digital project.
+              Five capabilities. One integrated team.
             </h2>
             <p className="mt-6 text-[17px] leading-[1.47] tracking-[-0.374px] text-[#cccccc]">
-              We help small businesses and startups plan, build, and ship secure software —
-              five focused service lines, delivered by a team that actually cares.
+              We plan, build, secure, and ship software systems across the full stack —
+              web platforms, AI workflows, cloud infrastructure, security reviews, and product design.
             </p>
             <div className="mt-8">
               <Link
                 href="/services"
-                className="apple-press inline-flex items-center gap-2 rounded-full bg-[#0066cc] px-[22px] py-[11px] text-[17px] font-[400] leading-[1.47] tracking-[-0.374px] text-white transition-colors hover:bg-[#0071e3]"
+                className="apple-press inline-flex items-center gap-2 rounded-full bg-[#2997ff] px-[22px] py-[11px] text-[17px] font-[400] leading-[1.47] tracking-[-0.374px] text-white transition-colors hover:bg-[#0071e3]"
               >
                 All Services <ArrowRight className="h-4 w-4" aria-hidden />
               </Link>
@@ -79,7 +79,7 @@ export default function CoreServices() {
                 </span>
               </div>
 
-              <div className="absolute bottom-0 left-0 h-0.5 w-0 bg-[#0066cc] transition-all duration-500 group-hover:w-full" aria-hidden />
+              <div className="absolute bottom-0 left-0 h-0.5 w-0 bg-[#2997ff] transition-all duration-500 group-hover:w-full" aria-hidden />
             </motion.article>
           ))}
         </Reveal>

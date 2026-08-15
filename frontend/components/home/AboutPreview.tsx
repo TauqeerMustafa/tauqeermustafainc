@@ -1,28 +1,35 @@
 "use client";
 
-import { BrainCircuit, Building2, Layers3, ShieldCheck, TrendingUp, Users } from "lucide-react";
-
-import { imageLibrary } from "@/data/media";
-import { ButtonLink, Eyebrow, GlowCard, ImagePlaceholder, Reveal, Section, fadeLeft, fadeRight, stagger, viewportOnce } from "./ui";
+import { BrainCircuit, Building2, Cloud, Layers3, ShieldCheck, Paintbrush } from "lucide-react";
 import { motion } from "framer-motion";
 
-const values = ["Security built into every build", "Direct founder access", "Honest pricing, no markup", "Fast delivery, small team"];
+import { imageLibrary } from "@/data/media";
+import { ButtonLink, Reveal, Section, fadeLeft, fadeRight, stagger, viewportOnce } from "./ui";
 
-const focusAreas = [
-  { title: "Web & product build", icon: Building2 },
-  { title: "AI & automation",     icon: BrainCircuit },
-  { title: "Security-first",      icon: ShieldCheck },
+const values = [
+  "Security in every build — not a bolt-on",
+  "Direct access to the founder on every project",
+  "Five integrated disciplines, one cohesive team",
+  "Honest scope, honest pricing, no markup",
+];
+
+const disciplines = [
+  { title: "Web & product platforms", icon: Building2 },
+  { title: "AI & workflow automation", icon: BrainCircuit },
+  { title: "Cybersecurity & risk",     icon: ShieldCheck },
+  { title: "Cloud infrastructure",     icon: Cloud },
+  { title: "UI/UX & product design",  icon: Paintbrush },
 ];
 
 const miniStats = [
-  { value: "2026", label: "Year founded",   icon: TrendingUp },
-  { value: "Lean", label: "Team model",     icon: Users },
-  { value: "Sec+", label: "Security-first", icon: ShieldCheck },
+  { value: "5",      label: "Service lines" },
+  { value: "1:1",    label: "Direct access" },
+  { value: "ISB",    label: "Islamabad, PK" },
 ];
 
 export default function AboutPreview() {
   return (
-    /* Parchment tile — light alternate canvas */
+    /* Parchment tile */
     <Section className="bg-[#f5f5f7]" labelledBy="about-title">
       <div className="grid gap-12 lg:grid-cols-[0.95fr_1.05fr] lg:items-center">
 
@@ -38,15 +45,14 @@ export default function AboutPreview() {
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent" />
               <div className="absolute bottom-4 left-4 text-white">
                 <p className="text-[17px] font-semibold leading-[1.47] tracking-[-0.374px]">Tauqeer Mustafa — Founder</p>
-                <p className="mt-1 text-[14px] leading-[1.43] tracking-[-0.224px] text-white/75">Founded 2026 · Islamabad, Pakistan</p>
+                <p className="mt-1 text-[14px] leading-[1.43] tracking-[-0.224px] text-white/75">Islamabad, Pakistan</p>
               </div>
             </div>
           </div>
           <div className="grid grid-cols-3 divide-x divide-[#e0e0e0] border border-[#e0e0e0] bg-white">
             {miniStats.map((s) => (
               <div key={s.label} className="px-4 py-5 text-center">
-                <s.icon className="mx-auto h-5 w-5 text-[#0066cc]" aria-hidden />
-                <p className="mt-2 text-[28px] font-semibold leading-[1.14] text-[#1d1d1f]">{s.value}</p>
+                <p className="text-[28px] font-semibold leading-[1.14] text-[#1d1d1f]">{s.value}</p>
                 <p className="mt-0.5 text-[14px] leading-[1.43] tracking-[-0.224px] text-[#7a7a7a]">{s.label}</p>
               </div>
             ))}
@@ -55,15 +61,19 @@ export default function AboutPreview() {
 
         <Reveal variant={fadeRight} className="order-1 lg:order-2">
           <p className="text-[21px] font-semibold leading-[1.19] tracking-[0.231px] text-[#1d1d1f]">About TMI</p>
-          <h2 id="about-title" className="mt-4 max-w-3xl text-[40px] font-semibold leading-[1.1] tracking-[-0.374px] text-[#1d1d1f]">
-            A lean agency. Honest about being new. Built to grow.
+          <h2 id="about-title" className="mt-4 text-[40px] font-semibold leading-[1.1] tracking-[-0.374px] text-[#1d1d1f]">
+            A digital agency built around engineering that lasts.
           </h2>
-          <div className="mt-6 max-w-3xl space-y-5 text-[17px] leading-[1.47] tracking-[-0.374px] text-[#7a7a7a]">
+          <div className="mt-6 space-y-5 text-[17px] leading-[1.47] tracking-[-0.374px] text-[#7a7a7a]">
             <p>
-              TMI was founded in 2026 by Tauqeer Mustafa in Islamabad, Pakistan. This is a real operating agency, built to serve small businesses and startups who need secure, well-designed digital products without enterprise overhead.
+              TMI designs, builds, and secures software for businesses that need it done properly.
+              Five disciplines — web engineering, cybersecurity, AI, cloud, and product design —
+              delivered as a single integrated practice, not five separate vendors.
             </p>
             <p>
-              Clients work directly with the founder. No account managers, no hand-offs, no bloated markup. You get a lean, security-minded team at honest rates — and work that&apos;s built to last.
+              Every engagement is led by the founder. No account managers. No handoffs.
+              The person who scopes your project is the same person who builds it —
+              which means clear communication, faster decisions, and work that reflects real expertise.
             </p>
           </div>
 
@@ -89,20 +99,19 @@ export default function AboutPreview() {
           </motion.ul>
 
           <div className="mt-10 flex flex-col gap-3 sm:flex-row">
-            <ButtonLink href="/about" variant="primary">About Us</ButtonLink>
-            <ButtonLink href="/contact" variant="secondary">Contact</ButtonLink>
+            <ButtonLink href="/about"    variant="primary">About Us</ButtonLink>
+            <ButtonLink href="/contact"  variant="secondary">Start a Conversation</ButtonLink>
           </div>
         </Reveal>
       </div>
 
-      <div className="mt-16 grid gap-6 border-t border-[#e0e0e0] pt-12 md:grid-cols-3">
-        {focusAreas.map((area) => (
-          <GlowCard key={area.title}>
-            <div className="flex h-12 w-12 items-center justify-center rounded-[18px] border border-[#e0e0e0] bg-white text-[#0066cc]">
-              <area.icon className="h-6 w-6" aria-hidden />
-            </div>
-            <p className="mt-5 text-[17px] font-semibold leading-[1.24] tracking-[-0.374px] text-[#1d1d1f]">{area.title}</p>
-          </GlowCard>
+      {/* ── Disciplines strip ── */}
+      <div className="mt-16 grid gap-px overflow-hidden border border-[#e0e0e0] bg-[#e0e0e0] sm:grid-cols-3 lg:grid-cols-5">
+        {disciplines.map((d) => (
+          <div key={d.title} className="group bg-white px-6 py-7 transition-colors hover:bg-[#f5f5f7]">
+            <d.icon className="h-6 w-6 text-[#0066cc]" aria-hidden />
+            <p className="mt-4 text-[17px] font-semibold leading-[1.24] tracking-[-0.374px] text-[#1d1d1f]">{d.title}</p>
+          </div>
         ))}
       </div>
     </Section>
