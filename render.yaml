@@ -29,7 +29,7 @@ services:
       - key: LOG_LEVEL
         value: INFO
       - key: ACCESS_TOKEN_EXPIRE_MINUTES
-        value: "30"
+        value: "10080"  # 7 days (60 * 24 * 7)
       # Render generates a strong random value on first deploy and keeps it.
       - key: SECRET_KEY
         generateValue: true
