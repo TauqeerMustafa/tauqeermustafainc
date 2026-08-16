@@ -45,10 +45,18 @@ export function useSendWhatsAppMessage() {
         body: JSON.stringify(payload),
       });
 
-      const data = await res.json();
+      let data;
+      try {
+        data = await res.json();
+      } catch (parseError) {
+        const text = await res.text();
+        throw new Error(`Server error: ${text.substring(0, 200)}`);
+      }
 
       if (!res.ok) {
-        throw new Error(data.error || "Failed to send message");
+        // Extract detailed error message from backend
+        const errorMsg = data.error || data.detail || "Failed to send message";
+        throw new Error(errorMsg);
       }
 
       return data;

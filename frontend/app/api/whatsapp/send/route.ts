@@ -101,7 +101,11 @@ export async function POST(request: Request) {
     if (!response.ok) {
       console.error(`[WhatsApp] WA service error:`, data);
       return NextResponse.json(
-        { success: false, error: data.error || "Failed to send message", detail: data.detail },
+        {
+          success: false,
+          error: data.error || "Failed to send message",
+          detail: data.detail || data.error,
+        },
         { status: response.status }
       );
     }

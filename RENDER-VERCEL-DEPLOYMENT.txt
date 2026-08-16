@@ -1,0 +1,378 @@
+╔══════════════════════════════════════════════════════════════════╗
+║     🚀 RENDER + VERCEL DEPLOYMENT GUIDE                          ║
+╚══════════════════════════════════════════════════════════════════╝
+
+Deploy WA Service to Render + Frontend to Vercel
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+PART 1: DEPLOY WA SERVICE TO RENDER (5 minutes)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Step 1.1: Login to Render
+────────────────────────────────────────────────────────────────
+
+1. Go to: https://dashboard.render.com
+2. Click "Log In" (top right)
+3. Sign in with GitHub (recommended)
+
+Step 1.2: Create New Web Service
+────────────────────────────────────────────────────────────────
+
+1. Click blue "New +" button (top right)
+2. Select "Web Service"
+3. Click "Connect GitHub" (if first time)
+4. Find repository: "whatsapp-webhook"
+5. Click "Connect"
+
+Step 1.3: Configure Service
+────────────────────────────────────────────────────────────────
+
+Fill in the form:
+
+Name: tmi-whatsapp-service
+Region: Oregon (US West) or closest to you
+Branch: main
+Root Directory: (leave empty)
+Runtime: Node
+Build Command: npm install
+Start Command: npm start
+Instance Type: Free
+
+Step 1.4: Add Environment Variables
+────────────────────────────────────────────────────────────────
+
+Click "Add Environment Variable" for each:
+
+1. WHATSAPP_TOKEN
+   EAA5D14LMyusBSDAmu7r0LvZCG9iKJzLE8dnZATzsz6EN0QhtnN0wZB8ZC2ovfsP854fk9MixVgQZANWLTpnqdRaU8hqVuXXH32MfBglGat4rBXYXFryzOnyC8zSk8bP7HOkNVWFuC9HxFw2zZBvfaQBijUa9xU45Fg6qh96SETp8TCmDb00gD81I0UXbHj3mmPOQZDZD
+
+2. WEBHOOK_VERIFY_TOKEN
+   tmi_webhook_2026
+
+3. PHONE_NUMBER_ID
+   1150558061484722
+
+4. PORT
+   3001
+
+5. NODE_ENV
+   production
+
+Step 1.5: Create Service
+────────────────────────────────────────────────────────────────
+
+1. Click "Create Web Service"
+2. Wait 2-3 minutes (watch build logs)
+3. When done: "Live" with green dot
+4. Copy your URL: https://tmi-whatsapp-service.onrender.com
+
+✅ Test: https://tmi-whatsapp-service.onrender.com/health
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+PART 2: DEPLOY FRONTEND TO VERCEL (3 minutes)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Step 2.1: Login to Vercel
+────────────────────────────────────────────────────────────────
+
+1. Go to: https://vercel.com/login
+2. Sign in with GitHub
+
+Step 2.2: Import Project (If Not Already Deployed)
+────────────────────────────────────────────────────────────────
+
+If frontend is NOT on Vercel yet:
+
+1. Click "Add New..." → "Project"
+2. Import: tauqeermustafainc repository
+3. Framework: Next.js (auto-detected)
+4. Root Directory: frontend
+5. Click "Deploy"
+6. Wait 2-3 minutes
+
+If frontend IS already on Vercel:
+
+1. Go to: https://vercel.com/dashboard
+2. Find your project
+3. Click on it
+4. Continue to Step 2.3
+
+Step 2.3: Add Environment Variables
+────────────────────────────────────────────────────────────────
+
+1. In your Vercel project
+2. Click "Settings" tab
+3. Click "Environment Variables" (left sidebar)
+4. Add these variables:
+
+   Variable 1:
+   ┌─────────────────────────────────────────────────────┐
+   │ Key: WA_SERVICE_URL                                 │
+   │ Value: https://tmi-whatsapp-service.onrender.com   │
+   │ Environment: Production ☑  Preview ☑  Development ☑│
+   └─────────────────────────────────────────────────────┘
+
+   Variable 2:
+   ┌─────────────────────────────────────────────────────┐
+   │ Key: WEBHOOK_VERIFY_TOKEN                           │
+   │ Value: tmi_webhook_2026                             │
+   │ Environment: Production ☑  Preview ☑  Development ☑│
+   └─────────────────────────────────────────────────────┘
+
+5. Click "Save"
+
+Step 2.4: Redeploy
+────────────────────────────────────────────────────────────────
+
+1. Go to "Deployments" tab
+2. Click "..." on latest deployment
+3. Click "Redeploy"
+4. Check "Use existing Build Cache"
+5. Click "Redeploy"
+6. Wait 1-2 minutes
+
+✅ Your frontend will auto-deploy with new environment variables
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+PART 3: CONFIGURE META WEBHOOK (2 minutes)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Step 3.1: Update Webhook in Meta Business Manager
+────────────────────────────────────────────────────────────────
+
+1. Go to: https://business.facebook.com
+2. Login and select your business
+3. Click "WhatsApp Accounts" (left sidebar)
+4. Click your WhatsApp account
+5. Click "WhatsApp Manager"
+6. Click "Configuration" (left menu)
+
+Step 3.2: Edit Webhook
+────────────────────────────────────────────────────────────────
+
+Scroll to "Webhook" section:
+
+1. Click "Edit" button
+2. Enter:
+
+   Callback URL:
+   https://tmi-whatsapp-service.onrender.com/webhook
+
+   Verify Token:
+   tmi_webhook_2026
+
+3. Click "Verify and Save"
+4. Should see: ✅ "Webhook verified"
+
+Step 3.3: Subscribe to Webhook Fields
+────────────────────────────────────────────────────────────────
+
+1. In same Webhook section
+2. Check these boxes:
+   ☑ messages
+   ☑ message_status
+
+3. Click "Save" or "Subscribe"
+
+✅ Meta webhook configured!
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+PART 4: TEST EVERYTHING (5 minutes)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Test 1: WA Service Health Check
+────────────────────────────────────────────────────────────────
+
+Open in browser:
+https://tmi-whatsapp-service.onrender.com/health
+
+Should return:
+{
+  "status": "ok",
+  "service": "tmi-whatsapp-bot",
+  "timestamp": "2026-08-16T...",
+  "messages": 0
+}
+
+✅ If you see this, WA service is working!
+
+Test 2: Admin API
+────────────────────────────────────────────────────────────────
+
+Open in browser:
+https://tmi-whatsapp-service.onrender.com/admin-api/stats
+
+Should return:
+{
+  "success": true,
+  "stats": {
+    "total": 0,
+    "inbound": 0,
+    "outbound": 0,
+    "today": 0
+  }
+}
+
+✅ If you see this, admin API is working!
+
+Test 3: Frontend Admin Panel
+────────────────────────────────────────────────────────────────
+
+1. Go to: https://your-vercel-domain.vercel.app/admin/whatsapp
+   (replace with your actual Vercel URL)
+
+2. Should see "WhatsApp Manager" page
+3. Two tabs: "Inbox" and "Send Message"
+
+✅ If you see this page, frontend is deployed!
+
+Test 4: Send Test Message
+────────────────────────────────────────────────────────────────
+
+1. Click "Send Message" tab
+2. Select "Text" message type
+3. Enter recipient: 923001234567 (your test number)
+4. Enter message: "Test from Render + Vercel!"
+5. Click "Send Message"
+6. Should see green success message
+7. Click "Inbox" tab
+8. Should see sent message (green, outbound)
+
+✅ If message appears, sending works!
+
+Test 5: Receive Message (Webhook Test)
+────────────────────────────────────────────────────────────────
+
+1. Send WhatsApp message to your business number from your phone
+2. Wait 10-15 seconds
+3. Refresh admin panel
+4. Should see received message (blue, inbound)
+
+✅ If message appears, webhook works!
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🎉 DEPLOYMENT COMPLETE!
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Your WhatsApp integration is now live!
+
+WA Service (Render): https://tmi-whatsapp-service.onrender.com
+Frontend (Vercel): https://your-domain.vercel.app
+Admin Panel: https://your-domain.vercel.app/admin/whatsapp
+
+Features:
+✅ Send text, button, and template messages
+✅ View all received messages in real-time
+✅ Complete REST API for automation
+✅ Message history and statistics
+✅ Auto-refresh inbox every 5 seconds
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🐛 TROUBLESHOOTING
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Issue: Can't send messages
+────────────────────────────────────────────────────────────────
+1. Check WA service health endpoint
+2. Verify WA_SERVICE_URL in Vercel environment variables
+3. Make sure it's: https://tmi-whatsapp-service.onrender.com
+   (no trailing slash!)
+4. Check Render logs: Dashboard → Service → Logs
+
+Issue: Messages not appearing in inbox
+────────────────────────────────────────────────────────────────
+1. Open browser console (F12)
+2. Look for errors in Console tab
+3. Check Network tab for failed API calls
+4. Verify both services are running (green "Live" status)
+
+Issue: Webhook not receiving messages
+────────────────────────────────────────────────────────────────
+1. Check Meta webhook configuration
+2. Verify URL: https://tmi-whatsapp-service.onrender.com/webhook
+3. Verify token: tmi_webhook_2026
+4. Check Render logs for webhook POST requests
+5. In Render logs, you should see: "📨 Message from..."
+
+Issue: CORS errors
+────────────────────────────────────────────────────────────────
+1. CORS is already configured in webhook.js
+2. If still having issues, check browser console
+3. Verify Vercel domain is allowed
+4. Restart Render service if needed
+
+Issue: Render service spinning down (Free tier)
+────────────────────────────────────────────────────────────────
+Free tier spins down after 15 minutes of inactivity.
+First request after spin-down takes ~30 seconds.
+
+Solutions:
+1. Upgrade to paid tier ($7/month)
+2. Use uptime monitor (UptimeRobot) to ping every 10 minutes
+3. Accept the cold start delay
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📝 IMPORTANT NOTES
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Render Free Tier:
+• Service URL: https://[your-service].onrender.com
+• Spins down after 15 min inactivity
+• 750 hours/month free
+• Cold start: ~30 seconds
+
+Vercel Free Tier:
+• Unlimited deployments
+• 100 GB bandwidth/month
+• Auto-scaling
+• No cold starts
+
+Message Storage:
+• Current: In-memory (lost on restart)
+• For production: Add database (PostgreSQL/MongoDB)
+
+Phone Number Format:
+• Must be: 923001234567
+• NO + symbol
+• NO spaces or dashes
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+✅ DEPLOYMENT CHECKLIST
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+□ WA service deployed to Render
+□ Environment variables set on Render
+□ WA service health check returns OK
+□ Frontend deployed to Vercel
+□ Environment variables set on Vercel
+□ Meta webhook configured and verified
+□ Admin panel accessible at /admin/whatsapp
+□ Can send test message
+□ Message appears in inbox
+□ Can receive messages via webhook
+□ Webhook shows in admin inbox
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🔗 QUICK LINKS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Render Dashboard: https://dashboard.render.com
+Vercel Dashboard: https://vercel.com/dashboard
+Meta Business: https://business.facebook.com
+
+GitHub Repos:
+• WA Service: https://github.com/TauqeerMustafa/whatsapp-webhook
+• Frontend: https://github.com/TauqeerMustafa/tauqeermustafainc
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Need help? All code is on GitHub and ready to deploy! 🚀

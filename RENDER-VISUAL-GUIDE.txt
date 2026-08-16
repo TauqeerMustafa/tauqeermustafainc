@@ -1,0 +1,337 @@
+╔══════════════════════════════════════════════════════════════════╗
+║     📱 RENDER DEPLOYMENT - VISUAL STEP-BY-STEP GUIDE            ║
+╚══════════════════════════════════════════════════════════════════╝
+
+🔐 LOGIN TO RENDER
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1. Open browser
+2. Go to: https://dashboard.render.com
+3. Click "Log In" (top right)
+4. Sign in with GitHub (recommended) or email
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+PART 1: DEPLOY WA SERVICE (WhatsApp Backend)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Step 1.1: Create New Web Service
+────────────────────────────────────────────────────────────────
+
+After logging in:
+
+1. You'll see Render Dashboard
+2. Click blue "New +" button (top right)
+3. Select "Web Service" from dropdown
+
+Step 1.2: Connect GitHub Repository
+────────────────────────────────────────────────────────────────
+
+You'll see "Create a new Web Service" page:
+
+1. If first time: Click "Connect GitHub"
+   → Authorize Render to access your GitHub
+
+2. You'll see list of your repositories
+3. Find: "whatsapp-webhook"
+4. Click "Connect" button next to it
+
+Step 1.3: Configure Service
+────────────────────────────────────────────────────────────────
+
+Fill in the form:
+
+┌─────────────────────────────────────────────────────────────┐
+│ Name                                                        │
+│ ┌─────────────────────────────────────────────────────┐   │
+│ │ tmi-whatsapp-service                                │   │
+│ └─────────────────────────────────────────────────────┘   │
+│                                                             │
+│ Region                                                      │
+│ ┌─────────────────────────────────────────────────────┐   │
+│ │ Oregon (US West) ▼                                  │   │
+│ └─────────────────────────────────────────────────────┘   │
+│                                                             │
+│ Branch                                                      │
+│ ┌─────────────────────────────────────────────────────┐   │
+│ │ main ▼                                              │   │
+│ └─────────────────────────────────────────────────────┘   │
+│                                                             │
+│ Root Directory                                              │
+│ ┌─────────────────────────────────────────────────────┐   │
+│ │ (leave empty)                                       │   │
+│ └─────────────────────────────────────────────────────┘   │
+│                                                             │
+│ Runtime                                                     │
+│ ┌─────────────────────────────────────────────────────┐   │
+│ │ Node ▼                                              │   │
+│ └─────────────────────────────────────────────────────┘   │
+│                                                             │
+│ Build Command                                               │
+│ ┌─────────────────────────────────────────────────────┐   │
+│ │ npm install                                         │   │
+│ └─────────────────────────────────────────────────────┘   │
+│                                                             │
+│ Start Command                                               │
+│ ┌─────────────────────────────────────────────────────┐   │
+│ │ npm start                                           │   │
+│ └─────────────────────────────────────────────────────┘   │
+│                                                             │
+│ Instance Type                                               │
+│ ┌─────────────────────────────────────────────────────┐   │
+│ │ Free ▼                                              │   │
+│ └─────────────────────────────────────────────────────┘   │
+└─────────────────────────────────────────────────────────────┘
+
+Step 1.4: Add Environment Variables
+────────────────────────────────────────────────────────────────
+
+Scroll down to "Environment Variables" section:
+
+1. Click "Add Environment Variable" button
+2. Add FIRST variable:
+   Key: WHATSAPP_TOKEN
+   Value: EAA5D14LMyusBSDAmu7r0LvZCG9iKJzLE8dnZATzsz6EN0QhtnN0wZB8ZC2ovfsP854fk9MixVgQZANWLTpnqdRaU8hqVuXXH32MfBglGat4rBXYXFryzOnyC8zSk8bP7HOkNVWFuC9HxFw2zZBvfaQBijUa9xU45Fg6qh96SETp8TCmDb00gD81I0UXbHj3mmPOQZDZD
+
+3. Click "Add Environment Variable" again
+4. Add SECOND variable:
+   Key: WEBHOOK_VERIFY_TOKEN
+   Value: tmi_webhook_2026
+
+5. Click "Add Environment Variable" again
+6. Add THIRD variable:
+   Key: PHONE_NUMBER_ID
+   Value: 1150558061484722
+
+7. Click "Add Environment Variable" again
+8. Add FOURTH variable:
+   Key: PORT
+   Value: 3001
+
+9. Click "Add Environment Variable" again
+10. Add FIFTH variable:
+    Key: NODE_ENV
+    Value: production
+
+Your environment variables should look like:
+
+┌─────────────────────────────────────────────────────────────┐
+│ Environment Variables                                       │
+├─────────────────────────────────────────────────────────────┤
+│ WHATSAPP_TOKEN = EAA5D14LMyusB...                          │
+│ WEBHOOK_VERIFY_TOKEN = tmi_webhook_2026                    │
+│ PHONE_NUMBER_ID = 1150558061484722                         │
+│ PORT = 3001                                                 │
+│ NODE_ENV = production                                       │
+└─────────────────────────────────────────────────────────────┘
+
+Step 1.5: Create Service
+────────────────────────────────────────────────────────────────
+
+1. Scroll to bottom
+2. Click blue "Create Web Service" button
+3. Wait 2-3 minutes (you'll see build logs)
+4. When done, you'll see: "Live" with green dot
+5. Copy your service URL (top of page)
+   Example: https://tmi-whatsapp-service.onrender.com
+
+✅ WA Service Deployed!
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+PART 2: UPDATE FRONTEND SERVICE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Step 2.1: Find Your Frontend Service
+────────────────────────────────────────────────────────────────
+
+1. Go back to Render Dashboard
+2. Click "Dashboard" in top left menu
+3. You'll see list of your services
+4. Find your frontend service (tauqeermustafainc or similar)
+5. Click on it
+
+Step 2.2: Add Environment Variables
+────────────────────────────────────────────────────────────────
+
+1. In left sidebar, click "Environment"
+2. You'll see existing environment variables
+3. Click "Add Environment Variable" button
+4. Add FIRST variable:
+   Key: WA_SERVICE_URL
+   Value: https://tmi-whatsapp-service.onrender.com
+   (use YOUR actual WA service URL from Step 1.5)
+
+5. Click "Add Environment Variable" again
+6. Add SECOND variable:
+   Key: WEBHOOK_VERIFY_TOKEN
+   Value: tmi_webhook_2026
+
+7. Click "Save Changes" button (bottom)
+8. Service will auto-redeploy (2-3 minutes)
+9. Wait for "Live" status with green dot
+
+✅ Frontend Updated!
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+PART 3: CONFIGURE META WEBHOOK
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Step 3.1: Go to Meta Business Manager
+────────────────────────────────────────────────────────────────
+
+1. Open new tab
+2. Go to: https://business.facebook.com
+3. Login with your Facebook account
+4. Select your business
+
+Step 3.2: Navigate to WhatsApp Settings
+────────────────────────────────────────────────────────────────
+
+1. In left sidebar, click "WhatsApp Accounts"
+2. Click your WhatsApp Business Account
+3. Click "WhatsApp Manager" button
+4. In left menu, click "Configuration"
+
+Step 3.3: Configure Webhook
+────────────────────────────────────────────────────────────────
+
+Scroll down to "Webhook" section:
+
+1. Click "Edit" button
+2. You'll see webhook configuration form:
+
+   ┌─────────────────────────────────────────────────────┐
+   │ Callback URL                                        │
+   │ ┌─────────────────────────────────────────────────┐│
+   │ │ https://tmi-whatsapp-service.onrender.com/      ││
+   │ │ webhook                                         ││
+   │ └─────────────────────────────────────────────────┘│
+   │                                                     │
+   │ Verify Token                                        │
+   │ ┌─────────────────────────────────────────────────┐│
+   │ │ tmi_webhook_2026                                ││
+   │ └─────────────────────────────────────────────────┘│
+   └─────────────────────────────────────────────────────┘
+
+3. Enter YOUR actual WA service URL + /webhook
+   Example: https://tmi-whatsapp-service.onrender.com/webhook
+
+4. Enter verify token: tmi_webhook_2026
+
+5. Click "Verify and Save" button
+
+6. If successful, you'll see ✅ "Webhook verified"
+
+Step 3.4: Subscribe to Webhook Fields
+────────────────────────────────────────────────────────────────
+
+Still in Webhook section:
+
+1. Look for "Webhook fields" or "Subscribe to fields"
+2. Check these boxes:
+   ☑ messages
+   ☑ message_status
+
+3. Click "Save" or "Subscribe"
+
+✅ Meta Webhook Configured!
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+PART 4: TEST YOUR DEPLOYMENT
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Test 1: Check WA Service Health
+────────────────────────────────────────────────────────────────
+
+1. Open new tab
+2. Go to: https://tmi-whatsapp-service.onrender.com/health
+   (use YOUR actual WA service URL)
+3. Should see:
+   {
+     "status": "ok",
+     "service": "tmi-whatsapp-bot",
+     "timestamp": "...",
+     "messages": 0
+   }
+
+Test 2: Access Admin Panel
+────────────────────────────────────────────────────────────────
+
+1. Go to: https://your-frontend.onrender.com/admin/whatsapp
+   (replace with YOUR actual frontend URL)
+2. Should see "WhatsApp Manager" page
+3. Two tabs: "Inbox" and "Send Message"
+
+Test 3: Send Test Message
+────────────────────────────────────────────────────────────────
+
+1. Click "Send Message" tab
+2. Select "Text" message type
+3. Enter recipient: 923001234567 (your test number)
+4. Enter message: "Test from admin panel!"
+5. Click "Send Message"
+6. Should see green success message
+7. Click "Inbox" tab
+8. Should see your sent message (green, outbound)
+
+Test 4: Receive Message
+────────────────────────────────────────────────────────────────
+
+1. Send WhatsApp message to your business number
+2. Wait 10 seconds
+3. Refresh admin panel
+4. Should see received message (blue, inbound)
+
+✅ All Tests Passed!
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🎉 DEPLOYMENT COMPLETE!
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Your WhatsApp admin integration is now live!
+
+Access: https://your-frontend.onrender.com/admin/whatsapp
+
+Features:
+✅ Send text, button, and template messages
+✅ View all received messages in real-time
+✅ Complete REST API for automation
+✅ Message history and statistics
+✅ Auto-refresh inbox every 5 seconds
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🐛 TROUBLESHOOTING
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Issue: Can't send messages
+─────────────────────────────────────────────────────────────────
+1. Check WA service health endpoint
+2. Verify WA_SERVICE_URL in frontend environment
+3. Check Render logs: Dashboard → WA Service → Logs
+
+Issue: Messages not appearing in inbox
+─────────────────────────────────────────────────────────────────
+1. Open browser console (F12)
+2. Look for errors
+3. Verify both services are "Live"
+
+Issue: Webhook not working
+─────────────────────────────────────────────────────────────────
+1. Check Meta webhook configuration
+2. Verify URL matches: https://your-wa-service.onrender.com/webhook
+3. Check token: tmi_webhook_2026
+4. Look at WA service logs for incoming requests
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Need help? Check:
+• RENDER-DEPLOYMENT-READY.txt - Environment variables
+• QUICK-DEPLOYMENT-RENDER.md - Detailed guide
+• WHATSAPP-INTEGRATION.md - Complete documentation
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
