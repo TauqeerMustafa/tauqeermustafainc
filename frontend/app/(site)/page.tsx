@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import AboutPreview from "@/components/home/AboutPreview";
 import CTA from "@/components/home/CTA";
 import CoreServices from "@/components/home/CoreServices";
+import FAQ from "@/components/home/FAQ";
 import FeaturedWork from "@/components/home/FeaturedWork";
 import Hero from "@/components/home/Hero";
 import LatestBlogs from "@/components/home/LatestBlogs";
@@ -12,9 +13,9 @@ import WhyChooseUs from "@/components/home/WhyChooseUs";
 import { buildMetadata } from "@/lib/metadata";
 
 export const metadata: Metadata = buildMetadata({
-  title: "Tauqeer Mustafa Inc. | Secure Digital Products for Small Businesses",
+  title: "Digital Agency Islamabad | Web Development, Security & AI Services",
   description:
-    "A founder-led digital agency in Islamabad, Pakistan. Web development, cybersecurity, AI automation, cloud engineering, and product design for small businesses and startups.",
+    "Award-winning digital agency in Islamabad, Pakistan. Custom web development, cybersecurity consulting, AI automation, cloud engineering, and product design. Security-first approach for businesses worldwide.",
   path: "/",
 });
 
@@ -28,6 +29,7 @@ export default function Home() {
       <OperatingModel />
       <WhyChooseUs />
       <Technology />
+      <FAQ />
       <LatestBlogs />
       <CTA />
     </main>
