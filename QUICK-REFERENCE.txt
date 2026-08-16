@@ -1,0 +1,113 @@
+╔════════════════════════════════════════════════════════════════╗
+║          📱 WHATSAPP ADMIN - QUICK REFERENCE CARD             ║
+╚════════════════════════════════════════════════════════════════╝
+
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃ 🚀 START SERVICES                                             ┃
+┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+
+Terminal 1 (WA Service):
+  cd E:/Projects/WA && npm start
+
+Terminal 2 (Admin Panel):
+  cd E:/Projects/tauqeer-inc/frontend && npm run dev
+
+Access Admin Panel:
+  http://localhost:3000/admin/whatsapp
+
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃ 📡 API ENDPOINTS                                              ┃
+┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+
+Send Text Message:
+  POST /api/whatsapp/send
+  {
+    "type": "text",
+    "to": "923001234567",
+    "message": "Your message"
+  }
+
+Send Button Message:
+  POST /api/whatsapp/send
+  {
+    "type": "buttons",
+    "to": "923001234567",
+    "bodyText": "Choose:",
+    "buttons": [
+      {"id": "opt_1", "title": "Option 1"}
+    ]
+  }
+
+Get Messages:
+  GET /api/whatsapp/messages
+
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃ 🎯 ADMIN PANEL USAGE                                          ┃
+┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+
+Inbox Tab:
+  • View all received/sent messages
+  • Auto-refreshes every 5 seconds
+  • Blue = Inbound, Green = Outbound
+
+Send Tab:
+  1. Select message type (Text/Buttons/Template)
+  2. Enter phone: 923001234567 (no + symbol!)
+  3. Fill message details
+  4. Click "Send Message"
+
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃ ⚙️  CONFIGURATION FILES                                        ┃
+┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+
+E:/Projects/WA/.env:
+  WHATSAPP_TOKEN=your_token
+  PHONE_NUMBER_ID=your_id
+  PORT=3001
+
+frontend/.env.local:
+  WA_SERVICE_URL=http://localhost:3001
+
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃ 🐛 TROUBLESHOOTING                                            ┃
+┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+
+Can't send messages?
+  ✓ Check: http://localhost:3001/health
+  ✓ Verify WA_SERVICE_URL in .env.local
+  ✓ Phone format: 923001234567 (no +)
+
+Messages not showing?
+  ✓ Check both services are running
+  ✓ Check browser console for errors
+  ✓ Try manual page refresh
+
+CORS errors?
+  ✓ Restart WA service
+  ✓ Clear browser cache
+
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃ 💡 QUICK TIPS                                                 ┃
+┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+
+• Phone format: 923001234567 (no + or spaces)
+• Max 3 buttons per message
+• Text supports: *bold* _italic_ ~strike~
+• Templates need Meta approval first
+• Inbox auto-refreshes every 5 seconds
+
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃ 📚 DOCUMENTATION                                              ┃
+┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+
+WHATSAPP-INTEGRATION.md ... Complete guide
+WHATSAPP-TESTING.md ........ Testing checklist
+WHATSAPP-VISUAL-GUIDE.txt .. Visual overview
+
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃ 🎉 READY TO USE!                                              ┃
+┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+
+  1. Start services (see above)
+  2. Go to: http://localhost:3000/admin/whatsapp
+  3. Send your first message!
