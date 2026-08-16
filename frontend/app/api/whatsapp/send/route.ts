@@ -69,15 +69,37 @@ export async function POST(request: Request) {
     }
 
     // Forward request to WA service
-    const response = await fetch(`${WA_SERVICE_URL}${endpoint}`, {
+    const waUrl = `${WA_SERVICE_URL}${endpoint}`;
+    console.log(`[WhatsApp] Sending ${type} to ${waUrl}`);
+
+    const response = await fetch(waUrl, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
     });
 
-    const data = await response.json();
+    const contentType = response.headers.get("content-type");
+    let data;
+
+    // Check if response is JSON
+    if (contentType && contentType.includes("application/json")) {
+      data = await response.json();
+    } else {
+      // If not JSON, likely an HTML error page
+      const text = await response.text();
+      console.error(`[WhatsApp] Non-JSON response from WA service:`, text.substring(0, 500));
+      return NextResponse.json(
+        {
+          success: false,
+          error: "WA service returned invalid response. Check if service is running correctly.",
+          detail: `Expected JSON but got ${contentType}. Response: ${text.substring(0, 200)}...`
+        },
+        { status: 502 }
+      );
+    }
 
     if (!response.ok) {
+      console.error(`[WhatsApp] WA service error:`, data);
       return NextResponse.json(
         { success: false, error: data.error || "Failed to send message", detail: data.detail },
         { status: response.status }
