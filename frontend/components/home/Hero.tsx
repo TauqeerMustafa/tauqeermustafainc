@@ -70,26 +70,30 @@ export default function Hero() {
           </motion.div>
         </div>
 
-        {/* ── Hero image — product shadow only ── */}
+        {/* ── Hero image — refined presentation ── */}
         <motion.div
           initial={{ opacity: 0, y: 32 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.28, ease: [0.22, 1, 0.36, 1] }}
-          className="mt-12 overflow-hidden sm:mt-16"
+          className="mt-12 sm:mt-16"
         >
-          <div className="relative aspect-[4/3] sm:aspect-[16/9]">
+          <div className="relative aspect-[4/3] overflow-hidden rounded-[18px] sm:aspect-[16/9]">
             <Image
               src={imageLibrary.hero[2]}
-              alt="TMI — digital agency, Islamabad"
+              alt="TMI — Infrastructure & engineering excellence"
               fill
               sizes="(max-width: 640px) 100vw, (max-width: 1024px) 90vw, 980px"
               priority
               className="object-cover"
-              style={{ boxShadow: "rgba(0,0,0,0.22) 3px 5px 30px 0" }}
+              style={{ boxShadow: "rgba(0,0,0,0.12) 0px 4px 16px, rgba(0,0,0,0.08) 0px 8px 32px" }}
             />
-            <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/50 via-black/10 to-transparent" />
-            <div className="absolute bottom-4 left-4 sm:bottom-6 sm:left-6">
-              <span className="rounded-full bg-white/90 px-3 py-1.5 text-[12px] font-semibold text-[#1d1d1f] backdrop-blur-sm sm:px-4 sm:text-[14px]">
+            <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
+            <div className="absolute bottom-5 left-5 sm:bottom-7 sm:left-7">
+              <span className="inline-flex items-center gap-2 rounded-full bg-white/95 px-4 py-2 text-[13px] font-semibold text-[#1d1d1f] shadow-lg backdrop-blur-md sm:px-5 sm:py-2.5 sm:text-[15px]">
+                <span className="flex h-2 w-2">
+                  <span className="absolute inline-flex h-2 w-2 animate-ping rounded-full bg-[#0066cc] opacity-75"></span>
+                  <span className="relative inline-flex h-2 w-2 rounded-full bg-[#0066cc]"></span>
+                </span>
                 Islamabad
               </span>
             </div>
