@@ -6,6 +6,7 @@ import { notFound } from "next/navigation";
 import { Section } from "@/components/home/ui";
 import { blogPosts, blogReadingTime } from "@/data/blog";
 import { buildMetadata } from "@/lib/metadata";
+import { articleSchema, breadcrumbSchema } from "@/lib/schema";
 
 export function generateStaticParams() {
   return blogPosts.map((post) => ({ slug: post.slug }));
@@ -46,8 +47,33 @@ export default async function BlogDetailPage({
     .slice(0, 3);
   const others = related.length > 0 ? related : blogPosts.filter((item) => item.slug !== post.slug).slice(0, 3);
 
+  // Generate structured data for SEO
+  const article = articleSchema({
+    title: post.title,
+    description: post.excerpt,
+    slug: post.slug,
+    publishedAt: new Date(post.date).toISOString(),
+    author: "Tauqeer Mustafa",
+    image: post.coverImage,
+  });
+
+  const breadcrumbs = breadcrumbSchema([
+    { name: "Home", url: "https://tauqeermustafa.tech" },
+    { name: "Blog", url: "https://tauqeermustafa.tech/blog" },
+    { name: post.title, url: `https://tauqeermustafa.tech/blog/${post.slug}` },
+  ]);
+
   return (
     <>
+      {/* Structured data for SEO */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(article) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbs) }}
+      />
       {/* Hero with cover image */}
       <div className="relative bg-[#000000]">
         <div className="relative aspect-[21/9] w-full overflow-hidden">

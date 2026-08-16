@@ -14,6 +14,8 @@ import { IconFrame } from "@/components/home/IconFrame";
 import { FaqAccordion } from "@/components/services/FaqAccordion";
 import { services } from "@/lib/site-data";
 import { buildMetadata } from "@/lib/metadata";
+import { serviceSchema, breadcrumbSchema } from "@/lib/schema";
+import { faqSchema } from "@/lib/faq-schema";
 
 const imageBySlug: Record<string, string> = {
   "enterprise-web-development": "https://images.unsplash.com/photo-1483058712412-4245e9b90334?auto=format&fit=crop&w=1600&q=80",
@@ -57,8 +59,46 @@ export default async function ServiceDetailPage({
     notFound();
   }
 
+  // Generate structured data for SEO
+  const serviceSchemaData = serviceSchema({
+    name: service.title,
+    description: service.description,
+    slug: service.slug,
+  });
+
+  const breadcrumbs = breadcrumbSchema([
+    { name: "Home", url: "https://tauqeermustafa.tech" },
+    { name: "Services", url: "https://tauqeermustafa.tech/services" },
+    { name: service.title, url: `https://tauqeermustafa.tech/services/${service.slug}` },
+  ]);
+
+  // Convert service FAQs to schema format if they exist
+  const faqSchemaData = service.faqs
+    ? faqSchema(
+        service.faqs.map((faq) => ({
+          question: faq.question,
+          answer: faq.answer,
+        }))
+      )
+    : null;
+
   return (
     <>
+      {/* Structured data for SEO */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(serviceSchemaData) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbs) }}
+      />
+      {faqSchemaData && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchemaData) }}
+        />
+      )}
       <PageHero
         eyebrow="Service"
         title={service.title}
