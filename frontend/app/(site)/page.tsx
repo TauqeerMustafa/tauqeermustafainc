@@ -8,7 +8,6 @@ import Hero from "@/components/home/Hero";
 import LatestBlogs from "@/components/home/LatestBlogs";
 import OperatingModel from "@/components/home/OperatingModel";
 import Technology from "@/components/home/Technology";
-import VisualIndex from "@/components/home/VisualIndex";
 import WhyChooseUs from "@/components/home/WhyChooseUs";
 import { buildMetadata } from "@/lib/metadata";
 
@@ -25,7 +24,6 @@ export default function Home() {
       <Hero />
       <AboutPreview />
       <FeaturedWork />
-      <VisualIndex />
       <CoreServices />
       <OperatingModel />
       <WhyChooseUs />
