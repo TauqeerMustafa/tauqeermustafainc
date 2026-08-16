@@ -62,21 +62,6 @@ export default function Navbar() {
           ))}
         </ul>
 
-        <div className="hidden items-center gap-2 sm:flex">
-          <Link
-            href="/login"
-            className="px-3 py-2 text-sm font-semibold text-[#0A0A0A] transition hover:text-[#262626] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#0A0A0A]"
-          >
-            Login
-          </Link>
-          <Link
-            href="/contact"
-            className="rounded-none bg-[#0A0A0A] px-4 py-2 text-sm font-semibold text-white shadow-[0_4px_12px_rgba(0,0,0,0.25)] transition hover:bg-[#262626] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#0A0A0A]"
-          >
-            Start
-          </Link>
-        </div>
-
         <details ref={detailsRef} open={isOpen} className="group relative lg:hidden">
           {isOpen ? (
             <div
@@ -111,22 +96,6 @@ export default function Navbar() {
                 </li>
               ))}
             </ul>
-            <div className="mt-3 grid grid-cols-2 gap-2 border-t border-[#E5E5E5] pt-3">
-              <Link
-                href="/login"
-                onClick={() => setIsOpen(false)}
-                className="rounded-none border border-[#E5E5E5] px-4 py-3 text-center text-sm font-semibold text-[#0A0A0A] transition hover:bg-[#F4F4F4] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0A0A0A]"
-              >
-                Login
-              </Link>
-              <Link
-                href="/contact"
-                onClick={() => setIsOpen(false)}
-                className="rounded-none bg-[#0A0A0A] px-4 py-3 text-center text-sm font-semibold text-white transition hover:bg-[#262626] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0A0A0A]"
-              >
-                Start
-              </Link>
-            </div>
           </div>
         </details>
       </nav>

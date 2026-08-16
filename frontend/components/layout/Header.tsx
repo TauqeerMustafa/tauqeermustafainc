@@ -46,16 +46,6 @@ export default function Header() {
           ))}
         </nav>
 
-        {/* Desktop CTA */}
-        <div className="hidden lg:block">
-          <Link
-            href="/contact"
-            className="apple-press inline-flex items-center justify-center rounded-full bg-[#0066cc] px-[18px] py-[7px] text-[12px] leading-none tracking-[-0.12px] text-white transition-colors hover:bg-[#0071e3] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0071e3]"
-          >
-            Start a Project
-          </Link>
-        </div>
-
         {/* Mobile hamburger */}
         <button
           type="button"
@@ -91,15 +81,6 @@ export default function Header() {
                 {item.name}
               </Link>
             ))}
-            <div className="mt-5">
-              <Link
-                href="/contact"
-                onClick={() => setIsOpen(false)}
-                className="apple-press inline-flex w-full items-center justify-center rounded-full bg-[#0066cc] px-[22px] py-[11px] text-[17px] font-[400] leading-[1.47] tracking-[-0.374px] text-white transition-colors hover:bg-[#0071e3]"
-              >
-                Start a Project
-              </Link>
-            </div>
           </nav>
         </div>
       )}
