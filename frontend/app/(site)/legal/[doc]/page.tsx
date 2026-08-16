@@ -45,28 +45,28 @@ export default async function LegalDocPage({
         </div>
       </PageHero>
 
-      <Section className="bg-[#FAFAFA]" labelledBy="legal-doc-content">
+      <Section className="bg-[#f3f0ee]" labelledBy="legal-doc-content">
         <article
           id="legal-doc-content"
-          className="mx-auto max-w-3xl border border-[#E5E5E5] bg-white p-7 shadow-sm sm:p-10"
+          className="mx-auto max-w-3xl border border-[#e2ded9] bg-white p-7 shadow-sm sm:p-10"
         >
-          <p className="mb-6 text-base leading-8 text-[#171717]">{doc.intro}</p>
+          <p className="mb-6 text-base leading-8 text-[#141413]">{doc.intro}</p>
 
           {doc.sections.map((section) => (
             <div key={section.heading}>
-              <h2 className="mb-4 mt-10 text-xl font-semibold text-[#0A0A0A]">{section.heading}</h2>
+              <h2 className="mb-4 mt-10 text-xl font-semibold text-[#141413]">{section.heading}</h2>
               {section.body.map((paragraph, i) => (
-                <p key={i} className="mb-4 text-base leading-8 text-[#171717]">
+                <p key={i} className="mb-4 text-base leading-8 text-[#141413]">
                   {paragraph}
                 </p>
               ))}
             </div>
           ))}
 
-          <div className="mt-10 border-t border-[#E5E5E5] pt-6">
+          <div className="mt-10 border-t border-[#e2ded9] pt-6">
             <p className="text-sm text-[#737373]">
               Questions about this document? Contact our legal team at{" "}
-              <a href={`mailto:${company.emails.legal}`} className="link-ul font-semibold text-[#0A0A0A]">
+              <a href={`mailto:${company.emails.legal}`} className="link-ul font-semibold text-[#141413]">
                 {company.emails.legal}
               </a>
               .

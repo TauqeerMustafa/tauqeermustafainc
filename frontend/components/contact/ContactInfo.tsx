@@ -33,12 +33,12 @@ const items = [
 
 export default function ContactInfo() {
   return (
-    <div className="rounded-[18px] bg-[#1a2129] px-8 py-9 text-white">
+    <div className="rounded-[24px] bg-[#1a2129] px-8 py-9 text-white">
       {/* Header */}
-      <p className="font-mono text-[10px] font-semibold uppercase tracking-[0.12em] text-[#2997ff]">
+      <p className="font-mono text-[10px] font-semibold uppercase tracking-[0.12em] text-[#1c69d4]">
         Reach us directly
       </p>
-      <p className="mt-4 max-w-xs text-[15px] leading-[1.5] tracking-[-0.2px] text-[#bbbbbb]">
+      <p className="mt-4 max-w-xs text-[15px] leading-[1.5] tracking-[-0.2px] text-[#b8b8b4]">
         Prefer not to fill out a form? We respond to direct messages within one business day.
       </p>
 
@@ -56,22 +56,22 @@ export default function ContactInfo() {
           return (
             <li key={item.label} className="flex items-start gap-4">
               <span className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white/8">
-                <Icon className="h-4 w-4 text-[#2997ff]" aria-hidden />
+                <Icon className="h-4 w-4 text-[#1c69d4]" aria-hidden />
               </span>
               <div className="min-w-0">
-                <p className="font-mono text-[10px] font-semibold uppercase tracking-[0.1em] text-[#6e6e73]">
+                <p className="font-mono text-[10px] font-semibold uppercase tracking-[0.1em] text-[#5a5a5a]">
                   {item.label}
                 </p>
                 {item.href ? (
                   <a
                     href={item.href}
-                    className="mt-1 flex items-center gap-1 text-[15px] font-[400] leading-[1.4] tracking-[-0.2px] text-white transition hover:text-[#2997ff]"
+                    className="mt-1 flex items-center gap-1 text-[15px] font-[400] leading-[1.4] tracking-[-0.2px] text-white transition hover:text-[#1c69d4]"
                   >
                     {item.value}
                     <ArrowUpRight className="h-3.5 w-3.5 shrink-0 opacity-60" aria-hidden />
                   </a>
                 ) : (
-                  <p className="mt-1 text-[15px] font-[400] leading-[1.4] tracking-[-0.2px] text-[#bbbbbb]">
+                  <p className="mt-1 text-[15px] font-[400] leading-[1.4] tracking-[-0.2px] text-[#b8b8b4]">
                     {item.value}
                   </p>
                 )}
@@ -84,14 +84,14 @@ export default function ContactInfo() {
       {/* Social row */}
       {company.social?.linkedin && (
         <div className="mt-8 border-t border-white/10 pt-7">
-          <p className="font-mono text-[10px] font-semibold uppercase tracking-[0.1em] text-[#6e6e73]">
+          <p className="font-mono text-[10px] font-semibold uppercase tracking-[0.1em] text-[#5a5a5a]">
             Connect
           </p>
           <a
             href={company.social.linkedin}
             target="_blank"
             rel="noopener noreferrer"
-            className="mt-3 inline-flex items-center gap-2 text-[14px] font-semibold text-[#2997ff] transition hover:opacity-75"
+            className="mt-3 inline-flex items-center gap-2 text-[14px] font-semibold text-[#1c69d4] transition hover:opacity-75"
           >
             LinkedIn
             <ArrowUpRight className="h-3.5 w-3.5" aria-hidden />

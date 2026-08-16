@@ -3,7 +3,9 @@
 import { motion } from "framer-motion";
 import { ClipboardCheck, Hammer, ShieldCheck, Telescope } from "lucide-react";
 import { imageLibrary } from "@/data/media";
-import { ImagePlaceholder, Reveal, Section, fadeLeft, fadeUp, stagger, viewportOnce } from "./ui";
+import { ImagePlaceholder, MStripe, Reveal, Section, fadeLeft, fadeUp, stagger, viewportOnce } from "./ui";
+
+/* ── Mastercard cream counterpoint tile, BMW precision phase grid ── */
 
 const phases = [
   { step: "01", title: "Discover", description: "What problem are we solving? What systems already exist? What risks actually matter? Discovery maps constraints before any architecture decisions are made.", icon: Telescope },
@@ -14,22 +16,28 @@ const phases = [
 
 export default function OperatingModel() {
   return (
-    /* Parchment tile */
-    <Section className="bg-[#f5f5f7]" labelledBy="operating-model-title">
+    <Section className="bg-[#f3f0ee]" labelledBy="operating-model-title">
       <div className="grid gap-12 lg:grid-cols-[1fr_0.85fr] lg:items-center">
-        <Reveal variant={fadeLeft} className="text-center lg:text-left">
-          <p className="text-[21px] font-semibold leading-[1.19] tracking-[0.231px] text-[#1d1d1f]">How We Work</p>
-          <h2 id="operating-model-title" className="mt-4 text-[40px] font-semibold leading-[1.1] tracking-[-0.374px] text-[#1d1d1f]">
+        <Reveal variant={fadeLeft}>
+          <MStripe />
+          <p className="mt-6 font-mono text-[11px] font-semibold uppercase tracking-[0.14em] text-[#0066b1]">
+            How We Work
+          </p>
+          <h2
+            id="operating-model-title"
+            className="mt-4 text-[34px] font-bold uppercase leading-[1.08] tracking-[-0.02em] text-[#141413] sm:text-[44px] lg:text-[48px]"
+          >
             A clear process, built for delivery.
           </h2>
-          <p className="mt-6 text-[17px] leading-[1.47] tracking-[-0.374px] text-[#7a7a7a]">
+          <p className="mt-6 text-[17px] font-light leading-[1.6] tracking-[-0.01em] text-[#5a5a5a] sm:text-[18px]">
             Every engagement follows the same structure: discover the actual constraints, plan for what the system
             will face in production, build in testable increments with security embedded from the start, then support
             the deployment until it runs stably. The timeline scales to the scope, but the phases stay consistent —
-            whether it's an 8-week authentication rebuild or a 16-week operational platform.
+            whether it&apos;s an 8-week authentication rebuild or a 16-week operational platform.
           </p>
         </Reveal>
-        <div className="relative hidden lg:block overflow-hidden">
+
+        <div className="hidden lg:block">
           <ImagePlaceholder
             src={imageLibrary.dashboard[2]}
             title="Delivery timeline"
@@ -43,27 +51,31 @@ export default function OperatingModel() {
         whileInView="show"
         viewport={viewportOnce}
         variants={stagger(0.1)}
-        className="mt-16 grid gap-px overflow-hidden border border-[#e0e0e0] bg-[#e0e0e0] sm:grid-cols-2 lg:grid-cols-4"
+        className="mt-16 grid gap-px border border-[#ddd8d3] bg-[#ddd8d3] sm:grid-cols-2 lg:grid-cols-4"
       >
         {phases.map((phase) => (
           <motion.article
             key={phase.step}
             variants={fadeUp}
-            className="group bg-white p-7 transition-all duration-300 hover:bg-[#f5f5f7]"
+            className="group relative overflow-hidden bg-white p-7 transition-colors duration-300 hover:bg-[#faf9f8]"
           >
+            {/* BMW hover accent rail */}
+            <span
+              className="absolute left-0 top-0 h-0.5 w-full origin-left scale-x-0 bg-[#1c69d4] transition-transform duration-500 group-hover:scale-x-100"
+              aria-hidden
+            />
             <div className="flex items-center justify-between">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-[#e0e0e0] bg-[#f5f5f7] text-[14px] font-semibold text-[#1d1d1f] transition-colors group-hover:border-[#0066cc] group-hover:bg-[#0066cc] group-hover:text-white">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center border border-[#d8d4d1] bg-[#f3f0ee] font-mono text-[12px] font-bold text-[#141413] transition-colors group-hover:border-[#1c69d4] group-hover:bg-[#1c69d4] group-hover:text-white">
                 {phase.step}
               </div>
-              <phase.icon className="h-5 w-5 text-[#0066cc]" aria-hidden />
+              <phase.icon className="h-5 w-5 text-[#0066b1]" aria-hidden />
             </div>
-            <h3 className="mt-6 text-[17px] font-semibold leading-[1.24] tracking-[-0.374px] text-[#1d1d1f]">
+            <h3 className="mt-7 text-[17px] font-bold uppercase leading-[1.25] tracking-[0.02em] text-[#141413]">
               {phase.title}
             </h3>
-            <p className="mt-3 text-[14px] leading-[1.43] tracking-[-0.224px] text-[#7a7a7a]">
+            <p className="mt-3 text-[14px] font-light leading-[1.6] tracking-[-0.01em] text-[#5a5a5a]">
               {phase.description}
             </p>
-            <div className="mt-5 h-px w-0 bg-[#0066cc] transition-all duration-500 group-hover:w-full" aria-hidden />
           </motion.article>
         ))}
       </motion.div>

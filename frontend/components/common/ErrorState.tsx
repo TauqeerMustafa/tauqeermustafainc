@@ -12,7 +12,7 @@ export function ErrorState({
   return (
     <div
       role="alert"
-      className="rounded-none border border-red-200 bg-red-50 p-6 text-[#0A0A0A]"
+      className="rounded-none border border-red-200 bg-red-50 p-6 text-[#141413]"
     >
       <h2 className="text-lg font-semibold">{title}</h2>
       <p className="mt-2 text-sm leading-6 text-[#737373]">{message}</p>

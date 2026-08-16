@@ -77,11 +77,11 @@ export default function AboutPage() {
       <Section className="bg-white" labelledBy="story-title">
         <div className="grid gap-12 lg:grid-cols-[1fr_0.85fr] lg:items-start">
           <div>
-            <p className="text-[21px] font-semibold leading-[1.19] tracking-[0.231px] text-[#1d1d1f]">Our Story</p>
-            <h2 id="story-title" className="mt-4 text-[40px] font-semibold leading-[1.1] tracking-[-0.374px] text-[#1d1d1f]">
+            <p className="font-mono text-[11px] font-semibold uppercase tracking-[0.14em] text-[#0066b1]">Our Story</p>
+            <h2 id="story-title" className="mt-4 text-[32px] font-bold uppercase leading-[1.1] tracking-[-0.02em] sm:text-[42px] text-[#141413]">
               Why TMI exists.
             </h2>
-            <div className="mt-8 space-y-6 text-[17px] leading-[1.47] tracking-[-0.374px] text-[#7a7a7a]">
+            <div className="mt-8 space-y-6 text-[17px] leading-[1.47] tracking-[-0.374px] text-[#6a6a6a]">
               <p>
                 Tauqeer Mustafa founded TMI in 2023 after years of watching companies struggle with the same pattern:
                 engineering teams that couldn't talk to security consultants, security audits that arrived too late to matter,
@@ -108,7 +108,7 @@ export default function AboutPage() {
           </div>
 
           <div className="space-y-6">
-            <div className="relative overflow-hidden rounded-[18px]" style={{ boxShadow: "rgba(0,0,0,0.22) 3px 5px 30px 0" }}>
+            <div className="relative overflow-hidden rounded-[24px]" style={{ boxShadow: "rgba(0,0,0,0.22) 3px 5px 30px 0" }}>
               <Image
                 src={imageLibrary.about[0]}
                 alt="Tauqeer Mustafa — Founder, TMI"
@@ -119,10 +119,10 @@ export default function AboutPage() {
               />
             </div>
             <Card>
-              <p className="text-[17px] font-semibold leading-[1.24] tracking-[-0.374px] text-[#1d1d1f]">
+              <p className="text-[17px] font-semibold leading-[1.24] tracking-[-0.374px] text-[#141413]">
                 Tauqeer Mustafa
               </p>
-              <p className="mt-2 text-[14px] leading-[1.43] tracking-[-0.224px] text-[#7a7a7a]">
+              <p className="mt-2 text-[14px] leading-[1.43] tracking-[-0.224px] text-[#6a6a6a]">
                 Founder · Full-stack engineer with a background in security consulting and cloud architecture.
                 Leads every engagement from discovery through delivery.
               </p>
@@ -131,7 +131,7 @@ export default function AboutPage() {
                   href={company.social.github}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-[14px] leading-[1.43] tracking-[-0.224px] text-[#0066cc] hover:underline"
+                  className="text-[14px] leading-[1.43] tracking-[-0.224px] text-[#1c69d4] hover:underline"
                 >
                   GitHub <ArrowRight className="inline h-3 w-3" aria-hidden />
                 </Link>
@@ -139,7 +139,7 @@ export default function AboutPage() {
                   href={company.social.linkedin}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-[14px] leading-[1.43] tracking-[-0.224px] text-[#0066cc] hover:underline"
+                  className="text-[14px] leading-[1.43] tracking-[-0.224px] text-[#1c69d4] hover:underline"
                 >
                   LinkedIn <ArrowRight className="inline h-3 w-3" aria-hidden />
                 </Link>
@@ -149,25 +149,25 @@ export default function AboutPage() {
         </div>
       </Section>
 
-      <Section className="bg-[#f5f5f7]" labelledBy="timeline-title">
+      <Section className="bg-[#f3f0ee]" labelledBy="timeline-title">
         <div className="mx-auto max-w-3xl">
           <div className="text-center">
-            <p className="text-[21px] font-semibold leading-[1.19] tracking-[0.231px] text-[#1d1d1f]">Timeline</p>
-            <h2 id="timeline-title" className="mt-4 text-[40px] font-semibold leading-[1.1] tracking-[-0.374px] text-[#1d1d1f]">
+            <p className="font-mono text-[11px] font-semibold uppercase tracking-[0.14em] text-[#0066b1]">Timeline</p>
+            <h2 id="timeline-title" className="mt-4 text-[32px] font-bold uppercase leading-[1.1] tracking-[-0.02em] sm:text-[42px] text-[#141413]">
               How we got here.
             </h2>
           </div>
           <div className="mt-16 space-y-12">
             {timeline.map((item, idx) => (
-              <div key={item.year} className="relative pl-8 before:absolute before:left-0 before:top-2 before:h-3 before:w-3 before:rounded-full before:border-2 before:border-[#0066cc] before:bg-white">
+              <div key={item.year} className="relative pl-8 before:absolute before:left-0 before:top-2 before:h-3 before:w-3 before:rounded-full before:border-2 before:border-[#1c69d4] before:bg-white">
                 {idx < timeline.length - 1 && (
-                  <div className="absolute left-[5px] top-5 h-full w-0.5 bg-[#e0e0e0]" aria-hidden />
+                  <div className="absolute left-[5px] top-5 h-full w-0.5 bg-[#e2ded9]" aria-hidden />
                 )}
-                <span className="inline-block rounded-full border border-[#e0e0e0] bg-white px-3 py-1 text-[14px] font-semibold leading-[1.29] tracking-[-0.224px] text-[#7a7a7a]">
+                <span className="inline-block rounded-full border border-[#e2ded9] bg-white px-3 py-1 text-[14px] font-semibold leading-[1.29] tracking-[-0.224px] text-[#6a6a6a]">
                   {item.year}
                 </span>
-                <h3 className="mt-3 text-[17px] font-semibold leading-[1.24] tracking-[-0.374px] text-[#1d1d1f]">{item.title}</h3>
-                <p className="mt-2 text-[17px] leading-[1.47] tracking-[-0.374px] text-[#7a7a7a]">{item.description}</p>
+                <h3 className="mt-3 text-[17px] font-semibold leading-[1.24] tracking-[-0.374px] text-[#141413]">{item.title}</h3>
+                <p className="mt-2 text-[17px] leading-[1.47] tracking-[-0.374px] text-[#6a6a6a]">{item.description}</p>
               </div>
             ))}
           </div>
@@ -184,13 +184,13 @@ export default function AboutPage() {
         <div className="mt-14 grid gap-6 lg:grid-cols-3">
           {principles.map((principle) => (
             <Card key={principle.title}>
-              <div className="flex h-12 w-12 items-center justify-center rounded-[18px] border border-[#e0e0e0] bg-[#f5f5f7] text-[#0066cc]">
+              <div className="flex h-12 w-12 items-center justify-center border border-[#d8d4d1] bg-[#f3f0ee] text-[#0066b1]">
                 <principle.icon className="h-6 w-6" aria-hidden />
               </div>
-              <h3 className="mt-6 text-[17px] font-semibold leading-[1.24] tracking-[-0.374px] text-[#1d1d1f]">
+              <h3 className="mt-6 text-[17px] font-semibold leading-[1.24] tracking-[-0.374px] text-[#141413]">
                 {principle.title}
               </h3>
-              <p className="mt-4 text-[17px] leading-[1.47] tracking-[-0.374px] text-[#7a7a7a]">
+              <p className="mt-4 text-[17px] leading-[1.47] tracking-[-0.374px] text-[#6a6a6a]">
                 {principle.description}
               </p>
             </Card>
@@ -198,20 +198,20 @@ export default function AboutPage() {
         </div>
       </Section>
 
-      <Section className="bg-[#f5f5f7]" labelledBy="cta-title">
+      <Section className="bg-[#f3f0ee]" labelledBy="cta-title">
         <div className="mx-auto max-w-2xl text-center">
-          <p className="text-[21px] font-semibold leading-[1.19] tracking-[0.231px] text-[#1d1d1f]">Ready to Start</p>
-          <h2 id="cta-title" className="mt-4 text-[40px] font-semibold leading-[1.1] tracking-[-0.374px] text-[#1d1d1f]">
+          <p className="font-mono text-[11px] font-semibold uppercase tracking-[0.14em] text-[#0066b1]">Ready to Start</p>
+          <h2 id="cta-title" className="mt-4 text-[32px] font-bold uppercase leading-[1.1] tracking-[-0.02em] sm:text-[42px] text-[#141413]">
             Let's talk about what you're building.
           </h2>
-          <p className="mt-6 text-[17px] leading-[1.47] tracking-[-0.374px] text-[#7a7a7a]">
+          <p className="mt-6 text-[17px] leading-[1.47] tracking-[-0.374px] text-[#6a6a6a]">
             Tell us about your project. We'll come back with questions, a clear scope, and an honest timeline.
           </p>
           <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
             <PrimaryButton href="/contact">Start a Conversation</PrimaryButton>
             <Link
               href="/services"
-              className="apple-press inline-flex items-center gap-2 rounded-full border border-[#0066cc] bg-transparent px-[22px] py-[11px] text-[17px] font-[400] leading-[1.47] tracking-[-0.374px] text-[#0066cc] transition-colors hover:bg-[#0066cc] hover:text-white"
+              className="inline-flex items-center gap-2 border-2 border-[#141413] bg-transparent px-7 py-3.5 font-mono text-[12px] font-bold uppercase tracking-[0.1em] text-[#141413] transition-colors hover:bg-[#141413] hover:text-white"
             >
               View Services
             </Link>

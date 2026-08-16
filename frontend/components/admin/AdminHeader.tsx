@@ -48,7 +48,7 @@ export default function AdminHeader({ onMenuClick }: Props) {
           <input
             type="text"
             placeholder="Search anything…"
-            className="w-56 border py-2 pl-9 pr-4 text-sm outline-none transition focus:border-[#0A0A0A] focus:ring-2 focus:ring-[#0A0A0A]/10 lg:w-72"
+            className="w-56 border py-2 pl-9 pr-4 text-sm outline-none transition focus:border-[#141413] focus:ring-2 focus:ring-[#141413]/10 lg:w-72"
             style={{
               borderColor: "var(--adm-border)",
               background: "var(--adm-surface-2)",

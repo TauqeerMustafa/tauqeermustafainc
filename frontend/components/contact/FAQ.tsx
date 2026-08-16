@@ -41,15 +41,15 @@ export default function FAQ() {
         {faqs.map((item, i) => (
           <div
             key={item.question}
-            className="rounded-[18px] border border-[#e0e0e0] bg-white p-7"
+            className="rounded-[24px] border border-[#e2ded9] bg-white p-7"
           >
-            <span className="font-mono text-[10px] font-semibold uppercase tracking-[0.12em] text-[#6e6e73]">
+            <span className="font-mono text-[10px] font-semibold uppercase tracking-[0.12em] text-[#5a5a5a]">
               0{i + 1}
             </span>
-            <h3 className="mt-4 text-[17px] font-semibold leading-[1.3] tracking-[-0.374px] text-[#1d1d1f]">
+            <h3 className="mt-4 text-[17px] font-semibold leading-[1.3] tracking-[-0.374px] text-[#141413]">
               {item.question}
             </h3>
-            <p className="mt-3 text-[15px] leading-[1.6] tracking-[-0.1px] text-[#6e6e73]">
+            <p className="mt-3 text-[15px] leading-[1.6] tracking-[-0.1px] text-[#5a5a5a]">
               {item.answer}
             </p>
           </div>

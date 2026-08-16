@@ -11,7 +11,7 @@ export default function FAQ() {
 
   return (
     <>
-      <Section className="bg-[#f5f5f7]" labelledBy="faq-title">
+      <Section className="bg-[#f3f0ee]" labelledBy="faq-title">
         <SectionHeader
           id="faq-title"
           eyebrow="FAQ"
@@ -31,18 +31,18 @@ export default function FAQ() {
             <motion.div
               key={index}
               variants={{ hidden: { opacity: 0, y: 20 }, show: { opacity: 1, y: 0 } }}
-              className="border-b border-[#d2d2d7] last:border-b-0"
+              className="border-b border-[#d8d4d1] last:border-b-0"
             >
               <button
                 onClick={() => setOpenIndex(openIndex === index ? null : index)}
-                className="flex w-full items-start justify-between gap-4 py-6 text-left transition-colors hover:opacity-70"
+                className="group flex w-full items-start justify-between gap-4 py-6 text-left"
                 aria-expanded={openIndex === index}
               >
-                <span className="text-[19px] font-semibold leading-[1.21] tracking-[-0.374px] text-[#1d1d1f] sm:text-[21px]">
+                <span className="text-[17px] font-bold uppercase leading-[1.25] tracking-[0.01em] text-[#141413] transition-colors group-hover:text-[#0066b1] sm:text-[19px]">
                   {faq.question}
                 </span>
                 <ChevronDown
-                  className={`mt-1 h-5 w-5 flex-shrink-0 text-[#1d1d1f] transition-transform duration-300 ${
+                  className={`mt-0.5 h-5 w-5 flex-shrink-0 text-[#0066b1] transition-transform duration-300 ${
                     openIndex === index ? "rotate-180" : ""
                   }`}
                   aria-hidden
@@ -53,7 +53,7 @@ export default function FAQ() {
                   openIndex === index ? "max-h-96 pb-6" : "max-h-0"
                 }`}
               >
-                <p className="text-[17px] leading-[1.47] tracking-[-0.374px] text-[#6e6e73]">
+                <p className="text-[16px] font-light leading-[1.6] tracking-[-0.01em] text-[#5a5a5a] sm:text-[17px]">
                   {faq.answer}
                 </p>
               </div>

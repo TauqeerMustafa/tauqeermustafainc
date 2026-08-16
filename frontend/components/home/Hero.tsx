@@ -9,12 +9,6 @@ import { imageLibrary } from "@/data/media";
 
 /* ── BMW M Hero — Dark dominant canvas, M-stripe signature, Mastercard radius ── */
 
-const heroStats = [
-  { value: "2023",     label: "Established",      detail: "Built from the ground up for modern web." },
-  { value: "Zero",     label: "Outsourcing",      detail: "Every line written by our core team." },
-  { value: "8–16w",    label: "Delivery cycles",  detail: "From discovery to production deployment." },
-];
-
 export default function Hero() {
   return (
     /* BMW M near-black canvas — #1a2129 */
@@ -108,47 +102,8 @@ export default function Hero() {
             />
             {/* Dark gradient veil — BMW M aesthetic */}
             <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#1a2129]/90 via-[#1a2129]/30 to-transparent" />
-
-            {/* Overlay badges */}
-            <div className="absolute bottom-6 left-6 right-6 sm:bottom-8 sm:left-8">
-              <div className="flex flex-wrap items-center gap-3">
-                <span className="inline-flex items-center gap-2.5 border border-white/20 bg-black/50 px-5 py-3 text-[13px] font-bold uppercase tracking-[0.08em] text-white backdrop-blur-md sm:text-[14px]">
-                  <span className="flex h-2 w-2">
-                    <span className="absolute inline-flex h-2 w-2 animate-ping rounded-full bg-[#34c759] opacity-75"></span>
-                    <span className="relative inline-flex h-2 w-2 rounded-full bg-[#34c759]"></span>
-                  </span>
-                  Live in Production
-                </span>
-                <span className="inline-flex items-center gap-2 border border-white/10 bg-white/5 px-4 py-2.5 text-[12px] font-semibold uppercase tracking-[0.08em] text-white/80 backdrop-blur-sm sm:text-[13px]">
-                  Built in Islamabad
-                </span>
-              </div>
-            </div>
           </div>
         </motion.div>
-
-        {/* ── Stats bar — BMW precision grid, Mastercard radius ── */}
-        <div className="mt-12 grid grid-cols-1 divide-y divide-white/10 overflow-hidden rounded-[24px] border border-white/10 bg-white/5 backdrop-blur-sm sm:mt-16 sm:grid-cols-3 sm:divide-x sm:divide-y-0">
-          {heroStats.map((s, i) => (
-            <motion.div
-              key={s.label}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.42 + i * 0.08, ease: [0.22, 1, 0.36, 1] }}
-              className="px-6 py-10 text-center"
-            >
-              <div className="text-[44px] font-bold leading-[1] tracking-[-0.02em] text-white sm:text-[52px]">
-                {s.value}
-              </div>
-              <div className="mt-3 font-mono text-[11px] font-semibold uppercase tracking-[0.12em] text-[#1c69d4]">
-                {s.label}
-              </div>
-              <div className="mt-2 text-[14px] font-light leading-[1.5] tracking-[-0.01em] text-white/60">
-                {s.detail}
-              </div>
-            </motion.div>
-          ))}
-        </div>
       </div>
     </section>
   );

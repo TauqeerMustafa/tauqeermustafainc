@@ -54,11 +54,11 @@ export default function JobApplyForm({
   if (state === "success") {
     return (
       <div className="mt-6 flex flex-col items-center gap-4 rounded-[12px] bg-white px-6 py-10 text-center">
-        <CheckCircle2 className="h-10 w-10 text-[#0066cc]" aria-hidden />
-        <h3 className="text-[21px] font-semibold leading-[1.19] tracking-[-0.374px] text-[#1d1d1f]">
+        <CheckCircle2 className="h-10 w-10 text-[#1c69d4]" aria-hidden />
+        <h3 className="text-[21px] font-semibold leading-[1.19] tracking-[-0.374px] text-[#141413]">
           Application submitted
         </h3>
-        <p className="text-[14px] leading-[1.43] tracking-[-0.224px] text-[#7a7a7a]">
+        <p className="text-[14px] leading-[1.43] tracking-[-0.224px] text-[#6a6a6a]">
           We've received your application for <strong>{jobTitle}</strong> and
           will be in touch within 5 business days.
         </p>
@@ -72,9 +72,9 @@ export default function JobApplyForm({
       <div>
         <label
           htmlFor="apply-name"
-          className="block text-[14px] font-semibold leading-none tracking-[-0.224px] text-[#1d1d1f]"
+          className="block text-[14px] font-semibold leading-none tracking-[-0.224px] text-[#141413]"
         >
-          Full name <span className="text-[#0066cc]">*</span>
+          Full name <span className="text-[#1c69d4]">*</span>
         </label>
         <input
           id="apply-name"
@@ -85,7 +85,7 @@ export default function JobApplyForm({
           value={form.name}
           onChange={handleChange}
           placeholder="Your full name"
-          className="mt-2 w-full rounded-[10px] border border-[#e0e0e0] bg-white px-4 py-3 text-[14px] leading-none tracking-[-0.224px] text-[#1d1d1f] outline-none placeholder:text-[#b0b0b0] transition focus:border-[#0066cc] focus:ring-2 focus:ring-[#0066cc]/10"
+          className="mt-2 w-full rounded-[10px] border border-[#e2ded9] bg-white px-4 py-3 text-[14px] leading-none tracking-[-0.224px] text-[#141413] outline-none placeholder:text-[#b0b0b0] transition focus:border-[#1c69d4] focus:ring-2 focus:ring-[#1c69d4]/10"
         />
       </div>
 
@@ -93,9 +93,9 @@ export default function JobApplyForm({
       <div>
         <label
           htmlFor="apply-email"
-          className="block text-[14px] font-semibold leading-none tracking-[-0.224px] text-[#1d1d1f]"
+          className="block text-[14px] font-semibold leading-none tracking-[-0.224px] text-[#141413]"
         >
-          Email <span className="text-[#0066cc]">*</span>
+          Email <span className="text-[#1c69d4]">*</span>
         </label>
         <input
           id="apply-email"
@@ -106,7 +106,7 @@ export default function JobApplyForm({
           value={form.email}
           onChange={handleChange}
           placeholder="you@company.com"
-          className="mt-2 w-full rounded-[10px] border border-[#e0e0e0] bg-white px-4 py-3 text-[14px] leading-none tracking-[-0.224px] text-[#1d1d1f] outline-none placeholder:text-[#b0b0b0] transition focus:border-[#0066cc] focus:ring-2 focus:ring-[#0066cc]/10"
+          className="mt-2 w-full rounded-[10px] border border-[#e2ded9] bg-white px-4 py-3 text-[14px] leading-none tracking-[-0.224px] text-[#141413] outline-none placeholder:text-[#b0b0b0] transition focus:border-[#1c69d4] focus:ring-2 focus:ring-[#1c69d4]/10"
         />
       </div>
 
@@ -114,10 +114,10 @@ export default function JobApplyForm({
       <div>
         <label
           htmlFor="apply-phone"
-          className="block text-[14px] font-semibold leading-none tracking-[-0.224px] text-[#1d1d1f]"
+          className="block text-[14px] font-semibold leading-none tracking-[-0.224px] text-[#141413]"
         >
           Phone{" "}
-          <span className="font-normal text-[#7a7a7a]">(optional)</span>
+          <span className="font-normal text-[#6a6a6a]">(optional)</span>
         </label>
         <input
           id="apply-phone"
@@ -127,7 +127,7 @@ export default function JobApplyForm({
           value={form.phone}
           onChange={handleChange}
           placeholder="+1 (555) 000-0000"
-          className="mt-2 w-full rounded-[10px] border border-[#e0e0e0] bg-white px-4 py-3 text-[14px] leading-none tracking-[-0.224px] text-[#1d1d1f] outline-none placeholder:text-[#b0b0b0] transition focus:border-[#0066cc] focus:ring-2 focus:ring-[#0066cc]/10"
+          className="mt-2 w-full rounded-[10px] border border-[#e2ded9] bg-white px-4 py-3 text-[14px] leading-none tracking-[-0.224px] text-[#141413] outline-none placeholder:text-[#b0b0b0] transition focus:border-[#1c69d4] focus:ring-2 focus:ring-[#1c69d4]/10"
         />
       </div>
 
@@ -135,10 +135,10 @@ export default function JobApplyForm({
       <div>
         <label
           htmlFor="apply-portfolio"
-          className="block text-[14px] font-semibold leading-none tracking-[-0.224px] text-[#1d1d1f]"
+          className="block text-[14px] font-semibold leading-none tracking-[-0.224px] text-[#141413]"
         >
           Portfolio / LinkedIn{" "}
-          <span className="font-normal text-[#7a7a7a]">(optional)</span>
+          <span className="font-normal text-[#6a6a6a]">(optional)</span>
         </label>
         <input
           id="apply-portfolio"
@@ -147,7 +147,7 @@ export default function JobApplyForm({
           value={form.portfolioUrl}
           onChange={handleChange}
           placeholder="https://linkedin.com/in/yourname"
-          className="mt-2 w-full rounded-[10px] border border-[#e0e0e0] bg-white px-4 py-3 text-[14px] leading-none tracking-[-0.224px] text-[#1d1d1f] outline-none placeholder:text-[#b0b0b0] transition focus:border-[#0066cc] focus:ring-2 focus:ring-[#0066cc]/10"
+          className="mt-2 w-full rounded-[10px] border border-[#e2ded9] bg-white px-4 py-3 text-[14px] leading-none tracking-[-0.224px] text-[#141413] outline-none placeholder:text-[#b0b0b0] transition focus:border-[#1c69d4] focus:ring-2 focus:ring-[#1c69d4]/10"
         />
       </div>
 
@@ -155,12 +155,12 @@ export default function JobApplyForm({
       <div>
         <label
           htmlFor="apply-cv"
-          className="block text-[14px] font-semibold leading-none tracking-[-0.224px] text-[#1d1d1f]"
+          className="block text-[14px] font-semibold leading-none tracking-[-0.224px] text-[#141413]"
         >
           <span className="flex items-center gap-1.5">
-            <Paperclip className="h-3.5 w-3.5 text-[#7a7a7a]" aria-hidden />
+            <Paperclip className="h-3.5 w-3.5 text-[#6a6a6a]" aria-hidden />
             CV / Resume link{" "}
-            <span className="font-normal text-[#7a7a7a]">(Google Drive, Dropbox, etc.)</span>
+            <span className="font-normal text-[#6a6a6a]">(Google Drive, Dropbox, etc.)</span>
           </span>
         </label>
         <input
@@ -170,7 +170,7 @@ export default function JobApplyForm({
           value={form.cvUrl}
           onChange={handleChange}
           placeholder="https://drive.google.com/…"
-          className="mt-2 w-full rounded-[10px] border border-[#e0e0e0] bg-white px-4 py-3 text-[14px] leading-none tracking-[-0.224px] text-[#1d1d1f] outline-none placeholder:text-[#b0b0b0] transition focus:border-[#0066cc] focus:ring-2 focus:ring-[#0066cc]/10"
+          className="mt-2 w-full rounded-[10px] border border-[#e2ded9] bg-white px-4 py-3 text-[14px] leading-none tracking-[-0.224px] text-[#141413] outline-none placeholder:text-[#b0b0b0] transition focus:border-[#1c69d4] focus:ring-2 focus:ring-[#1c69d4]/10"
         />
       </div>
 
@@ -178,9 +178,9 @@ export default function JobApplyForm({
       <div>
         <label
           htmlFor="apply-message"
-          className="block text-[14px] font-semibold leading-none tracking-[-0.224px] text-[#1d1d1f]"
+          className="block text-[14px] font-semibold leading-none tracking-[-0.224px] text-[#141413]"
         >
-          Cover note <span className="text-[#0066cc]">*</span>
+          Cover note <span className="text-[#1c69d4]">*</span>
         </label>
         <textarea
           id="apply-message"
@@ -190,7 +190,7 @@ export default function JobApplyForm({
           value={form.message}
           onChange={handleChange}
           placeholder="Tell us what draws you to this role and where you've done relevant work."
-          className="mt-2 w-full resize-none rounded-[10px] border border-[#e0e0e0] bg-white px-4 py-3 text-[14px] leading-[1.43] tracking-[-0.224px] text-[#1d1d1f] outline-none placeholder:text-[#b0b0b0] transition focus:border-[#0066cc] focus:ring-2 focus:ring-[#0066cc]/10"
+          className="mt-2 w-full resize-none rounded-[10px] border border-[#e2ded9] bg-white px-4 py-3 text-[14px] leading-[1.43] tracking-[-0.224px] text-[#141413] outline-none placeholder:text-[#b0b0b0] transition focus:border-[#1c69d4] focus:ring-2 focus:ring-[#1c69d4]/10"
         />
       </div>
 
@@ -215,7 +215,7 @@ export default function JobApplyForm({
       <button
         type="submit"
         disabled={state === "submitting"}
-        className="flex w-full items-center justify-center gap-2 rounded-full bg-[#0066cc] px-6 py-3.5 text-[15px] font-semibold leading-none tracking-[-0.374px] text-white transition-colors hover:bg-[#0071e3] disabled:opacity-60"
+        className="flex w-full items-center justify-center gap-2 bg-[#1c69d4] px-7 py-3.5 font-mono text-[12px] font-bold uppercase tracking-[0.1em] text-white transition-colors hover:bg-[#0066b1] disabled:opacity-60"
       >
         {state === "submitting" ? (
           <>

@@ -87,20 +87,20 @@ export default async function JobDetailPage({
           {/* Left: Role detail */}
           <div id="job-detail">
             {/* Summary */}
-            <p className="text-[21px] leading-[1.38] tracking-[-0.374px] text-[#7a7a7a]">
+            <p className="text-[21px] leading-[1.38] tracking-[-0.374px] text-[#6a6a6a]">
               {job.summary}
             </p>
 
             {/* Responsibilities */}
             <div className="mt-12">
-              <h2 className="text-[28px] font-semibold leading-[1.14] tracking-[-0.374px] text-[#1d1d1f]">
+              <h2 className="text-[28px] font-semibold leading-[1.14] tracking-[-0.374px] text-[#141413]">
                 What you'll deliver
               </h2>
               <div className="mt-6 space-y-3">
                 {job.responsibilities.map((r) => (
-                  <div key={r} className="flex items-start gap-3 rounded-[12px] border border-[#e0e0e0] bg-[#f5f5f7] px-5 py-4">
-                    <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-[#0066cc]" aria-hidden />
-                    <p className="text-[17px] leading-[1.47] tracking-[-0.374px] text-[#1d1d1f]">{r}</p>
+                  <div key={r} className="flex items-start gap-3 rounded-[12px] border border-[#e2ded9] bg-[#f3f0ee] px-5 py-4">
+                    <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-[#1c69d4]" aria-hidden />
+                    <p className="text-[17px] leading-[1.47] tracking-[-0.374px] text-[#141413]">{r}</p>
                   </div>
                 ))}
               </div>
@@ -108,7 +108,7 @@ export default async function JobDetailPage({
 
             {/* What we offer */}
             <div className="mt-12">
-              <h2 className="text-[28px] font-semibold leading-[1.14] tracking-[-0.374px] text-[#1d1d1f]">
+              <h2 className="text-[28px] font-semibold leading-[1.14] tracking-[-0.374px] text-[#141413]">
                 What you get
               </h2>
               <div className="mt-6 grid gap-3 sm:grid-cols-2">
@@ -120,9 +120,9 @@ export default async function JobDetailPage({
                   "Engagements that value depth over volume",
                   "Clear scope and well-defined deliverables",
                 ].map((item) => (
-                  <div key={item} className="flex items-start gap-3 rounded-[12px] border border-[#e0e0e0] bg-white px-5 py-4">
-                    <span className="mt-1 h-2 w-2 shrink-0 rounded-full bg-[#0066cc]" aria-hidden />
-                    <p className="text-[14px] leading-[1.43] tracking-[-0.224px] text-[#1d1d1f]">{item}</p>
+                  <div key={item} className="flex items-start gap-3 rounded-[12px] border border-[#e2ded9] bg-white px-5 py-4">
+                    <span className="mt-1 h-2 w-2 shrink-0 rounded-full bg-[#1c69d4]" aria-hidden />
+                    <p className="text-[14px] leading-[1.43] tracking-[-0.224px] text-[#141413]">{item}</p>
                   </div>
                 ))}
               </div>
@@ -130,10 +130,10 @@ export default async function JobDetailPage({
 
             {/* Who fits well */}
             <div className="mt-12">
-              <h2 className="text-[28px] font-semibold leading-[1.14] tracking-[-0.374px] text-[#1d1d1f]">
+              <h2 className="text-[28px] font-semibold leading-[1.14] tracking-[-0.374px] text-[#141413]">
                 Who fits this role
               </h2>
-              <p className="mt-4 text-[17px] leading-[1.47] tracking-[-0.374px] text-[#7a7a7a]">
+              <p className="mt-4 text-[17px] leading-[1.47] tracking-[-0.374px] text-[#6a6a6a]">
                 We work best with people who communicate clearly when things are uncertain, hold themselves to a high technical standard without being difficult to work with, and care about whether the system actually works — not just whether it passed review. Experience matters, but so does intellectual honesty about the limits of what you know.
               </p>
             </div>
@@ -142,11 +142,11 @@ export default async function JobDetailPage({
           {/* Right: Apply form (sticky) */}
           <div>
             <div className="sticky top-20">
-              <div className="rounded-[18px] border border-[#e0e0e0] bg-[#f5f5f7] p-6 sm:p-8">
-                <h2 className="text-[24px] font-semibold leading-[1.17] tracking-[-0.374px] text-[#1d1d1f]">
+              <div className="rounded-[24px] border border-[#e2ded9] bg-[#f3f0ee] p-6 sm:p-8">
+                <h2 className="text-[24px] font-semibold leading-[1.17] tracking-[-0.374px] text-[#141413]">
                   Apply for this role
                 </h2>
-                <p className="mt-2 text-[14px] leading-[1.43] tracking-[-0.224px] text-[#7a7a7a]">
+                <p className="mt-2 text-[14px] leading-[1.43] tracking-[-0.224px] text-[#6a6a6a]">
                   Tell us about yourself and why you're a fit. We read every application and respond within 5 business days.
                 </p>
                 <JobApplyForm jobTitle={job.title} jobSlug={job.slug} />
@@ -158,10 +158,10 @@ export default async function JobDetailPage({
 
       {/* Related roles */}
       {related.length > 0 && (
-        <Section className="bg-[#f5f5f7]" labelledBy="related-roles">
+        <Section className="bg-[#f3f0ee]" labelledBy="related-roles">
           <h2
             id="related-roles"
-            className="text-[28px] font-semibold leading-[1.14] tracking-[-0.374px] text-[#1d1d1f]"
+            className="text-[28px] font-semibold leading-[1.14] tracking-[-0.374px] text-[#141413]"
           >
             Other open roles
           </h2>
@@ -170,25 +170,25 @@ export default async function JobDetailPage({
               <Link
                 key={r.slug}
                 href={`/careers/${r.slug}`}
-                className="group flex flex-col justify-between rounded-[18px] border border-[#e0e0e0] bg-white p-6 transition hover:border-[#0066cc]"
+                className="group flex flex-col justify-between rounded-[24px] border border-[#e2ded9] bg-white p-6 transition hover:border-[#1c69d4]"
               >
                 <div>
                   <div className="flex flex-wrap gap-2">
-                    <span className="rounded-full border border-[#e0e0e0] bg-[#f5f5f7] px-3 py-1 text-[12px] font-semibold tracking-[-0.12px] text-[#7a7a7a]">
+                    <span className="rounded-full border border-[#e2ded9] bg-[#f3f0ee] px-3 py-1 text-[12px] font-semibold tracking-[-0.12px] text-[#6a6a6a]">
                       {r.location}
                     </span>
-                    <span className="rounded-full border border-[#e0e0e0] bg-[#f5f5f7] px-3 py-1 text-[12px] font-semibold tracking-[-0.12px] text-[#7a7a7a]">
+                    <span className="rounded-full border border-[#e2ded9] bg-[#f3f0ee] px-3 py-1 text-[12px] font-semibold tracking-[-0.12px] text-[#6a6a6a]">
                       {r.type}
                     </span>
                   </div>
-                  <h3 className="mt-4 text-[21px] font-semibold leading-[1.19] tracking-[-0.374px] text-[#1d1d1f] transition group-hover:text-[#0066cc]">
+                  <h3 className="mt-4 text-[21px] font-semibold leading-[1.19] tracking-[-0.374px] text-[#141413] transition group-hover:text-[#1c69d4]">
                     {r.title}
                   </h3>
-                  <p className="mt-3 text-[14px] leading-[1.43] tracking-[-0.224px] text-[#7a7a7a]">
+                  <p className="mt-3 text-[14px] leading-[1.43] tracking-[-0.224px] text-[#6a6a6a]">
                     {r.summary}
                   </p>
                 </div>
-                <div className="mt-5 flex items-center gap-1 text-[14px] font-semibold text-[#0066cc]">
+                <div className="mt-5 flex items-center gap-1 text-[14px] font-semibold text-[#1c69d4]">
                   View role <ArrowRight className="h-4 w-4" aria-hidden />
                 </div>
               </Link>

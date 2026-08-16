@@ -4,7 +4,7 @@
 
 @custom-variant dark (&:is(.dark *));
 
-/* ── Hybrid Design System — Apple + BMW + BMW M + Mastercard ──── */
+/* ── TMI Design System — BMW Corporate + BMW M + Mastercard ────── */
 :root {
   /* Font stacks */
   --font-sans: "TMI Grotesk", "SF Pro Display", "SF Pro Text", ui-sans-serif,
@@ -17,37 +17,35 @@
   --canvas-cream:   #f3f0ee;
   --lifted-cream:   #fcfbfa;
   --pure-white:     #ffffff;
-  /* Apple parchment — footer, alternating sections */
-  --parchment:      #f5f5f7;
-  --surface-pearl:  #fafafc;
+  --parchment:      #f3f0ee;
+  --surface-pearl:  #faf9f8;
 
   /* Dark surfaces (BMW M) */
   --surface-dark:   #1a2129;
   --surface-card:   #1a1a1a;
   --ink-black:      #141413;
   --pure-black:     #000000;
-  /* Dark tile variants (Apple) */
   --tile-1:         #272729;
-  --tile-2:         #2a2a2c;
+  --tile-2:         #0d0d0d;
 
-  /* ── Interactive ── (single brand color — Apple) */
-  --action-blue:       #0066cc;
-  --action-blue-hover: #0055b3;
-  --action-blue-focus: #0071e3;
-  --sky-blue:          #2997ff; /* dark surface links only */
+  /* ── Interactive ── (BMW blue is the single action signal) */
+  --action-blue:       #1c69d4;
+  --action-blue-hover: #0066b1;
+  --action-blue-focus: #1c69d4;
+  --sky-blue:          #1c69d4; /* dark surface links */
 
   /* ── Text ── */
-  --ink:        #1d1d1f;
-  --ink-80:     #333333;
-  --ink-muted:  #6e6e73;
-  --ink-48:     #7a7a7a;
+  --ink:        #141413;
+  --ink-80:     #3a3a38;
+  --ink-muted:  #5a5a5a;
+  --ink-48:     #6a6a6a;
   --on-dark:    #ffffff;
-  --body-dark:  #bbbbbb;
+  --body-dark:  #b8b8b4;
 
   /* ── Borders & hairlines ── */
-  --line:       #e0e0e0;
-  --line-soft:  #f0f0f0;
-  --hairline:   #d2d2d7;
+  --line:       #e2ded9;
+  --line-soft:  #efece9;
+  --hairline:   #d8d4d1;
 
   /* ── M Stripe — brand signature, use sparingly ── */
   --m-blue-light: #0066b1;
@@ -56,48 +54,48 @@
 
   /* ── shadcn / Tailwind compat ── */
   --background:             #f3f0ee;
-  --foreground:             #1d1d1f;
+  --foreground:             #141413;
   --card:                   #ffffff;
-  --card-foreground:        #1d1d1f;
+  --card-foreground:        #141413;
   --popover:                #ffffff;
-  --popover-foreground:     #1d1d1f;
-  --primary:                #0066cc;
+  --popover-foreground:     #141413;
+  --primary:                #1c69d4;
   --primary-foreground:     #ffffff;
-  --secondary:              #f5f5f7;
-  --secondary-foreground:   #1d1d1f;
-  --muted:                  #f5f5f7;
-  --muted-foreground:       #6e6e73;
-  --accent:                 #f5f5f7;
-  --accent-foreground:      #1d1d1f;
-  --destructive:            oklch(0.45 0.18 27);
-  --border:                 #e0e0e0;
-  --input:                  #e0e0e0;
-  --ring:                   #0066cc;
+  --secondary:              #f3f0ee;
+  --secondary-foreground:   #141413;
+  --muted:                  #f3f0ee;
+  --muted-foreground:       #5a5a5a;
+  --accent:                 #f3f0ee;
+  --accent-foreground:      #141413;
+  --destructive:            #e22718;
+  --border:                 #e2ded9;
+  --input:                  #e2ded9;
+  --ring:                   #1c69d4;
   --radius:                 0.5rem;
 
   /* ── Legacy alias shims ── */
-  --apple-blue:       #0066cc;
-  --apple-blue-focus: #0071e3;
-  --apple-blue-dark:  #2997ff;
+  --apple-blue:       #1c69d4;
+  --apple-blue-focus: #0066b1;
+  --apple-blue-dark:  #1c69d4;
   --apple-canvas:     #ffffff;
-  --apple-parchment:  #f5f5f7;
-  --apple-pearl:      #fafafc;
+  --apple-parchment:  #f3f0ee;
+  --apple-pearl:      #faf9f8;
   --apple-tile-1:     #272729;
-  --apple-tile-2:     #2a2a2c;
-  --apple-tile-3:     #252527;
+  --apple-tile-2:     #0d0d0d;
+  --apple-tile-3:     #1a2129;
   --apple-black:      #000000;
-  --apple-ink:        #1d1d1f;
-  --apple-ink-80:     #333333;
-  --apple-ink-48:     #7a7a7a;
-  --apple-muted:      #cccccc;
-  --apple-hairline:   #e0e0e0;
-  --apple-divider:    #f0f0f0;
-  --ink-90:           #171717;
-  --ink-70:           #404040;
-  --ink-50:           #737373;
-  --ink-30:           #a3a3a3;
+  --apple-ink:        #141413;
+  --apple-ink-80:     #3a3a38;
+  --apple-ink-48:     #6a6a6a;
+  --apple-muted:      #b8b8b4;
+  --apple-hairline:   #e2ded9;
+  --apple-divider:    #efece9;
+  --ink-90:           #141413;
+  --ink-70:           #3a3a38;
+  --ink-50:           #6a6a6a;
+  --ink-30:           #9a9a96;
   --surface:          #f3f0ee;
-  --surface-2:        #f5f5f7;
+  --surface-2:        #faf9f8;
   --paper:            #ffffff;
   --line-soft2:       #efefef;
 

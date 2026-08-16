@@ -40,7 +40,7 @@ export default function ServicesPage() {
         imageCaption="Web, security, AI, cloud, and design under one delivery team."
       />
 
-      <Section className="bg-[#FAFAFA]" labelledBy="services-list">
+      <Section className="bg-[#f3f0ee]" labelledBy="services-list">
         <SectionHeader
           id="services-list"
           eyebrow="Capabilities"
@@ -51,7 +51,7 @@ export default function ServicesPage() {
           {services.map((service) => (
             <Card key={service.slug}>
               <IconFrame icon={iconsBySlug[service.slug] ?? Code2} />
-              <h2 className="mt-7 text-xl font-semibold text-[#0A0A0A]">
+              <h2 className="mt-7 text-xl font-semibold text-[#141413]">
                 {service.title}
               </h2>
               <p className="mt-4 text-base leading-7 text-[#737373]">

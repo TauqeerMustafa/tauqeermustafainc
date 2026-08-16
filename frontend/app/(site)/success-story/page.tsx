@@ -152,12 +152,12 @@ export default function SuccessStoryPage() {
       </PageHero>
 
       {/* ── Key stats banner ── */}
-      <Section className="bg-[#0A0A0A]" labelledBy="success-stats">
+      <Section className="bg-[#141413]" labelledBy="success-stats">
         <h2 id="success-stats" className="sr-only">Company statistics</h2>
         <div className="grid grid-cols-2 gap-6 sm:grid-cols-4 lg:grid-cols-8">
           {keyStats.map((stat) => (
             <div key={stat.label} className="flex flex-col items-center text-center">
-              <stat.icon className="h-5 w-5 text-[#A3A3A3]" aria-hidden />
+              <stat.icon className="h-5 w-5 text-[#9a9a96]" aria-hidden />
               <p className="mt-3 text-3xl font-semibold tracking-tight text-white">
                 {stat.value}
               </p>
@@ -170,16 +170,16 @@ export default function SuccessStoryPage() {
       {/* ── Chapter intro ── */}
       <Section className="bg-white" labelledBy="story-intro">
         <div className="mx-auto max-w-3xl text-center">
-          <p className="font-mono text-[11px] font-semibold uppercase tracking-widest text-[#0A0A0A]">
+          <p className="font-mono text-[11px] font-semibold uppercase tracking-widest text-[#141413]">
             The journey
           </p>
           <h2
             id="story-intro"
-            className="mt-4 text-balance text-3xl font-semibold leading-tight text-[#0A0A0A] sm:text-4xl"
+            className="mt-4 text-balance text-3xl font-semibold leading-tight text-[#141413] sm:text-4xl"
           >
             A year-by-year account of how we grew.
           </h2>
-          <p className="mt-5 text-base leading-7 text-[#525252] sm:text-lg">
+          <p className="mt-5 text-base leading-7 text-[#5a5a5a] sm:text-lg">
             Growth at TMI has never been accidental. Each year introduced a new constraint, a new
             market, or a new discipline — and we built to meet it. What follows is an honest account
             of how the company evolved from 2020 to today.
@@ -188,13 +188,13 @@ export default function SuccessStoryPage() {
       </Section>
 
       {/* ── Timeline ── */}
-      <Section className="bg-[#FAFAFA]" labelledBy="success-timeline">
+      <Section className="bg-[#f3f0ee]" labelledBy="success-timeline">
         <h2 id="success-timeline" className="sr-only">Timeline</h2>
 
         <div className="relative">
           {/* Centre spine — visible on lg only */}
           <div
-            className="absolute left-1/2 top-0 hidden h-full w-px -translate-x-1/2 bg-[#E5E5E5] lg:block"
+            className="absolute left-1/2 top-0 hidden h-full w-px -translate-x-1/2 bg-[#e2ded9] lg:block"
             aria-hidden
           />
 
@@ -211,37 +211,37 @@ export default function SuccessStoryPage() {
                   className="absolute left-1/2 top-0 hidden -translate-x-1/2 -translate-y-1 lg:flex"
                   aria-hidden
                 >
-                  <span className="inline-flex items-center border border-[#0A0A0A] bg-white px-3 py-1 font-mono text-[11px] font-semibold uppercase tracking-widest text-[#0A0A0A]">
+                  <span className="inline-flex items-center border border-[#141413] bg-white px-3 py-1 font-mono text-[11px] font-semibold uppercase tracking-widest text-[#141413]">
                     {m.year}
                   </span>
                 </div>
 
                 {/* Content card */}
                 <div className={m.side === "right" ? "lg:pl-12" : "lg:pr-12"}>
-                  <article className="border border-[#E5E5E5] bg-white p-7 shadow-[0_1px_2px_rgba(17,24,39,0.04),0_18px_48px_rgba(17,24,39,0.05)]">
+                  <article className="border border-[#e2ded9] bg-white p-7 shadow-[0_1px_2px_rgba(17,24,39,0.04),0_18px_48px_rgba(17,24,39,0.05)]">
                     {/* Mobile year badge */}
-                    <span className="mb-4 inline-flex items-center border border-[#0A0A0A] px-2 py-0.5 font-mono text-[10px] font-semibold uppercase tracking-widest text-[#0A0A0A] lg:hidden">
+                    <span className="mb-4 inline-flex items-center border border-[#141413] px-2 py-0.5 font-mono text-[10px] font-semibold uppercase tracking-widest text-[#141413] lg:hidden">
                       {m.year}
                     </span>
 
                     <div className="flex items-start gap-4">
                       <IconFrame icon={m.icon} />
                       <div>
-                        <p className="font-mono text-[11px] font-semibold uppercase tracking-widest text-[#0A0A0A]">
+                        <p className="font-mono text-[11px] font-semibold uppercase tracking-widest text-[#141413]">
                           {m.eyebrow}
                         </p>
-                        <h3 className="mt-1 text-xl font-semibold text-[#0A0A0A]">{m.title}</h3>
+                        <h3 className="mt-1 text-xl font-semibold text-[#141413]">{m.title}</h3>
                       </div>
                     </div>
 
-                    <p className="mt-5 text-sm leading-7 text-[#525252]">{m.body}</p>
+                    <p className="mt-5 text-sm leading-7 text-[#5a5a5a]">{m.body}</p>
 
                     {/* Tags */}
                     <div className="mt-5 flex flex-wrap gap-2">
                       {m.tags.map((tag) => (
                         <span
                           key={tag}
-                          className="inline-flex items-center border border-[#E5E5E5] bg-[#FAFAFA] px-2.5 py-1 text-xs font-medium text-[#171717]"
+                          className="inline-flex items-center border border-[#e2ded9] bg-[#f3f0ee] px-2.5 py-1 text-xs font-medium text-[#141413]"
                         >
                           {tag}
                         </span>
@@ -256,11 +256,11 @@ export default function SuccessStoryPage() {
                     m.side === "right" ? "lg:justify-end lg:pr-12" : "lg:justify-start lg:pl-12"
                   }`}
                 >
-                  <div className="border-l-4 border-[#0A0A0A] bg-white p-6 shadow-[0_1px_2px_rgba(17,24,39,0.04),0_8px_24px_rgba(17,24,39,0.06)]">
-                    <p className="font-mono text-5xl font-semibold leading-none tracking-tight text-[#0A0A0A]">
+                  <div className="border-l-4 border-[#141413] bg-white p-6 shadow-[0_1px_2px_rgba(17,24,39,0.04),0_8px_24px_rgba(17,24,39,0.06)]">
+                    <p className="font-mono text-5xl font-semibold leading-none tracking-tight text-[#141413]">
                       {m.stat.value}
                     </p>
-                    <p className="mt-2 text-sm text-[#525252]">{m.stat.label}</p>
+                    <p className="mt-2 text-sm text-[#5a5a5a]">{m.stat.label}</p>
                   </div>
                 </div>
               </div>
@@ -281,7 +281,7 @@ export default function SuccessStoryPage() {
           {principles.map((p) => (
             <Card key={p.title}>
               <IconFrame icon={p.icon} />
-              <h3 className="mt-6 text-xl font-semibold text-[#0A0A0A]">{p.title}</h3>
+              <h3 className="mt-6 text-xl font-semibold text-[#141413]">{p.title}</h3>
               <p className="mt-4 text-base leading-7 text-[#737373]">{p.description}</p>
             </Card>
           ))}
@@ -289,7 +289,7 @@ export default function SuccessStoryPage() {
       </Section>
 
       {/* ── Image break ── */}
-      <Section className="bg-[#FAFAFA]" labelledBy="success-image">
+      <Section className="bg-[#f3f0ee]" labelledBy="success-image">
         <h2 id="success-image" className="sr-only">Team at work</h2>
         <ImagePlaceholder
           src="https://images.unsplash.com/photo-1600880292203-757bb62b4baf?auto=format&fit=crop&w=1600&q=80"
@@ -299,9 +299,9 @@ export default function SuccessStoryPage() {
       </Section>
 
       {/* ── CTA ── */}
-      <Section className="bg-[#0A0A0A]" labelledBy="success-cta">
+      <Section className="bg-[#141413]" labelledBy="success-cta">
         <div className="mx-auto max-w-3xl text-center">
-          <p className="font-mono text-[11px] font-semibold uppercase tracking-widest text-[#A3A3A3]">
+          <p className="font-mono text-[11px] font-semibold uppercase tracking-widest text-[#9a9a96]">
             What&apos;s next
           </p>
           <h2

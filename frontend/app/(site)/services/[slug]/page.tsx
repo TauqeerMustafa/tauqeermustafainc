@@ -110,7 +110,7 @@ export default async function ServiceDetailPage({
         <PrimaryButton href="/contact">Discuss This Service</PrimaryButton>
       </PageHero>
 
-      <Section className="bg-[#FAFAFA]" labelledBy="service-outcomes">
+      <Section className="bg-[#f3f0ee]" labelledBy="service-outcomes">
         <div className="grid gap-10 lg:grid-cols-[1.1fr_0.9fr] lg:items-start">
           <div>
             <SectionHeader
@@ -122,8 +122,8 @@ export default async function ServiceDetailPage({
               {service.outcomes.map((outcome) => (
                 <Card key={outcome} className="hover:translate-y-0">
                   <div className="flex gap-3">
-                    <CheckCircle2 className="mt-0.5 h-5 w-5 text-[#0A0A0A]" aria-hidden />
-                    <p className="font-medium text-[#171717]">{outcome}</p>
+                    <CheckCircle2 className="mt-0.5 h-5 w-5 text-[#141413]" aria-hidden />
+                    <p className="font-medium text-[#141413]">{outcome}</p>
                   </div>
                 </Card>
               ))}
@@ -131,7 +131,7 @@ export default async function ServiceDetailPage({
           </div>
 
           <Card className="hover:translate-y-0">
-            <h2 className="text-xl font-semibold text-[#0A0A0A]">Other services</h2>
+            <h2 className="text-xl font-semibold text-[#141413]">Other services</h2>
             <p className="mt-3 text-sm leading-6 text-[#737373]">
               Most engagements combine more than one capability &mdash; explore the rest of what we offer.
             </p>
@@ -142,7 +142,7 @@ export default async function ServiceDetailPage({
                   <li key={item.slug}>
                     <Link
                       href={`/services/${item.slug}`}
-                      className="block border-t border-[#E5E5E5] pt-3 text-sm font-semibold text-[#0A0A0A] transition hover:text-[#262626]"
+                      className="block border-t border-[#e2ded9] pt-3 text-sm font-semibold text-[#141413] transition hover:text-[#2a2a28]"
                     >
                       {item.title}
                     </Link>
@@ -167,7 +167,7 @@ export default async function ServiceDetailPage({
                 <div className="flex items-center gap-3">
                   <IconFrame icon={() => <span className="text-sm font-bold">{index + 1}</span>} />
                 </div>
-                <h3 className="mt-4 font-semibold text-[#0A0A0A]">{step.title}</h3>
+                <h3 className="mt-4 font-semibold text-[#141413]">{step.title}</h3>
                 <p className="mt-2 text-sm leading-6 text-[#737373]">{step.detail}</p>
               </Card>
             ))}
@@ -176,7 +176,7 @@ export default async function ServiceDetailPage({
       )}
 
       {service.faqs && (
-        <Section className="bg-[#FAFAFA]" labelledBy="service-faqs">
+        <Section className="bg-[#f3f0ee]" labelledBy="service-faqs">
           <div className="grid gap-10 lg:grid-cols-[0.9fr_1.1fr]">
             <SectionHeader
               id="service-faqs"

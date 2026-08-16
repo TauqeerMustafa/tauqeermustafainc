@@ -95,16 +95,16 @@ export default function ContactPage() {
           {expectations.map((item, i) => (
             <div
               key={item.title}
-              className="rounded-[18px] border border-[#e0e0e0] bg-[#f3f0ee] p-8"
+              className="rounded-[24px] border border-[#e2ded9] bg-[#f3f0ee] p-8"
             >
-              <span className="font-mono text-[11px] font-semibold uppercase tracking-[0.12em] text-[#6e6e73]">
+              <span className="font-mono text-[11px] font-semibold uppercase tracking-[0.12em] text-[#5a5a5a]">
                 0{i + 1}
               </span>
               <IconFrame icon={item.icon} className="mt-5" />
-              <h2 className="mt-5 text-[19px] font-semibold leading-[1.3] tracking-[-0.374px] text-[#1d1d1f]">
+              <h2 className="mt-5 text-[19px] font-semibold leading-[1.3] tracking-[-0.374px] text-[#141413]">
                 {item.title}
               </h2>
-              <p className="mt-3 text-[15px] leading-[1.6] tracking-[-0.1px] text-[#6e6e73]">
+              <p className="mt-3 text-[15px] leading-[1.6] tracking-[-0.1px] text-[#5a5a5a]">
                 {item.description}
               </p>
             </div>
@@ -126,13 +126,13 @@ export default function ContactPage() {
             <a
               key={dept.title}
               href={`mailto:${dept.email}`}
-              className="group rounded-[14px] border border-white/10 bg-white/5 p-5 transition hover:border-[#2997ff]/40 hover:bg-white/8"
+              className="group rounded-[14px] border border-white/10 bg-white/5 p-5 transition hover:border-[#1c69d4]/40 hover:bg-white/8"
             >
               <IconFrame icon={dept.icon} dark />
               <h3 className="mt-4 text-[14px] font-semibold tracking-[-0.1px] text-white">
                 {dept.title}
               </h3>
-              <p className="mt-1 break-all text-[13px] leading-[1.5] text-[#6e6e73] transition group-hover:text-[#2997ff]">
+              <p className="mt-1 break-all text-[13px] leading-[1.5] text-[#5a5a5a] transition group-hover:text-[#1c69d4]">
                 {dept.email}
               </p>
             </a>

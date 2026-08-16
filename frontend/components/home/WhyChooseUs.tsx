@@ -1,7 +1,9 @@
 "use client";
 
 import { Gauge, Lock, Network, Users } from "lucide-react";
-import { Section } from "./ui";
+import { MStripe, Section } from "./ui";
+
+/* ── BMW M — near-black tile, uppercase display, M-blue accents ── */
 
 const reasons = [
   { title: "Security designed in, not added later",       description: "Threat modeling happens during discovery, not after launch. Security controls are embedded in the architecture — authentication flows, data handling, access boundaries — so they don't break under real load.",                icon: Lock,    num: "01" },
@@ -12,34 +14,53 @@ const reasons = [
 
 export default function WhyChooseUs() {
   return (
-    /* Dark tile — near-black canvas */
     <Section className="bg-[#272729]" labelledBy="why-title">
-      <div className="grid gap-12 lg:grid-cols-2 lg:gap-20">
-        <div>
-          <p className="text-[21px] font-semibold leading-[1.19] tracking-[0.231px] text-white">Why TMI</p>
-          <h2 id="why-title" className="mt-4 text-[40px] font-semibold leading-[1.1] tracking-[-0.374px] text-white">
+      <div className="grid gap-14 lg:grid-cols-2 lg:gap-20">
+        <div className="lg:sticky lg:top-32 lg:self-start">
+          <MStripe />
+          <p className="mt-6 font-mono text-[11px] font-semibold uppercase tracking-[0.14em] text-[#1c69d4]">
+            Why TMI
+          </p>
+          <h2
+            id="why-title"
+            className="mt-4 text-[34px] font-bold uppercase leading-[1.08] tracking-[-0.02em] text-white sm:text-[44px] lg:text-[52px]"
+          >
             Built differently. For a reason.
           </h2>
-          <p className="mt-6 text-[17px] leading-[1.47] tracking-[-0.374px] text-[#cccccc]">
+          <p className="mt-6 text-[17px] font-light leading-[1.6] tracking-[-0.01em] text-white/60 sm:text-[18px]">
             Most agencies either lack security expertise or treat it as a separate audit phase. Most freelancers
-            can't handle the full stack — frontend, backend, infrastructure, threat modeling, and UX — as one
+            can&apos;t handle the full stack — frontend, backend, infrastructure, threat modeling, and UX — as one
             coherent system. TMI exists because those gaps create real operational risk. We deliver all five
-            disciplines with the technical depth they require, led by someone who's built production systems
+            disciplines with the technical depth they require, led by someone who&apos;s built production systems
             that had to survive real threats and real load.
           </p>
         </div>
 
         <div className="grid gap-0">
           {reasons.map((reason) => (
-            <div key={reason.title} className="border-b border-white/10 py-6 first:border-t">
-              <div className="flex items-start gap-4 sm:gap-6">
-                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-white/20 bg-white/5 text-[#2997ff]">
-                  <reason.icon className="h-6 w-6" aria-hidden />
+            <div
+              key={reason.title}
+              className="group relative border-b border-white/10 py-7 transition-colors first:border-t hover:bg-white/[0.03]"
+            >
+              {/* BMW hover accent rail */}
+              <span
+                className="absolute left-0 top-0 h-full w-[2px] origin-top scale-y-0 bg-[#1c69d4] transition-transform duration-500 group-hover:scale-y-100"
+                aria-hidden
+              />
+              <div className="flex items-start gap-5 pl-0 sm:gap-6">
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center border border-white/15 bg-white/[0.05] text-[#1c69d4] transition-colors group-hover:border-[#1c69d4]/50 group-hover:bg-[#1c69d4]/10">
+                  <reason.icon className="h-5 w-5" aria-hidden />
                 </div>
                 <div className="min-w-0">
-                  <span className="text-[14px] font-semibold tracking-[-0.224px] text-white/50">{reason.num}</span>
-                  <h3 className="mt-1 text-[17px] font-semibold leading-[1.24] tracking-[-0.374px] text-white">{reason.title}</h3>
-                  <p className="mt-2 text-[14px] leading-[1.43] tracking-[-0.224px] text-[#cccccc]">{reason.description}</p>
+                  <span className="font-mono text-[11px] font-semibold uppercase tracking-[0.14em] text-white/35">
+                    {reason.num}
+                  </span>
+                  <h3 className="mt-2 text-[17px] font-bold uppercase leading-[1.25] tracking-[0.01em] text-white sm:text-[18px]">
+                    {reason.title}
+                  </h3>
+                  <p className="mt-2.5 text-[14px] font-light leading-[1.6] tracking-[-0.01em] text-white/55 sm:text-[15px]">
+                    {reason.description}
+                  </p>
                 </div>
               </div>
             </div>

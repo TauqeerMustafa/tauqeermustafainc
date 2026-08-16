@@ -33,7 +33,7 @@ export const company = {
   },
 
   mapEmbedUrl:
-    "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d212270.5667893677!2d72.8248795!3d33.6183317!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x38df948974419acb%3A0x984357e1632d30f!2sIslamabad%2C%20Islamabad%20Capital%20Territory%2C%20Pakistan!5e0!3m2!1sen!2s!4v1737797044985!5m2!1sen!2s",
+    "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2590.576371136363!2d73.092347510015!3d33.644887339020876!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x38dfeb25cff2f1f5%3A0x40402eca6dcd5e75!2sTauqeer%20Mustafa!5e1!3m2!1sen!2s!4v1786901231225!5m2!1sen!2s",
 
   phone: "+92 335 6701199",
 

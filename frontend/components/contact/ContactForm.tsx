@@ -12,10 +12,10 @@ import { contactSchema, ContactFormData } from "@/lib/validation";
 const fieldWrap = "flex flex-col gap-1.5";
 
 const labelClass =
-  "font-mono text-[10px] font-semibold uppercase tracking-[0.12em] text-[#6e6e73]";
+  "font-mono text-[10px] font-semibold uppercase tracking-[0.12em] text-[#5a5a5a]";
 
 const inputClass =
-  "w-full border-0 border-b border-[#d2d2d7] bg-transparent pb-2 pt-1 text-[16px] font-[400] leading-[1.5] tracking-[-0.2px] text-[#1d1d1f] outline-none transition-colors placeholder:text-[#b0b0b5] focus:border-[#0066cc]";
+  "w-full border-0 border-b border-[#d8d4d1] bg-transparent pb-2 pt-1 text-[16px] font-[400] leading-[1.5] tracking-[-0.2px] text-[#141413] outline-none transition-colors placeholder:text-[#b0b0b5] focus:border-[#1c69d4]";
 
 const errorClass = "mt-1 font-mono text-[11px] text-red-600";
 
@@ -87,10 +87,10 @@ export default function ContactForm() {
   return (
     <form
       onSubmit={handleSubmit(onSubmit)}
-      className="rounded-[18px] bg-[#f3f0ee] px-8 py-10 sm:px-10 sm:py-12"
+      className="rounded-[24px] bg-[#f3f0ee] px-8 py-10 sm:px-10 sm:py-12"
     >
       {/* ── Section: You ── */}
-      <p className="font-mono text-[10px] font-semibold uppercase tracking-[0.12em] text-[#0066cc]">
+      <p className="font-mono text-[10px] font-semibold uppercase tracking-[0.12em] text-[#1c69d4]">
         01 / About you
       </p>
 
@@ -120,10 +120,10 @@ export default function ContactForm() {
       </div>
 
       {/* ── Divider ── */}
-      <div className="my-10 h-px bg-[#d2d2d7]" />
+      <div className="my-10 h-px bg-[#d8d4d1]" />
 
       {/* ── Section: Organisation ── */}
-      <p className="font-mono text-[10px] font-semibold uppercase tracking-[0.12em] text-[#0066cc]">
+      <p className="font-mono text-[10px] font-semibold uppercase tracking-[0.12em] text-[#1c69d4]">
         02 / Your organisation
       </p>
 
@@ -145,10 +145,10 @@ export default function ContactForm() {
       </div>
 
       {/* ── Divider ── */}
-      <div className="my-10 h-px bg-[#d2d2d7]" />
+      <div className="my-10 h-px bg-[#d8d4d1]" />
 
       {/* ── Section: Project ── */}
-      <p className="font-mono text-[10px] font-semibold uppercase tracking-[0.12em] text-[#0066cc]">
+      <p className="font-mono text-[10px] font-semibold uppercase tracking-[0.12em] text-[#1c69d4]">
         03 / About the project
       </p>
 
@@ -222,11 +222,11 @@ export default function ContactForm() {
       </div>
 
       {/* NDA note */}
-      <p className="mt-6 text-[13px] leading-6 tracking-[-0.1px] text-[#6e6e73]">
+      <p className="mt-6 text-[13px] leading-6 tracking-[-0.1px] text-[#5a5a5a]">
         Need an NDA before sharing details?{" "}
         <a
           href="mailto:legal@tauqeermustafainc.com"
-          className="text-[#0066cc] underline-offset-2 hover:underline"
+          className="text-[#1c69d4] underline-offset-2 hover:underline"
         >
           Email our legal team
         </a>{" "}
@@ -238,13 +238,13 @@ export default function ContactForm() {
         <button
           type="submit"
           disabled={isSubmitting}
-          className="inline-flex items-center justify-center gap-2 rounded-full bg-[#0066cc] px-8 py-3.5 text-[17px] font-semibold leading-[1.29] tracking-[-0.374px] text-white shadow-lg shadow-[#0066cc]/25 transition-all hover:bg-[#0055b3] hover:shadow-xl hover:shadow-[#0066cc]/30 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0071e3] disabled:opacity-50"
+          className="inline-flex items-center justify-center gap-2 bg-[#1c69d4] px-7 py-3.5 font-mono text-[12px] font-bold uppercase tracking-[0.1em] text-white transition-colors hover:bg-[#0066b1] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1c69d4] disabled:opacity-50"
         >
           {isSubmitting ? "Sending…" : "Send Message"}
         </button>
 
         {isSubmitSuccessful && (
-          <p className="font-mono text-[13px] font-medium text-[#1d1d1f]" role="status">
+          <p className="font-mono text-[13px] font-medium text-[#141413]" role="status">
             ✓ Message received. We will follow up within one business day.
           </p>
         )}

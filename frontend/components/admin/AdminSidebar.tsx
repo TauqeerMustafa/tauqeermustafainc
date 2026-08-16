@@ -61,7 +61,7 @@ export default function AdminSidebar({ isOpen, onClose }: Props) {
             className="inline-flex items-center gap-2.5 group"
             onClick={onClose}
           >
-            <span className="relative flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden border border-[#E5E5E5] transition group-hover:border-[#0A0A0A]">
+            <span className="relative flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden border border-[#e2ded9] transition group-hover:border-[#141413]">
               <Image
                 src="/logo-mark.svg"
                 alt=""

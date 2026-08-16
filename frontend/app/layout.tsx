@@ -41,7 +41,7 @@ export const metadata: Metadata = {
     url: appConfig.siteUrl,
     title: "Tauqeer Mustafa Inc. | Web Development, Cybersecurity & AI Services",
     description:
-      "Full-stack web development, cybersecurity consulting, AI automation, and cloud engineering. Security-first digital agency in Islamabad, Pakistan.",
+      "Full-stack web development, cybersecurity consulting, AI automation, and cloud engineering. Security-first engineering, delivered globally.",
     images: [{ url: "https://images.unsplash.com/photo-1518186285589-2f7649de83e0?auto=format&fit=crop&w=1600&q=80", width: 1200, height: 630, alt: "Tauqeer Mustafa Inc. - Digital Agency" }],
   },
   twitter: {
@@ -84,7 +84,7 @@ export default function RootLayout({
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdSchemas) }}
         />
       </head>
-      <body className="min-h-screen flex flex-col overflow-x-hidden bg-white text-[#0A0A0A]">
+      <body className="flex min-h-screen flex-col overflow-x-hidden bg-[#f3f0ee] text-[#141413]">
         <AppProviders>
           {children}
           <CookieConsent />
