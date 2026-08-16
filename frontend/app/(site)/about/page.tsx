@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { ArrowRight, Award, Globe2, Users } from "lucide-react";
 import Link from "next/link";
 
-import Image from "next/image";
+import { FounderPortrait } from "@/components/about/FounderPortrait";
 import {
   Card,
   ImagePlaceholder,
@@ -13,7 +13,7 @@ import {
 } from "@/components/home/ui";
 import { company } from "@/data/company";
 import { buildMetadata } from "@/lib/metadata";
-import { imageLibrary } from "@/data/media";
+import { founderPortrait, imageLibrary } from "@/data/media";
 
 export const metadata: Metadata = buildMetadata({
   title: "About Us",
@@ -107,41 +107,41 @@ export default function AboutPage() {
             </div>
           </div>
 
-          <div className="space-y-6">
-            <div className="relative overflow-hidden rounded-[24px]" style={{ boxShadow: "rgba(0,0,0,0.22) 3px 5px 30px 0" }}>
-              <Image
-                src={imageLibrary.about[0]}
-                alt="Tauqeer Mustafa — Founder, TMI"
-                width={800}
-                height={600}
-                sizes="(max-width: 1024px) 100vw, 45vw"
-                className="h-full w-full object-cover"
-              />
-            </div>
+          <div className="space-y-6 lg:sticky lg:top-32">
+            <FounderPortrait src={founderPortrait} />
             <Card>
-              <p className="text-[17px] font-semibold leading-[1.24] tracking-[-0.374px] text-[#141413]">
-                Tauqeer Mustafa
+              <p className="font-mono text-[11px] font-semibold uppercase tracking-[0.14em] text-[#0066b1]">
+                Who you work with
               </p>
-              <p className="mt-2 text-[14px] leading-[1.43] tracking-[-0.224px] text-[#6a6a6a]">
-                Founder · Full-stack engineer with a background in security consulting and cloud architecture.
-                Leads every engagement from discovery through delivery.
+              <p className="mt-3 text-[16px] font-light leading-[1.6] text-[#5a5a5a]">
+                Full-stack engineer with a background in security consulting and cloud
+                architecture. Leads every engagement from discovery through delivery —
+                no account managers between you and the person writing the code.
               </p>
-              <div className="mt-4 flex gap-3">
+              <div className="mt-5 flex flex-wrap gap-x-5 gap-y-2">
                 <Link
                   href={company.social.github}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-[14px] leading-[1.43] tracking-[-0.224px] text-[#1c69d4] hover:underline"
+                  className="group inline-flex items-center gap-1.5 font-mono text-[11px] font-semibold uppercase tracking-[0.1em] text-[#0066b1] transition-colors hover:text-[#1c69d4]"
                 >
-                  GitHub <ArrowRight className="inline h-3 w-3" aria-hidden />
+                  GitHub
+                  <ArrowRight
+                    className="h-3 w-3 transition-transform duration-300 group-hover:translate-x-0.5"
+                    aria-hidden
+                  />
                 </Link>
                 <Link
                   href={company.social.linkedin}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-[14px] leading-[1.43] tracking-[-0.224px] text-[#1c69d4] hover:underline"
+                  className="group inline-flex items-center gap-1.5 font-mono text-[11px] font-semibold uppercase tracking-[0.1em] text-[#0066b1] transition-colors hover:text-[#1c69d4]"
                 >
-                  LinkedIn <ArrowRight className="inline h-3 w-3" aria-hidden />
+                  LinkedIn
+                  <ArrowRight
+                    className="h-3 w-3 transition-transform duration-300 group-hover:translate-x-0.5"
+                    aria-hidden
+                  />
                 </Link>
               </div>
             </Card>
