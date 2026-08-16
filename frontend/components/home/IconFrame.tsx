@@ -12,10 +12,12 @@ import { cn } from "@/lib/utils";
 export function IconFrame({
   icon: Icon,
   size = "md",
+  dark = false,
   className,
 }: {
   icon: ComponentType<{ className?: string; "aria-hidden"?: boolean }>;
   size?: "sm" | "md" | "lg";
+  dark?: boolean;
   className?: string;
 }) {
   const sz = { sm: "h-9 w-9", md: "h-11 w-11", lg: "h-14 w-14" }[size];
@@ -24,7 +26,10 @@ export function IconFrame({
   return (
     <div
       className={cn(
-        "flex shrink-0 items-center justify-center border border-[#D4D4D4] bg-[#FAFAFA] text-[#171717] transition-all duration-300 group-hover:scale-110 group-hover:border-[#0A0A0A] group-hover:bg-[#0A0A0A] group-hover:text-white",
+        "flex shrink-0 items-center justify-center rounded-full transition-all duration-300",
+        dark
+          ? "border border-white/10 bg-white/8 text-[#2997ff] group-hover:border-[#2997ff]/40 group-hover:bg-white/12"
+          : "border border-[#D4D4D4] bg-[#FAFAFA] text-[#171717] group-hover:scale-110 group-hover:border-[#0A0A0A] group-hover:bg-[#0A0A0A] group-hover:text-white",
         sz,
         className,
       )}

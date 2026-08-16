@@ -2,6 +2,7 @@
 
 import { CheckCircle2, Code2, Shield, Sparkles } from "lucide-react";
 import { motion } from "framer-motion";
+import Image from "next/image";
 
 import { imageLibrary } from "@/data/media";
 import { ButtonLink, Reveal, Section, fadeLeft, fadeRight, stagger, viewportOnce } from "./ui";
@@ -27,34 +28,43 @@ const miniStats = [
 
 export default function AboutPreview() {
   return (
-    /* Parchment tile */
-    <Section className="bg-[#f5f5f7]" labelledBy="about-title">
+    /* Warm cream tile — hybrid default canvas */
+    <Section className="bg-[#f3f0ee]" labelledBy="about-title">
       <div className="grid gap-16 lg:grid-cols-2 lg:items-start lg:gap-20">
 
         <Reveal variant={fadeLeft} className="order-2 lg:order-1">
           <div className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
-              <div className="overflow-hidden rounded-[18px]">
-                <img
+              <div className="relative overflow-hidden rounded-[18px]">
+                <Image
                   src={imageLibrary.hero[1]}
                   alt="Development environment with production monitoring"
+                  width={500}
+                  height={375}
+                  sizes="(max-width: 1024px) 50vw, 25vw"
                   className="aspect-[4/3] h-full w-full object-cover"
                   style={{ boxShadow: "rgba(0,0,0,0.12) 0px 4px 24px" }}
                 />
               </div>
-              <div className="overflow-hidden rounded-[18px]">
-                <img
+              <div className="relative overflow-hidden rounded-[18px]">
+                <Image
                   src={imageLibrary.services[2]}
                   alt="AI and neural network architecture"
+                  width={500}
+                  height={375}
+                  sizes="(max-width: 1024px) 50vw, 25vw"
                   className="aspect-[4/3] h-full w-full object-cover"
                   style={{ boxShadow: "rgba(0,0,0,0.12) 0px 4px 24px" }}
                 />
               </div>
             </div>
-            <div className="overflow-hidden rounded-[18px]">
-              <img
+            <div className="relative overflow-hidden rounded-[18px]">
+              <Image
                 src={imageLibrary.services[3]}
                 alt="Cloud infrastructure and data centers"
+                width={1000}
+                height={428}
+                sizes="(max-width: 1024px) 100vw, 50vw"
                 className="aspect-[21/9] w-full object-cover"
                 style={{ boxShadow: "rgba(0,0,0,0.12) 0px 4px 24px" }}
               />

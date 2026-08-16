@@ -146,7 +146,7 @@ export default function PrivacyPolicyPage() {
             <a href={`mailto:${company.emails.legal}`} className="font-medium text-[#262626] underline underline-offset-2">
               {company.emails.legal}
             </a>{" "}
-            or by mail at {company.headquarters}.
+            or by mail at {company.city}.
           </p>
         </article>
       </Section>

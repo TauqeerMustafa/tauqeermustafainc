@@ -64,7 +64,7 @@ export default function Footer() {
               </li>
               <li className="flex items-start gap-2 text-[14px] leading-[1.43] tracking-[-0.224px] text-[#7a7a7a]">
                 <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-[#0066cc]" aria-hidden="true" />
-                {company.headquarters}
+                {company.city}
               </li>
             </ul>
 

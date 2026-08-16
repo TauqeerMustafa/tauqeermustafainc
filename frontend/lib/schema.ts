@@ -17,7 +17,8 @@ export function organizationSchema() {
     telephone: company.phone,
     address: {
       "@type": "PostalAddress",
-      addressLocality: company.headquarters,
+      addressLocality: "Islamabad",
+      addressRegion: "Islamabad Capital Territory",
       addressCountry: "PK",
     },
     sameAs: [company.social.github, company.social.linkedin].filter(Boolean),

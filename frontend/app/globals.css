@@ -4,170 +4,149 @@
 
 @custom-variant dark (&:is(.dark *));
 
-/* ── Apple design tokens ───────────────────────────────────────── */
+/* ── Hybrid Design System — Apple + BMW + BMW M + Mastercard ──── */
 :root {
-  --font-sans: "SF Pro Display", "SF Pro Text", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, sans-serif;
-  --font-mono: "SF Mono", "SFMono-Regular", ui-monospace, Menlo, monospace;
+  /* Font stacks */
+  --font-sans: "TMI Grotesk", "SF Pro Display", "SF Pro Text", ui-sans-serif,
+    system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, sans-serif;
+  --font-mono: "TMI Mono", "SF Mono", "SFMono-Regular", Consolas,
+    "Liberation Mono", monospace;
 
-  /* Action Blue — the single interactive color */
-  --apple-blue:        #0066cc;
-  --apple-blue-focus:  #0071e3;
-  --apple-blue-dark:   #2997ff; /* dark-surface only */
+  /* ── Surface palette ── */
+  /* Warm cream (Mastercard) — default light background */
+  --canvas-cream:   #f3f0ee;
+  --lifted-cream:   #fcfbfa;
+  --pure-white:     #ffffff;
+  /* Apple parchment — footer, alternating sections */
+  --parchment:      #f5f5f7;
+  --surface-pearl:  #fafafc;
 
-  /* Surfaces */
-  --apple-canvas:      #ffffff;
-  --apple-parchment:   #f5f5f7;
-  --apple-pearl:       #fafafc;
-  --apple-tile-1:      #272729;
-  --apple-tile-2:      #2a2a2c;
-  --apple-tile-3:      #252527;
-  --apple-black:       #000000;
+  /* Dark surfaces (BMW M) */
+  --surface-dark:   #1a2129;
+  --surface-card:   #1a1a1a;
+  --ink-black:      #141413;
+  --pure-black:     #000000;
+  /* Dark tile variants (Apple) */
+  --tile-1:         #272729;
+  --tile-2:         #2a2a2c;
 
-  /* Ink */
-  --apple-ink:         #1d1d1f;
-  --apple-ink-80:      #333333;
-  --apple-ink-48:      #7a7a7a;
-  --apple-muted:       #cccccc;
+  /* ── Interactive ── (single brand color — Apple) */
+  --action-blue:       #0066cc;
+  --action-blue-hover: #0055b3;
+  --action-blue-focus: #0071e3;
+  --sky-blue:          #2997ff; /* dark surface links only */
 
-  /* Hairlines */
-  --apple-hairline:    #e0e0e0;
-  --apple-divider:     #f0f0f0;
+  /* ── Text ── */
+  --ink:        #1d1d1f;
+  --ink-80:     #333333;
+  --ink-muted:  #6e6e73;
+  --ink-48:     #7a7a7a;
+  --on-dark:    #ffffff;
+  --body-dark:  #bbbbbb;
 
-  /* shadcn compat */
-  --background:        #ffffff;
-  --foreground:        #1d1d1f;
-  --card:              #ffffff;
-  --card-foreground:   #1d1d1f;
-  --popover:           #ffffff;
-  --popover-foreground:#1d1d1f;
-  --primary:           #0066cc;
-  --primary-foreground:#ffffff;
-  --secondary:         #f5f5f7;
-  --secondary-foreground:#1d1d1f;
-  --muted:             #f5f5f7;
-  --muted-foreground:  #7a7a7a;
-  --accent:            #f5f5f7;
-  --accent-foreground: #1d1d1f;
-  --destructive:       oklch(0.45 0.18 27);
-  --border:            #e0e0e0;
-  --input:             #e0e0e0;
-  --ring:              #0066cc;
-  --radius:            0.5rem;
+  /* ── Borders & hairlines ── */
+  --line:       #e0e0e0;
+  --line-soft:  #f0f0f0;
+  --hairline:   #d2d2d7;
 
-  --adm-bg:            #f5f5f7;
-  --adm-surface:       #ffffff;
-  --adm-surface-2:     #f5f5f7;
-  --adm-border:        #e0e0e0;
-  --adm-border-2:      #cccccc;
-  --adm-text:          #1d1d1f;
-  --adm-text-2:        #7a7a7a;
-  --adm-text-3:        #7a7a7a;
-  --adm-ink:           #1d1d1f;
-  --adm-blue:          #0066cc;
-  --adm-blue-light:    #e8f1fb;
-  --adm-blue-mid:      #0066cc;
-  --adm-green:         #16A34A;
-  --adm-green-light:   #F0FDF4;
-  --adm-amber:         #B45309;
-  --adm-amber-light:   #FFFBEB;
-  --adm-red:           #DC2626;
-  --adm-red-light:     #FEF2F2;
+  /* ── M Stripe — brand signature, use sparingly ── */
+  --m-blue-light: #0066b1;
+  --m-blue-dark:  #1c69d4;
+  --m-red:        #e22718;
+
+  /* ── shadcn / Tailwind compat ── */
+  --background:             #f3f0ee;
+  --foreground:             #1d1d1f;
+  --card:                   #ffffff;
+  --card-foreground:        #1d1d1f;
+  --popover:                #ffffff;
+  --popover-foreground:     #1d1d1f;
+  --primary:                #0066cc;
+  --primary-foreground:     #ffffff;
+  --secondary:              #f5f5f7;
+  --secondary-foreground:   #1d1d1f;
+  --muted:                  #f5f5f7;
+  --muted-foreground:       #6e6e73;
+  --accent:                 #f5f5f7;
+  --accent-foreground:      #1d1d1f;
+  --destructive:            oklch(0.45 0.18 27);
+  --border:                 #e0e0e0;
+  --input:                  #e0e0e0;
+  --ring:                   #0066cc;
+  --radius:                 0.5rem;
+
+  /* ── Legacy alias shims ── */
+  --apple-blue:       #0066cc;
+  --apple-blue-focus: #0071e3;
+  --apple-blue-dark:  #2997ff;
+  --apple-canvas:     #ffffff;
+  --apple-parchment:  #f5f5f7;
+  --apple-pearl:      #fafafc;
+  --apple-tile-1:     #272729;
+  --apple-tile-2:     #2a2a2c;
+  --apple-tile-3:     #252527;
+  --apple-black:      #000000;
+  --apple-ink:        #1d1d1f;
+  --apple-ink-80:     #333333;
+  --apple-ink-48:     #7a7a7a;
+  --apple-muted:      #cccccc;
+  --apple-hairline:   #e0e0e0;
+  --apple-divider:    #f0f0f0;
+  --ink-90:           #171717;
+  --ink-70:           #404040;
+  --ink-50:           #737373;
+  --ink-30:           #a3a3a3;
+  --surface:          #f3f0ee;
+  --surface-2:        #f5f5f7;
+  --paper:            #ffffff;
+  --line-soft2:       #efefef;
+
+  /* ── Admin panel tokens ── */
+  --adm-bg:           #f5f5f7;
+  --adm-surface:      #ffffff;
+  --adm-surface-2:    #f5f5f7;
+  --adm-border:       #e0e0e0;
+  --adm-border-2:     #cccccc;
+  --adm-text:         #1d1d1f;
+  --adm-text-2:       #6e6e73;
+  --adm-text-3:       #7a7a7a;
+  --adm-ink:          #1d1d1f;
+  --adm-blue:         #0066cc;
+  --adm-blue-light:   #e8f1fb;
+  --adm-blue-mid:     #0066cc;
+  --adm-green:        #16a34a;
+  --adm-green-light:  #f0fdf4;
+  --adm-amber:        #b45309;
+  --adm-amber-light:  #fffbeb;
+  --adm-red:          #dc2626;
+  --adm-red-light:    #fef2f2;
 }
 
 @theme inline {
-  --color-background:          var(--background);
-  --color-foreground:          var(--foreground);
-  --font-sans:                 var(--font-sans);
-  --font-mono:                 var(--font-mono);
-  --color-ring:                var(--ring);
-  --color-input:               var(--input);
-  --color-border:              var(--border);
-  --color-primary:             var(--primary);
-  --color-primary-foreground:  var(--primary-foreground);
-  --color-accent:              var(--accent);
-  --color-accent-foreground:   var(--accent-foreground);
-  --color-muted:               var(--muted);
-  --color-muted-foreground:    var(--muted-foreground);
-  --color-card:                var(--card);
-  --color-card-foreground:     var(--card-foreground);
-  --color-secondary:           var(--secondary);
-  --color-secondary-foreground:var(--secondary-foreground);
-  --color-destructive:         var(--destructive);
-  --radius-sm: 0.5rem; --radius-md: 0.688rem; --radius-lg: 1.125rem; --radius-xl: 1.125rem;
+  --color-background:           var(--background);
+  --color-foreground:           var(--foreground);
+  --font-sans:                  var(--font-sans);
+  --font-mono:                  var(--font-mono);
+  --color-ring:                 var(--ring);
+  --color-input:                var(--input);
+  --color-border:               var(--border);
+  --color-primary:              var(--primary);
+  --color-primary-foreground:   var(--primary-foreground);
+  --color-accent:               var(--accent);
+  --color-accent-foreground:    var(--accent-foreground);
+  --color-muted:                var(--muted);
+  --color-muted-foreground:     var(--muted-foreground);
+  --color-card:                 var(--card);
+  --color-card-foreground:      var(--card-foreground);
+  --color-secondary:            var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-destructive:          var(--destructive);
+  --radius-sm: 0.5rem; --radius-md: 0.688rem; --radius-lg: 1.125rem; --radius-xl: 2.5rem;
 }
 
 ::selection { background: #0066cc; color: #ffffff; }
 
-/* ── Apple press micro-interaction ───────────────────────────── */
-.apple-press { transition: transform 0.1s ease; }
-.apple-press:active { transform: scale(0.95); }
-
-/* ── Keyframes ─────────────────────────────────────────────────── */
-@keyframes reveal-up   { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: none; } }
-@keyframes reveal-fade { from { opacity: 0; } to { opacity: 1; } }
-@keyframes float-y     { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
-@keyframes ping-ring   { 75%,100% { transform: scale(2.1); opacity: 0; } }
-@keyframes shimmer     { 0% { background-position: -400% center; } 100% { background-position: 400% center; } }
-@keyframes marquee     { from { transform: translateX(0); } to { transform: translateX(-50%); } }
-
-.anim-float    { animation: float-y 4.5s ease-in-out infinite; }
-.anim-ping     { animation: ping-ring 1.6s cubic-bezier(0,0,0.2,1) infinite; }
-.anim-marquee  { animation: marquee 32s linear infinite; }
-.animate-fade-up { animation: reveal-up 0.5s cubic-bezier(0.22,1,0.36,1) both; }
-.animate-fade-in { animation: reveal-fade 0.4s ease both; }
-
-.skeleton {
-  background: linear-gradient(90deg, #f0f0f0 25%, #e8e8e8 50%, #f0f0f0 75%);
-  background-size: 400% auto;
-  animation: shimmer 1.6s linear infinite;
-}
-
-/* ── Admin ─────────────────────────────────────────────────────── */
-.adm-card {
-  background: var(--adm-surface);
-  border: 1px solid var(--adm-border);
-  border-radius: 18px;
-  position: relative;
-  transition: border-color 0.2s ease, box-shadow 0.22s ease, transform 0.22s cubic-bezier(0.22,1,0.36,1);
-}
-.adm-card:hover { border-color: var(--adm-ink); box-shadow: 0 4px 20px rgba(0,0,0,0.08); transform: translateY(-2px); }
-
-.adm-nav-link { position: relative; transition: background 0.18s ease, color 0.18s ease; }
-.adm-nav-link.active::before {
-  content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: var(--adm-blue);
-  border-radius: 0 2px 2px 0;
-}
-
-@keyframes adm-page-in   { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
-@keyframes adm-drawer-in { from { opacity: 0; transform: translateX(100%); } to { opacity: 1; transform: none; } }
-@keyframes adm-dialog-in { from { opacity: 0; transform: scale(0.94); } to { opacity: 1; transform: scale(1); } }
-@keyframes adm-count-in  { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
-
-.adm-page       { animation: adm-page-in 0.35s cubic-bezier(0.22,1,0.36,1) both; }
-.adm-drawer     { animation: adm-drawer-in 0.3s cubic-bezier(0.22,1,0.36,1) both; }
-.adm-dialog     { animation: adm-dialog-in 0.25s cubic-bezier(0.22,1,0.36,1) both; }
-.adm-stat-value { animation: adm-count-in 0.5s cubic-bezier(0.22,1,0.36,1) both; }
-
-a, button { text-underline-offset: 4px; }
-
-@layer base {
-  * { @apply border-border outline-ring/50; }
-  body { @apply bg-background text-foreground; font-feature-settings: "cv02","cv03","cv04","cv11"; }
-  html { @apply font-sans; }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    scroll-behavior: auto !important;
-    transition-duration: 0.01ms !important;
-  }
-}
-
-
-@custom-variant dark (&:is(.dark *));
-
+/* ── Font declarations ───────────────────────────────────────────── */
 @font-face {
   font-family: "TMI Grotesk";
   src: url("/fonts/space-grotesk-400.woff2") format("woff2");
@@ -204,141 +183,27 @@ a, button { text-underline-offset: 4px; }
   font-weight: 600; font-style: normal; font-display: swap;
 }
 
-/* ── Monochrome design tokens ─────────────────────────────────── */
-:root {
-  --font-sans: "TMI Grotesk", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  --font-geist-mono: "TMI Mono", "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+/* ── Press micro-interactions ────────────────────────────────────── */
+.apple-press,
+.press,
+.btn-press { transition: transform 0.1s ease; }
+.apple-press:active,
+.press:active,
+.btn-press:active { transform: scale(0.95); }
 
-  /* Pure black / white / gray scale — the entire palette */
-  --ink:        #0A0A0A;
-  --ink-90:     #171717;
-  --ink-70:     #404040;
-  --ink-50:     #737373;
-  --ink-30:     #A3A3A3;
-  --line:       #E5E5E5;
-  --line-soft:  #EFEFEF;
-  --surface:    #FAFAFA;
-  --surface-2:  #F4F4F4;
-  --paper:      #FFFFFF;
-
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.09 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.09 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.09 0 0);
-  --primary: oklch(0.09 0 0);
-  --primary-foreground: oklch(1 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.15 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.45 0 0);
-  --accent: oklch(0.95 0 0);
-  --accent-foreground: oklch(0.09 0 0);
-  --destructive: oklch(0.45 0.18 27);
-  --border: oklch(0.9 0 0);
-  --input: oklch(0.9 0 0);
-  --ring: oklch(0.09 0 0);
-  --radius: 0rem;
-
-  --adm-bg: #FAFAFA;
-  --adm-surface: #FFFFFF;
-  --adm-surface-2: #F4F4F4;
-  --adm-border: #E5E5E5;
-  --adm-border-2: #D4D4D4;
-  --adm-text: #0A0A0A;
-  --adm-text-2: #525252;
-  --adm-text-3: #A3A3A3;
-  --adm-ink: #0A0A0A;
-  --adm-blue: #0A0A0A;
-  --adm-blue-light: #F4F4F4;
-  --adm-blue-mid: #D4D4D4;
-  --adm-green: #16A34A;
-  --adm-green-light: #F0FDF4;
-  --adm-amber: #B45309;
-  --adm-amber-light: #FFFBEB;
-  --adm-red: #DC2626;
-  --adm-red-light: #FEF2F2;
+/* ── Hover utilities ─────────────────────────────────────────────── */
+.lift {
+  transition: transform 0.25s cubic-bezier(0.22,1,0.36,1),
+              box-shadow 0.25s cubic-bezier(0.22,1,0.36,1),
+              border-color 0.2s ease;
 }
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-sans);
-  --font-mono: var(--font-geist-mono);
-  --color-ring: var(--ring);
-  --color-input: var(--input);
-  --color-border: var(--border);
-  --color-primary: var(--primary);
-  --color-primary-foreground: var(--primary-foreground);
-  --color-accent: var(--accent);
-  --color-accent-foreground: var(--accent-foreground);
-  --color-muted: var(--muted);
-  --color-muted-foreground: var(--muted-foreground);
-  --color-card: var(--card);
-  --color-card-foreground: var(--card-foreground);
-  --color-secondary: var(--secondary);
-  --color-secondary-foreground: var(--secondary-foreground);
-  --color-destructive: var(--destructive);
-  --radius-sm: 0; --radius-md: 0; --radius-lg: 0; --radius-xl: 0;
-}
-
-::selection { background: #0A0A0A; color: #FFFFFF; }
-
-/* ── Signature motifs, monochrome ─────────────────────────────── */
-.tmi-grid {
-  background-image:
-    linear-gradient(90deg, rgba(0,0,0,0.045) 1px, transparent 1px),
-    linear-gradient(rgba(0,0,0,0.045) 1px, transparent 1px);
-  background-size: 44px 44px;
-}
-.tmi-dot-grid {
-  background-image: radial-gradient(circle, rgba(0,0,0,0.10) 1px, transparent 1px);
-  background-size: 22px 22px;
-}
-.tmi-corners { position: relative; }
-.tmi-corners::before, .tmi-corners::after {
-  content: ""; position: absolute; width: 16px; height: 16px;
-  border-color: #0A0A0A; pointer-events: none; z-index: 1;
-}
-.tmi-corners::before { top: -1px; left: -1px; border-top: 2px solid; border-left: 2px solid; }
-.tmi-corners::after  { bottom: -1px; right: -1px; border-bottom: 2px solid; border-right: 2px solid; }
-
-/* ── Keyframes ─────────────────────────────────────────────────── */
-@keyframes reveal-up    { from { opacity: 0; transform: translateY(28px); } to { opacity: 1; transform: none; } }
-@keyframes reveal-fade  { from { opacity: 0; } to { opacity: 1; } }
-@keyframes float-y      { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
-@keyframes ping-ring    { 75%,100% { transform: scale(2.1); opacity: 0; } }
-@keyframes line-draw    { from { transform: scaleX(0); transform-origin: left; } to { transform: scaleX(1); transform-origin: left; } }
-@keyframes shimmer      { 0% { background-position: -400% center; } 100% { background-position: 400% center; } }
-@keyframes marquee      { from { transform: translateX(0); } to { transform: translateX(-50%); } }
-
-.anim-float   { animation: float-y 4.5s ease-in-out infinite; }
-.anim-ping    { animation: ping-ring 1.6s cubic-bezier(0,0,0.2,1) infinite; }
-.anim-line    { animation: line-draw 0.7s cubic-bezier(0.22,1,0.36,1) both; }
-.anim-marquee { animation: marquee 32s linear infinite; }
-.animate-fade-up { animation: reveal-up 0.5s cubic-bezier(0.22,1,0.36,1) both; }
-.animate-fade-in { animation: reveal-fade 0.4s ease both; }
-@keyframes bounce-subtle { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
-.animate-bounce-subtle { animation: bounce-subtle 2s ease-in-out infinite; }
-
-.skeleton {
-  background: linear-gradient(90deg, #F0F0F0 25%, #E2E2E2 50%, #F0F0F0 75%);
-  background-size: 400% auto;
-  animation: shimmer 1.6s linear infinite;
-}
-
-/* ── Interactive micro-states ─────────────────────────────────── */
-.lift { transition: transform 0.25s cubic-bezier(0.22,1,0.36,1), box-shadow 0.25s cubic-bezier(0.22,1,0.36,1), border-color 0.2s ease; }
 .lift:hover { transform: translateY(-4px); box-shadow: 0 24px 56px rgba(0,0,0,0.10); }
-
-.press, .btn-press { transition: transform 0.1s ease; }
-.press:active, .btn-press:active { transform: scale(0.97); }
 
 .link-ul { position: relative; }
 .link-ul::after {
-  content: ""; position: absolute; left: 0; bottom: -2px; width: 100%; height: 1px;
-  background: currentColor; transform: scaleX(0); transform-origin: right;
+  content: ""; position: absolute; left: 0; bottom: -2px;
+  width: 100%; height: 1px; background: currentColor;
+  transform: scaleX(0); transform-origin: right;
   transition: transform 0.3s cubic-bezier(0.22,1,0.36,1);
 }
 .link-ul:hover::after { transform: scaleX(1); transform-origin: left; }
@@ -347,30 +212,82 @@ a, button { text-underline-offset: 4px; }
 .img-zoom img { transition: transform 0.7s cubic-bezier(0.22,1,0.36,1); }
 .img-zoom:hover img { transform: scale(1.06); }
 
-/* ── Admin card ────────────────────────────────────────────────── */
+/* ── Signature motifs ────────────────────────────────────────────── */
+/* Subtle dot grid background */
+.tmi-dot-grid {
+  background-image: radial-gradient(circle, rgba(0,0,0,0.08) 1px, transparent 1px);
+  background-size: 22px 22px;
+}
+/* Corner accent marks */
+.tmi-corners { position: relative; }
+.tmi-corners::before, .tmi-corners::after {
+  content: ""; position: absolute; width: 16px; height: 16px;
+  border-color: #1d1d1f; pointer-events: none; z-index: 1;
+}
+.tmi-corners::before { top: -1px; left: -1px; border-top: 2px solid; border-left: 2px solid; }
+.tmi-corners::after  { bottom: -1px; right: -1px; border-bottom: 2px solid; border-right: 2px solid; }
+
+/* M Stripe divider — brand signature, use sparingly */
+.m-stripe {
+  height: 4px;
+  background: linear-gradient(to right, #0066b1 0%, #1c69d4 50%, #e22718 100%);
+}
+
+/* ── Keyframes ───────────────────────────────────────────────────── */
+@keyframes reveal-up    { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: none; } }
+@keyframes reveal-fade  { from { opacity: 0; } to { opacity: 1; } }
+@keyframes float-y      { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+@keyframes ping-ring    { 75%,100% { transform: scale(2.1); opacity: 0; } }
+@keyframes line-draw    { from { transform: scaleX(0); transform-origin: left; } to { transform: scaleX(1); } }
+@keyframes shimmer      { 0% { background-position: -400% center; } 100% { background-position: 400% center; } }
+@keyframes marquee      { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+@keyframes bounce-s     { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
+
+.anim-float        { animation: float-y 4.5s ease-in-out infinite; }
+.anim-ping         { animation: ping-ring 1.6s cubic-bezier(0,0,0.2,1) infinite; }
+.anim-line         { animation: line-draw 0.7s cubic-bezier(0.22,1,0.36,1) both; }
+.anim-marquee      { animation: marquee 32s linear infinite; }
+.animate-fade-up   { animation: reveal-up 0.5s cubic-bezier(0.22,1,0.36,1) both; }
+.animate-fade-in   { animation: reveal-fade 0.4s ease both; }
+.animate-bounce-subtle { animation: bounce-s 2s ease-in-out infinite; }
+
+.skeleton {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e8e8e8 50%, #f0f0f0 75%);
+  background-size: 400% auto;
+  animation: shimmer 1.6s linear infinite;
+}
+
+/* ── Admin panel ─────────────────────────────────────────────────── */
 .adm-card {
   background: var(--adm-surface);
   border: 1px solid var(--adm-border);
+  border-radius: 18px;
   position: relative;
   transition: border-color 0.2s ease, box-shadow 0.22s ease, transform 0.22s cubic-bezier(0.22,1,0.36,1);
 }
-.adm-card:hover { border-color: var(--adm-ink); box-shadow: 0 4px 20px rgba(0,0,0,0.08); transform: translateY(-2px); }
+.adm-card:hover {
+  border-color: var(--adm-ink);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+  transform: translateY(-2px);
+}
 
 .adm-nav-link { position: relative; transition: background 0.18s ease, color 0.18s ease; }
 .adm-nav-link.active::before {
-  content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: var(--adm-ink);
+  content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 3px;
+  background: var(--adm-blue); border-radius: 0 2px 2px 0;
 }
 
-@keyframes adm-page-in  { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
-@keyframes adm-drawer-in{ from { opacity: 0; transform: translateX(100%); } to { opacity: 1; transform: none; } }
-@keyframes adm-dialog-in{ from { opacity: 0; transform: scale(0.94); } to { opacity: 1; transform: scale(1); } }
-@keyframes adm-count-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+@keyframes adm-page-in   { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+@keyframes adm-drawer-in { from { opacity: 0; transform: translateX(100%); } to { opacity: 1; transform: none; } }
+@keyframes adm-dialog-in { from { opacity: 0; transform: scale(0.94); } to { opacity: 1; transform: scale(1); } }
+@keyframes adm-count-in  { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
 
 .adm-page       { animation: adm-page-in 0.35s cubic-bezier(0.22,1,0.36,1) both; }
 .adm-drawer     { animation: adm-drawer-in 0.3s cubic-bezier(0.22,1,0.36,1) both; }
 .adm-dialog     { animation: adm-dialog-in 0.25s cubic-bezier(0.22,1,0.36,1) both; }
 .adm-stat-value { animation: adm-count-in 0.5s cubic-bezier(0.22,1,0.36,1) both; }
 
+/* ── Base layer ──────────────────────────────────────────────────── */
 a, button { text-underline-offset: 4px; }
 
 @layer base {

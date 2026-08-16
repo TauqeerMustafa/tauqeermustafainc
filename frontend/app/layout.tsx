@@ -15,15 +15,15 @@ export const metadata: Metadata = {
     template: "%s | TMI",
   },
   description:
-    "Full-stack web development, cybersecurity consulting, AI automation, and cloud engineering for businesses in Pakistan and worldwide. Security-first digital agency based in Islamabad.",
+    "Full-stack web development, cybersecurity consulting, AI automation, and cloud engineering for businesses worldwide. Security-first engineering from a team that ships.",
   keywords: [
-    "web development Pakistan",
-    "cybersecurity consulting Islamabad",
+    "web development",
+    "cybersecurity consulting",
     "AI automation services",
-    "cloud engineering Pakistan",
-    "digital agency Islamabad",
+    "cloud engineering",
     "full stack development",
     "security-first development",
+    "software engineering firm",
     "Tauqeer Mustafa",
   ],
   authors: [{ name: "Tauqeer Mustafa", url: appConfig.siteUrl }],
@@ -46,9 +46,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Tauqeer Mustafa Inc. | Digital Agency Islamabad",
+    title: "Tauqeer Mustafa Inc. | Web Development, Cybersecurity & AI",
     description:
-      "Full-stack web development, cybersecurity, AI automation, and cloud engineering services.",
+      "Full-stack web development, cybersecurity, AI automation, and cloud engineering — security-first, globally delivered.",
     images: ["https://images.unsplash.com/photo-1518186285589-2f7649de83e0?auto=format&fit=crop&w=1600&q=80"],
   },
   robots: { index: true, follow: true },

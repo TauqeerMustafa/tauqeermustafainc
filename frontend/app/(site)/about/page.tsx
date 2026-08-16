@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { ArrowRight, Award, Globe2, Users } from "lucide-react";
 import Link from "next/link";
 
+import Image from "next/image";
 import {
   Card,
   ImagePlaceholder,
@@ -45,13 +46,13 @@ const principles = [
 
 const timeline = [
   {
-    year: "2026",
+    year: "2023",
     title: "Founded",
     description:
       "Tauqeer Mustafa established TMI in Islamabad to deliver integrated engineering and security work for companies that needed systems built with discipline — web platforms, security audits, AI automation, and cloud infrastructure managed as a unified practice.",
   },
   {
-    year: "2026",
+    year: "2024",
     title: "First clients",
     description:
       "Early projects centered on secure authentication systems, compliance dashboards for distributed teams, and operational portals for financial services clients. Each engagement reinforced the model: discover the real constraints, design for maintainability, deliver in testable increments.",
@@ -82,7 +83,7 @@ export default function AboutPage() {
             </h2>
             <div className="mt-8 space-y-6 text-[17px] leading-[1.47] tracking-[-0.374px] text-[#7a7a7a]">
               <p>
-                Tauqeer Mustafa founded TMI in 2026 after years of watching companies struggle with the same pattern:
+                Tauqeer Mustafa founded TMI in 2023 after years of watching companies struggle with the same pattern:
                 engineering teams that couldn't talk to security consultants, security audits that arrived too late to matter,
                 and platforms built without considering the operational reality they'd face in production.
               </p>
@@ -107,12 +108,14 @@ export default function AboutPage() {
           </div>
 
           <div className="space-y-6">
-            <div className="overflow-hidden rounded-[18px]">
-              <img
+            <div className="relative overflow-hidden rounded-[18px]" style={{ boxShadow: "rgba(0,0,0,0.22) 3px 5px 30px 0" }}>
+              <Image
                 src={imageLibrary.about[0]}
                 alt="Tauqeer Mustafa — Founder, TMI"
+                width={800}
+                height={600}
+                sizes="(max-width: 1024px) 100vw, 45vw"
                 className="h-full w-full object-cover"
-                style={{ boxShadow: "rgba(0,0,0,0.22) 3px 5px 30px 0" }}
               />
             </div>
             <Card>

@@ -309,7 +309,7 @@ export function PageHero({
   children?: ReactNode;
 }) {
   return (
-    <div className="bg-[#f5f5f7] px-5 py-16 sm:px-6 sm:py-24">
+    <div className="bg-[#f3f0ee] px-5 py-16 sm:px-6 sm:py-24">
       <div className="mx-auto max-w-[980px]">
         <div className={cx("grid gap-10", image ? "lg:grid-cols-2 lg:items-center" : "")}>
           <div>

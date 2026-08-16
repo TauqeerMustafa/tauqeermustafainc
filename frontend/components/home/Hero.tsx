@@ -8,7 +8,7 @@ import { ArrowRight, Zap } from "lucide-react";
 import { imageLibrary } from "@/data/media";
 
 const heroStats = [
-  { value: "2026",     label: "Established",      detail: "Built from the ground up for modern web." },
+  { value: "2023",     label: "Established",      detail: "Built from the ground up for modern web." },
   { value: "Zero",     label: "Outsourcing",      detail: "Every line written by our core team." },
   { value: "8–16w",    label: "Delivery cycles",  detail: "From discovery to production deployment." },
 ];
@@ -16,7 +16,7 @@ const heroStats = [
 export default function Hero() {
   return (
     /* Light tile — white canvas, full-bleed */
-    <section className="bg-[#ffffff] px-5 pb-[80px] pt-24 sm:px-6 sm:pt-32 lg:pt-40" aria-label="Hero">
+    <section className="bg-[#f3f0ee] px-5 pb-[80px] pt-24 sm:px-6 sm:pt-32 lg:pt-40" aria-label="Hero">
       <div className="mx-auto max-w-[980px]">
 
         {/* ── Centre stack ── */}

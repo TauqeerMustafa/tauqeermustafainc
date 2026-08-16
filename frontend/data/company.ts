@@ -14,9 +14,9 @@ export const company = {
   vision:
     "To become the engineering partner that growing companies return to when the work matters — where technical depth, clear communication, and delivery discipline are the standard.",
 
-  founded: "2026",
+  founded: "2023",
 
-  headquarters: "Islamabad, Pakistan",
+  city: "Islamabad, Pakistan",
 
   email: "contact@tauqeermustafa.tech",
 

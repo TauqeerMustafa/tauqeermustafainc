@@ -30,21 +30,28 @@ const faqs = [
 
 export default function FAQ() {
   return (
-    <Section className="bg-[#FAFAFA]" labelledBy="contact-faq">
+    <Section className="bg-[#f3f0ee]" labelledBy="contact-faq">
       <SectionHeader
         id="contact-faq"
         eyebrow="Questions"
         title="Frequently asked questions"
         description="A few things people usually ask before reaching out."
       />
-      <div className="mt-14 grid gap-4 lg:grid-cols-2">
-        {faqs.map((item) => (
+      <div className="mt-14 grid gap-6 lg:grid-cols-2">
+        {faqs.map((item, i) => (
           <div
             key={item.question}
-            className="border-t border-gray-200 pt-6"
+            className="rounded-[18px] border border-[#e0e0e0] bg-white p-7"
           >
-            <h3 className="text-lg font-semibold text-[#0A0A0A]">{item.question}</h3>
-            <p className="mt-3 text-base leading-7 text-[#737373]">{item.answer}</p>
+            <span className="font-mono text-[10px] font-semibold uppercase tracking-[0.12em] text-[#6e6e73]">
+              0{i + 1}
+            </span>
+            <h3 className="mt-4 text-[17px] font-semibold leading-[1.3] tracking-[-0.374px] text-[#1d1d1f]">
+              {item.question}
+            </h3>
+            <p className="mt-3 text-[15px] leading-[1.6] tracking-[-0.1px] text-[#6e6e73]">
+              {item.answer}
+            </p>
           </div>
         ))}
       </div>
