@@ -3,14 +3,14 @@
 import { motion } from "framer-motion";
 import Link from "next/link";
 import Image from "next/image";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Zap } from "lucide-react";
 
 import { imageLibrary } from "@/data/media";
 
 const heroStats = [
-  { value: "5",      label: "Service lines",   detail: "Web, security, AI, cloud, and product design." },
-  { value: "Sec+",   label: "Security-first",  detail: "Security built into every engagement from day one." },
-  { value: "Full",   label: "Stack agency",    detail: "End-to-end engineering. One team. Zero handoffs." },
+  { value: "2026",     label: "Established",      detail: "Built from the ground up for modern web." },
+  { value: "Zero",     label: "Outsourcing",      detail: "Every line written by our core team." },
+  { value: "8–16w",    label: "Delivery cycles",  detail: "From discovery to production deployment." },
 ];
 
 export default function Hero() {
@@ -22,97 +22,105 @@ export default function Hero() {
         {/* ── Centre stack ── */}
         <div className="flex flex-col items-center text-center">
 
-          <motion.p
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-            className="text-[17px] font-semibold leading-[1.24] tracking-[-0.374px] text-[#1d1d1f] sm:text-[21px] sm:leading-[1.19] sm:tracking-[0.231px]"
+            className="inline-flex items-center gap-2 rounded-full border border-[#0066cc]/20 bg-[#0066cc]/5 px-4 py-2"
           >
-            Tauqeer Mustafa Inc.
-          </motion.p>
+            <Zap className="h-4 w-4 text-[#0066cc]" aria-hidden />
+            <span className="text-[14px] font-semibold leading-[1.29] tracking-[-0.224px] text-[#0066cc]">
+              Islamabad-based · Globally focused
+            </span>
+          </motion.div>
 
           <motion.h1
             initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.07, ease: [0.22, 1, 0.36, 1] }}
-            className="mt-4 max-w-4xl text-balance text-[40px] font-semibold leading-[1.1] tracking-[-0.374px] text-[#1d1d1f] sm:text-[48px] sm:leading-[1.08] lg:text-[56px] lg:leading-[1.07] lg:tracking-[-0.28px]"
+            transition={{ duration: 0.6, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
+            className="mt-6 max-w-4xl text-balance text-[44px] font-semibold leading-[1.09] tracking-[-0.374px] text-[#1d1d1f] sm:text-[56px] sm:leading-[1.07] lg:text-[64px] lg:leading-[1.06] lg:tracking-[-0.5px]"
           >
-            Engineering that ships. Security that holds.
+            Systems that scale. Security that ships.
           </motion.h1>
 
           <motion.p
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.14, ease: [0.22, 1, 0.36, 1] }}
-            className="mt-6 max-w-2xl text-pretty text-[19px] font-[400] leading-[1.21] tracking-[-0.374px] text-[#1d1d1f] sm:text-[21px] sm:leading-[1.19] lg:text-[28px] lg:leading-[1.14] lg:tracking-[0.196px]"
+            transition={{ duration: 0.6, delay: 0.18, ease: [0.22, 1, 0.36, 1] }}
+            className="mt-6 max-w-2xl text-pretty text-[19px] font-[400] leading-[1.32] tracking-[-0.374px] text-[#6e6e73] sm:text-[21px] sm:leading-[1.29] lg:text-[24px] lg:leading-[1.25]"
           >
-            A digital agency delivering integrated web, AI, cloud, and security work for companies that need systems built to last.
+            We build production-ready platforms for businesses that can't afford downtime. Web engineering, AI automation, cloud infrastructure, and security — delivered as one integrated team.
           </motion.p>
 
           <motion.div
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.22, ease: [0.22, 1, 0.36, 1] }}
-            className="relative z-10 mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row sm:flex-wrap"
+            transition={{ duration: 0.5, delay: 0.26, ease: [0.22, 1, 0.36, 1] }}
+            className="relative z-10 mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row"
           >
             <Link
               href="/contact"
-              className="apple-press inline-flex w-full items-center justify-center rounded-full bg-[#0066cc] px-[22px] py-[11px] text-[17px] font-[400] leading-[1.47] tracking-[-0.374px] text-white transition-colors hover:bg-[#0071e3] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0071e3] sm:w-auto"
+              className="apple-press inline-flex w-full items-center justify-center rounded-full bg-[#0066cc] px-6 py-3 text-[17px] font-semibold leading-[1.29] tracking-[-0.374px] text-white shadow-lg shadow-[#0066cc]/25 transition-all hover:bg-[#0055b3] hover:shadow-xl hover:shadow-[#0066cc]/30 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0071e3] sm:w-auto"
             >
               Start a Project
             </Link>
             <Link
-              href="/portfolio"
-              className="apple-press inline-flex w-full items-center justify-center gap-1 rounded-full border border-[#0066cc] bg-transparent px-[22px] py-[11px] text-[17px] font-[400] leading-[1.47] tracking-[-0.374px] text-[#0066cc] transition-colors hover:bg-[#0066cc] hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0071e3] sm:w-auto"
+              href="/services"
+              className="apple-press inline-flex w-full items-center justify-center gap-2 rounded-full border-2 border-[#d2d2d7] bg-transparent px-6 py-3 text-[17px] font-semibold leading-[1.29] tracking-[-0.374px] text-[#1d1d1f] transition-all hover:border-[#1d1d1f] hover:bg-[#f5f5f7] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1d1d1f] sm:w-auto"
             >
-              View Our Work <ArrowRight className="h-4 w-4" aria-hidden />
+              Explore Services <ArrowRight className="h-4 w-4" aria-hidden />
             </Link>
           </motion.div>
         </div>
 
         {/* ── Hero image — refined presentation ── */}
         <motion.div
-          initial={{ opacity: 0, y: 32 }}
+          initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.28, ease: [0.22, 1, 0.36, 1] }}
-          className="mt-12 sm:mt-16"
+          transition={{ duration: 0.9, delay: 0.34, ease: [0.22, 1, 0.36, 1] }}
+          className="mt-16 sm:mt-20"
         >
-          <div className="relative aspect-[4/3] overflow-hidden rounded-[18px] sm:aspect-[16/9]">
+          <div className="relative aspect-[4/3] overflow-hidden rounded-[24px] sm:aspect-[16/9]">
             <Image
-              src={imageLibrary.hero[2]}
-              alt="TMI — Infrastructure & engineering excellence"
+              src={imageLibrary.hero[0]}
+              alt="Modern development workspace with production-grade infrastructure"
               fill
               sizes="(max-width: 640px) 100vw, (max-width: 1024px) 90vw, 980px"
               priority
               className="object-cover"
-              style={{ boxShadow: "rgba(0,0,0,0.12) 0px 4px 16px, rgba(0,0,0,0.08) 0px 8px 32px" }}
+              style={{ boxShadow: "rgba(0,0,0,0.15) 0px 8px 40px, rgba(0,0,0,0.1) 0px 2px 8px" }}
             />
-            <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
-            <div className="absolute bottom-5 left-5 sm:bottom-7 sm:left-7">
-              <span className="inline-flex items-center gap-2 rounded-full bg-white/95 px-4 py-2 text-[13px] font-semibold text-[#1d1d1f] shadow-lg backdrop-blur-md sm:px-5 sm:py-2.5 sm:text-[15px]">
-                <span className="flex h-2 w-2">
-                  <span className="absolute inline-flex h-2 w-2 animate-ping rounded-full bg-[#0066cc] opacity-75"></span>
-                  <span className="relative inline-flex h-2 w-2 rounded-full bg-[#0066cc]"></span>
+            <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+            <div className="absolute bottom-6 left-6 right-6 sm:bottom-8 sm:left-8">
+              <div className="flex flex-wrap items-center gap-3">
+                <span className="inline-flex items-center gap-2 rounded-full bg-white/95 px-5 py-2.5 text-[14px] font-semibold text-[#1d1d1f] shadow-xl backdrop-blur-md sm:text-[15px]">
+                  <span className="flex h-2 w-2">
+                    <span className="absolute inline-flex h-2 w-2 animate-ping rounded-full bg-[#34c759] opacity-75"></span>
+                    <span className="relative inline-flex h-2 w-2 rounded-full bg-[#34c759]"></span>
+                  </span>
+                  Live in Production
                 </span>
-                Islamabad
-              </span>
+                <span className="inline-flex items-center gap-2 rounded-full border border-white/30 bg-black/40 px-4 py-2 text-[13px] font-semibold text-white backdrop-blur-md sm:text-[14px]">
+                  Built in Islamabad
+                </span>
+              </div>
             </div>
           </div>
         </motion.div>
 
         {/* ── Stats bar ── */}
-        <div className="mt-10 grid grid-cols-1 divide-y divide-[#e0e0e0] border-t border-[#e0e0e0] sm:mt-12 sm:grid-cols-3 sm:divide-x sm:divide-y-0">
+        <div className="mt-12 grid grid-cols-1 divide-y divide-[#d2d2d7] overflow-hidden rounded-[18px] border border-[#d2d2d7] bg-white shadow-sm sm:mt-16 sm:grid-cols-3 sm:divide-x sm:divide-y-0">
           {heroStats.map((s, i) => (
             <motion.div
               key={s.label}
-              initial={{ opacity: 0, y: 16 }}
+              initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.35 + i * 0.07, ease: [0.22, 1, 0.36, 1] }}
-              className="px-4 py-6 text-center sm:px-6 sm:py-8"
+              transition={{ duration: 0.5, delay: 0.42 + i * 0.08, ease: [0.22, 1, 0.36, 1] }}
+              className="px-6 py-8 text-center"
             >
-              <div className="text-[32px] font-semibold leading-[1.13] tracking-[-0.374px] text-[#1d1d1f] sm:text-[40px] sm:leading-[1.1]">{s.value}</div>
-              <div className="mt-1 text-[15px] font-semibold leading-[1.24] tracking-[-0.374px] text-[#1d1d1f] sm:text-[17px]">{s.label}</div>
-              <div className="mt-1 text-[13px] leading-[1.43] tracking-[-0.224px] text-[#7a7a7a] sm:text-[14px]">{s.detail}</div>
+              <div className="text-[36px] font-semibold leading-[1.11] tracking-[-0.5px] text-[#1d1d1f] sm:text-[42px]">{s.value}</div>
+              <div className="mt-2 text-[15px] font-semibold leading-[1.27] tracking-[-0.224px] text-[#0066cc] sm:text-[16px]">{s.label}</div>
+              <div className="mt-2 text-[14px] leading-[1.43] tracking-[-0.224px] text-[#86868b]">{s.detail}</div>
             </motion.div>
           ))}
         </div>

@@ -1,145 +1,148 @@
 "use client";
 
-import { BrainCircuit, Building2, Cloud, Layers3, ShieldCheck, Paintbrush } from "lucide-react";
+import { CheckCircle2, Code2, Shield, Sparkles } from "lucide-react";
 import { motion } from "framer-motion";
 
 import { imageLibrary } from "@/data/media";
 import { ButtonLink, Reveal, Section, fadeLeft, fadeRight, stagger, viewportOnce } from "./ui";
 
-const values = [
-  "Security in every build — not a bolt-on",
-  "Senior engineers on every engagement — no outsourcing",
-  "Five integrated disciplines, one cohesive team",
-  "Honest scope, honest pricing, no markup",
+const capabilities = [
+  { title: "Web & API platforms", detail: "Next.js, React, FastAPI, PostgreSQL — production infrastructure", icon: Code2 },
+  { title: "Security engineering", detail: "Threat modeling, penetration testing, compliance audits", icon: Shield },
+  { title: "AI & automation", detail: "LLM integration, intelligent workflows, operational agents", icon: Sparkles },
 ];
 
-const disciplines = [
-  { title: "Web & product platforms", icon: Building2 },
-  { title: "AI & workflow automation", icon: BrainCircuit },
-  { title: "Cybersecurity & risk",     icon: ShieldCheck },
-  { title: "Cloud infrastructure",     icon: Cloud },
-  { title: "UI/UX & product design",  icon: Paintbrush },
+const principles = [
+  "Every system architected with security from the start",
+  "Senior engineers on every engagement — no junior outsourcing",
+  "Clear scope, honest timelines, no hidden fees",
+  "Direct communication — no account managers",
 ];
 
 const miniStats = [
-  { value: "5",      label: "Disciplines" },
-  { value: "100%",   label: "In-house" },
-  { value: "8–16w",  label: "Avg. engagement" },
+  { value: "3+",      label: "Core services" },
+  { value: "PK",      label: "Headquarters" },
+  { value: "24/7",    label: "Uptime focus" },
 ];
 
 export default function AboutPreview() {
   return (
     /* Parchment tile */
     <Section className="bg-[#f5f5f7]" labelledBy="about-title">
-      <div className="grid gap-12 lg:grid-cols-[0.95fr_1.05fr] lg:items-center">
+      <div className="grid gap-16 lg:grid-cols-2 lg:items-start lg:gap-20">
 
-        <Reveal variant={fadeLeft} className="order-2 lg:order-1 space-y-6">
-          <div className="grid grid-cols-2 gap-3">
-            <div className="overflow-hidden rounded-lg">
-              <img
-                src={imageLibrary.services[0]}
-                alt="Infrastructure & cloud architecture"
-                className="h-full w-full object-cover"
-                style={{ boxShadow: "rgba(0,0,0,0.22) 3px 5px 30px 0" }}
-              />
+        <Reveal variant={fadeLeft} className="order-2 lg:order-1">
+          <div className="space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="overflow-hidden rounded-[18px]">
+                <img
+                  src={imageLibrary.hero[1]}
+                  alt="Development environment with production monitoring"
+                  className="aspect-[4/3] h-full w-full object-cover"
+                  style={{ boxShadow: "rgba(0,0,0,0.12) 0px 4px 24px" }}
+                />
+              </div>
+              <div className="overflow-hidden rounded-[18px]">
+                <img
+                  src={imageLibrary.services[2]}
+                  alt="AI and neural network architecture"
+                  className="aspect-[4/3] h-full w-full object-cover"
+                  style={{ boxShadow: "rgba(0,0,0,0.12) 0px 4px 24px" }}
+                />
+              </div>
             </div>
-            <div className="overflow-hidden rounded-lg">
-              <img
-                src={imageLibrary.services[1]}
-                alt="Security & compliance"
-                className="h-full w-full object-cover"
-                style={{ boxShadow: "rgba(0,0,0,0.22) 3px 5px 30px 0" }}
-              />
-            </div>
-            <div className="overflow-hidden rounded-lg">
+            <div className="overflow-hidden rounded-[18px]">
               <img
                 src={imageLibrary.services[3]}
-                alt="AI & automation"
-                className="h-full w-full object-cover"
-                style={{ boxShadow: "rgba(0,0,0,0.22) 3px 5px 30px 0" }}
-              />
-            </div>
-            <div className="overflow-hidden rounded-lg">
-              <img
-                src={imageLibrary.dashboard[0]}
-                alt="Analytics & dashboards"
-                className="h-full w-full object-cover"
-                style={{ boxShadow: "rgba(0,0,0,0.22) 3px 5px 30px 0" }}
+                alt="Cloud infrastructure and data centers"
+                className="aspect-[21/9] w-full object-cover"
+                style={{ boxShadow: "rgba(0,0,0,0.12) 0px 4px 24px" }}
               />
             </div>
           </div>
-          <div className="grid grid-cols-3 divide-x divide-[#e0e0e0] border border-[#e0e0e0] bg-white">
+
+          <div className="mt-6 grid grid-cols-3 divide-x divide-[#d2d2d7] overflow-hidden rounded-[18px] border border-[#d2d2d7] bg-white shadow-sm">
             {miniStats.map((s) => (
-              <div key={s.label} className="px-4 py-5 text-center">
-                <p className="text-[28px] font-semibold leading-[1.14] text-[#1d1d1f]">{s.value}</p>
-                <p className="mt-0.5 text-[14px] leading-[1.43] tracking-[-0.224px] text-[#7a7a7a]">{s.label}</p>
+              <div key={s.label} className="px-4 py-6 text-center">
+                <p className="text-[32px] font-semibold leading-[1.13] tracking-[-0.374px] text-[#1d1d1f]">{s.value}</p>
+                <p className="mt-1 text-[13px] font-semibold leading-[1.38] tracking-[-0.224px] text-[#86868b]">{s.label}</p>
               </div>
             ))}
           </div>
         </Reveal>
 
         <Reveal variant={fadeRight} className="order-1 lg:order-2">
-          <p className="text-[21px] font-semibold leading-[1.19] tracking-[0.231px] text-[#1d1d1f]">About TMI</p>
-          <h2 id="about-title" className="mt-4 text-[40px] font-semibold leading-[1.1] tracking-[-0.374px] text-[#1d1d1f]">
-            A digital agency built around engineering that lasts.
+          <div className="inline-flex items-center gap-2 rounded-full border border-[#0066cc]/20 bg-[#0066cc]/5 px-3 py-1.5">
+            <span className="text-[13px] font-semibold leading-[1.38] tracking-[-0.224px] text-[#0066cc]">
+              Who We Are
+            </span>
+          </div>
+          <h2 id="about-title" className="mt-5 text-[40px] font-semibold leading-[1.1] tracking-[-0.5px] text-[#1d1d1f] sm:text-[44px]">
+            Built for businesses that need systems to work under pressure.
           </h2>
-          <div className="mt-6 space-y-5 text-[17px] leading-[1.47] tracking-[-0.374px] text-[#7a7a7a]">
+          <div className="mt-6 space-y-5 text-[17px] leading-[1.47] tracking-[-0.374px] text-[#6e6e73]">
             <p>
-              TMI delivers web engineering, cybersecurity, AI automation, cloud infrastructure, and product design
-              as a single integrated practice. Instead of coordinating five vendors, clients work with one team
-              that understands how those capabilities need to interact — security constraints shape architecture decisions
-              from the start, infrastructure design informs feature scope, and UX reflects the actual data model.
+              TMI is a digital agency in Islamabad that delivers web platforms, security consulting, and AI automation
+              as one integrated team. Instead of hiring three vendors who can't talk to each other, you work with senior
+              engineers who understand how those capabilities need to interact — security constraints inform architecture
+              from day one, infrastructure choices shape feature scope, and UX reflects the actual data model.
             </p>
             <p>
-              Every engagement is staffed by senior engineers — no account managers filtering technical decisions,
-              no handoffs between sales and delivery. The team that scopes your project writes the code, reviews the security
-              posture, and stays available through launch. That model works for projects that need depth — authentication systems
-              with real threat models, compliance dashboards that handle sensitive data correctly, operational platforms built to
-              survive contact with production load.
-            </p>
-            <p>
-              Most engagements run 8–16 weeks, from discovery through deployment and launch support. Clients typically return
-              for the next phase — new features, scaling work, or security audits — because the systems were built with
-              long-term maintainability in mind, not just enough to demo.
+              Most projects run 8–16 weeks, from discovery through deployment. Clients work directly with the engineers
+              who write the code, review the threat model, and deploy to production. No sales handoff, no account managers,
+              no surprises when scope meets reality. The systems we build are designed for long-term maintenance — documented,
+              tested, and structured so the next engineer (ours or yours) can understand what's happening.
             </p>
           </div>
+
+          <motion.div
+            initial="hidden"
+            whileInView="show"
+            viewport={viewportOnce}
+            variants={stagger(0.08)}
+            className="mt-10 space-y-3"
+          >
+            {capabilities.map((cap) => (
+              <motion.div
+                key={cap.title}
+                variants={{ hidden: { opacity: 0, x: -20 }, show: { opacity: 1, x: 0 } }}
+                className="flex items-start gap-4 rounded-[14px] border border-[#d2d2d7] bg-white p-4 shadow-sm"
+              >
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#0066cc]/10 text-[#0066cc]">
+                  <cap.icon className="h-5 w-5" aria-hidden />
+                </div>
+                <div>
+                  <p className="text-[17px] font-semibold leading-[1.29] tracking-[-0.374px] text-[#1d1d1f]">{cap.title}</p>
+                  <p className="mt-1 text-[15px] leading-[1.4] tracking-[-0.224px] text-[#86868b]">{cap.detail}</p>
+                </div>
+              </motion.div>
+            ))}
+          </motion.div>
 
           <motion.ul
             initial="hidden"
             whileInView="show"
             viewport={viewportOnce}
-            variants={stagger(0.08)}
-            className="mt-8 grid gap-3 sm:grid-cols-2"
+            variants={stagger(0.06)}
+            className="mt-8 space-y-3"
           >
-            {values.map((v) => (
+            {principles.map((principle) => (
               <motion.li
-                key={v}
-                variants={{ hidden: { opacity: 0, y: 12 }, show: { opacity: 1, y: 0 } }}
-                className="flex items-center gap-3 text-[17px] font-semibold leading-[1.24] tracking-[-0.374px] text-[#1d1d1f]"
+                key={principle}
+                variants={{ hidden: { opacity: 0, y: 10 }, show: { opacity: 1, y: 0 } }}
+                className="flex items-start gap-3 text-[16px] leading-[1.5] tracking-[-0.224px] text-[#1d1d1f]"
               >
-                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-[#e0e0e0] text-[#0066cc]" aria-hidden>
-                  <Layers3 className="h-4 w-4" />
-                </span>
-                {v}
+                <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-[#34c759]" aria-hidden />
+                {principle}
               </motion.li>
             ))}
           </motion.ul>
 
           <div className="mt-10 flex flex-col gap-3 sm:flex-row">
-            <ButtonLink href="/about"    variant="primary">About Us</ButtonLink>
-            <ButtonLink href="/contact"  variant="secondary">Start a Conversation</ButtonLink>
+            <ButtonLink href="/about" variant="primary">Learn More About Us</ButtonLink>
+            <ButtonLink href="/services" variant="secondary">View All Services</ButtonLink>
           </div>
         </Reveal>
-      </div>
-
-      {/* ── Disciplines strip ── */}
-      <div className="mt-16 grid gap-px overflow-hidden border border-[#e0e0e0] bg-[#e0e0e0] sm:grid-cols-3 lg:grid-cols-5">
-        {disciplines.map((d) => (
-          <div key={d.title} className="group bg-white px-6 py-7 transition-colors hover:bg-[#f5f5f7]">
-            <d.icon className="h-6 w-6 text-[#0066cc]" aria-hidden />
-            <p className="mt-4 text-[17px] font-semibold leading-[1.24] tracking-[-0.374px] text-[#1d1d1f]">{d.title}</p>
-          </div>
-        ))}
       </div>
     </Section>
   );
