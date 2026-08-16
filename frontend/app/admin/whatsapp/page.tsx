@@ -13,7 +13,6 @@ import {
   Trash2,
   RefreshCw,
   TrendingUp,
-  Users,
   MessageCircle,
   BarChart3,
 } from "lucide-react";
@@ -53,7 +52,6 @@ export default function AdminWhatsAppPage() {
     setSendError("");
     setSendSuccess(false);
 
-    // Validation
     if (!recipient.trim()) {
       setSendError("Please enter a recipient phone number");
       return;
@@ -102,7 +100,6 @@ export default function AdminWhatsAppPage() {
       await sendMessage.mutateAsync(payload);
       setSendSuccess(true);
 
-      // Reset form
       setTimeout(() => {
         setRecipient("");
         setMessageText("");
@@ -113,7 +110,6 @@ export default function AdminWhatsAppPage() {
         setSendSuccess(false);
       }, 2000);
 
-      // Refresh inbox
       refetch();
     } catch (error: any) {
       setSendError(error.message || "Failed to send message");
@@ -145,89 +141,119 @@ export default function AdminWhatsAppPage() {
 
       {/* Stats Cards */}
       <div className="mb-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <div className="border border-white/10 bg-white/5 p-4">
+        <div className="border bg-white p-5" style={{ borderColor: "var(--adm-border)" }}>
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-slate-400">Total Messages</p>
-              <p className="mt-1 text-2xl font-bold text-white">{stats.total}</p>
+              <p className="text-xs font-medium uppercase tracking-wide" style={{ color: "var(--adm-text-3)" }}>
+                Total Messages
+              </p>
+              <p className="mt-2 text-3xl font-bold" style={{ color: "var(--adm-text)" }}>
+                {stats.total}
+              </p>
             </div>
-            <MessageCircle className="text-blue-400" size={32} />
+            <div className="flex h-12 w-12 items-center justify-center rounded-full" style={{ background: "var(--adm-blue-light)" }}>
+              <MessageCircle className="text-blue-600" size={24} />
+            </div>
           </div>
         </div>
 
-        <div className="border border-white/10 bg-white/5 p-4">
+        <div className="border bg-white p-5" style={{ borderColor: "var(--adm-border)" }}>
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-slate-400">Received</p>
-              <p className="mt-1 text-2xl font-bold text-blue-400">{stats.inbound}</p>
+              <p className="text-xs font-medium uppercase tracking-wide" style={{ color: "var(--adm-text-3)" }}>
+                Received
+              </p>
+              <p className="mt-2 text-3xl font-bold text-blue-600">
+                {stats.inbound}
+              </p>
             </div>
-            <ArrowLeft className="text-blue-400" size={32} />
+            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-blue-50">
+              <ArrowLeft className="text-blue-600" size={24} />
+            </div>
           </div>
         </div>
 
-        <div className="border border-white/10 bg-white/5 p-4">
+        <div className="border bg-white p-5" style={{ borderColor: "var(--adm-border)" }}>
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-slate-400">Sent</p>
-              <p className="mt-1 text-2xl font-bold text-green-400">{stats.outbound}</p>
+              <p className="text-xs font-medium uppercase tracking-wide" style={{ color: "var(--adm-text-3)" }}>
+                Sent
+              </p>
+              <p className="mt-2 text-3xl font-bold text-green-600">
+                {stats.outbound}
+              </p>
             </div>
-            <ArrowRight className="text-green-400" size={32} />
+            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-green-50">
+              <ArrowRight className="text-green-600" size={24} />
+            </div>
           </div>
         </div>
 
-        <div className="border border-white/10 bg-white/5 p-4">
+        <div className="border bg-white p-5" style={{ borderColor: "var(--adm-border)" }}>
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-slate-400">Today</p>
-              <p className="mt-1 text-2xl font-bold text-yellow-400">{stats.today}</p>
+              <p className="text-xs font-medium uppercase tracking-wide" style={{ color: "var(--adm-text-3)" }}>
+                Today
+              </p>
+              <p className="mt-2 text-3xl font-bold" style={{ color: "var(--adm-blue)" }}>
+                {stats.today}
+              </p>
             </div>
-            <TrendingUp className="text-yellow-400" size={32} />
+            <div className="flex h-12 w-12 items-center justify-center rounded-full" style={{ background: "var(--adm-blue-light)" }}>
+              <TrendingUp style={{ color: "var(--adm-blue)" }} size={24} />
+            </div>
           </div>
         </div>
       </div>
 
       {/* Tabs */}
-      <div className="mb-6 flex items-center gap-3 border-b border-white/10 pb-3">
+      <div className="mb-6 flex items-center gap-2 border-b" style={{ borderColor: "var(--adm-border)" }}>
         <button
           type="button"
           onClick={() => setActiveTab("inbox")}
-          className={`flex items-center gap-2 px-4 py-2 text-sm font-semibold transition ${
+          className={`flex items-center gap-2 border-b-2 px-4 py-3 text-sm font-semibold transition ${
             activeTab === "inbox"
-              ? "border-b-2 border-yellow-400 text-white"
-              : "text-slate-400 hover:text-slate-300"
+              ? "text-blue-600"
+              : ""
           }`}
-          style={{ marginBottom: "-14px" }}
+          style={{
+            borderColor: activeTab === "inbox" ? "var(--adm-blue)" : "transparent",
+            color: activeTab === "inbox" ? "var(--adm-blue)" : "var(--adm-text-2)",
+            marginBottom: "-1px",
+          }}
         >
           <MessageSquare size={16} />
           Inbox
           {messages.length > 0 && (
-            <span className="rounded-full bg-yellow-400 px-2 py-0.5 text-xs font-bold text-black">
+            <span className="ml-1 rounded-full px-2 py-0.5 text-xs font-bold text-white" style={{ background: "var(--adm-blue)" }}>
               {messages.length}
             </span>
           )}
         </button>
+
         <button
           type="button"
           onClick={() => setActiveTab("send")}
-          className={`flex items-center gap-2 px-4 py-2 text-sm font-semibold transition ${
-            activeTab === "send"
-              ? "border-b-2 border-yellow-400 text-white"
-              : "text-slate-400 hover:text-slate-300"
-          }`}
-          style={{ marginBottom: "-14px" }}
+          className={`flex items-center gap-2 border-b-2 px-4 py-3 text-sm font-semibold transition`}
+          style={{
+            borderColor: activeTab === "send" ? "var(--adm-blue)" : "transparent",
+            color: activeTab === "send" ? "var(--adm-blue)" : "var(--adm-text-2)",
+            marginBottom: "-1px",
+          }}
         >
           <Send size={16} />
           Send Message
         </button>
+
         <button
           type="button"
           onClick={() => setActiveTab("stats")}
-          className={`flex items-center gap-2 px-4 py-2 text-sm font-semibold transition ${
-            activeTab === "stats"
-              ? "border-b-2 border-yellow-400 text-white"
-              : "text-slate-400 hover:text-slate-300"
-          }`}
-          style={{ marginBottom: "-14px" }}
+          className={`flex items-center gap-2 border-b-2 px-4 py-3 text-sm font-semibold transition`}
+          style={{
+            borderColor: activeTab === "stats" ? "var(--adm-blue)" : "transparent",
+            color: activeTab === "stats" ? "var(--adm-blue)" : "var(--adm-text-2)",
+            marginBottom: "-1px",
+          }}
         >
           <BarChart3 size={16} />
           API Info
@@ -237,7 +263,12 @@ export default function AdminWhatsAppPage() {
           type="button"
           onClick={() => refetch()}
           disabled={isLoading}
-          className="ml-auto flex items-center gap-2 border border-white/10 px-3 py-1.5 text-sm font-semibold text-slate-300 transition hover:border-yellow-400 hover:text-yellow-400 disabled:opacity-50"
+          className="ml-auto flex items-center gap-2 rounded-md border px-3 py-2 text-sm font-semibold transition hover:shadow-sm disabled:opacity-50"
+          style={{
+            borderColor: "var(--adm-border)",
+            color: "var(--adm-text)",
+            background: "var(--adm-surface)",
+          }}
         >
           <RefreshCw size={14} className={isLoading ? "animate-spin" : ""} />
           Refresh
@@ -249,13 +280,13 @@ export default function AdminWhatsAppPage() {
         <div>
           {isLoading && <AdminLoadingState label="Loading messages..." />}
           {isError && (
-            <AdminErrorState message="Could not load WhatsApp messages. Make sure the WA service is running at the configured URL." />
+            <AdminErrorState message="Could not load WhatsApp messages. Verify WA service URL in environment variables." />
           )}
 
           {!isLoading && !isError && messages.length === 0 && (
             <AdminEmptyState
               title="No messages yet"
-              description="WhatsApp messages will appear here once your bot receives them."
+              description="WhatsApp messages will appear here once received or sent."
             />
           )}
 
@@ -264,34 +295,40 @@ export default function AdminWhatsAppPage() {
               {messages.map((msg: any) => (
                 <div
                   key={msg.id}
-                  className={`border p-4 transition hover:bg-white/5 ${
-                    msg.direction === "inbound"
-                      ? "border-blue-500/30 bg-blue-500/5"
-                      : "border-green-500/30 bg-green-500/5"
-                  }`}
+                  className={`border bg-white p-5 transition hover:shadow-sm`}
+                  style={{
+                    borderColor: msg.direction === "inbound" ? "#3B82F6" : "#16A34A",
+                    borderLeftWidth: "4px",
+                  }}
                 >
                   <div className="mb-3 flex items-start justify-between gap-4">
                     <div className="flex items-center gap-3">
                       {msg.direction === "inbound" ? (
-                        <ArrowLeft size={18} className="shrink-0 text-blue-400" />
+                        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-50">
+                          <ArrowLeft size={18} className="text-blue-600" />
+                        </div>
                       ) : (
-                        <ArrowRight size={18} className="shrink-0 text-green-400" />
+                        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-green-50">
+                          <ArrowRight size={18} className="text-green-600" />
+                        </div>
                       )}
                       <div>
-                        <p className="font-semibold text-white">
+                        <p className="font-semibold" style={{ color: "var(--adm-text)" }}>
                           {msg.direction === "inbound" ? `From: ${msg.from}` : `To: ${msg.to}`}
                         </p>
-                        <p className="text-xs text-slate-400">
+                        <p className="text-xs" style={{ color: "var(--adm-text-3)" }}>
                           Type: {msg.type} {msg.status && `• Status: ${msg.status}`}
                         </p>
                       </div>
                     </div>
-                    <div className="flex items-center gap-2 text-xs text-slate-400">
+                    <div className="flex items-center gap-2 text-xs" style={{ color: "var(--adm-text-3)" }}>
                       <Clock size={12} />
                       {new Date(msg.timestamp).toLocaleString()}
                     </div>
                   </div>
-                  <p className="whitespace-pre-wrap pl-9 text-sm text-slate-300">{msg.body}</p>
+                  <p className="whitespace-pre-wrap pl-13 text-sm" style={{ color: "var(--adm-text)" }}>
+                    {msg.body}
+                  </p>
                 </div>
               ))}
             </div>
@@ -301,22 +338,27 @@ export default function AdminWhatsAppPage() {
 
       {/* Send Tab */}
       {activeTab === "send" && (
-        <div className="mx-auto max-w-2xl">
-          <div className="space-y-6 border border-white/10 bg-white/5 p-6">
-            {/* Message Type Selector */}
+        <div className="mx-auto max-w-3xl">
+          <div className="space-y-6 border bg-white p-6" style={{ borderColor: "var(--adm-border)" }}>
+            {/* Message Type */}
             <div>
-              <label className="mb-2 block text-sm font-semibold text-white">Message Type</label>
+              <label className="mb-3 block text-sm font-semibold" style={{ color: "var(--adm-text)" }}>
+                Message Type
+              </label>
               <div className="grid grid-cols-3 gap-3">
                 {(["text", "buttons", "template"] as MessageType[]).map((type) => (
                   <button
                     key={type}
                     type="button"
                     onClick={() => setMessageType(type)}
-                    className={`border px-4 py-2 text-sm font-semibold capitalize transition ${
-                      messageType === type
-                        ? "border-yellow-400 bg-yellow-400/10 text-yellow-400"
-                        : "border-white/10 text-slate-300 hover:border-white/20"
+                    className={`border px-4 py-3 text-sm font-semibold capitalize transition ${
+                      messageType === type ? "shadow-sm" : ""
                     }`}
+                    style={{
+                      borderColor: messageType === type ? "var(--adm-blue)" : "var(--adm-border)",
+                      background: messageType === type ? "var(--adm-blue-light)" : "var(--adm-surface)",
+                      color: messageType === type ? "var(--adm-blue)" : "var(--adm-text)",
+                    }}
                   >
                     {type}
                   </button>
@@ -326,9 +368,9 @@ export default function AdminWhatsAppPage() {
 
             {/* Recipient */}
             <div>
-              <label htmlFor="recipient" className="mb-2 block text-sm font-semibold text-white">
+              <label htmlFor="recipient" className="mb-2 block text-sm font-semibold" style={{ color: "var(--adm-text)" }}>
                 Recipient Phone Number
-                <span className="ml-2 text-xs font-normal text-slate-400">
+                <span className="ml-2 text-xs font-normal" style={{ color: "var(--adm-text-3)" }}>
                   (e.g., 923001234567 - no + symbol)
                 </span>
               </label>
@@ -338,14 +380,19 @@ export default function AdminWhatsAppPage() {
                 value={recipient}
                 onChange={(e) => setRecipient(e.target.value)}
                 placeholder="923001234567"
-                className="w-full border border-white/10 bg-white/5 px-4 py-2 text-sm text-white placeholder:text-slate-500 focus:border-yellow-400 focus:outline-none"
+                className="w-full border px-4 py-3 text-sm focus:outline-none focus:ring-2"
+                style={{
+                  borderColor: "var(--adm-border)",
+                  background: "var(--adm-surface)",
+                  color: "var(--adm-text)",
+                }}
               />
             </div>
 
             {/* Text Message */}
             {messageType === "text" && (
               <div>
-                <label htmlFor="message" className="mb-2 block text-sm font-semibold text-white">
+                <label htmlFor="message" className="mb-2 block text-sm font-semibold" style={{ color: "var(--adm-text)" }}>
                   Message
                 </label>
                 <textarea
@@ -354,9 +401,14 @@ export default function AdminWhatsAppPage() {
                   onChange={(e) => setMessageText(e.target.value)}
                   placeholder="Enter your message here..."
                   rows={6}
-                  className="w-full border border-white/10 bg-white/5 px-4 py-3 text-sm text-white placeholder:text-slate-500 focus:border-yellow-400 focus:outline-none"
+                  className="w-full border px-4 py-3 text-sm focus:outline-none focus:ring-2"
+                  style={{
+                    borderColor: "var(--adm-border)",
+                    background: "var(--adm-surface)",
+                    color: "var(--adm-text)",
+                  }}
                 />
-                <p className="mt-1 text-xs text-slate-400">
+                <p className="mt-2 text-xs" style={{ color: "var(--adm-text-3)" }}>
                   Supports WhatsApp markdown: *bold* _italic_ ~strikethrough~
                 </p>
               </div>
@@ -366,7 +418,7 @@ export default function AdminWhatsAppPage() {
             {messageType === "buttons" && (
               <>
                 <div>
-                  <label htmlFor="bodyText" className="mb-2 block text-sm font-semibold text-white">
+                  <label htmlFor="bodyText" className="mb-2 block text-sm font-semibold" style={{ color: "var(--adm-text)" }}>
                     Body Text
                   </label>
                   <textarea
@@ -375,13 +427,18 @@ export default function AdminWhatsAppPage() {
                     onChange={(e) => setBodyText(e.target.value)}
                     placeholder="Main message text..."
                     rows={4}
-                    className="w-full border border-white/10 bg-white/5 px-4 py-3 text-sm text-white placeholder:text-slate-500 focus:border-yellow-400 focus:outline-none"
+                    className="w-full border px-4 py-3 text-sm focus:outline-none focus:ring-2"
+                    style={{
+                      borderColor: "var(--adm-border)",
+                      background: "var(--adm-surface)",
+                      color: "var(--adm-text)",
+                    }}
                   />
                 </div>
 
                 <div>
-                  <label htmlFor="footerText" className="mb-2 block text-sm font-semibold text-white">
-                    Footer Text <span className="text-xs font-normal text-slate-400">(optional)</span>
+                  <label htmlFor="footerText" className="mb-2 block text-sm font-semibold" style={{ color: "var(--adm-text)" }}>
+                    Footer Text <span className="text-xs font-normal" style={{ color: "var(--adm-text-3)" }}>(optional)</span>
                   </label>
                   <input
                     type="text"
@@ -389,13 +446,18 @@ export default function AdminWhatsAppPage() {
                     value={footerText}
                     onChange={(e) => setFooterText(e.target.value)}
                     placeholder="Footer text..."
-                    className="w-full border border-white/10 bg-white/5 px-4 py-2 text-sm text-white placeholder:text-slate-500 focus:border-yellow-400 focus:outline-none"
+                    className="w-full border px-4 py-3 text-sm focus:outline-none focus:ring-2"
+                    style={{
+                      borderColor: "var(--adm-border)",
+                      background: "var(--adm-surface)",
+                      color: "var(--adm-text)",
+                    }}
                   />
                 </div>
 
                 <div>
-                  <label className="mb-2 block text-sm font-semibold text-white">
-                    Buttons <span className="text-xs font-normal text-slate-400">(max 3)</span>
+                  <label className="mb-2 block text-sm font-semibold" style={{ color: "var(--adm-text)" }}>
+                    Buttons <span className="text-xs font-normal" style={{ color: "var(--adm-text-3)" }}>(max 3)</span>
                   </label>
                   <div className="space-y-2">
                     {buttons.map((btn, index) => (
@@ -405,20 +467,34 @@ export default function AdminWhatsAppPage() {
                           value={btn.id}
                           onChange={(e) => updateButton(index, "id", e.target.value)}
                           placeholder="Button ID"
-                          className="w-1/3 border border-white/10 bg-white/5 px-3 py-2 text-sm text-white placeholder:text-slate-500 focus:border-yellow-400 focus:outline-none"
+                          className="w-1/3 border px-3 py-2 text-sm focus:outline-none focus:ring-2"
+                          style={{
+                            borderColor: "var(--adm-border)",
+                            background: "var(--adm-surface)",
+                            color: "var(--adm-text)",
+                          }}
                         />
                         <input
                           type="text"
                           value={btn.title}
                           onChange={(e) => updateButton(index, "title", e.target.value)}
                           placeholder="Button Title"
-                          className="flex-1 border border-white/10 bg-white/5 px-3 py-2 text-sm text-white placeholder:text-slate-500 focus:border-yellow-400 focus:outline-none"
+                          className="flex-1 border px-3 py-2 text-sm focus:outline-none focus:ring-2"
+                          style={{
+                            borderColor: "var(--adm-border)",
+                            background: "var(--adm-surface)",
+                            color: "var(--adm-text)",
+                          }}
                         />
                         {buttons.length > 1 && (
                           <button
                             type="button"
                             onClick={() => removeButton(index)}
-                            className="border border-white/10 px-3 text-sm text-red-400 transition hover:border-red-400"
+                            className="border px-3 text-sm transition hover:shadow-sm"
+                            style={{
+                              borderColor: "var(--adm-border)",
+                              color: "var(--adm-red)",
+                            }}
                           >
                             <Trash2 size={14} />
                           </button>
@@ -430,7 +506,11 @@ export default function AdminWhatsAppPage() {
                     <button
                       type="button"
                       onClick={addButton}
-                      className="mt-2 border border-white/10 px-4 py-2 text-sm font-semibold text-slate-300 transition hover:border-yellow-400 hover:text-yellow-400"
+                      className="mt-3 border px-4 py-2 text-sm font-semibold transition hover:shadow-sm"
+                      style={{
+                        borderColor: "var(--adm-border)",
+                        color: "var(--adm-text)",
+                      }}
                     >
                       + Add Button
                     </button>
@@ -442,7 +522,7 @@ export default function AdminWhatsAppPage() {
             {/* Template Message */}
             {messageType === "template" && (
               <div>
-                <label htmlFor="template" className="mb-2 block text-sm font-semibold text-white">
+                <label htmlFor="template" className="mb-2 block text-sm font-semibold" style={{ color: "var(--adm-text)" }}>
                   Template Name
                 </label>
                 <input
@@ -451,24 +531,29 @@ export default function AdminWhatsAppPage() {
                   value={templateName}
                   onChange={(e) => setTemplateName(e.target.value)}
                   placeholder="order_update"
-                  className="w-full border border-white/10 bg-white/5 px-4 py-2 text-sm text-white placeholder:text-slate-500 focus:border-yellow-400 focus:outline-none"
+                  className="w-full border px-4 py-3 text-sm focus:outline-none focus:ring-2"
+                  style={{
+                    borderColor: "var(--adm-border)",
+                    background: "var(--adm-surface)",
+                    color: "var(--adm-text)",
+                  }}
                 />
-                <p className="mt-2 text-xs text-slate-400">
-                  Enter a pre-approved Meta template name. Templates must be created and approved in the Meta Business Manager.
+                <p className="mt-2 text-xs" style={{ color: "var(--adm-text-3)" }}>
+                  Templates must be pre-approved in Meta Business Manager.
                 </p>
               </div>
             )}
 
-            {/* Error/Success Messages */}
+            {/* Error/Success */}
             {sendError && (
-              <div className="flex items-center gap-2 border border-red-500/30 bg-red-500/10 p-3 text-sm text-red-400">
+              <div className="flex items-center gap-2 border bg-red-50 p-4 text-sm" style={{ borderColor: "var(--adm-red)", color: "var(--adm-red)" }}>
                 <AlertCircle size={16} className="shrink-0" />
                 {sendError}
               </div>
             )}
 
             {sendSuccess && (
-              <div className="flex items-center gap-2 border border-green-500/30 bg-green-500/10 p-3 text-sm text-green-400">
+              <div className="flex items-center gap-2 border bg-green-50 p-4 text-sm" style={{ borderColor: "var(--adm-green)", color: "var(--adm-green)" }}>
                 <CheckCheck size={16} className="shrink-0" />
                 Message sent successfully!
               </div>
@@ -479,7 +564,8 @@ export default function AdminWhatsAppPage() {
               type="button"
               onClick={handleSend}
               disabled={sendMessage.isPending}
-              className="flex w-full items-center justify-center gap-2 bg-yellow-400 px-6 py-3 font-semibold text-black transition hover:bg-yellow-300 disabled:cursor-not-allowed disabled:opacity-50"
+              className="flex w-full items-center justify-center gap-2 px-6 py-4 text-sm font-semibold text-white transition hover:shadow-md disabled:opacity-50"
+              style={{ background: "var(--adm-blue)" }}
             >
               <Send size={16} />
               {sendMessage.isPending ? "Sending..." : "Send Message"}
@@ -488,57 +574,54 @@ export default function AdminWhatsAppPage() {
         </div>
       )}
 
-      {/* Stats/API Tab */}
+      {/* API Info Tab */}
       {activeTab === "stats" && (
         <div className="mx-auto max-w-3xl space-y-6">
-          {/* Service Status */}
-          <div className="border border-white/10 bg-white/5 p-6">
-            <h3 className="mb-4 flex items-center gap-2 text-lg font-bold text-white">
+          <div className="border bg-white p-6" style={{ borderColor: "var(--adm-border)" }}>
+            <h3 className="mb-4 flex items-center gap-2 text-lg font-bold" style={{ color: "var(--adm-text)" }}>
               <Phone size={18} />
               Service Status
             </h3>
             <div className="space-y-3 text-sm">
               <div className="flex items-center justify-between">
-                <span className="text-slate-400">WA Service URL:</span>
-                <code className="rounded bg-black/30 px-2 py-1 text-yellow-400">
+                <span style={{ color: "var(--adm-text-3)" }}>WA Service URL:</span>
+                <code className="rounded bg-gray-100 px-2 py-1" style={{ color: "var(--adm-text)" }}>
                   {process.env.NEXT_PUBLIC_WA_SERVICE_URL || process.env.WA_SERVICE_URL || "Not configured"}
                 </code>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-slate-400">Status:</span>
-                <span className={messages.length >= 0 ? "text-green-400" : "text-red-400"}>
+                <span style={{ color: "var(--adm-text-3)" }}>Status:</span>
+                <span className={messages.length >= 0 ? "text-green-600" : "text-red-600"}>
                   {messages.length >= 0 ? "✓ Connected" : "✗ Disconnected"}
                 </span>
               </div>
             </div>
           </div>
 
-          {/* API Endpoints */}
-          <div className="border border-white/10 bg-white/5 p-6">
-            <h3 className="mb-4 flex items-center gap-2 text-lg font-bold text-white">
+          <div className="border bg-white p-6" style={{ borderColor: "var(--adm-border)" }}>
+            <h3 className="mb-4 flex items-center gap-2 text-lg font-bold" style={{ color: "var(--adm-text)" }}>
               <BarChart3 size={18} />
               API Endpoints
             </h3>
             <div className="space-y-4 text-sm">
               <div>
-                <p className="mb-1 font-mono text-yellow-400">POST /api/whatsapp/send</p>
-                <p className="text-slate-300">Send WhatsApp messages (text, buttons, template)</p>
+                <p className="mb-1 font-mono" style={{ color: "var(--adm-blue)" }}>POST /api/whatsapp/send</p>
+                <p style={{ color: "var(--adm-text-3)" }}>Send messages (text, buttons, template)</p>
               </div>
               <div>
-                <p className="mb-1 font-mono text-yellow-400">GET /api/whatsapp/messages</p>
-                <p className="text-slate-300">Retrieve all message history</p>
+                <p className="mb-1 font-mono" style={{ color: "var(--adm-blue)" }}>GET /api/whatsapp/messages</p>
+                <p style={{ color: "var(--adm-text-3)" }}>Retrieve message history</p>
               </div>
               <div>
-                <p className="mb-1 font-mono text-yellow-400">POST /api/whatsapp/webhook</p>
-                <p className="text-slate-300">Webhook endpoint for incoming messages</p>
+                <p className="mb-1 font-mono" style={{ color: "var(--adm-blue)" }}>POST /api/whatsapp/webhook</p>
+                <p style={{ color: "var(--adm-text-3)" }}>Webhook for incoming messages</p>
               </div>
             </div>
           </div>
 
-          {/* Quick Example */}
-          <div className="border border-white/10 bg-white/5 p-6">
-            <h3 className="mb-4 text-lg font-bold text-white">Quick API Example</h3>
-            <pre className="overflow-x-auto rounded bg-black/50 p-4 text-xs text-slate-300">
+          <div className="border bg-white p-6" style={{ borderColor: "var(--adm-border)" }}>
+            <h3 className="mb-4 text-lg font-bold" style={{ color: "var(--adm-text)" }}>Quick API Example</h3>
+            <pre className="overflow-x-auto rounded bg-gray-50 p-4 text-xs" style={{ color: "var(--adm-text)" }}>
 {`// Send text message
 fetch('/api/whatsapp/send', {
   method: 'POST',
@@ -546,7 +629,7 @@ fetch('/api/whatsapp/send', {
   body: JSON.stringify({
     type: 'text',
     to: '923001234567',
-    message: 'Hello from API!'
+    message: 'Hello!'
   })
 });`}
             </pre>
