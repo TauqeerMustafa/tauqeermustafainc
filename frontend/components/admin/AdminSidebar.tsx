@@ -11,6 +11,7 @@ import {
   Users,
   Bell,
   Mail,
+  MessageSquare,
   Settings,
   X,
   ChevronRight,
@@ -24,6 +25,7 @@ const links = [
   { title: "Careers",       href: "/admin/careers",       icon: Users },
   { title: "Announcements", href: "/admin/announcements", icon: Bell },
   { title: "Messages",      href: "/admin/messages",      icon: Mail },
+  { title: "WhatsApp",      href: "/admin/whatsapp",      icon: MessageSquare },
   { title: "Settings",      href: "/admin/settings",      icon: Settings },
 ];
 
