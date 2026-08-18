@@ -1,11 +1,10 @@
 /**
  * GET /api/whatsapp/rules
  * PUT /api/whatsapp/rules
- * Auto-reply rules storage
- *
- * Storage: In production, use a database. For now, returns default rule.
+ * Auto-reply rules storage (Upstash Redis)
  */
 import { NextResponse } from "next/server";
+import { kv, KEYS } from "@/lib/kv";
 
 const DEFAULT_RULES = [
   {
@@ -17,12 +16,27 @@ const DEFAULT_RULES = [
   },
 ];
 
-// TODO: Replace with real storage (database, Vercel KV, etc.)
 export async function GET() {
-  return NextResponse.json({
-    success: true,
-    data: DEFAULT_RULES,
-  });
+  try {
+    let rules = await kv.get<any[]>(KEYS.rules);
+
+    // Initialize with defaults if empty
+    if (!rules || rules.length === 0) {
+      rules = DEFAULT_RULES;
+      await kv.set(KEYS.rules, rules);
+    }
+
+    return NextResponse.json({
+      success: true,
+      data: rules,
+    });
+  } catch (error) {
+    console.error("[rules] GET error:", error);
+    return NextResponse.json(
+      { success: false, error: "Failed to load rules" },
+      { status: 500 }
+    );
+  }
 }
 
 export async function PUT(request: Request) {
@@ -30,13 +44,20 @@ export async function PUT(request: Request) {
     const body = await request.json();
     const { rules } = body;
 
-    // TODO: Save to database
-    // For now, just acknowledge
+    if (!Array.isArray(rules)) {
+      return NextResponse.json(
+        { success: false, error: "Rules must be an array" },
+        { status: 400 }
+      );
+    }
+
+    await kv.set(KEYS.rules, rules);
     return NextResponse.json({
       success: true,
-      message: "Rules saved (in-memory only — add database persistence)",
+      message: "Rules saved successfully",
     });
   } catch (error) {
+    console.error("[rules] PUT error:", error);
     return NextResponse.json(
       { success: false, error: "Failed to save rules" },
       { status: 500 }

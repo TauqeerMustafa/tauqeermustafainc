@@ -1,18 +1,62 @@
 /**
  * GET /api/whatsapp/messages
- * Returns stored messages (received via webhook + sent via /send)
+ * Returns all stored messages (received via webhook + sent via /send)
  *
- * Storage: In production, use a database. For now, this is a stub that returns
- * empty until you add persistence (Vercel KV, Postgres, etc.)
+ * Storage: Upstash Redis (KV)
  */
 import { NextResponse } from "next/server";
+import { kv, KEYS } from "@/lib/kv";
 
-// TODO: Replace with real storage (database, Redis, file system with persistent disk)
-// For now, return empty so the UI doesn't crash
+export type WAMessage = {
+  id: string;
+  from: string;
+  to: string;
+  jid?: string;
+  name?: string;
+  type: string;
+  body: string;
+  timestamp: string;
+  direction: "inbound" | "outbound";
+  status?: string;
+};
+
 export async function GET() {
-  return NextResponse.json({
-    success: true,
-    data: [],
-    count: 0,
-  });
+  try {
+    const messages = (await kv.get<WAMessage[]>(KEYS.messages)) || [];
+    return NextResponse.json({
+      success: true,
+      data: messages,
+      count: messages.length,
+    });
+  } catch (error) {
+    console.error("[messages] GET error:", error);
+    return NextResponse.json(
+      { success: false, error: "Failed to load messages" },
+      { status: 500 }
+    );
+  }
+}
+
+/**
+ * POST /api/whatsapp/messages
+ * Internal: called by webhook + send routes to persist a message
+ */
+export async function POST(request: Request) {
+  try {
+    const message: WAMessage = await request.json();
+    const messages = (await kv.get<WAMessage[]>(KEYS.messages)) || [];
+    messages.push(message);
+
+    // Keep last 1000 messages (prevent unbounded growth)
+    const trimmed = messages.slice(-1000);
+    await kv.set(KEYS.messages, trimmed);
+
+    return NextResponse.json({ success: true, messageId: message.id });
+  } catch (error) {
+    console.error("[messages] POST error:", error);
+    return NextResponse.json(
+      { success: false, error: "Failed to save message" },
+      { status: 500 }
+    );
+  }
 }

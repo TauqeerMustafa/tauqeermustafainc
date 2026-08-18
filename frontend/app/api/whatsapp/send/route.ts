@@ -129,6 +129,29 @@ export async function POST(request: Request) {
     }
 
     const messageId = data?.messages?.[0]?.id ?? null;
+
+    // Store the outbound message
+    if (messageId) {
+      const storedMessage = {
+        id: messageId,
+        from: phoneNumberId,
+        to: recipient,
+        jid: `${recipient}@s.whatsapp.net`,
+        type: type === "buttons" ? "interactive" : type,
+        body: type === "text" ? message : type === "buttons" ? bodyText : templateText || template,
+        timestamp: new Date().toISOString(),
+        direction: "outbound" as const,
+        status: "sent",
+      };
+
+      // Persist to KV (fire-and-forget, don't block response)
+      fetch(`${new URL(request.url).origin}/api/whatsapp/messages`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(storedMessage),
+      }).catch((e) => console.error("[send] Failed to persist message:", e));
+    }
+
     return NextResponse.json({ success: true, messageId, message: "Message sent successfully" });
   } catch (error) {
     return NextResponse.json(

@@ -42,8 +42,31 @@ export async function POST(request: Request) {
           const from    = msg.from;         // sender number (digits only)
           const msgType = msg.type;         // "text" | "image" | "audio" | ...
           const text    = msg?.text?.body ?? "";
+          const msgId   = msg.id ?? `msg_${Date.now()}`;
+          const name    = value?.contacts?.find((c: any) => c.wa_id === from)?.profile?.name;
 
           console.log(`[webhook] Message from ${from} (${msgType}): ${text.slice(0, 100)}`);
+
+          // Store the inbound message
+          const storedMessage = {
+            id: msgId,
+            from,
+            to: value?.metadata?.phone_number_id || "",
+            jid: `${from}@s.whatsapp.net`,
+            name: name || from,
+            type: msgType,
+            body: text,
+            timestamp: new Date().toISOString(),
+            direction: "inbound" as const,
+            status: "received",
+          };
+
+          // Persist to KV (fire-and-forget)
+          fetch(`${new URL(request.url).origin}/api/whatsapp/messages`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(storedMessage),
+          }).catch((e) => console.error("[webhook] Failed to persist message:", e));
 
           // Simple auto-reply: mirror the keyword engine from the Baileys bot.
           // Only fires if token + phoneId are configured.
