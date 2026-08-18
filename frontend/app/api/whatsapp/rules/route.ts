@@ -1,10 +1,10 @@
 /**
  * GET /api/whatsapp/rules
  * PUT /api/whatsapp/rules
- * Auto-reply rules storage (Upstash Redis)
+ * Auto-reply rules storage (Upstash Redis when configured, otherwise defaults)
  */
 import { NextResponse } from "next/server";
-import { kv, KEYS } from "@/lib/kv";
+import { kv, KEYS, isKVConfigured } from "@/lib/kv";
 
 const DEFAULT_RULES = [
   {
@@ -18,12 +18,20 @@ const DEFAULT_RULES = [
 
 export async function GET() {
   try {
-    let rules = await kv.get<any[]>(KEYS.rules);
+    if (!isKVConfigured) {
+      return NextResponse.json({
+        success: true,
+        data: DEFAULT_RULES,
+        notice: "Using default rules — KV not configured",
+      });
+    }
+
+    let rules = await kv!.get<any[]>(KEYS.rules);
 
     // Initialize with defaults if empty
     if (!rules || rules.length === 0) {
       rules = DEFAULT_RULES;
-      await kv.set(KEYS.rules, rules);
+      await kv!.set(KEYS.rules, rules);
     }
 
     return NextResponse.json({
@@ -33,7 +41,7 @@ export async function GET() {
   } catch (error) {
     console.error("[rules] GET error:", error);
     return NextResponse.json(
-      { success: false, error: "Failed to load rules" },
+      { success: false, error: "Failed to load rules", detail: String(error) },
       { status: 500 }
     );
   }
@@ -51,7 +59,14 @@ export async function PUT(request: Request) {
       );
     }
 
-    await kv.set(KEYS.rules, rules);
+    if (!isKVConfigured) {
+      return NextResponse.json({
+        success: true,
+        notice: "KV not configured — rules not persisted",
+      });
+    }
+
+    await kv!.set(KEYS.rules, rules);
     return NextResponse.json({
       success: true,
       message: "Rules saved successfully",
@@ -59,7 +74,7 @@ export async function PUT(request: Request) {
   } catch (error) {
     console.error("[rules] PUT error:", error);
     return NextResponse.json(
-      { success: false, error: "Failed to save rules" },
+      { success: false, error: "Failed to save rules", detail: String(error) },
       { status: 500 }
     );
   }

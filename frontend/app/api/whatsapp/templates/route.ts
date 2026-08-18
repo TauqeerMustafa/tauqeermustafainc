@@ -2,10 +2,10 @@
  * GET    /api/whatsapp/templates
  * POST   /api/whatsapp/templates
  * DELETE /api/whatsapp/templates
- * Saved message templates (Upstash Redis)
+ * Saved message templates (Upstash Redis when configured, otherwise defaults)
  */
 import { NextResponse } from "next/server";
-import { kv, KEYS } from "@/lib/kv";
+import { kv, KEYS, isKVConfigured } from "@/lib/kv";
 
 const DEFAULT_TEMPLATES = [
   { name: "hours", text: "🕒 We're open Mon–Sat, 9am–6pm (PKT). We'll get back to you soon!" },
@@ -14,12 +14,20 @@ const DEFAULT_TEMPLATES = [
 
 export async function GET() {
   try {
-    let templates = await kv.get<any[]>(KEYS.templates);
+    if (!isKVConfigured) {
+      return NextResponse.json({
+        success: true,
+        data: DEFAULT_TEMPLATES,
+        notice: "Using default templates — KV not configured",
+      });
+    }
+
+    let templates = await kv!.get<any[]>(KEYS.templates);
 
     // Initialize with defaults if empty
     if (!templates || templates.length === 0) {
       templates = DEFAULT_TEMPLATES;
-      await kv.set(KEYS.templates, templates);
+      await kv!.set(KEYS.templates, templates);
     }
 
     return NextResponse.json({
@@ -29,7 +37,7 @@ export async function GET() {
   } catch (error) {
     console.error("[templates] GET error:", error);
     return NextResponse.json(
-      { success: false, error: "Failed to load templates" },
+      { success: false, error: "Failed to load templates", detail: String(error) },
       { status: 500 }
     );
   }
@@ -47,7 +55,14 @@ export async function POST(request: Request) {
       );
     }
 
-    const templates = (await kv.get<any[]>(KEYS.templates)) || [];
+    if (!isKVConfigured) {
+      return NextResponse.json({
+        success: true,
+        notice: "KV not configured — template not persisted",
+      });
+    }
+
+    const templates = (await kv!.get<any[]>(KEYS.templates)) || [];
 
     // Check if template exists, update or add
     const existingIndex = templates.findIndex((t) => t.name === name);
@@ -57,7 +72,7 @@ export async function POST(request: Request) {
       templates.push({ name, text });
     }
 
-    await kv.set(KEYS.templates, templates);
+    await kv!.set(KEYS.templates, templates);
     return NextResponse.json({
       success: true,
       message: "Template saved successfully",
@@ -65,7 +80,7 @@ export async function POST(request: Request) {
   } catch (error) {
     console.error("[templates] POST error:", error);
     return NextResponse.json(
-      { success: false, error: "Failed to save template" },
+      { success: false, error: "Failed to save template", detail: String(error) },
       { status: 500 }
     );
   }
@@ -83,10 +98,17 @@ export async function DELETE(request: Request) {
       );
     }
 
-    const templates = (await kv.get<any[]>(KEYS.templates)) || [];
+    if (!isKVConfigured) {
+      return NextResponse.json({
+        success: true,
+        notice: "KV not configured — template not deleted",
+      });
+    }
+
+    const templates = (await kv!.get<any[]>(KEYS.templates)) || [];
     const filtered = templates.filter((t) => t.name !== name);
 
-    await kv.set(KEYS.templates, filtered);
+    await kv!.set(KEYS.templates, filtered);
     return NextResponse.json({
       success: true,
       message: "Template deleted successfully",
@@ -94,7 +116,7 @@ export async function DELETE(request: Request) {
   } catch (error) {
     console.error("[templates] DELETE error:", error);
     return NextResponse.json(
-      { success: false, error: "Failed to delete template" },
+      { success: false, error: "Failed to delete template", detail: String(error) },
       { status: 500 }
     );
   }

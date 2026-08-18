@@ -92,15 +92,39 @@ async function handleAutoReply(to: string, incomingText: string) {
 
   const lower = incomingText.toLowerCase().trim();
 
-  // Default welcome rule (mirrors the Baileys bot default)
-  const greetings = ["hi", "hello", "hey", "salam", "assalam o alaikum"];
-  const isGreeting = greetings.some((g) => lower.includes(g));
+  try {
+    // Fetch saved auto-reply rules from the API
+    const rulesRes = await fetch(`${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/api/whatsapp/rules`);
+    if (!rulesRes.ok) {
+      console.error("[webhook] Failed to fetch rules, using default");
+      return;
+    }
 
-  if (isGreeting) {
-    const reply =
-      "👋 Welcome to Tauqeer Mustafa Inc! Thanks for reaching out. " +
-      "A team member will reply shortly. Reply *menu* to see options.";
-    await sendText(token, phoneNumberId, to, reply);
+    const rulesData = await rulesRes.json();
+    const rules = rulesData.data || [];
+
+    // Check each enabled rule
+    for (const rule of rules) {
+      if (!rule.enabled) continue;
+
+      const keywords = rule.keyword.split(',').map((k: string) => k.trim().toLowerCase());
+      let matched = false;
+
+      if (rule.mode === "contains") {
+        matched = keywords.some((kw: string) => lower.includes(kw));
+      } else if (rule.mode === "equals") {
+        matched = keywords.some((kw: string) => lower === kw);
+      } else if (rule.mode === "starts") {
+        matched = keywords.some((kw: string) => lower.startsWith(kw));
+      }
+
+      if (matched) {
+        await sendText(token, phoneNumberId, to, rule.reply);
+        break; // Only send first matching rule
+      }
+    }
+  } catch (error) {
+    console.error("[webhook] Auto-reply error:", error);
   }
 }
 

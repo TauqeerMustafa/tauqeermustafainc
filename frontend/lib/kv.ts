@@ -11,16 +11,23 @@
 
 import { Redis } from "@upstash/redis";
 
+// Check if KV is configured
+const isConfigured = !!(process.env.KV_REST_API_URL && process.env.KV_REST_API_TOKEN);
+
 // Upstash Redis client (reads from env automatically)
-export const kv = new Redis({
-  url: process.env.KV_REST_API_URL!,
-  token: process.env.KV_REST_API_TOKEN!,
-});
+export const kv = isConfigured
+  ? new Redis({
+      url: process.env.KV_REST_API_URL!,
+      token: process.env.KV_REST_API_TOKEN!,
+    })
+  : null;
+
+export const isKVConfigured = isConfigured;
 
 // Storage keys
 export const KEYS = {
   messages: "whatsapp:messages",
   rules: "whatsapp:rules",
   templates: "whatsapp:templates",
-  conversations: "whatsapp:conversations", // future: per-contact metadata
+  conversations: "whatsapp:conversations",
 };
