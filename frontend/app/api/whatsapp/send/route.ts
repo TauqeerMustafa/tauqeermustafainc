@@ -1,15 +1,52 @@
 /**
  * POST /api/whatsapp/send
- * Proxy to the WhatsApp bot service. Routes by message type to the matching
- * /send/* endpoint. The bot service records the outbound message itself.
+ * Sends a WhatsApp message via Meta Cloud API (Graph API v20).
+ *
+ * Env vars (set in Vercel):
+ *   WHATSAPP_TOKEN          – permanent system-user or temp access token
+ *   WHATSAPP_PHONE_NUMBER_ID – the numeric Phone Number ID from the app dashboard
  */
 import { NextResponse } from "next/server";
-import { waFetch } from "@/lib/wa";
+
+const GRAPH_URL = "https://graph.facebook.com/v20.0";
+
+function metaHeaders() {
+  return {
+    "Content-Type": "application/json",
+    Authorization: `Bearer ${process.env.WHATSAPP_TOKEN}`,
+  };
+}
+
+/** Normalize to international digits only — Meta rejects "+" prefix */
+function toE164(raw: string): string {
+  return raw.replace(/[^0-9]/g, "");
+}
+
+async function graphPost(phoneNumberId: string, body: object) {
+  const res = await fetch(`${GRAPH_URL}/${phoneNumberId}/messages`, {
+    method: "POST",
+    headers: metaHeaders(),
+    body: JSON.stringify(body),
+    cache: "no-store",
+  });
+  const json = await res.json();
+  return { ok: res.ok, status: res.status, json };
+}
 
 export async function POST(request: Request) {
+  const token = process.env.WHATSAPP_TOKEN;
+  const phoneNumberId = process.env.WHATSAPP_PHONE_NUMBER_ID;
+
+  if (!token || !phoneNumberId) {
+    return NextResponse.json(
+      { success: false, error: "WHATSAPP_TOKEN or WHATSAPP_PHONE_NUMBER_ID not configured" },
+      { status: 500 }
+    );
+  }
+
   try {
     const body = await request.json();
-    const { type, to, message, bodyText, footerText, buttons, template } = body;
+    const { type, to, message, bodyText, footerText, buttons, template, templateText } = body;
 
     if (!to) {
       return NextResponse.json(
@@ -18,61 +55,81 @@ export async function POST(request: Request) {
       );
     }
 
-    let endpoint = "";
-    let payload: Record<string, unknown> = { to };
+    const recipient = toE164(to);
+    let payload: Record<string, unknown>;
 
     switch (type) {
-      case "text":
+      case "text": {
         if (!message) {
-          return NextResponse.json({ success: false, error: "Message text is required" }, { status: 400 });
+          return NextResponse.json({ success: false, error: "message is required" }, { status: 400 });
         }
-        endpoint = "/send/text";
-        payload.message = message;
+        payload = {
+          messaging_product: "whatsapp",
+          to: recipient,
+          type: "text",
+          text: { body: message, preview_url: false },
+        };
         break;
+      }
 
-      case "buttons":
+      case "buttons": {
         if (!bodyText || !Array.isArray(buttons) || buttons.length === 0) {
-          return NextResponse.json({ success: false, error: "Body text and buttons are required" }, { status: 400 });
+          return NextResponse.json(
+            { success: false, error: "bodyText and buttons[] are required" },
+            { status: 400 }
+          );
         }
-        endpoint = "/send/buttons";
-        payload = { to, bodyText, footerText, buttons };
+        // Meta interactive buttons (up to 3). Button ids must be unique, ≤256 chars.
+        const metaButtons = buttons.slice(0, 3).map((b: string, i: number) => ({
+          type: "reply",
+          reply: { id: `btn_${i}`, title: String(b).slice(0, 20) },
+        }));
+        payload = {
+          messaging_product: "whatsapp",
+          to: recipient,
+          type: "interactive",
+          interactive: {
+            type: "button",
+            body: { text: bodyText },
+            ...(footerText ? { footer: { text: footerText } } : {}),
+            action: { buttons: metaButtons },
+          },
+        };
         break;
+      }
 
-      case "template":
-        if (!template) {
-          return NextResponse.json({ success: false, error: "Template (saved message) name is required" }, { status: 400 });
+      case "template": {
+        // "template" here is the saved canned-message TEXT (not a Meta-approved template).
+        // Send it as a plain text message so it works immediately without Meta approval.
+        const text = templateText || template;
+        if (!text) {
+          return NextResponse.json({ success: false, error: "template text is required" }, { status: 400 });
         }
-        endpoint = "/send/template";
-        payload.template = template;
+        payload = {
+          messaging_product: "whatsapp",
+          to: recipient,
+          type: "text",
+          text: { body: text, preview_url: false },
+        };
         break;
+      }
 
       default:
         return NextResponse.json(
-          { success: false, error: "Invalid message type. Use: text, buttons, or template" },
+          { success: false, error: "Invalid type. Use: text | buttons | template" },
           { status: 400 }
         );
     }
 
-    const response = await waFetch(endpoint, { method: "POST", body: JSON.stringify(payload) });
-    const contentType = response.headers.get("content-type") || "";
+    const { ok, status, json: data } = await graphPost(phoneNumberId, payload);
 
-    if (!contentType.includes("application/json")) {
-      const text = await response.text();
-      return NextResponse.json(
-        { success: false, error: "Bot service returned an invalid response. Is it running?", detail: text.slice(0, 200) },
-        { status: 502 }
-      );
+    if (!ok) {
+      const errMsg = data?.error?.message || "Meta API error";
+      return NextResponse.json({ success: false, error: errMsg, detail: data }, { status });
     }
 
-    const data = await response.json();
-    if (!response.ok) {
-      return NextResponse.json(
-        { success: false, error: data.error || "Failed to send message", detail: data.detail },
-        { status: response.status }
-      );
-    }
-
-    return NextResponse.json({ success: true, messageId: data.messageId, message: "Message sent successfully" });
+    const messageId = data?.messages?.[0]?.id ?? null;
+    return NextResponse.json({ success: true, messageId, message: "Message sent successfully" });
   } catch (error) {
     return NextResponse.json(
       { success: false, error: error instanceof Error ? error.message : "Failed to send message" },
