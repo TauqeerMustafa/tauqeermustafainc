@@ -1,5 +1,5 @@
 /**
- * React hooks for the self-hosted WhatsApp bot (Baileys).
+ * React hooks for WhatsApp Business (Meta Cloud API).
  * All calls go through the Next.js /api/whatsapp/* proxy routes.
  */
 
@@ -28,13 +28,6 @@ export type WAMessage = {
   status?: string;
 };
 
-export type WAConnection = {
-  status: "connecting" | "qr" | "open" | "close" | "logged_out";
-  qr: string | null;
-  me: { id: string; number: string } | null;
-  connected: boolean;
-};
-
 export type AutoReplyRule = {
   id: string;
   keyword: string;
@@ -44,30 +37,6 @@ export type AutoReplyRule = {
 };
 
 export type WATemplate = { name: string; text: string };
-
-// ── Connection / QR ────────────────────────────────────────────────────────
-
-/** Polls the bot connection + login QR (data URL). */
-export function useWhatsAppConnection() {
-  return useQuery<WAConnection>({
-    queryKey: ["whatsapp-connection"],
-    queryFn: () => getJSON("/qr"),
-    refetchInterval: 3000,
-  });
-}
-
-/** Log out / re-pair — clears the session so a fresh QR is generated. */
-export function useWhatsAppLogout() {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: async () => {
-      const res = await fetch(`${API_BASE}/qr`, { method: "POST" });
-      if (!res.ok) throw new Error("Failed to log out");
-      return res.json();
-    },
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["whatsapp-connection"] }),
-  });
-}
 
 // ── Messages ─────────────────────────────────────────────────────────────────
 

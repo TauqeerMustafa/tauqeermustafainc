@@ -2,17 +2,22 @@
 
 import { useState } from "react";
 import {
-  Wifi,
-  WifiOff,
   Send,
   CheckCheck,
   AlertCircle,
   RefreshCw,
   Trash2,
-  ChevronLeft,
   Bot,
   MessageSquare,
   BarChart3,
+  Search,
+  Tag,
+  FileText,
+  Clock,
+  CheckCircle2,
+  XCircle,
+  User,
+  Phone,
 } from "lucide-react";
 
 import {
@@ -25,8 +30,6 @@ import {
   adminInputStyle,
 } from "@/components/admin/AdminUI";
 import {
-  useWhatsAppConnection,
-  useWhatsAppLogout,
   useWhatsAppMessages,
   useSendWhatsAppMessage,
   useWhatsAppStats,
@@ -39,19 +42,34 @@ import {
 import type { WAMessage, AutoReplyRule, WATemplate } from "@/hooks/useWhatsApp";
 
 type MessageType = "text" | "buttons" | "template";
-type TabKey = "connection" | "inbox" | "send" | "rules" | "stats";
+type TabKey = "inbox" | "send" | "rules" | "stats";
+type DealStatus = "new" | "contacted" | "negotiating" | "won" | "lost";
 
 const TABS: { key: TabKey; label: string; icon: React.ReactNode }[] = [
-  { key: "connection", label: "Connection", icon: <Wifi size={16} /> },
   { key: "inbox", label: "Inbox", icon: <MessageSquare size={16} /> },
   { key: "send", label: "Send Message", icon: <Send size={16} /> },
   { key: "rules", label: "Auto-Reply", icon: <Bot size={16} /> },
   { key: "stats", label: "Stats", icon: <BarChart3 size={16} /> },
 ];
 
+const DEAL_STATUSES: { value: DealStatus; label: string; color: string; bgColor: string }[] = [
+  { value: "new", label: "New Lead", color: "#3B82F6", bgColor: "#DBEAFE" },
+  { value: "contacted", label: "Contacted", color: "#8B5CF6", bgColor: "#EDE9FE" },
+  { value: "negotiating", label: "Negotiating", color: "#F59E0B", bgColor: "#FEF3C7" },
+  { value: "won", label: "Deal Won", color: "#10B981", bgColor: "#D1FAE5" },
+  { value: "lost", label: "Lost", color: "#EF4444", bgColor: "#FEE2E2" },
+];
+
 // ─── Helpers ────────────────────────────────────────────────────────────
 
-type Conversation = { number: string; name: string; messages: WAMessage[] };
+type Conversation = {
+  number: string;
+  name: string;
+  messages: WAMessage[];
+  dealStatus?: DealStatus;
+  notes?: string;
+  tags?: string[];
+};
 
 function numberOf(m: WAMessage): string {
   if (m.jid) return m.jid.split("@")[0].split(":")[0];
@@ -59,14 +77,14 @@ function numberOf(m: WAMessage): string {
   return (raw || "unknown").replace(/[^0-9]/g, "") || "unknown";
 }
 
-/** Group the flat message list into per-contact threads, newest activity first. */
+/** Group messages into conversations, newest activity first. */
 function groupConversations(messages: WAMessage[]): Conversation[] {
   const byNumber = new Map<string, Conversation>();
   for (const m of messages) {
     const number = numberOf(m);
     let conv = byNumber.get(number);
     if (!conv) {
-      conv = { number, name: number, messages: [] };
+      conv = { number, name: number, messages: [], dealStatus: "new", notes: "", tags: [] };
       byNumber.set(number, conv);
     }
     if (m.direction === "inbound" && m.name && m.name !== number) conv.name = m.name;
@@ -98,8 +116,8 @@ export default function AdminWhatsAppPage() {
   return (
     <div>
       <AdminPageHeader
-        title="WhatsApp Manager"
-        description="Self-hosted WhatsApp bot powered by Baileys (open source)"
+        title="WhatsApp Business Manager"
+        description="Manage customer conversations, send messages, and track deals"
       />
 
       {/* Tabs */}
@@ -125,7 +143,6 @@ export default function AdminWhatsAppPage() {
         ))}
       </div>
 
-      {activeTab === "connection" && <ConnectionTab />}
       {activeTab === "inbox" && <InboxTab onReply={goReply} />}
       {activeTab === "send" && (
         <SendTab
@@ -140,154 +157,86 @@ export default function AdminWhatsAppPage() {
   );
 }
 
-// ─── Connection ─────────────────────────────────────────────────────────
+// ─── Inbox ──────────────────────────────────────────────────────────────
 
-function ConnectionTab() {
-  const { data, isLoading, isError, refetch } = useWhatsAppConnection();
-  const logout = useWhatsAppLogout();
+function InboxTab({ onReply }: { onReply: (number: string) => void }) {
+  const { data, isLoading, isError, refetch } = useWhatsAppMessages();
+  const [searchQuery, setSearchQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState<DealStatus | "all">("all");
 
-  if (isLoading) return <AdminLoadingState label="Checking connection…" />;
+  if (isLoading) return <AdminLoadingState label="Loading conversations…" />;
   if (isError)
-    return (
-      <AdminErrorState message="Could not reach the WhatsApp bot service. Check that it is running and WA_SERVICE_URL is set." />
-    );
+    return <AdminErrorState message="Could not load messages. Check your WhatsApp configuration." />;
 
-  const status = data?.status ?? "close";
-  const qr = data?.qr ?? null;
-  const me = data?.me ?? null;
-  const connected = status === "open";
+  const conversations = groupConversations(data?.data ?? []);
+
+  // Filter conversations
+  const filtered = conversations.filter((conv) => {
+    const matchesSearch =
+      conv.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      conv.number.includes(searchQuery);
+    const matchesStatus = statusFilter === "all" || conv.dealStatus === statusFilter;
+    return matchesSearch && matchesStatus;
+  });
 
   return (
-    <div className="mx-auto max-w-2xl space-y-6">
-      {/* Status card */}
-      <div
-        className="flex flex-col gap-4 border bg-white p-6 sm:flex-row sm:items-center sm:justify-between"
-        style={{ borderColor: "var(--adm-border)" }}
-      >
-        <div className="flex items-center gap-4">
-          <div
-            className="flex h-12 w-12 items-center justify-center rounded-full"
-            style={{ background: connected ? "#DCFCE7" : "#FEE2E2" }}
-          >
-            {connected ? (
-              <Wifi size={24} className="text-green-600" />
-            ) : (
-              <WifiOff size={24} className="text-red-600" />
-            )}
-          </div>
-          <div>
-            <p className="text-xl font-bold" style={{ color: "var(--adm-text)" }}>
-              {connected
-                ? "Connected"
-                : status === "qr"
-                  ? "Waiting for QR scan"
-                  : status === "connecting"
-                    ? "Connecting…"
-                    : status === "logged_out"
-                      ? "Logged out"
-                      : "Disconnected"}
-            </p>
-            <p className="text-sm" style={{ color: "var(--adm-text-3)" }}>
-              {connected && me
-                ? `Linked as +${me.number}`
-                : "Scan the QR code below with WhatsApp to link this bot."}
-            </p>
-          </div>
+    <div className="space-y-4">
+      {/* Search & Filter Bar */}
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="relative flex-1">
+          <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2" style={{ color: "var(--adm-text-3)" }} />
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Search conversations…"
+            className={adminInputClass}
+            style={{ ...adminInputStyle, paddingLeft: "2.5rem" }}
+          />
         </div>
-        <div className="flex gap-2">
+        <div className="flex items-center gap-2">
+          <select
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value as DealStatus | "all")}
+            className={adminInputClass}
+            style={{ ...adminInputStyle, width: "auto", minWidth: "140px" }}
+          >
+            <option value="all">All Status</option>
+            {DEAL_STATUSES.map((s) => (
+              <option key={s.value} value={s.value}>
+                {s.label}
+              </option>
+            ))}
+          </select>
           <button
             type="button"
             onClick={() => refetch()}
-            className="flex items-center gap-2 border px-3 py-2 text-sm font-semibold transition hover:shadow-sm"
+            className="flex items-center gap-1 border px-3 py-2 text-sm font-semibold transition hover:shadow-sm"
             style={{ borderColor: "var(--adm-border)", color: "var(--adm-text)" }}
           >
             <RefreshCw size={14} />
             Refresh
           </button>
-          <button
-            type="button"
-            onClick={() => logout.mutate()}
-            disabled={logout.isPending}
-            className="btn-press px-3 py-2 text-sm font-semibold text-white transition hover:shadow-md disabled:opacity-50"
-            style={{ background: "var(--adm-red)" }}
-          >
-            {logout.isPending ? "Working…" : connected ? "Unlink" : "Re-pair"}
-          </button>
         </div>
       </div>
 
-      {/* QR / ready card */}
-      {connected ? (
-        <div className="border bg-white p-8 text-center" style={{ borderColor: "var(--adm-border)" }}>
-          <CheckCheck size={44} className="mx-auto mb-3 text-green-500" />
-          <h3 className="mb-1 text-lg font-bold" style={{ color: "var(--adm-text)" }}>
-            Ready to go
-          </h3>
-          <p className="text-sm" style={{ color: "var(--adm-text-3)" }}>
-            WhatsApp is connected. Send and receive messages from the Inbox and Send tabs.
-          </p>
-        </div>
+      {/* Conversations */}
+      {filtered.length === 0 ? (
+        <AdminEmptyState
+          title={searchQuery || statusFilter !== "all" ? "No matches" : "No conversations yet"}
+          description={
+            searchQuery || statusFilter !== "all"
+              ? "Try adjusting your search or filters."
+              : "When customers message your WhatsApp Business number, conversations appear here."
+          }
+        />
       ) : (
-        <div className="border bg-white p-6 text-center" style={{ borderColor: "var(--adm-border)" }}>
-          <h3 className="mb-4 text-lg font-bold" style={{ color: "var(--adm-text)" }}>
-            Pairing QR Code
-          </h3>
-          {qr ? (
-            <div className="flex flex-col items-center gap-4">
-              <img
-                src={qr}
-                alt="WhatsApp login QR code"
-                width={264}
-                height={264}
-                className="rounded border"
-                style={{ borderColor: "var(--adm-border)" }}
-              />
-              <ol
-                className="mx-auto max-w-sm space-y-1 text-left text-sm"
-                style={{ color: "var(--adm-text-3)" }}
-              >
-                <li>1. Open WhatsApp on your phone.</li>
-                <li>2. Tap Settings → Linked Devices → Link a Device.</li>
-                <li>3. Point your camera at this code.</li>
-              </ol>
-            </div>
-          ) : (
-            <AdminEmptyState
-              title="Generating QR…"
-              description="The bot service is preparing a login code. It appears here within a few seconds. If it never shows, restart the bot service on the host."
-            />
-          )}
+        <div className="space-y-4">
+          {filtered.map((conv) => (
+            <ConversationCard key={conv.number} conv={conv} onReply={() => onReply(conv.number)} />
+          ))}
         </div>
       )}
-    </div>
-  );
-}
-
-// ─── Inbox ──────────────────────────────────────────────────────────────
-
-function InboxTab({ onReply }: { onReply: (number: string) => void }) {
-  const { data, isLoading, isError } = useWhatsAppMessages();
-
-  if (isLoading) return <AdminLoadingState label="Loading conversations…" />;
-  if (isError)
-    return <AdminErrorState message="Could not load messages. Verify the bot service is reachable." />;
-
-  const conversations = groupConversations(data?.data ?? []);
-
-  if (conversations.length === 0) {
-    return (
-      <AdminEmptyState
-        title="No conversations yet"
-        description="When someone messages your linked number, the thread appears here."
-      />
-    );
-  }
-
-  return (
-    <div className="space-y-4">
-      {conversations.map((conv) => (
-        <ConversationCard key={conv.number} conv={conv} onReply={() => onReply(conv.number)} />
-      ))}
     </div>
   );
 }
@@ -296,8 +245,12 @@ function ConversationCard({ conv, onReply }: { conv: Conversation; onReply: () =
   const sendMessage = useSendWhatsAppMessage();
   const [reply, setReply] = useState("");
   const [error, setError] = useState("");
+  const [showDetails, setShowDetails] = useState(false);
+  const [dealStatus, setDealStatus] = useState<DealStatus>(conv.dealStatus || "new");
+  const [notes, setNotes] = useState(conv.notes || "");
 
-  const displayName = conv.name !== conv.number ? `${conv.name} · +${conv.number}` : `+${conv.number}`;
+  const displayName = conv.name !== conv.number ? `${conv.name}` : `+${conv.number}`;
+  const statusConfig = DEAL_STATUSES.find((s) => s.value === dealStatus);
 
   const handleReply = async () => {
     if (!reply.trim()) return;
@@ -311,58 +264,129 @@ function ConversationCard({ conv, onReply }: { conv: Conversation; onReply: () =
   };
 
   return (
-    <div className="border bg-white p-5" style={{ borderColor: "var(--adm-border)" }}>
-      <div className="mb-3 flex items-center justify-between gap-3">
-        <h3 className="truncate text-base font-bold" style={{ color: "var(--adm-text)" }}>
-          {displayName}
-        </h3>
-        <button
-          type="button"
-          onClick={onReply}
-          className="flex shrink-0 items-center gap-1 text-xs font-semibold"
-          style={{ color: "var(--adm-blue)" }}
-        >
-          <Send size={12} /> Rich reply
-        </button>
+    <div className="border bg-white" style={{ borderColor: "var(--adm-border)" }}>
+      {/* Header */}
+      <div className="flex items-start justify-between gap-3 border-b p-4" style={{ borderColor: "var(--adm-border)" }}>
+        <div className="flex items-center gap-3">
+          <div className="flex h-10 w-10 items-center justify-center rounded-full" style={{ background: "var(--adm-blue-light)" }}>
+            <User size={20} style={{ color: "var(--adm-blue)" }} />
+          </div>
+          <div>
+            <h3 className="font-bold" style={{ color: "var(--adm-text)" }}>
+              {displayName}
+            </h3>
+            <p className="flex items-center gap-1 text-xs" style={{ color: "var(--adm-text-3)" }}>
+              <Phone size={11} />
+              +{conv.number}
+            </p>
+          </div>
+        </div>
+        <div className="flex items-center gap-2">
+          <span
+            className="rounded-full px-3 py-1 text-xs font-semibold"
+            style={{ background: statusConfig?.bgColor, color: statusConfig?.color }}
+          >
+            {statusConfig?.label}
+          </span>
+          <button
+            type="button"
+            onClick={() => setShowDetails(!showDetails)}
+            className="text-xs font-semibold"
+            style={{ color: "var(--adm-blue)" }}
+          >
+            {showDetails ? "Hide" : "Details"}
+          </button>
+        </div>
       </div>
 
-      <div className="mb-4 max-h-72 space-y-2 overflow-y-auto pr-1">
+      {/* Details Panel */}
+      {showDetails && (
+        <div className="border-b p-4" style={{ borderColor: "var(--adm-border)", background: "var(--adm-surface-2)" }}>
+          <div className="mb-3">
+            <label className="mb-1 block text-xs font-semibold" style={{ color: "var(--adm-text)" }}>
+              Deal Status
+            </label>
+            <select
+              value={dealStatus}
+              onChange={(e) => setDealStatus(e.target.value as DealStatus)}
+              className={adminInputClass}
+              style={adminInputStyle}
+            >
+              {DEAL_STATUSES.map((s) => (
+                <option key={s.value} value={s.value}>
+                  {s.label}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label className="mb-1 block text-xs font-semibold" style={{ color: "var(--adm-text)" }}>
+              Internal Notes
+            </label>
+            <textarea
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+              placeholder="Add notes about this customer (private, not sent)…"
+              rows={2}
+              className={adminInputClass}
+              style={adminInputStyle}
+            />
+          </div>
+        </div>
+      )}
+
+      {/* Messages */}
+      <div className="max-h-80 space-y-2 overflow-y-auto p-4">
         {conv.messages.map((msg) => (
           <MessageBubble key={msg.id} message={msg} />
         ))}
       </div>
 
-      <div className="flex gap-2">
-        <textarea
-          value={reply}
-          onChange={(e) => setReply(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === "Enter" && !e.shiftKey) {
-              e.preventDefault();
-              handleReply();
-            }
-          }}
-          placeholder="Type a reply…  (Enter to send, Shift+Enter for newline)"
-          rows={2}
-          className={adminInputClass}
-          style={{ ...adminInputStyle, flex: 1 }}
-        />
-        <button
-          type="button"
-          onClick={handleReply}
-          disabled={sendMessage.isPending || !reply.trim()}
-          className="btn-press flex items-center justify-center gap-2 px-4 text-sm font-semibold text-white disabled:opacity-50"
-          style={{ background: "var(--adm-blue)" }}
-        >
-          <Send size={14} />
-          {sendMessage.isPending ? "…" : "Send"}
-        </button>
+      {/* Reply Box */}
+      <div className="border-t p-3" style={{ borderColor: "var(--adm-border)" }}>
+        <div className="flex gap-2">
+          <textarea
+            value={reply}
+            onChange={(e) => setReply(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && !e.shiftKey) {
+                e.preventDefault();
+                handleReply();
+              }
+            }}
+            placeholder="Type a reply… (Enter to send, Shift+Enter for newline)"
+            rows={2}
+            className={adminInputClass}
+            style={{ ...adminInputStyle, flex: 1 }}
+          />
+          <div className="flex flex-col gap-2">
+            <button
+              type="button"
+              onClick={handleReply}
+              disabled={sendMessage.isPending || !reply.trim()}
+              className="btn-press flex items-center justify-center gap-1 px-4 py-2 text-sm font-semibold text-white disabled:opacity-50"
+              style={{ background: "var(--adm-blue)" }}
+            >
+              <Send size={14} />
+              {sendMessage.isPending ? "…" : "Send"}
+            </button>
+            <button
+              type="button"
+              onClick={onReply}
+              className="flex items-center justify-center gap-1 border px-4 py-2 text-xs font-semibold transition hover:shadow-sm"
+              style={{ borderColor: "var(--adm-border)", color: "var(--adm-blue)" }}
+            >
+              <FileText size={12} />
+              Template
+            </button>
+          </div>
+        </div>
+        {error && (
+          <p className="mt-2 text-xs" style={{ color: "var(--adm-red)" }}>
+            {error}
+          </p>
+        )}
       </div>
-      {error && (
-        <p className="mt-2 text-xs" style={{ color: "var(--adm-red)" }}>
-          {error}
-        </p>
-      )}
     </div>
   );
 }
@@ -371,20 +395,19 @@ function MessageBubble({ message }: { message: WAMessage }) {
   const isOutbound = message.direction === "outbound";
   return (
     <div
-      className="max-w-[85%] border px-3 py-2 text-sm"
+      className="max-w-[85%] rounded-lg px-3 py-2 text-sm"
       style={{
         marginLeft: isOutbound ? "auto" : undefined,
-        borderColor: isOutbound ? "#BBF7D0" : "#BFDBFE",
-        background: isOutbound ? "#F0FDF4" : "#EFF6FF",
+        background: isOutbound ? "#DCF8C6" : "#FFFFFF",
+        border: isOutbound ? "none" : "1px solid var(--adm-border)",
       }}
     >
       <p className="whitespace-pre-wrap" style={{ color: "var(--adm-text)" }}>
         {message.body}
       </p>
-      <div className="mt-1 flex items-center gap-1 text-[11px]" style={{ color: "var(--adm-text-3)" }}>
+      <div className="mt-1 flex items-center gap-1 text-[10px]" style={{ color: "var(--adm-text-3)" }}>
         {isOutbound && <CheckCheck size={11} className="text-blue-500" />}
         <span>
-          {isOutbound ? "Sent" : "Received"} ·{" "}
           {new Date(message.timestamp).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
         </span>
       </div>
@@ -405,9 +428,8 @@ function SendTab({
   const [recipient, setRecipient] = useState(defaultRecipient);
   const [messageText, setMessageText] = useState("");
   const [bodyText, setBodyText] = useState("");
-  const [buttons, setButtons] = useState<Array<{ id: string; title: string }>>([{ id: "", title: "" }]);
+  const [buttons, setButtons] = useState<string[]>(["", "", ""]);
   const [templateName, setTemplateName] = useState("");
-  const [cannedText, setCannedText] = useState("");
   const [sendError, setSendError] = useState("");
   const [sendSuccess, setSendSuccess] = useState(false);
 
@@ -421,7 +443,7 @@ function SendTab({
 
     const to = recipient.replace(/[^0-9]/g, "");
     if (!to) {
-      setSendError("Please enter a recipient phone number (digits only, with country code).");
+      setSendError("Enter recipient phone number with country code (e.g. 923001234567)");
       return;
     }
 
@@ -430,28 +452,26 @@ function SendTab({
 
       if (messageType === "text") {
         if (!messageText.trim()) {
-          setSendError("Please enter a message.");
+          setSendError("Enter a message");
           return;
         }
         payload.message = messageText;
       } else if (messageType === "buttons") {
-        const validButtons = buttons.filter((b) => b.title.trim());
+        const validButtons = buttons.filter((b) => b.trim()).slice(0, 3);
         if (!bodyText.trim() || validButtons.length === 0) {
-          setSendError("Enter body text and at least one button.");
-          return;
-        }
-        if (validButtons.length > 3) {
-          setSendError("Maximum 3 buttons.");
+          setSendError("Enter message text and at least one button");
           return;
         }
         payload.bodyText = bodyText;
-        payload.buttons = validButtons.map((b, i) => ({ id: b.id || `btn_${i + 1}`, title: b.title }));
+        payload.buttons = validButtons;
       } else if (messageType === "template") {
-        if (!templateName) {
-          setSendError("Select a saved message.");
+        const tpl = templates.find((t) => t.name === templateName);
+        if (!tpl) {
+          setSendError("Select a template");
           return;
         }
         payload.template = templateName;
+        payload.templateText = tpl.text;
       }
 
       await sendMessage.mutateAsync(payload as any);
@@ -461,19 +481,13 @@ function SendTab({
       setTimeout(() => {
         setMessageText("");
         setBodyText("");
-        setButtons([{ id: "", title: "" }]);
+        setButtons(["", "", ""]);
         setTemplateName("");
-        setCannedText("");
         setSendSuccess(false);
       }, 2000);
     } catch (error: any) {
-      setSendError(error.message || "Failed to send message.");
+      setSendError(error.message || "Failed to send message");
     }
-  };
-
-  const selectTemplate = (name: string) => {
-    setTemplateName(name);
-    setCannedText(templates.find((t) => t.name === name)?.text ?? "");
   };
 
   return (
@@ -506,7 +520,7 @@ function SendTab({
         </div>
 
         {/* Recipient */}
-        <AdminField label="Recipient phone number (with country code, digits only)" htmlFor="recipient">
+        <AdminField label="Recipient (phone with country code)" htmlFor="recipient">
           <input
             type="text"
             id="recipient"
@@ -525,13 +539,13 @@ function SendTab({
               id="message"
               value={messageText}
               onChange={(e) => setMessageText(e.target.value)}
-              placeholder="Enter your message here…"
+              placeholder="Enter your message…"
               rows={6}
               className={adminInputClass}
               style={adminInputStyle}
             />
             <p className="mt-2 text-xs" style={{ color: "var(--adm-text-3)" }}>
-              Supports WhatsApp markdown: *bold* _italic_ ~strikethrough~
+              Supports WhatsApp formatting: *bold* _italic_ ~strikethrough~
             </p>
           </AdminField>
         )}
@@ -539,12 +553,12 @@ function SendTab({
         {/* Buttons */}
         {messageType === "buttons" && (
           <>
-            <AdminField label="Body text" htmlFor="bodyText">
+            <AdminField label="Message text" htmlFor="bodyText">
               <textarea
                 id="bodyText"
                 value={bodyText}
                 onChange={(e) => setBodyText(e.target.value)}
-                placeholder="Main message text…"
+                placeholder="Main message…"
                 rows={4}
                 className={adminInputClass}
                 style={adminInputStyle}
@@ -553,66 +567,45 @@ function SendTab({
 
             <div>
               <label className="mb-2 block text-sm font-semibold" style={{ color: "var(--adm-text)" }}>
-                Buttons{" "}
+                Interactive Buttons{" "}
                 <span className="text-xs font-normal" style={{ color: "var(--adm-text-3)" }}>
-                  (max 3 — sent as a numbered menu so every phone can reply)
+                  (max 3, shown as blue clickable buttons in WhatsApp)
                 </span>
               </label>
               <div className="space-y-2">
                 {buttons.map((btn, index) => (
-                  <div key={index} className="flex gap-2">
-                    <input
-                      type="text"
-                      value={btn.title}
-                      onChange={(e) => {
-                        const next = [...buttons];
-                        next[index] = { ...next[index], title: e.target.value };
-                        setButtons(next);
-                      }}
-                      placeholder={`Option ${index + 1}`}
-                      className={adminInputClass}
-                      style={{ ...adminInputStyle, flex: 1 }}
-                    />
-                    {buttons.length > 1 && (
-                      <button
-                        type="button"
-                        onClick={() => setButtons(buttons.filter((_, i) => i !== index))}
-                        className="border px-3 text-sm transition hover:shadow-sm"
-                        style={{ borderColor: "var(--adm-border)", color: "var(--adm-red)" }}
-                        aria-label="Remove option"
-                      >
-                        <Trash2 size={14} />
-                      </button>
-                    )}
-                  </div>
+                  <input
+                    key={index}
+                    type="text"
+                    value={btn}
+                    onChange={(e) => {
+                      const next = [...buttons];
+                      next[index] = e.target.value;
+                      setButtons(next);
+                    }}
+                    placeholder={`Button ${index + 1}`}
+                    className={adminInputClass}
+                    style={adminInputStyle}
+                    maxLength={20}
+                  />
                 ))}
               </div>
-              {buttons.length < 3 && (
-                <button
-                  type="button"
-                  onClick={() => setButtons([...buttons, { id: "", title: "" }])}
-                  className="mt-3 border px-4 py-2 text-sm font-semibold transition hover:shadow-sm"
-                  style={{ borderColor: "var(--adm-border)", color: "var(--adm-text)" }}
-                >
-                  + Add option
-                </button>
-              )}
             </div>
           </>
         )}
 
-        {/* Template / canned messages */}
+        {/* Template */}
         {messageType === "template" && (
           <>
-            <AdminField label="Saved message" htmlFor="template">
+            <AdminField label="Saved template" htmlFor="template">
               <select
                 id="template"
                 value={templateName}
-                onChange={(e) => selectTemplate(e.target.value)}
+                onChange={(e) => setTemplateName(e.target.value)}
                 className={adminInputClass}
-                style={{ ...adminInputStyle, appearance: "none" }}
+                style={adminInputStyle}
               >
-                <option value="">Select a saved message…</option>
+                <option value="">Select a template…</option>
                 {templates.map((tpl) => (
                   <option key={tpl.name} value={tpl.name}>
                     {tpl.name}
@@ -621,12 +614,12 @@ function SendTab({
               </select>
             </AdminField>
 
-            {cannedText && (
+            {templateName && (
               <div
                 className="border p-3 text-sm"
                 style={{ borderColor: "var(--adm-border)", background: "var(--adm-surface-2)", color: "var(--adm-text-2)" }}
               >
-                <p className="whitespace-pre-wrap">{cannedText}</p>
+                <p className="whitespace-pre-wrap">{templates.find((t) => t.name === templateName)?.text}</p>
               </div>
             )}
 
@@ -650,7 +643,7 @@ function SendTab({
             style={{ borderColor: "var(--adm-green)", color: "var(--adm-green)" }}
           >
             <CheckCheck size={16} className="shrink-0" />
-            Message sent!
+            Message sent successfully!
           </div>
         )}
 
@@ -688,7 +681,7 @@ function TemplateManager({ templates }: { templates: WATemplate[] }) {
     <div className="border-t pt-4" style={{ borderColor: "var(--adm-border)" }}>
       <div className="flex items-center justify-between">
         <p className="text-sm font-semibold" style={{ color: "var(--adm-text)" }}>
-          Manage saved messages
+          Manage Templates
         </p>
         <button
           type="button"
@@ -696,21 +689,21 @@ function TemplateManager({ templates }: { templates: WATemplate[] }) {
           className="text-xs font-semibold"
           style={{ color: "var(--adm-blue)" }}
         >
-          {showAdd ? "Close" : "+ New"}
+          {showAdd ? "Cancel" : "+ New Template"}
         </button>
       </div>
 
       {templates.length > 0 && (
         <div className="mt-3 space-y-2">
           {templates.map((t) => (
-            <div key={t.name} className="flex items-start justify-between gap-3 text-sm">
-              <div className="min-w-0">
+            <div key={t.name} className="flex items-start justify-between gap-3 rounded border p-2" style={{ borderColor: "var(--adm-border)" }}>
+              <div className="min-w-0 text-sm">
                 <span className="font-semibold" style={{ color: "var(--adm-text)" }}>
                   {t.name}
                 </span>
-                <span className="ml-2 break-words" style={{ color: "var(--adm-text-3)" }}>
-                  {t.text}
-                </span>
+                <p className="mt-1 break-words text-xs" style={{ color: "var(--adm-text-3)" }}>
+                  {t.text.slice(0, 80)}{t.text.length > 80 ? "…" : ""}
+                </p>
               </div>
               <button
                 type="button"
@@ -732,14 +725,14 @@ function TemplateManager({ templates }: { templates: WATemplate[] }) {
             type="text"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            placeholder="Name (e.g. hours)"
+            placeholder="Template name (e.g. greeting)"
             className={adminInputClass}
             style={adminInputStyle}
           />
           <textarea
             value={text}
             onChange={(e) => setText(e.target.value)}
-            placeholder="The saved message text…"
+            placeholder="Message text…"
             rows={3}
             className={adminInputClass}
             style={adminInputStyle}
@@ -748,10 +741,10 @@ function TemplateManager({ templates }: { templates: WATemplate[] }) {
             type="button"
             onClick={handleAdd}
             disabled={saveTemplate.isPending || !name.trim() || !text.trim()}
-            className="btn-press px-4 py-2 text-sm font-semibold text-white disabled:opacity-50"
+            className="btn-press w-full px-4 py-2 text-sm font-semibold text-white disabled:opacity-50"
             style={{ background: "var(--adm-blue)" }}
           >
-            {saveTemplate.isPending ? "Saving…" : "Save template"}
+            {saveTemplate.isPending ? "Saving…" : "Save Template"}
           </button>
         </div>
       )}
@@ -794,14 +787,14 @@ function RulesTab() {
   if (isError) return <AdminErrorState message="Could not load auto-reply rules." />;
 
   return (
-    <div className="space-y-6">
+    <div className="mx-auto max-w-3xl space-y-6">
       <div className="flex items-center justify-between gap-3">
         <div>
           <h3 className="text-lg font-bold" style={{ color: "var(--adm-text)" }}>
             Auto-Reply Rules
           </h3>
           <p className="text-sm" style={{ color: "var(--adm-text-3)" }}>
-            The bot answers automatically when an incoming message matches a keyword.
+            Automatically respond to common questions when customers message you.
           </p>
         </div>
         {!isEditing ? (
@@ -868,19 +861,19 @@ function RulesTab() {
       ) : rules.length === 0 ? (
         <AdminEmptyState
           title="No auto-reply rules"
-          description="Add keyword-based rules so the bot can answer common questions automatically."
+          description="Add keyword-based rules so the bot answers common questions automatically."
         />
       ) : (
         <div className="space-y-3">
           {rules.map((rule) => (
             <div
               key={rule.id}
-              className="flex items-start justify-between gap-3 border bg-white p-4"
+              className="flex items-start justify-between gap-3 border bg-white p-4 rounded"
               style={{ borderColor: "var(--adm-border)" }}
             >
               <div className="min-w-0">
                 <p className="font-semibold" style={{ color: "var(--adm-text)" }}>
-                  “{rule.keyword}”{" "}
+                  Keyword: "{rule.keyword}"{" "}
                   <span className="text-xs font-normal" style={{ color: "var(--adm-text-3)" }}>
                     ({rule.mode})
                   </span>
@@ -916,15 +909,15 @@ function RuleEditor({
   onRemove: (id: string) => void;
 }) {
   return (
-    <div className="border bg-white p-4" style={{ borderColor: "var(--adm-border)" }}>
+    <div className="border bg-white p-4 rounded" style={{ borderColor: "var(--adm-border)" }}>
       <div className="grid gap-3 sm:grid-cols-2">
-        <AdminField label="Keyword" htmlFor={`kw-${rule.id}`}>
+        <AdminField label="Keyword or phrase" htmlFor={`kw-${rule.id}`}>
           <input
             id={`kw-${rule.id}`}
             type="text"
             value={rule.keyword}
             onChange={(e) => onUpdate(rule.id, "keyword", e.target.value)}
-            placeholder="e.g. hello"
+            placeholder="e.g. price, hours, location"
             className={adminInputClass}
             style={adminInputStyle}
           />
@@ -936,9 +929,9 @@ function RuleEditor({
             value={rule.mode}
             onChange={(e) => onUpdate(rule.id, "mode", e.target.value)}
             className={adminInputClass}
-            style={{ ...adminInputStyle, appearance: "none" }}
+            style={adminInputStyle}
           >
-            <option value="contains">Contains</option>
+            <option value="contains">Contains keyword</option>
             <option value="equals">Exact match</option>
             <option value="starts">Starts with</option>
           </select>
@@ -946,13 +939,13 @@ function RuleEditor({
       </div>
 
       <div className="mt-3">
-        <AdminField label="Reply" htmlFor={`reply-${rule.id}`}>
+        <AdminField label="Auto-reply message" htmlFor={`reply-${rule.id}`}>
           <textarea
             id={`reply-${rule.id}`}
             value={rule.reply}
             onChange={(e) => onUpdate(rule.id, "reply", e.target.value)}
-            placeholder="The message to send back automatically…"
-            rows={2}
+            placeholder="The message to send automatically…"
+            rows={3}
             className={adminInputClass}
             style={adminInputStyle}
           />
@@ -988,11 +981,21 @@ function RuleEditor({
 function StatsTab() {
   const stats = useWhatsAppStats();
   return (
-    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-      <StatCard title="Total Messages" value={stats.total} iconBg="var(--adm-blue-light)" iconColor="var(--adm-blue)" icon={<MessageSquare size={22} />} />
-      <StatCard title="Received" value={stats.inbound} iconBg="#DBEAFE" iconColor="#2563EB" icon={<ChevronLeft size={22} />} />
-      <StatCard title="Sent" value={stats.outbound} iconBg="#DCFCE7" iconColor="#16A34A" icon={<Send size={20} />} />
-      <StatCard title="Today" value={stats.today} iconBg="var(--adm-blue-light)" iconColor="var(--adm-blue)" icon={<BarChart3 size={22} />} />
+    <div className="mx-auto max-w-4xl">
+      <div className="mb-6">
+        <h3 className="text-lg font-bold" style={{ color: "var(--adm-text)" }}>
+          Message Statistics
+        </h3>
+        <p className="text-sm" style={{ color: "var(--adm-text-3)" }}>
+          Overview of your WhatsApp Business activity
+        </p>
+      </div>
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <StatCard title="Total Messages" value={stats.total} iconBg="var(--adm-blue-light)" iconColor="var(--adm-blue)" icon={<MessageSquare size={22} />} />
+        <StatCard title="Received" value={stats.inbound} iconBg="#DBEAFE" iconColor="#2563EB" icon={<MessageSquare size={22} />} />
+        <StatCard title="Sent" value={stats.outbound} iconBg="#DCFCE7" iconColor="#16A34A" icon={<Send size={20} />} />
+        <StatCard title="Today" value={stats.today} iconBg="var(--adm-blue-light)" iconColor="var(--adm-blue)" icon={<BarChart3 size={22} />} />
+      </div>
     </div>
   );
 }
@@ -1011,7 +1014,7 @@ function StatCard({
   iconColor: string;
 }) {
   return (
-    <div className="flex items-center justify-between border bg-white p-5" style={{ borderColor: "var(--adm-border)" }}>
+    <div className="flex items-center justify-between border bg-white p-5 rounded" style={{ borderColor: "var(--adm-border)" }}>
       <div>
         <p className="text-xs font-medium uppercase tracking-wide" style={{ color: "var(--adm-text-3)" }}>
           {title}
