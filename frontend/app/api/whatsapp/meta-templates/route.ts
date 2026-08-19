@@ -81,6 +81,8 @@ async function submitOne(token: string, wabaId: string, def: MetaTemplateDef) {
     name: def.name,
     language: def.language,
     category: def.category,
+    // Let Meta re-classify instead of hard-failing when it disagrees with our category.
+    allow_category_change: true,
     components: buildCreateComponents(def),
   };
 
@@ -93,10 +95,25 @@ async function submitOne(token: string, wabaId: string, def: MetaTemplateDef) {
   const json = await res.json();
 
   if (!res.ok) {
-    // Duplicate name = already submitted; treat as a soft success
-    const msg = json?.error?.message || "Submit failed";
-    const alreadyExists = /already exists|same name/i.test(msg);
-    return { name: def.name, ok: alreadyExists, status: alreadyExists ? "ALREADY_SUBMITTED" : "ERROR", error: alreadyExists ? undefined : msg };
+    const err = json?.error || {};
+    // Meta's top-level `message` is generic ("Invalid parameter"); the useful text
+    // is in error_user_msg / error_user_title / error_subcode.
+    const detailMsg = err.error_user_msg || err.error_user_title || err.message || "Submit failed";
+    const combined = `${err.message ?? ""} ${err.error_user_title ?? ""} ${err.error_user_msg ?? ""}`;
+    const alreadyExists = /already exists|same name|existing template/i.test(combined);
+    return {
+      name: def.name,
+      ok: alreadyExists,
+      status: alreadyExists ? "ALREADY_SUBMITTED" : "ERROR",
+      error: alreadyExists ? undefined : detailMsg,
+      metaError: {
+        message: err.message,
+        code: err.code,
+        error_subcode: err.error_subcode,
+        error_user_title: err.error_user_title,
+        error_user_msg: err.error_user_msg,
+      },
+    };
   }
 
   return { name: def.name, ok: true, status: json?.status || "PENDING", id: json?.id };
