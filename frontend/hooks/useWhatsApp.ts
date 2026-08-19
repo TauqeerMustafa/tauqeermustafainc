@@ -38,6 +38,18 @@ export type AutoReplyRule = {
 
 export type WATemplate = { name: string; text: string };
 
+export type MetaTemplate = {
+  name: string;
+  category: "MARKETING" | "UTILITY";
+  language: string;
+  header?: string;
+  body: string;
+  bodyExample?: string[];
+  footer?: string;
+  buttons?: string[];
+  status: string; // APPROVED | PENDING | REJECTED | NOT_SUBMITTED | ...
+};
+
 // ── Messages ─────────────────────────────────────────────────────────────────
 
 export function useWhatsAppMessages() {
@@ -49,13 +61,17 @@ export function useWhatsAppMessages() {
 }
 
 type SendMessagePayload = {
-  type: "text" | "buttons" | "template";
+  type: "text" | "buttons" | "template" | "meta_template";
   to: string;
   message?: string;
+  headerText?: string;
   bodyText?: string;
   footerText?: string;
-  buttons?: Array<{ id: string; title: string }>;
+  buttons?: string[];
   template?: string;
+  templateText?: string;
+  metaTemplateName?: string;
+  templateVars?: string[];
 };
 
 export function useSendWhatsAppMessage() {
@@ -153,5 +169,32 @@ export function useDeleteTemplate() {
       return res.json();
     },
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["whatsapp-templates"] }),
+  });
+}
+
+// ── Meta-approved templates (business-initiated) ─────────────────────────────
+
+export function useMetaTemplates() {
+  return useQuery<{ success: boolean; data: MetaTemplate[]; configured?: boolean; notice?: string }>({
+    queryKey: ["whatsapp-meta-templates"],
+    queryFn: () => getJSON("/meta-templates"),
+    refetchInterval: 30000, // approval status changes over time
+  });
+}
+
+export function useSubmitMetaTemplate() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (payload: { name?: string; all?: boolean }) => {
+      const res = await fetch(`${API_BASE}/meta-templates`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Failed to submit template");
+      return data;
+    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["whatsapp-meta-templates"] }),
   });
 }

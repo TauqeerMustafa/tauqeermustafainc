@@ -18,6 +18,7 @@ import {
   XCircle,
   User,
   Phone,
+  Sparkles,
 } from "lucide-react";
 
 import {
@@ -38,16 +39,21 @@ import {
   useWhatsAppTemplates,
   useSaveTemplate,
   useDeleteTemplate,
+  useMetaTemplates,
+  useSubmitMetaTemplate,
 } from "@/hooks/useWhatsApp";
-import type { WAMessage, AutoReplyRule, WATemplate } from "@/hooks/useWhatsApp";
+import type { WAMessage, AutoReplyRule, WATemplate, MetaTemplate } from "@/hooks/useWhatsApp";
+import { BUTTON_TEMPLATES } from "@/lib/button-templates";
+import { countVariables } from "@/lib/meta-templates";
 
 type MessageType = "text" | "buttons" | "template";
-type TabKey = "inbox" | "send" | "rules" | "stats";
+type TabKey = "inbox" | "send" | "templates" | "rules" | "stats";
 type DealStatus = "new" | "contacted" | "negotiating" | "won" | "lost";
 
 const TABS: { key: TabKey; label: string; icon: React.ReactNode }[] = [
   { key: "inbox", label: "Inbox", icon: <MessageSquare size={16} /> },
   { key: "send", label: "Send Message", icon: <Send size={16} /> },
+  { key: "templates", label: "Start Chat", icon: <Sparkles size={16} /> },
   { key: "rules", label: "Auto-Reply", icon: <Bot size={16} /> },
   { key: "stats", label: "Stats", icon: <BarChart3 size={16} /> },
 ];
@@ -151,6 +157,7 @@ export default function AdminWhatsAppPage() {
           onSent={() => setPrefillRecipient(null)}
         />
       )}
+      {activeTab === "templates" && <MetaTemplatesTab defaultRecipient={prefillRecipient ?? ""} />}
       {activeTab === "rules" && <RulesTab />}
       {activeTab === "stats" && <StatsTab />}
     </div>
@@ -427,8 +434,11 @@ function SendTab({
   const [messageType, setMessageType] = useState<MessageType>("text");
   const [recipient, setRecipient] = useState(defaultRecipient);
   const [messageText, setMessageText] = useState("");
+  const [headerText, setHeaderText] = useState("");
   const [bodyText, setBodyText] = useState("");
+  const [footerText, setFooterText] = useState("");
   const [buttons, setButtons] = useState<string[]>(["", "", ""]);
+  const [buttonTemplate, setButtonTemplate] = useState("");
   const [templateName, setTemplateName] = useState("");
   const [sendError, setSendError] = useState("");
   const [sendSuccess, setSendSuccess] = useState(false);
@@ -462,7 +472,9 @@ function SendTab({
           setSendError("Enter message text and at least one button");
           return;
         }
+        if (headerText.trim()) payload.headerText = headerText.trim();
         payload.bodyText = bodyText;
+        if (footerText.trim()) payload.footerText = footerText.trim();
         payload.buttons = validButtons;
       } else if (messageType === "template") {
         const tpl = templates.find((t) => t.name === templateName);
@@ -480,8 +492,11 @@ function SendTab({
 
       setTimeout(() => {
         setMessageText("");
+        setHeaderText("");
         setBodyText("");
+        setFooterText("");
         setButtons(["", "", ""]);
+        setButtonTemplate("");
         setTemplateName("");
         setSendSuccess(false);
       }, 2000);
@@ -553,18 +568,94 @@ function SendTab({
         {/* Buttons */}
         {messageType === "buttons" && (
           <>
+            {/* Quick template picker */}
+            <AdminField label="Quick template (optional)" htmlFor="buttonTemplate">
+              <div className="relative">
+                <Sparkles
+                  size={15}
+                  className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2"
+                  style={{ color: "var(--adm-blue)" }}
+                />
+                <select
+                  id="buttonTemplate"
+                  value={buttonTemplate}
+                  onChange={(e) => {
+                    const name = e.target.value;
+                    setButtonTemplate(name);
+                    const tpl = BUTTON_TEMPLATES.find((t) => t.name === name);
+                    if (tpl) {
+                      setHeaderText(tpl.header);
+                      setBodyText(tpl.body);
+                      setFooterText(tpl.footer);
+                      const next = [...tpl.buttons.slice(0, 3), "", "", ""].slice(0, 3);
+                      setButtons(next);
+                    }
+                  }}
+                  className={adminInputClass}
+                  style={{ ...adminInputStyle, paddingLeft: "2.25rem" }}
+                >
+                  <option value="">Start from scratch…</option>
+                  {BUTTON_TEMPLATES.map((tpl) => (
+                    <option key={tpl.name} value={tpl.name}>
+                      {tpl.header}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <p className="mt-2 text-xs" style={{ color: "var(--adm-text-3)" }}>
+                Pick a ready-made message, then tweak the header, body, footer & buttons below.
+              </p>
+            </AdminField>
+
+            {/* Header */}
+            <AdminField label="Header (optional, bold title)" htmlFor="headerText">
+              <input
+                type="text"
+                id="headerText"
+                value={headerText}
+                onChange={(e) => setHeaderText(e.target.value)}
+                placeholder="👋 Welcome to Tauqeer Mustafa Inc"
+                className={adminInputClass}
+                style={adminInputStyle}
+                maxLength={60}
+              />
+              <p className="mt-1 text-xs" style={{ color: "var(--adm-text-3)" }}>
+                {headerText.length}/60 characters
+              </p>
+            </AdminField>
+
+            {/* Body */}
             <AdminField label="Message text" htmlFor="bodyText">
               <textarea
                 id="bodyText"
                 value={bodyText}
                 onChange={(e) => setBodyText(e.target.value)}
                 placeholder="Main message…"
-                rows={4}
+                rows={5}
                 className={adminInputClass}
                 style={adminInputStyle}
+                maxLength={1024}
               />
             </AdminField>
 
+            {/* Footer */}
+            <AdminField label="Footer (optional, small grey text)" htmlFor="footerText">
+              <input
+                type="text"
+                id="footerText"
+                value={footerText}
+                onChange={(e) => setFooterText(e.target.value)}
+                placeholder="We typically respond within 2-4 hours"
+                className={adminInputClass}
+                style={adminInputStyle}
+                maxLength={60}
+              />
+              <p className="mt-1 text-xs" style={{ color: "var(--adm-text-3)" }}>
+                {footerText.length}/60 characters
+              </p>
+            </AdminField>
+
+            {/* Button inputs */}
             <div>
               <label className="mb-2 block text-sm font-semibold" style={{ color: "var(--adm-text)" }}>
                 Interactive Buttons{" "}
@@ -591,6 +682,14 @@ function SendTab({
                 ))}
               </div>
             </div>
+
+            {/* Live preview */}
+            <ButtonPreview
+              header={headerText}
+              body={bodyText}
+              footer={footerText}
+              buttons={buttons.filter((b) => b.trim())}
+            />
           </>
         )}
 
@@ -658,6 +757,396 @@ function SendTab({
           {sendMessage.isPending ? "Sending…" : "Send Message"}
         </button>
       </div>
+    </div>
+  );
+}
+
+function ButtonPreview({
+  header,
+  body,
+  footer,
+  buttons,
+}: {
+  header: string;
+  body: string;
+  footer: string;
+  buttons: string[];
+}) {
+  const hasContent = header.trim() || body.trim() || footer.trim() || buttons.length > 0;
+
+  // Render WhatsApp *bold* _italic_ ~strike~ as HTML for the preview
+  const format = (text: string) =>
+    text
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/\*(.+?)\*/g, "<strong>$1</strong>")
+      .replace(/_(.+?)_/g, "<em>$1</em>")
+      .replace(/~(.+?)~/g, "<span style=\"text-decoration:line-through\">$1</span>")
+      .replace(/\n/g, "<br/>");
+
+  return (
+    <div>
+      <label className="mb-2 block text-sm font-semibold" style={{ color: "var(--adm-text)" }}>
+        Live Preview
+      </label>
+      <div
+        className="overflow-hidden rounded-lg border p-4"
+        style={{
+          borderColor: "var(--adm-border)",
+          background:
+            "#e5ddd5 url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40'%3E%3Ccircle cx='20' cy='20' r='1.2' fill='%23000' opacity='0.04'/%3E%3C/svg%3E\")",
+        }}
+      >
+        {!hasContent ? (
+          <p className="py-6 text-center text-xs" style={{ color: "#667781" }}>
+            Fill in the fields above to preview your message
+          </p>
+        ) : (
+          <div className="mx-auto max-w-xs">
+            {/* Message bubble */}
+            <div
+              className="relative rounded-lg rounded-tl-none bg-white px-3 py-2 shadow-sm"
+              style={{ color: "#111b21" }}
+            >
+              {header.trim() && (
+                <p className="mb-1 text-[15px] font-bold leading-snug">{header}</p>
+              )}
+              {body.trim() && (
+                <p
+                  className="text-[14px] leading-snug"
+                  dangerouslySetInnerHTML={{ __html: format(body) }}
+                />
+              )}
+              {footer.trim() && (
+                <p className="mt-1.5 text-[12px]" style={{ color: "#667781" }}>
+                  {footer}
+                </p>
+              )}
+              <div className="mt-1 flex items-center justify-end gap-1">
+                <span className="text-[11px]" style={{ color: "#667781" }}>
+                  12:00 PM
+                </span>
+                <CheckCheck size={13} style={{ color: "#53bdeb" }} />
+              </div>
+            </div>
+
+            {/* Reply buttons */}
+            {buttons.length > 0 && (
+              <div className="mt-1 space-y-1">
+                {buttons.slice(0, 3).map((btn, i) => (
+                  <div
+                    key={i}
+                    className="flex items-center justify-center gap-1.5 rounded-lg bg-white px-3 py-2.5 text-[14px] font-medium shadow-sm"
+                    style={{ color: "#00a5f4" }}
+                  >
+                    {btn}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function metaStatusStyle(status: string): { label: string; color: string; bg: string } {
+  const s = (status || "").toUpperCase();
+  if (s === "APPROVED") return { label: "Approved", color: "#10B981", bg: "#D1FAE5" };
+  if (s === "REJECTED" || s === "DISABLED" || s === "PAUSED")
+    return { label: s.charAt(0) + s.slice(1).toLowerCase(), color: "#EF4444", bg: "#FEE2E2" };
+  if (s === "NOT_SUBMITTED") return { label: "Not submitted", color: "#6B7280", bg: "#F3F4F6" };
+  return { label: "Pending review", color: "#F59E0B", bg: "#FEF3C7" };
+}
+
+function MetaTemplatesTab({ defaultRecipient }: { defaultRecipient: string }) {
+  const { data, isLoading, refetch } = useMetaTemplates();
+  const submitTemplate = useSubmitMetaTemplate();
+  const [banner, setBanner] = useState("");
+
+  const templates = data?.data ?? [];
+  const configured = data?.configured;
+  const notice = data?.notice;
+  const approvedCount = templates.filter((t) => (t.status || "").toUpperCase() === "APPROVED").length;
+
+  const handleSubmitAll = async () => {
+    setBanner("");
+    try {
+      const res = await submitTemplate.mutateAsync({ all: true });
+      setBanner(res.message || "Submitted all templates.");
+    } catch (e: any) {
+      setBanner(e.message || "Failed to submit templates.");
+    }
+  };
+
+  if (isLoading) return <AdminLoadingState label="Loading templates…" />;
+
+  return (
+    <div className="mx-auto max-w-4xl space-y-5">
+      {/* How it works */}
+      <div
+        className="border p-4 text-sm"
+        style={{ borderColor: "var(--adm-blue)", background: "var(--adm-blue-light)", color: "var(--adm-text-2)" }}
+      >
+        <p className="mb-1 font-semibold" style={{ color: "var(--adm-blue)" }}>
+          Start conversations with new customers
+        </p>
+        <p>
+          WhatsApp only lets you message someone first using a <strong>Meta-approved template</strong>. Submit these
+          templates once, wait for approval (minutes to a few hours), then send them to anyone — even people who never
+          texted you. Free-form messages only work within 24h of a customer&apos;s last message.
+        </p>
+      </div>
+
+      {/* Config notice */}
+      {!configured && (
+        <div
+          className="flex items-start gap-2 border p-4 text-sm"
+          style={{ borderColor: "var(--adm-amber, #F59E0B)", background: "#FEF3C7", color: "#92400E" }}
+        >
+          <AlertCircle size={16} className="mt-0.5 shrink-0" />
+          <span>{notice || "Set WHATSAPP_BUSINESS_ACCOUNT_ID to submit templates."}</span>
+        </div>
+      )}
+
+      {/* Toolbar */}
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <p className="text-sm" style={{ color: "var(--adm-text-2)" }}>
+          <strong>{templates.length}</strong> templates ·{" "}
+          <span style={{ color: "#10B981" }}>
+            <strong>{approvedCount}</strong> approved
+          </span>
+        </p>
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => refetch()}
+            className="flex items-center gap-2 border px-3 py-2 text-sm font-semibold"
+            style={{ borderColor: "var(--adm-border)", color: "var(--adm-text-2)" }}
+          >
+            <RefreshCw size={14} />
+            Refresh
+          </button>
+          <button
+            type="button"
+            onClick={handleSubmitAll}
+            disabled={submitTemplate.isPending}
+            className="flex items-center gap-2 px-4 py-2 text-sm font-semibold text-white disabled:opacity-50"
+            style={{ background: "var(--adm-blue)" }}
+          >
+            <Sparkles size={14} />
+            {submitTemplate.isPending ? "Submitting…" : "Submit All to Meta"}
+          </button>
+        </div>
+      </div>
+
+      {banner && (
+        <div
+          className="border p-3 text-sm"
+          style={{ borderColor: "var(--adm-border)", background: "var(--adm-surface-2)", color: "var(--adm-text-2)" }}
+        >
+          {banner}
+        </div>
+      )}
+
+      {/* Template cards */}
+      <div className="space-y-4">
+        {templates.map((tpl) => (
+          <MetaTemplateCard key={tpl.name} template={tpl} defaultRecipient={defaultRecipient} />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function MetaTemplateCard({ template, defaultRecipient }: { template: MetaTemplate; defaultRecipient: string }) {
+  const submitTemplate = useSubmitMetaTemplate();
+  const sendMessage = useSendWhatsAppMessage();
+
+  const varCount = countVariables(template.body);
+  const [open, setOpen] = useState(false);
+  const [recipient, setRecipient] = useState(defaultRecipient);
+  const [vars, setVars] = useState<string[]>(() => {
+    const seed = template.bodyExample ?? [];
+    return Array.from({ length: varCount }, (_, i) => seed[i] ?? "");
+  });
+  const [msg, setMsg] = useState("");
+
+  const status = (template.status || "").toUpperCase();
+  const isApproved = status === "APPROVED";
+  const badge = metaStatusStyle(template.status);
+
+  const rendered = template.body.replace(/\{\{\s*(\d+)\s*\}\}/g, (_, n) => vars[Number(n) - 1] || `{{${n}}}`);
+
+  const handleSubmit = async () => {
+    setMsg("");
+    try {
+      const res = await submitTemplate.mutateAsync({ name: template.name });
+      const r = res.results?.[0];
+      setMsg(r?.error ? `Error: ${r.error}` : "Submitted to Meta — awaiting approval.");
+    } catch (e: any) {
+      setMsg(e.message || "Failed to submit.");
+    }
+  };
+
+  const handleSend = async () => {
+    setMsg("");
+    const to = recipient.replace(/[^0-9]/g, "");
+    if (!to) {
+      setMsg("Enter a recipient number with country code.");
+      return;
+    }
+    try {
+      await sendMessage.mutateAsync({
+        type: "meta_template",
+        to,
+        metaTemplateName: template.name,
+        templateVars: vars,
+      });
+      setMsg("✅ Sent!");
+      setTimeout(() => {
+        setMsg("");
+        setOpen(false);
+      }, 2500);
+    } catch (e: any) {
+      setMsg(e.message || "Failed to send.");
+    }
+  };
+
+  return (
+    <div className="border bg-white" style={{ borderColor: "var(--adm-border)" }}>
+      <div className="flex items-start justify-between gap-3 p-4">
+        <div className="min-w-0">
+          <div className="mb-1 flex flex-wrap items-center gap-2">
+            <span className="font-mono text-xs" style={{ color: "var(--adm-text-3)" }}>
+              {template.name}
+            </span>
+            <span
+              className="rounded-full px-2 py-0.5 text-[11px] font-semibold"
+              style={{ color: badge.color, background: badge.bg }}
+            >
+              {badge.label}
+            </span>
+            <span
+              className="rounded-full px-2 py-0.5 text-[11px] font-medium"
+              style={{ color: "var(--adm-text-3)", background: "var(--adm-surface-2)" }}
+            >
+              {template.category}
+            </span>
+          </div>
+          {template.header && (
+            <p className="text-sm font-bold" style={{ color: "var(--adm-text)" }}>
+              {template.header}
+            </p>
+          )}
+          <p className="mt-0.5 whitespace-pre-wrap text-sm" style={{ color: "var(--adm-text-2)" }}>
+            {rendered}
+          </p>
+          {template.footer && (
+            <p className="mt-1 text-xs" style={{ color: "var(--adm-text-3)" }}>
+              {template.footer}
+            </p>
+          )}
+          {template.buttons && template.buttons.length > 0 && (
+            <div className="mt-2 flex flex-wrap gap-2">
+              {template.buttons.map((b) => (
+                <span
+                  key={b}
+                  className="rounded border px-2 py-1 text-xs font-medium"
+                  style={{ borderColor: "var(--adm-border)", color: "#00a5f4" }}
+                >
+                  {b}
+                </span>
+              ))}
+            </div>
+          )}
+        </div>
+
+        <div className="flex shrink-0 flex-col gap-2">
+          {isApproved ? (
+            <button
+              type="button"
+              onClick={() => setOpen((v) => !v)}
+              className="flex items-center gap-2 px-3 py-2 text-sm font-semibold text-white"
+              style={{ background: "var(--adm-green, #10B981)" }}
+            >
+              <Send size={14} />
+              Send
+            </button>
+          ) : (
+            <button
+              type="button"
+              onClick={handleSubmit}
+              disabled={submitTemplate.isPending || status === "PENDING"}
+              className="flex items-center gap-2 border px-3 py-2 text-sm font-semibold disabled:opacity-50"
+              style={{ borderColor: "var(--adm-blue)", color: "var(--adm-blue)" }}
+            >
+              <Sparkles size={14} />
+              {status === "PENDING" ? "Pending…" : "Submit"}
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* Send form (approved only) */}
+      {isApproved && open && (
+        <div className="border-t p-4" style={{ borderColor: "var(--adm-border)", background: "var(--adm-surface)" }}>
+          <AdminField label="Recipient (phone with country code)" htmlFor={`to-${template.name}`}>
+            <input
+              type="text"
+              id={`to-${template.name}`}
+              value={recipient}
+              onChange={(e) => setRecipient(e.target.value)}
+              placeholder="923001234567"
+              className={adminInputClass}
+              style={adminInputStyle}
+            />
+          </AdminField>
+          {varCount > 0 && (
+            <div className="mt-3 space-y-2">
+              <label className="block text-sm font-semibold" style={{ color: "var(--adm-text)" }}>
+                Fill in the blanks
+              </label>
+              {Array.from({ length: varCount }, (_, i) => (
+                <input
+                  key={i}
+                  type="text"
+                  value={vars[i] ?? ""}
+                  onChange={(e) => {
+                    const next = [...vars];
+                    next[i] = e.target.value;
+                    setVars(next);
+                  }}
+                  placeholder={`Variable {{${i + 1}}}${template.bodyExample?.[i] ? ` (e.g. ${template.bodyExample[i]})` : ""}`}
+                  className={adminInputClass}
+                  style={adminInputStyle}
+                />
+              ))}
+            </div>
+          )}
+          <button
+            type="button"
+            onClick={handleSend}
+            disabled={sendMessage.isPending}
+            className="mt-3 flex w-full items-center justify-center gap-2 px-4 py-3 text-sm font-semibold text-white disabled:opacity-50"
+            style={{ background: "var(--adm-blue)" }}
+          >
+            <Send size={14} />
+            {sendMessage.isPending ? "Sending…" : "Send Template"}
+          </button>
+        </div>
+      )}
+
+      {msg && (
+        <div
+          className="border-t px-4 py-2 text-sm"
+          style={{ borderColor: "var(--adm-border)", color: "var(--adm-text-2)" }}
+        >
+          {msg}
+        </div>
+      )}
     </div>
   );
 }

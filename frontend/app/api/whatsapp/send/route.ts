@@ -7,6 +7,7 @@
  *   WHATSAPP_PHONE_NUMBER_ID – the numeric Phone Number ID from the app dashboard
  */
 import { NextResponse } from "next/server";
+import { META_TEMPLATES, buildSendComponents } from "@/lib/meta-templates";
 
 const GRAPH_URL = "https://graph.facebook.com/v20.0";
 
@@ -46,7 +47,7 @@ export async function POST(request: Request) {
 
   try {
     const body = await request.json();
-    const { type, to, message, bodyText, footerText, buttons, template, templateText } = body;
+    const { type, to, message, headerText, bodyText, footerText, buttons, template, templateText, metaTemplateName, templateVars } = body;
 
     if (!to) {
       return NextResponse.json(
@@ -90,8 +91,9 @@ export async function POST(request: Request) {
           type: "interactive",
           interactive: {
             type: "button",
+            ...(headerText ? { header: { type: "text", text: String(headerText).slice(0, 60) } } : {}),
             body: { text: bodyText },
-            ...(footerText ? { footer: { text: footerText } } : {}),
+            ...(footerText ? { footer: { text: String(footerText).slice(0, 60) } } : {}),
             action: { buttons: metaButtons },
           },
         };
@@ -101,6 +103,7 @@ export async function POST(request: Request) {
       case "template": {
         // "template" here is the saved canned-message TEXT (not a Meta-approved template).
         // Send it as a plain text message so it works immediately without Meta approval.
+        // NOTE: this only reaches the recipient inside the 24h customer-service window.
         const text = templateText || template;
         if (!text) {
           return NextResponse.json({ success: false, error: "template text is required" }, { status: 400 });
@@ -110,6 +113,31 @@ export async function POST(request: Request) {
           to: recipient,
           type: "text",
           text: { body: text, preview_url: false },
+        };
+        break;
+      }
+
+      case "meta_template": {
+        // Business-initiated: send a Meta-APPROVED template. This is the ONLY way
+        // to message someone outside the 24h window / who never texted first.
+        const def = META_TEMPLATES.find((t) => t.name === metaTemplateName);
+        if (!def) {
+          return NextResponse.json(
+            { success: false, error: `Unknown template: ${metaTemplateName}` },
+            { status: 400 }
+          );
+        }
+        const vars: string[] = Array.isArray(templateVars) ? templateVars.map(String) : [];
+        const components = buildSendComponents(def, vars);
+        payload = {
+          messaging_product: "whatsapp",
+          to: recipient,
+          type: "template",
+          template: {
+            name: def.name,
+            language: { code: def.language },
+            ...(components.length ? { components } : {}),
+          },
         };
         break;
       }
@@ -132,13 +160,34 @@ export async function POST(request: Request) {
 
     // Store the outbound message
     if (messageId) {
+      // For button messages, compose header + body + footer so the inbox reflects what was sent
+      const buttonsBody = [headerText, bodyText, footerText].filter(Boolean).join("\n\n");
+
+      // For Meta templates, render header + variable-substituted body + footer
+      let metaBody = "";
+      if (type === "meta_template") {
+        const def = META_TEMPLATES.find((t) => t.name === metaTemplateName);
+        if (def) {
+          const vars: string[] = Array.isArray(templateVars) ? templateVars.map(String) : [];
+          const rendered = def.body.replace(/\{\{\s*(\d+)\s*\}\}/g, (_, n) => vars[Number(n) - 1] ?? `{{${n}}}`);
+          metaBody = [def.header, rendered, def.footer].filter(Boolean).join("\n\n");
+        }
+      }
+
       const storedMessage = {
         id: messageId,
         from: phoneNumberId,
         to: recipient,
         jid: `${recipient}@s.whatsapp.net`,
-        type: type === "buttons" ? "interactive" : type,
-        body: type === "text" ? message : type === "buttons" ? bodyText : templateText || template,
+        type: type === "buttons" ? "interactive" : type === "meta_template" ? "template" : type,
+        body:
+          type === "text"
+            ? message
+            : type === "buttons"
+              ? buttonsBody
+              : type === "meta_template"
+                ? metaBody
+                : templateText || template,
         timestamp: new Date().toISOString(),
         direction: "outbound" as const,
         status: "sent",
