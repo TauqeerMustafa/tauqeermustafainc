@@ -63,7 +63,7 @@ export const META_TEMPLATES: MetaTemplateDef[] = [
   },
   {
     name: "quote_ready",
-    category: "UTILITY",
+    category: "MARKETING", // Meta already has this as MARKETING from first submission; correct is UTILITY but can't change category after creation
     language: "en_US",
     header: "Your Quote is Ready",
     body: "✅ Hi {{1}}, your custom quote for {{2}} is ready! Estimated total: {{3}}. The full proposal includes scope, timeline, and payment terms.",
