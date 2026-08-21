@@ -12,10 +12,13 @@ import {
 } from "@/components/home/ui";
 import { IconFrame } from "@/components/home/IconFrame";
 import { FaqAccordion } from "@/components/services/FaqAccordion";
-import { services } from "@/lib/site-data";
+import { getService, getServices } from "@/lib/site-content";
 import { buildMetadata } from "@/lib/metadata";
 import { serviceSchema, breadcrumbSchema } from "@/lib/schema";
 import { faqSchema } from "@/lib/faq-schema";
+
+// Render fresh so services edited in /admin appear immediately.
+export const dynamic = "force-dynamic";
 
 const imageBySlug: Record<string, string> = {
   "enterprise-web-development": "https://images.unsplash.com/photo-1483058712412-4245e9b90334?auto=format&fit=crop&w=1600&q=80",
@@ -25,17 +28,13 @@ const imageBySlug: Record<string, string> = {
   "ui-ux-product-design": "https://images.unsplash.com/photo-1550439062-609e1531270e?auto=format&fit=crop&w=1600&q=80",
 };
 
-export function generateStaticParams() {
-  return services.map((service) => ({ slug: service.slug }));
-}
-
 export async function generateMetadata({
   params,
 }: {
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
-  const service = services.find((item) => item.slug === slug);
+  const service = await getService(slug);
 
   if (!service) return {};
 
@@ -53,7 +52,7 @@ export default async function ServiceDetailPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const service = services.find((item) => item.slug === slug);
+  const [service, allServices] = await Promise.all([getService(slug), getServices()]);
 
   if (!service) {
     notFound();
@@ -136,7 +135,7 @@ export default async function ServiceDetailPage({
               Most engagements combine more than one capability &mdash; explore the rest of what we offer.
             </p>
             <ul className="mt-6 space-y-3">
-              {services
+              {allServices
                 .filter((item) => item.slug !== service.slug)
                 .map((item) => (
                   <li key={item.slug}>

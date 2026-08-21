@@ -5,13 +5,12 @@ import Link from "next/link";
 import Image from "next/image";
 
 import { Section } from "@/components/home/ui";
-import { jobs } from "@/lib/site-data";
+import { getJob, getJobs } from "@/lib/site-content";
 import { buildMetadata } from "@/lib/metadata";
 import JobApplyForm from "@/components/careers/JobApplyForm";
 
-export function generateStaticParams() {
-  return jobs.map((job) => ({ slug: job.slug }));
-}
+// Render fresh so roles edited in /admin appear immediately.
+export const dynamic = "force-dynamic";
 
 export async function generateMetadata({
   params,
@@ -19,7 +18,7 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
-  const job = jobs.find((item) => item.slug === slug);
+  const job = await getJob(slug);
   if (!job) return {};
   return buildMetadata({
     title: job.title,
@@ -35,10 +34,10 @@ export default async function JobDetailPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const job = jobs.find((item) => item.slug === slug);
+  const [job, allJobs] = await Promise.all([getJob(slug), getJobs()]);
   if (!job) notFound();
 
-  const related = jobs.filter((j) => j.slug !== job.slug).slice(0, 3);
+  const related = allJobs.filter((j) => j.slug !== job.slug).slice(0, 3);
 
   return (
     <>

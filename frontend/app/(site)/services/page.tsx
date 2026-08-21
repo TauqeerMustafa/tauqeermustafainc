@@ -9,8 +9,11 @@ import {
   TextLink,
 } from "@/components/home/ui";
 import { IconFrame } from "@/components/home/IconFrame";
-import { services } from "@/lib/site-data";
+import { getServices } from "@/lib/site-content";
 import { buildMetadata } from "@/lib/metadata";
+
+// Render fresh so services edited in /admin appear immediately.
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = buildMetadata({
   title: "Services",
@@ -28,7 +31,8 @@ const iconsBySlug: Record<string, typeof Code2> = {
   "ui-ux-product-design": PenTool,
 };
 
-export default function ServicesPage() {
+export default async function ServicesPage() {
+  const services = await getServices();
   return (
     <>
       <PageHero

@@ -37,8 +37,9 @@ export default function JobApplyForm({
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          name: form.name,
+          fullName: form.name,
           email: form.email,
+          phone: form.phone,
           message: `Job Application: ${jobTitle} (${jobSlug})\n\nPhone: ${form.phone || "—"}\nPortfolio / LinkedIn: ${form.portfolioUrl || "—"}\nCV / Resume link: ${form.cvUrl || "—"}\n\n${form.message}`,
           subject: `Application: ${jobTitle}`,
         }),

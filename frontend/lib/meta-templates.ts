@@ -16,7 +16,7 @@
  *                  emojis ARE allowed here
  *   • bodyExample – one sample value per body variable, in order (required by Meta when variables are present)
  *   • footer     – optional, ≤60 chars, no variables
- *   • buttons    – optional quick-reply labels, ≤20 chars each, max 3
+ *   • buttons    – optional quick-reply labels, ≤25 chars each, max 10
  */
 
 export type MetaTemplateDef = {
@@ -206,9 +206,10 @@ export function buildCreateComponents(def: MetaTemplateDef): Record<string, unkn
   }
 
   if (def.buttons && def.buttons.length > 0) {
+    // Meta allows up to 10 quick-reply buttons per template.
     components.push({
       type: "BUTTONS",
-      buttons: def.buttons.slice(0, 3).map((b) => ({ type: "QUICK_REPLY", text: b.slice(0, 20) })),
+      buttons: def.buttons.slice(0, 10).map((b) => ({ type: "QUICK_REPLY", text: b.slice(0, 25) })),
     });
   }
 

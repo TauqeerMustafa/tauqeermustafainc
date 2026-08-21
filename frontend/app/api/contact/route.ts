@@ -19,7 +19,6 @@ export async function POST(request: Request) {
   const detailLines = [
     body.subject ? `Subject: ${body.subject}` : null,
     body.service ? `Service: ${body.service}` : null,
-    body.budget ? `Budget: ${body.budget}` : null,
     body.phone ? `Phone: ${body.phone}` : null,
   ].filter(Boolean);
 

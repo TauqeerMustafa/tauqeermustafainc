@@ -9,8 +9,11 @@ import {
   TextLink,
 } from "@/components/home/ui";
 import { IconFrame } from "@/components/home/IconFrame";
-import { jobs } from "@/lib/site-data";
+import { getJobs } from "@/lib/site-content";
 import { buildMetadata } from "@/lib/metadata";
+
+// Render fresh so roles edited in /admin appear immediately.
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = buildMetadata({
   title: "Careers",
@@ -25,7 +28,8 @@ const benefits = [
   { title: "Responsible pace", description: "Deliver with discipline, quality, and sustainable planning.", icon: HeartHandshake },
 ];
 
-export default function CareersPage() {
+export default async function CareersPage() {
+  const jobs = await getJobs();
   return (
     <>
       <PageHero

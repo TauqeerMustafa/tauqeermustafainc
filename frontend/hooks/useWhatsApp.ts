@@ -40,7 +40,7 @@ export type WATemplate = { name: string; text: string };
 
 export type MetaTemplate = {
   name: string;
-  category: "MARKETING" | "UTILITY";
+  category: "MARKETING" | "UTILITY" | "AUTHENTICATION" | (string & {});
   language: string;
   header?: string;
   body: string;
@@ -48,7 +48,12 @@ export type MetaTemplate = {
   footer?: string;
   buttons?: string[];
   status: string; // APPROVED | PENDING | REJECTED | NOT_SUBMITTED | ...
+  source?: "predefined" | "meta"; // "meta" = pulled in automatically from Meta
 };
+
+export type WaNumber = { id: string; label: string; primary: boolean };
+
+export type MediaKind = "image" | "video" | "audio" | "document" | "sticker";
 
 // ── Messages ─────────────────────────────────────────────────────────────────
 
@@ -61,7 +66,7 @@ export function useWhatsAppMessages() {
 }
 
 type SendMessagePayload = {
-  type: "text" | "buttons" | "template" | "meta_template";
+  type: "text" | "media" | "buttons" | "template" | "meta_template";
   to: string;
   message?: string;
   headerText?: string;
@@ -72,6 +77,14 @@ type SendMessagePayload = {
   templateText?: string;
   metaTemplateName?: string;
   templateVars?: string[];
+  templateLanguage?: string;
+  fromNumberId?: string;
+  // media
+  mediaType?: MediaKind;
+  mediaId?: string;
+  mediaLink?: string;
+  caption?: string;
+  filename?: string;
 };
 
 export function useSendWhatsAppMessage() {
@@ -97,7 +110,36 @@ export function useSendWhatsAppMessage() {
   });
 }
 
-// ── Stats (derived from messages) ─────────────────────────────────────────────
+// ── Sending numbers (primary + optional second number) ───────────────────────
+
+export function useWaNumbers() {
+  return useQuery<{ success: boolean; data: WaNumber[] }>({
+    queryKey: ["whatsapp-numbers"],
+    queryFn: () => getJSON("/numbers"),
+    staleTime: 5 * 60 * 1000, // config rarely changes
+  });
+}
+
+// ── Media upload (returns a Meta media id to send with type: "media") ─────────
+
+export type UploadedMedia = {
+  success: boolean;
+  id: string;
+  mediaType: MediaKind;
+  filename: string;
+  mimeType: string;
+  error?: string;
+};
+
+export async function uploadWhatsAppMedia(file: File, fromNumberId?: string): Promise<UploadedMedia> {
+  const form = new FormData();
+  form.append("file", file);
+  if (fromNumberId) form.append("fromNumberId", fromNumberId);
+  const res = await fetch(`${API_BASE}/upload`, { method: "POST", body: form });
+  const data = await res.json();
+  if (!res.ok || !data?.success) throw new Error(data?.error || "Upload failed");
+  return data;
+}
 
 export function useWhatsAppStats() {
   const { data } = useWhatsAppMessages();
@@ -179,6 +221,7 @@ export function useMetaTemplates() {
     queryKey: ["whatsapp-meta-templates"],
     queryFn: () => getJSON("/meta-templates"),
     refetchInterval: 30000, // approval status changes over time
+    refetchOnWindowFocus: true, // and refresh the moment the admin tabs back in
   });
 }
 

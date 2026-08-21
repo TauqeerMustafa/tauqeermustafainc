@@ -20,12 +20,45 @@ function config() {
   };
 }
 
-// ─── GET: predefined templates + live Meta status ────────────────────────────
+// ─── GET: predefined templates + live Meta status + Meta-only approved ───────
+
+/** Parse a Meta template's components array into our MetaTemplateDef shape. */
+function parseMetaComponents(components: unknown[]): {
+  header?: string;
+  body: string;
+  bodyExample?: string[];
+  footer?: string;
+  buttons?: string[];
+} {
+  let header: string | undefined;
+  let body = "";
+  let bodyExample: string[] | undefined;
+  let footer: string | undefined;
+  let buttons: string[] | undefined;
+
+  for (const raw of components ?? []) {
+    const c = raw as Record<string, any>;
+    const t = String(c?.type || "").toUpperCase();
+    if (t === "HEADER" && String(c?.format || "").toUpperCase() === "TEXT") {
+      header = c.text;
+    } else if (t === "BODY") {
+      body = c.text ?? "";
+      const ex = c?.example?.body_text?.[0];
+      if (Array.isArray(ex)) bodyExample = ex.map(String);
+    } else if (t === "FOOTER") {
+      footer = c.text;
+    } else if (t === "BUTTONS" && Array.isArray(c?.buttons)) {
+      buttons = c.buttons.map((b: any) => b?.text).filter(Boolean);
+    }
+  }
+  return { header, body, bodyExample, footer, buttons };
+}
+
 export async function GET() {
   const { token, wabaId } = config();
 
   // Always return our predefined library so the UI can render even before setup.
-  const base = META_TEMPLATES.map((t) => ({ ...t, status: "NOT_SUBMITTED" as string }));
+  const base = META_TEMPLATES.map((t) => ({ ...t, status: "NOT_SUBMITTED" as string, source: "predefined" as string }));
 
   if (!token || !wabaId) {
     return NextResponse.json({
@@ -39,7 +72,7 @@ export async function GET() {
 
   try {
     const res = await fetch(
-      `${GRAPH_URL}/${wabaId}/message_templates?fields=name,status,category,language&limit=200`,
+      `${GRAPH_URL}/${wabaId}/message_templates?fields=name,status,category,language,components&limit=250`,
       { headers: { Authorization: `Bearer ${token}` }, cache: "no-store" }
     );
     const json = await res.json();
@@ -53,16 +86,38 @@ export async function GET() {
       });
     }
 
-    // Map live status by template name
-    const liveStatus = new Map<string, string>();
+    // Index live templates from Meta by name.
+    const live = new Map<string, any>();
     for (const tpl of json?.data ?? []) {
-      if (tpl?.name) liveStatus.set(tpl.name, tpl.status ?? "UNKNOWN");
+      if (tpl?.name) live.set(tpl.name, tpl);
     }
 
-    const data = META_TEMPLATES.map((t) => ({
+    // 1) Our predefined templates, annotated with live status.
+    const predefinedNames = new Set(META_TEMPLATES.map((t) => t.name));
+    const data: Record<string, unknown>[] = META_TEMPLATES.map((t) => ({
       ...t,
-      status: liveStatus.get(t.name) ?? "NOT_SUBMITTED",
+      status: live.get(t.name)?.status ?? "NOT_SUBMITTED",
+      source: "predefined",
     }));
+
+    // 2) Meta-only templates (created directly in Meta / not in our list) —
+    //    surface them automatically so they can be viewed and sent.
+    for (const [name, tpl] of live) {
+      if (predefinedNames.has(name)) continue;
+      const parsed = parseMetaComponents(tpl?.components ?? []);
+      data.push({
+        name,
+        category: (tpl?.category as string) || "MARKETING",
+        language: (tpl?.language as string) || "en_US",
+        ...parsed,
+        status: tpl?.status ?? "UNKNOWN",
+        source: "meta",
+      });
+    }
+
+    // Approved first, then pending/other, then not-submitted.
+    const rank = (s: string) => (s === "APPROVED" ? 0 : s === "NOT_SUBMITTED" ? 2 : 1);
+    data.sort((a, b) => rank(String(a.status).toUpperCase()) - rank(String(b.status).toUpperCase()));
 
     return NextResponse.json({ success: true, data, configured: true });
   } catch (error) {

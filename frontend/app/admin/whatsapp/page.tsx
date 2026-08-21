@@ -41,12 +41,14 @@ import {
   useDeleteTemplate,
   useMetaTemplates,
   useSubmitMetaTemplate,
+  useWaNumbers,
+  uploadWhatsAppMedia,
 } from "@/hooks/useWhatsApp";
-import type { WAMessage, AutoReplyRule, WATemplate, MetaTemplate } from "@/hooks/useWhatsApp";
+import type { WAMessage, AutoReplyRule, WATemplate, MetaTemplate, MediaKind } from "@/hooks/useWhatsApp";
 import { BUTTON_TEMPLATES } from "@/lib/button-templates";
 import { countVariables } from "@/lib/meta-templates";
 
-type MessageType = "text" | "buttons" | "template";
+type MessageType = "text" | "media" | "buttons" | "template";
 type TabKey = "inbox" | "send" | "templates" | "rules" | "stats";
 type DealStatus = "new" | "contacted" | "negotiating" | "won" | "lost";
 
@@ -443,9 +445,45 @@ function SendTab({
   const [sendError, setSendError] = useState("");
   const [sendSuccess, setSendSuccess] = useState(false);
 
+  // Media (task 3)
+  const [mediaKind, setMediaKind] = useState<MediaKind>("image");
+  const [mediaLink, setMediaLink] = useState("");
+  const [mediaId, setMediaId] = useState("");
+  const [mediaFileName, setMediaFileName] = useState("");
+  const [caption, setCaption] = useState("");
+  const [uploading, setUploading] = useState(false);
+
+  // Which number to send from (task 4)
+  const [fromNumberId, setFromNumberId] = useState("");
+
   const sendMessage = useSendWhatsAppMessage();
   const { data: templatesData } = useWhatsAppTemplates();
+  const { data: numbersData } = useWaNumbers();
   const templates: WATemplate[] = templatesData?.data ?? [];
+  const numbers = numbersData?.data ?? [];
+
+  const resetMedia = () => {
+    setMediaLink("");
+    setMediaId("");
+    setMediaFileName("");
+    setCaption("");
+  };
+
+  const handleFileUpload = async (file: File) => {
+    setSendError("");
+    setUploading(true);
+    try {
+      const up = await uploadWhatsAppMedia(file, fromNumberId || undefined);
+      setMediaId(up.id);
+      setMediaKind(up.mediaType);
+      setMediaFileName(up.filename);
+      setMediaLink(""); // uploaded id takes precedence over link
+    } catch (e: any) {
+      setSendError(e.message || "Upload failed");
+    } finally {
+      setUploading(false);
+    }
+  };
 
   const handleSend = async () => {
     setSendError("");
@@ -459,6 +497,7 @@ function SendTab({
 
     try {
       const payload: Record<string, unknown> = { type: messageType, to };
+      if (fromNumberId) payload.fromNumberId = fromNumberId;
 
       if (messageType === "text") {
         if (!messageText.trim()) {
@@ -466,6 +505,18 @@ function SendTab({
           return;
         }
         payload.message = messageText;
+      } else if (messageType === "media") {
+        if (!mediaId && !mediaLink.trim()) {
+          setSendError("Upload a file or paste a public media URL");
+          return;
+        }
+        payload.mediaType = mediaKind;
+        if (mediaId) payload.mediaId = mediaId;
+        else payload.mediaLink = mediaLink.trim();
+        if (caption.trim() && mediaKind !== "audio" && mediaKind !== "sticker") {
+          payload.caption = caption.trim();
+        }
+        if (mediaKind === "document" && mediaFileName) payload.filename = mediaFileName;
       } else if (messageType === "buttons") {
         const validButtons = buttons.filter((b) => b.trim()).slice(0, 3);
         if (!bodyText.trim() || validButtons.length === 0) {
@@ -498,6 +549,7 @@ function SendTab({
         setButtons(["", "", ""]);
         setButtonTemplate("");
         setTemplateName("");
+        resetMedia();
         setSendSuccess(false);
       }, 2000);
     } catch (error: any) {
@@ -513,8 +565,8 @@ function SendTab({
           <label className="mb-3 block text-sm font-semibold" style={{ color: "var(--adm-text)" }}>
             Message Type
           </label>
-          <div className="grid grid-cols-3 gap-3">
-            {(["text", "buttons", "template"] as MessageType[]).map((type) => (
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+            {(["text", "media", "buttons", "template"] as MessageType[]).map((type) => (
               <button
                 key={type}
                 type="button"
@@ -533,6 +585,26 @@ function SendTab({
             ))}
           </div>
         </div>
+
+        {/* Send from (only when a second number is configured) */}
+        {numbers.length > 1 && (
+          <AdminField label="Send from" htmlFor="fromNumber">
+            <select
+              id="fromNumber"
+              value={fromNumberId}
+              onChange={(e) => setFromNumberId(e.target.value)}
+              className={adminInputClass}
+              style={adminInputStyle}
+            >
+              {numbers.map((n) => (
+                <option key={n.id} value={n.id}>
+                  {n.label}
+                  {n.primary ? " (default)" : ""} — {n.id}
+                </option>
+              ))}
+            </select>
+          </AdminField>
+        )}
 
         {/* Recipient */}
         <AdminField label="Recipient (phone with country code)" htmlFor="recipient">
@@ -563,6 +635,78 @@ function SendTab({
               Supports WhatsApp formatting: *bold* _italic_ ~strikethrough~
             </p>
           </AdminField>
+        )}
+
+        {/* Media */}
+        {messageType === "media" && (
+          <>
+            <AdminField label="Media type" htmlFor="mediaKind">
+              <select
+                id="mediaKind"
+                value={mediaKind}
+                onChange={(e) => setMediaKind(e.target.value as MediaKind)}
+                className={adminInputClass}
+                style={adminInputStyle}
+              >
+                <option value="image">Image</option>
+                <option value="video">Video</option>
+                <option value="document">Document</option>
+                <option value="audio">Audio</option>
+                <option value="sticker">Sticker</option>
+              </select>
+            </AdminField>
+
+            <AdminField label="Upload a file" htmlFor="mediaFile">
+              <input
+                type="file"
+                id="mediaFile"
+                onChange={(e) => {
+                  const f = e.target.files?.[0];
+                  if (f) handleFileUpload(f);
+                }}
+                className={adminInputClass}
+                style={adminInputStyle}
+                disabled={uploading}
+              />
+              <p className="mt-1 text-xs" style={{ color: "var(--adm-text-3)" }}>
+                {uploading
+                  ? "Uploading to WhatsApp…"
+                  : mediaId
+                    ? `✓ Uploaded: ${mediaFileName} (ready to send)`
+                    : "Caps: image 5MB · video/audio 16MB · document 100MB. Or paste a public URL below."}
+              </p>
+            </AdminField>
+
+            <AdminField label="…or public media URL (https)" htmlFor="mediaLink">
+              <input
+                type="text"
+                id="mediaLink"
+                value={mediaLink}
+                onChange={(e) => {
+                  setMediaLink(e.target.value);
+                  if (e.target.value) setMediaId(""); // link overrides a previous upload
+                }}
+                placeholder="https://example.com/file.pdf"
+                className={adminInputClass}
+                style={adminInputStyle}
+              />
+            </AdminField>
+
+            {mediaKind !== "audio" && mediaKind !== "sticker" && (
+              <AdminField label="Caption (optional)" htmlFor="caption">
+                <textarea
+                  id="caption"
+                  value={caption}
+                  onChange={(e) => setCaption(e.target.value)}
+                  placeholder="Optional caption shown under the media…"
+                  rows={2}
+                  className={adminInputClass}
+                  style={adminInputStyle}
+                  maxLength={1024}
+                />
+              </AdminField>
+            )}
+          </>
         )}
 
         {/* Buttons */}
@@ -1004,6 +1148,7 @@ function MetaTemplateCard({ template, defaultRecipient }: { template: MetaTempla
         to,
         metaTemplateName: template.name,
         templateVars: vars,
+        templateLanguage: template.language,
       });
       setMsg("✅ Sent!");
       setTimeout(() => {
@@ -1075,6 +1220,11 @@ function MetaTemplateCard({ template, defaultRecipient }: { template: MetaTempla
               <Send size={14} />
               Send
             </button>
+          ) : template.source === "meta" ? (
+            // Lives only in Meta — we have no local definition to (re)submit.
+            <span className="px-3 py-2 text-xs font-semibold" style={{ color: "var(--adm-text-3)" }}>
+              {status || "IN META"}
+            </span>
           ) : (
             <button
               type="button"

@@ -33,16 +33,6 @@ const SERVICES = [
   "Other",
 ];
 
-const BUDGET_RANGES = [
-  { label: "Under $5,000  — Small task / quick win",           value: "under-5k" },
-  { label: "$5,000 – $15,000  — Focused project",             value: "5k-15k" },
-  { label: "$15,000 – $50,000  — Mid-size engagement",        value: "15k-50k" },
-  { label: "$50,000 – $150,000  — Full product build",        value: "50k-150k" },
-  { label: "$150,000 – $500,000  — Enterprise solution",      value: "150k-500k" },
-  { label: "$500,000+  — Strategic / multi-phase programme",  value: "500k-plus" },
-  { label: "Not sure — let us scope it together",             value: "unsure" },
-];
-
 const TIMELINES = [
   "As soon as possible",
   "Within 1 month",
@@ -162,17 +152,6 @@ export default function ContactForm() {
             ))}
           </select>
           {errors.service && <p className={errorClass}>{errors.service.message}</p>}
-        </div>
-
-        <div className={fieldWrap}>
-          <label className={labelClass}>Estimated budget <span className="text-red-500">*</span></label>
-          <select {...register("budget")} className={inputClass}>
-            <option value="">Select a range</option>
-            {BUDGET_RANGES.map((b) => (
-              <option key={b.value} value={b.value}>{b.label}</option>
-            ))}
-          </select>
-          {errors.budget && <p className={errorClass}>{errors.budget.message}</p>}
         </div>
 
         <div className={fieldWrap}>
