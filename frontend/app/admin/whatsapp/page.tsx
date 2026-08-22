@@ -213,11 +213,38 @@ function unreadCount(conv: Conversation, meta?: ConvMeta) {
   const since = meta?.lastReadAt ? new Date(meta.lastReadAt).getTime() : 0;
   return conv.messages.filter((m) => m.direction === "inbound" && new Date(m.timestamp).getTime() > since).length;
 }
+
+/** WhatsApp-style labels for messages that carry no text of their own. */
+const MEDIA_LABELS: Record<string, string> = {
+  image: "📷 Photo",
+  video: "🎥 Video",
+  audio: "🎤 Voice message",
+  voice: "🎤 Voice message",
+  document: "📄 Document",
+  sticker: "🏷️ Sticker",
+  location: "📍 Location",
+  contacts: "👤 Contact",
+  reaction: "💬 Reaction",
+  unsupported: "⚠️ Unsupported message",
+};
+
+/**
+ * Readable text for a message. Media, stickers and other non-text types are
+ * stored with an empty body, so fall back to a type label instead of rendering
+ * a blank bubble.
+ */
+function describeMessage(m: WAMessage) {
+  const body = (m.body || "").trim();
+  if (body) return body;
+  if (MEDIA_LABELS[m.type]) return MEDIA_LABELS[m.type];
+  return m.type && m.type !== "text" ? `📎 ${m.type}` : "";
+}
+
 function lastPreview(conv: Conversation) {
   const m = conv.messages.at(-1);
   if (!m) return "";
   const prefix = m.direction === "outbound" ? "You: " : "";
-  return prefix + (m.body || "").replace(/\n/g, " ");
+  return prefix + describeMessage(m).replace(/\n/g, " ");
 }
 
 /**
@@ -854,6 +881,8 @@ function Ticks({ status }: { status?: string }) {
 
 function MessageBubble({ message }: { message: WAMessage }) {
   const isOutbound = message.direction === "outbound";
+  const text = describeMessage(message);
+  const isPlaceholder = !(message.body || "").trim();
   return (
     <div className={`flex ${isOutbound ? "justify-end" : "justify-start"}`}>
       <div
@@ -866,7 +895,12 @@ function MessageBubble({ message }: { message: WAMessage }) {
           borderTopLeftRadius: isOutbound ? 8 : 0,
         }}
       >
-        <p className="whitespace-pre-wrap break-words pr-1">{message.body}</p>
+        <p
+          className="whitespace-pre-wrap break-words pr-1"
+          style={isPlaceholder ? { fontStyle: "italic", color: "#54656f" } : undefined}
+        >
+          {text || "—"}
+        </p>
         <div className="mt-0.5 flex items-center justify-end gap-1 leading-none">
           <span className="text-[11px]" style={{ color: WA.sub }}>
             {new Date(message.timestamp).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}

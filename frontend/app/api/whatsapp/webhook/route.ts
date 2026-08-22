@@ -41,9 +41,25 @@ export async function POST(request: Request) {
         for (const msg of messages) {
           const from    = msg.from;         // sender number (digits only)
           const msgType = msg.type;         // "text" | "image" | "audio" | ...
-          const text    = msg?.text?.body ?? "";
           const msgId   = msg.id ?? `msg_${Date.now()}`;
           const name    = value?.contacts?.find((c: any) => c.wa_id === from)?.profile?.name;
+
+          // Non-text messages carry no .text.body. Pull whatever text they do
+          // have (caption, reaction emoji, button title, location label) so the
+          // inbox never has to render a blank bubble.
+          const media = msg?.image ?? msg?.video ?? msg?.audio ?? msg?.document ?? msg?.sticker;
+          const location = msg?.location;
+          const text =
+            msg?.text?.body ??
+            media?.caption ??
+            msg?.reaction?.emoji ??
+            msg?.button?.text ??
+            msg?.interactive?.button_reply?.title ??
+            msg?.interactive?.list_reply?.title ??
+            (location
+              ? [location.name, location.address].filter(Boolean).join(", ") ||
+                `${location.latitude}, ${location.longitude}`
+              : "");
 
           console.log(`[webhook] Message from ${from} (${msgType}): ${text.slice(0, 100)}`);
 
@@ -59,6 +75,11 @@ export async function POST(request: Request) {
             timestamp: new Date().toISOString(),
             direction: "inbound" as const,
             status: "received",
+            // Keep the media reference so the attachment can be retrieved later
+            // (Meta media ids stay valid for a limited window).
+            ...(media?.id ? { mediaId: media.id } : {}),
+            ...(media?.mime_type ? { mimeType: media.mime_type } : {}),
+            ...(msg?.document?.filename ? { filename: msg.document.filename } : {}),
           };
 
           // Persist to KV (fire-and-forget)

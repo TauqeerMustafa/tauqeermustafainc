@@ -26,6 +26,10 @@ export type WAMessage = {
   timestamp: string;
   direction: "inbound" | "outbound";
   status?: string;
+  /** Meta media reference for non-text messages (image, video, audio, doc, sticker). */
+  mediaId?: string;
+  mimeType?: string;
+  filename?: string;
 };
 
 export type AutoReplyRule = {
