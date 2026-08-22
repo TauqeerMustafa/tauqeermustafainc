@@ -18,6 +18,10 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: "/terms", changeFrequency: "yearly", priority: 0.3 },
     { url: "/cookies", changeFrequency: "yearly", priority: 0.3 },
     { url: "/accessibility", changeFrequency: "yearly", priority: 0.3 },
+    { url: "/legal/payment-policy", changeFrequency: "yearly", priority: 0.3 },
+    { url: "/legal/refund-policy", changeFrequency: "yearly", priority: 0.3 },
+    { url: "/legal/return-policy", changeFrequency: "yearly", priority: 0.3 },
+    { url: "/legal/product-policy", changeFrequency: "yearly", priority: 0.3 },
   ] as const;
 
   const staticSitemapRoutes: MetadataRoute.Sitemap = staticRoutes.map((route) => ({
