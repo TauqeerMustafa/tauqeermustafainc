@@ -117,22 +117,52 @@ export async function GET(request: Request) {
   const checks = await Promise.all(
     configured.map(async (n) => {
       const res = await graphGet(n.id, token, "id,display_phone_number,verified_name,quality_rating,platform_type");
-      return res.ok
-        ? {
-            ...n,
-            canSend: true,
-            displayNumber: res.json?.display_phone_number ?? null,
-            verifiedName: res.json?.verified_name ?? null,
-            quality: res.json?.quality_rating ?? null,
-            inConfiguredWaba: visibleIds.includes(n.id),
-          }
-        : {
-            ...n,
-            canSend: false,
-            metaError: res.json?.error?.message ?? `HTTP ${res.status}`,
-            metaCode: res.json?.error?.code ?? null,
-            fix: explain(res.json?.error, n.id, visibleIds, wabaId),
-          };
+      // `metadata=1` makes Graph name the node type, which is how we tell a real
+      // phone number apart from a WABA / app / business id pasted into the slot.
+      const meta = await graphGet(`${n.id}?metadata=1`, token);
+      const nodeType = meta.json?.metadata?.type ?? null;
+
+      if (!res.ok) {
+        return {
+          ...n,
+          canSend: false,
+          nodeType,
+          metaError: res.json?.error?.message ?? `HTTP ${res.status}`,
+          metaCode: res.json?.error?.code ?? null,
+          fix: explain(res.json?.error, n.id, visibleIds, wabaId),
+        };
+      }
+
+      const displayNumber = res.json?.display_phone_number ?? null;
+      // Readable, but with no display number it is not a sending phone number —
+      // POST /{id}/messages will fail even though GET /{id} succeeds.
+      if (!displayNumber) {
+        return {
+          ...n,
+          canSend: false,
+          nodeType,
+          inConfiguredWaba: false,
+          metaError: "Readable, but Meta returns no display_phone_number for this id.",
+          fix:
+            `Meta can load this id, but it is not a WhatsApp phone number` +
+            (nodeType ? ` — it is a "${nodeType}" object` : "") +
+            `. ` +
+            (visibleIds.length
+              ? `The only sending id on this WhatsApp Business Account is ${visibleIds.join(", ")}. ` +
+                `To use a second number, add it in WhatsApp Manager → Phone Numbers, complete verification, then copy THAT id into WHATSAPP_PHONE_NUMBER_ID_2.`
+              : `No numbers are visible on the configured WABA at all.`),
+        };
+      }
+
+      return {
+        ...n,
+        canSend: true,
+        nodeType,
+        displayNumber,
+        verifiedName: res.json?.verified_name ?? null,
+        quality: res.json?.quality_rating ?? null,
+        inConfiguredWaba: visibleIds.includes(n.id),
+      };
     })
   );
 
