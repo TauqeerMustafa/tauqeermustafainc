@@ -29,7 +29,7 @@ export default function Footer() {
       <div className="mx-auto max-w-[1200px] px-5 py-16 sm:px-6 sm:py-20">
 
         {/* ── Top row: brand + nav columns ── */}
-        <div className="grid gap-14 lg:grid-cols-[1fr_1.2fr] lg:gap-20">
+        <div className="grid gap-14 xl:grid-cols-[minmax(0,19rem)_1fr] xl:gap-14">
 
           {/* Brand block */}
           <div className="max-w-sm">
@@ -89,11 +89,12 @@ export default function Footer() {
           </div>
 
           {/* Nav columns */}
-          <div className="grid grid-cols-2 gap-10 sm:grid-cols-3">
+          <div className="grid grid-cols-2 gap-x-8 gap-y-10 md:grid-cols-4">
             {[
               { title: "Navigate", links: navigation },
               { title: "Services", links: footerLinks.services },
               { title: "Company",  links: footerLinks.company },
+              { title: "Policies", links: footerLinks.policies },
             ].map((group) => (
               <div key={group.title}>
                 <h3 className="font-mono text-[11px] font-semibold uppercase tracking-[0.14em] text-[#1c69d4]">
