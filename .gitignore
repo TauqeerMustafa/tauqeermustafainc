@@ -29,3 +29,5 @@ Thumbs.db
 
 # Codex CLI tool cache (not part of the project)
 .codex/
+
+.env*
