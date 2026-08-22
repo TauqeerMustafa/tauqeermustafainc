@@ -949,6 +949,8 @@ function SendTab({
   const { data: numbersData } = useWaNumbers();
   const templates: WATemplate[] = templatesData?.data ?? [];
   const numbers = numbersData?.data ?? [];
+  // Surfaced under the picker so a misconfigured id is obvious before sending.
+  const unusableNumber = numbers.find((n) => n.usable === false && n.reason);
 
   const resetMedia = () => {
     setMediaLink("");
@@ -1085,9 +1087,18 @@ function SendTab({
               customPlaceholder="Meta phone-number-id (digits only)"
               options={numbers.map((n) => ({
                 value: n.id,
-                label: `${n.label}${n.primary ? " (default)" : ""} — ${n.id}`,
+                label:
+                  `${n.label}${n.primary ? " (default)" : ""} — ` +
+                  `${n.displayNumber || n.id}` +
+                  (n.usable === false ? " ⚠️ not set up in Meta" : ""),
               }))}
             />
+            {unusableNumber && (
+              <p className="mt-1.5 text-xs" style={{ color: "var(--adm-red)" }}>
+                <strong>{unusableNumber.label} ({unusableNumber.id})</strong> cannot send:{" "}
+                {unusableNumber.reason}
+              </p>
+            )}
           </AdminField>
         )}
 

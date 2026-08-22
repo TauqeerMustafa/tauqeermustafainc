@@ -55,7 +55,15 @@ export type MetaTemplate = {
   source?: "predefined" | "meta"; // "meta" = pulled in automatically from Meta
 };
 
-export type WaNumber = { id: string; label: string; primary: boolean };
+export type WaNumber = {
+  id: string;
+  label: string;
+  primary: boolean;
+  /** False when Meta cannot use this id to send (verified server-side). */
+  usable?: boolean;
+  displayNumber?: string | null;
+  reason?: string;
+};
 
 export type MediaKind = "image" | "video" | "audio" | "document" | "sticker";
 
