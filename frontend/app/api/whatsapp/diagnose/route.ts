@@ -10,7 +10,7 @@
  * that lives outside this token's WABA, or an expired/under-scoped token. Also
  * lists the ids the token CAN send from, so the fix is copy-paste.
  *
- * Guarded by WEBHOOK_VERIFY_TOKEN (already set for the webhook) — there is no
+ * Guarded by WA_DIAGNOSE_KEY (falling back to WEBHOOK_VERIFY_TOKEN) — there is no
  * server-side auth on /admin, so this must not be world-readable. The token
  * itself is never returned.
  *
@@ -58,11 +58,11 @@ function explain(err: any, id: string, wabaNumbers: string[], wabaId?: string): 
 }
 
 export async function GET(request: Request) {
-  const secret = process.env.WEBHOOK_VERIFY_TOKEN;
+  const secret = process.env.WA_DIAGNOSE_KEY?.trim() || process.env.WEBHOOK_VERIFY_TOKEN;
   const key = new URL(request.url).searchParams.get("key");
   if (!secret) {
     return NextResponse.json(
-      { success: false, error: "WEBHOOK_VERIFY_TOKEN is not set, so this endpoint cannot be protected." },
+      { success: false, error: "Set WA_DIAGNOSE_KEY (or WEBHOOK_VERIFY_TOKEN) so this endpoint can be protected." },
       { status: 503 }
     );
   }
