@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   Send,
+  Check,
   CheckCheck,
   AlertCircle,
   RefreshCw,
@@ -19,6 +20,15 @@ import {
   User,
   Phone,
   Sparkles,
+  MoreVertical,
+  Paperclip,
+  Archive,
+  ArchiveRestore,
+  Pin,
+  PinOff,
+  ArrowLeft,
+  Circle,
+  X,
 } from "lucide-react";
 
 import {
@@ -43,8 +53,11 @@ import {
   useSubmitMetaTemplate,
   useWaNumbers,
   uploadWhatsAppMedia,
+  useConversationMeta,
+  useUpdateConversationMeta,
+  useDeleteConversation,
 } from "@/hooks/useWhatsApp";
-import type { WAMessage, AutoReplyRule, WATemplate, MetaTemplate, MediaKind } from "@/hooks/useWhatsApp";
+import type { WAMessage, AutoReplyRule, WATemplate, MetaTemplate, MediaKind, ConvMeta } from "@/hooks/useWhatsApp";
 import { BUTTON_TEMPLATES } from "@/lib/button-templates";
 import { countVariables } from "@/lib/meta-templates";
 
@@ -168,175 +181,571 @@ export default function AdminWhatsAppPage() {
 
 // ─── Inbox ──────────────────────────────────────────────────────────────
 
-function InboxTab({ onReply }: { onReply: (number: string) => void }) {
-  const { data, isLoading, isError, refetch } = useWhatsAppMessages();
-  const [searchQuery, setSearchQuery] = useState("");
-  const [statusFilter, setStatusFilter] = useState<DealStatus | "all">("all");
+// WhatsApp palette
+const WA = {
+  panel: "#f0f2f5",
+  chatBg: "#efeae2",
+  out: "#d9fdd3",
+  green: "#008069",
+  greenDark: "#00a884",
+  tick: "#53bdeb",
+  sub: "#667781",
+};
+const DOODLE =
+  "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40'%3E%3Ccircle cx='20' cy='20' r='1.2' fill='%23000' opacity='0.05'/%3E%3C/svg%3E\")";
 
-  if (isLoading) return <AdminLoadingState label="Loading conversations…" />;
-  if (isError)
-    return <AdminErrorState message="Could not load messages. Check your WhatsApp configuration." />;
+/** Which of OUR business numbers a message belongs to (digits only). */
+function accountIdOf(m: WAMessage): string {
+  const raw = m.direction === "inbound" ? m.to : m.from;
+  return (raw || "").replace(/[^0-9]/g, "");
+}
+function convKey(accountId: string, number: string) {
+  return `${accountId}::${number}`;
+}
+function initials(name: string) {
+  const t = name.trim();
+  if (!t) return "?";
+  const parts = t.split(/\s+/);
+  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+  return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+}
+function unreadCount(conv: Conversation, meta?: ConvMeta) {
+  const since = meta?.lastReadAt ? new Date(meta.lastReadAt).getTime() : 0;
+  return conv.messages.filter((m) => m.direction === "inbound" && new Date(m.timestamp).getTime() > since).length;
+}
+function lastPreview(conv: Conversation) {
+  const m = conv.messages.at(-1);
+  if (!m) return "";
+  const prefix = m.direction === "outbound" ? "You: " : "";
+  return prefix + (m.body || "").replace(/\n/g, " ");
+}
 
-  const conversations = groupConversations(data?.data ?? []);
-
-  // Filter conversations
-  const filtered = conversations.filter((conv) => {
-    const matchesSearch =
-      conv.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      conv.number.includes(searchQuery);
-    const matchesStatus = statusFilter === "all" || conv.dealStatus === statusFilter;
-    return matchesSearch && matchesStatus;
-  });
-
+/**
+ * A <select> that always offers a "Custom…" escape hatch. Picking it reveals a
+ * free-text input so the admin is never limited to the preset options.
+ */
+function SelectWithCustom({
+  value,
+  onChange,
+  options,
+  id,
+  placeholder,
+  customLabel = "✏️ Custom…",
+  customPlaceholder = "Type your own value…",
+  className = adminInputClass,
+  style = adminInputStyle,
+}: {
+  value: string;
+  onChange: (v: string) => void;
+  options: { value: string; label: string }[];
+  id?: string;
+  placeholder?: string;
+  customLabel?: string;
+  customPlaceholder?: string;
+  className?: string;
+  style?: React.CSSProperties;
+}) {
+  const isPreset = options.some((o) => o.value === value);
+  const [custom, setCustom] = useState(!isPreset && value !== "");
   return (
-    <div className="space-y-4">
-      {/* Search & Filter Bar */}
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div className="relative flex-1">
-          <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2" style={{ color: "var(--adm-text-3)" }} />
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search conversations…"
-            className={adminInputClass}
-            style={{ ...adminInputStyle, paddingLeft: "2.5rem" }}
-          />
-        </div>
+    <div className="space-y-2">
+      <select
+        id={id}
+        value={custom ? "__custom__" : value}
+        onChange={(e) => {
+          if (e.target.value === "__custom__") {
+            setCustom(true);
+            onChange("");
+          } else {
+            setCustom(false);
+            onChange(e.target.value);
+          }
+        }}
+        className={className}
+        style={style}
+      >
+        {placeholder !== undefined && <option value="">{placeholder}</option>}
+        {options.map((o) => (
+          <option key={o.value} value={o.value}>
+            {o.label}
+          </option>
+        ))}
+        <option value="__custom__">{customLabel}</option>
+      </select>
+      {custom && (
         <div className="flex items-center gap-2">
-          <select
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value as DealStatus | "all")}
+          <input
+            autoFocus
+            type="text"
+            value={value}
+            onChange={(e) => onChange(e.target.value)}
+            placeholder={customPlaceholder}
             className={adminInputClass}
-            style={{ ...adminInputStyle, width: "auto", minWidth: "140px" }}
-          >
-            <option value="all">All Status</option>
-            {DEAL_STATUSES.map((s) => (
-              <option key={s.value} value={s.value}>
-                {s.label}
-              </option>
-            ))}
-          </select>
+            style={adminInputStyle}
+          />
           <button
             type="button"
-            onClick={() => refetch()}
-            className="flex items-center gap-1 border px-3 py-2 text-sm font-semibold transition hover:shadow-sm"
-            style={{ borderColor: "var(--adm-border)", color: "var(--adm-text)" }}
+            onClick={() => {
+              setCustom(false);
+              onChange(options[0]?.value ?? "");
+            }}
+            className="shrink-0 rounded p-2"
+            style={{ color: "var(--adm-text-3)" }}
+            aria-label="Use a preset instead"
+            title="Back to list"
           >
-            <RefreshCw size={14} />
-            Refresh
+            <X size={16} />
           </button>
-        </div>
-      </div>
-
-      {/* Conversations */}
-      {filtered.length === 0 ? (
-        <AdminEmptyState
-          title={searchQuery || statusFilter !== "all" ? "No matches" : "No conversations yet"}
-          description={
-            searchQuery || statusFilter !== "all"
-              ? "Try adjusting your search or filters."
-              : "When customers message your WhatsApp Business number, conversations appear here."
-          }
-        />
-      ) : (
-        <div className="space-y-4">
-          {filtered.map((conv) => (
-            <ConversationCard key={conv.number} conv={conv} onReply={() => onReply(conv.number)} />
-          ))}
         </div>
       )}
     </div>
   );
 }
 
-function ConversationCard({ conv, onReply }: { conv: Conversation; onReply: () => void }) {
+function InboxTab({ onReply }: { onReply: (number: string) => void }) {
+  const { data, isLoading, isError, refetch } = useWhatsAppMessages();
+  const { data: numbersData } = useWaNumbers();
+  const { data: metaData } = useConversationMeta();
+  const updateMeta = useUpdateConversationMeta();
+  const deleteConv = useDeleteConversation();
+
+  const numbers = numbersData?.data ?? [];
+  const metaMap = metaData?.data ?? {};
+
+  const [activeAccount, setActiveAccount] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [showArchived, setShowArchived] = useState(false);
+  const [selected, setSelected] = useState<string | null>(null); // customer number
+
+  if (isLoading) return <AdminLoadingState label="Loading conversations…" />;
+  if (isError)
+    return <AdminErrorState message="Could not load messages. Check your WhatsApp configuration." />;
+
+  const allMessages = data?.data ?? [];
+  const primaryId = numbers[0]?.id ?? "";
+  const activeId = activeAccount || primaryId;
+
+  // Keep the two numbers' conversations fully separate: only messages for the
+  // active number (legacy messages with no number fall under the primary).
+  const scoped = numbers.length
+    ? allMessages.filter((m) => {
+        const acct = accountIdOf(m);
+        return acct === activeId || (acct === "" && activeId === primaryId);
+      })
+    : allMessages;
+
+  const conversations = groupConversations(scoped);
+
+  const withMeta = conversations.map((conv) => {
+    const meta = metaMap[convKey(activeId, conv.number)];
+    return { conv, meta, unread: unreadCount(conv, meta) };
+  });
+
+  const searched = withMeta.filter(({ conv, meta }) => {
+    const q = searchQuery.toLowerCase();
+    const name = (meta?.name || conv.name).toLowerCase();
+    return name.includes(q) || conv.number.includes(searchQuery);
+  });
+
+  const archivedList = searched.filter((x) => x.meta?.archived);
+  const activeList = searched
+    .filter((x) => !x.meta?.archived)
+    .sort((a, b) => Number(!!b.meta?.pinned) - Number(!!a.meta?.pinned));
+  const list = showArchived ? archivedList : activeList;
+
+  const selectedConv = selected ? withMeta.find((x) => x.conv.number === selected) : null;
+
+  const patch = (number: string, p: Partial<ConvMeta>) =>
+    updateMeta.mutate({ key: convKey(activeId, number), patch: p });
+
+  const handleDelete = (number: string) => {
+    if (!confirm("Delete this entire conversation? This removes its messages from your inbox.")) return;
+    deleteConv.mutate({ number, account: activeId || undefined, key: convKey(activeId, number) });
+    if (selected === number) setSelected(null);
+  };
+
+  return (
+    <div
+      className="flex overflow-hidden rounded-lg border"
+      style={{ borderColor: "var(--adm-border)", height: "calc(100vh - 230px)", minHeight: 520 }}
+    >
+      {/* LEFT: chat list */}
+      <aside
+        className={`${selected ? "hidden md:flex" : "flex"} w-full flex-col md:w-[380px]`}
+        style={{ background: "#fff", borderRight: "1px solid var(--adm-border)" }}
+      >
+        {/* Account switcher — one tab per business number, kept separate */}
+        {numbers.length > 1 && (
+          <div className="flex gap-1 border-b p-2" style={{ borderColor: "var(--adm-border)", background: WA.panel }}>
+            {numbers.map((n) => {
+              const count = allMessages.filter(
+                (m) => accountIdOf(m) === n.id || (accountIdOf(m) === "" && n.id === primaryId)
+              ).length;
+              const active = n.id === activeId;
+              return (
+                <button
+                  key={n.id}
+                  type="button"
+                  onClick={() => {
+                    setActiveAccount(n.id);
+                    setSelected(null);
+                    setShowArchived(false);
+                  }}
+                  className="flex-1 rounded-md px-3 py-2 text-xs font-semibold transition"
+                  style={{ background: active ? WA.green : "transparent", color: active ? "#fff" : "var(--adm-text-2)" }}
+                  title={n.id}
+                >
+                  {n.label}
+                  {count ? ` (${count})` : ""}
+                </button>
+              );
+            })}
+          </div>
+        )}
+
+        {/* Search */}
+        <div className="p-2" style={{ background: "#fff" }}>
+          <div className="relative">
+            <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2" style={{ color: WA.sub }} />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search or start a new chat"
+              className="w-full rounded-lg border-0 py-2 pl-10 pr-3 text-sm outline-none"
+              style={{ background: WA.panel, color: "#111b21" }}
+            />
+          </div>
+        </div>
+
+        {/* Archived toggle */}
+        <button
+          type="button"
+          onClick={() => setShowArchived((v) => !v)}
+          className="flex items-center gap-3 border-b px-4 py-2.5 text-sm font-medium transition hover:bg-gray-50"
+          style={{ borderColor: "var(--adm-border)", color: showArchived ? WA.green : "var(--adm-text-2)" }}
+        >
+          <Archive size={18} />
+          {showArchived ? "← Back to chats" : `Archived${archivedList.length ? ` (${archivedList.length})` : ""}`}
+        </button>
+
+        {/* List */}
+        <div className="flex-1 overflow-y-auto">
+          {list.length === 0 ? (
+            <div className="px-4 py-10 text-center text-sm" style={{ color: WA.sub }}>
+              {showArchived
+                ? "No archived chats."
+                : searchQuery
+                  ? "No matches."
+                  : "No conversations yet. When customers message this number, they appear here."}
+            </div>
+          ) : (
+            list.map(({ conv, meta, unread }) => (
+              <ChatListItem
+                key={conv.number}
+                conv={conv}
+                meta={meta}
+                unread={unread}
+                active={selected === conv.number}
+                onClick={() => setSelected(conv.number)}
+              />
+            ))
+          )}
+        </div>
+      </aside>
+
+      {/* RIGHT: conversation */}
+      <section className={`${selected ? "flex" : "hidden md:flex"} flex-1 flex-col`}>
+        {selectedConv ? (
+          <ChatView
+            key={convKey(activeId, selectedConv.conv.number)}
+            conv={selectedConv.conv}
+            meta={selectedConv.meta}
+            accountId={activeId}
+            onBack={() => setSelected(null)}
+            onMarkRead={() => patch(selectedConv.conv.number, { lastReadAt: new Date().toISOString() })}
+            onMarkUnread={() => {
+              patch(selectedConv.conv.number, { lastReadAt: new Date(0).toISOString() });
+              setSelected(null);
+            }}
+            onTogglePin={() => patch(selectedConv.conv.number, { pinned: !selectedConv.meta?.pinned })}
+            onToggleArchive={() => {
+              patch(selectedConv.conv.number, { archived: !selectedConv.meta?.archived });
+              setSelected(null);
+            }}
+            onDelete={() => handleDelete(selectedConv.conv.number)}
+            onSaveMeta={(p) => patch(selectedConv.conv.number, p)}
+            onTemplate={() => onReply(selectedConv.conv.number)}
+            onRefresh={() => refetch()}
+          />
+        ) : (
+          <div className="hidden flex-1 flex-col items-center justify-center gap-3 md:flex" style={{ background: WA.panel }}>
+            <div className="flex h-20 w-20 items-center justify-center rounded-full" style={{ background: "#dfe5e7" }}>
+              <MessageSquare size={40} style={{ color: WA.sub }} />
+            </div>
+            <p className="text-lg font-light" style={{ color: "#41525d" }}>
+              Select a chat to start messaging
+            </p>
+            <p className="text-sm" style={{ color: WA.sub }}>
+              Conversations for each business number are kept separate.
+            </p>
+          </div>
+        )}
+      </section>
+    </div>
+  );
+}
+
+function ChatListItem({
+  conv,
+  meta,
+  unread,
+  active,
+  onClick,
+}: {
+  conv: Conversation;
+  meta?: ConvMeta;
+  unread: number;
+  active: boolean;
+  onClick: () => void;
+}) {
+  const name = meta?.name || (conv.name !== conv.number ? conv.name : `+${conv.number}`);
+  const last = conv.messages.at(-1);
+  const dealCfg = DEAL_STATUSES.find((s) => s.value === meta?.dealStatus);
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="flex w-full items-center gap-3 border-b px-3 py-3 text-left transition hover:bg-gray-50"
+      style={{ borderColor: "#f0f2f5", background: active ? "#f0f2f5" : "transparent" }}
+    >
+      <div
+        className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-sm font-semibold text-white"
+        style={{ background: "#6b7c85" }}
+      >
+        {initials(name)}
+      </div>
+      <div className="min-w-0 flex-1">
+        <div className="flex items-center justify-between gap-2">
+          <span className="truncate text-[15px] font-medium" style={{ color: "#111b21" }}>
+            {name}
+          </span>
+          <span className="shrink-0 text-[11px]" style={{ color: unread ? WA.greenDark : WA.sub }}>
+            {last ? new Date(last.timestamp).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : ""}
+          </span>
+        </div>
+        <div className="mt-0.5 flex items-center justify-between gap-2">
+          <span className="flex items-center gap-1 truncate text-[13px]" style={{ color: WA.sub }}>
+            {meta?.pinned && <Pin size={12} className="shrink-0" />}
+            <span className="truncate">{lastPreview(conv) || "No messages"}</span>
+          </span>
+          {unread > 0 && (
+            <span
+              className="flex h-[18px] min-w-[18px] items-center justify-center rounded-full px-1 text-[11px] font-bold text-white"
+              style={{ background: WA.greenDark }}
+            >
+              {unread}
+            </span>
+          )}
+        </div>
+        {dealCfg && (
+          <span
+            className="mt-1 inline-block rounded-full px-2 py-0.5 text-[10px] font-semibold"
+            style={{ background: dealCfg.bgColor, color: dealCfg.color }}
+          >
+            {dealCfg.label}
+          </span>
+        )}
+      </div>
+    </button>
+  );
+}
+
+function ChatView({
+  conv,
+  meta,
+  accountId,
+  onBack,
+  onMarkRead,
+  onMarkUnread,
+  onTogglePin,
+  onToggleArchive,
+  onDelete,
+  onSaveMeta,
+  onTemplate,
+  onRefresh,
+}: {
+  conv: Conversation;
+  meta?: ConvMeta;
+  accountId: string;
+  onBack: () => void;
+  onMarkRead: () => void;
+  onMarkUnread: () => void;
+  onTogglePin: () => void;
+  onToggleArchive: () => void;
+  onDelete: () => void;
+  onSaveMeta: (p: Partial<ConvMeta>) => void;
+  onTemplate: () => void;
+  onRefresh: () => void;
+}) {
   const sendMessage = useSendWhatsAppMessage();
   const [reply, setReply] = useState("");
   const [error, setError] = useState("");
+  const [menuOpen, setMenuOpen] = useState(false);
   const [showDetails, setShowDetails] = useState(false);
-  const [dealStatus, setDealStatus] = useState<DealStatus>(conv.dealStatus || "new");
-  const [notes, setNotes] = useState(conv.notes || "");
+  const [uploading, setUploading] = useState(false);
+  const fileRef = useRef<HTMLInputElement>(null);
+  const endRef = useRef<HTMLDivElement>(null);
 
-  const displayName = conv.name !== conv.number ? `${conv.name}` : `+${conv.number}`;
-  const statusConfig = DEAL_STATUSES.find((s) => s.value === dealStatus);
+  const name = meta?.name || (conv.name !== conv.number ? conv.name : `+${conv.number}`);
+  const lastTs = conv.messages.at(-1)?.timestamp ?? "";
+
+  // Mark read whenever this chat is open and (new) messages are present.
+  useEffect(() => {
+    if (unreadCount(conv, meta) > 0) onMarkRead();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [conv.number, accountId, lastTs, conv.messages.length]);
+
+  // Keep the newest message in view.
+  useEffect(() => {
+    endRef.current?.scrollIntoView({ block: "end" });
+  }, [lastTs, conv.messages.length]);
 
   const handleReply = async () => {
     if (!reply.trim()) return;
     setError("");
     try {
-      await sendMessage.mutateAsync({ type: "text", to: conv.number, message: reply });
+      await sendMessage.mutateAsync({
+        type: "text",
+        to: conv.number,
+        message: reply,
+        fromNumberId: accountId || undefined,
+      });
       setReply("");
     } catch (e: any) {
       setError(e.message || "Failed to send");
     }
   };
 
+  const handleFile = async (file: File) => {
+    setError("");
+    setUploading(true);
+    try {
+      const up = await uploadWhatsAppMedia(file, accountId || undefined);
+      await sendMessage.mutateAsync({
+        type: "media",
+        to: conv.number,
+        fromNumberId: accountId || undefined,
+        mediaType: up.mediaType,
+        mediaId: up.id,
+        caption: reply.trim() || undefined,
+        filename: up.mediaType === "document" ? up.filename : undefined,
+      });
+      setReply("");
+    } catch (e: any) {
+      setError(e.message || "Upload failed");
+    } finally {
+      setUploading(false);
+      if (fileRef.current) fileRef.current.value = "";
+    }
+  };
+
   return (
-    <div className="border bg-white" style={{ borderColor: "var(--adm-border)" }}>
+    <div className="flex h-full flex-col" style={{ background: WA.chatBg }}>
       {/* Header */}
-      <div className="flex items-start justify-between gap-3 border-b p-4" style={{ borderColor: "var(--adm-border)" }}>
-        <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-full" style={{ background: "var(--adm-blue-light)" }}>
-            <User size={20} style={{ color: "var(--adm-blue)" }} />
-          </div>
-          <div>
-            <h3 className="font-bold" style={{ color: "var(--adm-text)" }}>
-              {displayName}
-            </h3>
-            <p className="flex items-center gap-1 text-xs" style={{ color: "var(--adm-text-3)" }}>
-              <Phone size={11} />
-              +{conv.number}
-            </p>
-          </div>
+      <div
+        className="flex items-center gap-3 px-3 py-2"
+        style={{ background: WA.panel, borderBottom: "1px solid var(--adm-border)" }}
+      >
+        <button type="button" onClick={onBack} className="md:hidden" style={{ color: "#54656f" }} aria-label="Back">
+          <ArrowLeft size={22} />
+        </button>
+        <div
+          className="flex h-10 w-10 items-center justify-center rounded-full text-sm font-semibold text-white"
+          style={{ background: "#6b7c85" }}
+        >
+          {initials(name)}
         </div>
-        <div className="flex items-center gap-2">
-          <span
-            className="rounded-full px-3 py-1 text-xs font-semibold"
-            style={{ background: statusConfig?.bgColor, color: statusConfig?.color }}
-          >
-            {statusConfig?.label}
-          </span>
-          <button
-            type="button"
-            onClick={() => setShowDetails(!showDetails)}
-            className="text-xs font-semibold"
-            style={{ color: "var(--adm-blue)" }}
-          >
-            {showDetails ? "Hide" : "Details"}
+        <div className="min-w-0 flex-1">
+          <p className="truncate text-[15px] font-medium" style={{ color: "#111b21" }}>
+            {name}
+          </p>
+          <p className="truncate text-xs" style={{ color: WA.sub }}>
+            +{conv.number}
+          </p>
+        </div>
+        <button type="button" onClick={onRefresh} style={{ color: "#54656f" }} aria-label="Refresh" title="Refresh">
+          <RefreshCw size={18} />
+        </button>
+        <div className="relative">
+          <button type="button" onClick={() => setMenuOpen((v) => !v)} style={{ color: "#54656f" }} aria-label="Chat menu">
+            <MoreVertical size={20} />
           </button>
+          {menuOpen && (
+            <>
+              <div className="fixed inset-0 z-10" onClick={() => setMenuOpen(false)} />
+              <div
+                className="absolute right-0 z-20 mt-1 w-56 overflow-hidden rounded-md border bg-white py-1 shadow-lg"
+                style={{ borderColor: "var(--adm-border)" }}
+              >
+                <MenuItem icon={<User size={15} />} label="Contact info & deal" onClick={() => { setShowDetails(true); setMenuOpen(false); }} />
+                <MenuItem
+                  icon={meta?.pinned ? <PinOff size={15} /> : <Pin size={15} />}
+                  label={meta?.pinned ? "Unpin chat" : "Pin chat"}
+                  onClick={() => { onTogglePin(); setMenuOpen(false); }}
+                />
+                <MenuItem icon={<Circle size={15} />} label="Mark as unread" onClick={() => { onMarkUnread(); setMenuOpen(false); }} />
+                <MenuItem
+                  icon={meta?.archived ? <ArchiveRestore size={15} /> : <Archive size={15} />}
+                  label={meta?.archived ? "Unarchive chat" : "Archive chat"}
+                  onClick={() => { onToggleArchive(); setMenuOpen(false); }}
+                />
+                <MenuItem icon={<FileText size={15} />} label="Send template / start chat" onClick={() => { onTemplate(); setMenuOpen(false); }} />
+                <div className="my-1 border-t" style={{ borderColor: "var(--adm-border)" }} />
+                <MenuItem icon={<Trash2 size={15} />} label="Delete chat" danger onClick={() => { onDelete(); setMenuOpen(false); }} />
+              </div>
+            </>
+          )}
         </div>
       </div>
 
-      {/* Details Panel */}
+      {/* CRM / contact details */}
       {showDetails && (
-        <div className="border-b p-4" style={{ borderColor: "var(--adm-border)", background: "var(--adm-surface-2)" }}>
-          <div className="mb-3">
-            <label className="mb-1 block text-xs font-semibold" style={{ color: "var(--adm-text)" }}>
-              Deal Status
-            </label>
-            <select
-              value={dealStatus}
-              onChange={(e) => setDealStatus(e.target.value as DealStatus)}
-              className={adminInputClass}
-              style={adminInputStyle}
-            >
-              {DEAL_STATUSES.map((s) => (
-                <option key={s.value} value={s.value}>
-                  {s.label}
-                </option>
-              ))}
-            </select>
+        <div className="border-b px-4 py-3" style={{ borderColor: "var(--adm-border)", background: "#fff" }}>
+          <div className="mb-2 flex items-center justify-between">
+            <span className="text-xs font-semibold" style={{ color: "var(--adm-text)" }}>Contact &amp; deal</span>
+            <button type="button" onClick={() => setShowDetails(false)} style={{ color: "var(--adm-text-3)" }}>
+              <X size={16} />
+            </button>
           </div>
-          <div>
-            <label className="mb-1 block text-xs font-semibold" style={{ color: "var(--adm-text)" }}>
-              Internal Notes
-            </label>
+          <div className="grid gap-3 sm:grid-cols-2">
+            <div>
+              <label className="mb-1 block text-xs font-semibold" style={{ color: "var(--adm-text-2)" }}>Display name</label>
+              <input
+                type="text"
+                defaultValue={meta?.name || (conv.name !== conv.number ? conv.name : "")}
+                onBlur={(e) => onSaveMeta({ name: e.target.value })}
+                placeholder={`+${conv.number}`}
+                className={adminInputClass}
+                style={adminInputStyle}
+              />
+            </div>
+            <div>
+              <label className="mb-1 block text-xs font-semibold" style={{ color: "var(--adm-text-2)" }}>Deal status</label>
+              <SelectWithCustom
+                value={meta?.dealStatus || "new"}
+                onChange={(v) => onSaveMeta({ dealStatus: v })}
+                options={DEAL_STATUSES.map((s) => ({ value: s.value, label: s.label }))}
+              />
+            </div>
+          </div>
+          <div className="mt-3">
+            <label className="mb-1 block text-xs font-semibold" style={{ color: "var(--adm-text-2)" }}>Internal notes (private)</label>
             <textarea
-              value={notes}
-              onChange={(e) => setNotes(e.target.value)}
-              placeholder="Add notes about this customer (private, not sent)…"
+              defaultValue={meta?.notes || ""}
+              onBlur={(e) => onSaveMeta({ notes: e.target.value })}
               rows={2}
+              placeholder="Notes about this customer…"
               className={adminInputClass}
               style={adminInputStyle}
             />
@@ -345,80 +754,125 @@ function ConversationCard({ conv, onReply }: { conv: Conversation; onReply: () =
       )}
 
       {/* Messages */}
-      <div className="max-h-80 space-y-2 overflow-y-auto p-4">
+      <div className="flex-1 space-y-1.5 overflow-y-auto px-4 py-4 md:px-10" style={{ backgroundImage: DOODLE }}>
         {conv.messages.map((msg) => (
           <MessageBubble key={msg.id} message={msg} />
         ))}
+        <div ref={endRef} />
       </div>
 
-      {/* Reply Box */}
-      <div className="border-t p-3" style={{ borderColor: "var(--adm-border)" }}>
-        <div className="flex gap-2">
-          <textarea
-            value={reply}
-            onChange={(e) => setReply(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" && !e.shiftKey) {
-                e.preventDefault();
-                handleReply();
-              }
-            }}
-            placeholder="Type a reply… (Enter to send, Shift+Enter for newline)"
-            rows={2}
-            className={adminInputClass}
-            style={{ ...adminInputStyle, flex: 1 }}
-          />
-          <div className="flex flex-col gap-2">
-            <button
-              type="button"
-              onClick={handleReply}
-              disabled={sendMessage.isPending || !reply.trim()}
-              className="btn-press flex items-center justify-center gap-1 px-4 py-2 text-sm font-semibold text-white disabled:opacity-50"
-              style={{ background: "var(--adm-blue)" }}
-            >
-              <Send size={14} />
-              {sendMessage.isPending ? "…" : "Send"}
-            </button>
-            <button
-              type="button"
-              onClick={onReply}
-              className="flex items-center justify-center gap-1 border px-4 py-2 text-xs font-semibold transition hover:shadow-sm"
-              style={{ borderColor: "var(--adm-border)", color: "var(--adm-blue)" }}
-            >
-              <FileText size={12} />
-              Template
-            </button>
-          </div>
-        </div>
-        {error && (
-          <p className="mt-2 text-xs" style={{ color: "var(--adm-red)" }}>
-            {error}
-          </p>
-        )}
+      {/* Composer */}
+      <div className="flex items-end gap-2 px-3 py-2" style={{ background: WA.panel }}>
+        <input
+          ref={fileRef}
+          type="file"
+          className="hidden"
+          onChange={(e) => {
+            const f = e.target.files?.[0];
+            if (f) handleFile(f);
+          }}
+        />
+        <button
+          type="button"
+          onClick={() => fileRef.current?.click()}
+          disabled={uploading || sendMessage.isPending}
+          className="mb-1 shrink-0 disabled:opacity-50"
+          style={{ color: "#54656f" }}
+          aria-label="Attach media"
+          title="Attach photo / video / document"
+        >
+          <Paperclip size={22} />
+        </button>
+        <textarea
+          value={reply}
+          onChange={(e) => setReply(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" && !e.shiftKey) {
+              e.preventDefault();
+              handleReply();
+            }
+          }}
+          rows={1}
+          placeholder={uploading ? "Uploading…" : "Type a message  (Enter to send)"}
+          className="max-h-28 flex-1 resize-none rounded-lg border-0 px-4 py-2.5 text-sm outline-none"
+          style={{ background: "#fff", color: "#111b21" }}
+        />
+        <button
+          type="button"
+          onClick={handleReply}
+          disabled={sendMessage.isPending || uploading || !reply.trim()}
+          className="mb-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-white disabled:opacity-50"
+          style={{ background: WA.green }}
+          aria-label="Send"
+        >
+          <Send size={18} />
+        </button>
       </div>
+      {error && (
+        <p className="px-4 py-1 text-xs" style={{ background: WA.panel, color: "var(--adm-red)" }}>
+          {error}
+        </p>
+      )}
     </div>
   );
+}
+
+function MenuItem({
+  icon,
+  label,
+  onClick,
+  danger,
+}: {
+  icon: React.ReactNode;
+  label: string;
+  onClick: () => void;
+  danger?: boolean;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="flex w-full items-center gap-3 px-4 py-2.5 text-left text-sm transition hover:bg-gray-50"
+      style={{ color: danger ? "var(--adm-red)" : "var(--adm-text)" }}
+    >
+      {icon}
+      {label}
+    </button>
+  );
+}
+
+// WhatsApp tick semantics: sent = single grey ✓, delivered = double grey ✓✓,
+// read = double BLUE ✓✓, failed = red !, pending/unknown = clock.
+function Ticks({ status }: { status?: string }) {
+  const s = (status || "").toLowerCase();
+  if (s === "failed") return <AlertCircle size={13} style={{ color: "#f15c6d" }} />;
+  if (s === "read") return <CheckCheck size={15} style={{ color: WA.tick }} />;
+  if (s === "delivered") return <CheckCheck size={15} style={{ color: "#8696a0" }} />;
+  if (s === "sent") return <Check size={15} style={{ color: "#8696a0" }} />;
+  return <Clock size={12} style={{ color: "#8696a0" }} />;
 }
 
 function MessageBubble({ message }: { message: WAMessage }) {
   const isOutbound = message.direction === "outbound";
   return (
-    <div
-      className="max-w-[85%] rounded-lg px-3 py-2 text-sm"
-      style={{
-        marginLeft: isOutbound ? "auto" : undefined,
-        background: isOutbound ? "#DCF8C6" : "#FFFFFF",
-        border: isOutbound ? "none" : "1px solid var(--adm-border)",
-      }}
-    >
-      <p className="whitespace-pre-wrap" style={{ color: "var(--adm-text)" }}>
-        {message.body}
-      </p>
-      <div className="mt-1 flex items-center gap-1 text-[10px]" style={{ color: "var(--adm-text-3)" }}>
-        {isOutbound && <CheckCheck size={11} className="text-blue-500" />}
-        <span>
-          {new Date(message.timestamp).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
-        </span>
+    <div className={`flex ${isOutbound ? "justify-end" : "justify-start"}`}>
+      <div
+        className="relative max-w-[75%] px-2 py-1.5 text-[14.2px] leading-[19px] shadow-sm"
+        style={{
+          background: isOutbound ? WA.out : "#ffffff",
+          color: "#111b21",
+          borderRadius: 8,
+          borderTopRightRadius: isOutbound ? 0 : 8,
+          borderTopLeftRadius: isOutbound ? 8 : 0,
+        }}
+      >
+        <p className="whitespace-pre-wrap break-words pr-1">{message.body}</p>
+        <div className="mt-0.5 flex items-center justify-end gap-1 leading-none">
+          <span className="text-[11px]" style={{ color: WA.sub }}>
+            {new Date(message.timestamp).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+          </span>
+          {isOutbound && <Ticks status={message.status} />}
+        </div>
       </div>
     </div>
   );
@@ -589,20 +1043,17 @@ function SendTab({
         {/* Send from (only when a second number is configured) */}
         {numbers.length > 1 && (
           <AdminField label="Send from" htmlFor="fromNumber">
-            <select
+            <SelectWithCustom
               id="fromNumber"
               value={fromNumberId}
-              onChange={(e) => setFromNumberId(e.target.value)}
-              className={adminInputClass}
-              style={adminInputStyle}
-            >
-              {numbers.map((n) => (
-                <option key={n.id} value={n.id}>
-                  {n.label}
-                  {n.primary ? " (default)" : ""} — {n.id}
-                </option>
-              ))}
-            </select>
+              onChange={setFromNumberId}
+              customLabel="✏️ Custom phone-number-id…"
+              customPlaceholder="Meta phone-number-id (digits only)"
+              options={numbers.map((n) => ({
+                value: n.id,
+                label: `${n.label}${n.primary ? " (default)" : ""} — ${n.id}`,
+              }))}
+            />
           </AdminField>
         )}
 
@@ -641,19 +1092,18 @@ function SendTab({
         {messageType === "media" && (
           <>
             <AdminField label="Media type" htmlFor="mediaKind">
-              <select
+              <SelectWithCustom
                 id="mediaKind"
                 value={mediaKind}
-                onChange={(e) => setMediaKind(e.target.value as MediaKind)}
-                className={adminInputClass}
-                style={adminInputStyle}
-              >
-                <option value="image">Image</option>
-                <option value="video">Video</option>
-                <option value="document">Document</option>
-                <option value="audio">Audio</option>
-                <option value="sticker">Sticker</option>
-              </select>
+                onChange={(v) => setMediaKind(v as MediaKind)}
+                options={[
+                  { value: "image", label: "Image" },
+                  { value: "video", label: "Video" },
+                  { value: "document", label: "Document" },
+                  { value: "audio", label: "Audio" },
+                  { value: "sticker", label: "Sticker" },
+                ]}
+              />
             </AdminField>
 
             <AdminField label="Upload a file" htmlFor="mediaFile">
@@ -841,20 +1291,15 @@ function SendTab({
         {messageType === "template" && (
           <>
             <AdminField label="Saved template" htmlFor="template">
-              <select
+              <SelectWithCustom
                 id="template"
                 value={templateName}
-                onChange={(e) => setTemplateName(e.target.value)}
-                className={adminInputClass}
-                style={adminInputStyle}
-              >
-                <option value="">Select a template…</option>
-                {templates.map((tpl) => (
-                  <option key={tpl.name} value={tpl.name}>
-                    {tpl.name}
-                  </option>
-                ))}
-              </select>
+                onChange={setTemplateName}
+                placeholder="Select a template…"
+                customLabel="✏️ Custom template name…"
+                customPlaceholder="Template name"
+                options={templates.map((tpl) => ({ value: tpl.name, label: tpl.name }))}
+              />
             </AdminField>
 
             {templateName && (
@@ -1563,17 +2008,19 @@ function RuleEditor({
         </AdminField>
 
         <AdminField label="Match mode" htmlFor={`mode-${rule.id}`}>
-          <select
+          <SelectWithCustom
             id={`mode-${rule.id}`}
             value={rule.mode}
-            onChange={(e) => onUpdate(rule.id, "mode", e.target.value)}
-            className={adminInputClass}
-            style={adminInputStyle}
-          >
-            <option value="contains">Contains keyword</option>
-            <option value="equals">Exact match</option>
-            <option value="starts">Starts with</option>
-          </select>
+            onChange={(v) => onUpdate(rule.id, "mode", v)}
+            customLabel="✏️ Custom mode…"
+            customPlaceholder="contains | equals | starts | regex"
+            options={[
+              { value: "contains", label: "Contains keyword" },
+              { value: "equals", label: "Exact match" },
+              { value: "starts", label: "Starts with" },
+              { value: "regex", label: "Regex (advanced — keyword is the pattern)" },
+            ]}
+          />
         </AdminField>
       </div>
 

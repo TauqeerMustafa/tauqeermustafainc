@@ -31,7 +31,7 @@ export type WAMessage = {
 export type AutoReplyRule = {
   id: string;
   keyword: string;
-  mode: "contains" | "equals" | "starts";
+  mode: "contains" | "equals" | "starts" | "regex" | (string & {});
   reply: string;
   enabled: boolean;
 };
@@ -239,5 +239,77 @@ export function useSubmitMetaTemplate() {
       return data;
     },
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["whatsapp-meta-templates"] }),
+  });
+}
+
+// ── Conversation metadata (deal status, notes, archive, pin, read state) ──────
+
+export type ConvMeta = {
+  dealStatus?: string;
+  notes?: string;
+  archived?: boolean;
+  pinned?: boolean;
+  lastReadAt?: string;
+  name?: string;
+  tags?: string[];
+};
+
+export function useConversationMeta() {
+  return useQuery<{ success: boolean; data: Record<string, ConvMeta> }>({
+    queryKey: ["whatsapp-conv-meta"],
+    queryFn: () => getJSON("/conversation-meta"),
+    refetchInterval: 15000,
+  });
+}
+
+export function useUpdateConversationMeta() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ key, patch }: { key: string; patch: Partial<ConvMeta> }) => {
+      const res = await fetch(`${API_BASE}/conversation-meta`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ key, patch }),
+      });
+      if (!res.ok) throw new Error("Failed to update conversation");
+      return res.json();
+    },
+    // Optimistic: patch the cache immediately so archive/pin/read feel instant.
+    onMutate: async ({ key, patch }) => {
+      await queryClient.cancelQueries({ queryKey: ["whatsapp-conv-meta"] });
+      const prev = queryClient.getQueryData<{ success: boolean; data: Record<string, ConvMeta> }>([
+        "whatsapp-conv-meta",
+      ]);
+      queryClient.setQueryData<{ success: boolean; data: Record<string, ConvMeta> }>(
+        ["whatsapp-conv-meta"],
+        (old) => {
+          const data = { ...(old?.data ?? {}) };
+          data[key] = { ...(data[key] ?? {}), ...patch };
+          return { success: true, data };
+        }
+      );
+      return { prev };
+    },
+    onError: (_e, _v, ctx) => {
+      if (ctx?.prev) queryClient.setQueryData(["whatsapp-conv-meta"], ctx.prev);
+    },
+    onSettled: () => queryClient.invalidateQueries({ queryKey: ["whatsapp-conv-meta"] }),
+  });
+}
+
+export function useDeleteConversation() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ number, account, key }: { number: string; account?: string; key: string }) => {
+      const params = new URLSearchParams({ number });
+      if (account) params.set("account", account);
+      await fetch(`${API_BASE}/messages?${params.toString()}`, { method: "DELETE" });
+      await fetch(`${API_BASE}/conversation-meta?key=${encodeURIComponent(key)}`, { method: "DELETE" });
+      return { success: true };
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["whatsapp-messages"] });
+      queryClient.invalidateQueries({ queryKey: ["whatsapp-conv-meta"] });
+    },
   });
 }

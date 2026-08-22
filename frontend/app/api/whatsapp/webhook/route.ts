@@ -72,6 +72,19 @@ export async function POST(request: Request) {
           // Only fires if token + phoneId are configured.
           await handleAutoReply(from, text);
         }
+
+        // Delivery / read receipts for our OUTBOUND messages → drive tick status.
+        // Meta sends value.statuses = [{ id, status: sent|delivered|read|failed }]
+        for (const st of value?.statuses ?? []) {
+          const id = st?.id;
+          const status = st?.status;
+          if (!id || !status) continue;
+          fetch(`${new URL(request.url).origin}/api/whatsapp/messages`, {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ id, status }),
+          }).catch((e) => console.error("[webhook] Failed to update status:", e));
+        }
       }
     }
 
@@ -116,6 +129,13 @@ async function handleAutoReply(to: string, incomingText: string) {
         matched = keywords.some((kw: string) => lower === kw);
       } else if (rule.mode === "starts") {
         matched = keywords.some((kw: string) => lower.startsWith(kw));
+      } else if (rule.mode === "regex") {
+        // Advanced: the keyword field is a regular expression (case-insensitive).
+        try {
+          matched = new RegExp(rule.keyword, "i").test(incomingText);
+        } catch {
+          console.warn(`[webhook] Invalid regex in rule ${rule.id}: ${rule.keyword}`);
+        }
       }
 
       if (matched) {

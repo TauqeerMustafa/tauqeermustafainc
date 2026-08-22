@@ -74,3 +74,87 @@ export async function POST(request: Request) {
     );
   }
 }
+
+/**
+ * PATCH /api/whatsapp/messages
+ * Update a stored message's delivery status by id (used by the webhook for
+ * Meta delivery/read receipts). Status only advances forward:
+ * sent → delivered → read, with "failed" able to override at any point.
+ */
+export async function PATCH(request: Request) {
+  try {
+    if (!isKVConfigured) {
+      return NextResponse.json({ success: true, notice: "KV not configured" });
+    }
+
+    const { id, status } = await request.json();
+    if (!id || !status) {
+      return NextResponse.json({ success: false, error: "id and status are required" }, { status: 400 });
+    }
+
+    const rank: Record<string, number> = { sent: 1, delivered: 2, read: 3 };
+    const messages = (await kv!.get<WAMessage[]>(KEYS.messages)) || [];
+    let changed = false;
+
+    for (const m of messages) {
+      if (m.id !== id) continue;
+      const advance = status === "failed" || (rank[status] ?? 0) > (rank[m.status ?? ""] ?? 0);
+      if (advance) {
+        m.status = status;
+        changed = true;
+      }
+      break;
+    }
+
+    if (changed) await kv!.set(KEYS.messages, messages);
+    return NextResponse.json({ success: true, changed });
+  } catch (error) {
+    console.error("[messages] PATCH error:", error);
+    return NextResponse.json({ success: false, error: String(error) }, { status: 500 });
+  }
+}
+
+/**
+ * DELETE /api/whatsapp/messages?number=<customer>&account=<ourNumberId>
+ * Remove all messages of a conversation (identified by the customer number).
+ * When `account` (our phone-number id) is supplied, only that number's thread
+ * with the customer is removed; legacy messages with no account are removed too.
+ */
+export async function DELETE(request: Request) {
+  try {
+    if (!isKVConfigured) {
+      return NextResponse.json({ success: true, notice: "KV not configured" });
+    }
+
+    const { searchParams } = new URL(request.url);
+    const number = (searchParams.get("number") || "").replace(/[^0-9]/g, "");
+    const account = (searchParams.get("account") || "").replace(/[^0-9]/g, "");
+    if (!number) {
+      return NextResponse.json({ success: false, error: "number is required" }, { status: 400 });
+    }
+
+    // The customer number for a message (prefer jid, else the non-us side).
+    const customerOf = (m: WAMessage) => {
+      if (m.jid) return m.jid.split("@")[0].split(":")[0].replace(/[^0-9]/g, "");
+      const raw = m.direction === "inbound" ? m.from : m.to;
+      return (raw || "").replace(/[^0-9]/g, "");
+    };
+    // Which of OUR numbers this message belongs to.
+    const accountOf = (m: WAMessage) =>
+      ((m.direction === "inbound" ? m.to : m.from) || "").replace(/[^0-9]/g, "");
+
+    const messages = (await kv!.get<WAMessage[]>(KEYS.messages)) || [];
+    const kept = messages.filter((m) => {
+      if (customerOf(m) !== number) return true; // different conversation — keep
+      if (!account) return false; // no account filter — drop the whole conversation
+      const acct = accountOf(m);
+      return !(acct === account || acct === ""); // drop this number's thread (+ legacy)
+    });
+
+    await kv!.set(KEYS.messages, kept);
+    return NextResponse.json({ success: true, deleted: messages.length - kept.length });
+  } catch (error) {
+    console.error("[messages] DELETE error:", error);
+    return NextResponse.json({ success: false, error: String(error) }, { status: 500 });
+  }
+}

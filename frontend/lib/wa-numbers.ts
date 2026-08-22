@@ -23,13 +23,18 @@ export function getWaNumbers(): WaNumber[] {
 
 /**
  * Resolve the phone-number-id to send from. If the caller requested a specific
- * id that we recognise, use it; otherwise fall back to the primary number.
+ * id that we recognise, use it. A raw numeric id that isn't in the env config is
+ * also accepted (the admin UI's "Custom…" escape hatch — lets you send from a
+ * number added in Meta without a redeploy). Otherwise fall back to the primary.
  */
 export function resolveNumberId(requested?: string | null): string | undefined {
   const numbers = getWaNumbers();
   if (requested) {
-    const match = numbers.find((n) => n.id === String(requested).trim());
+    const want = String(requested).trim();
+    const match = numbers.find((n) => n.id === want);
     if (match) return match.id;
+    // Unknown but plausibly a real Meta phone-number-id → pass through.
+    if (/^\d{10,20}$/.test(want)) return want;
   }
   return numbers[0]?.id ?? process.env.WHATSAPP_PHONE_NUMBER_ID?.trim();
 }
