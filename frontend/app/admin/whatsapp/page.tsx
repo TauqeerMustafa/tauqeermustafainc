@@ -28,6 +28,9 @@ import {
   PinOff,
   ArrowLeft,
   Circle,
+  Lock,
+  Smile,
+  Mic,
   X,
 } from "lucide-react";
 
@@ -51,7 +54,6 @@ import {
   useDeleteTemplate,
   useMetaTemplates,
   useSubmitMetaTemplate,
-  useWaNumbers,
   uploadWhatsAppMedia,
   useConversationMeta,
   useUpdateConversationMeta,
@@ -181,27 +183,33 @@ export default function AdminWhatsAppPage() {
 
 // ─── Inbox ──────────────────────────────────────────────────────────────
 
-// WhatsApp palette
+// WhatsApp Web (light) palette — matched to the real client.
 const WA = {
-  panel: "#f0f2f5",
-  chatBg: "#efeae2",
-  out: "#d9fdd3",
-  green: "#008069",
-  greenDark: "#00a884",
-  tick: "#53bdeb",
-  sub: "#667781",
+  panel: "#f0f2f5", // header bars, composer, app chrome
+  panelBorder: "#d1d7db",
+  listBg: "#ffffff", // chat-list background
+  chatBg: "#efeae2", // conversation wallpaper base
+  out: "#d9fdd3", // outgoing bubble
+  outTail: "#d9fdd3",
+  in: "#ffffff", // incoming bubble
+  green: "#00a884", // primary accent / send
+  headerGreen: "#008069",
+  badge: "#25d366", // unread count badge
+  tick: "#53bdeb", // read ✓✓ (blue)
+  tickGrey: "#8696a0", // sent/delivered ✓
+  text: "#111b21", // primary text
+  sub: "#667781", // secondary text / timestamps
+  icon: "#54656f", // header icons
+  divider: "#e9edef",
+  datePill: "#ffffff",
+  dateText: "#54656f",
+  e2e: "#fdf6cb", // encryption notice pill
+  e2eText: "#54656f",
 };
+// Faithful WhatsApp wallpaper doodle tile (subtle, low-opacity marks on #efeae2).
 const DOODLE =
-  "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40'%3E%3Ccircle cx='20' cy='20' r='1.2' fill='%23000' opacity='0.05'/%3E%3C/svg%3E\")";
+  "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'%3E%3Cg fill='none' stroke='%23000' stroke-opacity='0.035' stroke-width='1.4'%3E%3Ccircle cx='12' cy='12' r='4'/%3E%3Cpath d='M40 8l6 6-6 6-6-6z'/%3E%3Cpath d='M8 42h10M13 37v10'/%3E%3Ccircle cx='46' cy='44' r='5'/%3E%3C/g%3E%3C/svg%3E\")";
 
-/** Which of OUR business numbers a message belongs to (digits only). */
-function accountIdOf(m: WAMessage): string {
-  const raw = m.direction === "inbound" ? m.to : m.from;
-  return (raw || "").replace(/[^0-9]/g, "");
-}
-function convKey(accountId: string, number: string) {
-  return `${accountId}::${number}`;
-}
 function initials(name: string) {
   const t = name.trim();
   if (!t) return "?";
@@ -243,9 +251,36 @@ function describeMessage(m: WAMessage) {
 function lastPreview(conv: Conversation) {
   const m = conv.messages.at(-1);
   if (!m) return "";
-  const prefix = m.direction === "outbound" ? "You: " : "";
-  return prefix + describeMessage(m).replace(/\n/g, " ");
+  return describeMessage(m).replace(/\n/g, " ");
 }
+
+/** WhatsApp chat-list timestamp: time today, "Yesterday", weekday this week, else date. */
+function formatListTime(ts: string): string {
+  const d = new Date(ts);
+  const now = new Date();
+  const startOf = (x: Date) => new Date(x.getFullYear(), x.getMonth(), x.getDate()).getTime();
+  const days = Math.round((startOf(now) - startOf(d)) / 86_400_000);
+  if (days <= 0) return d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+  if (days === 1) return "Yesterday";
+  if (days < 7) return d.toLocaleDateString([], { weekday: "long" });
+  return d.toLocaleDateString([], { day: "2-digit", month: "2-digit", year: "2-digit" });
+}
+
+/** WhatsApp date divider label: TODAY / YESTERDAY / full date. */
+function formatDateDivider(ts: string): string {
+  const d = new Date(ts);
+  const now = new Date();
+  const startOf = (x: Date) => new Date(x.getFullYear(), x.getMonth(), x.getDate()).getTime();
+  const days = Math.round((startOf(now) - startOf(d)) / 86_400_000);
+  if (days <= 0) return "TODAY";
+  if (days === 1) return "YESTERDAY";
+  return d.toLocaleDateString([], { weekday: "long", day: "numeric", month: "long", year: "numeric" }).toUpperCase();
+}
+
+const dayKey = (ts: string) => {
+  const d = new Date(ts);
+  return `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
+};
 
 /**
  * A <select> that always offers a "Custom…" escape hatch. Picking it reveals a
@@ -331,16 +366,14 @@ function SelectWithCustom({
 
 function InboxTab({ onReply }: { onReply: (number: string) => void }) {
   const { data, isLoading, isError, refetch } = useWhatsAppMessages();
-  const { data: numbersData } = useWaNumbers();
   const { data: metaData } = useConversationMeta();
   const updateMeta = useUpdateConversationMeta();
   const deleteConv = useDeleteConversation();
 
-  const numbers = numbersData?.data ?? [];
   const metaMap = metaData?.data ?? {};
 
-  const [activeAccount, setActiveAccount] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
+  const [filter, setFilter] = useState<"all" | "unread">("all");
   const [showArchived, setShowArchived] = useState(false);
   const [selected, setSelected] = useState<string | null>(null); // customer number
 
@@ -349,22 +382,10 @@ function InboxTab({ onReply }: { onReply: (number: string) => void }) {
     return <AdminErrorState message="Could not load messages. Check your WhatsApp configuration." />;
 
   const allMessages = data?.data ?? [];
-  const primaryId = numbers[0]?.id ?? "";
-  const activeId = activeAccount || primaryId;
-
-  // Keep the two numbers' conversations fully separate: only messages for the
-  // active number (legacy messages with no number fall under the primary).
-  const scoped = numbers.length
-    ? allMessages.filter((m) => {
-        const acct = accountIdOf(m);
-        return acct === activeId || (acct === "" && activeId === primaryId);
-      })
-    : allMessages;
-
-  const conversations = groupConversations(scoped);
+  const conversations = groupConversations(allMessages);
 
   const withMeta = conversations.map((conv) => {
-    const meta = metaMap[convKey(activeId, conv.number)];
+    const meta = metaMap[conv.number];
     return { conv, meta, unread: unreadCount(conv, meta) };
   });
 
@@ -377,94 +398,119 @@ function InboxTab({ onReply }: { onReply: (number: string) => void }) {
   const archivedList = searched.filter((x) => x.meta?.archived);
   const activeList = searched
     .filter((x) => !x.meta?.archived)
+    .filter((x) => (filter === "unread" ? x.unread > 0 : true))
     .sort((a, b) => Number(!!b.meta?.pinned) - Number(!!a.meta?.pinned));
   const list = showArchived ? archivedList : activeList;
 
   const selectedConv = selected ? withMeta.find((x) => x.conv.number === selected) : null;
 
   const patch = (number: string, p: Partial<ConvMeta>) =>
-    updateMeta.mutate({ key: convKey(activeId, number), patch: p });
+    updateMeta.mutate({ key: number, patch: p });
 
   const handleDelete = (number: string) => {
     if (!confirm("Delete this entire conversation? This removes its messages from your inbox.")) return;
-    deleteConv.mutate({ number, account: activeId || undefined, key: convKey(activeId, number) });
+    deleteConv.mutate({ number, key: number });
     if (selected === number) setSelected(null);
   };
+
+  const totalUnread = activeList.reduce((n, x) => n + (x.unread > 0 ? 1 : 0), 0);
 
   return (
     <div
       className="flex overflow-hidden rounded-lg border"
-      style={{ borderColor: "var(--adm-border)", height: "calc(100vh - 230px)", minHeight: 520 }}
+      style={{ borderColor: WA.panelBorder, height: "calc(100vh - 230px)", minHeight: 520 }}
     >
       {/* LEFT: chat list */}
       <aside
-        className={`${selected ? "hidden md:flex" : "flex"} w-full flex-col md:w-[380px]`}
-        style={{ background: "#fff", borderRight: "1px solid var(--adm-border)" }}
+        className={`${selected ? "hidden md:flex" : "flex"} w-full flex-col md:w-[400px]`}
+        style={{ background: WA.listBg, borderRight: `1px solid ${WA.divider}` }}
       >
-        {/* Account switcher — one tab per business number, kept separate */}
-        {numbers.length > 1 && (
-          <div className="flex gap-1 border-b p-2" style={{ borderColor: "var(--adm-border)", background: WA.panel }}>
-            {numbers.map((n) => {
-              const count = allMessages.filter(
-                (m) => accountIdOf(m) === n.id || (accountIdOf(m) === "" && n.id === primaryId)
-              ).length;
-              const active = n.id === activeId;
-              return (
-                <button
-                  key={n.id}
-                  type="button"
-                  onClick={() => {
-                    setActiveAccount(n.id);
-                    setSelected(null);
-                    setShowArchived(false);
-                  }}
-                  className="flex-1 rounded-md px-3 py-2 text-xs font-semibold transition"
-                  style={{ background: active ? WA.green : "transparent", color: active ? "#fff" : "var(--adm-text-2)" }}
-                  title={n.id}
-                >
-                  {n.label}
-                  {count ? ` (${count})` : ""}
-                </button>
-              );
-            })}
+        {/* Sidebar header */}
+        <div
+          className="flex items-center justify-between px-4 py-2.5"
+          style={{ background: WA.panel, height: 59 }}
+        >
+          <span className="text-[17px] font-semibold" style={{ color: WA.text }}>
+            Chats
+          </span>
+          <div className="flex items-center gap-1" style={{ color: WA.icon }}>
+            <button
+              type="button"
+              onClick={() => refetch()}
+              className="flex h-9 w-9 items-center justify-center rounded-full transition hover:bg-black/5"
+              aria-label="Refresh"
+              title="Refresh"
+            >
+              <RefreshCw size={19} />
+            </button>
           </div>
-        )}
+        </div>
 
-        {/* Search */}
-        <div className="p-2" style={{ background: "#fff" }}>
+        {/* Search + filter chips */}
+        <div className="px-3 pb-1.5 pt-1.5" style={{ background: WA.listBg }}>
           <div className="relative">
-            <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2" style={{ color: WA.sub }} />
+            <Search size={15} className="absolute left-4 top-1/2 -translate-y-1/2" style={{ color: WA.sub }} />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search or start a new chat"
-              className="w-full rounded-lg border-0 py-2 pl-10 pr-3 text-sm outline-none"
-              style={{ background: WA.panel, color: "#111b21" }}
+              className="w-full rounded-lg border-0 py-[7px] pl-12 pr-3 text-[14px] outline-none"
+              style={{ background: WA.panel, color: WA.text }}
             />
+          </div>
+          <div className="mt-2 flex items-center gap-2">
+            {(["all", "unread"] as const).map((f) => {
+              const on = filter === f && !showArchived;
+              return (
+                <button
+                  key={f}
+                  type="button"
+                  onClick={() => {
+                    setFilter(f);
+                    setShowArchived(false);
+                  }}
+                  className="rounded-full px-3 py-1 text-[13px] font-medium capitalize transition"
+                  style={{
+                    background: on ? "#d9fdd3" : WA.panel,
+                    color: on ? "#008069" : WA.sub,
+                  }}
+                >
+                  {f}
+                  {f === "unread" && totalUnread ? ` ${totalUnread}` : ""}
+                </button>
+              );
+            })}
           </div>
         </div>
 
-        {/* Archived toggle */}
+        {/* Archived row */}
         <button
           type="button"
           onClick={() => setShowArchived((v) => !v)}
-          className="flex items-center gap-3 border-b px-4 py-2.5 text-sm font-medium transition hover:bg-gray-50"
-          style={{ borderColor: "var(--adm-border)", color: showArchived ? WA.green : "var(--adm-text-2)" }}
+          className="flex items-center gap-6 px-5 py-3 text-[14px] transition hover:bg-black/[0.03]"
+          style={{ borderBottom: `1px solid ${WA.divider}`, color: WA.text }}
         >
-          <Archive size={18} />
-          {showArchived ? "← Back to chats" : `Archived${archivedList.length ? ` (${archivedList.length})` : ""}`}
+          <Archive size={18} style={{ color: WA.green }} />
+          <span className="font-normal">{showArchived ? "Back to chats" : "Archived"}</span>
+          {!showArchived && archivedList.length > 0 && (
+            <span className="ml-auto text-[13px] font-medium" style={{ color: WA.green }}>
+              {archivedList.length}
+            </span>
+          )}
         </button>
 
         {/* List */}
         <div className="flex-1 overflow-y-auto">
           {list.length === 0 ? (
-            <div className="px-4 py-10 text-center text-sm" style={{ color: WA.sub }}>
+            <div className="px-6 py-10 text-center text-[14px]" style={{ color: WA.sub }}>
               {showArchived
                 ? "No archived chats."
-                : searchQuery
-                  ? "No matches."
-                  : "No conversations yet. When customers message this number, they appear here."}
+                : filter === "unread"
+                  ? "No unread chats."
+                  : searchQuery
+                    ? "No chats found."
+                    : "No conversations yet. When customers message you, they appear here."}
             </div>
           ) : (
             list.map(({ conv, meta, unread }) => (
@@ -485,10 +531,9 @@ function InboxTab({ onReply }: { onReply: (number: string) => void }) {
       <section className={`${selected ? "flex" : "hidden md:flex"} flex-1 flex-col`}>
         {selectedConv ? (
           <ChatView
-            key={convKey(activeId, selectedConv.conv.number)}
+            key={selectedConv.conv.number}
             conv={selectedConv.conv}
             meta={selectedConv.meta}
-            accountId={activeId}
             onBack={() => setSelected(null)}
             onMarkRead={() => patch(selectedConv.conv.number, { lastReadAt: new Date().toISOString() })}
             onMarkUnread={() => {
@@ -506,19 +551,32 @@ function InboxTab({ onReply }: { onReply: (number: string) => void }) {
             onRefresh={() => refetch()}
           />
         ) : (
-          <div className="hidden flex-1 flex-col items-center justify-center gap-3 md:flex" style={{ background: WA.panel }}>
-            <div className="flex h-20 w-20 items-center justify-center rounded-full" style={{ background: "#dfe5e7" }}>
-              <MessageSquare size={40} style={{ color: WA.sub }} />
-            </div>
-            <p className="text-lg font-light" style={{ color: "#41525d" }}>
-              Select a chat to start messaging
-            </p>
-            <p className="text-sm" style={{ color: WA.sub }}>
-              Conversations for each business number are kept separate.
-            </p>
-          </div>
+          <EmptyChatState />
         )}
       </section>
+    </div>
+  );
+}
+
+/** WhatsApp Web's "keep your phone connected" splash shown before a chat is picked. */
+function EmptyChatState() {
+  return (
+    <div
+      className="hidden flex-1 flex-col items-center justify-center gap-5 border-b-[6px] md:flex"
+      style={{ background: WA.panel, borderBottomColor: WA.green }}
+    >
+      <div className="flex h-[220px] w-[220px] items-center justify-center rounded-full" style={{ background: "#daf1e8" }}>
+        <MessageSquare size={96} strokeWidth={1} style={{ color: "#a7c5bd" }} />
+      </div>
+      <p className="text-[32px] font-light" style={{ color: "#41525d" }}>
+        WhatsApp Business
+      </p>
+      <p className="max-w-md text-center text-[14px]" style={{ color: WA.sub }}>
+        Select a chat to read and reply to customer messages, or start a new conversation from the Send tab.
+      </p>
+      <p className="mt-6 flex items-center gap-2 text-[13px]" style={{ color: WA.sub }}>
+        <Lock size={13} /> Your messages are end-to-end encrypted
+      </p>
     </div>
   );
 }
@@ -539,50 +597,65 @@ function ChatListItem({
   const name = meta?.name || (conv.name !== conv.number ? conv.name : `+${conv.number}`);
   const last = conv.messages.at(-1);
   const dealCfg = DEAL_STATUSES.find((s) => s.value === meta?.dealStatus);
+  const preview = lastPreview(conv);
+  const outbound = last?.direction === "outbound";
   return (
     <button
       type="button"
       onClick={onClick}
-      className="flex w-full items-center gap-3 border-b px-3 py-3 text-left transition hover:bg-gray-50"
-      style={{ borderColor: "#f0f2f5", background: active ? "#f0f2f5" : "transparent" }}
+      className="flex w-full items-center gap-3 pl-3 pr-4 text-left transition hover:bg-black/[0.03]"
+      style={{ background: active ? "#f0f2f5" : "transparent" }}
     >
       <div
-        className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-sm font-semibold text-white"
+        className="flex h-[49px] w-[49px] shrink-0 items-center justify-center self-center rounded-full text-[17px] font-medium text-white"
         style={{ background: "#6b7c85" }}
       >
         {initials(name)}
       </div>
-      <div className="min-w-0 flex-1">
+      <div
+        className="flex min-w-0 flex-1 flex-col justify-center py-3"
+        style={{ borderBottom: `1px solid ${WA.divider}`, minHeight: 72 }}
+      >
         <div className="flex items-center justify-between gap-2">
-          <span className="truncate text-[15px] font-medium" style={{ color: "#111b21" }}>
+          <span className="truncate text-[16px]" style={{ color: WA.text }}>
             {name}
           </span>
-          <span className="shrink-0 text-[11px]" style={{ color: unread ? WA.greenDark : WA.sub }}>
-            {last ? new Date(last.timestamp).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : ""}
-          </span>
-        </div>
-        <div className="mt-0.5 flex items-center justify-between gap-2">
-          <span className="flex items-center gap-1 truncate text-[13px]" style={{ color: WA.sub }}>
-            {meta?.pinned && <Pin size={12} className="shrink-0" />}
-            <span className="truncate">{lastPreview(conv) || "No messages"}</span>
-          </span>
-          {unread > 0 && (
-            <span
-              className="flex h-[18px] min-w-[18px] items-center justify-center rounded-full px-1 text-[11px] font-bold text-white"
-              style={{ background: WA.greenDark }}
-            >
-              {unread}
-            </span>
-          )}
-        </div>
-        {dealCfg && (
           <span
-            className="mt-1 inline-block rounded-full px-2 py-0.5 text-[10px] font-semibold"
-            style={{ background: dealCfg.bgColor, color: dealCfg.color }}
+            className="shrink-0 text-[12px]"
+            style={{ color: unread ? WA.green : WA.sub }}
           >
-            {dealCfg.label}
+            {last ? formatListTime(last.timestamp) : ""}
           </span>
-        )}
+        </div>
+        <div className="mt-[3px] flex items-center justify-between gap-2">
+          <span className="flex min-w-0 items-center gap-1 text-[14px]" style={{ color: WA.sub }}>
+            {meta?.pinned && <Pin size={13} className="shrink-0" style={{ transform: "rotate(45deg)" }} />}
+            {outbound && (
+              <span className="shrink-0">
+                <Ticks status={last?.status} small />
+              </span>
+            )}
+            <span className="truncate">{preview || "No messages"}</span>
+          </span>
+          <span className="flex shrink-0 items-center gap-1.5">
+            {dealCfg && (
+              <span
+                className="rounded-full px-1.5 py-px text-[10px] font-semibold"
+                style={{ background: dealCfg.bgColor, color: dealCfg.color }}
+              >
+                {dealCfg.label}
+              </span>
+            )}
+            {unread > 0 && (
+              <span
+                className="flex h-[20px] min-w-[20px] items-center justify-center rounded-full px-1.5 text-[12px] font-semibold text-white"
+                style={{ background: WA.badge }}
+              >
+                {unread}
+              </span>
+            )}
+          </span>
+        </div>
       </div>
     </button>
   );
@@ -591,7 +664,6 @@ function ChatListItem({
 function ChatView({
   conv,
   meta,
-  accountId,
   onBack,
   onMarkRead,
   onMarkUnread,
@@ -604,7 +676,6 @@ function ChatView({
 }: {
   conv: Conversation;
   meta?: ConvMeta;
-  accountId: string;
   onBack: () => void;
   onMarkRead: () => void;
   onMarkUnread: () => void;
@@ -631,7 +702,7 @@ function ChatView({
   useEffect(() => {
     if (unreadCount(conv, meta) > 0) onMarkRead();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [conv.number, accountId, lastTs, conv.messages.length]);
+  }, [conv.number, lastTs, conv.messages.length]);
 
   // Keep the newest message in view.
   useEffect(() => {
@@ -646,7 +717,6 @@ function ChatView({
         type: "text",
         to: conv.number,
         message: reply,
-        fromNumberId: accountId || undefined,
       });
       setReply("");
     } catch (e: any) {
@@ -658,11 +728,10 @@ function ChatView({
     setError("");
     setUploading(true);
     try {
-      const up = await uploadWhatsAppMedia(file, accountId || undefined);
+      const up = await uploadWhatsAppMedia(file);
       await sendMessage.mutateAsync({
         type: "media",
         to: conv.number,
-        fromNumberId: accountId || undefined,
         mediaType: up.mediaType,
         mediaId: up.id,
         caption: reply.trim() || undefined,
@@ -677,68 +746,89 @@ function ChatView({
     }
   };
 
+  const canSend = !!reply.trim();
+
   return (
     <div className="flex h-full flex-col" style={{ background: WA.chatBg }}>
       {/* Header */}
       <div
-        className="flex items-center gap-3 px-3 py-2"
-        style={{ background: WA.panel, borderBottom: "1px solid var(--adm-border)" }}
+        className="flex items-center gap-3 px-4"
+        style={{ background: WA.panel, height: 59, borderBottom: `1px solid ${WA.divider}` }}
       >
-        <button type="button" onClick={onBack} className="md:hidden" style={{ color: "#54656f" }} aria-label="Back">
+        <button type="button" onClick={onBack} className="md:hidden" style={{ color: WA.icon }} aria-label="Back">
           <ArrowLeft size={22} />
         </button>
-        <div
-          className="flex h-10 w-10 items-center justify-center rounded-full text-sm font-semibold text-white"
-          style={{ background: "#6b7c85" }}
+        <button
+          type="button"
+          onClick={() => setShowDetails(true)}
+          className="flex min-w-0 flex-1 items-center gap-3 text-left"
         >
-          {initials(name)}
-        </div>
-        <div className="min-w-0 flex-1">
-          <p className="truncate text-[15px] font-medium" style={{ color: "#111b21" }}>
-            {name}
-          </p>
-          <p className="truncate text-xs" style={{ color: WA.sub }}>
-            +{conv.number}
-          </p>
-        </div>
-        <button type="button" onClick={onRefresh} style={{ color: "#54656f" }} aria-label="Refresh" title="Refresh">
-          <RefreshCw size={18} />
+          <div
+            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-sm font-medium text-white"
+            style={{ background: "#6b7c85" }}
+          >
+            {initials(name)}
+          </div>
+          <div className="min-w-0 flex-1">
+            <p className="truncate text-[16px] font-medium" style={{ color: WA.text }}>
+              {name}
+            </p>
+            <p className="truncate text-[13px]" style={{ color: WA.sub }}>
+              click here for contact info
+            </p>
+          </div>
         </button>
-        <div className="relative">
-          <button type="button" onClick={() => setMenuOpen((v) => !v)} style={{ color: "#54656f" }} aria-label="Chat menu">
-            <MoreVertical size={20} />
+        <div className="flex items-center gap-1" style={{ color: WA.icon }}>
+          <button
+            type="button"
+            onClick={onRefresh}
+            className="flex h-9 w-9 items-center justify-center rounded-full transition hover:bg-black/5"
+            aria-label="Refresh"
+            title="Refresh"
+          >
+            <RefreshCw size={19} />
           </button>
-          {menuOpen && (
-            <>
-              <div className="fixed inset-0 z-10" onClick={() => setMenuOpen(false)} />
-              <div
-                className="absolute right-0 z-20 mt-1 w-56 overflow-hidden rounded-md border bg-white py-1 shadow-lg"
-                style={{ borderColor: "var(--adm-border)" }}
-              >
-                <MenuItem icon={<User size={15} />} label="Contact info & deal" onClick={() => { setShowDetails(true); setMenuOpen(false); }} />
-                <MenuItem
-                  icon={meta?.pinned ? <PinOff size={15} /> : <Pin size={15} />}
-                  label={meta?.pinned ? "Unpin chat" : "Pin chat"}
-                  onClick={() => { onTogglePin(); setMenuOpen(false); }}
-                />
-                <MenuItem icon={<Circle size={15} />} label="Mark as unread" onClick={() => { onMarkUnread(); setMenuOpen(false); }} />
-                <MenuItem
-                  icon={meta?.archived ? <ArchiveRestore size={15} /> : <Archive size={15} />}
-                  label={meta?.archived ? "Unarchive chat" : "Archive chat"}
-                  onClick={() => { onToggleArchive(); setMenuOpen(false); }}
-                />
-                <MenuItem icon={<FileText size={15} />} label="Send template / start chat" onClick={() => { onTemplate(); setMenuOpen(false); }} />
-                <div className="my-1 border-t" style={{ borderColor: "var(--adm-border)" }} />
-                <MenuItem icon={<Trash2 size={15} />} label="Delete chat" danger onClick={() => { onDelete(); setMenuOpen(false); }} />
-              </div>
-            </>
-          )}
+          <div className="relative">
+            <button
+              type="button"
+              onClick={() => setMenuOpen((v) => !v)}
+              className="flex h-9 w-9 items-center justify-center rounded-full transition hover:bg-black/5"
+              aria-label="Chat menu"
+            >
+              <MoreVertical size={20} />
+            </button>
+            {menuOpen && (
+              <>
+                <div className="fixed inset-0 z-10" onClick={() => setMenuOpen(false)} />
+                <div
+                  className="absolute right-0 z-20 mt-1 w-60 overflow-hidden rounded-md bg-white py-2 shadow-lg"
+                  style={{ boxShadow: "0 2px 10px rgba(11,20,26,0.16)" }}
+                >
+                  <MenuItem icon={<User size={15} />} label="Contact info & deal" onClick={() => { setShowDetails(true); setMenuOpen(false); }} />
+                  <MenuItem
+                    icon={meta?.pinned ? <PinOff size={15} /> : <Pin size={15} />}
+                    label={meta?.pinned ? "Unpin chat" : "Pin chat"}
+                    onClick={() => { onTogglePin(); setMenuOpen(false); }}
+                  />
+                  <MenuItem icon={<Circle size={15} />} label="Mark as unread" onClick={() => { onMarkUnread(); setMenuOpen(false); }} />
+                  <MenuItem
+                    icon={meta?.archived ? <ArchiveRestore size={15} /> : <Archive size={15} />}
+                    label={meta?.archived ? "Unarchive chat" : "Archive chat"}
+                    onClick={() => { onToggleArchive(); setMenuOpen(false); }}
+                  />
+                  <MenuItem icon={<FileText size={15} />} label="Send template / start chat" onClick={() => { onTemplate(); setMenuOpen(false); }} />
+                  <div className="my-1 border-t" style={{ borderColor: WA.divider }} />
+                  <MenuItem icon={<Trash2 size={15} />} label="Delete chat" danger onClick={() => { onDelete(); setMenuOpen(false); }} />
+                </div>
+              </>
+            )}
+          </div>
         </div>
       </div>
 
       {/* CRM / contact details */}
       {showDetails && (
-        <div className="border-b px-4 py-3" style={{ borderColor: "var(--adm-border)", background: "#fff" }}>
+        <div className="border-b px-4 py-3" style={{ borderColor: WA.divider, background: "#fff" }}>
           <div className="mb-2 flex items-center justify-between">
             <span className="text-xs font-semibold" style={{ color: "var(--adm-text)" }}>Contact &amp; deal</span>
             <button type="button" onClick={() => setShowDetails(false)} style={{ color: "var(--adm-text-3)" }}>
@@ -781,15 +871,51 @@ function ChatView({
       )}
 
       {/* Messages */}
-      <div className="flex-1 space-y-1.5 overflow-y-auto px-4 py-4 md:px-10" style={{ backgroundImage: DOODLE }}>
-        {conv.messages.map((msg) => (
-          <MessageBubble key={msg.id} message={msg} />
-        ))}
+      <div className="flex-1 overflow-y-auto px-[5%] py-3 lg:px-[8%]" style={{ backgroundImage: DOODLE }}>
+        {/* End-to-end encryption notice */}
+        <div className="mb-3 flex justify-center">
+          <span
+            className="flex max-w-lg items-center gap-1.5 rounded-md px-3 py-1.5 text-center text-[12.5px] leading-[18px] shadow-sm"
+            style={{ background: WA.e2e, color: WA.e2eText }}
+          >
+            <Lock size={12} className="shrink-0" />
+            Messages are end-to-end encrypted. No one outside of this chat, not even WhatsApp, can read or listen to them.
+          </span>
+        </div>
+
+        {conv.messages.map((msg, i) => {
+          const prev = conv.messages[i - 1];
+          const showDate = !prev || dayKey(prev.timestamp) !== dayKey(msg.timestamp);
+          // A "tail" (bubble beak) shows only on the first message of a run from
+          // the same side, exactly like WhatsApp.
+          const tail = showDate || !prev || prev.direction !== msg.direction;
+          return (
+            <div key={msg.id}>
+              {showDate && (
+                <div className="my-3 flex justify-center">
+                  <span
+                    className="rounded-md px-3 py-1 text-[12.5px] font-medium uppercase shadow-sm"
+                    style={{ background: WA.datePill, color: WA.dateText }}
+                  >
+                    {formatDateDivider(msg.timestamp)}
+                  </span>
+                </div>
+              )}
+              <MessageBubble message={msg} tail={tail} />
+            </div>
+          );
+        })}
         <div ref={endRef} />
       </div>
 
+      {error && (
+        <p className="px-4 py-1 text-xs" style={{ background: WA.panel, color: "var(--adm-red)" }}>
+          {error}
+        </p>
+      )}
+
       {/* Composer */}
-      <div className="flex items-end gap-2 px-3 py-2" style={{ background: WA.panel }}>
+      <div className="flex items-end gap-2 px-4 py-2.5" style={{ background: WA.panel }}>
         <input
           ref={fileRef}
           type="file"
@@ -801,14 +927,24 @@ function ChatView({
         />
         <button
           type="button"
+          className="mb-1.5 flex h-6 shrink-0 items-center"
+          style={{ color: WA.icon }}
+          aria-label="Emoji"
+          title="Emoji"
+          tabIndex={-1}
+        >
+          <Smile size={25} />
+        </button>
+        <button
+          type="button"
           onClick={() => fileRef.current?.click()}
           disabled={uploading || sendMessage.isPending}
-          className="mb-1 shrink-0 disabled:opacity-50"
-          style={{ color: "#54656f" }}
+          className="mb-1.5 flex h-6 shrink-0 items-center disabled:opacity-50"
+          style={{ color: WA.icon }}
           aria-label="Attach media"
           title="Attach photo / video / document"
         >
-          <Paperclip size={22} />
+          <Paperclip size={24} style={{ transform: "rotate(-45deg)" }} />
         </button>
         <textarea
           value={reply}
@@ -820,26 +956,21 @@ function ChatView({
             }
           }}
           rows={1}
-          placeholder={uploading ? "Uploading…" : "Type a message  (Enter to send)"}
-          className="max-h-28 flex-1 resize-none rounded-lg border-0 px-4 py-2.5 text-sm outline-none"
-          style={{ background: "#fff", color: "#111b21" }}
+          placeholder={uploading ? "Uploading…" : "Type a message"}
+          className="max-h-28 flex-1 resize-none rounded-lg border-0 px-4 py-2.5 text-[15px] outline-none"
+          style={{ background: "#fff", color: WA.text }}
         />
         <button
           type="button"
-          onClick={handleReply}
-          disabled={sendMessage.isPending || uploading || !reply.trim()}
-          className="mb-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-white disabled:opacity-50"
-          style={{ background: WA.green }}
-          aria-label="Send"
+          onClick={canSend ? handleReply : undefined}
+          disabled={sendMessage.isPending || uploading}
+          className="mb-0.5 flex h-11 w-11 shrink-0 items-center justify-center rounded-full disabled:opacity-50"
+          style={{ color: WA.icon }}
+          aria-label={canSend ? "Send" : "Voice message"}
         >
-          <Send size={18} />
+          {canSend ? <Send size={22} style={{ color: WA.green }} /> : <Mic size={24} />}
         </button>
       </div>
-      {error && (
-        <p className="px-4 py-1 text-xs" style={{ background: WA.panel, color: "var(--adm-red)" }}>
-          {error}
-        </p>
-      )}
     </div>
   );
 }
@@ -870,43 +1001,74 @@ function MenuItem({
 
 // WhatsApp tick semantics: sent = single grey ✓, delivered = double grey ✓✓,
 // read = double BLUE ✓✓, failed = red !, pending/unknown = clock.
-function Ticks({ status }: { status?: string }) {
+function Ticks({ status, small }: { status?: string; small?: boolean }) {
   const s = (status || "").toLowerCase();
-  if (s === "failed") return <AlertCircle size={13} style={{ color: "#f15c6d" }} />;
-  if (s === "read") return <CheckCheck size={15} style={{ color: WA.tick }} />;
-  if (s === "delivered") return <CheckCheck size={15} style={{ color: "#8696a0" }} />;
-  if (s === "sent") return <Check size={15} style={{ color: "#8696a0" }} />;
-  return <Clock size={12} style={{ color: "#8696a0" }} />;
+  const sz = small ? 14 : 16;
+  if (s === "failed") return <AlertCircle size={small ? 12 : 13} style={{ color: "#f15c6d" }} />;
+  if (s === "read") return <CheckCheck size={sz} style={{ color: WA.tick }} />;
+  if (s === "delivered") return <CheckCheck size={sz} style={{ color: WA.tickGrey }} />;
+  if (s === "sent") return <Check size={sz} style={{ color: WA.tickGrey }} />;
+  return <Clock size={small ? 11 : 12} style={{ color: WA.tickGrey }} />;
 }
 
-function MessageBubble({ message }: { message: WAMessage }) {
+function MessageBubble({ message, tail }: { message: WAMessage; tail?: boolean }) {
   const isOutbound = message.direction === "outbound";
   const text = describeMessage(message);
   const isPlaceholder = !(message.body || "").trim();
+  const time = new Date(message.timestamp).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+  // Reserve room on the last text line so the floated time never overlaps it —
+  // this is the WhatsApp trick that keeps short messages one line tall.
+  const spacer = isOutbound ? " ".repeat(11) : " ".repeat(7);
   return (
-    <div className={`flex ${isOutbound ? "justify-end" : "justify-start"}`}>
+    <div className={`flex ${isOutbound ? "justify-end" : "justify-start"} ${tail ? "mt-2.5" : "mt-0.5"}`}>
       <div
-        className="relative max-w-[75%] px-2 py-1.5 text-[14.2px] leading-[19px] shadow-sm"
+        className="relative max-w-[65%] px-[9px] pb-[8px] pt-[6px] text-[14.2px] leading-[19px]"
         style={{
-          background: isOutbound ? WA.out : "#ffffff",
-          color: "#111b21",
-          borderRadius: 8,
-          borderTopRightRadius: isOutbound ? 0 : 8,
-          borderTopLeftRadius: isOutbound ? 8 : 0,
+          background: isOutbound ? WA.out : WA.in,
+          color: WA.text,
+          borderRadius: 7.5,
+          boxShadow: "0 1px 0.5px rgba(11,20,26,0.13)",
+          // Tail corner: top-right for outbound, top-left for inbound, only on the
+          // first bubble of a run.
+          borderTopRightRadius: tail && isOutbound ? 0 : 7.5,
+          borderTopLeftRadius: tail && !isOutbound ? 0 : 7.5,
         }}
       >
-        <p
-          className="whitespace-pre-wrap break-words pr-1"
-          style={isPlaceholder ? { fontStyle: "italic", color: "#54656f" } : undefined}
+        {/* Little bubble beak */}
+        {tail && (
+          <span
+            aria-hidden
+            className="absolute top-0"
+            style={{
+              [isOutbound ? "right" : "left"]: -8,
+              width: 8,
+              height: 13,
+              background: isOutbound ? WA.out : WA.in,
+              clipPath: isOutbound
+                ? "polygon(0 0, 100% 0, 0 100%)"
+                : "polygon(0 0, 100% 0, 100% 100%)",
+            } as React.CSSProperties}
+          />
+        )}
+        <span
+          className="whitespace-pre-wrap break-words"
+          style={isPlaceholder ? { fontStyle: "italic", color: WA.sub } : undefined}
         >
           {text || "—"}
-        </p>
-        <div className="mt-0.5 flex items-center justify-end gap-1 leading-none">
-          <span className="text-[11px]" style={{ color: WA.sub }}>
-            {new Date(message.timestamp).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+          <span aria-hidden style={{ display: "inline-block" }}>
+            {spacer}
           </span>
-          {isOutbound && <Ticks status={message.status} />}
-        </div>
+        </span>
+        {/* Floated inline timestamp + ticks */}
+        <span
+          className="pointer-events-none absolute bottom-[3px] right-[7px] flex items-center gap-1"
+          style={{ height: 15 }}
+        >
+          <span className="text-[11px] leading-none" style={{ color: WA.sub }}>
+            {time}
+          </span>
+          {isOutbound && <Ticks status={message.status} small />}
+        </span>
       </div>
     </div>
   );
@@ -941,16 +1103,9 @@ function SendTab({
   const [caption, setCaption] = useState("");
   const [uploading, setUploading] = useState(false);
 
-  // Which number to send from (task 4)
-  const [fromNumberId, setFromNumberId] = useState("");
-
   const sendMessage = useSendWhatsAppMessage();
   const { data: templatesData } = useWhatsAppTemplates();
-  const { data: numbersData } = useWaNumbers();
   const templates: WATemplate[] = templatesData?.data ?? [];
-  const numbers = numbersData?.data ?? [];
-  // Surfaced under the picker so a misconfigured id is obvious before sending.
-  const unusableNumber = numbers.find((n) => n.usable === false && n.reason);
 
   const resetMedia = () => {
     setMediaLink("");
@@ -963,7 +1118,7 @@ function SendTab({
     setSendError("");
     setUploading(true);
     try {
-      const up = await uploadWhatsAppMedia(file, fromNumberId || undefined);
+      const up = await uploadWhatsAppMedia(file);
       setMediaId(up.id);
       setMediaKind(up.mediaType);
       setMediaFileName(up.filename);
@@ -987,7 +1142,6 @@ function SendTab({
 
     try {
       const payload: Record<string, unknown> = { type: messageType, to };
-      if (fromNumberId) payload.fromNumberId = fromNumberId;
 
       if (messageType === "text") {
         if (!messageText.trim()) {
@@ -1075,32 +1229,6 @@ function SendTab({
             ))}
           </div>
         </div>
-
-        {/* Send from (only when a second number is configured) */}
-        {numbers.length > 1 && (
-          <AdminField label="Send from" htmlFor="fromNumber">
-            <SelectWithCustom
-              id="fromNumber"
-              value={fromNumberId}
-              onChange={setFromNumberId}
-              customLabel="✏️ Custom phone-number-id…"
-              customPlaceholder="Meta phone-number-id (digits only)"
-              options={numbers.map((n) => ({
-                value: n.id,
-                label:
-                  `${n.label}${n.primary ? " (default)" : ""} — ` +
-                  `${n.displayNumber || n.id}` +
-                  (n.usable === false ? " ⚠️ not set up in Meta" : ""),
-              }))}
-            />
-            {unusableNumber && (
-              <p className="mt-1.5 text-xs" style={{ color: "var(--adm-red)" }}>
-                <strong>{unusableNumber.label} ({unusableNumber.id})</strong> cannot send:{" "}
-                {unusableNumber.reason}
-              </p>
-            )}
-          </AdminField>
-        )}
 
         {/* Recipient */}
         <AdminField label="Recipient (phone with country code)" htmlFor="recipient">

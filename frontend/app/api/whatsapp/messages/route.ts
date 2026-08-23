@@ -119,10 +119,8 @@ export async function PATCH(request: Request) {
 }
 
 /**
- * DELETE /api/whatsapp/messages?number=<customer>&account=<ourNumberId>
- * Remove all messages of a conversation (identified by the customer number).
- * When `account` (our phone-number id) is supplied, only that number's thread
- * with the customer is removed; legacy messages with no account are removed too.
+ * DELETE /api/whatsapp/messages?number=<customer>
+ * Remove all messages of a conversation, identified by the customer number.
  */
 export async function DELETE(request: Request) {
   try {
@@ -132,7 +130,6 @@ export async function DELETE(request: Request) {
 
     const { searchParams } = new URL(request.url);
     const number = (searchParams.get("number") || "").replace(/[^0-9]/g, "");
-    const account = (searchParams.get("account") || "").replace(/[^0-9]/g, "");
     if (!number) {
       return NextResponse.json({ success: false, error: "number is required" }, { status: 400 });
     }
@@ -143,17 +140,9 @@ export async function DELETE(request: Request) {
       const raw = m.direction === "inbound" ? m.from : m.to;
       return (raw || "").replace(/[^0-9]/g, "");
     };
-    // Which of OUR numbers this message belongs to.
-    const accountOf = (m: WAMessage) =>
-      ((m.direction === "inbound" ? m.to : m.from) || "").replace(/[^0-9]/g, "");
 
     const messages = (await kv!.get<WAMessage[]>(KEYS.messages)) || [];
-    const kept = messages.filter((m) => {
-      if (customerOf(m) !== number) return true; // different conversation — keep
-      if (!account) return false; // no account filter — drop the whole conversation
-      const acct = accountOf(m);
-      return !(acct === account || acct === ""); // drop this number's thread (+ legacy)
-    });
+    const kept = messages.filter((m) => customerOf(m) !== number);
 
     await kv!.set(KEYS.messages, kept);
     return NextResponse.json({ success: true, deleted: messages.length - kept.length });

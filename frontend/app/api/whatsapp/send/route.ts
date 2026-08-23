@@ -4,15 +4,12 @@
  *
  * Env vars (set in Vercel):
  *   WHATSAPP_TOKEN             – permanent system-user or temp access token
- *   WHATSAPP_PHONE_NUMBER_ID   – primary Phone Number ID
- *   WHATSAPP_PHONE_NUMBER_ID_2 – optional second Phone Number ID
+ *   WHATSAPP_PHONE_NUMBER_ID   – the Phone Number ID to send from
  *
  * Supported body.type: text | buttons | template | meta_template | media
- * Optional body.fromNumberId selects which configured number to send from.
  */
 import { NextResponse } from "next/server";
 import { META_TEMPLATES, buildSendComponents } from "@/lib/meta-templates";
-import { resolveNumberId } from "@/lib/wa-numbers";
 
 const GRAPH_URL = "https://graph.facebook.com/v20.0";
 
@@ -66,7 +63,6 @@ export async function POST(request: Request) {
       templateText,
       metaTemplateName,
       templateVars,
-      fromNumberId,
       // media
       mediaType,
       mediaId,
@@ -75,10 +71,10 @@ export async function POST(request: Request) {
       filename,
     } = body;
 
-    const phoneNumberId = resolveNumberId(fromNumberId);
+    const phoneNumberId = process.env.WHATSAPP_PHONE_NUMBER_ID?.trim();
     if (!phoneNumberId) {
       return NextResponse.json(
-        { success: false, error: "No WhatsApp phone number configured" },
+        { success: false, error: "WHATSAPP_PHONE_NUMBER_ID is not configured" },
         { status: 500 }
       );
     }

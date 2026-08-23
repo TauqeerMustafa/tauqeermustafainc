@@ -1,11 +1,11 @@
 /**
- * GET /api/whatsapp/diagnose?key=<WEBHOOK_VERIFY_TOKEN>
+ * GET /api/whatsapp/diagnose?key=<WA_DIAGNOSE_KEY>
  *
  * Asks Meta what THIS deployment's token can actually see, so that
  *   "Object with ID '…' does not exist, cannot be loaded due to missing permissions"
  * becomes a precise answer instead of a guess.
  *
- * Reports, for each configured phone-number id: whether Meta can load it, and if
+ * Reports, for the configured phone-number id: whether Meta can load it, and if
  * not, why — wrong id type (a WABA id pasted into the phone-number slot), a number
  * that lives outside this token's WABA, or an expired/under-scoped token. Also
  * lists the ids the token CAN send from, so the fix is copy-paste.
@@ -14,11 +14,9 @@
  * server-side auth on /admin, so this must not be world-readable. The token
  * itself is never returned.
  *
- * Env vars: WHATSAPP_TOKEN, WHATSAPP_BUSINESS_ACCOUNT_ID,
- *           WHATSAPP_PHONE_NUMBER_ID, WHATSAPP_PHONE_NUMBER_ID_2
+ * Env vars: WHATSAPP_TOKEN, WHATSAPP_BUSINESS_ACCOUNT_ID, WHATSAPP_PHONE_NUMBER_ID
  */
 import { NextResponse } from "next/server";
-import { getWaNumbers } from "@/lib/wa-numbers";
 
 const GRAPH_URL = "https://graph.facebook.com/v20.0";
 
@@ -72,13 +70,13 @@ export async function GET(request: Request) {
 
   const token = process.env.WHATSAPP_TOKEN?.trim();
   const wabaId = process.env.WHATSAPP_BUSINESS_ACCOUNT_ID?.trim();
-  const configured = getWaNumbers();
+  const phoneNumberId = process.env.WHATSAPP_PHONE_NUMBER_ID?.trim();
 
   if (!token) {
     return NextResponse.json({
       success: false,
       verdict: "WHATSAPP_TOKEN is not set in this environment. Nothing can send.",
-      configured,
+      phoneNumberId: phoneNumberId ?? null,
     });
   }
 
@@ -113,32 +111,31 @@ export async function GET(request: Request) {
   }
   const visibleIds = wabaNumbers.map((n) => String(n.id));
 
-  // ── 3. Can Meta load each id we are configured to send from? ──────────────
-  const checks = await Promise.all(
-    configured.map(async (n) => {
-      const res = await graphGet(n.id, token, "id,display_phone_number,verified_name,quality_rating,platform_type");
-      // `metadata=1` makes Graph name the node type, which is how we tell a real
-      // phone number apart from a WABA / app / business id pasted into the slot.
-      const meta = await graphGet(`${n.id}?metadata=1`, token);
-      const nodeType = meta.json?.metadata?.type ?? null;
+  // ── 3. Can Meta load the id we are configured to send from? ────────────────
+  let check: Record<string, unknown> | null = null;
+  if (phoneNumberId) {
+    const res = await graphGet(phoneNumberId, token, "id,display_phone_number,verified_name,quality_rating,platform_type");
+    // `metadata=1` makes Graph name the node type, which is how we tell a real
+    // phone number apart from a WABA / app / business id pasted into the slot.
+    const meta = await graphGet(`${phoneNumberId}?metadata=1`, token);
+    const nodeType = meta.json?.metadata?.type ?? null;
 
-      if (!res.ok) {
-        return {
-          ...n,
-          canSend: false,
-          nodeType,
-          metaError: res.json?.error?.message ?? `HTTP ${res.status}`,
-          metaCode: res.json?.error?.code ?? null,
-          fix: explain(res.json?.error, n.id, visibleIds, wabaId),
-        };
-      }
-
+    if (!res.ok) {
+      check = {
+        id: phoneNumberId,
+        canSend: false,
+        nodeType,
+        metaError: res.json?.error?.message ?? `HTTP ${res.status}`,
+        metaCode: res.json?.error?.code ?? null,
+        fix: explain(res.json?.error, phoneNumberId, visibleIds, wabaId),
+      };
+    } else {
       const displayNumber = res.json?.display_phone_number ?? null;
       // Readable, but with no display number it is not a sending phone number —
       // POST /{id}/messages will fail even though GET /{id} succeeds.
       if (!displayNumber) {
-        return {
-          ...n,
+        check = {
+          id: phoneNumberId,
           canSend: false,
           nodeType,
           inConfiguredWaba: false,
@@ -148,41 +145,40 @@ export async function GET(request: Request) {
             (nodeType ? ` — it is a "${nodeType}" object` : "") +
             `. ` +
             (visibleIds.length
-              ? `The only sending id on this WhatsApp Business Account is ${visibleIds.join(", ")}. ` +
-                `To use a second number, add it in WhatsApp Manager → Phone Numbers, complete verification, then copy THAT id into WHATSAPP_PHONE_NUMBER_ID_2.`
+              ? `The sending id on this WhatsApp Business Account is ${visibleIds.join(", ")}. Copy THAT id into WHATSAPP_PHONE_NUMBER_ID.`
               : `No numbers are visible on the configured WABA at all.`),
         };
+      } else {
+        check = {
+          id: phoneNumberId,
+          canSend: true,
+          nodeType,
+          displayNumber,
+          verifiedName: res.json?.verified_name ?? null,
+          quality: res.json?.quality_rating ?? null,
+          inConfiguredWaba: visibleIds.includes(phoneNumberId),
+        };
       }
+    }
+  }
 
-      return {
-        ...n,
-        canSend: true,
-        nodeType,
-        displayNumber,
-        verifiedName: res.json?.verified_name ?? null,
-        quality: res.json?.quality_rating ?? null,
-        inConfiguredWaba: visibleIds.includes(n.id),
-      };
-    })
-  );
-
-  const broken = checks.filter((c) => !c.canSend);
+  const canSend = !!check?.canSend;
   const verdict = tokenInfo.expired
     ? "The access token has EXPIRED. Replace WHATSAPP_TOKEN with a permanent System User token, then redeploy."
-    : broken.length === 0
-      ? configured.length
-        ? "All configured numbers are reachable — sending should work from every number."
-        : "No phone numbers are configured. Set WHATSAPP_PHONE_NUMBER_ID."
-      : `${broken.length} of ${configured.length} configured number(s) cannot be used. See checks[].fix.`;
+    : !phoneNumberId
+      ? "No phone number is configured. Set WHATSAPP_PHONE_NUMBER_ID."
+      : canSend
+        ? "The configured number is reachable — sending should work."
+        : "The configured number cannot be used. See check.fix.";
 
   return NextResponse.json({
-    success: broken.length === 0 && !tokenInfo.expired,
+    success: canSend && !tokenInfo.expired,
     verdict,
     token: tokenInfo,
     waba: { id: wabaId ?? null, error: wabaError, numbers: wabaNumbers },
-    checks,
+    check,
     // The ids this token really can send from — paste one of these into
-    // WHATSAPP_PHONE_NUMBER_ID / _2 if a check above failed.
+    // WHATSAPP_PHONE_NUMBER_ID if the check above failed.
     usableIds: visibleIds,
   });
 }

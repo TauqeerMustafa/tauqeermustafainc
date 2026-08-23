@@ -4,13 +4,11 @@
  * media id; this route handles the file-upload path.
  *
  * Accepts multipart/form-data:
- *   file          – the media file (required)
- *   fromNumberId  – which WhatsApp number to upload against (optional)
+ *   file – the media file (required)
  *
  * Returns: { success, id, mediaType, filename, mimeType }
  */
 import { NextResponse } from "next/server";
-import { resolveNumberId } from "@/lib/wa-numbers";
 
 const GRAPH_URL = "https://graph.facebook.com/v20.0";
 
@@ -40,9 +38,12 @@ export async function POST(request: Request) {
     return NextResponse.json({ success: false, error: "No file provided" }, { status: 400 });
   }
 
-  const phoneNumberId = resolveNumberId(form.get("fromNumberId") as string | null);
+  const phoneNumberId = process.env.WHATSAPP_PHONE_NUMBER_ID?.trim();
   if (!phoneNumberId) {
-    return NextResponse.json({ success: false, error: "No WhatsApp number configured" }, { status: 500 });
+    return NextResponse.json(
+      { success: false, error: "WHATSAPP_PHONE_NUMBER_ID is not configured" },
+      { status: 500 }
+    );
   }
 
   // WhatsApp media size caps (MB): image 5, video/audio 16, document 100.

@@ -55,16 +55,6 @@ export type MetaTemplate = {
   source?: "predefined" | "meta"; // "meta" = pulled in automatically from Meta
 };
 
-export type WaNumber = {
-  id: string;
-  label: string;
-  primary: boolean;
-  /** False when Meta cannot use this id to send (verified server-side). */
-  usable?: boolean;
-  displayNumber?: string | null;
-  reason?: string;
-};
-
 export type MediaKind = "image" | "video" | "audio" | "document" | "sticker";
 
 // ── Messages ─────────────────────────────────────────────────────────────────
@@ -90,7 +80,6 @@ type SendMessagePayload = {
   metaTemplateName?: string;
   templateVars?: string[];
   templateLanguage?: string;
-  fromNumberId?: string;
   // media
   mediaType?: MediaKind;
   mediaId?: string;
@@ -122,16 +111,6 @@ export function useSendWhatsAppMessage() {
   });
 }
 
-// ── Sending numbers (primary + optional second number) ───────────────────────
-
-export function useWaNumbers() {
-  return useQuery<{ success: boolean; data: WaNumber[] }>({
-    queryKey: ["whatsapp-numbers"],
-    queryFn: () => getJSON("/numbers"),
-    staleTime: 5 * 60 * 1000, // config rarely changes
-  });
-}
-
 // ── Media upload (returns a Meta media id to send with type: "media") ─────────
 
 export type UploadedMedia = {
@@ -143,10 +122,9 @@ export type UploadedMedia = {
   error?: string;
 };
 
-export async function uploadWhatsAppMedia(file: File, fromNumberId?: string): Promise<UploadedMedia> {
+export async function uploadWhatsAppMedia(file: File): Promise<UploadedMedia> {
   const form = new FormData();
   form.append("file", file);
-  if (fromNumberId) form.append("fromNumberId", fromNumberId);
   const res = await fetch(`${API_BASE}/upload`, { method: "POST", body: form });
   const data = await res.json();
   if (!res.ok || !data?.success) throw new Error(data?.error || "Upload failed");
@@ -312,9 +290,8 @@ export function useUpdateConversationMeta() {
 export function useDeleteConversation() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async ({ number, account, key }: { number: string; account?: string; key: string }) => {
+    mutationFn: async ({ number, key }: { number: string; key: string }) => {
       const params = new URLSearchParams({ number });
-      if (account) params.set("account", account);
       await fetch(`${API_BASE}/messages?${params.toString()}`, { method: "DELETE" });
       await fetch(`${API_BASE}/conversation-meta?key=${encodeURIComponent(key)}`, { method: "DELETE" });
       return { success: true };
