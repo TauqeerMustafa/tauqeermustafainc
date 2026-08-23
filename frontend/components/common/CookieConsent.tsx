@@ -1,18 +1,21 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 const CONSENT_KEY = "tmi_cookie_consent";
 
 type ConsentValue = "accepted" | "rejected";
 
 export default function CookieConsent() {
-  const [visible, setVisible] = useState(() => {
-    if (typeof window === "undefined") return false;
-    const stored = window.localStorage.getItem(CONSENT_KEY);
-    return !stored;
-  });
+  // Render nothing on the server AND on the first client render so the two match;
+  // only after mount do we consult localStorage and reveal the banner. Reading
+  // localStorage during render instead caused a site-wide hydration mismatch.
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    if (!window.localStorage.getItem(CONSENT_KEY)) setVisible(true);
+  }, []);
 
   function setConsent(value: ConsentValue) {
     window.localStorage.setItem(CONSENT_KEY, value);
