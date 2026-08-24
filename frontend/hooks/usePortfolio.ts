@@ -1,14 +1,14 @@
 "use client";
 
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 
 import { queryKeys } from "@/constants/query-keys";
-import { portfolioService, type PortfolioPayload } from "@/services/portfolio.service";
+import { portfolioService } from "@/services";
 
-export function usePortfolio(params?: { page?: number; pageSize?: number }) {
+export function usePortfolio() {
   return useQuery({
-    queryKey: [...queryKeys.portfolio.all, params],
-    queryFn: () => portfolioService.list(params),
+    queryKey: queryKeys.portfolio.all,
+    queryFn: portfolioService.list,
   });
 }
 
@@ -17,30 +17,5 @@ export function usePortfolioProject(slug: string) {
     queryKey: queryKeys.portfolio.detail(slug),
     queryFn: () => portfolioService.detail(slug),
     enabled: Boolean(slug),
-  });
-}
-
-export function useCreatePortfolioProject() {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: (payload: PortfolioPayload) => portfolioService.create(payload),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: queryKeys.portfolio.all }),
-  });
-}
-
-export function useUpdatePortfolioProject() {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: ({ id, payload }: { id: string; payload: Partial<PortfolioPayload> }) =>
-      portfolioService.update(id, payload),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: queryKeys.portfolio.all }),
-  });
-}
-
-export function useDeletePortfolioProject() {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: (id: string) => portfolioService.remove(id),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: queryKeys.portfolio.all }),
   });
 }

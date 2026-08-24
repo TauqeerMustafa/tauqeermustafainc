@@ -1,6 +1,6 @@
 export default function OfficeMap() {
   return (
-    <section className="overflow-hidden rounded-none border border-white/10 bg-white/5 backdrop-blur-xl">
+    <section className="overflow-hidden rounded-3xl border border-white/10 bg-white/5 backdrop-blur-xl">
 
       <div className="border-b border-white/10 p-8">
         <h2 className="text-3xl font-bold text-white">

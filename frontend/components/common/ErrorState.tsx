@@ -12,10 +12,10 @@ export function ErrorState({
   return (
     <div
       role="alert"
-      className="rounded-none border border-red-200 bg-red-50 p-6 text-[#0A0A0A]"
+      className="rounded-lg border border-red-200 bg-red-50 p-6 text-[#111827]"
     >
       <h2 className="text-lg font-semibold">{title}</h2>
-      <p className="mt-2 text-sm leading-6 text-[#737373]">{message}</p>
+      <p className="mt-2 text-sm leading-6 text-[#6B7280]">{message}</p>
       {action ? <div className="mt-5">{action}</div> : null}
     </div>
   );

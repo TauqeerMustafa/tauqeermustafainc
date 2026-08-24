@@ -1,41 +1,55 @@
-"use client";
-
 import { Gauge, Lock, Network, Users } from "lucide-react";
-import { GlowCard, Section, SectionHeader } from "./ui";
-import { IconFrame } from "./IconFrame";
+
+import { Card, IconFrame, Section, SectionHeader } from "@/components/home/ui";
 
 const reasons = [
-  { title: "Architecture before acceleration", description: "Reliability, observability, access control, and ownership are considered before implementation scales.", icon: Network, num: "01" },
-  { title: "Security built into delivery",      description: "Threat awareness, secure defaults, and remediation planning are included throughout the project lifecycle.", icon: Lock,    num: "02" },
-  { title: "Transparent execution",             description: "Milestones, risks, tradeoffs, and decisions stay visible so teams can move without ambiguity.", icon: Gauge,   num: "03" },
-  { title: "Business-aware engineering",        description: "Technical choices are tied to operational impact, user needs, and the commercial goals behind the product.", icon: Users,   num: "04" },
+  {
+    title: "Enterprise-first architecture",
+    description:
+      "Systems are designed with reliability, observability, access control, and long-term maintainability in mind.",
+    icon: Network,
+  },
+  {
+    title: "Security built into delivery",
+    description:
+      "Threat awareness, secure defaults, and clear remediation planning are included throughout the project lifecycle.",
+    icon: Lock,
+  },
+  {
+    title: "Fast, transparent execution",
+    description:
+      "Clear milestones, disciplined communication, and pragmatic decisions keep teams aligned from discovery to launch.",
+    icon: Gauge,
+  },
+  {
+    title: "Business-aware engineering",
+    description:
+      "Technical choices are tied to operational impact, user needs, and the commercial goals behind the product.",
+    icon: Users,
+  },
 ];
 
 export default function WhyChooseUs() {
   return (
-    <Section className="bg-[#FAFAFA]" labelledBy="why-title">
-      <div className="grid gap-12 lg:grid-cols-2 lg:gap-20">
-        <SectionHeader
-          id="why-title"
-          eyebrow="Why Teams Choose Us"
-          title="Reasons clients keep coming back"
-          description="Beyond process, this is what tends to matter most to the people we work with day to day."
-        />
+    <Section className="bg-white" labelledBy="why-title">
+      <SectionHeader
+        id="why-title"
+        eyebrow="Why choose us"
+        title="Practical expertise for high-stakes digital work"
+      />
 
-        <div className="grid gap-0">
-          {reasons.map((reason) => (
-            <GlowCard key={reason.title} className="border-t-0 border-x-0 !border-b border-[#E5E5E5] first:border-t py-6">
-              <div className="flex items-start gap-4 sm:gap-6">
-                <IconFrame icon={reason.icon} />
-                <div className="min-w-0">
-                  <span className="font-mono text-xs font-semibold text-[#A3A3A3]">{reason.num}</span>
-                  <h3 className="mt-1 text-lg font-semibold text-[#0A0A0A]">{reason.title}</h3>
-                  <p className="mt-2 text-base leading-7 text-[#525252]">{reason.description}</p>
-                </div>
-              </div>
-            </GlowCard>
-          ))}
-        </div>
+      <div className="mt-14 grid gap-6 md:grid-cols-2 xl:grid-cols-4">
+        {reasons.map((reason) => (
+          <Card key={reason.title}>
+            <IconFrame icon={reason.icon} />
+            <h3 className="mt-6 text-lg font-semibold text-[#111827]">
+              {reason.title}
+            </h3>
+            <p className="mt-4 text-sm leading-6 text-[#6B7280]">
+              {reason.description}
+            </p>
+          </Card>
+        ))}
       </div>
     </Section>
   );

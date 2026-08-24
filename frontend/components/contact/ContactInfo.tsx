@@ -1,40 +1,58 @@
-import { Mail, Phone, MapPin, Clock } from "lucide-react";
-
-import { company } from "@/data/company";
-import { IconFrame } from "@/components/home/IconFrame";
-
-const items = [
-  { label: "Email", value: company.email, icon: Mail, href: `mailto:${company.email}` },
-  { label: "Phone", value: company.phone, icon: Phone, href: `tel:${company.phone.replace(/\s+/g, "")}` },
-  { label: "Office", value: company.headquarters, icon: MapPin },
-  { label: "Working Hours", value: company.workingHours, icon: Clock },
-];
+import {
+  Mail,
+  Phone,
+  MapPin,
+  Clock,
+} from "lucide-react";
 
 export default function ContactInfo() {
   return (
-    <div className="rounded-none border border-[#E5E5E5] bg-white p-6 shadow-[0_1px_2px_rgba(17,24,39,0.04),0_18px_48px_rgba(17,24,39,0.05)] sm:p-8">
-      <h2 className="text-xl font-semibold text-[#0A0A0A]">Contact Information</h2>
-      <p className="mt-3 text-sm leading-6 text-[#737373]">
-        Reach out directly, or send a message and a member of the team will follow up within one business day.
-      </p>
+    <div className="space-y-8">
 
-      <div className="mt-8 space-y-6">
-        {items.map((item) => (
-          <div key={item.label} className="flex gap-4">
-            <IconFrame icon={item.icon} />
+      <div className="rounded-3xl border border-white/10 bg-white/5 p-8 backdrop-blur-xl">
+
+        <h2 className="mb-8 text-3xl font-bold text-white">
+          Contact Information
+        </h2>
+
+        <div className="space-y-6">
+
+          <div className="flex gap-4">
+            <Mail className="text-yellow-400" />
             <div>
-              <h3 className="text-sm font-semibold text-[#0A0A0A]">{item.label}</h3>
-              {item.href ? (
-                <a href={item.href} className="text-sm text-[#737373] transition hover:text-[#262626]">
-                  {item.value}
-                </a>
-              ) : (
-                <p className="text-sm text-[#737373]">{item.value}</p>
-              )}
+              <h3 className="font-semibold text-white">Email</h3>
+              <p className="text-slate-400">info@tauqeerinc.com</p>
             </div>
           </div>
-        ))}
+
+          <div className="flex gap-4">
+            <Phone className="text-yellow-400" />
+            <div>
+              <h3 className="font-semibold text-white">Phone</h3>
+              <p className="text-slate-400">+92 300 1234567</p>
+            </div>
+          </div>
+
+          <div className="flex gap-4">
+            <MapPin className="text-yellow-400" />
+            <div>
+              <h3 className="font-semibold text-white">Office</h3>
+              <p className="text-slate-400">Islamabad, Pakistan</p>
+            </div>
+          </div>
+
+          <div className="flex gap-4">
+            <Clock className="text-yellow-400" />
+            <div>
+              <h3 className="font-semibold text-white">Working Hours</h3>
+              <p className="text-slate-400">Mon - Fri | 9:00 AM - 6:00 PM</p>
+            </div>
+          </div>
+
+        </div>
+
       </div>
+
     </div>
   );
 }

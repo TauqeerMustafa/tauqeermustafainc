@@ -10,7 +10,6 @@ export interface Service extends CommonMetadata {
   shortDescription: string;
   description: string;
   icon?: string;
-  outcomes: string[];
 }
 
 export interface Blog extends CommonMetadata {
@@ -18,7 +17,6 @@ export interface Blog extends CommonMetadata {
   excerpt: string;
   content?: string;
   category: string;
-  isPublished: boolean;
   publishedAt?: string;
 }
 
@@ -26,7 +24,6 @@ export interface Portfolio extends CommonMetadata {
   title: string;
   summary: string;
   category: string;
-  impact?: string;
   technologies: string[];
   gallery?: string[];
 }
@@ -37,26 +34,6 @@ export interface Career extends CommonMetadata {
   type: string;
   summary: string;
   responsibilities?: string[];
-  isOpen: boolean;
-}
-
-export interface Announcement {
-  id: string;
-  title: string;
-  body: string;
-  isPublished: boolean;
-  createdAt: string;
-  updatedAt: string;
-}
-
-export interface ContactMessage {
-  id: string;
-  name: string;
-  email: string;
-  company?: string;
-  message: string;
-  isRead: boolean;
-  createdAt: string;
 }
 
 export interface Contact {
@@ -66,54 +43,10 @@ export interface Contact {
   company?: string;
 }
 
-export type UserStatus = "pending" | "approved" | "rejected" | "suspended";
-
 export interface User extends CommonMetadata {
   name: string;
   email: string;
   role?: string;
-  phone?: string;
-  status?: UserStatus;
-  permissions?: string[];
-}
-
-export interface AdminUser {
-  id: string;
-  name: string;
-  email: string;
-  phone?: string;
-  roleSlug?: string;
-  roleName?: string;
-  status: UserStatus;
-  teamId?: string;
-  teamName?: string;
-  approvedAt?: string;
-  createdAt: string;
-}
-
-export interface AdminRole {
-  id: string;
-  slug: string;
-  name: string;
-  hierarchyLevel: number;
-  description?: string;
-  isSystem: boolean;
-}
-
-export interface AdminTeam {
-  id: string;
-  name: string;
-  teamLeadId?: string;
-  teamLeadName?: string;
-  memberCount: number;
-  createdAt: string;
-}
-
-export interface AdminMetrics {
-  total: number;
-  pending: number;
-  approved: number;
-  suspended: number;
 }
 
 export interface LoginCredentials {

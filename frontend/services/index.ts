@@ -1,9 +1,6 @@
-﻿export { adminService } from "./admin.service";
-export type { AdminUserListParams, CreateAdminUserPayload, UpdateAdminUserPayload } from "./admin.service";
-export { announcementService } from "./announcement.service";
-export { authService } from "./auth.service";
-export { blogService } from "./blog.service";
-export { careerService } from "./career.service";
-export { contactService } from "./contact.service";
-export { portfolioService } from "./portfolio.service";
-export { serviceService } from "./service.service";
+export { authService } from "@/services/auth.service";
+export { blogService } from "@/services/blog.service";
+export { careerService } from "@/services/career.service";
+export { contactService } from "@/services/contact.service";
+export { portfolioService } from "@/services/portfolio.service";
+export { serviceService } from "@/services/service.service";

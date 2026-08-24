@@ -1,10 +1,4 @@
-"use client";
-
-import { useEffect, useRef, useState } from "react";
-import Image from "next/image";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { Menu, X } from "lucide-react";
 
 const navLinks = [
   { name: "Home", href: "/" },
@@ -16,45 +10,24 @@ const navLinks = [
   { name: "Contact", href: "/contact" },
 ];
 
-const linkClass =
-  "border-b-2 border-transparent px-2 py-2 text-sm font-medium text-[#525252] transition hover:border-[#D4D4D4] hover:text-[#0A0A0A] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0A0A0A]";
-
 export default function Navbar() {
-  const pathname = usePathname();
-  const [isOpen, setIsOpen] = useState(false);
-  const detailsRef = useRef<HTMLDetailsElement>(null);
-
-  useEffect(() => {
-    const closeMenu = window.setTimeout(() => setIsOpen(false), 0);
-    return () => window.clearTimeout(closeMenu);
-  }, [pathname]);
-
   return (
-    <header className="sticky top-0 z-50 border-b border-[#E5E5E5] bg-white/95 shadow-[0_1px_8px_rgba(17,24,39,0.04)] supports-[backdrop-filter]:bg-white/88 supports-[backdrop-filter]:backdrop-blur-md">
-      <nav className="mx-auto flex min-h-[4.5rem] max-w-7xl items-center justify-between gap-4 px-5 py-3 sm:px-6 lg:gap-6">
+    <header className="sticky top-0 z-50 border-b border-[#E5E7EB] bg-white/95 backdrop-blur">
+      <nav className="mx-auto flex h-16 max-w-7xl items-center justify-between px-6">
         <Link
           href="/"
-          className="inline-flex min-h-10 items-center gap-2 pr-3 text-sm font-semibold tracking-tight text-[#0A0A0A] transition hover:text-[#262626] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#0A0A0A] sm:text-base"
+          className="inline-flex items-center gap-2 text-base font-semibold tracking-tight text-[#111827] transition hover:text-[#A67C00] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#C9A227]"
         >
-          <span className="relative flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden border border-[#E5E5E5] bg-[#FAFAFA]">
-            <Image
-              src="/logo-mark.svg"
-              alt=""
-              fill
-              sizes="36px"
-              className="object-cover"
-            />
-          </span>
+          <span className="h-2.5 w-2.5 rounded-full bg-[#C9A227]" aria-hidden="true" />
           Tauqeer Mustafa Inc.
         </Link>
 
-        <ul className="hidden items-center gap-1 lg:flex">
+        <ul className="hidden items-center gap-7 md:flex">
           {navLinks.map((link) => (
             <li key={link.name}>
               <Link
                 href={link.href}
-                aria-current={pathname === link.href ? "page" : undefined}
-                className={`${linkClass} ${pathname === link.href ? "border-[#0A0A0A] text-[#0A0A0A]" : ""}`}
+                className="text-sm font-medium text-[#6B7280] transition hover:text-[#A67C00] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#C9A227]"
               >
                 {link.name}
               </Link>
@@ -62,73 +35,12 @@ export default function Navbar() {
           ))}
         </ul>
 
-        <div className="hidden items-center gap-2 sm:flex">
-          <Link
-            href="/login"
-            className="px-3 py-2 text-sm font-semibold text-[#0A0A0A] transition hover:text-[#262626] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#0A0A0A]"
-          >
-            Login
-          </Link>
-          <Link
-            href="/contact"
-            className="rounded-none bg-[#0A0A0A] px-4 py-2 text-sm font-semibold text-white shadow-[0_4px_12px_rgba(0,0,0,0.25)] transition hover:bg-[#262626] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#0A0A0A]"
-          >
-            Start
-          </Link>
-        </div>
-
-        <details ref={detailsRef} open={isOpen} className="group relative lg:hidden">
-          {isOpen ? (
-            <div
-              className="fixed inset-0 z-40 lg:hidden"
-              aria-hidden="true"
-              onClick={() => setIsOpen(false)}
-            />
-          ) : null}
-          <summary
-            onClick={(event) => {
-              event.preventDefault();
-              setIsOpen((prev) => !prev);
-            }}
-            className="relative z-50 flex h-11 w-11 cursor-pointer list-none items-center justify-center rounded-none border border-[#E5E5E5] bg-white text-[#0A0A0A] transition hover:bg-[#F4F4F4] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#0A0A0A] [&::-webkit-details-marker]:hidden"
-          >
-            {isOpen ? <X className="h-5 w-5" aria-hidden="true" /> : <Menu className="h-5 w-5" aria-hidden="true" />}
-            <span className="sr-only">{isOpen ? "Close navigation" : "Open navigation"}</span>
-          </summary>
-
-          <div className="absolute right-0 top-14 z-50 w-[min(22rem,calc(100vw-2.5rem))] border border-[#E5E5E5] bg-white p-3 shadow-[0_16px_36px_rgba(17,24,39,0.12)]">
-            <ul className="grid gap-1">
-              {navLinks.map((link) => (
-                <li key={link.name}>
-                  <Link
-                    href={link.href}
-                    onClick={() => setIsOpen(false)}
-                    aria-current={pathname === link.href ? "page" : undefined}
-                    className={`block border-l-2 px-4 py-3 text-sm font-semibold transition hover:bg-[#FAFAFA] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0A0A0A] ${pathname === link.href ? "border-[#0A0A0A] bg-[#FAFAFA] text-[#0A0A0A]" : "border-transparent text-[#525252]"}`}
-                  >
-                    {link.name}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-            <div className="mt-3 grid grid-cols-2 gap-2 border-t border-[#E5E5E5] pt-3">
-              <Link
-                href="/login"
-                onClick={() => setIsOpen(false)}
-                className="rounded-none border border-[#E5E5E5] px-4 py-3 text-center text-sm font-semibold text-[#0A0A0A] transition hover:bg-[#F4F4F4] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0A0A0A]"
-              >
-                Login
-              </Link>
-              <Link
-                href="/contact"
-                onClick={() => setIsOpen(false)}
-                className="rounded-none bg-[#0A0A0A] px-4 py-3 text-center text-sm font-semibold text-white transition hover:bg-[#262626] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0A0A0A]"
-              >
-                Start
-              </Link>
-            </div>
-          </div>
-        </details>
+        <Link
+          href="/login"
+          className="rounded-lg bg-[#111827] px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-[#1F2937] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#C9A227]"
+        >
+          Login
+        </Link>
       </nav>
     </header>
   );
