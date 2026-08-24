@@ -1,0 +1,68 @@
+import { API_ENDPOINTS } from "@/constants/api";
+import { apiRequest } from "@/lib/api-client";
+import type { ApiResponse, PaginatedResponse } from "@/types/api";
+import type { AdminMetrics, AdminRole, AdminTeam, AdminUser, UserStatus } from "@/types";
+
+export interface AdminUserListParams {
+  page?: number;
+  pageSize?: number;
+  search?: string;
+  status?: UserStatus | "all";
+}
+
+export interface CreateAdminUserPayload {
+  name: string;
+  email: string;
+  password: string;
+  phone?: string;
+  roleSlug: string;
+  teamId?: string;
+  status: UserStatus;
+}
+
+export interface UpdateAdminUserPayload {
+  roleSlug?: string;
+  teamId?: string | null;
+  status?: UserStatus;
+}
+
+export const adminService = {
+  users: (params: AdminUserListParams = {}) =>
+    apiRequest<ApiResponse<PaginatedResponse<AdminUser>>>({
+      url: API_ENDPOINTS.admin.users,
+      method: "GET",
+      params: {
+        page: params.page ?? 1,
+        page_size: params.pageSize ?? 20,
+        ...(params.search ? { search: params.search } : {}),
+        ...(params.status && params.status !== "all" ? { status: params.status } : {}),
+      },
+    }),
+  createUser: (payload: CreateAdminUserPayload) =>
+    apiRequest<ApiResponse<AdminUser>>({
+      url: API_ENDPOINTS.admin.users,
+      method: "POST",
+      data: payload,
+    }),
+  updateUser: (id: string, payload: UpdateAdminUserPayload) =>
+    apiRequest<ApiResponse<AdminUser>>({
+      url: `${API_ENDPOINTS.admin.users}/${id}`,
+      method: "PATCH",
+      data: payload,
+    }),
+  roles: () =>
+    apiRequest<ApiResponse<AdminRole[]>>({
+      url: API_ENDPOINTS.admin.roles,
+      method: "GET",
+    }),
+  teams: () =>
+    apiRequest<ApiResponse<AdminTeam[]>>({
+      url: API_ENDPOINTS.admin.teams,
+      method: "GET",
+    }),
+  metrics: () =>
+    apiRequest<ApiResponse<AdminMetrics>>({
+      url: API_ENDPOINTS.admin.metrics,
+      method: "GET",
+    }),
+};

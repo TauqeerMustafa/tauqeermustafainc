@@ -23,6 +23,10 @@ class UserRead(CamelModel):
     name: str
     email: str
     role: str
+    phone: str | None = None
+    status: str = "approved"
+    # Permission slugs granted by the user's role; drives role-based UI gating.
+    permissions: list[str] = Field(default_factory=list)
     created_at: datetime
     updated_at: datetime
 

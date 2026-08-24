@@ -13,6 +13,7 @@ import {
   Mail,
   MessageSquare,
   Settings,
+  ShieldCheck,
   X,
   ChevronRight,
 } from "lucide-react";
@@ -26,6 +27,7 @@ const links = [
   { title: "Announcements", href: "/admin/announcements", icon: Bell },
   { title: "Messages",      href: "/admin/messages",      icon: Mail },
   { title: "WhatsApp",      href: "/admin/whatsapp",      icon: MessageSquare },
+  { title: "Users",         href: "/admin/users",           icon: ShieldCheck },
   { title: "Settings",      href: "/admin/settings",      icon: Settings },
 ];
 

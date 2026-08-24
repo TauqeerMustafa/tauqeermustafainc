@@ -1,4 +1,10 @@
 export const queryKeys = {
+  admin: {
+    users: ["admin", "users"] as const,
+    roles: ["admin", "roles"] as const,
+    teams: ["admin", "teams"] as const,
+    metrics: ["admin", "metrics"] as const,
+  },
   services: {
     all: ["services"] as const,
     detail: (slug: string) => ["services", slug] as const,

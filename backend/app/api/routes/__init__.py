@@ -1,5 +1,6 @@
 from fastapi import APIRouter
 
+from app.api.routes.admin import router as admin_router
 from app.api.routes.announcement import router as announcement_router
 from app.api.routes.auth import router as auth_router
 from app.api.routes.blog import router as blog_router
@@ -12,6 +13,7 @@ from app.api.routes.system import router as system_router
 router = APIRouter()
 
 router.include_router(system_router)
+router.include_router(admin_router)
 router.include_router(auth_router)
 router.include_router(service_router)
 router.include_router(blog_router)

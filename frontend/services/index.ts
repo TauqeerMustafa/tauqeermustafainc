@@ -1,4 +1,6 @@
-﻿export { announcementService } from "./announcement.service";
+﻿export { adminService } from "./admin.service";
+export type { AdminUserListParams, CreateAdminUserPayload, UpdateAdminUserPayload } from "./admin.service";
+export { announcementService } from "./announcement.service";
 export { authService } from "./auth.service";
 export { blogService } from "./blog.service";
 export { careerService } from "./career.service";

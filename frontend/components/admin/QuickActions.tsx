@@ -1,12 +1,13 @@
 import Link from "next/link";
-import { Plus, FileText, Briefcase, FolderOpen, Bell, Users } from "lucide-react";
+import { Plus, FileText, Briefcase, FolderOpen, Bell, Users, ShieldCheck } from "lucide-react";
 
 const actions = [
   { title: "New Blog Post",    href: "/admin/blog",          icon: FileText,  color: "blue" },
   { title: "Add Service",      href: "/admin/services",      icon: Briefcase, color: "green" },
   { title: "New Portfolio",    href: "/admin/portfolio",     icon: FolderOpen,color: "amber" },
   { title: "Announcement",     href: "/admin/announcements", icon: Bell,      color: "red" },
-  { title: "View Messages",    href: "/admin/messages",      icon: Users,     color: "blue" },
+  { title: "View Messages",    href: "/admin/messages",      icon: Users,       color: "blue" },
+  { title: "Manage Users",    href: "/admin/users",          icon: ShieldCheck, color: "green" },
 ];
 
 const iconColors: Record<string, { bg: string; icon: string; border: string }> = {

@@ -66,10 +66,54 @@ export interface Contact {
   company?: string;
 }
 
+export type UserStatus = "pending" | "approved" | "rejected" | "suspended";
+
 export interface User extends CommonMetadata {
   name: string;
   email: string;
   role?: string;
+  phone?: string;
+  status?: UserStatus;
+  permissions?: string[];
+}
+
+export interface AdminUser {
+  id: string;
+  name: string;
+  email: string;
+  phone?: string;
+  roleSlug?: string;
+  roleName?: string;
+  status: UserStatus;
+  teamId?: string;
+  teamName?: string;
+  approvedAt?: string;
+  createdAt: string;
+}
+
+export interface AdminRole {
+  id: string;
+  slug: string;
+  name: string;
+  hierarchyLevel: number;
+  description?: string;
+  isSystem: boolean;
+}
+
+export interface AdminTeam {
+  id: string;
+  name: string;
+  teamLeadId?: string;
+  teamLeadName?: string;
+  memberCount: number;
+  createdAt: string;
+}
+
+export interface AdminMetrics {
+  total: number;
+  pending: number;
+  approved: number;
+  suspended: number;
 }
 
 export interface LoginCredentials {
