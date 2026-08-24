@@ -9,11 +9,8 @@ import {
   TextLink,
 } from "@/components/home/ui";
 import { IconFrame } from "@/components/home/IconFrame";
-import { getServices } from "@/lib/site-content";
+import { services } from "@/lib/site-data";
 import { buildMetadata } from "@/lib/metadata";
-
-// Render fresh so services edited in /admin appear immediately.
-export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = buildMetadata({
   title: "Services",
@@ -31,8 +28,7 @@ const iconsBySlug: Record<string, typeof Code2> = {
   "ui-ux-product-design": PenTool,
 };
 
-export default async function ServicesPage() {
-  const services = await getServices();
+export default function ServicesPage() {
   return (
     <>
       <PageHero
@@ -44,7 +40,7 @@ export default async function ServicesPage() {
         imageCaption="Web, security, AI, cloud, and design under one delivery team."
       />
 
-      <Section className="bg-[#f3f0ee]" labelledBy="services-list">
+      <Section className="bg-[#FAFAFA]" labelledBy="services-list">
         <SectionHeader
           id="services-list"
           eyebrow="Capabilities"
@@ -55,7 +51,7 @@ export default async function ServicesPage() {
           {services.map((service) => (
             <Card key={service.slug}>
               <IconFrame icon={iconsBySlug[service.slug] ?? Code2} />
-              <h2 className="mt-7 text-xl font-semibold text-[#141413]">
+              <h2 className="mt-7 text-xl font-semibold text-[#0A0A0A]">
                 {service.title}
               </h2>
               <p className="mt-4 text-base leading-7 text-[#737373]">

@@ -3,61 +3,42 @@
 import Link from "next/link";
 import { ArrowRight, Mail, Phone } from "lucide-react";
 import { company } from "@/data/company";
-import { Reveal, scaleIn } from "./ui";
+import { Eyebrow, Reveal, scaleIn } from "./ui";
 
 export default function CTA() {
   return (
-    /* BMW M dark canvas with M-stripe accent */
-    <section className="bg-[#1a2129] px-5 py-20 sm:px-6 sm:py-24 lg:py-32">
+    <section className="tmi-dot-grid bg-white px-5 py-16 sm:px-6 sm:py-20 lg:py-28">
       <Reveal variant={scaleIn} className="mx-auto max-w-4xl">
-        <div className="relative overflow-hidden rounded-[24px] border border-white/10 bg-[#0d0d0d] px-8 py-12 text-center shadow-2xl sm:px-12 sm:py-16 lg:px-16 lg:py-20">
-          {/* M-stripe top accent */}
-          <div className="absolute left-0 right-0 top-0 flex h-1">
-            <span className="flex-1 bg-[#0066b1]" />
-            <span className="flex-1 bg-[#1c69d4]" />
-            <span className="flex-1 bg-[#e22718]" />
-          </div>
-
-          <p className="font-mono text-[11px] font-semibold uppercase tracking-[0.14em] text-[#1c69d4]">
-            Start a Conversation
-          </p>
-
-          <h2 className="mt-5 text-balance text-[32px] font-bold uppercase leading-[1.1] tracking-[-0.02em] text-white sm:text-[42px] lg:text-[48px]">
+        <div className="tmi-corners relative overflow-hidden border border-[#262626] bg-[#171717] p-8 text-center shadow-[0_24px_64px_rgba(0,0,0,0.18)] sm:p-12 lg:p-16">
+          <Eyebrow light>Start a Conversation</Eyebrow>
+          <h2 className="mt-5 text-balance text-3xl font-semibold tracking-tight text-white sm:text-4xl lg:text-5xl">
             Have a project or a risk you need eyes on?
           </h2>
-
-          <p className="mx-auto mt-6 max-w-2xl text-pretty text-[17px] font-light leading-[1.6] tracking-[-0.01em] text-white/65 sm:text-[18px]">
-            Tell us what you&apos;re building or defending. We&apos;ll tell you plainly whether
-            we&apos;re the right team for it — no pressure, no sales pitch.
+          <p className="mx-auto mt-6 max-w-2xl text-pretty text-lg leading-8 text-white/60">
+            Tell us what you are building or defending. We will tell you plainly whether
+            we are the right team for it — no pressure, no sales pitch.
           </p>
 
           <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
             <Link
               href="/contact"
-              className="group inline-flex w-full items-center justify-center gap-2 bg-[#1c69d4] px-7 py-3.5 font-mono text-[12px] font-bold uppercase tracking-[0.1em] text-white transition-colors hover:bg-[#0066b1] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1c69d4] sm:w-auto"
+              className="press inline-flex min-h-13 items-center gap-2 bg-white px-8 text-base font-semibold text-[#0A0A0A] shadow-[0_8px_24px_rgba(255,255,255,0.12)] transition hover:bg-white/90 hover:-translate-y-0.5"
             >
-              Get a Quote
-              <ArrowRight className="h-3.5 w-3.5 transition-transform duration-300 group-hover:translate-x-0.5" aria-hidden />
+              Contact Us <ArrowRight className="h-4 w-4" aria-hidden />
             </Link>
             <Link
               href={`mailto:${company.email}`}
-              className="inline-flex w-full items-center justify-center gap-2 border-2 border-white/25 bg-transparent px-7 py-3.5 font-mono text-[12px] font-bold uppercase tracking-[0.1em] text-white transition-colors hover:border-white/50 hover:bg-white/[0.08] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white sm:w-auto"
+              className="press inline-flex min-h-13 items-center gap-2 border border-white/30 px-8 text-base font-semibold text-white transition hover:border-white/60 hover:bg-white/10 hover:-translate-y-0.5"
             >
-              <Mail className="h-3.5 w-3.5" aria-hidden /> Email Us
+              <Mail className="h-4 w-4" aria-hidden /> Email us directly
             </Link>
           </div>
 
-          <div className="mt-10 flex flex-col items-center justify-center gap-4 border-t border-white/10 pt-8 text-[14px] font-light text-white/50 sm:flex-row sm:gap-8">
-            <a
-              href={`mailto:${company.email}`}
-              className="flex items-center gap-2 transition-colors hover:text-[#1c69d4]"
-            >
+          <div className="mt-10 flex flex-col items-center justify-center gap-4 border-t border-white/15 pt-8 sm:flex-row sm:gap-8 text-sm text-white/60">
+            <a href={`mailto:${company.email}`} className="flex items-center gap-2 transition hover:text-white">
               <Mail className="h-4 w-4" aria-hidden /> {company.email}
             </a>
-            <a
-              href={`tel:${company.phone.replace(/\s+/g, "")}`}
-              className="flex items-center gap-2 transition-colors hover:text-[#1c69d4]"
-            >
+            <a href={`tel:${company.phone}`} className="flex items-center gap-2 transition hover:text-white">
               <Phone className="h-4 w-4" aria-hidden /> {company.phone}
             </a>
           </div>

@@ -12,13 +12,8 @@ import {
 } from "@/components/home/ui";
 import { IconFrame } from "@/components/home/IconFrame";
 import { FaqAccordion } from "@/components/services/FaqAccordion";
-import { getService, getServices } from "@/lib/site-content";
+import { services } from "@/lib/site-data";
 import { buildMetadata } from "@/lib/metadata";
-import { serviceSchema, breadcrumbSchema } from "@/lib/schema";
-import { faqSchema } from "@/lib/faq-schema";
-
-// Render fresh so services edited in /admin appear immediately.
-export const dynamic = "force-dynamic";
 
 const imageBySlug: Record<string, string> = {
   "enterprise-web-development": "https://images.unsplash.com/photo-1483058712412-4245e9b90334?auto=format&fit=crop&w=1600&q=80",
@@ -28,13 +23,17 @@ const imageBySlug: Record<string, string> = {
   "ui-ux-product-design": "https://images.unsplash.com/photo-1550439062-609e1531270e?auto=format&fit=crop&w=1600&q=80",
 };
 
+export function generateStaticParams() {
+  return services.map((service) => ({ slug: service.slug }));
+}
+
 export async function generateMetadata({
   params,
 }: {
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
-  const service = await getService(slug);
+  const service = services.find((item) => item.slug === slug);
 
   if (!service) return {};
 
@@ -52,52 +51,14 @@ export default async function ServiceDetailPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const [service, allServices] = await Promise.all([getService(slug), getServices()]);
+  const service = services.find((item) => item.slug === slug);
 
   if (!service) {
     notFound();
   }
 
-  // Generate structured data for SEO
-  const serviceSchemaData = serviceSchema({
-    name: service.title,
-    description: service.description,
-    slug: service.slug,
-  });
-
-  const breadcrumbs = breadcrumbSchema([
-    { name: "Home", url: "https://tauqeermustafa.tech" },
-    { name: "Services", url: "https://tauqeermustafa.tech/services" },
-    { name: service.title, url: `https://tauqeermustafa.tech/services/${service.slug}` },
-  ]);
-
-  // Convert service FAQs to schema format if they exist
-  const faqSchemaData = service.faqs
-    ? faqSchema(
-        service.faqs.map((faq) => ({
-          question: faq.question,
-          answer: faq.answer,
-        }))
-      )
-    : null;
-
   return (
     <>
-      {/* Structured data for SEO */}
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(serviceSchemaData) }}
-      />
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbs) }}
-      />
-      {faqSchemaData && (
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchemaData) }}
-        />
-      )}
       <PageHero
         eyebrow="Service"
         title={service.title}
@@ -109,7 +70,7 @@ export default async function ServiceDetailPage({
         <PrimaryButton href="/contact">Discuss This Service</PrimaryButton>
       </PageHero>
 
-      <Section className="bg-[#f3f0ee]" labelledBy="service-outcomes">
+      <Section className="bg-[#FAFAFA]" labelledBy="service-outcomes">
         <div className="grid gap-10 lg:grid-cols-[1.1fr_0.9fr] lg:items-start">
           <div>
             <SectionHeader
@@ -121,8 +82,8 @@ export default async function ServiceDetailPage({
               {service.outcomes.map((outcome) => (
                 <Card key={outcome} className="hover:translate-y-0">
                   <div className="flex gap-3">
-                    <CheckCircle2 className="mt-0.5 h-5 w-5 text-[#141413]" aria-hidden />
-                    <p className="font-medium text-[#141413]">{outcome}</p>
+                    <CheckCircle2 className="mt-0.5 h-5 w-5 text-[#0A0A0A]" aria-hidden />
+                    <p className="font-medium text-[#171717]">{outcome}</p>
                   </div>
                 </Card>
               ))}
@@ -130,18 +91,18 @@ export default async function ServiceDetailPage({
           </div>
 
           <Card className="hover:translate-y-0">
-            <h2 className="text-xl font-semibold text-[#141413]">Other services</h2>
+            <h2 className="text-xl font-semibold text-[#0A0A0A]">Other services</h2>
             <p className="mt-3 text-sm leading-6 text-[#737373]">
               Most engagements combine more than one capability &mdash; explore the rest of what we offer.
             </p>
             <ul className="mt-6 space-y-3">
-              {allServices
+              {services
                 .filter((item) => item.slug !== service.slug)
                 .map((item) => (
                   <li key={item.slug}>
                     <Link
                       href={`/services/${item.slug}`}
-                      className="block border-t border-[#e2ded9] pt-3 text-sm font-semibold text-[#141413] transition hover:text-[#2a2a28]"
+                      className="block border-t border-[#E5E5E5] pt-3 text-sm font-semibold text-[#0A0A0A] transition hover:text-[#262626]"
                     >
                       {item.title}
                     </Link>
@@ -166,7 +127,7 @@ export default async function ServiceDetailPage({
                 <div className="flex items-center gap-3">
                   <IconFrame icon={() => <span className="text-sm font-bold">{index + 1}</span>} />
                 </div>
-                <h3 className="mt-4 font-semibold text-[#141413]">{step.title}</h3>
+                <h3 className="mt-4 font-semibold text-[#0A0A0A]">{step.title}</h3>
                 <p className="mt-2 text-sm leading-6 text-[#737373]">{step.detail}</p>
               </Card>
             ))}
@@ -175,7 +136,7 @@ export default async function ServiceDetailPage({
       )}
 
       {service.faqs && (
-        <Section className="bg-[#f3f0ee]" labelledBy="service-faqs">
+        <Section className="bg-[#FAFAFA]" labelledBy="service-faqs">
           <div className="grid gap-10 lg:grid-cols-[0.9fr_1.1fr]">
             <SectionHeader
               id="service-faqs"

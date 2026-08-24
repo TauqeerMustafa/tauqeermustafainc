@@ -37,7 +37,7 @@ export default function VisualIndex() {
           <motion.div
             key={src}
             variants={{ hidden: { opacity: 0, y: 24 }, show: { opacity: 1, y: 0 } }}
-            className={`img-zoom group relative overflow-hidden border border-[#e2ded9] shadow-[0_4px_20px_rgba(0,0,0,0.06)] transition-all duration-500 hover:shadow-[0_16px_48px_rgba(0,0,0,0.12)] hover:border-[#141413] ${aspects[i]} ${offsets[i]}`}
+            className={`img-zoom group relative overflow-hidden border border-[#E5E5E5] shadow-[0_4px_20px_rgba(0,0,0,0.06)] transition-all duration-500 hover:shadow-[0_16px_48px_rgba(0,0,0,0.12)] hover:border-[#0A0A0A] ${aspects[i]} ${offsets[i]}`}
           >
             <Image
               src={src}

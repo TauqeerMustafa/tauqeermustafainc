@@ -9,11 +9,8 @@ import {
   TextLink,
 } from "@/components/home/ui";
 import { IconFrame } from "@/components/home/IconFrame";
-import { getJobs } from "@/lib/site-content";
+import { jobs } from "@/lib/site-data";
 import { buildMetadata } from "@/lib/metadata";
-
-// Render fresh so roles edited in /admin appear immediately.
-export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = buildMetadata({
   title: "Careers",
@@ -28,8 +25,7 @@ const benefits = [
   { title: "Responsible pace", description: "Deliver with discipline, quality, and sustainable planning.", icon: HeartHandshake },
 ];
 
-export default async function CareersPage() {
-  const jobs = await getJobs();
+export default function CareersPage() {
   return (
     <>
       <PageHero
@@ -41,17 +37,17 @@ export default async function CareersPage() {
         imageCaption="Small, focused teams with transparent milestones."
       />
 
-      <Section className="bg-[#f3f0ee]" labelledBy="open-positions">
+      <Section className="bg-[#FAFAFA]" labelledBy="open-positions">
         <SectionHeader id="open-positions" eyebrow="Open positions" title="Current roles" />
         <div className="mt-14 grid gap-6">
           {jobs.map((job) => (
             <Card key={job.slug}>
               <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
                 <div>
-                  <p className="text-sm font-semibold text-[#2a2a28]">
+                  <p className="text-sm font-semibold text-[#262626]">
                     {job.location} / {job.type}
                   </p>
-                  <h2 className="mt-2 text-xl font-semibold text-[#141413]">{job.title}</h2>
+                  <h2 className="mt-2 text-xl font-semibold text-[#0A0A0A]">{job.title}</h2>
                   <p className="mt-3 max-w-3xl text-base leading-7 text-[#737373]">
                     {job.summary}
                   </p>
@@ -69,7 +65,7 @@ export default async function CareersPage() {
           {benefits.map((benefit) => (
             <Card key={benefit.title}>
               <IconFrame icon={benefit.icon} />
-              <h2 className="mt-6 text-xl font-semibold text-[#141413]">{benefit.title}</h2>
+              <h2 className="mt-6 text-xl font-semibold text-[#0A0A0A]">{benefit.title}</h2>
               <p className="mt-4 text-base leading-7 text-[#737373]">{benefit.description}</p>
             </Card>
           ))}

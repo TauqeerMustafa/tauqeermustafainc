@@ -2,7 +2,7 @@ import { company } from "@/data/company";
 
 export default function ContactMap() {
   return (
-    <div className="overflow-hidden border border-[#e2ded9] bg-white shadow-[0_1px_2px_rgba(17,24,39,0.04),0_18px_48px_rgba(17,24,39,0.05)]">
+    <div className="overflow-hidden border border-[#E5E5E5] bg-white shadow-[0_1px_2px_rgba(17,24,39,0.04),0_18px_48px_rgba(17,24,39,0.05)]">
       <iframe
         src={company.mapEmbedUrl}
         title={`${company.name} location on Google Maps`}

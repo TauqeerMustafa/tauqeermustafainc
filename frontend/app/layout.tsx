@@ -6,29 +6,24 @@ import { cn } from "@/lib/utils";
 import { appConfig } from "@/config/app";
 import { company } from "@/data/company";
 import CookieConsent from "@/components/common/CookieConsent";
-import { organizationSchema, localBusinessSchema, websiteSchema } from "@/lib/schema";
 
 export const metadata: Metadata = {
   metadataBase: new URL(appConfig.siteUrl),
   title: {
-    default: "Tauqeer Mustafa Inc. | Web Development, Cybersecurity & AI Services",
-    template: "%s | TMI",
+    default: "Tauqeer Mustafa Inc. | Enterprise Software, Security & AI",
+    template: "%s | Tauqeer Mustafa Inc.",
   },
   description:
-    "Full-stack web development, cybersecurity consulting, AI automation, and cloud engineering for businesses worldwide. Security-first engineering from a team that ships.",
+    "Tauqeer Mustafa Inc. delivers enterprise web development, cybersecurity, AI automation, cloud engineering, and product design for growing organizations.",
   keywords: [
-    "web development",
+    "enterprise web development",
     "cybersecurity consulting",
-    "AI automation services",
+    "AI automation",
     "cloud engineering",
-    "full stack development",
-    "security-first development",
-    "software engineering firm",
+    "product design",
     "Tauqeer Mustafa",
   ],
-  authors: [{ name: "Tauqeer Mustafa", url: appConfig.siteUrl }],
-  creator: "Tauqeer Mustafa",
-  publisher: company.name,
+  authors: [{ name: company.name, url: appConfig.siteUrl }],
   applicationName: company.name,
   icons: {
     icon: "/logo-mark.svg",
@@ -39,33 +34,34 @@ export const metadata: Metadata = {
     siteName: company.name,
     locale: "en_US",
     url: appConfig.siteUrl,
-    title: "Tauqeer Mustafa Inc. | Web Development, Cybersecurity & AI Services",
+    title: "Tauqeer Mustafa Inc. | Enterprise Software, Security & AI",
     description:
-      "Full-stack web development, cybersecurity consulting, AI automation, and cloud engineering. Security-first engineering, delivered globally.",
-    images: [{ url: "https://images.unsplash.com/photo-1518186285589-2f7649de83e0?auto=format&fit=crop&w=1600&q=80", width: 1200, height: 630, alt: "Tauqeer Mustafa Inc. - Digital Agency" }],
+      "Enterprise web development, cybersecurity, AI automation, cloud engineering, and product design.",
+    images: [{ url: "https://images.unsplash.com/photo-1518186285589-2f7649de83e0?auto=format&fit=crop&w=1600&q=80", width: 1200, height: 630 }],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Tauqeer Mustafa Inc. | Web Development, Cybersecurity & AI",
+    title: "Tauqeer Mustafa Inc.",
     description:
-      "Full-stack web development, cybersecurity, AI automation, and cloud engineering — security-first, globally delivered.",
+      "Enterprise web development, cybersecurity, AI automation, cloud engineering, and product design.",
     images: ["https://images.unsplash.com/photo-1518186285589-2f7649de83e0?auto=format&fit=crop&w=1600&q=80"],
   },
   robots: { index: true, follow: true },
-  verification: {
-    // Add when you get these from Google/Bing
-    // google: 'your-google-site-verification-code',
-    // bing: 'your-bing-verification-code',
-  },
 };
 
-const jsonLdSchemas = {
+const organizationJsonLd = {
   "@context": "https://schema.org",
-  "@graph": [
-    organizationSchema(),
-    localBusinessSchema(),
-    websiteSchema(),
-  ],
+  "@type": "Organization",
+  name: company.name,
+  url: appConfig.siteUrl,
+  logo: "/logo-mark.svg",
+  email: company.email,
+  telephone: company.phone,
+  address: {
+    "@type": "PostalAddress",
+    addressLocality: company.headquarters,
+  },
+  sameAs: [company.social.github, company.social.linkedin].filter(Boolean),
 };
 
 export default function RootLayout({
@@ -81,10 +77,10 @@ export default function RootLayout({
       <head>
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdSchemas) }}
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }}
         />
       </head>
-      <body className="flex min-h-screen flex-col overflow-x-hidden bg-[#f3f0ee] text-[#141413]">
+      <body className="min-h-screen flex flex-col overflow-x-hidden bg-white text-[#0A0A0A]">
         <AppProviders>
           {children}
           <CookieConsent />

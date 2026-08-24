@@ -64,8 +64,8 @@ export function BlogGrid({
               aria-pressed={isActive}
               className={
                 isActive
-                  ? "rounded-none border border-[#141413] bg-[#141413] px-4 py-2 text-sm font-semibold text-white transition"
-                  : "rounded-none border border-[#e2ded9] bg-white px-4 py-2 text-sm font-semibold text-[#141413] transition hover:border-[#141413] hover:text-[#2a2a28] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#141413]"
+                  ? "rounded-none border border-[#0A0A0A] bg-[#0A0A0A] px-4 py-2 text-sm font-semibold text-white transition"
+                  : "rounded-none border border-[#E5E5E5] bg-white px-4 py-2 text-sm font-semibold text-[#171717] transition hover:border-[#0A0A0A] hover:text-[#262626] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#0A0A0A]"
               }
             >
               {category}
@@ -87,7 +87,7 @@ export function BlogGrid({
         <div className="mt-10 grid gap-6 lg:grid-cols-2">
           {visible.map((post) => (
             <Card key={post.slug} className="flex flex-col overflow-hidden p-0">
-              <div className="relative h-40 w-full overflow-hidden border-b border-[#e2ded9]">
+              <div className="relative h-40 w-full overflow-hidden border-b border-[#E5E5E5]">
                 <ImagePlaceholder
                   src={imageByCategory[post.category] ?? fallbackImage}
                   title={post.category}
@@ -100,10 +100,10 @@ export function BlogGrid({
                   <Badge>{post.date}</Badge>
                   <Badge>{readingTime(post.body)}</Badge>
                 </div>
-                <h2 className="mt-5 text-xl font-semibold leading-snug text-[#141413]">
+                <h2 className="mt-5 text-xl font-semibold leading-snug text-[#0A0A0A]">
                   <Link
                     href={`/blog/${post.slug}`}
-                    className="transition hover:text-[#2a2a28] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#141413]"
+                    className="transition hover:text-[#262626] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#0A0A0A]"
                   >
                     {post.title}
                   </Link>
@@ -120,7 +120,7 @@ export function BlogGrid({
           <button
             type="button"
             onClick={() => setVisibleCount((count) => count + PAGE_SIZE)}
-            className="rounded-none border border-[#141413] bg-transparent px-7 py-3 text-sm font-semibold text-[#141413] transition hover:bg-[#141413] hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#141413]"
+            className="rounded-none border border-[#0A0A0A] bg-transparent px-7 py-3 text-sm font-semibold text-[#0A0A0A] transition hover:bg-[#0A0A0A] hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#0A0A0A]"
           >
             Load more ({filtered.length - visibleCount} remaining)
           </button>

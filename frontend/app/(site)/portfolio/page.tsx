@@ -32,7 +32,7 @@ export default function PortfolioPage() {
         imageCaption="Every project is scoped around a measurable business result."
       />
 
-      <Section className="bg-[#f3f0ee]" labelledBy="portfolio-list">
+      <Section className="bg-[#FAFAFA]" labelledBy="portfolio-list">
         <SectionHeader
           id="portfolio-list"
           eyebrow="Project work"
@@ -41,7 +41,7 @@ export default function PortfolioPage() {
         <div className="mt-14 grid gap-6 lg:grid-cols-3">
           {projects.map((project) => (
             <Card key={project.slug} className="flex flex-col overflow-hidden p-0">
-              <div className="relative h-44 w-full overflow-hidden border-b border-[#e2ded9]">
+              <div className="relative h-44 w-full overflow-hidden border-b border-[#E5E5E5]">
                 <ImagePlaceholder
                   src={coverImageBySlug[project.slug] ?? "https://images.unsplash.com/photo-1518186285589-2f7649de83e0?auto=format&fit=crop&w=1600&q=80"}
                   title={project.category}
@@ -49,8 +49,8 @@ export default function PortfolioPage() {
                 />
               </div>
               <div className="flex flex-1 flex-col p-6 sm:p-7">
-                <p className="text-sm font-semibold text-[#2a2a28]">{project.category}</p>
-                <h2 className="mt-4 text-xl font-semibold text-[#141413]">
+                <p className="text-sm font-semibold text-[#262626]">{project.category}</p>
+                <h2 className="mt-4 text-xl font-semibold text-[#0A0A0A]">
                   {project.title}
                 </h2>
                 <p className="mt-4 text-base leading-7 text-[#737373]">{project.summary}</p>

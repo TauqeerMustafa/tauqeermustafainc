@@ -6,46 +6,25 @@ import { type ReactNode } from "react";
 import { motion, type Variants } from "framer-motion";
 import { ArrowRight } from "lucide-react";
 
-/* ══════════════════════════════════════════════════════════════════
-   TMI design primitives — BMW Corporate + BMW M + Mastercard
-   · BMW:        700/300 weight contrast, rectangular utility buttons,
-                 blue #1c69d4 as the single action signal
-   · BMW M:      near-black canvases, UPPERCASE display, M tricolor rail
-   · Mastercard: oversized radius (40 hero / 24 card / 999 pill), warm
-                 cream #f3f0ee as the light counterpoint
-   ══════════════════════════════════════════════════════════════════ */
-
 export function cx(...c: (string | false | null | undefined)[]) {
   return c.filter(Boolean).join(" ");
 }
 
-/* ── Palette constants (keep in sync with globals.css tokens) ─── */
-export const BMW = {
-  blue: "#1c69d4",
-  blueDeep: "#0066b1",
-  red: "#e22718",
-  dark: "#1a2129",
-  darker: "#0d0d0d",
-  tile: "#272729",
-  cream: "#f3f0ee",
-  ink: "#141413",
-} as const;
-
 /* ── Shared motion presets ───────────────────────────────────── */
 export const fadeUp: Variants = {
-  hidden: { opacity: 0, y: 24 },
+  hidden: { opacity: 0, y: 28 },
   show: { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] } },
 };
 export const fadeLeft: Variants = {
-  hidden: { opacity: 0, x: -28 },
+  hidden: { opacity: 0, x: -32 },
   show: { opacity: 1, x: 0, transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] } },
 };
 export const fadeRight: Variants = {
-  hidden: { opacity: 0, x: 28 },
+  hidden: { opacity: 0, x: 32 },
   show: { opacity: 1, x: 0, transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] } },
 };
 export const scaleIn: Variants = {
-  hidden: { opacity: 0, scale: 0.96 },
+  hidden: { opacity: 0, scale: 0.94 },
   show: { opacity: 1, scale: 1, transition: { duration: 0.5, ease: [0.22, 1, 0.36, 1] } },
 };
 export const stagger = (gap = 0.08): Variants => ({
@@ -73,71 +52,119 @@ export function Reveal({
   );
 }
 
-/* ── MStripe — the BMW M tricolor rail, our signature divider ── */
-export function MStripe({ className, width = "w-20" }: { className?: string; width?: string }) {
-  return (
-    <div className={cx("flex h-[3px] overflow-hidden", width, className)} aria-hidden>
-      <span className="flex-1 bg-[#0066b1]" />
-      <span className="flex-1 bg-[#1c69d4]" />
-      <span className="flex-1 bg-[#e22718]" />
-    </div>
-  );
-}
-
-/* ── Section — full-bleed tile ───────────────────────────────── */
+/* ── Section ─────────────────────────────────────────────────── */
 export function Section({
   children, className, labelledBy, containerClassName,
 }: { children: ReactNode; className?: string; labelledBy?: string; containerClassName?: string }) {
   return (
-    <section aria-labelledby={labelledBy} className={cx("px-5 py-20 sm:px-6 sm:py-24 lg:py-28", className)}>
-      <div className={cx("mx-auto max-w-[1200px]", containerClassName)}>{children}</div>
+    <section aria-labelledby={labelledBy} className={cx("px-5 py-16 sm:px-6 sm:py-20 lg:py-28", className)}>
+      <div className={cx("mx-auto max-w-7xl", containerClassName)}>{children}</div>
     </section>
   );
 }
 
-/* ── Eyebrow — BMW mono micro-label in M blue ────────────────── */
+/* ── Eyebrow ─────────────────────────────────────────────────── */
 export function Eyebrow({ children, light }: { children: ReactNode; light?: boolean }) {
   return (
     <p className={cx(
-      "font-mono text-[11px] font-semibold uppercase tracking-[0.14em]",
-      light ? "text-[#1c69d4]" : "text-[#0066b1]"
+      "inline-flex items-center gap-2 font-mono text-[11px] font-semibold uppercase tracking-[0.2em]",
+      light ? "text-white/70" : "text-[#0A0A0A]"
     )}>
+      <span className={cx("h-1.5 w-1.5 shrink-0", light ? "bg-white" : "bg-[#0A0A0A]")} aria-hidden />
       {children}
     </p>
   );
 }
 
-/* ── SectionHeader — BMW uppercase display, 700 weight ───────── */
+/* ── SectionHeader ───────────────────────────────────────────── */
 export function SectionHeader({
-  eyebrow, title, description, id, action, align = "center", light, className,
+  eyebrow, title, description, id, action, align = "left", light, className,
 }: {
   eyebrow: string; title: string; description?: string; id: string;
   action?: ReactNode; align?: "left" | "center"; light?: boolean; className?: string;
 }) {
   return (
-    <Reveal className={cx("flex flex-col gap-5", align === "center" ? "items-center text-center" : "", className)}>
-      <MStripe />
-      <Eyebrow light={light}>{eyebrow}</Eyebrow>
-      <h2 id={id} className={cx(
-        "text-balance text-[32px] font-bold uppercase leading-[1.1] tracking-[-0.02em] sm:text-[42px] lg:text-[48px]",
-        light ? "text-white" : "text-[#141413]"
-      )}>
-        {title}
-      </h2>
-      {description && (
-        <p className={cx(
-          "max-w-2xl text-pretty text-[17px] font-light leading-[1.6] tracking-[-0.01em] sm:text-[18px]",
-          light ? "text-white/65" : "text-[#5a5a5a]"
-        )}>
-          {description}
-        </p>
+    <Reveal
+      className={cx(
+        "flex flex-col gap-8",
+        align === "center" ? "mx-auto max-w-4xl items-center text-center" : "md:flex-row md:items-end md:justify-between",
+        className
       )}
-      {action && <div className="mt-1">{action}</div>}
+    >
+      <div className={cx("max-w-4xl", align === "center" && "mx-auto")}>
+        <Eyebrow light={light}>{eyebrow}</Eyebrow>
+        <h2 id={id} className={cx(
+          "mt-4 text-balance text-3xl font-semibold leading-[1.08] tracking-tight sm:text-4xl lg:text-5xl",
+          light ? "text-white" : "text-[#0A0A0A]"
+        )}>
+          {title}
+        </h2>
+        {description && (
+          <p className={cx("mt-5 max-w-3xl text-pretty text-base leading-7 sm:text-lg", light ? "text-white/60" : "text-[#525252]")}>
+            {description}
+          </p>
+        )}
+      </div>
+      {action && <div className="shrink-0">{action}</div>}
     </Reveal>
   );
 }
 
-/* ── ImagePlaceholder — Mastercard radius, BMW M gradient veil ── */
+/* ── PageHero ────────────────────────────────────────────────── */
+export function PageHero({
+  eyebrow, title, description, children, image, imageTitle, imageCaption,
+}: {
+  eyebrow: string; title: string; description: string;
+  children?: ReactNode; image?: string; imageTitle?: string; imageCaption?: string;
+}) {
+  return (
+    <section className="border-b border-[#E5E5E5] bg-gradient-to-b from-white to-[#FAFAFA] px-5 py-16 sm:px-6 sm:py-20 lg:py-24 overflow-hidden">
+      <div className="mx-auto grid max-w-7xl gap-10 lg:grid-cols-[1fr_0.78fr] lg:items-end">
+        <div>
+          <Reveal variant={fadeUp}><Eyebrow>{eyebrow}</Eyebrow></Reveal>
+          <Reveal variant={fadeUp} delay={0.08}>
+            <h1 className="mt-5 text-balance text-4xl font-semibold leading-[1.05] tracking-tight text-[#0A0A0A] sm:text-5xl lg:text-6xl">
+              {title}
+            </h1>
+          </Reveal>
+          <Reveal variant={fadeUp} delay={0.16}>
+            <p className="mt-6 max-w-3xl text-pretty text-base leading-8 text-[#525252] sm:text-lg">
+              {description}
+            </p>
+          </Reveal>
+          {children && (
+            <Reveal variant={fadeUp} delay={0.24}>
+              <div className="mt-8 flex flex-col gap-3 sm:flex-row">{children}</div>
+            </Reveal>
+          )}
+        </div>
+        {image && (
+          <Reveal variant={fadeRight} delay={0.14} className="hidden lg:block">
+            <ImagePlaceholder src={image} title={imageTitle ?? eyebrow} caption={imageCaption} floating />
+          </Reveal>
+        )}
+      </div>
+    </section>
+  );
+}
+
+/* ── Card ────────────────────────────────────────────────────── */
+export function Card({ children, className }: { children: ReactNode; className?: string }) {
+  return (
+    <Reveal
+      variant={scaleIn}
+      className={cx(
+        "lift group cursor-default border border-[#E5E5E5] bg-white p-6 sm:p-7 hover:border-[#0A0A0A]",
+        "shadow-[0_1px_2px_rgba(0,0,0,0.03),0_8px_28px_rgba(0,0,0,0.05)]",
+        className
+      )}
+    >
+      {children}
+    </Reveal>
+  );
+}
+
+/* ── ImagePlaceholder ────────────────────────────────────────── */
 export function ImagePlaceholder({
   title, caption, src, className, floating = false, priority = false,
 }: {
@@ -145,7 +172,12 @@ export function ImagePlaceholder({
   className?: string; floating?: boolean; priority?: boolean;
 }) {
   return (
-    <div className={cx("relative overflow-hidden rounded-[24px]", floating && "anim-float", className)}>
+    <div className={cx(
+      "img-zoom relative overflow-hidden border border-[#E5E5E5]",
+      "shadow-[0_24px_64px_rgba(0,0,0,0.10)]",
+      floating && "anim-float",
+      className
+    )}>
       <div className="relative aspect-[4/3] min-h-60">
         <Image
           src={src ?? "https://images.unsplash.com/photo-1518186285589-2f7649de83e0?auto=format&fit=crop&w=1600&q=80"}
@@ -153,254 +185,142 @@ export function ImagePlaceholder({
           fill
           sizes="(min-width:1024px) 40vw,100vw"
           priority={priority}
-          className="object-cover"
+          className="object-cover grayscale-[0.15]"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-[#1a2129]/85 via-[#1a2129]/20 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/65 via-black/10 to-transparent" />
       </div>
-      {(title || caption) && (
-        <div className="absolute bottom-0 left-0 right-0 p-6 text-white">
-          {title && (
-            <p className="text-[15px] font-bold uppercase leading-[1.3] tracking-[0.04em]">{title}</p>
-          )}
-          {caption && (
-            <p className="mt-1.5 text-[14px] font-light leading-[1.5] tracking-[-0.01em] text-white/70">{caption}</p>
-          )}
-        </div>
-      )}
+      <div className="absolute bottom-0 left-0 right-0 p-5 text-white">
+        <p className="font-semibold leading-snug">{title}</p>
+        {caption && <p className="mt-1 text-sm text-white/75">{caption}</p>}
+      </div>
     </div>
   );
 }
 
-/* ── Badges — Mastercard pill radius ────────────────────────── */
+/* ── Badge ───────────────────────────────────────────────────── */
 export function Badge({ children }: { children: ReactNode }) {
   return (
-    <span className="inline-flex items-center rounded-full border border-[#1c69d4]/25 bg-[#1c69d4]/[0.07] px-3.5 py-1.5 font-mono text-[11px] font-semibold uppercase tracking-[0.08em] text-[#0066b1]">
+    <span className="inline-flex items-center border border-[#D4D4D4] bg-[#FAFAFA] px-2.5 py-1 font-mono text-[11px] font-semibold text-[#171717]">
       {children}
     </span>
   );
 }
 export function BadgeMuted({ children }: { children: ReactNode }) {
   return (
-    <span className="inline-flex items-center rounded-full border border-[#d8d4d1] bg-[#f3f0ee] px-3.5 py-1.5 font-mono text-[11px] font-medium uppercase tracking-[0.08em] text-[#5a5a5a]">
+    <span className="inline-flex items-center border border-[#E5E5E5] bg-[#FAFAFA] px-2.5 py-1 font-mono text-[11px] font-semibold text-[#525252]">
       {children}
     </span>
   );
 }
 
-/* ── Stat — BMW numeric display ─────────────────────────────── */
+/* ── Stat ────────────────────────────────────────────────────── */
 export function Stat({ value, label, detail, light }: { value: string; label: string; detail?: string; light?: boolean }) {
   return (
     <Reveal variant={fadeUp}>
-      <div className={cx(
-        "text-[40px] font-bold leading-[1] tracking-[-0.02em] sm:text-[48px]",
-        light ? "text-white" : "text-[#141413]"
-      )}>
+      <div className={cx("font-mono text-3xl font-bold tracking-tight", light ? "text-white" : "text-[#0A0A0A]")}>
         {value}
       </div>
-      <div className={cx(
-        "mt-3 font-mono text-[11px] font-semibold uppercase tracking-[0.12em]",
-        light ? "text-[#1c69d4]" : "text-[#0066b1]"
-      )}>
-        {label}
-      </div>
-      {detail && (
-        <div className={cx(
-          "mt-2 text-[14px] font-light leading-[1.5] tracking-[-0.01em]",
-          light ? "text-white/60" : "text-[#5a5a5a]"
-        )}>
-          {detail}
-        </div>
-      )}
+      <div className={cx("mt-1 text-sm font-semibold", light ? "text-white/70" : "text-[#171717]")}>{label}</div>
+      {detail && <div className={cx("mt-1 text-xs leading-5", light ? "text-white/40" : "text-[#A3A3A3]")}>{detail}</div>}
     </Reveal>
   );
 }
 
-/* ── Card — Mastercard 24px radius, BMW hover rail ──────────── */
-export function Card({ children, className, dark }: { children: ReactNode; className?: string; dark?: boolean }) {
-  return (
-    <Reveal
-      variant={scaleIn}
-      className={cx(
-        "group relative cursor-default overflow-hidden rounded-[24px] p-6 transition-all duration-300 sm:p-7",
-        dark
-          ? "border border-white/10 bg-white/[0.04] hover:border-white/20 hover:bg-white/[0.07]"
-          : "border border-[#e2ded9] bg-white hover:border-[#1c69d4]/30 hover:shadow-[0_12px_40px_rgba(28,105,212,0.10)]",
-        className
-      )}
-    >
-      <span
-        className="absolute left-0 top-0 h-0.5 w-full origin-left scale-x-0 bg-[#1c69d4] transition-transform duration-500 group-hover:scale-x-100"
-        aria-hidden
-      />
-      {children}
-    </Reveal>
-  );
-}
-
-/* ── GlowCard — larger padding variant ──────────────────────── */
-export function GlowCard({ children, className, dark }: { children: ReactNode; className?: string; dark?: boolean }) {
-  return <Card className={cx("sm:p-8", className)} dark={dark}>{children}</Card>;
-}
-
-/* ── StepBadge — BMW square index marker ────────────────────── */
+/* ── StepBadge ───────────────────────────────────────────────── */
 export function StepBadge({ step, active }: { step: string; active?: boolean }) {
   return (
     <div className={cx(
-      "flex h-10 w-10 shrink-0 items-center justify-center font-mono text-[12px] font-bold uppercase tracking-[0.06em] transition-colors",
-      active ? "bg-[#1c69d4] text-white" : "border border-[#d8d4d1] bg-white text-[#141413]"
+      "flex h-9 w-9 shrink-0 items-center justify-center border font-mono text-xs font-bold transition-colors",
+      active ? "border-[#0A0A0A] bg-[#0A0A0A] text-white" : "border-[#0A0A0A] bg-white text-[#0A0A0A]"
     )}>
       {step}
     </div>
   );
 }
 
-/* ── Pill — Mastercard 999px radius ─────────────────────────── */
-export function Pill({ children, dark }: { children: ReactNode; dark?: boolean }) {
+/* ── Pill ────────────────────────────────────────────────────── */
+export function Pill({ children }: { children: ReactNode }) {
   return (
-    <span className={cx(
-      "inline-flex items-center rounded-full px-3.5 py-1.5 font-mono text-[11px] font-medium uppercase tracking-[0.08em]",
-      dark
-        ? "border border-white/12 bg-white/[0.06] text-white/75"
-        : "border border-[#d8d4d1] bg-[#f3f0ee] text-[#3a3a3a]"
-    )}>
+    <span className="inline-flex items-center border border-[#E5E5E5] bg-[#FAFAFA] px-2.5 py-1 font-mono text-[11px] font-medium text-[#0A0A0A] transition hover:border-[#0A0A0A]">
       {children}
     </span>
   );
 }
 
-/* ══ Buttons — BMW rectangular utility, zero radius, uppercase ══ */
-const btnBase =
-  "inline-flex items-center justify-center gap-2 px-7 py-3.5 font-mono text-[12px] font-bold uppercase tracking-[0.1em] transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2";
+/* ── GlowCard (mouse-follow highlight, monochrome) ──────────── */
+export function GlowCard({ children, className }: { children: ReactNode; className?: string }) {
+  return (
+    <Reveal
+      variant={scaleIn}
+      className={cx(
+        "group relative overflow-hidden border border-[#E5E5E5] bg-white p-6 sm:p-8",
+        "before:pointer-events-none before:absolute before:inset-0 before:opacity-0 before:transition-opacity before:duration-500",
+        "before:bg-[radial-gradient(circle_at_var(--mx,50%)_var(--my,50%),rgba(0,0,0,0.045),transparent_60%)]",
+        "hover:before:opacity-100 hover:border-[#0A0A0A]",
+        "shadow-[0_1px_3px_rgba(0,0,0,0.04)] hover:shadow-[0_12px_40px_rgba(0,0,0,0.08)]",
+        "transition-all duration-300",
+        className
+      )}
+      // onMouseMove handled via inline handler prop below through a plain div wrapper is not possible on motion.div children prop;
+    >
+      <div
+        className="contents"
+        onMouseMove={(e) => {
+          const el = e.currentTarget.parentElement as HTMLElement | null;
+          if (!el) return;
+          const r = el.getBoundingClientRect();
+          el.style.setProperty("--mx", `${((e.clientX - r.left) / r.width) * 100}%`);
+          el.style.setProperty("--my", `${((e.clientY - r.top) / r.height) * 100}%`);
+        }}
+      >
+        {children}
+      </div>
+    </Reveal>
+  );
+}
 
-/* Primary — the single BMW action signal */
+/* ── Buttons ─────────────────────────────────────────────────── */
+const base = "inline-flex items-center justify-center gap-2 font-semibold tracking-tight transition-all duration-200 press focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#0A0A0A]";
+
 export function PrimaryButton({ href, children, className }: { href: string; children: ReactNode; className?: string }) {
   return (
-    <Link
-      href={href}
-      className={cx(btnBase, "bg-[#1c69d4] text-white hover:bg-[#0066b1] focus-visible:outline-[#1c69d4]", className)}
-    >
-      {children}
+    <Link href={href} className={cx(base, "min-h-12 px-6 bg-[#0A0A0A] text-white shadow-[0_8px_24px_rgba(0,0,0,0.22)] hover:bg-[#262626] hover:-translate-y-0.5 hover:shadow-[0_14px_32px_rgba(0,0,0,0.28)]", className)}>
+      {children} <ArrowRight className="h-4 w-4" aria-hidden />
     </Link>
   );
 }
-
-/* Secondary — outlined on light surfaces */
 export function SecondaryButton({ href, children, className }: { href: string; children: ReactNode; className?: string }) {
   return (
-    <Link
-      href={href}
-      className={cx(
-        btnBase,
-        "border-2 border-[#141413] bg-transparent text-[#141413] hover:bg-[#141413] hover:text-white focus-visible:outline-[#141413]",
-        className
-      )}
-    >
-      {children}
+    <Link href={href} className={cx(base, "min-h-12 px-6 border border-[#0A0A0A] bg-white text-[#0A0A0A] hover:bg-[#0A0A0A] hover:text-white hover:-translate-y-0.5", className)}>
+      {children} <ArrowRight className="h-4 w-4" aria-hidden />
     </Link>
   );
 }
-
-/* Outline — outlined on BMW M dark surfaces */
 export function OutlineButton({ href, children, className }: { href: string; children: ReactNode; className?: string }) {
   return (
-    <Link
-      href={href}
-      className={cx(
-        btnBase,
-        "border-2 border-white/25 bg-transparent text-white hover:border-white/50 hover:bg-white/[0.08] focus-visible:outline-white",
-        className
-      )}
-    >
+    <Link href={href} className={cx(base, "min-h-12 px-6 border border-[#D4D4D4] bg-transparent text-[#0A0A0A] hover:border-[#0A0A0A] hover:-translate-y-0.5", className)}>
       {children}
     </Link>
   );
 }
-
 export function GhostButton({ href, children, className }: { href: string; children: ReactNode; className?: string }) {
   return (
-    <Link
-      href={href}
-      className={cx(
-        "inline-flex items-center gap-1.5 font-mono text-[12px] font-bold uppercase tracking-[0.1em] text-[#0066b1] transition-colors hover:text-[#1c69d4]",
-        className
-      )}
-    >
+    <Link href={href} className={cx(base, "min-h-10 px-4 text-[#0A0A0A] hover:bg-[#F4F4F4]", className)}>
       {children}
     </Link>
   );
 }
-
 export function TextLink({ href, children }: { href: string; children: ReactNode }) {
   return (
-    <Link
-      href={href}
-      className="group inline-flex items-center gap-1.5 font-mono text-[12px] font-bold uppercase tracking-[0.1em] text-[#0066b1] transition-colors hover:text-[#1c69d4]"
-    >
-      {children}
-      <ArrowRight className="h-3.5 w-3.5 transition-transform duration-300 group-hover:translate-x-0.5" aria-hidden />
+    <Link href={href} className="link-ul inline-flex items-center gap-1.5 text-sm font-semibold text-[#0A0A0A] hover:text-[#404040]">
+      {children} <ArrowRight className="h-3.5 w-3.5" aria-hidden />
     </Link>
   );
 }
-
-/* Text link for BMW M dark surfaces */
-export function TextLinkDark({ href, children }: { href: string; children: ReactNode }) {
-  return (
-    <Link
-      href={href}
-      className="group inline-flex items-center gap-1.5 font-mono text-[12px] font-bold uppercase tracking-[0.1em] text-[#1c69d4] transition-colors hover:text-white"
-    >
-      {children}
-      <ArrowRight className="h-3.5 w-3.5 transition-transform duration-300 group-hover:translate-x-0.5" aria-hidden />
-    </Link>
-  );
-}
-
 export function ButtonLink({ href, children, variant = "primary", className }: {
   href: string; children: ReactNode; variant?: "primary" | "secondary" | "outline" | "ghost" | "text";
   className?: string;
 }) {
   const V = { primary: PrimaryButton, secondary: SecondaryButton, outline: OutlineButton, ghost: GhostButton, text: TextLink }[variant];
   return <V href={href} className={className}>{children}</V>;
-}
-
-/* ── PageHero — BMW M dark banner with M-stripe rail ─────────── */
-export function PageHero({
-  eyebrow, title, description, image, imageTitle, imageCaption, children,
-}: {
-  eyebrow: string; title: string; description?: string;
-  image?: string; imageTitle?: string; imageCaption?: string;
-  children?: ReactNode;
-}) {
-  return (
-    <div className="relative overflow-hidden bg-[#1a2129] px-5 py-16 sm:px-6 sm:py-24">
-      {/* M-stripe rail across the top of every page hero */}
-      <div className="absolute left-0 right-0 top-0 flex h-1" aria-hidden>
-        <span className="flex-1 bg-[#0066b1]" />
-        <span className="flex-1 bg-[#1c69d4]" />
-        <span className="flex-1 bg-[#e22718]" />
-      </div>
-
-      <div className="mx-auto max-w-[1200px]">
-        <div className={cx("grid gap-12", image ? "lg:grid-cols-[1fr_0.85fr] lg:items-center" : "")}>
-          <div>
-            <p className="font-mono text-[11px] font-semibold uppercase tracking-[0.14em] text-[#1c69d4]">
-              {eyebrow}
-            </p>
-            <h1 className="mt-5 text-balance text-[40px] font-bold uppercase leading-[1.06] tracking-[-0.02em] text-white sm:text-[54px] lg:text-[64px]">
-              {title}
-            </h1>
-            {description && (
-              <p className="mt-6 max-w-2xl text-pretty text-[18px] font-light leading-[1.6] tracking-[-0.01em] text-white/65 sm:text-[20px]">
-                {description}
-              </p>
-            )}
-            {children && <div className="mt-10 flex flex-wrap gap-4">{children}</div>}
-          </div>
-          {image && (
-            <ImagePlaceholder src={image} title={imageTitle ?? ""} caption={imageCaption} priority />
-          )}
-        </div>
-      </div>
-    </div>
-  );
 }

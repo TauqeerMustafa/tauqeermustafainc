@@ -1,149 +1,101 @@
 "use client";
 
-import { CheckCircle2, Code2, Shield, Sparkles } from "lucide-react";
-import { motion } from "framer-motion";
-import Image from "next/image";
+import { BrainCircuit, Building2, Layers3, ShieldCheck, TrendingUp, Users } from "lucide-react";
 
 import { imageLibrary } from "@/data/media";
-import { ButtonLink, MStripe, Reveal, Section, fadeLeft, fadeRight, stagger, viewportOnce } from "./ui";
+import { ButtonLink, Eyebrow, GlowCard, ImagePlaceholder, Reveal, Section, fadeLeft, fadeRight, stagger, viewportOnce } from "./ui";
+import { motion } from "framer-motion";
 
-/* ── Mastercard cream canvas, 24px radius imagery, BMW typography ── */
+const values = ["Practical innovation", "Security by design", "Operational clarity", "Long-term partnership"];
 
-const capabilities = [
-  { title: "Web & API platforms", detail: "Next.js, React, FastAPI, PostgreSQL — production infrastructure", icon: Code2 },
-  { title: "Security engineering", detail: "Threat modeling, penetration testing, compliance audits", icon: Shield },
-  { title: "AI & automation", detail: "LLM integration, intelligent workflows, operational agents", icon: Sparkles },
+const focusAreas = [
+  { title: "Enterprise solutions", icon: Building2 },
+  { title: "AI & automation",      icon: BrainCircuit },
+  { title: "Security-first",       icon: ShieldCheck },
 ];
 
-const principles = [
-  "Every system architected with security from the start",
-  "Senior engineers on every engagement — no junior outsourcing",
-  "Clear scope, honest timelines, no hidden fees",
-  "Direct communication — no account managers",
+const miniStats = [
+  { value: "2006", label: "Founded", icon: TrendingUp },
+  { value: "50+",  label: "Team size", icon: Users },
+  { value: "200+", label: "Engagements", icon: Building2 },
 ];
 
 export default function AboutPreview() {
   return (
-    <Section className="bg-[#f3f0ee]" labelledBy="about-title">
-      <div className="grid gap-16 lg:grid-cols-2 lg:items-start lg:gap-20">
+    <Section className="bg-white" labelledBy="about-title">
+      <div className="grid gap-12 lg:grid-cols-[0.95fr_1.05fr] lg:items-center">
 
-        <Reveal variant={fadeLeft} className="order-2 lg:order-1">
-          <div className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div className="relative overflow-hidden rounded-[24px]">
-                <Image
-                  src={imageLibrary.hero[1]}
-                  alt="Development environment with production monitoring"
-                  width={500}
-                  height={375}
-                  sizes="(max-width: 1024px) 50vw, 25vw"
-                  className="aspect-[4/3] h-full w-full object-cover"
-                />
+        <Reveal variant={fadeLeft} className="order-2 lg:order-1 space-y-4">
+          <ImagePlaceholder
+            src={imageLibrary.about[0]}
+            title="Office & product strategy"
+            caption="Founded 2006 · Islamabad, Pakistan"
+          />
+          <div className="grid grid-cols-3 gap-px border border-[#E5E5E5] bg-[#E5E5E5]">
+            {miniStats.map((s) => (
+              <div key={s.label} className="bg-white px-4 py-4 text-center">
+                <s.icon className="mx-auto h-4 w-4 text-[#0A0A0A]" aria-hidden />
+                <p className="mt-2 font-mono text-xl font-bold text-[#0A0A0A]">{s.value}</p>
+                <p className="mt-0.5 text-xs text-[#A3A3A3]">{s.label}</p>
               </div>
-              <div className="relative overflow-hidden rounded-[24px]">
-                <Image
-                  src={imageLibrary.services[2]}
-                  alt="AI and neural network architecture"
-                  width={500}
-                  height={375}
-                  sizes="(max-width: 1024px) 50vw, 25vw"
-                  className="aspect-[4/3] h-full w-full object-cover"
-                />
-              </div>
-            </div>
-            <div className="relative overflow-hidden rounded-[24px]">
-              <Image
-                src={imageLibrary.services[3]}
-                alt="Cloud infrastructure and data centers"
-                width={1000}
-                height={428}
-                sizes="(max-width: 1024px) 100vw, 50vw"
-                className="aspect-[21/9] w-full object-cover"
-              />
-            </div>
+            ))}
           </div>
         </Reveal>
 
         <Reveal variant={fadeRight} className="order-1 lg:order-2">
-          <MStripe />
-          <p className="mt-6 font-mono text-[11px] font-semibold uppercase tracking-[0.14em] text-[#0066b1]">
-            Who We Are
-          </p>
-          <h2
-            id="about-title"
-            className="mt-4 text-[34px] font-bold uppercase leading-[1.08] tracking-[-0.02em] text-[#141413] sm:text-[42px]"
-          >
-            Built for businesses that need systems to work under pressure.
+          <Eyebrow>About Tauqeer Mustafa Inc.</Eyebrow>
+          <h2 id="about-title" className="mt-5 max-w-3xl text-3xl font-semibold leading-[1.08] tracking-tight text-[#0A0A0A] sm:text-4xl lg:text-5xl">
+            Technology leadership for teams that need clarity before complexity.
           </h2>
-
-          <div className="mt-6 space-y-5 text-[17px] font-light leading-[1.6] tracking-[-0.01em] text-[#5a5a5a]">
+          <div className="mt-7 max-w-3xl space-y-5 text-base leading-8 text-[#525252] sm:text-lg">
             <p>
-              TMI delivers web platforms, security consulting, and AI automation as one integrated team.
-              Instead of hiring three vendors who can&apos;t talk to each other, you work with senior
-              engineers who understand how those capabilities need to interact — security constraints inform
-              architecture from day one, infrastructure choices shape feature scope, and UX reflects the
-              actual data model.
+              Since 2006, Tauqeer Mustafa Inc. has grown into a technology consulting and
+              software engineering company spanning three service lines: AI systems &amp;
+              automation, cybersecurity &amp; risk assurance, and graphic design &amp; brand identity.
             </p>
             <p>
-              Clients work directly with the engineers who write the code, review the threat model, and deploy
-              to production. No sales handoff, no account managers, no surprises when scope meets reality. The
-              systems we build are designed for long-term maintenance — documented, tested, and structured so
-              the next engineer (ours or yours) can understand what&apos;s happening.
+              The work is shaped around dependable engineering, responsible innovation, and
+              measurable business outcomes — without exaggerating claims or hiding tradeoffs.
             </p>
           </div>
-
-          <motion.div
-            initial="hidden"
-            whileInView="show"
-            viewport={viewportOnce}
-            variants={stagger(0.08)}
-            className="mt-10 space-y-3"
-          >
-            {capabilities.map((cap) => (
-              <motion.div
-                key={cap.title}
-                variants={{ hidden: { opacity: 0, x: -20 }, show: { opacity: 1, x: 0 } }}
-                className="group flex items-start gap-4 rounded-[24px] border border-[#e2ded9] bg-white p-4 transition-colors hover:border-[#1c69d4]/30"
-              >
-                <div className="flex h-11 w-11 shrink-0 items-center justify-center border border-[#d8d4d1] bg-[#f3f0ee] text-[#0066b1] transition-colors group-hover:border-[#1c69d4] group-hover:bg-[#1c69d4] group-hover:text-white">
-                  <cap.icon className="h-5 w-5" aria-hidden />
-                </div>
-                <div>
-                  <p className="text-[15px] font-bold uppercase leading-[1.3] tracking-[0.02em] text-[#141413]">
-                    {cap.title}
-                  </p>
-                  <p className="mt-1.5 text-[14px] font-light leading-[1.5] tracking-[-0.01em] text-[#6a6a6a]">
-                    {cap.detail}
-                  </p>
-                </div>
-              </motion.div>
-            ))}
-          </motion.div>
 
           <motion.ul
             initial="hidden"
             whileInView="show"
             viewport={viewportOnce}
-            variants={stagger(0.06)}
-            className="mt-8 space-y-3"
+            variants={stagger(0.08)}
+            className="mt-8 grid gap-3 sm:grid-cols-2"
           >
-            {principles.map((principle) => (
+            {values.map((v) => (
               <motion.li
-                key={principle}
-                variants={{ hidden: { opacity: 0, y: 10 }, show: { opacity: 1, y: 0 } }}
-                className="flex items-start gap-3 text-[15px] font-light leading-[1.55] tracking-[-0.01em] text-[#3a3a3a]"
+                key={v}
+                variants={{ hidden: { opacity: 0, y: 12 }, show: { opacity: 1, y: 0 } }}
+                className="flex items-center gap-3 text-sm font-semibold text-[#171717]"
               >
-                <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-[#1c69d4]" aria-hidden />
-                {principle}
+                <span className="flex h-7 w-7 shrink-0 items-center justify-center border border-[#D4D4D4] bg-[#FAFAFA] text-[#171717]" aria-hidden>
+                  <Layers3 className="h-3.5 w-3.5" />
+                </span>
+                {v}
               </motion.li>
             ))}
           </motion.ul>
 
           <div className="mt-10 flex flex-col gap-3 sm:flex-row">
             <ButtonLink href="/about" variant="primary">About Us</ButtonLink>
-            <ButtonLink href="/services" variant="secondary">All Services</ButtonLink>
+            <ButtonLink href="/contact" variant="secondary">Contact</ButtonLink>
           </div>
         </Reveal>
+      </div>
+
+      <div className="mt-14 grid gap-4 border-t border-[#E5E5E5] pt-8 md:grid-cols-3">
+        {focusAreas.map((area) => (
+          <GlowCard key={area.title}>
+            <div className="flex h-10 w-10 items-center justify-center border border-[#D4D4D4] bg-[#FAFAFA] text-[#171717]">
+              <area.icon className="h-5 w-5" aria-hidden />
+            </div>
+            <p className="mt-4 text-base font-semibold text-[#0A0A0A]">{area.title}</p>
+          </GlowCard>
+        ))}
       </div>
     </Section>
   );

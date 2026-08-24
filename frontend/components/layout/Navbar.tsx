@@ -4,9 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ArrowRight, Menu, X } from "lucide-react";
-
-/* ── BMW / BMW M navbar — dark chrome, M-stripe rail, uppercase utility nav ── */
+import { Menu, X } from "lucide-react";
 
 const navLinks = [
   { name: "Home", href: "/" },
@@ -15,12 +13,11 @@ const navLinks = [
   { name: "Portfolio", href: "/portfolio" },
   { name: "Careers", href: "/careers" },
   { name: "Blog", href: "/blog" },
-  { name: "Community", href: "/community" },
   { name: "Contact", href: "/contact" },
 ];
 
 const linkClass =
-  "relative flex h-9 items-center px-3 font-mono text-[11px] font-semibold uppercase tracking-[0.1em] text-white/60 transition-colors hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1c69d4]";
+  "border-b-2 border-transparent px-2 py-2 text-sm font-medium text-[#525252] transition hover:border-[#D4D4D4] hover:text-[#0A0A0A] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0A0A0A]";
 
 export default function Navbar() {
   const pathname = usePathname();
@@ -33,107 +30,105 @@ export default function Navbar() {
   }, [pathname]);
 
   return (
-    <header className="sticky top-0 z-50 border-b border-white/10 bg-[#1a2129]/95 supports-[backdrop-filter]:bg-[#1a2129]/85 supports-[backdrop-filter]:backdrop-blur-xl">
-      {/* M-stripe rail — signature brand element */}
-      <div className="flex h-[3px]" aria-hidden>
-        <span className="flex-1 bg-[#0066b1]" />
-        <span className="flex-1 bg-[#1c69d4]" />
-        <span className="flex-1 bg-[#e22718]" />
-      </div>
-
-      <nav className="mx-auto flex min-h-[4.5rem] max-w-[1200px] items-center gap-4 px-5 py-3 sm:px-6">
-        {/* Brand — left */}
+    <header className="sticky top-0 z-50 border-b border-[#E5E5E5] bg-white/95 shadow-[0_1px_8px_rgba(17,24,39,0.04)] supports-[backdrop-filter]:bg-white/88 supports-[backdrop-filter]:backdrop-blur-md">
+      <nav className="mx-auto flex min-h-[4.5rem] max-w-7xl items-center justify-between gap-4 px-5 py-3 sm:px-6 lg:gap-6">
         <Link
           href="/"
-          className="inline-flex min-h-10 shrink-0 items-center gap-2.5 text-[15px] font-bold uppercase tracking-[0.01em] text-white transition-opacity hover:opacity-80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#1c69d4]"
+          className="inline-flex min-h-10 items-center gap-2 pr-3 text-sm font-semibold tracking-tight text-[#0A0A0A] transition hover:text-[#262626] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#0A0A0A] sm:text-base"
         >
-          <span className="relative flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden border border-white/15 bg-white/[0.06]">
-            <Image src="/logo-mark.svg" alt="" fill sizes="36px" className="object-cover" />
+          <span className="relative flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden border border-[#E5E5E5] bg-[#FAFAFA]">
+            <Image
+              src="/logo-mark.svg"
+              alt=""
+              fill
+              sizes="36px"
+              className="object-cover"
+            />
           </span>
-          <span className="hidden sm:inline">Tauqeer Mustafa Inc.</span>
-          <span className="sm:hidden">TMI</span>
+          Tauqeer Mustafa Inc.
         </Link>
 
-        {/* Nav options — centred and evenly aligned */}
-        <ul className="hidden flex-1 items-center justify-center gap-0.5 lg:flex">
-          {navLinks.map((link) => {
-            const isActive = pathname === link.href;
-            return (
-              <li key={link.name}>
-                <Link
-                  href={link.href}
-                  aria-current={isActive ? "page" : undefined}
-                  className={`${linkClass} ${isActive ? "text-white" : ""}`}
-                >
-                  {link.name}
-                  <span
-                    className={`absolute inset-x-3 -bottom-[7px] h-[2px] bg-[#1c69d4] transition-transform duration-300 ${
-                      isActive ? "scale-x-100" : "scale-x-0"
-                    }`}
-                    aria-hidden
-                  />
-                </Link>
-              </li>
-            );
-          })}
+        <ul className="hidden items-center gap-1 lg:flex">
+          {navLinks.map((link) => (
+            <li key={link.name}>
+              <Link
+                href={link.href}
+                aria-current={pathname === link.href ? "page" : undefined}
+                className={`${linkClass} ${pathname === link.href ? "border-[#0A0A0A] text-[#0A0A0A]" : ""}`}
+              >
+                {link.name}
+              </Link>
+            </li>
+          ))}
         </ul>
 
-        {/* Quote button — top right corner, rectangular BMW utility button */}
-        <div className="ml-auto flex items-center gap-3 lg:ml-0">
+        <div className="hidden items-center gap-2 sm:flex">
+          <Link
+            href="/login"
+            className="px-3 py-2 text-sm font-semibold text-[#0A0A0A] transition hover:text-[#262626] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#0A0A0A]"
+          >
+            Login
+          </Link>
           <Link
             href="/contact"
-            className="group hidden shrink-0 items-center gap-2 bg-[#1c69d4] px-6 py-3 font-mono text-[11px] font-bold uppercase tracking-[0.1em] text-white transition-colors hover:bg-[#0066b1] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1c69d4] sm:inline-flex"
+            className="rounded-none bg-[#0A0A0A] px-4 py-2 text-sm font-semibold text-white shadow-[0_4px_12px_rgba(0,0,0,0.25)] transition hover:bg-[#262626] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#0A0A0A]"
           >
-            Get a Quote
-            <ArrowRight className="h-3.5 w-3.5 transition-transform duration-300 group-hover:translate-x-0.5" aria-hidden />
+            Start
           </Link>
+        </div>
 
-          <details ref={detailsRef} open={isOpen} className="group relative lg:hidden">
-            {isOpen ? (
-              <div className="fixed inset-0 z-40 lg:hidden" aria-hidden="true" onClick={() => setIsOpen(false)} />
-            ) : null}
-            <summary
-              onClick={(event) => {
-                event.preventDefault();
-                setIsOpen((prev) => !prev);
-              }}
-              className="relative z-50 flex h-11 w-11 cursor-pointer list-none items-center justify-center border border-white/15 bg-white/[0.06] text-white transition hover:bg-white/[0.12] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#1c69d4] [&::-webkit-details-marker]:hidden"
-            >
-              {isOpen ? <X className="h-5 w-5" aria-hidden="true" /> : <Menu className="h-5 w-5" aria-hidden="true" />}
-              <span className="sr-only">{isOpen ? "Close navigation" : "Open navigation"}</span>
-            </summary>
+        <details ref={detailsRef} open={isOpen} className="group relative lg:hidden">
+          {isOpen ? (
+            <div
+              className="fixed inset-0 z-40 lg:hidden"
+              aria-hidden="true"
+              onClick={() => setIsOpen(false)}
+            />
+          ) : null}
+          <summary
+            onClick={(event) => {
+              event.preventDefault();
+              setIsOpen((prev) => !prev);
+            }}
+            className="relative z-50 flex h-11 w-11 cursor-pointer list-none items-center justify-center rounded-none border border-[#E5E5E5] bg-white text-[#0A0A0A] transition hover:bg-[#F4F4F4] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#0A0A0A] [&::-webkit-details-marker]:hidden"
+          >
+            {isOpen ? <X className="h-5 w-5" aria-hidden="true" /> : <Menu className="h-5 w-5" aria-hidden="true" />}
+            <span className="sr-only">{isOpen ? "Close navigation" : "Open navigation"}</span>
+          </summary>
 
-            <div className="absolute right-0 top-14 z-50 w-[min(22rem,calc(100vw-2.5rem))] border border-white/10 bg-[#0d0d0d] p-3 shadow-[0_16px_40px_rgba(0,0,0,0.6)]">
-              <ul className="grid gap-0.5">
-                {navLinks.map((link) => (
-                  <li key={link.name}>
-                    <Link
-                      href={link.href}
-                      onClick={() => setIsOpen(false)}
-                      aria-current={pathname === link.href ? "page" : undefined}
-                      className={`block border-l-2 px-4 py-3 font-mono text-[11px] font-semibold uppercase tracking-[0.1em] transition hover:bg-white/[0.06] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1c69d4] ${
-                        pathname === link.href
-                          ? "border-[#1c69d4] bg-white/[0.06] text-white"
-                          : "border-transparent text-white/60"
-                      }`}
-                    >
-                      {link.name}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-
+          <div className="absolute right-0 top-14 z-50 w-[min(22rem,calc(100vw-2.5rem))] border border-[#E5E5E5] bg-white p-3 shadow-[0_16px_36px_rgba(17,24,39,0.12)]">
+            <ul className="grid gap-1">
+              {navLinks.map((link) => (
+                <li key={link.name}>
+                  <Link
+                    href={link.href}
+                    onClick={() => setIsOpen(false)}
+                    aria-current={pathname === link.href ? "page" : undefined}
+                    className={`block border-l-2 px-4 py-3 text-sm font-semibold transition hover:bg-[#FAFAFA] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0A0A0A] ${pathname === link.href ? "border-[#0A0A0A] bg-[#FAFAFA] text-[#0A0A0A]" : "border-transparent text-[#525252]"}`}
+                  >
+                    {link.name}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+            <div className="mt-3 grid grid-cols-2 gap-2 border-t border-[#E5E5E5] pt-3">
+              <Link
+                href="/login"
+                onClick={() => setIsOpen(false)}
+                className="rounded-none border border-[#E5E5E5] px-4 py-3 text-center text-sm font-semibold text-[#0A0A0A] transition hover:bg-[#F4F4F4] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0A0A0A]"
+              >
+                Login
+              </Link>
               <Link
                 href="/contact"
                 onClick={() => setIsOpen(false)}
-                className="mt-3 flex items-center justify-center gap-2 bg-[#1c69d4] px-6 py-3.5 font-mono text-[11px] font-bold uppercase tracking-[0.1em] text-white transition-colors hover:bg-[#0066b1]"
+                className="rounded-none bg-[#0A0A0A] px-4 py-3 text-center text-sm font-semibold text-white transition hover:bg-[#262626] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0A0A0A]"
               >
-                Get a Quote
-                <ArrowRight className="h-3.5 w-3.5" aria-hidden />
+                Start
               </Link>
             </div>
-          </details>
-        </div>
+          </div>
+        </details>
       </nav>
     </header>
   );

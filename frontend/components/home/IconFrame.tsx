@@ -12,12 +12,10 @@ import { cn } from "@/lib/utils";
 export function IconFrame({
   icon: Icon,
   size = "md",
-  dark = false,
   className,
 }: {
   icon: ComponentType<{ className?: string; "aria-hidden"?: boolean }>;
   size?: "sm" | "md" | "lg";
-  dark?: boolean;
   className?: string;
 }) {
   const sz = { sm: "h-9 w-9", md: "h-11 w-11", lg: "h-14 w-14" }[size];
@@ -26,11 +24,7 @@ export function IconFrame({
   return (
     <div
       className={cn(
-        /* BMW utility frame — rectangular, blue action accent on hover */
-        "flex shrink-0 items-center justify-center transition-colors duration-300",
-        dark
-          ? "border border-white/12 bg-white/[0.05] text-[#1c69d4] group-hover:border-[#1c69d4]/50 group-hover:bg-[#1c69d4]/10"
-          : "border border-[#d8d4d1] bg-[#f3f0ee] text-[#0066b1] group-hover:border-[#1c69d4] group-hover:bg-[#1c69d4] group-hover:text-white",
+        "flex shrink-0 items-center justify-center border border-[#D4D4D4] bg-[#FAFAFA] text-[#171717] transition-all duration-300 group-hover:scale-110 group-hover:border-[#0A0A0A] group-hover:bg-[#0A0A0A] group-hover:text-white",
         sz,
         className,
       )}

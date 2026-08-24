@@ -16,7 +16,7 @@ import ContactForm from "@/components/contact/ContactForm";
 import ContactInfo from "@/components/contact/ContactInfo";
 import ContactMap from "@/components/contact/ContactMap";
 import FAQ from "@/components/contact/FAQ";
-import { PageHero, Section, SectionHeader } from "@/components/home/ui";
+import { Card, PageHero, Section, SectionHeader } from "@/components/home/ui";
 import { IconFrame } from "@/components/home/IconFrame";
 import { company } from "@/data/company";
 
@@ -67,15 +67,14 @@ export default function ContactPage() {
         imageCaption="We usually reply within one business day."
       />
 
-      {/* ── Form + info ── warm cream canvas */}
-      <Section className="bg-[#f3f0ee]" labelledBy="contact-form">
+      <Section className="bg-[#FAFAFA]" labelledBy="contact-form">
         <SectionHeader
           id="contact-form"
           eyebrow="Get in touch"
           title="Send us a message"
           description="Fill out the form and our team will get back to you shortly, or reach out directly using the details alongside it."
         />
-        <div className="mt-14 grid gap-8 lg:grid-cols-[1.15fr_0.85fr] lg:items-start">
+        <div className="mt-14 grid gap-8 lg:grid-cols-[1.1fr_0.9fr] lg:items-start">
           <ContactForm />
           <div className="flex flex-col gap-6">
             <ContactInfo />
@@ -84,55 +83,40 @@ export default function ContactPage() {
         </div>
       </Section>
 
-      {/* ── What happens next ── lifted white surface */}
-      <Section className="bg-[#ffffff]" labelledBy="contact-expectations">
+      <Section className="bg-white" labelledBy="contact-expectations">
         <SectionHeader
           id="contact-expectations"
           eyebrow="What happens next"
           title="A straightforward first step"
         />
         <div className="mt-14 grid gap-6 lg:grid-cols-3">
-          {expectations.map((item, i) => (
-            <div
-              key={item.title}
-              className="rounded-[24px] border border-[#e2ded9] bg-[#f3f0ee] p-8"
-            >
-              <span className="font-mono text-[11px] font-semibold uppercase tracking-[0.12em] text-[#5a5a5a]">
-                0{i + 1}
-              </span>
-              <IconFrame icon={item.icon} className="mt-5" />
-              <h2 className="mt-5 text-[19px] font-semibold leading-[1.3] tracking-[-0.374px] text-[#141413]">
-                {item.title}
-              </h2>
-              <p className="mt-3 text-[15px] leading-[1.6] tracking-[-0.1px] text-[#5a5a5a]">
-                {item.description}
-              </p>
-            </div>
+          {expectations.map((item) => (
+            <Card key={item.title}>
+              <IconFrame icon={item.icon} />
+              <h2 className="mt-6 text-xl font-semibold text-[#0A0A0A]">{item.title}</h2>
+              <p className="mt-4 text-base leading-7 text-[#737373]">{item.description}</p>
+            </Card>
           ))}
         </div>
       </Section>
 
-      {/* ── Department contacts ── BMW M dark strip */}
-      <Section className="bg-[#1a2129]" labelledBy="contact-departments">
+      <Section className="bg-[#FAFAFA]" labelledBy="contact-departments">
         <SectionHeader
           id="contact-departments"
           eyebrow="Reach the right team"
           title="Department contacts"
           description="For a faster response, reach out to the team that matches your question directly."
-          light
         />
-        <div className="mt-14 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="mt-14 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {departments.map((dept) => (
             <a
               key={dept.title}
               href={`mailto:${dept.email}`}
-              className="group rounded-[14px] border border-white/10 bg-white/5 p-5 transition hover:border-[#1c69d4]/40 hover:bg-white/8"
+              className="group border border-[#E5E5E5] bg-white p-5 shadow-[0_1px_2px_rgba(17,24,39,0.04)] transition hover:border-[#0A0A0A]"
             >
-              <IconFrame icon={dept.icon} dark />
-              <h3 className="mt-4 text-[14px] font-semibold tracking-[-0.1px] text-white">
-                {dept.title}
-              </h3>
-              <p className="mt-1 break-all text-[13px] leading-[1.5] text-[#5a5a5a] transition group-hover:text-[#1c69d4]">
+              <IconFrame icon={dept.icon} />
+              <h3 className="mt-4 text-sm font-semibold text-[#0A0A0A]">{dept.title}</h3>
+              <p className="mt-1 break-all text-sm text-[#737373] transition group-hover:text-[#262626]">
                 {dept.email}
               </p>
             </a>

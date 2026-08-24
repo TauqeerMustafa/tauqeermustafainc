@@ -28,6 +28,10 @@ export const contactSchema = z.object({
     .string()
     .min(1, "Please select a service."),
 
+  budget: z
+    .string()
+    .min(1, "Please select a budget."),
+
   subject: z
     .string()
     .min(5, "Subject must be at least 5 characters.")

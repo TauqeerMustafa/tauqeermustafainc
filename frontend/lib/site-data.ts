@@ -8,13 +8,9 @@ export const navigation = [
   { name: "Contact", href: "/contact" },
 ];
 
-export const publicNavigation = navigation.filter((item) =>
-  !item.href.includes("/admin") && !item.href.includes("/login") && !item.href.includes("/dashboard")
-);
-
 export const footerLinks = {
   services: [
-    { name: "Web Development", href: "/services/enterprise-web-development" },
+    { name: "Enterprise Web Development", href: "/services/enterprise-web-development" },
     { name: "Cybersecurity", href: "/services/cybersecurity" },
     { name: "AI Solutions", href: "/services/ai-solutions" },
     { name: "Cloud Engineering", href: "/services/cloud-engineering" },
@@ -33,22 +29,16 @@ export const footerLinks = {
     { name: "Cookie Policy", href: "/cookies" },
     { name: "Accessibility", href: "/accessibility" },
   ],
-  policies: [
-    { name: "Payment Policy", href: "/legal/payment-policy" },
-    { name: "Refund Policy", href: "/legal/refund-policy" },
-    { name: "Return Policy", href: "/legal/return-policy" },
-    { name: "Product Policy", href: "/legal/product-policy" },
-  ],
 };
 
 export const services = [
   {
     slug: "enterprise-web-development",
-    title: "Web Development",
+    title: "Enterprise Web Development",
     shortDescription:
-      "Secure web platforms, portals, dashboards, and product systems built to last.",
+      "Secure web platforms, portals, dashboards, and product systems built for scale.",
     description:
-      "We design and build maintainable web applications with clear architecture, reliable delivery practices, and performance-minded implementation. Every engagement starts with the business workflow, not the framework, so the systems we ship stay easy to operate long after launch.",
+      "We design and build maintainable enterprise web applications with clear architecture, reliable delivery practices, and performance-minded implementation. Every engagement starts with the business workflow, not the framework, so the systems we ship stay easy to operate long after launch.",
     outcomes: [
       "Application architecture and technical planning",
       "Customer and internal portals",

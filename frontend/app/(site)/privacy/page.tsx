@@ -23,12 +23,12 @@ export default function PrivacyPolicyPage() {
         </div>
       </PageHero>
 
-      <Section className="bg-[#f3f0ee]" labelledBy="privacy-content">
+      <Section className="bg-[#FAFAFA]" labelledBy="privacy-content">
         <article
           id="privacy-content"
-          className="mx-auto max-w-3xl rounded-none border border-[#e2ded9] bg-white p-7 shadow-sm sm:p-10"
+          className="mx-auto max-w-3xl rounded-none border border-[#E5E5E5] bg-white p-7 shadow-sm sm:p-10"
         >
-          <p className="mb-6 text-base leading-8 text-[#141413]">
+          <p className="mb-6 text-base leading-8 text-[#171717]">
             {company.name} (&quot;we&quot;, &quot;us&quot;, or &quot;our&quot;) respects your privacy and is
             committed to protecting it through compliance with this policy. This Privacy Policy describes the
             types of information we may collect from you or that you may provide when you visit our website at{" "}
@@ -36,12 +36,12 @@ export default function PrivacyPolicyPage() {
             and our practices for collecting, using, maintaining, protecting, and disclosing that information.
           </p>
 
-          <h2 className="mb-4 mt-10 text-xl font-semibold text-[#141413]">1. Information We Collect</h2>
-          <p className="mb-4 text-base leading-8 text-[#141413]">
+          <h2 className="mb-4 mt-10 text-xl font-semibold text-[#0A0A0A]">1. Information We Collect</h2>
+          <p className="mb-4 text-base leading-8 text-[#171717]">
             We collect several types of information from and about users of our Site and clients of our services,
             including:
           </p>
-          <ul className="mb-6 list-disc space-y-2 pl-6 text-base leading-7 text-[#141413]">
+          <ul className="mb-6 list-disc space-y-2 pl-6 text-base leading-7 text-[#171717]">
             <li>
               Information you provide directly, such as your name, company, email address, phone number, and
               project details submitted through contact or intake forms.
@@ -60,11 +60,11 @@ export default function PrivacyPolicyPage() {
             </li>
           </ul>
 
-          <h2 className="mb-4 mt-10 text-xl font-semibold text-[#141413]">2. How We Use Your Information</h2>
-          <p className="mb-4 text-base leading-8 text-[#141413]">
+          <h2 className="mb-4 mt-10 text-xl font-semibold text-[#0A0A0A]">2. How We Use Your Information</h2>
+          <p className="mb-4 text-base leading-8 text-[#171717]">
             We use the information we collect to:
           </p>
-          <ul className="mb-6 list-disc space-y-2 pl-6 text-base leading-7 text-[#141413]">
+          <ul className="mb-6 list-disc space-y-2 pl-6 text-base leading-7 text-[#171717]">
             <li>Respond to inquiries, provide quotes, and deliver contracted services.</li>
             <li>Operate, maintain, and improve the functionality and security of our Site.</li>
             <li>Communicate with you about projects, proposals, invoices, and support requests.</li>
@@ -72,21 +72,21 @@ export default function PrivacyPolicyPage() {
             <li>Comply with legal obligations and enforce our agreements.</li>
           </ul>
 
-          <h2 className="mb-4 mt-10 text-xl font-semibold text-[#141413]">3. Cookies and Tracking Technologies</h2>
-          <p className="mb-6 text-base leading-8 text-[#141413]">
+          <h2 className="mb-4 mt-10 text-xl font-semibold text-[#0A0A0A]">3. Cookies and Tracking Technologies</h2>
+          <p className="mb-6 text-base leading-8 text-[#171717]">
             We use cookies and similar technologies to operate and improve our Site. Details about the categories
             of cookies we use and how to manage your preferences are described in our{" "}
-            <a href="/cookies" className="font-medium text-[#2a2a28] underline underline-offset-2">
+            <a href="/cookies" className="font-medium text-[#262626] underline underline-offset-2">
               Cookie Policy
             </a>
             .
           </p>
 
-          <h2 className="mb-4 mt-10 text-xl font-semibold text-[#141413]">4. How We Share Information</h2>
-          <p className="mb-4 text-base leading-8 text-[#141413]">
+          <h2 className="mb-4 mt-10 text-xl font-semibold text-[#0A0A0A]">4. How We Share Information</h2>
+          <p className="mb-4 text-base leading-8 text-[#171717]">
             We do not sell personal information. We may share information with:
           </p>
-          <ul className="mb-6 list-disc space-y-2 pl-6 text-base leading-7 text-[#141413]">
+          <ul className="mb-6 list-disc space-y-2 pl-6 text-base leading-7 text-[#171717]">
             <li>
               Service providers who perform functions on our behalf, such as hosting, analytics, and email
               delivery, under confidentiality obligations consistent with this policy.
@@ -99,54 +99,54 @@ export default function PrivacyPolicyPage() {
             <li>A successor entity in the event of a merger, acquisition, or sale of company assets.</li>
           </ul>
 
-          <h2 className="mb-4 mt-10 text-xl font-semibold text-[#141413]">5. Data Security</h2>
-          <p className="mb-6 text-base leading-8 text-[#141413]">
+          <h2 className="mb-4 mt-10 text-xl font-semibold text-[#0A0A0A]">5. Data Security</h2>
+          <p className="mb-6 text-base leading-8 text-[#171717]">
             We implement reasonable administrative, technical, and physical safeguards designed to protect
             information from unauthorized access, disclosure, alteration, or destruction. No method of
             transmission or storage is completely secure, and we cannot guarantee absolute security.
           </p>
 
-          <h2 className="mb-4 mt-10 text-xl font-semibold text-[#141413]">6. Data Retention</h2>
-          <p className="mb-6 text-base leading-8 text-[#141413]">
+          <h2 className="mb-4 mt-10 text-xl font-semibold text-[#0A0A0A]">6. Data Retention</h2>
+          <p className="mb-6 text-base leading-8 text-[#171717]">
             We retain personal information for as long as necessary to fulfill the purposes described in this
             policy, unless a longer retention period is required or permitted by law, including for accounting,
             recordkeeping, or dispute resolution purposes.
           </p>
 
-          <h2 className="mb-4 mt-10 text-xl font-semibold text-[#141413]">7. Your Rights and Choices</h2>
-          <p className="mb-4 text-base leading-8 text-[#141413]">
+          <h2 className="mb-4 mt-10 text-xl font-semibold text-[#0A0A0A]">7. Your Rights and Choices</h2>
+          <p className="mb-4 text-base leading-8 text-[#171717]">
             Depending on your location, you may have rights to access, correct, delete, or restrict the use of
             your personal information, and to object to certain processing. To exercise any of these rights,
             contact us using the details below and we will respond within a reasonable timeframe.
           </p>
 
-          <h2 className="mb-4 mt-10 text-xl font-semibold text-[#141413]">8. International Data Transfers</h2>
-          <p className="mb-6 text-base leading-8 text-[#141413]">
+          <h2 className="mb-4 mt-10 text-xl font-semibold text-[#0A0A0A]">8. International Data Transfers</h2>
+          <p className="mb-6 text-base leading-8 text-[#171717]">
             Because we work with clients and collaborators in multiple regions, information may be transferred to
             and processed in countries other than your own. We take steps to ensure that any such transfer
             complies with applicable data protection requirements.
           </p>
 
-          <h2 className="mb-4 mt-10 text-xl font-semibold text-[#141413]">9. Children&apos;s Privacy</h2>
-          <p className="mb-6 text-base leading-8 text-[#141413]">
+          <h2 className="mb-4 mt-10 text-xl font-semibold text-[#0A0A0A]">9. Children&apos;s Privacy</h2>
+          <p className="mb-6 text-base leading-8 text-[#171717]">
             Our Site and services are not directed to individuals under the age of 16, and we do not knowingly
             collect personal information from children.
           </p>
 
-          <h2 className="mb-4 mt-10 text-xl font-semibold text-[#141413]">10. Changes to This Policy</h2>
-          <p className="mb-6 text-base leading-8 text-[#141413]">
+          <h2 className="mb-4 mt-10 text-xl font-semibold text-[#0A0A0A]">10. Changes to This Policy</h2>
+          <p className="mb-6 text-base leading-8 text-[#171717]">
             We may update this Privacy Policy from time to time. The &quot;Last updated&quot; date at the top of
             this page reflects the most recent revision. Material changes will be communicated through a notice on
             the Site.
           </p>
 
-          <h2 className="mb-4 mt-10 text-xl font-semibold text-[#141413]">11. Contact Us</h2>
-          <p className="text-base leading-8 text-[#141413]">
+          <h2 className="mb-4 mt-10 text-xl font-semibold text-[#0A0A0A]">11. Contact Us</h2>
+          <p className="text-base leading-8 text-[#171717]">
             If you have questions about this Privacy Policy or our data practices, contact us at{" "}
-            <a href={`mailto:${company.emails.legal}`} className="font-medium text-[#2a2a28] underline underline-offset-2">
+            <a href={`mailto:${company.emails.legal}`} className="font-medium text-[#262626] underline underline-offset-2">
               {company.emails.legal}
             </a>{" "}
-            or by mail at {company.city}.
+            or by mail at {company.headquarters}.
           </p>
         </article>
       </Section>
