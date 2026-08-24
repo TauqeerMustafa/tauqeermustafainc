@@ -62,4 +62,4 @@ services:
       - key: GOOGLE_CLIENT_SECRET
         sync: false
       - key: GOOGLE_REDIRECT_URI
-        value: https://tauqeer-inc-backend.onrender.com/auth/client/google/callback
+        value: https://api.tauqeermustafa.tech/auth/client/google/callback
