@@ -1,4 +1,3 @@
-import base64
 import json
 import logging
 import smtplib
@@ -31,37 +30,6 @@ def send_email_code(email: str, code: str) -> None:
         if settings.smtp_username and settings.smtp_password:
             server.login(settings.smtp_username, settings.smtp_password)
         server.send_message(message)
-
-
-def twilio_configured() -> bool:
-    return all((settings.twilio_account_sid, settings.twilio_auth_token, settings.twilio_verify_service_sid))
-
-
-def send_phone_code(phone: str, code: str) -> None:
-    if twilio_configured():
-        endpoint = f"https://verify.twilio.com/v2/Services/{settings.twilio_verify_service_sid}/Verifications"
-        body = urlencode({"To": phone, "Channel": "sms"}).encode()
-        credentials = base64.b64encode(f"{settings.twilio_account_sid}:{settings.twilio_auth_token}".encode()).decode()
-        request = Request(endpoint, data=body, method="POST", headers={"Authorization": f"Basic {credentials}", "Content-Type": "application/x-www-form-urlencoded"})
-        with urlopen(request, timeout=20):
-            return
-    if settings.environment == "production":
-        raise RuntimeError("Twilio Verify is not configured")
-    logger.warning("Twilio Verify is not configured; phone verification code generated for %s", phone)
-
-
-def check_phone_code(phone: str, code: str) -> bool:
-    if not twilio_configured():
-        return False
-    endpoint = f"https://verify.twilio.com/v2/Services/{settings.twilio_verify_service_sid}/VerificationCheck"
-    body = urlencode({"To": phone, "Code": code}).encode()
-    credentials = base64.b64encode(f"{settings.twilio_account_sid}:{settings.twilio_auth_token}".encode()).decode()
-    request = Request(endpoint, data=body, method="POST", headers={"Authorization": f"Basic {credentials}", "Content-Type": "application/x-www-form-urlencoded"})
-    try:
-        with urlopen(request, timeout=20) as response:
-            return json.loads(response.read()).get("status") == "approved"
-    except Exception:
-        return False
 
 
 def google_authorization_url(state: str) -> str:

@@ -37,9 +37,6 @@ class Settings(BaseSettings):
     smtp_password: str | None = None
     smtp_from_email: str | None = None
     smtp_use_tls: bool = True
-    twilio_account_sid: str | None = None
-    twilio_auth_token: str | None = None
-    twilio_verify_service_sid: str | None = None
     google_client_id: str | None = None
     google_client_secret: str | None = None
     google_redirect_uri: str | None = None

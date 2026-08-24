@@ -11,21 +11,21 @@ class ClientRegisterRequest(CamelModel):
     name: str = Field(min_length=1, max_length=200)
     email: EmailStr
     password: str = Field(min_length=8, max_length=200)
-    phone: str = Field(min_length=7, max_length=40)
+    phone: str | None = Field(default=None, max_length=40)
 
 
 class ClientRegisterResponse(CamelModel):
     user_id: uuid.UUID
     email: str
-    phone: str
+    phone: str | None = None
     email_verification_required: bool = True
-    phone_verification_required: bool = True
+    phone_verification_required: bool = False
     message: str
 
 
 class SendCodeRequest(CamelModel):
     user_id: uuid.UUID
-    channel: str = Field(pattern="^(email|phone)$")
+    channel: str = Field(default="email", pattern="^email$")
 
 
 class CodeSentResponse(CamelModel):
@@ -45,17 +45,7 @@ class CodeVerificationResponse(CamelModel):
 
 class VerifyCodeRequest(CamelModel):
     user_id: uuid.UUID
-    channel: str = Field(pattern="^(email|phone)$")
-    code: str = Field(min_length=6, max_length=6, pattern="^\\d{6}$")
-
-
-class GooglePhoneStartRequest(CamelModel):
-    session: str = Field(min_length=20)
-    phone: str = Field(min_length=7, max_length=40)
-
-
-class GooglePhoneVerifyRequest(CamelModel):
-    session: str = Field(min_length=20)
+    channel: str = Field(default="email", pattern="^email$")
     code: str = Field(min_length=6, max_length=6, pattern="^\\d{6}$")
 
 
