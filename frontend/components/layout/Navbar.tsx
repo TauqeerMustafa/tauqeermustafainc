@@ -16,6 +16,7 @@ const navLinks = [
   { name: "Careers", href: "/careers" },
   { name: "Blog", href: "/blog" },
   { name: "Community", href: "/community" },
+  { name: "Client Portal", href: "/client/login" },
   { name: "Contact", href: "/contact" },
 ];
 

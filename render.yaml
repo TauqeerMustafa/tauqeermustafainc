@@ -41,3 +41,31 @@ services:
       # Comma-separated, exact scheme+host, no trailing slash, no spaces.
       - key: CORS_ORIGINS
         value: https://tauqeermustafa.tech,https://www.tauqeermustafa.tech,https://tauqeermustafainc.vercel.app
+      - key: CLIENT_PORTAL_URL
+        value: https://www.tauqeermustafa.tech
+      - key: VERIFICATION_CODE_TTL_MINUTES
+        value: "10"
+      - key: SMTP_HOST
+        sync: false
+      - key: SMTP_PORT
+        value: "587"
+      - key: SMTP_USERNAME
+        sync: false
+      - key: SMTP_PASSWORD
+        sync: false
+      - key: SMTP_FROM_EMAIL
+        sync: false
+      - key: SMTP_USE_TLS
+        value: "true"
+      - key: TWILIO_ACCOUNT_SID
+        sync: false
+      - key: TWILIO_AUTH_TOKEN
+        sync: false
+      - key: TWILIO_VERIFY_SERVICE_SID
+        sync: false
+      - key: GOOGLE_CLIENT_ID
+        sync: false
+      - key: GOOGLE_CLIENT_SECRET
+        sync: false
+      - key: GOOGLE_REDIRECT_URI
+        value: https://tauqeer-inc-backend.onrender.com/auth/client/google/callback

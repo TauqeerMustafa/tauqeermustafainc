@@ -27,6 +27,23 @@ class Settings(BaseSettings):
     access_token_expire_minutes: int = 60 * 24 * 7  # 7 days default
     cors_origins: str = "http://localhost:3000,http://127.0.0.1:3000"
 
+    # Client portal verification providers. Delivery stays disabled until the
+    # corresponding production credentials are configured.
+    client_portal_url: str = "http://localhost:3000"
+    verification_code_ttl_minutes: int = 10
+    smtp_host: str | None = None
+    smtp_port: int = 587
+    smtp_username: str | None = None
+    smtp_password: str | None = None
+    smtp_from_email: str | None = None
+    smtp_use_tls: bool = True
+    twilio_account_sid: str | None = None
+    twilio_auth_token: str | None = None
+    twilio_verify_service_sid: str | None = None
+    google_client_id: str | None = None
+    google_client_secret: str | None = None
+    google_redirect_uri: str | None = None
+
     model_config = SettingsConfigDict(
         env_file=_ENV_FILE if _ENV_FILE.exists() else None,
         env_file_encoding="utf-8",

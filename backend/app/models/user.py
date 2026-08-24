@@ -50,6 +50,16 @@ class User(Base):
         default=False,
     )
 
+    email_verified_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
+    phone_verified_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
+    google_subject: Mapped[str | None] = mapped_column(
+        String(255), unique=True, index=True, nullable=True
+    )
+
     is_superuser: Mapped[bool] = mapped_column(
         Boolean,
         default=False,
