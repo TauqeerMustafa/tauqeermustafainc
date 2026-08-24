@@ -233,13 +233,13 @@ def upgrade() -> None:
     # them approved and give superusers the admin role, everyone else exec.
     op.execute(
         sa.text(
-            "UPDATE users SET role_id = :admin_id, status = 'approved', approved_at = now() "
+            "UPDATE users SET role_id = CAST(:admin_id AS uuid), status = 'approved', approved_at = now() "
             "WHERE is_superuser = true AND role_id IS NULL"
         ).bindparams(admin_id=str(role_ids["admin"]))
     )
     op.execute(
         sa.text(
-            "UPDATE users SET role_id = :exec_id, status = 'approved' "
+            "UPDATE users SET role_id = CAST(:exec_id AS uuid), status = 'approved' "
             "WHERE is_superuser = false AND role_id IS NULL"
         ).bindparams(exec_id=str(role_ids["exec"]))
     )
