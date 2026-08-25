@@ -1,74 +1,91 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState, useSyncExternalStore } from "react";
 import {
+  ArrowDownRight,
   ArrowRight,
   CalendarDays,
-  ChevronDown,
-  Compass,
+  ChevronRight,
+  CircleUserRound,
   Menu,
   MessageCircle,
-  Sparkles,
-  Users,
+  Moon,
+  MoveUpRight,
+  PanelTop,
+  Sun,
   X,
 } from "lucide-react";
 
+type Theme = "dark" | "light";
+
+const themeListeners = new Set<() => void>();
+const subscribeToTheme = (listener: () => void) => {
+  themeListeners.add(listener);
+  return () => themeListeners.delete(listener);
+};
+const getTheme = (): Theme => {
+  if (typeof window === "undefined") return "dark";
+  const savedTheme = window.localStorage.getItem("community-theme");
+  if (savedTheme === "light" || savedTheme === "dark") return savedTheme;
+  return window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark";
+};
+const getServerTheme = (): Theme => "dark";
+
 const spaces = [
   {
-    eyebrow: "Think together",
+    index: "01",
     title: "Open conversations",
-    description:
-      "Bring a question, an observation, or a half-formed idea. Good discussions do not require a polished starting point.",
+    description: "Questions, observations, and unfinished ideas that get sharper in good company.",
     icon: MessageCircle,
-    color: "coral",
   },
   {
-    eyebrow: "Grow together",
+    index: "02",
     title: "Skill exchange",
-    description:
-      "Learn from people who have tried it before, then pass a useful lesson forward in your own voice.",
-    icon: Sparkles,
-    color: "blue",
+    description: "Practical knowledge from people who have tried it, tested it, and kept learning.",
+    icon: PanelTop,
   },
   {
-    eyebrow: "Meet in person",
+    index: "03",
     title: "Small gatherings",
-    description:
-      "Join focused sessions that make room for real introductions, practical takeaways, and follow-up.",
+    description: "Focused rooms for real introductions, useful takeaways, and a reason to return.",
     icon: CalendarDays,
-    color: "gold",
-  },
-  {
-    eyebrow: "Find your people",
-    title: "Interest circles",
-    description:
-      "Follow the themes that keep your attention and discover a smaller group to return to regularly.",
-    icon: Compass,
-    color: "lilac",
   },
 ];
 
 const moments = [
-  { date: "12 Sep", title: "The courage to start small", type: "Open conversation" },
-  { date: "19 Sep", title: "Show your work: September", type: "Skill exchange" },
-  { date: "03 Oct", title: "A morning for better questions", type: "Small gathering" },
+  { date: "12 SEP", title: "The courage to start small", type: "OPEN CONVERSATION" },
+  { date: "19 SEP", title: "Show your work: September", type: "SKILL EXCHANGE" },
+  { date: "03 OCT", title: "A morning for better questions", type: "SMALL GATHERING" },
 ];
 
 export default function CommunityHome() {
   const [menuOpen, setMenuOpen] = useState(false);
-  const [showAll, setShowAll] = useState(false);
+  const theme = useSyncExternalStore(subscribeToTheme, getTheme, getServerTheme);
+
+  useEffect(() => {
+    document.documentElement.dataset.theme = theme;
+  }, [theme]);
+
+  const toggleTheme = () => {
+    const nextTheme: Theme = theme === "dark" ? "light" : "dark";
+    window.localStorage.setItem("community-theme", nextTheme);
+    document.documentElement.dataset.theme = nextTheme;
+    themeListeners.forEach((listener) => listener());
+  };
+  const closeMenu = () => setMenuOpen(false);
 
   return (
     <main className="site-shell">
-      <div className="announcement">
-        <span className="announcement-dot" aria-hidden="true" />
-        <span>Thoughtful people. Useful conversations. A little more momentum.</span>
+      <div className="m-stripe" aria-hidden="true"><span /><span /><span /></div>
+      <div className="utility-bar">
+        <span>COMMUNITY / EST. 2026</span>
+        <span className="utility-status"><i aria-hidden="true" /> OPEN TO NEW VOICES</span>
       </div>
 
       <header className="site-header">
         <a className="wordmark" href="#top" aria-label="Community home">
           <span className="wordmark-mark" aria-hidden="true">C</span>
-          <span>Community</span>
+          <span>COMMUNITY</span>
         </a>
         <button
           className="menu-trigger"
@@ -77,132 +94,83 @@ export default function CommunityHome() {
           aria-expanded={menuOpen}
           onClick={() => setMenuOpen((current) => !current)}
         >
-          {menuOpen ? <X size={20} /> : <Menu size={20} />}
+          {menuOpen ? <X size={19} /> : <Menu size={19} />}
         </button>
         <nav className={`main-nav ${menuOpen ? "is-open" : ""}`} aria-label="Primary navigation">
-          <a href="#spaces" onClick={() => setMenuOpen(false)}>Explore spaces</a>
-          <a href="#moments" onClick={() => setMenuOpen(false)}>Upcoming moments</a>
-          <a href="#principles" onClick={() => setMenuOpen(false)}>Our approach</a>
-          <a className="nav-cta" href="#join" onClick={() => setMenuOpen(false)}>
-            Find your place <ArrowRight size={16} />
-          </a>
+          <a href="#spaces" onClick={closeMenu}>SPACES</a>
+          <a href="#moments" onClick={closeMenu}>MOMENTS</a>
+          <a href="#approach" onClick={closeMenu}>APPROACH</a>
+          <button className="theme-toggle" type="button" onClick={toggleTheme} aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} theme`}>
+            {theme === "dark" ? <Sun size={16} /> : <Moon size={16} />}
+            <span>{theme === "dark" ? "LIGHT" : "DARK"}</span>
+          </button>
+          <a className="nav-cta" href="#join" onClick={closeMenu}>JOIN THE GRID <ArrowRight size={16} /></a>
         </nav>
       </header>
 
       <section className="hero section" id="top">
         <div className="hero-copy">
-          <p className="kicker"><span className="kicker-line" />A generous place to begin</p>
-          <h1>Make room for <em>better</em> conversations.</h1>
-          <p className="hero-lede">
-            Community is a gathering place for curious people who want to exchange ideas,
-            practice their craft, and leave one another with something useful.
-          </p>
+          <p className="eyebrow"><span className="eyebrow-line" /> A PLACE TO MOVE WITH PURPOSE</p>
+          <h1>MAKE YOUR<br /><span>OWN</span> <em>LINE.</em></h1>
+          <p className="hero-lede">A considered space for curious people to exchange ideas, sharpen their craft, and build momentum together.</p>
           <div className="hero-actions">
-            <a className="button button-primary" href="#spaces">Explore the spaces <ArrowRight size={17} /></a>
-            <a className="text-link" href="#principles">See how it works <ChevronDown size={16} /></a>
+            <a className="button button-primary" href="#spaces">EXPLORE SPACES <ArrowRight size={17} /></a>
+            <a className="text-link" href="#approach">OUR APPROACH <MoveUpRight size={15} /></a>
           </div>
-          <div className="hero-proof">
-            <div className="avatar-stack" aria-hidden="true">
-              <span className="avatar avatar-one">M</span>
-              <span className="avatar avatar-two">A</span>
-              <span className="avatar avatar-three">J</span>
-              <span className="avatar avatar-four">+</span>
-            </div>
-            <p><strong>1,240 curious people</strong><br />are already making space.</p>
+          <div className="hero-meta">
+            <span>01 — 03</span>
+            <span className="meta-rule" />
+            <span>COMMUNITY IN MOTION</span>
           </div>
         </div>
-        <div className="hero-art" aria-label="Abstract illustration of connected community members" role="img">
-          <div className="orbit orbit-one" />
-          <div className="orbit orbit-two" />
-          <div className="orbit orbit-three" />
-          <div className="art-sun"><Sparkles size={30} strokeWidth={1.5} /></div>
-          <div className="art-card art-card-top"><span className="art-card-icon"><Users size={16} /></span><span>Room for everyone</span></div>
-          <div className="art-card art-card-bottom"><span className="art-card-dot" /><span>Small steps count</span></div>
-          <span className="art-star star-one">✦</span>
-          <span className="art-star star-two">✦</span>
-          <span className="art-star star-three">✧</span>
+        <div className="hero-art" role="img" aria-label="Abstract geometric composition in the community colour system">
+          <div className="art-grid" aria-hidden="true" />
+          <div className="art-circle art-circle-one" aria-hidden="true" />
+          <div className="art-circle art-circle-two" aria-hidden="true" />
+          <div className="art-core" aria-hidden="true"><span>C</span></div>
+          <div className="art-label art-label-top"><span className="art-label-dot" /> OPEN / CURIOUS / USEFUL</div>
+          <div className="art-label art-label-bottom">PRECISION<br />WITH ROOM TO BREATHE</div>
+          <span className="art-coordinate">25° 14&apos; 06&quot; N<br />55° 18&apos; 32&quot; E</span>
         </div>
       </section>
 
-      <section className="intro-strip section" id="principles">
-        <div className="intro-number">01</div>
-        <div>
-          <p className="kicker">The idea</p>
-          <h2>Less broadcasting.<br /><em>More belonging.</em></h2>
-        </div>
-        <p className="intro-text">
-          The best communities make it easier to ask the honest question, share the unfinished
-          work, and find the person who has been there before. That is the kind of place we are building.
-        </p>
+      <section className="statement section" id="approach">
+        <div className="section-number">01</div>
+        <div className="statement-heading"><p className="eyebrow">THE IDEA</p><h2>LESS NOISE.<br /><em>MORE SIGNAL.</em></h2></div>
+        <div className="statement-copy"><p>Good communities make it easier to ask the honest question, share the unfinished work, and find the person who has been there before.</p><p className="muted-copy">Come for the perspective. Stay for the people who make you think differently.</p></div>
       </section>
 
       <section className="spaces section" id="spaces">
         <div className="section-heading">
-          <div>
-            <p className="kicker">Find your rhythm</p>
-            <h2>There is more than<br /><em>one way to belong.</em></h2>
-          </div>
+          <div><p className="eyebrow">FIND YOUR RHYTHM</p><h2>THREE WAYS<br />TO <em>ENTER.</em></h2></div>
           <p className="section-note">Start with the space that feels most like you today.</p>
         </div>
         <div className="space-grid">
-          {spaces.slice(0, showAll ? spaces.length : 3).map((space) => {
+          {spaces.map((space) => {
             const Icon = space.icon;
-            return (
-              <article className={`space-card ${space.color}`} key={space.title}>
-                <div className="space-card-top">
-                  <span className="space-icon"><Icon size={20} strokeWidth={1.8} /></span>
-                  <span className="space-arrow"><ArrowRight size={18} /></span>
-                </div>
-                <p className="card-eyebrow">{space.eyebrow}</p>
-                <h3>{space.title}</h3>
-                <p>{space.description}</p>
-              </article>
-            );
+            return <a className="space-card" href="#join" key={space.title}>
+              <div className="space-card-top"><span className="space-index">{space.index}</span><span className="space-icon"><Icon size={19} strokeWidth={1.6} /></span></div>
+              <div className="space-card-copy"><h3>{space.title}</h3><p>{space.description}</p></div>
+              <span className="space-arrow"><ArrowDownRight size={20} /></span>
+            </a>;
           })}
         </div>
-        <button className="outline-button" type="button" onClick={() => setShowAll((current) => !current)}>
-          {showAll ? "Show fewer spaces" : "See all spaces"} <ArrowRight size={16} />
-        </button>
       </section>
 
       <section className="moments section" id="moments">
-        <div className="section-heading moments-heading">
-          <div>
-            <p className="kicker">Keep a date</p>
-            <h2>Upcoming <em>moments.</em></h2>
-          </div>
-          <a className="text-link" href="#join">View the calendar <ArrowRight size={16} /></a>
-        </div>
+        <div className="section-heading moments-heading"><div><p className="eyebrow">KEEP A DATE</p><h2>UPCOMING<br /><em>MOMENTS.</em></h2></div><a className="text-link" href="#join">VIEW CALENDAR <MoveUpRight size={15} /></a></div>
         <div className="moment-list">
-          {moments.map((moment, index) => (
-            <a className="moment-row" href="#join" key={moment.title}>
-              <span className="moment-index">0{index + 1}</span>
-              <span className="moment-date">{moment.date}</span>
-              <span className="moment-title">{moment.title}</span>
-              <span className="moment-type">{moment.type}</span>
-              <ArrowRight className="moment-arrow" size={19} />
-            </a>
-          ))}
+          {moments.map((moment, index) => <a className="moment-row" href="#join" key={moment.title}><span className="moment-index">0{index + 1}</span><span className="moment-date">{moment.date}</span><span className="moment-title">{moment.title}</span><span className="moment-type">{moment.type}</span><ChevronRight className="moment-arrow" size={19} /></a>)}
         </div>
       </section>
 
       <section className="join section" id="join">
-        <div className="join-orb orb-a" />
-        <div className="join-orb orb-b" />
-        <div className="join-content">
-          <p className="kicker light"><span className="kicker-line" />A seat is waiting</p>
-          <h2>Come as you are.<br /><em>Bring what you know.</em></h2>
-          <p>Get occasional notes about conversations, gatherings, and ways to take part.</p>
-          <a className="button button-light" href="mailto:hello@community.tauqeermustafa.tech?subject=I%20want%20to%20join">I want to join <ArrowRight size={17} /></a>
-        </div>
-        <div className="join-mark" aria-hidden="true"><span>✦</span></div>
+        <div className="join-rings" aria-hidden="true"><span /><span /><span /></div>
+        <div className="join-content"><p className="eyebrow light"><span className="eyebrow-line" /> YOUR NEXT MOVE</p><h2>MAKE ROOM<br /><em>FOR MORE.</em></h2><p>Get occasional notes about conversations, gatherings, and ways to take part.</p><a className="button button-light" href="mailto:hello@community.tauqeermustafa.tech?subject=I%20want%20to%20join">JOIN THE GRID <ArrowRight size={17} /></a></div>
+        <div className="join-spec"><span className="join-spec-label">COMMUNITY / 001</span><CircleUserRound size={82} strokeWidth={.7} /><span className="join-spec-copy">EVERY VOICE<br />CHANGES THE SHAPE.</span></div>
       </section>
 
-      <footer className="site-footer">
-        <a className="wordmark" href="#top"><span className="wordmark-mark" aria-hidden="true">C</span><span>Community</span></a>
-        <p>Make space. Share generously.</p>
-        <div className="footer-links"><a href="#spaces">Spaces</a><a href="#moments">Moments</a><a href="mailto:hello@community.tauqeermustafa.tech">Contact</a></div>
-      </footer>
+      <footer className="site-footer"><a className="wordmark" href="#top"><span className="wordmark-mark" aria-hidden="true">C</span><span>COMMUNITY</span></a><p>MAKE SPACE. SHARE GENEROUSLY.</p><div className="footer-links"><a href="#spaces">SPACES</a><a href="#moments">MOMENTS</a><a href="mailto:hello@community.tauqeermustafa.tech">CONTACT</a></div></footer>
     </main>
   );
 }
