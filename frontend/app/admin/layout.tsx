@@ -1,30 +1,25 @@
-import { ReactNode } from "react";
+"use client";
 
+import { ReactNode, useState } from "react";
+
+import AdminGuard from "@/components/admin/AdminGuard";
 import AdminSidebar from "@/components/admin/AdminSidebar";
 import AdminHeader from "@/components/admin/AdminHeader";
 
-type Props = {
-  children: ReactNode;
-};
+export default function AdminLayout({ children }: { children: ReactNode }) {
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
-export default function AdminLayout({
-  children,
-}: Props) {
   return (
-    <div className="flex min-h-screen bg-[#050816]">
-
-      <AdminSidebar />
-
-      <div className="flex flex-1 flex-col">
-
-        <AdminHeader />
-
-        <main className="flex-1 p-8">
-          {children}
-        </main>
-
+    <AdminGuard>
+      <div className="flex min-h-screen" style={{ background: "var(--adm-bg)" }}>
+        <AdminSidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
+        <div className="flex min-w-0 flex-1 flex-col">
+          <AdminHeader onMenuClick={() => setIsSidebarOpen(true)} />
+          <main className="adm-page flex-1 p-4 sm:p-6 lg:p-8">
+            {children}
+          </main>
+        </div>
       </div>
-
-    </div>
+    </AdminGuard>
   );
 }

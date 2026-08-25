@@ -1,113 +1,109 @@
-import { BarChart3, CheckCircle2, ShieldCheck } from "lucide-react";
+"use client";
 
-import { PrimaryButton, SecondaryButton } from "@/components/home/ui";
+import { motion } from "framer-motion";
+import Link from "next/link";
+import Image from "next/image";
+import { ArrowRight, Circle } from "lucide-react";
 
-const capabilities = [
-  "Secure web platforms",
-  "AI automation",
-  "Enterprise delivery",
-];
+import { imageLibrary } from "@/data/media";
 
-const readiness = [
-  ["Architecture", "Cloud-ready platform blueprint", "96%"],
-  ["Security", "Risk controls and hardening", "99%"],
-  ["Automation", "Workflow intelligence coverage", "88%"],
-];
+/* ── BMW M Hero — Dark dominant canvas, M-stripe signature, Mastercard radius ── */
 
 export default function Hero() {
   return (
-    <section className="relative overflow-hidden border-b border-[#E5E7EB] bg-white">
-      <div className="absolute inset-x-0 top-0 h-px bg-[#C9A227]" aria-hidden="true" />
-      <div className="mx-auto grid min-h-[calc(100vh-4rem)] max-w-7xl items-center gap-12 px-6 py-20 sm:py-24 lg:grid-cols-[1.08fr_0.92fr]">
-        <div className="max-w-4xl">
-          <span className="inline-flex items-center gap-2 rounded-full border border-[#C9A227]/45 bg-white px-4 py-2 text-sm font-semibold text-[#111827] shadow-sm">
-            <ShieldCheck className="h-4 w-4 text-[#C9A227]" aria-hidden="true" />
-            Enterprise digital engineering partner
-          </span>
+    /* BMW M near-black canvas — #1a2129 */
+    <section className="relative overflow-hidden bg-[#1a2129] px-5 pb-20 pt-24 sm:px-6 sm:pt-32 lg:pt-40" aria-label="Hero">
+      {/* M-stripe — signature brand element at top */}
+      <div className="absolute left-0 right-0 top-0 flex h-1.5">
+        <span className="flex-1 bg-[#0066b1]" />
+        <span className="flex-1 bg-[#1c69d4]" />
+        <span className="flex-1 bg-[#e22718]" />
+      </div>
 
-          <h1 className="mt-8 max-w-5xl text-4xl font-semibold tracking-tight text-[#111827] sm:text-5xl lg:text-6xl">
-            Secure, scalable digital products for ambitious enterprises.
-          </h1>
+      <div className="relative mx-auto max-w-[1200px]">
 
-          <p className="mt-6 max-w-2xl text-lg leading-8 text-[#6B7280]">
-            Tauqeer Mustafa Inc. designs and builds high-performance web
-            platforms, cybersecurity programs, and AI automation systems that
-            help modern organizations operate with confidence.
-          </p>
+        {/* ── Centre stack ── */}
+        <div className="flex flex-col items-center text-center">
 
-          <div className="mt-10 flex flex-col gap-3 sm:flex-row">
-            <PrimaryButton href="/contact">Start a Project</PrimaryButton>
-            <SecondaryButton href="/services">Explore Services</SecondaryButton>
-          </div>
+          {/* Eyebrow badge — BMW subtle transparency */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+            className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-5 py-2.5 backdrop-blur-sm"
+          >
+            <Circle className="h-2 w-2 fill-[#1c69d4] text-[#1c69d4]" aria-hidden />
+            <span className="font-mono text-[11px] font-semibold uppercase tracking-[0.12em] text-white/80">
+              Islamabad-based · Globally focused
+            </span>
+          </motion.div>
 
-          <dl className="mt-12 grid max-w-2xl gap-4 sm:grid-cols-3">
-            {capabilities.map((item) => (
-              <div key={item} className="border-l border-[#C9A227] pl-4">
-                <dt className="text-sm font-semibold text-[#111827]">{item}</dt>
-                <dd className="mt-1 text-sm text-[#6B7280]">
-                  Built for production teams
-                </dd>
-              </div>
-            ))}
-          </dl>
+          {/* Display headline — BMW 700 weight, UPPERCASE, tight tracking */}
+          <motion.h1
+            initial={{ opacity: 0, y: 24 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
+            className="mt-8 max-w-5xl text-[48px] font-bold uppercase leading-[1.08] tracking-[-0.02em] text-white sm:text-[64px] lg:text-[80px]"
+          >
+            Systems that scale.
+            <br />
+            Security that ships.
+          </motion.h1>
+
+          {/* Body copy — BMW 300 weight contrast */}
+          <motion.p
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.18, ease: [0.22, 1, 0.36, 1] }}
+            className="mt-7 max-w-2xl text-[17px] font-light leading-[1.6] tracking-[-0.01em] text-white/70 sm:text-[19px]"
+          >
+            We build production-ready platforms for businesses that can't afford downtime.
+            Web engineering, AI automation, cloud infrastructure, and security — delivered
+            as one integrated team.
+          </motion.p>
+
+          {/* CTAs — rectangular BMW utility buttons */}
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.26, ease: [0.22, 1, 0.36, 1] }}
+            className="relative z-10 mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row"
+          >
+            <Link
+              href="/contact"
+              className="inline-flex w-full items-center justify-center gap-2 bg-[#1c69d4] px-8 py-4 text-[15px] font-bold uppercase tracking-[0.05em] text-white transition-all hover:bg-[#0066b1] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1c69d4] sm:w-auto"
+            >
+              Start a Project
+            </Link>
+            <Link
+              href="/services"
+              className="inline-flex w-full items-center justify-center gap-2 border-2 border-white/20 bg-transparent px-8 py-4 text-[15px] font-bold uppercase tracking-[0.05em] text-white transition-all hover:border-white/40 hover:bg-white/5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white sm:w-auto"
+            >
+              Explore Services <ArrowRight className="h-4 w-4" aria-hidden />
+            </Link>
+          </motion.div>
         </div>
 
-        <div
-          className="rounded-lg border border-[#E5E7EB] bg-[#F8FAFC] p-5 shadow-xl shadow-gray-200/60 sm:p-6"
-          aria-label="Enterprise delivery metrics"
+        {/* ── Hero image — Mastercard oversized radius (40px) ── */}
+        <motion.div
+          initial={{ opacity: 0, y: 40 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.9, delay: 0.34, ease: [0.22, 1, 0.36, 1] }}
+          className="mt-16 sm:mt-20"
         >
-          <div className="rounded-lg border border-[#E5E7EB] bg-white p-5">
-            <div className="flex items-start justify-between gap-4 border-b border-[#E5E7EB] pb-5">
-              <div>
-                <p className="text-sm text-[#6B7280]">Delivery Command Center</p>
-                <p className="mt-1 text-2xl font-semibold text-[#111827]">
-                  Live Readiness
-                </p>
-              </div>
-              <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700">
-                <CheckCircle2 className="h-3.5 w-3.5" aria-hidden="true" />
-                Operational
-              </span>
-            </div>
-
-            <div className="mt-6 grid gap-5">
-              {readiness.map(([label, description, value]) => (
-                <div key={label}>
-                  <div className="flex items-center justify-between gap-4 text-sm">
-                    <div>
-                      <p className="font-semibold text-[#111827]">{label}</p>
-                      <p className="mt-1 text-[#6B7280]">{description}</p>
-                    </div>
-                    <span className="font-semibold text-[#C9A227]">{value}</span>
-                  </div>
-                  <div className="mt-3 h-2 overflow-hidden rounded-full bg-[#E5E7EB]">
-                    <div
-                      className="h-full rounded-full bg-[#C9A227]"
-                      style={{ width: value }}
-                    />
-                  </div>
-                </div>
-              ))}
-            </div>
+          <div className="relative aspect-[4/3] overflow-hidden rounded-[40px] sm:aspect-[16/9]">
+            <Image
+              src={imageLibrary.hero[0]}
+              alt="Modern development workspace with production-grade infrastructure"
+              fill
+              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 90vw, 1200px"
+              priority
+              className="object-cover"
+            />
+            {/* Dark gradient veil — BMW M aesthetic */}
+            <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#1a2129]/90 via-[#1a2129]/30 to-transparent" />
           </div>
-
-          <div className="mt-4 grid grid-cols-2 gap-4">
-            <div className="rounded-lg border border-[#E5E7EB] bg-white p-4">
-              <BarChart3 className="h-5 w-5 text-[#C9A227]" aria-hidden="true" />
-              <p className="mt-3 text-sm font-semibold text-[#111827]">
-                Measured delivery
-              </p>
-              <p className="mt-1 text-sm text-[#6B7280]">Roadmaps tied to outcomes</p>
-            </div>
-            <div className="rounded-lg border border-[#E5E7EB] bg-white p-4">
-              <ShieldCheck className="h-5 w-5 text-[#C9A227]" aria-hidden="true" />
-              <p className="mt-3 text-sm font-semibold text-[#111827]">
-                Secure defaults
-              </p>
-              <p className="mt-1 text-sm text-[#6B7280]">Controls from day one</p>
-            </div>
-          </div>
-        </div>
+        </motion.div>
       </div>
     </section>
   );

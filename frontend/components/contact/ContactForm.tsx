@@ -4,12 +4,58 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { contactSchema, ContactFormData } from "@/lib/validation";
 
+/* ── Hybrid design tokens ─────────────────────────────────────────
+   Editorial form: bottom-border inputs, mono section labels,
+   cream canvas, Apple-blue pill submit.
+───────────────────────────────────────────────────────────────── */
+
+const fieldWrap = "flex flex-col gap-1.5";
+
+const labelClass =
+  "font-mono text-[10px] font-semibold uppercase tracking-[0.12em] text-[#5a5a5a]";
+
+const inputClass =
+  "w-full border-0 border-b border-[#d8d4d1] bg-transparent pb-2 pt-1 text-[16px] font-[400] leading-[1.5] tracking-[-0.2px] text-[#141413] outline-none transition-colors placeholder:text-[#b0b0b5] focus:border-[#1c69d4]";
+
+const errorClass = "mt-1 font-mono text-[11px] text-red-600";
+
+const SERVICES = [
+  "Web Development",
+  "Cybersecurity",
+  "AI & Machine Learning",
+  "Cloud Engineering",
+  "UI/UX Design",
+  "DevOps & Infrastructure",
+  "Mobile Development",
+  "Data Engineering",
+  "Penetration Testing",
+  "Compliance & Auditing",
+  "Other",
+];
+
+const TIMELINES = [
+  "As soon as possible",
+  "Within 1 month",
+  "1 – 3 months",
+  "3 – 6 months",
+  "6 – 12 months",
+  "Ongoing / retainer",
+  "Flexible",
+];
+
+const COUNTRIES = [
+  "United States", "United Kingdom", "Canada", "Australia", "Germany",
+  "France", "Netherlands", "Singapore", "United Arab Emirates", "Saudi Arabia",
+  "Pakistan", "India", "Japan", "South Korea", "Brazil", "Mexico",
+  "South Africa", "Nigeria", "Kenya", "Other",
+];
+
 export default function ContactForm() {
   const {
     register,
     handleSubmit,
     reset,
-    formState: { errors, isSubmitting },
+    formState: { errors, isSubmitting, isSubmitSuccessful },
   } = useForm<ContactFormData>({
     resolver: zodResolver(contactSchema),
   });
@@ -18,154 +64,170 @@ export default function ContactForm() {
     try {
       const response = await fetch("/api/contact", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
       });
-
       if (!response.ok) throw new Error();
-
-      alert("Message sent successfully.");
       reset();
     } catch {
-      alert("Failed to send message.");
+      alert("We could not send your message. Please try again or email us directly.");
     }
   }
 
   return (
     <form
       onSubmit={handleSubmit(onSubmit)}
-      className="space-y-6 rounded-3xl border border-white/10 bg-white/5 p-8 backdrop-blur-xl"
+      className="rounded-[24px] bg-[#f3f0ee] px-8 py-10 sm:px-10 sm:py-12"
     >
-      <div className="grid gap-6 md:grid-cols-2">
+      {/* ── Section: You ── */}
+      <p className="font-mono text-[10px] font-semibold uppercase tracking-[0.12em] text-[#1c69d4]">
+        01 / About you
+      </p>
 
-        <div>
-          <label className="mb-2 block text-sm font-medium text-white">
-            Full Name
-          </label>
-          <input
-            {...register("fullName")}
-            className="w-full rounded-xl border border-white/10 bg-transparent px-4 py-3 text-white outline-none focus:border-yellow-400"
-          />
-          <p className="mt-1 text-sm text-red-400">
-            {errors.fullName?.message}
-          </p>
+      <div className="mt-7 grid gap-x-8 gap-y-8 md:grid-cols-2">
+        <div className={fieldWrap}>
+          <label className={labelClass}>Full Name <span className="text-red-500">*</span></label>
+          <input {...register("fullName")} className={inputClass} placeholder="Jane Doe" autoComplete="name" />
+          {errors.fullName && <p className={errorClass}>{errors.fullName.message}</p>}
         </div>
 
-        <div>
-          <label className="mb-2 block text-sm font-medium text-white">
-            Company
-          </label>
-          <input
-            {...register("company")}
-            className="w-full rounded-xl border border-white/10 bg-transparent px-4 py-3 text-white outline-none focus:border-yellow-400"
-          />
+        <div className={fieldWrap}>
+          <label className={labelClass}>Job Title</label>
+          <input {...register("jobTitle")} className={inputClass} placeholder="CTO, Founder, Project Manager…" />
         </div>
 
-        <div>
-          <label className="mb-2 block text-sm font-medium text-white">
-            Email
-          </label>
-          <input
-            type="email"
-            {...register("email")}
-            className="w-full rounded-xl border border-white/10 bg-transparent px-4 py-3 text-white outline-none focus:border-yellow-400"
-          />
-          <p className="mt-1 text-sm text-red-400">
-            {errors.email?.message}
-          </p>
+        <div className={fieldWrap}>
+          <label className={labelClass}>Email <span className="text-red-500">*</span></label>
+          <input type="email" {...register("email")} className={inputClass} placeholder="jane@company.com" autoComplete="email" />
+          {errors.email && <p className={errorClass}>{errors.email.message}</p>}
         </div>
 
-        <div>
-          <label className="mb-2 block text-sm font-medium text-white">
-            Phone
-          </label>
-          <input
-            {...register("phone")}
-            className="w-full rounded-xl border border-white/10 bg-transparent px-4 py-3 text-white outline-none focus:border-yellow-400"
-          />
-          <p className="mt-1 text-sm text-red-400">
-            {errors.phone?.message}
-          </p>
+        <div className={fieldWrap}>
+          <label className={labelClass}>Phone</label>
+          <input {...register("phone")} className={inputClass} placeholder="+1 555 000 0000" autoComplete="tel" />
+          {errors.phone && <p className={errorClass}>{errors.phone.message}</p>}
+        </div>
+      </div>
+
+      {/* ── Divider ── */}
+      <div className="my-10 h-px bg-[#d8d4d1]" />
+
+      {/* ── Section: Organisation ── */}
+      <p className="font-mono text-[10px] font-semibold uppercase tracking-[0.12em] text-[#1c69d4]">
+        02 / Your organisation
+      </p>
+
+      <div className="mt-7 grid gap-x-8 gap-y-8 md:grid-cols-2">
+        <div className={fieldWrap}>
+          <label className={labelClass}>Company / Organisation</label>
+          <input {...register("company")} className={inputClass} placeholder="Acme Corp" autoComplete="organization" />
         </div>
 
-        <div>
-          <label className="mb-2 block text-sm font-medium text-white">
-            Service
-          </label>
-          <select
-            {...register("service")}
-            className="w-full rounded-xl border border-white/10 bg-[#08101F] px-4 py-3 text-white"
-          >
-            <option value="">Select Service</option>
-            <option>Web Development</option>
-            <option>Cyber Security</option>
-            <option>AI Solutions</option>
-            <option>Cloud Services</option>
-            <option>UI/UX Design</option>
+        <div className={fieldWrap}>
+          <label className={labelClass}>Country</label>
+          <select {...register("country")} className={inputClass}>
+            <option value="">Select your country</option>
+            {COUNTRIES.map((c) => (
+              <option key={c} value={c}>{c}</option>
+            ))}
           </select>
-          <p className="mt-1 text-sm text-red-400">
-            {errors.service?.message}
-          </p>
         </div>
+      </div>
 
-        <div>
-          <label className="mb-2 block text-sm font-medium text-white">
-            Budget
-          </label>
-          <select
-            {...register("budget")}
-            className="w-full rounded-xl border border-white/10 bg-[#08101F] px-4 py-3 text-white"
-          >
-            <option value="">Select Budget</option>
-            <option>$500 - $1,000</option>
-            <option>$1,000 - $5,000</option>
-            <option>$5,000 - $10,000</option>
-            <option>$10,000+</option>
+      {/* ── Divider ── */}
+      <div className="my-10 h-px bg-[#d8d4d1]" />
+
+      {/* ── Section: Project ── */}
+      <p className="font-mono text-[10px] font-semibold uppercase tracking-[0.12em] text-[#1c69d4]">
+        03 / About the project
+      </p>
+
+      <div className="mt-7 grid gap-x-8 gap-y-8 md:grid-cols-2">
+        <div className={fieldWrap}>
+          <label className={labelClass}>Service needed <span className="text-red-500">*</span></label>
+          <select {...register("service")} className={inputClass}>
+            <option value="">Select a service</option>
+            {SERVICES.map((s) => (
+              <option key={s} value={s}>{s}</option>
+            ))}
           </select>
-          <p className="mt-1 text-sm text-red-400">
-            {errors.budget?.message}
-          </p>
+          {errors.service && <p className={errorClass}>{errors.service.message}</p>}
         </div>
 
+        <div className={fieldWrap}>
+          <label className={labelClass}>Preferred start timeline</label>
+          <select {...register("timeline")} className={inputClass}>
+            <option value="">Select a timeline</option>
+            {TIMELINES.map((t) => (
+              <option key={t} value={t}>{t}</option>
+            ))}
+          </select>
+        </div>
+
+        <div className={fieldWrap}>
+          <label className={labelClass}>How did you hear about us?</label>
+          <select {...register("referral")} className={inputClass}>
+            <option value="">Select an option</option>
+            <option>Google / Search engine</option>
+            <option>LinkedIn</option>
+            <option>GitHub</option>
+            <option>Referral from a colleague</option>
+            <option>Industry event</option>
+            <option>Press / media</option>
+            <option>Other</option>
+          </select>
+        </div>
       </div>
 
-      <div>
-        <label className="mb-2 block text-sm font-medium text-white">
-          Subject
-        </label>
-        <input
-          {...register("subject")}
-          className="w-full rounded-xl border border-white/10 bg-transparent px-4 py-3 text-white outline-none focus:border-yellow-400"
-        />
-        <p className="mt-1 text-sm text-red-400">
-          {errors.subject?.message}
-        </p>
+      <div className="mt-8">
+        <div className={fieldWrap}>
+          <label className={labelClass}>Subject <span className="text-red-500">*</span></label>
+          <input {...register("subject")} className={inputClass} placeholder="Brief headline of your request" />
+          {errors.subject && <p className={errorClass}>{errors.subject.message}</p>}
+        </div>
       </div>
 
-      <div>
-        <label className="mb-2 block text-sm font-medium text-white">
-          Message
-        </label>
-        <textarea
-          rows={6}
-          {...register("message")}
-          className="w-full rounded-xl border border-white/10 bg-transparent px-4 py-3 text-white outline-none focus:border-yellow-400"
-        />
-        <p className="mt-1 text-sm text-red-400">
-          {errors.message?.message}
-        </p>
+      <div className="mt-8">
+        <div className={fieldWrap}>
+          <label className={labelClass}>Project details <span className="text-red-500">*</span></label>
+          <textarea
+            rows={5}
+            {...register("message")}
+            className={inputClass + " resize-none"}
+            placeholder="Describe your project, the problem you're solving, any existing tech stack, and what success looks like."
+          />
+          {errors.message && <p className={errorClass}>{errors.message.message}</p>}
+        </div>
       </div>
 
-      <button
-        type="submit"
-        disabled={isSubmitting}
-        className="w-full rounded-xl bg-yellow-400 px-6 py-4 font-bold text-black transition hover:bg-yellow-300 disabled:opacity-50"
-      >
-        {isSubmitting ? "Sending..." : "Send Message"}
-      </button>
+      {/* NDA note */}
+      <p className="mt-6 text-[13px] leading-6 tracking-[-0.1px] text-[#5a5a5a]">
+        Need an NDA before sharing details?{" "}
+        <a
+          href="mailto:legal@tauqeermustafainc.com"
+          className="text-[#1c69d4] underline-offset-2 hover:underline"
+        >
+          Email our legal team
+        </a>{" "}
+        — we turn it around within one business day.
+      </p>
 
+      {/* Submit */}
+      <div className="mt-10 flex flex-col items-start gap-4">
+        <button
+          type="submit"
+          disabled={isSubmitting}
+          className="inline-flex items-center justify-center gap-2 bg-[#1c69d4] px-7 py-3.5 font-mono text-[12px] font-bold uppercase tracking-[0.1em] text-white transition-colors hover:bg-[#0066b1] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1c69d4] disabled:opacity-50"
+        >
+          {isSubmitting ? "Sending…" : "Send Message"}
+        </button>
+
+        {isSubmitSuccessful && (
+          <p className="font-mono text-[13px] font-medium text-[#141413]" role="status">
+            ✓ Message received. We will follow up within one business day.
+          </p>
+        )}
+      </div>
     </form>
   );
 }

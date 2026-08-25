@@ -11,6 +11,11 @@ export const contactSchema = z.object({
     .max(100, "Company name is too long.")
     .optional(),
 
+  jobTitle: z.string().max(100, "Job title is too long.").optional(),
+  country: z.string().optional(),
+  timeline: z.string().optional(),
+  referral: z.string().optional(),
+
   email: z
     .email("Enter a valid email address."),
 
@@ -22,10 +27,6 @@ export const contactSchema = z.object({
   service: z
     .string()
     .min(1, "Please select a service."),
-
-  budget: z
-    .string()
-    .min(1, "Please select a budget."),
 
   subject: z
     .string()
