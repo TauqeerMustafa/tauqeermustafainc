@@ -1,5 +1,8 @@
 from datetime import datetime, timedelta, timezone
 from typing import Any
+import hashlib
+import hmac
+import secrets
 
 import bcrypt
 from jose import JWTError, jwt
@@ -40,6 +43,48 @@ def create_access_token(subject: str, expires_minutes: int | None = None) -> str
     )
     payload: dict[str, Any] = {"sub": subject, "exp": expire}
     return jwt.encode(payload, settings.secret_key, algorithm=ALGORITHM)
+
+
+def create_verification_code() -> str:
+    return f"{secrets.randbelow(1_000_000):06d}"
+
+
+def hash_verification_code(code: str) -> str:
+    return hmac.new(settings.secret_key.encode(), code.encode(), hashlib.sha256).hexdigest()
+
+
+def verify_verification_code(code: str, code_hash: str) -> bool:
+    return hmac.compare_digest(hash_verification_code(code), code_hash)
+
+
+def create_oauth_state(expires_minutes: int = 10) -> str:
+    expire = datetime.now(timezone.utc) + timedelta(minutes=expires_minutes)
+    payload: dict[str, Any] = {"sub": secrets.token_urlsafe(18), "purpose": "google_oauth", "exp": expire}
+    return jwt.encode(payload, settings.secret_key, algorithm=ALGORITHM)
+
+
+def decode_oauth_state(token: str) -> bool:
+    try:
+        payload = jwt.decode(token, settings.secret_key, algorithms=[ALGORITHM])
+    except JWTError:
+        return False
+    return payload.get("purpose") == "google_oauth"
+
+
+def create_verification_session(subject: str, expires_minutes: int = 15) -> str:
+    expire = datetime.now(timezone.utc) + timedelta(minutes=expires_minutes)
+    payload: dict[str, Any] = {"sub": subject, "purpose": "phone_verification", "exp": expire}
+    return jwt.encode(payload, settings.secret_key, algorithm=ALGORITHM)
+
+
+def decode_verification_session(token: str) -> str | None:
+    try:
+        payload = jwt.decode(token, settings.secret_key, algorithms=[ALGORITHM])
+    except JWTError:
+        return None
+    if payload.get("purpose") != "phone_verification":
+        return None
+    return payload.get("sub")
 
 
 def decode_access_token(token: str) -> str | None:

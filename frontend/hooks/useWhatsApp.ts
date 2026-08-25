@@ -5,10 +5,24 @@
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
+import { getStoredToken } from "@/lib/auth-storage";
+
 const API_BASE = "/api/whatsapp";
 
+/**
+ * Every /api/whatsapp/* route is gated by the proxy (see frontend/proxy.ts),
+ * so all calls must carry the admin's bearer token. Read it per-request so we
+ * stay current across login/logout without re-rendering.
+ */
+function authHeaders(extra?: Record<string, string>): Record<string, string> {
+  const token = getStoredToken();
+  const headers: Record<string, string> = { ...extra };
+  if (token) headers.Authorization = `Bearer ${token}`;
+  return headers;
+}
+
 async function getJSON(path: string) {
-  const res = await fetch(`${API_BASE}${path}`);
+  const res = await fetch(`${API_BASE}${path}`, { headers: authHeaders() });
   if (!res.ok) throw new Error(`Request failed: ${path}`);
   return res.json();
 }
@@ -94,7 +108,7 @@ export function useSendWhatsAppMessage() {
     mutationFn: async (payload: SendMessagePayload) => {
       const res = await fetch(`${API_BASE}/send`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: authHeaders({ "Content-Type": "application/json" }),
         body: JSON.stringify(payload),
       });
       let data;
@@ -125,7 +139,7 @@ export type UploadedMedia = {
 export async function uploadWhatsAppMedia(file: File): Promise<UploadedMedia> {
   const form = new FormData();
   form.append("file", file);
-  const res = await fetch(`${API_BASE}/upload`, { method: "POST", body: form });
+  const res = await fetch(`${API_BASE}/upload`, { method: "POST", body: form, headers: authHeaders() });
   const data = await res.json();
   if (!res.ok || !data?.success) throw new Error(data?.error || "Upload failed");
   return data;
@@ -157,7 +171,7 @@ export function useSaveAutoReplyRules() {
     mutationFn: async (rules: AutoReplyRule[]) => {
       const res = await fetch(`${API_BASE}/rules`, {
         method: "PUT",
-        headers: { "Content-Type": "application/json" },
+        headers: authHeaders({ "Content-Type": "application/json" }),
         body: JSON.stringify({ rules }),
       });
       if (!res.ok) throw new Error("Failed to save rules");
@@ -182,7 +196,7 @@ export function useSaveTemplate() {
     mutationFn: async (tpl: WATemplate) => {
       const res = await fetch(`${API_BASE}/templates`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: authHeaders({ "Content-Type": "application/json" }),
         body: JSON.stringify(tpl),
       });
       if (!res.ok) throw new Error("Failed to save template");
@@ -196,7 +210,7 @@ export function useDeleteTemplate() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (name: string) => {
-      const res = await fetch(`${API_BASE}/templates?name=${encodeURIComponent(name)}`, { method: "DELETE" });
+      const res = await fetch(`${API_BASE}/templates?name=${encodeURIComponent(name)}`, { method: "DELETE", headers: authHeaders() });
       if (!res.ok) throw new Error("Failed to delete template");
       return res.json();
     },
@@ -221,7 +235,7 @@ export function useSubmitMetaTemplate() {
     mutationFn: async (payload: { name?: string; all?: boolean }) => {
       const res = await fetch(`${API_BASE}/meta-templates`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: authHeaders({ "Content-Type": "application/json" }),
         body: JSON.stringify(payload),
       });
       const data = await res.json();
@@ -258,7 +272,7 @@ export function useUpdateConversationMeta() {
     mutationFn: async ({ key, patch }: { key: string; patch: Partial<ConvMeta> }) => {
       const res = await fetch(`${API_BASE}/conversation-meta`, {
         method: "PUT",
-        headers: { "Content-Type": "application/json" },
+        headers: authHeaders({ "Content-Type": "application/json" }),
         body: JSON.stringify({ key, patch }),
       });
       if (!res.ok) throw new Error("Failed to update conversation");
@@ -292,8 +306,8 @@ export function useDeleteConversation() {
   return useMutation({
     mutationFn: async ({ number, key }: { number: string; key: string }) => {
       const params = new URLSearchParams({ number });
-      await fetch(`${API_BASE}/messages?${params.toString()}`, { method: "DELETE" });
-      await fetch(`${API_BASE}/conversation-meta?key=${encodeURIComponent(key)}`, { method: "DELETE" });
+      await fetch(`${API_BASE}/messages?${params.toString()}`, { method: "DELETE", headers: authHeaders() });
+      await fetch(`${API_BASE}/conversation-meta?key=${encodeURIComponent(key)}`, { method: "DELETE", headers: authHeaders() });
       return { success: true };
     },
     onSuccess: () => {
