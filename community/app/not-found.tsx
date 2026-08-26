@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { CommunityChrome } from "./components/community-chrome";
 
@@ -14,14 +15,14 @@ export default function NotFound() {
           <p className="eyebrow hero-eyebrow">
             <span className="eyebrow-line" /> ERROR / 404
           </p>
-          <h1>PAGE NOT<br /><em>FOUND.</em></h1>
+          <h1>Page Not<br /><em>Found.</em></h1>
           <p className="not-found-lede">
             The page you are looking for has moved, was removed, or never existed. Start from the home page and find your way back in.
           </p>
           <div className="hero-actions">
-            <a className="button button-primary" href="/">
+            <Link className="button button-primary" href="/">
               BACK TO HOME <ArrowRight size={17} />
-            </a>
+            </Link>
             <a className="button button-primary" href="/capabilities">
               EXPLORE CAPABILITIES <ArrowRight size={17} />
             </a>

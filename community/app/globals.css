@@ -1,42 +1,48 @@
 @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Inter:wght@300;400;500;600;700;800&display=swap');
 
+/* BMW corporate is the base language: cream-tinted light canvas, measured
+   700/300 weight contrast, BMW blue as the one interactive colour. Dark
+   theme is a corporate-dark variant (navy/charcoal, not BMW M's pure black)
+   so the M tricolor stripe stays the only real "touch of M" on the page. */
 :root {
-  color-scheme: dark;
-  --canvas: #000000;
-  --surface-soft: #0d0d0d;
-  --surface-card: #1a1a1a;
-  --surface-elevated: #262626;
-  --ink: #ffffff;
-  --body: #bbbbbb;
-  --body-strong: #e6e6e6;
-  --muted: #7e7e7e;
-  --hairline: #3c3c3c;
-  --hairline-strong: #262626;
+  color-scheme: light;
+  --canvas: #f7f6f3;
+  --surface-soft: #f0eeea;
+  --surface-card: #ffffff;
+  --surface-elevated: #fbfaf8;
+  --ink: #1a1a1a;
+  --body: #46454f;
+  --body-strong: #171717;
+  --muted: #6b6b6b;
+  --hairline: #dedcd6;
+  --hairline-strong: #cfccc5;
   --m-blue-light: #0066b1;
   --m-blue-dark: #1c69d4;
-  --m-red: #e22718;
+  --m-red: #c22a1a;
   --electric-blue: #0653b6;
-  --warning: #f4b400;
-  --success: #0fa336;
+  --warning: #b06d00;
+  --success: #0b8a2c;
   --max-width: 1360px;
 }
 
-:root[data-theme="light"] {
-  color-scheme: light;
-  --canvas: #f3f3f1;
-  --surface-soft: #e9e9e6;
-  --surface-card: #ffffff;
-  --surface-elevated: #f8f8f6;
-  --ink: #0b0b0b;
-  --body: #434343;
-  --body-strong: #171717;
-  --muted: #707070;
-  --hairline: #c9c9c6;
-  --hairline-strong: #dadad6;
-  --m-blue-light: #005a9f;
-  --m-blue-dark: #1555ac;
-  --m-red: #bb1c12;
-  --electric-blue: #034894;
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --canvas: #14181d;
+  --surface-soft: #191d23;
+  --surface-card: #1c2128;
+  --surface-elevated: #242a32;
+  --ink: #f3f3f1;
+  --body: #b7bac0;
+  --body-strong: #eceeee;
+  --muted: #83898f;
+  --hairline: #2c323a;
+  --hairline-strong: #363d46;
+  --m-blue-light: #3f8ee0;
+  --m-blue-dark: #6fa8eb;
+  --m-red: #e8503f;
+  --electric-blue: #8fc1ff;
+  --warning: #f4b400;
+  --success: #3ec46d;
 }
 
 * { box-sizing: border-box; }
@@ -55,14 +61,14 @@ button { color: inherit; font: inherit; }
 
 .section { margin: 0 auto; max-width: var(--max-width); padding-left: 64px; padding-right: 64px; }
 .hero { align-items: center; display: grid; gap: 70px; grid-template-columns: minmax(0, 1fr) minmax(400px, .92fr); min-height: 650px; padding-bottom: 94px; padding-top: 92px; }.hero-copy { max-width: 690px; }.eyebrow { align-items: center; color: var(--muted); display: flex; font-family: 'DM Mono', monospace; font-size: 10px; gap: 11px; letter-spacing: .11em; margin: 0 0 25px; text-transform: uppercase; }.eyebrow-line { background: var(--m-red); display: inline-block; height: 2px; width: 30px; }
-h1, h2, h3 { font-weight: 700; margin-top: 0; }h1, h2 { line-height: 1.01; }h1 { font-size: clamp(54px, 7.2vw, 100px); letter-spacing: -.055em; margin-bottom: 30px; }h1 span { color: var(--body); }h1 em, h2 em { color: var(--m-blue-dark); font-style: normal; }h2 { font-size: clamp(39px, 5.4vw, 72px); letter-spacing: -.06em; margin-bottom: 0; }h3 { font-size: 24px; letter-spacing: -.04em; margin-bottom: 14px; }
+h1, h2, h3 { font-weight: 700; margin-top: 0; }h1, h2 { line-height: 1.03; }h1 { font-size: clamp(54px, 7.2vw, 100px); letter-spacing: -.02em; margin-bottom: 30px; }h1 span { color: var(--body); }h1 em, h2 em { color: var(--m-blue-dark); font-style: normal; }h2 { font-size: clamp(39px, 5.4vw, 72px); letter-spacing: -.02em; margin-bottom: 0; }h3 { font-size: 24px; letter-spacing: -.015em; margin-bottom: 14px; }
 .hero-lede { color: var(--body); font-size: 16px; line-height: 1.7; margin-bottom: 33px; max-width: 470px; }.hero-actions { align-items: center; display: flex; flex-wrap: wrap; gap: 22px; }.button { border: 1px solid transparent; cursor: pointer; transition: background-color 180ms ease, color 180ms ease, border-color 180ms ease, transform 180ms ease; }.button-primary { background: var(--ink); color: var(--canvas); }.button-primary:hover { background: var(--m-blue-dark); color: #fff; transform: translateY(-2px); }.button-light { background: #fff; color: #000; }.button-light:hover { background: var(--m-blue-dark); color: #fff; transform: translateY(-2px); }.text-link { align-items: center; border-bottom: 1px solid var(--muted); color: var(--body-strong); display: inline-flex; font-size: 10px; font-weight: 700; gap: 8px; letter-spacing: .12em; padding-bottom: 6px; transition: border-color 180ms ease, color 180ms ease; }.text-link:hover { border-color: var(--m-red); color: var(--m-red); }.hero-meta { align-items: center; color: var(--muted); display: flex; font-family: 'DM Mono', monospace; font-size: 9px; gap: 13px; letter-spacing: .08em; margin-top: 73px; }.meta-rule { background: var(--hairline); display: inline-block; height: 1px; width: 55px; }
 .hero-art { background: var(--surface-soft); height: 510px; overflow: hidden; position: relative; }.art-grid { background-image: linear-gradient(var(--hairline-strong) 1px, transparent 1px), linear-gradient(90deg, var(--hairline-strong) 1px, transparent 1px); background-size: 40px 40px; inset: 0; opacity: .72; position: absolute; }.art-circle { border: 1px solid var(--hairline); border-radius: 50%; position: absolute; }.art-circle-one { height: 445px; right: -80px; top: 18px; width: 445px; }.art-circle-two { border-color: var(--m-blue-dark); height: 300px; left: 15%; top: 106px; width: 300px; }.art-core { align-items: center; background: var(--ink); color: var(--canvas); display: flex; font-size: 75px; font-weight: 800; height: 170px; justify-content: center; left: 40%; position: absolute; top: 34%; transform: rotate(45deg); width: 170px; }.art-core span { transform: rotate(-45deg); }.art-label { background: var(--canvas); border: 1px solid var(--hairline); color: var(--body); font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: .11em; padding: 12px 14px; position: absolute; z-index: 2; }.art-label-top { align-items: center; display: flex; gap: 8px; right: 25px; top: 24px; }.art-label-bottom { bottom: 26px; left: 25px; line-height: 1.6; }.art-label-dot { background: var(--m-red); border-radius: 50%; height: 6px; width: 6px; }.art-coordinate { bottom: 27px; color: var(--muted); font-family: 'DM Mono', monospace; font-size: 8px; line-height: 1.7; position: absolute; right: 25px; text-align: right; }
 
 .statement { border-bottom: 1px solid var(--hairline-strong); border-top: 1px solid var(--hairline-strong); display: grid; gap: 45px; grid-template-columns: 55px 1fr 1fr; padding-bottom: 111px; padding-top: 78px; }.section-number { color: var(--m-red); font-family: 'DM Mono', monospace; font-size: 11px; padding-top: 4px; }.statement-copy { color: var(--body); font-size: 16px; line-height: 1.75; max-width: 430px; padding-top: 37px; }.statement-copy p { margin: 0 0 22px; }.statement-copy .muted-copy { color: var(--muted); font-size: 13px; }
 .spaces { padding-bottom: 128px; padding-top: 90px; }.section-heading { align-items: end; display: flex; justify-content: space-between; margin-bottom: 47px; }.section-note { color: var(--muted); font-size: 12px; line-height: 1.6; margin: 0 0 7px; max-width: 220px; }.space-grid { display: grid; gap: 1px; grid-template-columns: repeat(3, 1fr); }.space-card { background: var(--surface-card); border: 1px solid var(--hairline-strong); display: flex; flex-direction: column; min-height: 333px; padding: 25px; position: relative; transition: background-color 200ms ease, border-color 200ms ease; }.space-card:hover { background: var(--surface-elevated); border-color: var(--m-blue-dark); }.space-card-top { align-items: flex-start; display: flex; justify-content: space-between; }.space-index { color: var(--m-red); font-family: 'DM Mono', monospace; font-size: 11px; }.space-icon { align-items: center; border: 1px solid var(--hairline); border-radius: 50%; color: var(--body); display: flex; height: 42px; justify-content: center; width: 42px; }.space-card-copy { margin-top: auto; max-width: 295px; }.space-card h3 { color: var(--ink); font-size: 23px; }.space-card p { color: var(--body); font-size: 13px; line-height: 1.65; margin: 0; }.space-arrow { bottom: 25px; color: var(--m-blue-dark); position: absolute; right: 25px; }
 .moments { border-top: 1px solid var(--hairline-strong); padding-bottom: 130px; padding-top: 84px; }.moments-heading { margin-bottom: 38px; }.moment-list { border-top: 1px solid var(--hairline); }.moment-row { align-items: center; border-bottom: 1px solid var(--hairline); display: grid; gap: 20px; grid-template-columns: 45px 100px 1fr 170px 20px; min-height: 82px; transition: background-color 180ms ease, padding 180ms ease; }.moment-row:hover { background: var(--surface-soft); padding-left: 15px; padding-right: 15px; }.moment-index, .moment-date, .moment-type { color: var(--muted); font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: .06em; }.moment-index { color: var(--m-red); }.moment-title { color: var(--body-strong); font-size: 15px; font-weight: 500; }.moment-type { justify-self: start; }.moment-arrow { color: var(--m-blue-dark); justify-self: end; }
-.join { align-items: center; background: #050505; color: #fff; display: grid; grid-template-columns: 1fr 240px; min-height: 450px; overflow: hidden; padding-bottom: 75px; padding-top: 75px; position: relative; }.join-content { position: relative; z-index: 2; }.join h2 { color: #fff; }.join h2 em { color: #fff; }.join-content > p:not(.eyebrow) { color: #9f9f9f; font-size: 14px; line-height: 1.7; margin-bottom: 28px; max-width: 350px; }.eyebrow.light { color: #fff; }.eyebrow.light .eyebrow-line { background: var(--m-blue-dark); }.join-rings { height: 680px; position: absolute; right: 10%; top: -117px; transform: rotate(28deg); width: 310px; }.join-rings span { border: 1px solid #3a3a3a; border-radius: 50%; inset: 0; position: absolute; }.join-rings span:nth-child(2) { inset: 45px -25px; }.join-rings span:nth-child(3) { inset: 90px -50px; }.join-spec { align-items: center; color: #fff; display: flex; flex-direction: column; gap: 16px; justify-self: end; position: relative; text-align: center; z-index: 2; }.join-spec svg { color: var(--m-red); }.join-spec-label, .join-spec-copy { color: #898989; font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: .1em; }.join-spec-copy { color: #fff; line-height: 1.7; }
+.join { align-items: center; background: var(--surface-dark); color: #fff; display: grid; grid-template-columns: 1fr 240px; min-height: 450px; overflow: hidden; padding-bottom: 75px; padding-top: 75px; position: relative; }.join-content { position: relative; z-index: 2; }.join h2 { color: #fff; }.join h2 em { color: #fff; }.join-content > p:not(.eyebrow) { color: #9f9f9f; font-size: 14px; line-height: 1.7; margin-bottom: 28px; max-width: 350px; }.eyebrow.light { color: #fff; }.eyebrow.light .eyebrow-line { background: var(--m-blue-dark); }.join-rings { height: 680px; position: absolute; right: 10%; top: -117px; transform: rotate(28deg); width: 310px; }.join-rings span { border: 1px solid #3a3a3a; border-radius: 50%; inset: 0; position: absolute; }.join-rings span:nth-child(2) { inset: 45px -25px; }.join-rings span:nth-child(3) { inset: 90px -50px; }.join-spec { align-items: center; color: #fff; display: flex; flex-direction: column; gap: 16px; justify-self: end; position: relative; text-align: center; z-index: 2; }.join-spec svg { color: var(--m-red); }.join-spec-label, .join-spec-copy { color: #898989; font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: .1em; }.join-spec-copy { color: #fff; line-height: 1.7; }
 .site-footer { align-items: center; display: flex; justify-content: space-between; margin: 0 auto; max-width: var(--max-width); padding: 30px 64px 36px; }.site-footer p { color: var(--muted); font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: .08em; margin: 0; }.footer-links { display: flex; gap: 24px; }.footer-links a { color: var(--muted); font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: .08em; transition: color 180ms ease; }.footer-links a:hover { color: var(--ink); }
 
 @media (max-width: 900px) { .section { padding-left: 32px; padding-right: 32px; }.site-header { padding-left: 32px; padding-right: 32px; }.hero { gap: 42px; grid-template-columns: 1fr 1fr; }.hero-art { height: 430px; }.main-nav { gap: 17px; }.main-nav > a:not(.nav-cta) { font-size: 9px; }.nav-cta { font-size: 9px; padding: 0 12px; }.theme-toggle { font-size: 9px; padding: 0 8px; }.statement { gap: 30px; }.space-card { min-height: 310px; padding: 20px; }.site-footer { padding-left: 32px; padding-right: 32px; } }
@@ -70,9 +76,10 @@ h1, h2, h3 { font-weight: 700; margin-top: 0; }h1, h2 { line-height: 1.01; }h1 {
 @media (max-width: 430px) { h1 { font-size: clamp(47px, 14vw, 64px); }.hero-lede { font-size: 14px; }.hero-meta { margin-top: 53px; }.hero-art { height: 340px; }.art-label { font-size: 7px; padding: 9px 10px; }.art-label-top { right: 12px; top: 13px; }.art-label-bottom { bottom: 14px; left: 12px; }.art-coordinate { bottom: 14px; font-size: 7px; right: 12px; }.art-circle-one { height: 300px; right: -80px; width: 300px; }.art-circle-two { height: 220px; left: 9%; top: 85px; width: 220px; }.art-core { height: 100px; left: 39%; top: 35%; width: 100px; }.join h2 { font-size: 48px; }.moment-title { font-size: 13px; }.moment-date, .moment-index { font-size: 8px; } }
 @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; transition-duration: .01ms !important; } }
 
-/* BMW corporate refinement layer: measured spacing, 12-column alignment, and content-rich bands */
+/* BMW corporate refinement layer: measured spacing, 12-column alignment, and content-rich bands.
+   The dark navy hero/CTA bands are a fixed brand colour (not theme-flipped) — this is the one
+   deliberate "touch of M": a near-black band with white type inside an otherwise light, corporate page. */
 :root { --surface-dark: #1a2129; --surface-dark-elevated: #262e38; --surface-strong: #ebebeb; }
-:root[data-theme="light"] { --surface-dark: #1a2129; --surface-dark-elevated: #262e38; --surface-strong: #ebebeb; }
 
 .section-wide { width: 100%; }
 .hero-band { background: var(--surface-dark); color: #fff; }

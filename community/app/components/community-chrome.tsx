@@ -12,13 +12,11 @@ const subscribeToTheme = (listener: () => void) => {
   themeListeners.add(listener);
   return () => themeListeners.delete(listener);
 };
-const getTheme = (): Theme => {
-  if (typeof window === "undefined") return "dark";
-  const savedTheme = window.localStorage.getItem("community-theme");
-  if (savedTheme === "light" || savedTheme === "dark") return savedTheme;
-  return window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark";
-};
-const getServerTheme = (): Theme => "dark";
+// The blocking script in the root layout already set `data-theme` on <html>
+// before hydration (user choice > device preference > light default), so
+// this reads that single source of truth instead of recomputing it.
+const getTheme = (): Theme => (typeof document !== "undefined" && document.documentElement.dataset.theme === "dark" ? "dark" : "light");
+const getServerTheme = (): Theme => "light";
 
 const navItems = [
   { href: "/capabilities", label: "CAPABILITIES" },
@@ -33,6 +31,17 @@ export function CommunityChrome({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     document.documentElement.dataset.theme = theme;
   }, [theme]);
+
+  useEffect(() => {
+    const media = window.matchMedia("(prefers-color-scheme: dark)");
+    const followDevice = () => {
+      if (window.localStorage.getItem("community-theme")) return;
+      document.documentElement.dataset.theme = media.matches ? "dark" : "light";
+      themeListeners.forEach((listener) => listener());
+    };
+    media.addEventListener("change", followDevice);
+    return () => media.removeEventListener("change", followDevice);
+  }, []);
 
   const toggleTheme = () => {
     const nextTheme: Theme = theme === "dark" ? "light" : "dark";
