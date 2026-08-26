@@ -12,6 +12,21 @@
   --font-mono: "TMI Mono", "SF Mono", "SFMono-Regular", Consolas,
     "Liberation Mono", monospace;
 
+  /* ═══ Pure BMW M — semantic theme tokens · LIGHT ═══════════════════
+     These flip in the .dark block below. Everything visual should ride
+     on these (bg-canvas / text-ink / border-line / bg-action …) so the
+     whole site inverts with one class on <html>. The M tricolor stripe
+     stays literal (see --m-* + .m-stripe) — it is brand, not theme. */
+  --canvas:        #ffffff;  /* page background            */
+  --surface:       #f4f4f5;  /* raised section panel        */
+  --surface-2:     #ececef;  /* deeper panel / tile         */
+  --ink-2:         #3a3a3a;  /* secondary text              */
+  --line-2:        #d6d6da;  /* stronger hairline / outline */
+  --action:        #1c69d4;  /* the single BMW action blue  */
+  --action-strong: #0066b1;  /* action hover / deep accent  */
+  --on-action:     #ffffff;  /* text on the action blue     */
+  --dot-grid:      rgba(0,0,0,0.08); /* .tmi-dot-grid tint    */
+
   /* ── Surface palette ── */
   /* Warm cream (Mastercard) — default light background */
   --canvas-cream:   #f3f0ee;
@@ -53,8 +68,8 @@
   --m-red:        #e22718;
 
   /* ── shadcn / Tailwind compat ── */
-  --background:             #f3f0ee;
-  --foreground:             #141413;
+  --background:             var(--canvas);
+  --foreground:             var(--ink);
   --card:                   #ffffff;
   --card-foreground:        #141413;
   --popover:                #ffffff;
@@ -94,8 +109,7 @@
   --ink-70:           #3a3a38;
   --ink-50:           #6a6a6a;
   --ink-30:           #9a9a96;
-  --surface:          #f3f0ee;
-  --surface-2:        #faf9f8;
+  /* --surface / --surface-2 now defined as theme tokens at top of :root */
   --paper:            #ffffff;
   --line-soft2:       #efefef;
 
@@ -120,6 +134,43 @@
   --adm-red-light:    #fef2f2;
 }
 
+/* ═══ Pure BMW M — DARK theme (pure black canvas) ═══════════════════
+   Redefining the primitives is enough: every bg-canvas / text-ink /
+   border-line / bg-surface utility resolves through these vars, so the
+   entire site inverts. Opacity utilities (text-ink/60, bg-ink/[0.06])
+   also invert because --ink flips white↔near-black. */
+.dark {
+  --canvas:        #000000;
+  --surface:       #0c0c0d;
+  --surface-2:     #17171a;
+  --card:          #101012;
+  --ink:           #ffffff;
+  --ink-2:         #d6d6d6;
+  --ink-muted:     #9a9aa0;
+  --line:          #26262a;
+  --line-2:        #35353c;
+  --action:        #2f7de0;   /* a touch brighter to hold up on black */
+  --action-strong: #1c69d4;
+  --on-action:     #ffffff;
+  --dot-grid:      rgba(255,255,255,0.06);
+
+  /* shadcn / base compat — flip alongside the semantic tokens */
+  --background:            var(--canvas);
+  --foreground:            var(--ink);
+  --card-foreground:       #ffffff;
+  --popover:               #101012;
+  --popover-foreground:    #ffffff;
+  --secondary:             #17171a;
+  --secondary-foreground:  #ffffff;
+  --muted:                 #17171a;
+  --muted-foreground:      #9a9aa0;
+  --accent:                #17171a;
+  --accent-foreground:     #ffffff;
+  --border:                #26262a;
+  --input:                 #26262a;
+  --ring:                  #2f7de0;
+}
+
 @theme inline {
   --color-background:           var(--background);
   --color-foreground:           var(--foreground);
@@ -139,6 +190,24 @@
   --color-secondary:            var(--secondary);
   --color-secondary-foreground: var(--secondary-foreground);
   --color-destructive:          var(--destructive);
+
+  /* ── Pure BMW M semantic utilities (theme-flipping) ── */
+  --color-canvas:        var(--canvas);
+  --color-surface:       var(--surface);
+  --color-surface-2:     var(--surface-2);
+  --color-ink:           var(--ink);
+  --color-ink-2:         var(--ink-2);
+  --color-ink-muted:     var(--ink-muted);
+  --color-line:          var(--line);
+  --color-line-2:        var(--line-2);
+  --color-action:        var(--action);
+  --color-action-strong: var(--action-strong);
+  --color-on-action:     var(--on-action);
+  /* M tricolor — literal brand signature, never theme-flipped */
+  --color-m-blue:        #0066b1;
+  --color-m-blue-mid:    #1c69d4;
+  --color-m-red:         #e22718;
+
   --radius-sm: 0.5rem; --radius-md: 0.688rem; --radius-lg: 1.125rem; --radius-xl: 2.5rem;
 }
 
@@ -213,14 +282,14 @@
 /* ── Signature motifs ────────────────────────────────────────────── */
 /* Subtle dot grid background */
 .tmi-dot-grid {
-  background-image: radial-gradient(circle, rgba(0,0,0,0.08) 1px, transparent 1px);
+  background-image: radial-gradient(circle, var(--dot-grid) 1px, transparent 1px);
   background-size: 22px 22px;
 }
 /* Corner accent marks */
 .tmi-corners { position: relative; }
 .tmi-corners::before, .tmi-corners::after {
   content: ""; position: absolute; width: 16px; height: 16px;
-  border-color: #1d1d1f; pointer-events: none; z-index: 1;
+  border-color: var(--ink); pointer-events: none; z-index: 1;
 }
 .tmi-corners::before { top: -1px; left: -1px; border-top: 2px solid; border-left: 2px solid; }
 .tmi-corners::after  { bottom: -1px; right: -1px; border-bottom: 2px solid; border-right: 2px solid; }
@@ -250,7 +319,7 @@
 .animate-bounce-subtle { animation: bounce-s 2s ease-in-out infinite; }
 
 .skeleton {
-  background: linear-gradient(90deg, #f0f0f0 25%, #e8e8e8 50%, #f0f0f0 75%);
+  background: linear-gradient(90deg, var(--surface) 25%, var(--surface-2) 50%, var(--surface) 75%);
   background-size: 400% auto;
   animation: shimmer 1.6s linear infinite;
 }

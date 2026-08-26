@@ -7,19 +7,22 @@ import { motion, type Variants } from "framer-motion";
 import { ArrowRight } from "lucide-react";
 
 /* ══════════════════════════════════════════════════════════════════
-   TMI design primitives — BMW Corporate + BMW M + Mastercard
-   · BMW:        700/300 weight contrast, rectangular utility buttons,
-                 blue #1c69d4 as the single action signal
-   · BMW M:      near-black canvases, UPPERCASE display, M tricolor rail
-   · Mastercard: oversized radius (40 hero / 24 card / 999 pill), warm
-                 cream #f3f0ee as the light counterpoint
+   TMI design primitives — PURE BMW M, theme-flipping
+   · 700/300 weight contrast, UPPERCASE mono micro-labels
+   · blue --action is the single action signal (never the M stripe)
+   · 0px radius by default; rounded-full only for circular icons
+   · every colour rides on semantic tokens (bg-canvas / text-ink /
+     border-line / bg-action …) so the whole site inverts by theme
+   · the M tricolor rail (bg-m-blue / -mid / -red) stays literal — brand
+   NOTE: the `light` / `dark` props are legacy no-ops kept so existing
+   call sites keep compiling; colour now comes entirely from tokens.
    ══════════════════════════════════════════════════════════════════ */
 
 export function cx(...c: (string | false | null | undefined)[]) {
   return c.filter(Boolean).join(" ");
 }
 
-/* ── Palette constants (keep in sync with globals.css tokens) ─── */
+/* ── Palette constants (for any JS/style consumers) ─── */
 export const BMW = {
   blue: "#1c69d4",
   blueDeep: "#0066b1",
@@ -77,9 +80,9 @@ export function Reveal({
 export function MStripe({ className, width = "w-20" }: { className?: string; width?: string }) {
   return (
     <div className={cx("flex h-[3px] overflow-hidden", width, className)} aria-hidden>
-      <span className="flex-1 bg-[#0066b1]" />
-      <span className="flex-1 bg-[#1c69d4]" />
-      <span className="flex-1 bg-[#e22718]" />
+      <span className="flex-1 bg-m-blue" />
+      <span className="flex-1 bg-m-blue-mid" />
+      <span className="flex-1 bg-m-red" />
     </div>
   );
 }
@@ -95,13 +98,10 @@ export function Section({
   );
 }
 
-/* ── Eyebrow — BMW mono micro-label in M blue ────────────────── */
-export function Eyebrow({ children, light }: { children: ReactNode; light?: boolean }) {
+/* ── Eyebrow — BMW mono micro-label in the action blue ───────── */
+export function Eyebrow({ children }: { children: ReactNode; light?: boolean }) {
   return (
-    <p className={cx(
-      "font-mono text-[11px] font-semibold uppercase tracking-[0.14em]",
-      light ? "text-[#1c69d4]" : "text-[#0066b1]"
-    )}>
+    <p className="font-mono text-[11px] font-semibold uppercase tracking-[0.14em] text-action">
       {children}
     </p>
   );
@@ -109,7 +109,7 @@ export function Eyebrow({ children, light }: { children: ReactNode; light?: bool
 
 /* ── SectionHeader — BMW uppercase display, 700 weight ───────── */
 export function SectionHeader({
-  eyebrow, title, description, id, action, align = "center", light, className,
+  eyebrow, title, description, id, action, align = "center", className,
 }: {
   eyebrow: string; title: string; description?: string; id: string;
   action?: ReactNode; align?: "left" | "center"; light?: boolean; className?: string;
@@ -117,18 +117,12 @@ export function SectionHeader({
   return (
     <Reveal className={cx("flex flex-col gap-5", align === "center" ? "items-center text-center" : "", className)}>
       <MStripe />
-      <Eyebrow light={light}>{eyebrow}</Eyebrow>
-      <h2 id={id} className={cx(
-        "text-balance text-[32px] font-bold uppercase leading-[1.1] tracking-[-0.02em] sm:text-[42px] lg:text-[48px]",
-        light ? "text-white" : "text-[#141413]"
-      )}>
+      <Eyebrow>{eyebrow}</Eyebrow>
+      <h2 id={id} className="text-balance text-[32px] font-bold uppercase leading-[1.1] tracking-[-0.02em] text-ink sm:text-[42px] lg:text-[48px]">
         {title}
       </h2>
       {description && (
-        <p className={cx(
-          "max-w-2xl text-pretty text-[17px] font-light leading-[1.6] tracking-[-0.01em] sm:text-[18px]",
-          light ? "text-white/65" : "text-[#5a5a5a]"
-        )}>
+        <p className="max-w-2xl text-pretty text-[17px] font-light leading-[1.6] tracking-[-0.01em] text-ink-muted sm:text-[18px]">
           {description}
         </p>
       )}
@@ -137,7 +131,8 @@ export function SectionHeader({
   );
 }
 
-/* ── ImagePlaceholder — Mastercard radius, BMW M gradient veil ── */
+/* ── ImagePlaceholder — photo tile; caption sits on a dark veil
+     over arbitrary imagery, so it stays white in both themes ── */
 export function ImagePlaceholder({
   title, caption, src, className, floating = false, priority = false,
 }: {
@@ -145,7 +140,7 @@ export function ImagePlaceholder({
   className?: string; floating?: boolean; priority?: boolean;
 }) {
   return (
-    <div className={cx("relative overflow-hidden rounded-[24px]", floating && "anim-float", className)}>
+    <div className={cx("relative overflow-hidden", floating && "anim-float", className)}>
       <div className="relative aspect-[4/3] min-h-60">
         <Image
           src={src ?? "https://images.unsplash.com/photo-1518186285589-2f7649de83e0?auto=format&fit=crop&w=1600&q=80"}
@@ -155,7 +150,7 @@ export function ImagePlaceholder({
           priority={priority}
           className="object-cover"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-[#1a2129]/85 via-[#1a2129]/20 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent" />
       </div>
       {(title || caption) && (
         <div className="absolute bottom-0 left-0 right-0 p-6 text-white">
@@ -171,43 +166,34 @@ export function ImagePlaceholder({
   );
 }
 
-/* ── Badges — Mastercard pill radius ────────────────────────── */
+/* ── Badges — rectangular BMW M tags ────────────────────────── */
 export function Badge({ children }: { children: ReactNode }) {
   return (
-    <span className="inline-flex items-center rounded-full border border-[#1c69d4]/25 bg-[#1c69d4]/[0.07] px-3.5 py-1.5 font-mono text-[11px] font-semibold uppercase tracking-[0.08em] text-[#0066b1]">
+    <span className="inline-flex items-center border border-action/30 bg-action/[0.08] px-3.5 py-1.5 font-mono text-[11px] font-semibold uppercase tracking-[0.08em] text-action">
       {children}
     </span>
   );
 }
 export function BadgeMuted({ children }: { children: ReactNode }) {
   return (
-    <span className="inline-flex items-center rounded-full border border-[#d8d4d1] bg-[#f3f0ee] px-3.5 py-1.5 font-mono text-[11px] font-medium uppercase tracking-[0.08em] text-[#5a5a5a]">
+    <span className="inline-flex items-center border border-line-2 bg-surface px-3.5 py-1.5 font-mono text-[11px] font-medium uppercase tracking-[0.08em] text-ink-muted">
       {children}
     </span>
   );
 }
 
 /* ── Stat — BMW numeric display ─────────────────────────────── */
-export function Stat({ value, label, detail, light }: { value: string; label: string; detail?: string; light?: boolean }) {
+export function Stat({ value, label, detail }: { value: string; label: string; detail?: string; light?: boolean }) {
   return (
     <Reveal variant={fadeUp}>
-      <div className={cx(
-        "text-[40px] font-bold leading-[1] tracking-[-0.02em] sm:text-[48px]",
-        light ? "text-white" : "text-[#141413]"
-      )}>
+      <div className="text-[40px] font-bold leading-[1] tracking-[-0.02em] text-ink sm:text-[48px]">
         {value}
       </div>
-      <div className={cx(
-        "mt-3 font-mono text-[11px] font-semibold uppercase tracking-[0.12em]",
-        light ? "text-[#1c69d4]" : "text-[#0066b1]"
-      )}>
+      <div className="mt-3 font-mono text-[11px] font-semibold uppercase tracking-[0.12em] text-action">
         {label}
       </div>
       {detail && (
-        <div className={cx(
-          "mt-2 text-[14px] font-light leading-[1.5] tracking-[-0.01em]",
-          light ? "text-white/60" : "text-[#5a5a5a]"
-        )}>
+        <div className="mt-2 text-[14px] font-light leading-[1.5] tracking-[-0.01em] text-ink-muted">
           {detail}
         </div>
       )}
@@ -215,21 +201,18 @@ export function Stat({ value, label, detail, light }: { value: string; label: st
   );
 }
 
-/* ── Card — Mastercard 24px radius, BMW hover rail ──────────── */
-export function Card({ children, className, dark }: { children: ReactNode; className?: string; dark?: boolean }) {
+/* ── Card — rectangular, theme-aware, BMW hover rail ────────── */
+export function Card({ children, className }: { children: ReactNode; className?: string; dark?: boolean }) {
   return (
     <Reveal
       variant={scaleIn}
       className={cx(
-        "group relative cursor-default overflow-hidden rounded-[24px] p-6 transition-all duration-300 sm:p-7",
-        dark
-          ? "border border-white/10 bg-white/[0.04] hover:border-white/20 hover:bg-white/[0.07]"
-          : "border border-[#e2ded9] bg-white hover:border-[#1c69d4]/30 hover:shadow-[0_12px_40px_rgba(28,105,212,0.10)]",
+        "group relative cursor-default overflow-hidden border border-line bg-card p-6 transition-all duration-300 hover:border-action/40 hover:shadow-[0_12px_40px_rgba(28,105,212,0.10)] sm:p-7",
         className
       )}
     >
       <span
-        className="absolute left-0 top-0 h-0.5 w-full origin-left scale-x-0 bg-[#1c69d4] transition-transform duration-500 group-hover:scale-x-100"
+        className="absolute left-0 top-0 h-0.5 w-full origin-left scale-x-0 bg-action transition-transform duration-500 group-hover:scale-x-100"
         aria-hidden
       />
       {children}
@@ -247,22 +230,17 @@ export function StepBadge({ step, active }: { step: string; active?: boolean }) 
   return (
     <div className={cx(
       "flex h-10 w-10 shrink-0 items-center justify-center font-mono text-[12px] font-bold uppercase tracking-[0.06em] transition-colors",
-      active ? "bg-[#1c69d4] text-white" : "border border-[#d8d4d1] bg-white text-[#141413]"
+      active ? "bg-action text-on-action" : "border border-line-2 bg-card text-ink"
     )}>
       {step}
     </div>
   );
 }
 
-/* ── Pill — Mastercard 999px radius ─────────────────────────── */
-export function Pill({ children, dark }: { children: ReactNode; dark?: boolean }) {
+/* ── Pill — rectangular BMW M chip ──────────────────────────── */
+export function Pill({ children }: { children: ReactNode; dark?: boolean }) {
   return (
-    <span className={cx(
-      "inline-flex items-center rounded-full px-3.5 py-1.5 font-mono text-[11px] font-medium uppercase tracking-[0.08em]",
-      dark
-        ? "border border-white/12 bg-white/[0.06] text-white/75"
-        : "border border-[#d8d4d1] bg-[#f3f0ee] text-[#3a3a3a]"
-    )}>
+    <span className="inline-flex items-center border border-line-2 bg-surface px-3.5 py-1.5 font-mono text-[11px] font-medium uppercase tracking-[0.08em] text-ink-2">
       {children}
     </span>
   );
@@ -277,21 +255,21 @@ export function PrimaryButton({ href, children, className }: { href: string; chi
   return (
     <Link
       href={href}
-      className={cx(btnBase, "bg-[#1c69d4] text-white hover:bg-[#0066b1] focus-visible:outline-[#1c69d4]", className)}
+      className={cx(btnBase, "bg-action text-on-action hover:bg-action-strong focus-visible:outline-action", className)}
     >
       {children}
     </Link>
   );
 }
 
-/* Secondary — outlined on light surfaces */
+/* Secondary — solid ink outline that inverts on hover */
 export function SecondaryButton({ href, children, className }: { href: string; children: ReactNode; className?: string }) {
   return (
     <Link
       href={href}
       className={cx(
         btnBase,
-        "border-2 border-[#141413] bg-transparent text-[#141413] hover:bg-[#141413] hover:text-white focus-visible:outline-[#141413]",
+        "border-2 border-ink bg-transparent text-ink hover:bg-ink hover:text-canvas focus-visible:outline-ink",
         className
       )}
     >
@@ -300,14 +278,14 @@ export function SecondaryButton({ href, children, className }: { href: string; c
   );
 }
 
-/* Outline — outlined on BMW M dark surfaces */
+/* Outline — subtle ink outline (works on any themed surface) */
 export function OutlineButton({ href, children, className }: { href: string; children: ReactNode; className?: string }) {
   return (
     <Link
       href={href}
       className={cx(
         btnBase,
-        "border-2 border-white/25 bg-transparent text-white hover:border-white/50 hover:bg-white/[0.08] focus-visible:outline-white",
+        "border-2 border-ink/25 bg-transparent text-ink hover:border-ink/50 hover:bg-ink/[0.08] focus-visible:outline-ink",
         className
       )}
     >
@@ -321,7 +299,7 @@ export function GhostButton({ href, children, className }: { href: string; child
     <Link
       href={href}
       className={cx(
-        "inline-flex items-center gap-1.5 font-mono text-[12px] font-bold uppercase tracking-[0.1em] text-[#0066b1] transition-colors hover:text-[#1c69d4]",
+        "inline-flex items-center gap-1.5 font-mono text-[12px] font-bold uppercase tracking-[0.1em] text-action transition-colors hover:text-action-strong",
         className
       )}
     >
@@ -334,7 +312,7 @@ export function TextLink({ href, children }: { href: string; children: ReactNode
   return (
     <Link
       href={href}
-      className="group inline-flex items-center gap-1.5 font-mono text-[12px] font-bold uppercase tracking-[0.1em] text-[#0066b1] transition-colors hover:text-[#1c69d4]"
+      className="group inline-flex items-center gap-1.5 font-mono text-[12px] font-bold uppercase tracking-[0.1em] text-action transition-colors hover:text-action-strong"
     >
       {children}
       <ArrowRight className="h-3.5 w-3.5 transition-transform duration-300 group-hover:translate-x-0.5" aria-hidden />
@@ -342,12 +320,12 @@ export function TextLink({ href, children }: { href: string; children: ReactNode
   );
 }
 
-/* Text link for BMW M dark surfaces */
+/* TextLinkDark — legacy alias; now identical to TextLink (token-based) */
 export function TextLinkDark({ href, children }: { href: string; children: ReactNode }) {
   return (
     <Link
       href={href}
-      className="group inline-flex items-center gap-1.5 font-mono text-[12px] font-bold uppercase tracking-[0.1em] text-[#1c69d4] transition-colors hover:text-white"
+      className="group inline-flex items-center gap-1.5 font-mono text-[12px] font-bold uppercase tracking-[0.1em] text-action transition-colors hover:text-ink"
     >
       {children}
       <ArrowRight className="h-3.5 w-3.5 transition-transform duration-300 group-hover:translate-x-0.5" aria-hidden />
@@ -363,7 +341,7 @@ export function ButtonLink({ href, children, variant = "primary", className }: {
   return <V href={href} className={className}>{children}</V>;
 }
 
-/* ── PageHero — BMW M dark banner with M-stripe rail ─────────── */
+/* ── PageHero — BMW M banner with M-stripe rail, theme-flipping ─ */
 export function PageHero({
   eyebrow, title, description, image, imageTitle, imageCaption, children,
 }: {
@@ -372,25 +350,25 @@ export function PageHero({
   children?: ReactNode;
 }) {
   return (
-    <div className="relative overflow-hidden bg-[#1a2129] px-5 py-16 sm:px-6 sm:py-24">
-      {/* M-stripe rail across the top of every page hero */}
+    <div className="relative overflow-hidden bg-surface px-5 py-16 sm:px-6 sm:py-24">
+      {/* M-stripe rail across the top of every page hero (literal brand) */}
       <div className="absolute left-0 right-0 top-0 flex h-1" aria-hidden>
-        <span className="flex-1 bg-[#0066b1]" />
-        <span className="flex-1 bg-[#1c69d4]" />
-        <span className="flex-1 bg-[#e22718]" />
+        <span className="flex-1 bg-m-blue" />
+        <span className="flex-1 bg-m-blue-mid" />
+        <span className="flex-1 bg-m-red" />
       </div>
 
       <div className="mx-auto max-w-[1200px]">
         <div className={cx("grid gap-12", image ? "lg:grid-cols-[1fr_0.85fr] lg:items-center" : "")}>
           <div>
-            <p className="font-mono text-[11px] font-semibold uppercase tracking-[0.14em] text-[#1c69d4]">
+            <p className="font-mono text-[11px] font-semibold uppercase tracking-[0.14em] text-action">
               {eyebrow}
             </p>
-            <h1 className="mt-5 text-balance text-[40px] font-bold uppercase leading-[1.06] tracking-[-0.02em] text-white sm:text-[54px] lg:text-[64px]">
+            <h1 className="mt-5 text-balance text-[40px] font-bold uppercase leading-[1.06] tracking-[-0.02em] text-ink sm:text-[54px] lg:text-[64px]">
               {title}
             </h1>
             {description && (
-              <p className="mt-6 max-w-2xl text-pretty text-[18px] font-light leading-[1.6] tracking-[-0.01em] text-white/65 sm:text-[20px]">
+              <p className="mt-6 max-w-2xl text-pretty text-[18px] font-light leading-[1.6] tracking-[-0.01em] text-ink-muted sm:text-[20px]">
                 {description}
               </p>
             )}

@@ -6,7 +6,7 @@ import { FaGithub, FaLinkedin, FaXTwitter } from "react-icons/fa6";
 import { company } from "@/data/company";
 import { footerLinks, navigation } from "@/lib/site-data";
 
-/* ── BMW M footer — near-black canvas, M-stripe rail, mono labels ── */
+/* ── BMW M footer — theme-flipping canvas, M-stripe rail, mono labels ── */
 
 const socialLinks = [
   { name: "GitHub",   href: company.social.github,   icon: FaGithub },
@@ -16,14 +16,14 @@ const socialLinks = [
 
 export default function Footer() {
   return (
-    <footer className="relative bg-[#0d0d0d]" aria-labelledby="footer-heading">
+    <footer className="relative bg-surface" aria-labelledby="footer-heading">
       <h2 id="footer-heading" className="sr-only">Footer</h2>
 
-      {/* M-stripe rail */}
+      {/* M-stripe rail — literal tricolor brand signature */}
       <div className="flex h-1" aria-hidden>
-        <span className="flex-1 bg-[#0066b1]" />
-        <span className="flex-1 bg-[#1c69d4]" />
-        <span className="flex-1 bg-[#e22718]" />
+        <span className="flex-1 bg-m-blue" />
+        <span className="flex-1 bg-m-blue-mid" />
+        <span className="flex-1 bg-m-red" />
       </div>
 
       <div className="mx-auto max-w-[1200px] px-5 py-16 sm:px-6 sm:py-20">
@@ -35,15 +35,15 @@ export default function Footer() {
           <div className="max-w-sm">
             <Link
               href="/"
-              className="inline-flex items-center gap-2.5 text-[15px] font-bold uppercase tracking-[0.01em] text-white transition-opacity hover:opacity-80"
+              className="inline-flex items-center gap-2.5 text-[15px] font-bold uppercase tracking-[0.01em] text-ink transition-opacity hover:opacity-80"
             >
-              <span className="relative flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden border border-white/15 bg-white/[0.06]">
+              <span className="relative flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden border border-ink/15 bg-ink/[0.06]">
                 <Image src="/logo-mark.svg" alt="" fill sizes="36px" className="object-cover" />
               </span>
               {company.name}
             </Link>
 
-            <p className="mt-5 text-[15px] font-light leading-[1.6] tracking-[-0.01em] text-white/55">
+            <p className="mt-5 text-[15px] font-light leading-[1.6] tracking-[-0.01em] text-ink/55">
               {company.description.split(".")[0]}.
             </p>
 
@@ -51,23 +51,23 @@ export default function Footer() {
               <li>
                 <a
                   href={`mailto:${company.email}`}
-                  className="flex items-center gap-2.5 text-[14px] font-light tracking-[-0.01em] text-white/60 transition-colors hover:text-white"
+                  className="flex items-center gap-2.5 text-[14px] font-light tracking-[-0.01em] text-ink/60 transition-colors hover:text-ink"
                 >
-                  <Mail className="h-4 w-4 shrink-0 text-[#1c69d4]" aria-hidden="true" />
+                  <Mail className="h-4 w-4 shrink-0 text-action" aria-hidden="true" />
                   {company.email}
                 </a>
               </li>
               <li>
                 <a
                   href={`tel:${company.phone.replace(/\s+/g, "")}`}
-                  className="flex items-center gap-2.5 text-[14px] font-light tracking-[-0.01em] text-white/60 transition-colors hover:text-white"
+                  className="flex items-center gap-2.5 text-[14px] font-light tracking-[-0.01em] text-ink/60 transition-colors hover:text-ink"
                 >
-                  <Phone className="h-4 w-4 shrink-0 text-[#1c69d4]" aria-hidden="true" />
+                  <Phone className="h-4 w-4 shrink-0 text-action" aria-hidden="true" />
                   {company.phone}
                 </a>
               </li>
-              <li className="flex items-start gap-2.5 text-[14px] font-light tracking-[-0.01em] text-white/60">
-                <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-[#1c69d4]" aria-hidden="true" />
+              <li className="flex items-start gap-2.5 text-[14px] font-light tracking-[-0.01em] text-ink/60">
+                <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-action" aria-hidden="true" />
                 {company.city}
               </li>
             </ul>
@@ -80,7 +80,7 @@ export default function Footer() {
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label={social.name}
-                  className="flex h-10 w-10 items-center justify-center border border-white/12 bg-white/[0.04] text-white/60 transition-colors hover:border-[#1c69d4] hover:bg-[#1c69d4] hover:text-white"
+                  className="flex h-10 w-10 items-center justify-center border border-ink/12 bg-ink/[0.04] text-ink/60 transition-colors hover:border-action hover:bg-action hover:text-on-action"
                 >
                   <social.icon className="h-4 w-4" aria-hidden="true" />
                 </a>
@@ -97,7 +97,7 @@ export default function Footer() {
               { title: "Policies", links: footerLinks.policies },
             ].map((group) => (
               <div key={group.title}>
-                <h3 className="font-mono text-[11px] font-semibold uppercase tracking-[0.14em] text-[#1c69d4]">
+                <h3 className="font-mono text-[11px] font-semibold uppercase tracking-[0.14em] text-action">
                   {group.title}
                 </h3>
                 <ul role="list" className="mt-5 space-y-3">
@@ -105,7 +105,7 @@ export default function Footer() {
                     <li key={item.name}>
                       <Link
                         href={item.href}
-                        className="text-[14px] font-light tracking-[-0.01em] text-white/60 transition-colors hover:text-white"
+                        className="text-[14px] font-light tracking-[-0.01em] text-ink/60 transition-colors hover:text-ink"
                       >
                         {item.name}
                       </Link>
@@ -118,8 +118,8 @@ export default function Footer() {
         </div>
 
         {/* ── Bottom bar ── */}
-        <div className="mt-14 flex flex-col gap-4 border-t border-white/10 pt-8 sm:flex-row sm:items-center sm:justify-between">
-          <p className="font-mono text-[11px] uppercase tracking-[0.08em] text-white/40">
+        <div className="mt-14 flex flex-col gap-4 border-t border-ink/10 pt-8 sm:flex-row sm:items-center sm:justify-between">
+          <p className="font-mono text-[11px] uppercase tracking-[0.08em] text-ink/40">
             &copy; <span suppressHydrationWarning>{new Date().getFullYear()}</span> {company.name}. All rights reserved.
           </p>
           <div className="flex flex-wrap gap-6">
@@ -127,7 +127,7 @@ export default function Footer() {
               <Link
                 key={item.name}
                 href={item.href}
-                className="font-mono text-[11px] uppercase tracking-[0.08em] text-white/40 transition-colors hover:text-white"
+                className="font-mono text-[11px] uppercase tracking-[0.08em] text-ink/40 transition-colors hover:text-ink"
               >
                 {item.name}
               </Link>

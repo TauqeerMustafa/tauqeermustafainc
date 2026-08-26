@@ -76,6 +76,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
+      suppressHydrationWarning
       className={cn("h-full scroll-smooth antialiased", "font-sans")}
     >
       <head>
@@ -84,7 +85,7 @@ export default function RootLayout({
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdSchemas) }}
         />
       </head>
-      <body className="flex min-h-screen flex-col overflow-x-hidden bg-[#f3f0ee] text-[#141413]">
+      <body className="flex min-h-screen flex-col overflow-x-hidden bg-canvas text-ink">
         <AppProviders>
           {children}
           <CookieConsent />
