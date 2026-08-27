@@ -1014,22 +1014,18 @@ function Ticks({ status, small }: { status?: string; small?: boolean }) {
 function MessageBubble({ message, tail }: { message: WAMessage; tail?: boolean }) {
   const isOutbound = message.direction === "outbound";
   const text = describeMessage(message);
-  const isPlaceholder = !(message.body || "").trim();
   const time = new Date(message.timestamp).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
-  // Reserve room on the last text line so the floated time never overlaps it —
-  // this is the WhatsApp trick that keeps short messages one line tall.
-  const spacer = isOutbound ? " ".repeat(11) : " ".repeat(7);
+  const spacer = isOutbound ? "\u00A0".repeat(11) : "\u00A0".repeat(7);
+  const isImage = message.type === "image" && message.mediaId;
   return (
     <div className={`flex ${isOutbound ? "justify-end" : "justify-start"} ${tail ? "mt-2.5" : "mt-0.5"}`}>
       <div
-        className="relative max-w-[65%] px-[9px] pb-[8px] pt-[6px] text-[14.2px] leading-[19px]"
+        className={`relative max-w-[65%] text-[14.2px] leading-[19px] ${isImage ? "p-1 pb-4" : "px-[9px] pb-[8px] pt-[6px]"}`}
         style={{
           background: isOutbound ? WA.out : WA.in,
           color: WA.text,
           borderRadius: 7.5,
           boxShadow: "0 1px 0.5px rgba(11,20,26,0.13)",
-          // Tail corner: top-right for outbound, top-left for inbound, only on the
-          // first bubble of a run.
           borderTopRightRadius: tail && isOutbound ? 0 : 7.5,
           borderTopLeftRadius: tail && !isOutbound ? 0 : 7.5,
         }}

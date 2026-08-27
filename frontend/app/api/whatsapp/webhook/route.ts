@@ -91,7 +91,7 @@ export async function POST(request: Request) {
 
           // Simple auto-reply: mirror the keyword engine from the Baileys bot.
           // Only fires if token + phoneId are configured.
-          await handleAutoReply(from, text);
+          await handleAutoReply(request.url, from, text);
         }
 
         // Delivery / read receipts for our OUTBOUND messages → drive tick status.
@@ -119,7 +119,7 @@ export async function POST(request: Request) {
 }
 
 // ─── Auto-reply helper ────────────────────────────────────────────────────────
-async function handleAutoReply(to: string, incomingText: string) {
+async function handleAutoReply(requestUrl: string, to: string, incomingText: string) {
   const token         = process.env.WHATSAPP_TOKEN;
   const phoneNumberId = process.env.WHATSAPP_PHONE_NUMBER_ID;
   if (!token || !phoneNumberId || !incomingText) return;
@@ -128,7 +128,8 @@ async function handleAutoReply(to: string, incomingText: string) {
 
   try {
     // Fetch saved auto-reply rules from the API
-    const rulesRes = await fetch(`${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/api/whatsapp/rules`);
+    const origin = new URL(requestUrl).origin;
+    const rulesRes = await fetch(`${origin}/api/whatsapp/rules`);
     if (!rulesRes.ok) {
       console.error("[webhook] Failed to fetch rules, using default");
       return;
