@@ -113,6 +113,7 @@ class AdminUserCreate(CamelModel):
     role_slug: str = Field(default="exec", min_length=1, max_length=60)
     team_id: uuid.UUID | None = None
     status: UserStatus = UserStatus.approved
+    create_ms_mailbox: bool = False
 
 
 class UpdateUserRequest(CamelModel):

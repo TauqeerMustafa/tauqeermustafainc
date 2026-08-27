@@ -14,7 +14,7 @@ export default function AdminHeader({ onMenuClick }: Props) {
 
   function handleLogout() {
     logout();
-    router.replace("/login");
+    router.replace("/admin/login");
   }
 
   return (

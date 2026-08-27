@@ -20,14 +20,18 @@ import {
 
 const links = [
   { title: "Dashboard",     href: "/admin/dashboard",     icon: LayoutDashboard },
+  { title: "Client",        href: "/admin/client",        icon: Briefcase },
+  { title: "Employees",     href: "/admin/employees",     icon: Users },
+  { title: "Management",    href: "/admin/management",    icon: ShieldCheck },
+  { title: "Community",     href: "/admin/community",     icon: MessageSquare },
+  { title: "Applicants",    href: "/admin/careers",       icon: FolderOpen },
+  { title: "Contact",       href: "/admin/messages",      icon: Mail },
+  { title: "WhatsApp",      href: "/admin/whatsapp",      icon: MessageSquare },
   { title: "Services",      href: "/admin/services",      icon: Briefcase },
   { title: "Portfolio",     href: "/admin/portfolio",     icon: FolderOpen },
   { title: "Blog",          href: "/admin/blog",          icon: FileText },
-  { title: "Careers",       href: "/admin/careers",       icon: Users },
   { title: "Announcements", href: "/admin/announcements", icon: Bell },
-  { title: "Messages",      href: "/admin/messages",      icon: Mail },
-  { title: "WhatsApp",      href: "/admin/whatsapp",      icon: MessageSquare },
-  { title: "Users",         href: "/admin/users",           icon: ShieldCheck },
+  { title: "Users",         href: "/admin/users",         icon: ShieldCheck },
   { title: "Settings",      href: "/admin/settings",      icon: Settings },
 ];
 

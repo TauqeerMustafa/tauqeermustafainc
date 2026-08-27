@@ -21,7 +21,7 @@ export default function AdminGuard({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     if (!isAuthenticated || isError) {
-      router.replace("/login");
+      router.replace("/admin/login");
     }
   }, [isAuthenticated, isError, router]);
 
@@ -44,7 +44,7 @@ export default function AdminGuard({ children }: { children: ReactNode }) {
           {isError ? "Your session has expired." : "This account does not have admin access."}
         </p>
         <a
-          href="/login"
+          href="/admin/login"
           className="border border-[#141413] bg-white px-5 py-2.5 text-sm font-semibold text-[#141413] transition hover:bg-[#141413] hover:text-white"
         >
           Back to login

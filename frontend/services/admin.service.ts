@@ -18,6 +18,7 @@ export interface CreateAdminUserPayload {
   roleSlug: string;
   teamId?: string;
   status: UserStatus;
+  createMsMailbox?: boolean;
 }
 
 export interface UpdateAdminUserPayload {

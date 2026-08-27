@@ -32,7 +32,7 @@ export async function proxy(request: NextRequest) {
   const hostname = request.headers.get("host") || "";
 
   // 1. Handle subdomain routing (but ignore API routes)
-  if (!pathname.startsWith("/api")) {
+  if (!pathname.startsWith("/api") && !pathname.startsWith("/admin")) {
     if (hostname.includes("portals.tauqeermustafa.tech") && !pathname.startsWith("/client")) {
       url.pathname = `/client${pathname === "/" ? "" : pathname}`;
       return NextResponse.rewrite(url);

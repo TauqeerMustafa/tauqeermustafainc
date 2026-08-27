@@ -89,8 +89,8 @@ export default function AdminCareersPage() {
   return (
     <div>
       <AdminPageHeader
-        title="Careers"
-        description="Manage open roles listed on the careers page."
+        title="Careers & Applicants"
+        description="Manage open roles and review job applications."
         actionLabel="New Role"
         onAction={openCreate}
       />
@@ -105,9 +105,9 @@ export default function AdminCareersPage() {
       ) : null}
 
       {!isLoading && !isError && jobs.length > 0 ? (
-        <div className="overflow-x-auto border border-white/10">
+        <div className="overflow-x-auto border border-line-2 bg-surface">
           <table className="w-full min-w-[640px] text-left text-sm">
-            <thead className="border-b border-white/10 bg-white/5 text-xs uppercase tracking-wide text-slate-400">
+            <thead className="border-b border-line-2 bg-canvas text-xs uppercase tracking-wide text-ink-muted">
               <tr>
                 <th className="px-4 py-3 font-semibold">Role</th>
                 <th className="px-4 py-3 font-semibold">Location</th>
@@ -115,17 +115,17 @@ export default function AdminCareersPage() {
                 <th className="px-4 py-3 font-semibold text-right">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-white/10">
+            <tbody className="divide-y divide-line">
               {jobs.map((job) => (
-                <tr key={job.id} className="text-slate-200">
+                <tr key={job.id} className="text-ink transition hover:bg-canvas">
                   <td className="px-4 py-3">
-                    <p className="font-semibold text-white">{job.title}</p>
-                    <p className="text-xs text-slate-500">{job.type}</p>
+                    <p className="font-semibold text-ink">{job.title}</p>
+                    <p className="text-xs text-ink-muted">{job.type}</p>
                   </td>
-                  <td className="px-4 py-3 text-slate-400">{job.location}</td>
+                  <td className="px-4 py-3 text-ink-muted">{job.location}</td>
                   <td className="px-4 py-3">
                     <span
-                      className={`px-2 py-1 text-xs font-semibold ${job.isOpen ? "bg-green-500/10 text-green-400" : "bg-slate-500/10 text-slate-400"}`}
+                      className={`px-2 py-1 text-xs font-semibold ${job.isOpen ? "bg-action/10 text-action" : "bg-line-2 text-ink-muted"}`}
                     >
                       {job.isOpen ? "Open" : "Closed"}
                     </span>
@@ -136,7 +136,7 @@ export default function AdminCareersPage() {
                         type="button"
                         onClick={() => openEdit(job)}
                         aria-label={`Edit ${job.title}`}
-                        className="flex h-8 w-8 items-center justify-center border border-white/10 text-slate-300 transition hover:border-yellow-400"
+                        className="flex h-8 w-8 items-center justify-center border border-line-2 text-ink-muted transition hover:border-ink hover:text-ink"
                       >
                         <Pencil size={14} />
                       </button>
@@ -144,7 +144,7 @@ export default function AdminCareersPage() {
                         type="button"
                         onClick={() => setPendingDelete(job)}
                         aria-label={`Delete ${job.title}`}
-                        className="flex h-8 w-8 items-center justify-center border border-white/10 text-slate-300 transition hover:border-red-400 hover:text-red-400"
+                        className="flex h-8 w-8 items-center justify-center border border-line-2 text-ink-muted transition hover:border-[#dc2626] hover:text-[#dc2626]"
                       >
                         <Trash2 size={14} />
                       </button>
