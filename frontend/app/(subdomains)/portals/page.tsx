@@ -1,4 +1,4 @@
-﻿import Link from "next/link";
+import Link from "next/link";
 import { ArrowRight, ShieldCheck, Users, Briefcase, Lock } from "lucide-react";
 
 const portals = [
@@ -19,14 +19,14 @@ const portals = [
   {
     name: "Employee Portal",
     description: "Internal tools, HR resources, and team collaboration.",
-    href: "/admin/login",
+    href: "/employees/login",
     icon: <Briefcase className="h-6 w-6 text-emerald-500" />,
     color: "bg-emerald-50 border-emerald-100",
   },
   {
     name: "Management Portal",
     description: "Executive dashboards and reporting tools.",
-    href: "/admin/login",
+    href: "/management/login",
     icon: <Lock className="h-6 w-6 text-purple-500" />,
     color: "bg-purple-50 border-purple-100",
   },

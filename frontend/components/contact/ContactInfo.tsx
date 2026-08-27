@@ -1,4 +1,4 @@
-﻿import { Mail, Phone, MapPin, Clock, ArrowUpRight } from "lucide-react";
+import { Mail, Phone, MapPin, Clock, ArrowUpRight } from "lucide-react";
 
 import { company } from "@/data/company";
 
@@ -33,12 +33,12 @@ const items = [
 
 export default function ContactInfo() {
   return (
-    <div className="rounded-[24px] bg-canvas px-8 py-9 text-white">
+    <div className="rounded-[24px] bg-surface-2 border border-line-2 px-8 py-9 text-ink">
       {/* Header */}
       <p className="font-mono text-[10px] font-semibold uppercase tracking-[0.12em] text-action">
         Reach us directly
       </p>
-      <p className="mt-4 max-w-xs text-[15px] leading-[1.5] tracking-[-0.2px] text-[#b8b8b4]">
+      <p className="mt-4 max-w-xs text-[15px] leading-[1.5] tracking-[-0.2px] text-ink-lighter">
         Prefer not to fill out a form? We respond to direct messages within one business day.
       </p>
 
@@ -55,7 +55,7 @@ export default function ContactInfo() {
           const Icon = item.icon;
           return (
             <li key={item.label} className="flex items-start gap-4">
-              <span className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white/8">
+              <span className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-ink/[0.04]">
                 <Icon className="h-4 w-4 text-action" aria-hidden />
               </span>
               <div className="min-w-0">
@@ -65,13 +65,13 @@ export default function ContactInfo() {
                 {item.href ? (
                   <a
                     href={item.href}
-                    className="mt-1 flex items-center gap-1 text-[15px] font-[400] leading-[1.4] tracking-[-0.2px] text-white transition hover:text-action"
+                    className="mt-1 flex items-center gap-1 text-[15px] font-[400] leading-[1.4] tracking-[-0.2px] text-ink transition hover:text-action"
                   >
                     {item.value}
                     <ArrowUpRight className="h-3.5 w-3.5 shrink-0 opacity-60" aria-hidden />
                   </a>
                 ) : (
-                  <p className="mt-1 text-[15px] font-[400] leading-[1.4] tracking-[-0.2px] text-[#b8b8b4]">
+                  <p className="mt-1 text-[15px] font-[400] leading-[1.4] tracking-[-0.2px] text-ink-lighter">
                     {item.value}
                   </p>
                 )}
@@ -83,7 +83,7 @@ export default function ContactInfo() {
 
       {/* Social row */}
       {company.social?.linkedin && (
-        <div className="mt-8 border-t border-white/10 pt-7">
+        <div className="mt-8 border-t border-line-2 pt-7">
           <p className="font-mono text-[10px] font-semibold uppercase tracking-[0.1em] text-ink-muted">
             Connect
           </p>
