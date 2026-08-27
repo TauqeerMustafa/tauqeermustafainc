@@ -1,4 +1,4 @@
-export interface LegalSection {
+﻿export interface LegalSection {
   heading: string;
   body: string[];
 }
@@ -13,6 +13,55 @@ export interface LegalDoc {
 }
 
 export const legalDocs: LegalDoc[] = [
+  {
+    slug: "company-rules",
+    title: "Company Rules",
+    shortDescription: "The core principles, expectations, and rules that govern engagements with Tauqeer Mustafa Inc.",
+    lastUpdated: "August 27, 2026",
+    intro:
+      "These company rules outline the expectations and professional standards required from all parties interacting with Tauqeer Mustafa Inc., including our employees, clients, and platform users. They ensure a safe, productive, and respectful environment for everyone.",
+    sections: [
+      {
+        heading: "1. Professional Conduct",
+        body: [
+          "All communications and interactions must remain professional, respectful, and strictly related to business objectives.",
+          "Harassment, discrimination, or abusive behavior of any kind will not be tolerated and is grounds for immediate termination of services or employment.",
+        ],
+      },
+      {
+        heading: "2. Confidentiality & Security",
+        body: [
+          "All proprietary information, intellectual property, and internal security protocols must remain strictly confidential.",
+          "Employees and clients must follow all data-handling guidelines specified in their respective agreements.",
+        ],
+      },
+    ],
+  },
+  {
+    slug: "misconduct",
+    title: "Misconduct & Violations",
+    shortDescription: "Rules and consequences regarding misconduct or policy violations by any user, client, or employee.",
+    lastUpdated: "August 27, 2026",
+    intro:
+      "This document defines what constitutes misconduct and details the consequences for violations of any Tauqeer Mustafa Inc. policies. This applies uniformly to clients, employees, contractors, and general users of our platforms.",
+    sections: [
+      {
+        heading: "1. Definition of Misconduct",
+        body: [
+          "Misconduct includes, but is not limited to: breach of contract, unauthorized access to systems, misuse of provided software, sharing of confidential access credentials, and engaging in unlawful activities using our services.",
+          "Any attempt to reverse-engineer, damage, or exploit vulnerabilities in our infrastructure is classified as severe misconduct.",
+        ],
+      },
+      {
+        heading: "2. Enforcement & Consequences",
+        body: [
+          "We reserve the right to suspend or permanently revoke access to our portals, APIs, and services without prior notice if misconduct is detected.",
+          "For employees and contractors, misconduct may lead to disciplinary action up to and including termination and legal pursuit.",
+          "For clients, severe violations may result in the immediate cancellation of active contracts and forfeiture of retainer fees as outlined in the Master Services Agreement.",
+        ],
+      },
+    ],
+  },
   {
     slug: "sla",
     title: "Service Level Agreement",
@@ -446,7 +495,7 @@ export const legalDocs: LegalDoc[] = [
     shortDescription: "Accepted payment methods, invoicing schedules, currencies, taxes, and what happens when an invoice runs late.",
     lastUpdated: "August 22, 2026",
     intro:
-      "This Payment Policy explains how Tauqeer Mustafa Inc. quotes, invoices, and collects payment for its services. It applies to all clients unless a signed proposal, statement of work, or master services agreement sets out different commercial terms — in which case that signed document takes precedence.",
+      "This Payment Policy explains how Tauqeer Mustafa Inc. quotes, invoices, and collects payment for its services. It applies to all clients unless a signed proposal, statement of work, or master services agreement sets out different commercial terms â€” in which case that signed document takes precedence.",
     sections: [
       {
         heading: "1. Currency and Pricing",
@@ -558,7 +607,7 @@ export const legalDocs: LegalDoc[] = [
       {
         heading: "5. Non-Refundable Items",
         body: [
-          "Third-party costs already incurred on your behalf — cloud hosting, domains, commercial licences, paid APIs, app store fees, stock assets — are not refundable, as we cannot recover them from the vendor.",
+          "Third-party costs already incurred on your behalf â€” cloud hosting, domains, commercial licences, paid APIs, app store fees, stock assets â€” are not refundable, as we cannot recover them from the vendor.",
           "Consulting sessions, audits, training, and security assessments that have already been delivered are not refundable.",
           "Custom source code, designs, or documents that have already been delivered to you are not refundable once handed over.",
         ],
@@ -593,7 +642,7 @@ export const legalDocs: LegalDoc[] = [
     shortDescription: "How returns, cancellations, and rework requests work for digital deliverables and for hardware bought on your behalf.",
     lastUpdated: "August 22, 2026",
     intro:
-      "This Return Policy explains what can and cannot be returned when you buy from Tauqeer Mustafa Inc. Most of what we deliver is professional services and custom digital work, which behaves differently from a physical product — so this policy sets out the practical equivalent: cancellation, rework, and, where relevant, the return of hardware procured on your behalf.",
+      "This Return Policy explains what can and cannot be returned when you buy from Tauqeer Mustafa Inc. Most of what we deliver is professional services and custom digital work, which behaves differently from a physical product â€” so this policy sets out the practical equivalent: cancellation, rework, and, where relevant, the return of hardware procured on your behalf.",
     sections: [
       {
         heading: "1. What We Sell",
@@ -628,9 +677,9 @@ export const legalDocs: LegalDoc[] = [
       {
         heading: "5. Hardware and Physical Items",
         body: [
-          "Occasionally we procure hardware or physical items on a client's behalf — a server, a device for testing, or a licence delivered on physical media. These remain subject to the manufacturer's or vendor's own return terms, which we pass through to you unchanged.",
+          "Occasionally we procure hardware or physical items on a client's behalf â€” a server, a device for testing, or a licence delivered on physical media. These remain subject to the manufacturer's or vendor's own return terms, which we pass through to you unchanged.",
           "To request a return of such an item, notify us within 7 calendar days of delivery. The item must be unused, in its original packaging, and complete with all accessories and documentation.",
-          "Return shipping and any vendor restocking fee are payable by the client, except where the item arrived damaged, faulty, or was not the item ordered — in which case we cover the cost of the return and the replacement.",
+          "Return shipping and any vendor restocking fee are payable by the client, except where the item arrived damaged, faulty, or was not the item ordered â€” in which case we cover the cost of the return and the replacement.",
           "Items that are damaged after delivery, opened software media, activated licences, and custom-configured hardware cannot be returned.",
         ],
       },
@@ -647,7 +696,7 @@ export const legalDocs: LegalDoc[] = [
         heading: "7. How to Raise a Return or Rework Request",
         body: [
           "Send your request to support@tauqeermustafa.tech, including the project name, the relevant invoice or delivery note number, and a clear description of the problem, with screenshots or reproduction steps where applicable.",
-          "We acknowledge requests within 2 business days and confirm the remedy — rework, replacement, return authorisation, or refund — within 5 business days.",
+          "We acknowledge requests within 2 business days and confirm the remedy â€” rework, replacement, return authorisation, or refund â€” within 5 business days.",
         ],
       },
     ],
@@ -658,7 +707,7 @@ export const legalDocs: LegalDoc[] = [
     shortDescription: "Ownership, licensing, warranty, updates, and acceptable use for the products and software we deliver.",
     lastUpdated: "August 22, 2026",
     intro:
-      "This Product Policy sets out the terms that apply to the products Tauqeer Mustafa Inc. builds and delivers — custom software, web platforms, internal tools, integrations, and any licensed components we supply with them. It covers who owns what, how third-party components are licensed, what our warranty covers, and how we handle updates and deprecation.",
+      "This Product Policy sets out the terms that apply to the products Tauqeer Mustafa Inc. builds and delivers â€” custom software, web platforms, internal tools, integrations, and any licensed components we supply with them. It covers who owns what, how third-party components are licensed, what our warranty covers, and how we handle updates and deprecation.",
     sections: [
       {
         heading: "1. Products Covered",
@@ -741,3 +790,4 @@ export const legalDocs: LegalDoc[] = [
 export function getLegalDoc(slug: string): LegalDoc | undefined {
   return legalDocs.find((doc) => doc.slug === slug);
 }
+

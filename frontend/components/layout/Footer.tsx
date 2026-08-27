@@ -94,7 +94,7 @@ export default function Footer() {
               { title: "Navigate", links: navigation },
               { title: "Services", links: footerLinks.services },
               { title: "Company",  links: footerLinks.company },
-              { title: "Policies", links: footerLinks.policies },
+              { title: "Documentation", links: footerLinks.documentation },
             ].map((group) => (
               <div key={group.title}>
                 <h3 className="font-mono text-[11px] font-semibold uppercase tracking-[0.14em] text-action">

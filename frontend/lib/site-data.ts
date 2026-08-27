@@ -31,9 +31,11 @@ export const footerLinks = {
     { name: "Privacy Policy", href: "/privacy" },
     { name: "Terms of Service", href: "/terms" },
     { name: "Cookie Policy", href: "/cookies" },
-    { name: "Accessibility", href: "/accessibility" },
   ],
-  policies: [
+  documentation: [
+    { name: "Accessibility", href: "/accessibility" },
+    { name: "Company Rules", href: "/legal/company-rules" },
+    { name: "Misconduct Rules", href: "/legal/misconduct" },
     { name: "Payment Policy", href: "/legal/payment-policy" },
     { name: "Refund Policy", href: "/legal/refund-policy" },
     { name: "Return Policy", href: "/legal/return-policy" },
