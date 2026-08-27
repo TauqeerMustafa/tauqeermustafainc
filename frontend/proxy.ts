@@ -1,11 +1,11 @@
-﻿/**
+/**
  * Server-side auth gate for the WhatsApp API (Next.js 16 "proxy", formerly
  * middleware). The /api/whatsapp/* route handlers are a BFF proxy that read
  * customer conversations from KV and call the Meta Graph API with server-only
  * secrets — they must never be reachable without an authenticated admin.
  *
  * The admin session token lives in the browser (localStorage, sent by the
- * client as "Authorization: Bearer <token>"). We validate it the same way the
+ * client as `Authorization: Bearer <token>`). We validate it the same way the
  * UI does — by asking the backend who it belongs to — and require role
  * "admin". Runs on the Node.js runtime by default, so backend fetch is fine.
  *
@@ -29,18 +29,18 @@ function unauthorized(status: number, error: string) {
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const url = request.nextUrl.clone();
-  const hostname = request.headers.get("host") || ";
+  const hostname = request.headers.get("host") || "";
 
   // 1. Handle subdomain routing and cross-domain redirects (ignoring API/admin routes)
   if (!pathname.startsWith("/api") && !pathname.startsWith("/admin")) {
     // Redirect main domain paths to subdomains
     if (hostname === "tauqeermustafa.tech" || hostname === "www.tauqeermustafa.tech") {
       if (pathname === "/client" || pathname.startsWith("/client/")) {
-        const newPath = pathname.replace(/^\/client/, ");
+        const newPath = pathname.replace(/^\/client/, "");
         return NextResponse.redirect(`https://portals.tauqeermustafa.tech${newPath || "/"}`);
       }
       if (pathname === "/community" || pathname.startsWith("/community/")) {
-        const newPath = pathname.replace(/^\/community/, ");
+        const newPath = pathname.replace(/^\/community/, "");
         return NextResponse.redirect(`https://community.tauqeermustafa.tech${newPath || "/"}`);
       }
     }
