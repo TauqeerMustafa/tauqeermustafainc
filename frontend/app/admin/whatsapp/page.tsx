@@ -1014,13 +1014,15 @@ function Ticks({ status, small }: { status?: string; small?: boolean }) {
 function MessageBubble({ message, tail }: { message: WAMessage; tail?: boolean }) {
   const isOutbound = message.direction === "outbound";
   const text = describeMessage(message);
+  const isPlaceholder = !(message.body || "").trim() && !MEDIA_LABELS[message.type];
   const time = new Date(message.timestamp).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
   const spacer = isOutbound ? "\u00A0".repeat(11) : "\u00A0".repeat(7);
   const isImage = message.type === "image" && message.mediaId;
+  
   return (
     <div className={`flex ${isOutbound ? "justify-end" : "justify-start"} ${tail ? "mt-2.5" : "mt-0.5"}`}>
       <div
-        className={`relative max-w-[65%] text-[14.2px] leading-[19px] ${isImage ? "p-1 pb-4" : "px-[9px] pb-[8px] pt-[6px]"}`}
+        className={`relative max-w-[65%] text-[14.2px] leading-[19px] ${isImage ? "p-1 pb-5" : "px-[9px] pb-[8px] pt-[6px]"}`}
         style={{
           background: isOutbound ? WA.out : WA.in,
           color: WA.text,
@@ -1046,24 +1048,43 @@ function MessageBubble({ message, tail }: { message: WAMessage; tail?: boolean }
             } as React.CSSProperties}
           />
         )}
-        <span
-          className="whitespace-pre-wrap break-words"
-          style={isPlaceholder ? { fontStyle: "italic", color: WA.sub } : undefined}
-        >
-          {text || "—"}
-          <span aria-hidden style={{ display: "inline-block" }}>
-            {spacer}
+        
+        {isImage ? (
+          <div className="relative">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img 
+              src={`/api/whatsapp/media/${message.mediaId}`} 
+              alt="WhatsApp Media" 
+              className="rounded-md max-h-[300px] object-cover" 
+            />
+            {text && text !== MEDIA_LABELS["image"] && (
+              <div className="px-1 pt-1 pb-0.5 whitespace-pre-wrap break-words">
+                {text}
+                <span aria-hidden style={{ display: "inline-block" }}>{spacer}</span>
+              </div>
+            )}
+          </div>
+        ) : (
+          <span
+            className="whitespace-pre-wrap break-words"
+            style={isPlaceholder ? { fontStyle: "italic", color: WA.sub } : undefined}
+          >
+            {text || "—"}
+            <span aria-hidden style={{ display: "inline-block" }}>
+              {spacer}
+            </span>
           </span>
-        </span>
+        )}
+
         {/* Floated inline timestamp + ticks */}
         <span
-          className="pointer-events-none absolute bottom-[3px] right-[7px] flex items-center gap-1"
+          className={`pointer-events-none absolute bottom-[3px] right-[7px] flex items-center gap-1 ${isImage && (!text || text === MEDIA_LABELS["image"]) ? "text-white bg-black/30 px-1.5 rounded-full bottom-[5px]" : ""}`}
           style={{ height: 15 }}
         >
-          <span className="text-[11px] leading-none" style={{ color: WA.sub }}>
+          <span className="text-[11px] leading-none" style={isImage && (!text || text === MEDIA_LABELS["image"]) ? { color: "white" } : { color: WA.sub }}>
             {time}
           </span>
-          {isOutbound && <Ticks status={message.status} small />}
+          {isOutbound && <Ticks status={message.status} small={true} />}
         </span>
       </div>
     </div>

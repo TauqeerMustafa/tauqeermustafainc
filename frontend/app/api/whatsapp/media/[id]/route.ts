@@ -2,13 +2,13 @@ import { NextResponse } from "next/server";
 
 const GRAPH_URL = "https://graph.facebook.com/v20.0";
 
-export async function GET(request: Request, { params }: { params: { id: string } }) {
+export async function GET(request: Request, props: { params: Promise<{ id: string }> }) {
   const token = process.env.WHATSAPP_TOKEN;
   if (!token) {
     return NextResponse.json({ error: "WHATSAPP_TOKEN not configured" }, { status: 500 });
   }
 
-  const { id } = params;
+  const { id } = await props.params;
   if (!id) {
     return NextResponse.json({ error: "Media ID is required" }, { status: 400 });
   }
