@@ -28,35 +28,54 @@ function unauthorized(status: number, error: string) {
 
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
+  const url = request.nextUrl.clone();
+  const hostname = request.headers.get("host") || "";
 
-  if (OPEN_PATHS.some((p) => pathname === p || pathname.startsWith(`${p}/`))) {
-    return NextResponse.next();
+  // 1. Handle subdomain routing (but ignore API routes)
+  if (!pathname.startsWith("/api")) {
+    if (hostname.includes("portals.tauqeermustafa.tech") && !pathname.startsWith("/client")) {
+      url.pathname = `/client${pathname === "/" ? "" : pathname}`;
+      return NextResponse.rewrite(url);
+    }
+
+    if (hostname.includes("community.tauqeermustafa.tech") && !pathname.startsWith("/community")) {
+      url.pathname = `/community${pathname === "/" ? "" : pathname}`;
+      return NextResponse.rewrite(url);
+    }
   }
 
-  const match = /^Bearer\s+(.+)$/i.exec(request.headers.get("authorization") || "");
-  const token = match?.[1]?.trim();
-  if (!token) return unauthorized(401, "Unauthorized");
+  // 2. Handle WhatsApp API auth gating
+  if (pathname.startsWith("/api/whatsapp")) {
+    if (OPEN_PATHS.some((p) => pathname === p || pathname.startsWith(`${p}/`))) {
+      return NextResponse.next();
+    }
 
-  const apiBase = process.env.NEXT_PUBLIC_API_URL?.replace(/\/+$/, "");
-  // Fail closed: without a backend to verify against, trust no one.
-  if (!apiBase) return unauthorized(500, "Auth backend not configured");
+    const match = /^Bearer\s+(.+)$/i.exec(request.headers.get("authorization") || "");
+    const token = match?.[1]?.trim();
+    if (!token) return unauthorized(401, "Unauthorized");
 
-  try {
-    const res = await fetch(`${apiBase}/auth/me`, {
-      headers: { Authorization: `Bearer ${token}` },
-      cache: "no-store",
-    });
-    if (!res.ok) return unauthorized(401, "Unauthorized");
-    const body = await res.json().catch(() => null);
-    const role = body?.data?.role ?? body?.role;
-    if (role !== "admin") return unauthorized(403, "Forbidden");
-  } catch {
-    return unauthorized(503, "Auth check failed");
+    const apiBase = process.env.NEXT_PUBLIC_API_URL?.replace(/\/+$/, "");
+    if (!apiBase) return unauthorized(500, "Auth backend not configured");
+
+    try {
+      const res = await fetch(`${apiBase}/auth/me`, {
+        headers: { Authorization: `Bearer ${token}` },
+        cache: "no-store",
+      });
+      if (!res.ok) return unauthorized(401, "Unauthorized");
+      const body = await res.json().catch(() => null);
+      const role = body?.data?.role ?? body?.role;
+      if (role !== "admin") return unauthorized(403, "Forbidden");
+    } catch {
+      return unauthorized(503, "Auth check failed");
+    }
   }
 
   return NextResponse.next();
 }
 
 export const config = {
-  matcher: "/api/whatsapp/:path*",
+  matcher: [
+    "/((?!_next/static|_next/image|favicon.ico|sitemap.xml|robots.txt).*)",
+  ],
 };
