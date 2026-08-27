@@ -31,8 +31,21 @@ export async function proxy(request: NextRequest) {
   const url = request.nextUrl.clone();
   const hostname = request.headers.get("host") || "";
 
-  // 1. Handle subdomain routing (but ignore API routes)
+  // 1. Handle subdomain routing and cross-domain redirects (ignoring API/admin routes)
   if (!pathname.startsWith("/api") && !pathname.startsWith("/admin")) {
+    // Redirect main domain paths to subdomains
+    if (hostname === "tauqeermustafa.tech" || hostname === "www.tauqeermustafa.tech") {
+      if (pathname === "/client" || pathname.startsWith("/client/")) {
+        const newPath = pathname.replace(/^\/client/, "");
+        return NextResponse.redirect(`https://portals.tauqeermustafa.tech${newPath || "/"}`);
+      }
+      if (pathname === "/community" || pathname.startsWith("/community/")) {
+        const newPath = pathname.replace(/^\/community/, "");
+        return NextResponse.redirect(`https://community.tauqeermustafa.tech${newPath || "/"}`);
+      }
+    }
+
+    // Rewrite subdomains to internal folders
     if (hostname.includes("portals.tauqeermustafa.tech") && !pathname.startsWith("/client")) {
       url.pathname = `/client${pathname === "/" ? "" : pathname}`;
       return NextResponse.rewrite(url);

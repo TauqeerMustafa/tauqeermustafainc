@@ -18,28 +18,7 @@ const nextConfig: NextConfig = {
     ],
   },
   async redirects() {
-    return [
-      {
-        source: '/community',
-        destination: 'https://community.tauqeermustafa.tech',
-        permanent: true,
-      },
-      {
-        source: '/community/:path*',
-        destination: 'https://community.tauqeermustafa.tech/:path*',
-        permanent: true,
-      },
-      {
-        source: '/client',
-        destination: 'https://portals.tauqeermustafa.tech',
-        permanent: true,
-      },
-      {
-        source: '/client/:path*',
-        destination: 'https://portals.tauqeermustafa.tech/:path*',
-        permanent: true,
-      },
-    ];
+    return [];
   },
 };
 
