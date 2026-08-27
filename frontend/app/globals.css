@@ -297,7 +297,15 @@
 /* M Stripe divider — brand signature, use sparingly */
 .m-stripe {
   height: 4px;
-  background: linear-gradient(to right, #0066b1 0%, #1c69d4 50%, #e22718 100%);
+  background: linear-gradient(
+    to right,
+    var(--color-m-blue) 0%,
+    var(--color-m-blue) 33.333%,
+    var(--color-m-blue-mid) 33.333%,
+    var(--color-m-blue-mid) 66.666%,
+    var(--color-m-red) 66.666%,
+    var(--color-m-red) 100%
+  );
 }
 
 /* ── Keyframes ───────────────────────────────────────────────────── */

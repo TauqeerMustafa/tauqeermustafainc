@@ -18,7 +18,7 @@ const navLinks = [
   { name: "Careers", href: "/careers" },
   { name: "Blog", href: "/blog" },
   { name: "Community", href: "https://community.tauqeermustafa.tech" },
-  { name: "Client Portal", href: "https://portals.tauqeermustafa.tech" },
+  { name: "Portals", href: "https://portals.tauqeermustafa.tech" },
   { name: "Contact", href: "/contact" },
 ];
 
@@ -38,11 +38,7 @@ export default function Navbar() {
   return (
     <header className="sticky top-0 z-50 border-b border-ink/10 bg-canvas/95 supports-[backdrop-filter]:bg-canvas/85 supports-[backdrop-filter]:backdrop-blur-xl">
       {/* M-stripe rail — signature brand element (literal tricolor) */}
-      <div className="flex h-[3px]" aria-hidden>
-        <span className="flex-1 bg-m-blue" />
-        <span className="flex-1 bg-m-blue-mid" />
-        <span className="flex-1 bg-m-red" />
-      </div>
+      <div className="m-stripe" aria-hidden="true" />
 
       <nav className="mx-auto flex min-h-[4.5rem] max-w-[1200px] items-center gap-4 px-5 py-3 sm:px-6">
         {/* Brand — left */}
