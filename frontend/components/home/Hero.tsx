@@ -14,11 +14,7 @@ export default function Hero() {
     /* bg-canvas: pure black in dark mode, pure white in light mode */
     <section className="relative overflow-hidden bg-canvas px-5 pb-20 pt-24 sm:px-6 sm:pt-32 lg:pt-40" aria-label="Hero">
       {/* M-stripe — signature brand element at top (literal tricolor — never theme-flipped) */}
-      <div className="absolute left-0 right-0 top-0 flex h-1.5">
-        <span className="flex-1 bg-m-blue" />
-        <span className="flex-1 bg-m-blue-mid" />
-        <span className="flex-1 bg-m-red" />
-      </div>
+      <div className="absolute left-0 right-0 top-0 m-stripe" />
 
       <div className="relative mx-auto max-w-[1200px]">
 
