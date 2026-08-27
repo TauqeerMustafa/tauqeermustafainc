@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+﻿import type { Metadata } from "next";
 import { ArrowRight, Award, Globe2, Users } from "lucide-react";
 import Link from "next/link";
 
@@ -74,14 +74,14 @@ export default function AboutPage() {
         description="A digital agency delivering integrated web engineering, cybersecurity, AI, cloud, and design services. We work with companies that need platforms built to handle real operational pressure — not just prototypes."
       />
 
-      <Section className="bg-white" labelledBy="story-title">
+      <Section className="bg-canvas" labelledBy="story-title">
         <div className="grid gap-12 lg:grid-cols-[1fr_0.85fr] lg:items-start">
           <div>
-            <p className="font-mono text-[11px] font-semibold uppercase tracking-[0.14em] text-[#0066b1]">Our Story</p>
-            <h2 id="story-title" className="mt-4 text-[32px] font-bold uppercase leading-[1.1] tracking-[-0.02em] sm:text-[42px] text-[#141413]">
+            <p className="font-mono text-[11px] font-semibold uppercase tracking-[0.14em] text-action">Our Story</p>
+            <h2 id="story-title" className="mt-4 text-[32px] font-bold uppercase leading-[1.1] tracking-[-0.02em] sm:text-[42px] text-ink">
               Why TMI exists.
             </h2>
-            <div className="mt-8 space-y-6 text-[17px] leading-[1.47] tracking-[-0.374px] text-[#6a6a6a]">
+            <div className="mt-8 space-y-6 text-[17px] leading-[1.47] tracking-[-0.374px] text-ink-muted">
               <p>
                 Tauqeer Mustafa founded TMI in 2023 after years of watching companies struggle with the same pattern:
                 engineering teams that couldn't talk to security consultants, security audits that arrived too late to matter,
@@ -110,10 +110,10 @@ export default function AboutPage() {
           <div className="space-y-6 lg:sticky lg:top-32">
             <FounderPortrait src={founderPortrait} />
             <Card>
-              <p className="font-mono text-[11px] font-semibold uppercase tracking-[0.14em] text-[#0066b1]">
+              <p className="font-mono text-[11px] font-semibold uppercase tracking-[0.14em] text-action">
                 Who you work with
               </p>
-              <p className="mt-3 text-[16px] font-light leading-[1.6] text-[#5a5a5a]">
+              <p className="mt-3 text-[16px] font-light leading-[1.6] text-ink-muted">
                 Full-stack engineer with a background in security consulting and cloud
                 architecture. Leads every engagement from discovery through delivery —
                 no account managers between you and the person writing the code.
@@ -123,7 +123,7 @@ export default function AboutPage() {
                   href={company.social.github}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="group inline-flex items-center gap-1.5 font-mono text-[11px] font-semibold uppercase tracking-[0.1em] text-[#0066b1] transition-colors hover:text-[#1c69d4]"
+                  className="group inline-flex items-center gap-1.5 font-mono text-[11px] font-semibold uppercase tracking-[0.1em] text-action transition-colors hover:text-action"
                 >
                   GitHub
                   <ArrowRight
@@ -135,7 +135,7 @@ export default function AboutPage() {
                   href={company.social.linkedin}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="group inline-flex items-center gap-1.5 font-mono text-[11px] font-semibold uppercase tracking-[0.1em] text-[#0066b1] transition-colors hover:text-[#1c69d4]"
+                  className="group inline-flex items-center gap-1.5 font-mono text-[11px] font-semibold uppercase tracking-[0.1em] text-action transition-colors hover:text-action"
                 >
                   LinkedIn
                   <ArrowRight
@@ -149,32 +149,32 @@ export default function AboutPage() {
         </div>
       </Section>
 
-      <Section className="bg-[#f3f0ee]" labelledBy="timeline-title">
+      <Section className="bg-surface" labelledBy="timeline-title">
         <div className="mx-auto max-w-3xl">
           <div className="text-center">
-            <p className="font-mono text-[11px] font-semibold uppercase tracking-[0.14em] text-[#0066b1]">Timeline</p>
-            <h2 id="timeline-title" className="mt-4 text-[32px] font-bold uppercase leading-[1.1] tracking-[-0.02em] sm:text-[42px] text-[#141413]">
+            <p className="font-mono text-[11px] font-semibold uppercase tracking-[0.14em] text-action">Timeline</p>
+            <h2 id="timeline-title" className="mt-4 text-[32px] font-bold uppercase leading-[1.1] tracking-[-0.02em] sm:text-[42px] text-ink">
               How we got here.
             </h2>
           </div>
           <div className="mt-16 space-y-12">
             {timeline.map((item, idx) => (
-              <div key={item.year} className="relative pl-8 before:absolute before:left-0 before:top-2 before:h-3 before:w-3 before:rounded-full before:border-2 before:border-[#1c69d4] before:bg-white">
+              <div key={item.year} className="relative pl-8 before:absolute before:left-0 before:top-2 before:h-3 before:w-3 before:rounded-full before:border-2 before:border-action before:bg-canvas">
                 {idx < timeline.length - 1 && (
-                  <div className="absolute left-[5px] top-5 h-full w-0.5 bg-[#e2ded9]" aria-hidden />
+                  <div className="absolute left-[5px] top-5 h-full w-0.5 bg-line" aria-hidden />
                 )}
-                <span className="inline-block rounded-full border border-[#e2ded9] bg-white px-3 py-1 text-[14px] font-semibold leading-[1.29] tracking-[-0.224px] text-[#6a6a6a]">
+                <span className="inline-block rounded-full border border-line bg-canvas px-3 py-1 text-[14px] font-semibold leading-[1.29] tracking-[-0.224px] text-ink-muted">
                   {item.year}
                 </span>
-                <h3 className="mt-3 text-[17px] font-semibold leading-[1.24] tracking-[-0.374px] text-[#141413]">{item.title}</h3>
-                <p className="mt-2 text-[17px] leading-[1.47] tracking-[-0.374px] text-[#6a6a6a]">{item.description}</p>
+                <h3 className="mt-3 text-[17px] font-semibold leading-[1.24] tracking-[-0.374px] text-ink">{item.title}</h3>
+                <p className="mt-2 text-[17px] leading-[1.47] tracking-[-0.374px] text-ink-muted">{item.description}</p>
               </div>
             ))}
           </div>
         </div>
       </Section>
 
-      <Section className="bg-white" labelledBy="principles-title">
+      <Section className="bg-canvas" labelledBy="principles-title">
         <SectionHeader
           id="principles-title"
           eyebrow="How We Operate"
@@ -184,13 +184,13 @@ export default function AboutPage() {
         <div className="mt-14 grid gap-6 lg:grid-cols-3">
           {principles.map((principle) => (
             <Card key={principle.title}>
-              <div className="flex h-12 w-12 items-center justify-center border border-[#d8d4d1] bg-[#f3f0ee] text-[#0066b1]">
+              <div className="flex h-12 w-12 items-center justify-center border border-line-2 bg-surface text-action">
                 <principle.icon className="h-6 w-6" aria-hidden />
               </div>
-              <h3 className="mt-6 text-[17px] font-semibold leading-[1.24] tracking-[-0.374px] text-[#141413]">
+              <h3 className="mt-6 text-[17px] font-semibold leading-[1.24] tracking-[-0.374px] text-ink">
                 {principle.title}
               </h3>
-              <p className="mt-4 text-[17px] leading-[1.47] tracking-[-0.374px] text-[#6a6a6a]">
+              <p className="mt-4 text-[17px] leading-[1.47] tracking-[-0.374px] text-ink-muted">
                 {principle.description}
               </p>
             </Card>
@@ -198,20 +198,20 @@ export default function AboutPage() {
         </div>
       </Section>
 
-      <Section className="bg-[#f3f0ee]" labelledBy="cta-title">
+      <Section className="bg-surface" labelledBy="cta-title">
         <div className="mx-auto max-w-2xl text-center">
-          <p className="font-mono text-[11px] font-semibold uppercase tracking-[0.14em] text-[#0066b1]">Ready to Start</p>
-          <h2 id="cta-title" className="mt-4 text-[32px] font-bold uppercase leading-[1.1] tracking-[-0.02em] sm:text-[42px] text-[#141413]">
+          <p className="font-mono text-[11px] font-semibold uppercase tracking-[0.14em] text-action">Ready to Start</p>
+          <h2 id="cta-title" className="mt-4 text-[32px] font-bold uppercase leading-[1.1] tracking-[-0.02em] sm:text-[42px] text-ink">
             Let's talk about what you're building.
           </h2>
-          <p className="mt-6 text-[17px] leading-[1.47] tracking-[-0.374px] text-[#6a6a6a]">
+          <p className="mt-6 text-[17px] leading-[1.47] tracking-[-0.374px] text-ink-muted">
             Tell us about your project. We'll come back with questions, a clear scope, and an honest timeline.
           </p>
           <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
             <PrimaryButton href="/contact">Start a Conversation</PrimaryButton>
             <Link
               href="/services"
-              className="inline-flex items-center gap-2 border-2 border-[#141413] bg-transparent px-7 py-3.5 font-mono text-[12px] font-bold uppercase tracking-[0.1em] text-[#141413] transition-colors hover:bg-[#141413] hover:text-white"
+              className="inline-flex items-center gap-2 border-2 border-ink bg-transparent px-7 py-3.5 font-mono text-[12px] font-bold uppercase tracking-[0.1em] text-ink transition-colors hover:bg-ink hover:text-canvas"
             >
               View Services
             </Link>

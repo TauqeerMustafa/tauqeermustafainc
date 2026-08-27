@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+﻿import type { Metadata } from "next";
 import { HeartHandshake, LineChart, Users } from "lucide-react";
 
 import {
@@ -41,18 +41,18 @@ export default async function CareersPage() {
         imageCaption="Small, focused teams with transparent milestones."
       />
 
-      <Section className="bg-[#f3f0ee]" labelledBy="open-positions">
+      <Section className="bg-surface" labelledBy="open-positions">
         <SectionHeader id="open-positions" eyebrow="Open positions" title="Current roles" />
         <div className="mt-14 grid gap-6">
           {jobs.map((job) => (
             <Card key={job.slug}>
               <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
                 <div>
-                  <p className="text-sm font-semibold text-[#2a2a28]">
+                  <p className="text-sm font-semibold text-ink-2">
                     {job.location} / {job.type}
                   </p>
-                  <h2 className="mt-2 text-xl font-semibold text-[#141413]">{job.title}</h2>
-                  <p className="mt-3 max-w-3xl text-base leading-7 text-[#737373]">
+                  <h2 className="mt-2 text-xl font-semibold text-ink">{job.title}</h2>
+                  <p className="mt-3 max-w-3xl text-base leading-7 text-ink-muted">
                     {job.summary}
                   </p>
                 </div>
@@ -63,14 +63,14 @@ export default async function CareersPage() {
         </div>
       </Section>
 
-      <Section className="bg-white" labelledBy="career-benefits">
+      <Section className="bg-canvas" labelledBy="career-benefits">
         <SectionHeader id="career-benefits" eyebrow="Benefits" title="A practical environment for strong work" />
         <div className="mt-14 grid gap-6 lg:grid-cols-3">
           {benefits.map((benefit) => (
             <Card key={benefit.title}>
               <IconFrame icon={benefit.icon} />
-              <h2 className="mt-6 text-xl font-semibold text-[#141413]">{benefit.title}</h2>
-              <p className="mt-4 text-base leading-7 text-[#737373]">{benefit.description}</p>
+              <h2 className="mt-6 text-xl font-semibold text-ink">{benefit.title}</h2>
+              <p className="mt-4 text-base leading-7 text-ink-muted">{benefit.description}</p>
             </Card>
           ))}
         </div>

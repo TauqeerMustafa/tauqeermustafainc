@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+﻿import type { Metadata } from "next";
 import { Bot, Cloud, Code2, PenTool, ShieldCheck } from "lucide-react";
 
 import {
@@ -44,7 +44,7 @@ export default async function ServicesPage() {
         imageCaption="Web, security, AI, cloud, and design under one delivery team."
       />
 
-      <Section className="bg-[#f3f0ee]" labelledBy="services-list">
+      <Section className="bg-surface" labelledBy="services-list">
         <SectionHeader
           id="services-list"
           eyebrow="Capabilities"
@@ -55,10 +55,10 @@ export default async function ServicesPage() {
           {services.map((service) => (
             <Card key={service.slug}>
               <IconFrame icon={iconsBySlug[service.slug] ?? Code2} />
-              <h2 className="mt-7 text-xl font-semibold text-[#141413]">
+              <h2 className="mt-7 text-xl font-semibold text-ink">
                 {service.title}
               </h2>
-              <p className="mt-4 text-base leading-7 text-[#737373]">
+              <p className="mt-4 text-base leading-7 text-ink-muted">
                 {service.shortDescription}
               </p>
               <div className="mt-8">

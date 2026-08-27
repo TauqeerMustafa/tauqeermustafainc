@@ -7,7 +7,7 @@ import Image from "next/image";
 import { imageLibrary } from "@/data/media";
 import { ButtonLink, MStripe, Reveal, Section, fadeLeft, fadeRight, stagger, viewportOnce } from "./ui";
 
-/* ── Mastercard cream canvas, 24px radius imagery, BMW typography ── */
+/* ── bg-surface tile, 24px radius imagery, BMW typography — theme-flipping ── */
 
 const capabilities = [
   { title: "Web & API platforms", detail: "Next.js, React, FastAPI, PostgreSQL — production infrastructure", icon: Code2 },
@@ -24,7 +24,7 @@ const principles = [
 
 export default function AboutPreview() {
   return (
-    <Section className="bg-[#f3f0ee]" labelledBy="about-title">
+    <Section className="bg-surface" labelledBy="about-title">
       <div className="grid gap-16 lg:grid-cols-2 lg:items-start lg:gap-20">
 
         <Reveal variant={fadeLeft} className="order-2 lg:order-1">
@@ -66,17 +66,17 @@ export default function AboutPreview() {
 
         <Reveal variant={fadeRight} className="order-1 lg:order-2">
           <MStripe />
-          <p className="mt-6 font-mono text-[11px] font-semibold uppercase tracking-[0.14em] text-[#0066b1]">
+          <p className="mt-6 font-mono text-[11px] font-semibold uppercase tracking-[0.14em] text-action">
             Who We Are
           </p>
           <h2
             id="about-title"
-            className="mt-4 text-[34px] font-bold uppercase leading-[1.08] tracking-[-0.02em] text-[#141413] sm:text-[42px]"
+            className="mt-4 text-[34px] font-bold uppercase leading-[1.08] tracking-[-0.02em] text-ink sm:text-[42px]"
           >
             Built for businesses that need systems to work under pressure.
           </h2>
 
-          <div className="mt-6 space-y-5 text-[17px] font-light leading-[1.6] tracking-[-0.01em] text-[#5a5a5a]">
+          <div className="mt-6 space-y-5 text-[17px] font-light leading-[1.6] tracking-[-0.01em] text-ink-muted">
             <p>
               TMI delivers web platforms, security consulting, and AI automation as one integrated team.
               Instead of hiring three vendors who can&apos;t talk to each other, you work with senior
@@ -103,16 +103,16 @@ export default function AboutPreview() {
               <motion.div
                 key={cap.title}
                 variants={{ hidden: { opacity: 0, x: -20 }, show: { opacity: 1, x: 0 } }}
-                className="group flex items-start gap-4 rounded-[24px] border border-[#e2ded9] bg-white p-4 transition-colors hover:border-[#1c69d4]/30"
+                className="group flex items-start gap-4 rounded-[24px] border border-line bg-card p-4 transition-colors hover:border-action/30"
               >
-                <div className="flex h-11 w-11 shrink-0 items-center justify-center border border-[#d8d4d1] bg-[#f3f0ee] text-[#0066b1] transition-colors group-hover:border-[#1c69d4] group-hover:bg-[#1c69d4] group-hover:text-white">
+                <div className="flex h-11 w-11 shrink-0 items-center justify-center border border-line-2 bg-surface text-action transition-colors group-hover:border-action group-hover:bg-action group-hover:text-on-action">
                   <cap.icon className="h-5 w-5" aria-hidden />
                 </div>
                 <div>
-                  <p className="text-[15px] font-bold uppercase leading-[1.3] tracking-[0.02em] text-[#141413]">
+                  <p className="text-[15px] font-bold uppercase leading-[1.3] tracking-[0.02em] text-ink">
                     {cap.title}
                   </p>
-                  <p className="mt-1.5 text-[14px] font-light leading-[1.5] tracking-[-0.01em] text-[#6a6a6a]">
+                  <p className="mt-1.5 text-[14px] font-light leading-[1.5] tracking-[-0.01em] text-ink-muted">
                     {cap.detail}
                   </p>
                 </div>
@@ -131,9 +131,9 @@ export default function AboutPreview() {
               <motion.li
                 key={principle}
                 variants={{ hidden: { opacity: 0, y: 10 }, show: { opacity: 1, y: 0 } }}
-                className="flex items-start gap-3 text-[15px] font-light leading-[1.55] tracking-[-0.01em] text-[#3a3a3a]"
+                className="flex items-start gap-3 text-[15px] font-light leading-[1.55] tracking-[-0.01em] text-ink-2"
               >
-                <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-[#1c69d4]" aria-hidden />
+                <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-action" aria-hidden />
                 {principle}
               </motion.li>
             ))}

@@ -1,4 +1,4 @@
-import { Section, SectionHeader } from "@/components/home/ui";
+﻿import { Section, SectionHeader } from "@/components/home/ui";
 
 const faqs = [
   {
@@ -30,7 +30,7 @@ const faqs = [
 
 export default function FAQ() {
   return (
-    <Section className="bg-[#f3f0ee]" labelledBy="contact-faq">
+    <Section className="bg-surface" labelledBy="contact-faq">
       <SectionHeader
         id="contact-faq"
         eyebrow="Questions"
@@ -41,15 +41,15 @@ export default function FAQ() {
         {faqs.map((item, i) => (
           <div
             key={item.question}
-            className="rounded-[24px] border border-[#e2ded9] bg-white p-7"
+            className="rounded-[24px] border border-line bg-white p-7"
           >
-            <span className="font-mono text-[10px] font-semibold uppercase tracking-[0.12em] text-[#5a5a5a]">
+            <span className="font-mono text-[10px] font-semibold uppercase tracking-[0.12em] text-ink-muted">
               0{i + 1}
             </span>
-            <h3 className="mt-4 text-[17px] font-semibold leading-[1.3] tracking-[-0.374px] text-[#141413]">
+            <h3 className="mt-4 text-[17px] font-semibold leading-[1.3] tracking-[-0.374px] text-ink">
               {item.question}
             </h3>
-            <p className="mt-3 text-[15px] leading-[1.6] tracking-[-0.1px] text-[#5a5a5a]">
+            <p className="mt-3 text-[15px] leading-[1.6] tracking-[-0.1px] text-ink-muted">
               {item.answer}
             </p>
           </div>

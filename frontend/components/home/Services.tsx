@@ -91,7 +91,7 @@ export default function Services() {
 
   return (
     <Section
-      className="border-y border-[#e2ded9] bg-[#f3f0ee]"
+      className="border-y border-line bg-surface"
       labelledBy="services-title"
     >
       <SectionHeader
@@ -103,23 +103,23 @@ export default function Services() {
       />
 
       <div className="mt-14 grid gap-8 lg:grid-cols-[0.95fr_1.05fr] lg:items-start">
-        <article className="border border-[#d8d4d1] border-t-2 border-t-[#1c69d4] bg-white p-6 shadow-[0_10px_28px_rgba(17,24,39,0.06)] sm:p-8">
-          <IconFrame icon={featuredService.icon} className="bg-[#f3f0ee]" />
+        <article className="border border-line-2 border-t-2 border-t-action bg-card p-6 shadow-[0_10px_28px_rgba(17,24,39,0.06)] sm:p-8">
+          <IconFrame icon={featuredService.icon} className="bg-surface" />
 
-          <p className="mt-8 text-xs font-semibold uppercase tracking-[0.18em] text-[#0066b1]">
+          <p className="mt-8 text-xs font-semibold uppercase tracking-[0.18em] text-action">
             Featured service
           </p>
-          <h3 className="mt-3 text-3xl font-semibold tracking-tight text-[#141413] sm:text-4xl">
+          <h3 className="mt-3 text-3xl font-semibold tracking-tight text-ink sm:text-4xl">
             {featuredService.title}
           </h3>
-          <p className="mt-5 text-base leading-7 text-[#5a5a5a]">
+          <p className="mt-5 text-base leading-7 text-ink-muted">
             {featuredService.description}
           </p>
 
           <ul className="mt-8 grid gap-4">
             {featuredService.features?.map((feature) => (
-              <li key={feature} className="flex gap-3 text-sm leading-6 text-[#3a3a38]">
-                <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-none bg-[#1c69d4]" aria-hidden />
+              <li key={feature} className="flex gap-3 text-sm leading-6 text-ink-2">
+                <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-none bg-action" aria-hidden />
                 <span>{feature}</span>
               </li>
             ))}
@@ -147,10 +147,10 @@ export default function Services() {
                 <div className="flex items-start gap-4">
                   <IconFrame icon={service.icon} />
                   <div>
-                    <h3 className="text-lg font-semibold tracking-tight text-[#141413]">
+                    <h3 className="text-lg font-semibold tracking-tight text-ink">
                       {service.title}
                     </h3>
-                    <p className="mt-3 text-sm leading-6 text-[#5a5a5a]">
+                    <p className="mt-3 text-sm leading-6 text-ink-muted">
                       {service.description}
                     </p>
                   </div>
@@ -168,13 +168,13 @@ export default function Services() {
         </div>
       </div>
 
-      <div className="mt-14 grid gap-4 border-t border-[#e2ded9] pt-8 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="mt-14 grid gap-4 border-t border-line pt-8 sm:grid-cols-2 lg:grid-cols-4">
         {process.map((step, index) => (
           <div key={step} className="flex items-center gap-4">
-            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-none border border-[#d8d4d1] bg-white text-sm font-semibold text-[#0066b1]">
+            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-none border border-line-2 bg-canvas text-sm font-semibold text-action">
               0{index + 1}
             </span>
-            <p className="text-sm font-semibold text-[#141413]">{step}</p>
+            <p className="text-sm font-semibold text-ink">{step}</p>
           </div>
         ))}
       </div>

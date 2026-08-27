@@ -79,7 +79,27 @@ def get_settings() -> Settings:
             f"ENVIRONMENT) as real environment variables in your hosting "
             f"platform's dashboard instead."
         )
+
+    # Production security guards
+    if resolved.environment == "production":
+        if resolved.secret_key == "change-me-in-production":
+            raise RuntimeError(
+                "SECRET_KEY must be set to a strong random value in production. "
+                "Generate one with: python -c \"import secrets; print(secrets.token_hex(32))\""
+            )
+        localhost_origins = [
+            o for o in resolved.cors_origin_list if "localhost" in o or "127.0.0.1" in o
+        ]
+        if localhost_origins:
+            import warnings
+            warnings.warn(
+                f"CORS_ORIGINS contains localhost addresses in production: {localhost_origins}. "
+                "These should be replaced with real production domain(s).",
+                stacklevel=2,
+            )
+
     return resolved
 
 
 settings = get_settings()
+

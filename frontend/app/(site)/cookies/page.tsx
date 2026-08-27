@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+﻿import type { Metadata } from "next";
 
 import { Badge, Card, PageHero, Section, SectionHeader } from "@/components/home/ui";
 import ManageCookiePreferences from "@/components/common/ManageCookiePreferences";
@@ -45,44 +45,44 @@ export default function CookiePolicyPage() {
         </div>
       </PageHero>
 
-      <Section className="bg-[#f3f0ee]" labelledBy="cookies-intro">
+      <Section className="bg-surface" labelledBy="cookies-intro">
         <article
           id="cookies-intro"
-          className="mx-auto max-w-3xl rounded-none border border-[#e2ded9] bg-white p-7 shadow-sm sm:p-10"
+          className="mx-auto max-w-3xl rounded-none border border-line bg-canvas p-7 shadow-sm sm:p-10"
         >
-          <h2 className="mb-4 mt-0 text-xl font-semibold text-[#141413]">What Are Cookies</h2>
-          <p className="mb-6 text-base leading-8 text-[#141413]">
+          <h2 className="mb-4 mt-0 text-xl font-semibold text-ink">What Are Cookies</h2>
+          <p className="mb-6 text-base leading-8 text-ink">
             Cookies are small text files placed on your device when you visit a website. They are widely used to
             make websites work, work more efficiently, and provide information to site owners. We use cookies and
             similar technologies, such as local storage, on {company.website}.
           </p>
 
-          <h2 className="mb-4 mt-10 text-xl font-semibold text-[#141413]">How to Control Cookies</h2>
-          <p className="mb-6 text-base leading-8 text-[#141413]">
+          <h2 className="mb-4 mt-10 text-xl font-semibold text-ink">How to Control Cookies</h2>
+          <p className="mb-6 text-base leading-8 text-ink">
             Most browsers allow you to control cookies through their settings, including blocking or deleting
             cookies. Because cookies allow you to take advantage of some essential features of the Site, we
             recommend leaving them enabled where functionality depends on them. Disabling non-essential cookies
             should not affect your ability to browse the Site.
           </p>
 
-          <h2 className="mb-4 mt-10 text-xl font-semibold text-[#141413]">Third-Party Cookies</h2>
-          <p className="mb-6 text-base leading-8 text-[#141413]">
+          <h2 className="mb-4 mt-10 text-xl font-semibold text-ink">Third-Party Cookies</h2>
+          <p className="mb-6 text-base leading-8 text-ink">
             Some cookies may be placed by third-party services we use for analytics or embedded content. These
             third parties have their own privacy and cookie policies governing how they use information collected
             through their cookies.
           </p>
 
-          <h2 className="mb-4 mt-10 text-xl font-semibold text-[#141413]">Changes to This Policy</h2>
-          <p className="mb-6 text-base leading-8 text-[#141413]">
+          <h2 className="mb-4 mt-10 text-xl font-semibold text-ink">Changes to This Policy</h2>
+          <p className="mb-6 text-base leading-8 text-ink">
             We may update this Cookie Policy periodically to reflect changes in the cookies we use or for
             operational, legal, or regulatory reasons. The &quot;Last updated&quot; date above reflects the most
             recent revision.
           </p>
 
-          <h2 className="mb-4 mt-10 text-xl font-semibold text-[#141413]">Contact Us</h2>
-          <p className="text-base leading-8 text-[#141413]">
+          <h2 className="mb-4 mt-10 text-xl font-semibold text-ink">Contact Us</h2>
+          <p className="text-base leading-8 text-ink">
             If you have questions about our use of cookies, contact us at{" "}
-            <a href={`mailto:${company.emails.legal}`} className="font-medium text-[#2a2a28] underline underline-offset-2">
+            <a href={`mailto:${company.emails.legal}`} className="font-medium text-ink-2 underline underline-offset-2">
               {company.emails.legal}
             </a>
             .
@@ -90,7 +90,7 @@ export default function CookiePolicyPage() {
         </article>
       </Section>
 
-      <Section className="bg-white" labelledBy="cookie-categories">
+      <Section className="bg-canvas" labelledBy="cookie-categories">
         <SectionHeader
           id="cookie-categories"
           eyebrow="Cookie categories"
@@ -99,8 +99,8 @@ export default function CookiePolicyPage() {
         <div className="mt-14 grid gap-6 lg:grid-cols-3">
           {cookieCategories.map((category) => (
             <Card key={category.title}>
-              <h2 className="text-xl font-semibold text-[#141413]">{category.title}</h2>
-              <p className="mt-4 text-base leading-7 text-[#737373]">{category.description}</p>
+              <h2 className="text-xl font-semibold text-ink">{category.title}</h2>
+              <p className="mt-4 text-base leading-7 text-ink-muted">{category.description}</p>
             </Card>
           ))}
         </div>

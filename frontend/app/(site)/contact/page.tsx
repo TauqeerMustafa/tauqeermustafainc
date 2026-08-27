@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+﻿import type { Metadata } from "next";
 import {
   Briefcase,
   Building2,
@@ -68,7 +68,7 @@ export default function ContactPage() {
       />
 
       {/* ── Form + info ── warm cream canvas */}
-      <Section className="bg-[#f3f0ee]" labelledBy="contact-form">
+      <Section className="bg-surface" labelledBy="contact-form">
         <SectionHeader
           id="contact-form"
           eyebrow="Get in touch"
@@ -85,7 +85,7 @@ export default function ContactPage() {
       </Section>
 
       {/* ── What happens next ── lifted white surface */}
-      <Section className="bg-[#ffffff]" labelledBy="contact-expectations">
+      <Section className="bg-canvas" labelledBy="contact-expectations">
         <SectionHeader
           id="contact-expectations"
           eyebrow="What happens next"
@@ -95,16 +95,16 @@ export default function ContactPage() {
           {expectations.map((item, i) => (
             <div
               key={item.title}
-              className="rounded-[24px] border border-[#e2ded9] bg-[#f3f0ee] p-8"
+              className="rounded-[24px] border border-line bg-surface p-8"
             >
-              <span className="font-mono text-[11px] font-semibold uppercase tracking-[0.12em] text-[#5a5a5a]">
+              <span className="font-mono text-[11px] font-semibold uppercase tracking-[0.12em] text-ink-muted">
                 0{i + 1}
               </span>
               <IconFrame icon={item.icon} className="mt-5" />
-              <h2 className="mt-5 text-[19px] font-semibold leading-[1.3] tracking-[-0.374px] text-[#141413]">
+              <h2 className="mt-5 text-[19px] font-semibold leading-[1.3] tracking-[-0.374px] text-ink">
                 {item.title}
               </h2>
-              <p className="mt-3 text-[15px] leading-[1.6] tracking-[-0.1px] text-[#5a5a5a]">
+              <p className="mt-3 text-[15px] leading-[1.6] tracking-[-0.1px] text-ink-muted">
                 {item.description}
               </p>
             </div>
@@ -113,7 +113,7 @@ export default function ContactPage() {
       </Section>
 
       {/* ── Department contacts ── BMW M dark strip */}
-      <Section className="bg-[#1a2129]" labelledBy="contact-departments">
+      <Section className="bg-canvas" labelledBy="contact-departments">
         <SectionHeader
           id="contact-departments"
           eyebrow="Reach the right team"
@@ -126,13 +126,13 @@ export default function ContactPage() {
             <a
               key={dept.title}
               href={`mailto:${dept.email}`}
-              className="group rounded-[14px] border border-white/10 bg-white/5 p-5 transition hover:border-[#1c69d4]/40 hover:bg-white/8"
+              className="group rounded-[14px] border border-line/10 bg-white/5 p-5 transition hover:border-action/40 hover:bg-ink/[0.08]"
             >
               <IconFrame icon={dept.icon} dark />
-              <h3 className="mt-4 text-[14px] font-semibold tracking-[-0.1px] text-white">
+              <h3 className="mt-4 text-[14px] font-semibold tracking-[-0.1px] text-ink">
                 {dept.title}
               </h3>
-              <p className="mt-1 break-all text-[13px] leading-[1.5] text-[#5a5a5a] transition group-hover:text-[#1c69d4]">
+              <p className="mt-1 break-all text-[13px] leading-[1.5] text-ink-muted transition group-hover:text-action">
                 {dept.email}
               </p>
             </a>

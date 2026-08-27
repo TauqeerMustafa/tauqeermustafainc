@@ -17,7 +17,7 @@ export default function VisualIndex() {
   ];
 
   return (
-    <Section className="overflow-hidden bg-white" labelledBy="visual-index-title">
+    <Section className="overflow-hidden bg-canvas" labelledBy="visual-index-title">
       <SectionHeader
         id="visual-index-title"
         eyebrow="Visual direction"
@@ -37,7 +37,7 @@ export default function VisualIndex() {
           <motion.div
             key={src}
             variants={{ hidden: { opacity: 0, y: 24 }, show: { opacity: 1, y: 0 } }}
-            className={`img-zoom group relative overflow-hidden border border-[#e2ded9] shadow-[0_4px_20px_rgba(0,0,0,0.06)] transition-all duration-500 hover:shadow-[0_16px_48px_rgba(0,0,0,0.12)] hover:border-[#141413] ${aspects[i]} ${offsets[i]}`}
+            className={`img-zoom group relative overflow-hidden border border-line shadow-[0_4px_20px_rgba(0,0,0,0.06)] transition-all duration-500 hover:shadow-[0_16px_48px_rgba(0,0,0,0.12)] hover:border-ink ${aspects[i]} ${offsets[i]}`}
           >
             <Image
               src={src}
@@ -46,8 +46,9 @@ export default function VisualIndex() {
               sizes="(min-width:1024px) 24vw,(min-width:640px) 50vw,100vw"
               className="object-cover grayscale"
             />
-            <div className="absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100 bg-black/5" aria-hidden />
+            <div className="absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100 bg-ink/5" aria-hidden />
             <div className="absolute bottom-3 left-3 opacity-0 transition-all duration-300 group-hover:opacity-100 group-hover:translate-y-0 translate-y-2">
+              {/* Label overlays a photo — keep literal white text for legibility on image */}
               <span className="border border-white/30 bg-black/50 px-2.5 py-1 font-mono text-[10px] font-semibold text-white backdrop-blur">
                 0{i + 1}
               </span>

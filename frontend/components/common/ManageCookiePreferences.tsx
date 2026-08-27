@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 const CONSENT_KEY = "tmi_cookie_consent";
 
@@ -10,7 +10,7 @@ export default function ManageCookiePreferences() {
         window.localStorage.removeItem(CONSENT_KEY);
         window.location.reload();
       }}
-      className="border border-[#e2ded9] bg-white px-5 py-3 text-sm font-semibold text-[#141413] transition hover:bg-[#f3f0ee]"
+      className="border border-line bg-white px-5 py-3 text-sm font-semibold text-ink transition hover:bg-surface"
     >
       Manage cookie preferences
     </button>

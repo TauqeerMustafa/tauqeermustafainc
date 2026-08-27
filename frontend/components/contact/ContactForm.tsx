@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -12,10 +12,10 @@ import { contactSchema, ContactFormData } from "@/lib/validation";
 const fieldWrap = "flex flex-col gap-1.5";
 
 const labelClass =
-  "font-mono text-[10px] font-semibold uppercase tracking-[0.12em] text-[#5a5a5a]";
+  "font-mono text-[10px] font-semibold uppercase tracking-[0.12em] text-ink-muted";
 
 const inputClass =
-  "w-full border-0 border-b border-[#d8d4d1] bg-transparent pb-2 pt-1 text-[16px] font-[400] leading-[1.5] tracking-[-0.2px] text-[#141413] outline-none transition-colors placeholder:text-[#b0b0b5] focus:border-[#1c69d4]";
+  "w-full border-0 border-b border-line-2 bg-transparent pb-2 pt-1 text-[16px] font-[400] leading-[1.5] tracking-[-0.2px] text-ink outline-none transition-colors placeholder:text-[#b0b0b5] focus:border-action";
 
 const errorClass = "mt-1 font-mono text-[11px] text-red-600";
 
@@ -77,10 +77,10 @@ export default function ContactForm() {
   return (
     <form
       onSubmit={handleSubmit(onSubmit)}
-      className="rounded-[24px] bg-[#f3f0ee] px-8 py-10 sm:px-10 sm:py-12"
+      className="rounded-[24px] bg-surface px-8 py-10 sm:px-10 sm:py-12"
     >
       {/* ── Section: You ── */}
-      <p className="font-mono text-[10px] font-semibold uppercase tracking-[0.12em] text-[#1c69d4]">
+      <p className="font-mono text-[10px] font-semibold uppercase tracking-[0.12em] text-action">
         01 / About you
       </p>
 
@@ -113,7 +113,7 @@ export default function ContactForm() {
       <div className="my-10 h-px bg-[#d8d4d1]" />
 
       {/* ── Section: Organisation ── */}
-      <p className="font-mono text-[10px] font-semibold uppercase tracking-[0.12em] text-[#1c69d4]">
+      <p className="font-mono text-[10px] font-semibold uppercase tracking-[0.12em] text-action">
         02 / Your organisation
       </p>
 
@@ -138,7 +138,7 @@ export default function ContactForm() {
       <div className="my-10 h-px bg-[#d8d4d1]" />
 
       {/* ── Section: Project ── */}
-      <p className="font-mono text-[10px] font-semibold uppercase tracking-[0.12em] text-[#1c69d4]">
+      <p className="font-mono text-[10px] font-semibold uppercase tracking-[0.12em] text-action">
         03 / About the project
       </p>
 
@@ -201,11 +201,11 @@ export default function ContactForm() {
       </div>
 
       {/* NDA note */}
-      <p className="mt-6 text-[13px] leading-6 tracking-[-0.1px] text-[#5a5a5a]">
+      <p className="mt-6 text-[13px] leading-6 tracking-[-0.1px] text-ink-muted">
         Need an NDA before sharing details?{" "}
         <a
           href="mailto:legal@tauqeermustafainc.com"
-          className="text-[#1c69d4] underline-offset-2 hover:underline"
+          className="text-action underline-offset-2 hover:underline"
         >
           Email our legal team
         </a>{" "}
@@ -217,13 +217,13 @@ export default function ContactForm() {
         <button
           type="submit"
           disabled={isSubmitting}
-          className="inline-flex items-center justify-center gap-2 bg-[#1c69d4] px-7 py-3.5 font-mono text-[12px] font-bold uppercase tracking-[0.1em] text-white transition-colors hover:bg-[#0066b1] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1c69d4] disabled:opacity-50"
+          className="inline-flex items-center justify-center gap-2 bg-action px-7 py-3.5 font-mono text-[12px] font-bold uppercase tracking-[0.1em] text-white transition-colors hover:bg-action-strong focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-action disabled:opacity-50"
         >
           {isSubmitting ? "Sending…" : "Send Message"}
         </button>
 
         {isSubmitSuccessful && (
-          <p className="font-mono text-[13px] font-medium text-[#141413]" role="status">
+          <p className="font-mono text-[13px] font-medium text-ink" role="status">
             ✓ Message received. We will follow up within one business day.
           </p>
         )}

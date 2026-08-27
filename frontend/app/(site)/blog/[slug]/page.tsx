@@ -75,7 +75,7 @@ export default async function BlogDetailPage({
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbs) }}
       />
       {/* Hero with cover image */}
-      <div className="relative bg-[#000000]">
+      <div className="relative bg-canvas">
         <div className="relative aspect-[21/9] w-full overflow-hidden">
           <Image
             src={post.coverImage}
@@ -90,13 +90,13 @@ export default async function BlogDetailPage({
         <div className="absolute inset-0 flex items-end">
           <div className="mx-auto w-full max-w-[980px] px-5 pb-12 sm:px-6 sm:pb-16">
             <div className="flex flex-wrap gap-2">
-              <span className="rounded-full border border-white/20 bg-white/10 px-3 py-1 text-[12px] font-semibold leading-none tracking-[-0.12px] text-white backdrop-blur-sm">
+              <span className="rounded-full border border-line/20 bg-white/10 px-3 py-1 text-[12px] font-semibold leading-none tracking-[-0.12px] text-white backdrop-blur-sm">
                 {post.category}
               </span>
-              <span className="rounded-full border border-white/20 bg-white/10 px-3 py-1 text-[12px] font-semibold leading-none tracking-[-0.12px] text-white backdrop-blur-sm">
+              <span className="rounded-full border border-line/20 bg-white/10 px-3 py-1 text-[12px] font-semibold leading-none tracking-[-0.12px] text-white backdrop-blur-sm">
                 {post.date}
               </span>
-              <span className="rounded-full border border-white/20 bg-white/10 px-3 py-1 text-[12px] font-semibold leading-none tracking-[-0.12px] text-white backdrop-blur-sm">
+              <span className="rounded-full border border-line/20 bg-white/10 px-3 py-1 text-[12px] font-semibold leading-none tracking-[-0.12px] text-white backdrop-blur-sm">
                 {blogReadingTime(post.body)}
               </span>
             </div>
@@ -111,14 +111,14 @@ export default async function BlogDetailPage({
       </div>
 
       {/* Article body */}
-      <Section className="bg-white" labelledBy="article-content">
+      <Section className="bg-canvas" labelledBy="article-content">
         <article id="article-content" className="mx-auto max-w-[720px]">
           {post.body.map((block, idx) => {
             if (block.type === "p") {
               return (
                 <p
                   key={idx}
-                  className="mt-6 text-[17px] leading-[1.47] tracking-[-0.374px] text-[#141413] first:mt-0"
+                  className="mt-6 text-[17px] leading-[1.47] tracking-[-0.374px] text-ink first:mt-0"
                 >
                   {block.text}
                 </p>
@@ -128,7 +128,7 @@ export default async function BlogDetailPage({
               return (
                 <h2
                   key={idx}
-                  className="mt-12 text-[32px] font-semibold leading-[1.13] tracking-[-0.374px] text-[#141413] first:mt-0"
+                  className="mt-12 text-[32px] font-semibold leading-[1.13] tracking-[-0.374px] text-ink first:mt-0"
                 >
                   {block.text}
                 </h2>
@@ -138,7 +138,7 @@ export default async function BlogDetailPage({
               return (
                 <h3
                   key={idx}
-                  className="mt-10 text-[24px] font-semibold leading-[1.17] tracking-[-0.374px] text-[#141413] first:mt-0"
+                  className="mt-10 text-[24px] font-semibold leading-[1.17] tracking-[-0.374px] text-ink first:mt-0"
                 >
                   {block.text}
                 </h3>
@@ -148,13 +148,13 @@ export default async function BlogDetailPage({
               return (
                 <blockquote
                   key={idx}
-                  className="my-12 border-l-4 border-[#1c69d4] bg-[#f3f0ee] px-6 py-8 first:mt-0"
+                  className="my-12 border-l-4 border-action bg-surface px-6 py-8 first:mt-0"
                 >
-                  <p className="text-[21px] font-semibold leading-[1.38] tracking-[-0.374px] text-[#141413]">
+                  <p className="text-[21px] font-semibold leading-[1.38] tracking-[-0.374px] text-ink">
                     {block.text}
                   </p>
                   {block.attribution && (
-                    <cite className="mt-3 block text-[14px] leading-[1.43] tracking-[-0.224px] text-[#6a6a6a] not-italic">
+                    <cite className="mt-3 block text-[14px] leading-[1.43] tracking-[-0.224px] text-ink-muted not-italic">
                       — {block.attribution}
                     </cite>
                   )}
@@ -175,7 +175,7 @@ export default async function BlogDetailPage({
                     />
                   </div>
                   {block.caption && (
-                    <figcaption className="mt-3 text-center text-[14px] leading-[1.43] tracking-[-0.224px] text-[#6a6a6a]">
+                    <figcaption className="mt-3 text-center text-[14px] leading-[1.43] tracking-[-0.224px] text-ink-muted">
                       {block.caption}
                     </figcaption>
                   )}
@@ -187,12 +187,12 @@ export default async function BlogDetailPage({
         </article>
 
         {/* Tags */}
-        <div className="mx-auto mt-16 max-w-[720px] border-t border-[#e2ded9] pt-8">
+        <div className="mx-auto mt-16 max-w-[720px] border-t border-line pt-8">
           <div className="flex flex-wrap gap-2">
             {post.tags.map((tag) => (
               <span
                 key={tag}
-                className="rounded-full border border-[#e2ded9] bg-[#f3f0ee] px-4 py-2 text-[14px] font-semibold leading-none tracking-[-0.224px] text-[#141413]"
+                className="rounded-full border border-line bg-surface px-4 py-2 text-[14px] font-semibold leading-none tracking-[-0.224px] text-ink"
               >
                 {tag}
               </span>
@@ -202,11 +202,11 @@ export default async function BlogDetailPage({
       </Section>
 
       {/* Related posts */}
-      <Section className="bg-[#f3f0ee]" labelledBy="related-posts">
+      <Section className="bg-surface" labelledBy="related-posts">
         <div className="mx-auto max-w-[980px]">
           <h2
             id="related-posts"
-            className="font-mono text-[11px] font-semibold uppercase tracking-[0.14em] text-[#0066b1]"
+            className="font-mono text-[11px] font-semibold uppercase tracking-[0.14em] text-action"
           >
             Keep reading
           </h2>
@@ -215,7 +215,7 @@ export default async function BlogDetailPage({
               <Link
                 key={item.slug}
                 href={`/blog/${item.slug}`}
-                className="group flex flex-col overflow-hidden rounded-[24px] border border-[#e2ded9] bg-white transition hover:border-[#1c69d4]"
+                className="group flex flex-col overflow-hidden rounded-[24px] border border-line bg-canvas transition hover:border-action"
               >
                 <div className="relative aspect-[16/9] overflow-hidden">
                   <Image
@@ -227,13 +227,13 @@ export default async function BlogDetailPage({
                   />
                 </div>
                 <div className="flex flex-1 flex-col p-5">
-                  <span className="text-[12px] font-semibold leading-none tracking-[-0.12px] text-[#1c69d4]">
+                  <span className="text-[12px] font-semibold leading-none tracking-[-0.12px] text-action">
                     {item.category}
                   </span>
-                  <h3 className="mt-3 text-[17px] font-semibold leading-[1.24] tracking-[-0.374px] text-[#141413]">
+                  <h3 className="mt-3 text-[17px] font-semibold leading-[1.24] tracking-[-0.374px] text-ink">
                     {item.title}
                   </h3>
-                  <p className="mt-2 text-[14px] leading-[1.43] tracking-[-0.224px] text-[#6a6a6a]">
+                  <p className="mt-2 text-[14px] leading-[1.43] tracking-[-0.224px] text-ink-muted">
                     {blogReadingTime(item.body)}
                   </p>
                 </div>

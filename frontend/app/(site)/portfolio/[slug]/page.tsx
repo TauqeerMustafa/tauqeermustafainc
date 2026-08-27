@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+﻿import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
@@ -82,7 +82,7 @@ export default async function ProjectDetailPage({
         <PrimaryButton href="/contact">Plan a Similar Project</PrimaryButton>
       </PageHero>
 
-      <Section className="bg-[#f3f0ee]" labelledBy="project-overview">
+      <Section className="bg-surface" labelledBy="project-overview">
         <div className="grid gap-10 lg:grid-cols-[0.85fr_1.15fr]">
           <SectionHeader
             id="project-overview"
@@ -90,7 +90,7 @@ export default async function ProjectDetailPage({
             title={project.impact}
           />
           <Card>
-            <h2 className="text-xl font-semibold text-[#141413]">Technology stack</h2>
+            <h2 className="text-xl font-semibold text-ink">Technology stack</h2>
             <div className="mt-5 flex flex-wrap gap-2">
               {project.technologies.map((technology) => (
                 <Badge key={technology}>{technology}</Badge>
@@ -100,7 +100,7 @@ export default async function ProjectDetailPage({
         </div>
       </Section>
 
-      <Section className="bg-white" labelledBy="project-gallery">
+      <Section className="bg-canvas" labelledBy="project-gallery">
         <SectionHeader
           id="project-gallery"
           eyebrow="Gallery"
@@ -111,7 +111,7 @@ export default async function ProjectDetailPage({
           {project.gallery.map((item, i) => (
             <div
               key={item}
-              className="relative aspect-[4/3] overflow-hidden rounded-none border border-[#e2ded9] shadow-sm"
+              className="relative aspect-[4/3] overflow-hidden rounded-none border border-line shadow-sm"
             >
               <ImagePlaceholder
                 src={galleryImages[(projectIndex * 4 + i) % galleryImages.length]}
@@ -123,7 +123,7 @@ export default async function ProjectDetailPage({
         </div>
       </Section>
 
-      <Section className="bg-[#f3f0ee]" labelledBy="project-next">
+      <Section className="bg-surface" labelledBy="project-next">
         <SectionHeader
           id="project-next"
           eyebrow="More work"
@@ -137,7 +137,7 @@ export default async function ProjectDetailPage({
               <Link
                 key={item.slug}
                 href={`/portfolio/${item.slug}`}
-                className="border border-[#e2ded9] bg-white px-5 py-3 text-sm font-semibold text-[#141413] transition hover:border-[#141413] hover:text-[#2a2a28]"
+                className="border border-line bg-canvas px-5 py-3 text-sm font-semibold text-ink transition hover:border-ink hover:text-ink-2"
               >
                 {item.title}
               </Link>

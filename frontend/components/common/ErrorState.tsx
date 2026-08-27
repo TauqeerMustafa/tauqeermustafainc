@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+﻿import type { ReactNode } from "react";
 
 export function ErrorState({
   title = "Something went wrong",
@@ -12,10 +12,10 @@ export function ErrorState({
   return (
     <div
       role="alert"
-      className="rounded-none border border-red-200 bg-red-50 p-6 text-[#141413]"
+      className="rounded-none border border-red-200 bg-red-50 p-6 text-ink"
     >
       <h2 className="text-lg font-semibold">{title}</h2>
-      <p className="mt-2 text-sm leading-6 text-[#737373]">{message}</p>
+      <p className="mt-2 text-sm leading-6 text-ink-muted">{message}</p>
       {action ? <div className="mt-5">{action}</div> : null}
     </div>
   );

@@ -26,11 +26,11 @@ export function IconFrame({
   return (
     <div
       className={cn(
-        /* BMW utility frame — rectangular, blue action accent on hover */
+        /* BMW utility frame — rectangular, action blue accent on hover, theme-flipping */
         "flex shrink-0 items-center justify-center transition-colors duration-300",
         dark
-          ? "border border-white/12 bg-white/[0.05] text-[#1c69d4] group-hover:border-[#1c69d4]/50 group-hover:bg-[#1c69d4]/10"
-          : "border border-[#d8d4d1] bg-[#f3f0ee] text-[#0066b1] group-hover:border-[#1c69d4] group-hover:bg-[#1c69d4] group-hover:text-white",
+          ? "border border-ink/12 bg-ink/[0.05] text-action group-hover:border-action/50 group-hover:bg-action/10"
+          : "border border-line-2 bg-surface text-action group-hover:border-action group-hover:bg-action group-hover:text-on-action",
         sz,
         className,
       )}

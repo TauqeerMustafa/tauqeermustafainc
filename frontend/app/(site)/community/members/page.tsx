@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+﻿import type { Metadata } from "next";
 import CommunityMembersView from "@/components/community/CommunityMembersView";
 import { buildMetadata } from "@/lib/metadata";
 

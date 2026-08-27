@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+﻿import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
 import { Badge, PageHero, Section } from "@/components/home/ui";
@@ -45,28 +45,28 @@ export default async function LegalDocPage({
         </div>
       </PageHero>
 
-      <Section className="bg-[#f3f0ee]" labelledBy="legal-doc-content">
+      <Section className="bg-surface" labelledBy="legal-doc-content">
         <article
           id="legal-doc-content"
-          className="mx-auto max-w-3xl border border-[#e2ded9] bg-white p-7 shadow-sm sm:p-10"
+          className="mx-auto max-w-3xl border border-line bg-canvas p-7 shadow-sm sm:p-10"
         >
-          <p className="mb-6 text-base leading-8 text-[#141413]">{doc.intro}</p>
+          <p className="mb-6 text-base leading-8 text-ink">{doc.intro}</p>
 
           {doc.sections.map((section) => (
             <div key={section.heading}>
-              <h2 className="mb-4 mt-10 text-xl font-semibold text-[#141413]">{section.heading}</h2>
+              <h2 className="mb-4 mt-10 text-xl font-semibold text-ink">{section.heading}</h2>
               {section.body.map((paragraph, i) => (
-                <p key={i} className="mb-4 text-base leading-8 text-[#141413]">
+                <p key={i} className="mb-4 text-base leading-8 text-ink">
                   {paragraph}
                 </p>
               ))}
             </div>
           ))}
 
-          <div className="mt-10 border-t border-[#e2ded9] pt-6">
-            <p className="text-sm text-[#737373]">
+          <div className="mt-10 border-t border-line pt-6">
+            <p className="text-sm text-ink-muted">
               Questions about this document? Contact our legal team at{" "}
-              <a href={`mailto:${company.emails.legal}`} className="link-ul font-semibold text-[#141413]">
+              <a href={`mailto:${company.emails.legal}`} className="link-ul font-semibold text-ink">
                 {company.emails.legal}
               </a>
               .
