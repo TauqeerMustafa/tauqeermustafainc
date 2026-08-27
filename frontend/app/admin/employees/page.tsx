@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useState } from "react";
 import { Pencil, Trash2, Mail, Users } from "lucide-react";
@@ -147,7 +147,7 @@ export default function AdminEmployeesPage() {
                   <td className="px-4 py-3 text-ink-muted">{user.teamName || "-"}</td>
                   <td className="px-4 py-3">
                     <span
-                      className={\px-2 py-1 text-xs font-semibold \\}
+                      className={`px-2 py-1 text-xs font-semibold ${user.status === "approved" ? "bg-action/10 text-action" : "bg-line-2 text-ink-muted"}`}
                     >
                       {user.status}
                     </span>
@@ -157,7 +157,7 @@ export default function AdminEmployeesPage() {
                       <button
                         type="button"
                         onClick={() => openEdit(user)}
-                        aria-label={\Edit \\}
+                        aria-label={`Edit ${user.name}`}
                         className="flex h-8 w-8 items-center justify-center border border-line-2 text-ink-muted transition hover:border-ink hover:text-ink"
                       >
                         <Pencil size={14} />
