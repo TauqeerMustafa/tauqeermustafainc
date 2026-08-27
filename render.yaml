@@ -40,9 +40,9 @@ services:
         sync: false
       # Comma-separated, exact scheme+host, no trailing slash, no spaces.
       - key: CORS_ORIGINS
-        value: https://tauqeermustafa.tech,https://www.tauqeermustafa.tech,https://tauqeermustafainc.vercel.app
+        value: https://tauqeermustafa.tech,https://www.tauqeermustafa.tech,https://tauqeermustafainc.vercel.app,https://community.tauqeermustafa.tech,https://portals.tauqeermustafa.tech
       - key: CLIENT_PORTAL_URL
-        value: https://www.tauqeermustafa.tech
+        value: https://portals.tauqeermustafa.tech
       - key: VERIFICATION_CODE_TTL_MINUTES
         value: "10"
       - key: SMTP_HOST

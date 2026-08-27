@@ -17,8 +17,8 @@ const navLinks = [
   { name: "Portfolio", href: "/portfolio" },
   { name: "Careers", href: "/careers" },
   { name: "Blog", href: "/blog" },
-  { name: "Community", href: "/community" },
-  { name: "Client Portal", href: "/client/login" },
+  { name: "Community", href: "https://community.tauqeermustafa.tech" },
+  { name: "Client Portal", href: "https://portals.tauqeermustafa.tech" },
   { name: "Contact", href: "/contact" },
 ];
 
