@@ -21,7 +21,7 @@ import {
   useCreateAdminUser,
   useUpdateAdminUser,
 } from "@/hooks/useAdmin";
-import type { AdminUser } from "@/services";
+import type { AdminUser } from "@/types";
 
 export default function AdminEmployeesPage() {
   const { data: usersData, isLoading: isLoadingUsers, isError: isErrorUsers } = useAdminUsers();
