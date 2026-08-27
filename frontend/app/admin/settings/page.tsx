@@ -95,46 +95,68 @@ export default function AdminSettingsPage() {
         </div>
       </form>
 
-      <form onSubmit={handlePasswordSubmit} className="mt-6 grid gap-5 border border-white/10 bg-white/5 p-6">
-        <h2 className="text-lg font-bold text-white">Change password</h2>
-        <AdminField label="Current password" htmlFor="settings-current-password">
-          <input
-            id="settings-current-password"
-            type="password"
-            className={adminInputClass}
-            value={currentPassword}
-            onChange={(e) => setCurrentPassword(e.target.value)}
-          />
-        </AdminField>
-        <AdminField label="New password" htmlFor="settings-new-password">
-          <input
-            id="settings-new-password"
-            type="password"
-            className={adminInputClass}
-            value={newPassword}
-            onChange={(e) => setNewPassword(e.target.value)}
-          />
-        </AdminField>
-        <AdminField label="Confirm new password" htmlFor="settings-confirm-password">
-          <input
-            id="settings-confirm-password"
-            type="password"
-            className={adminInputClass}
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
-          />
-        </AdminField>
-        {passwordError ? <p className="text-sm text-red-400">{passwordError}</p> : null}
-        <div>
-          <button
-            type="submit"
-            disabled={updateProfile.isPending}
-            className="bg-yellow-400 px-5 py-2.5 text-sm font-semibold text-black transition hover:bg-yellow-300 disabled:opacity-50"
-          >
-            {updateProfile.isPending ? "Saving..." : "Change password"}
-          </button>
+        {/* Security Settings */}
+        <div className="mt-6 rounded-xl border bg-white p-6 shadow-sm">
+          <h2 className="mb-4 text-lg font-semibold text-gray-900">Security</h2>
+          <form onSubmit={handlePasswordSubmit} className="space-y-4 max-w-sm">
+            <AdminField label="Current Password">
+              <input
+                type="password"
+                className={adminInputClass}
+                value={currentPassword}
+                onChange={(e) => setCurrentPassword(e.target.value)}
+                placeholder="Enter current password"
+              />
+            </AdminField>
+            <AdminField label="New Password">
+              <input
+                type="password"
+                className={adminInputClass}
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+                placeholder="Enter new password"
+              />
+            </AdminField>
+            <AdminField label="Confirm New Password">
+              <input
+                type="password"
+                className={adminInputClass}
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                placeholder="Confirm new password"
+              />
+            </AdminField>
+            {passwordError && <p className="text-sm text-red-600">{passwordError}</p>}
+            <button
+              type="submit"
+              disabled={updateProfile.isPending || !currentPassword || !newPassword}
+              className="rounded bg-black px-4 py-2 text-sm font-semibold text-white transition hover:bg-gray-800 disabled:opacity-50"
+            >
+              Update Password
+            </button>
+          </form>
         </div>
-      </form>
-    </div>
+
+        {/* Zoho Mail Integration */}
+        <div className="mt-6 rounded-xl border bg-white p-6 shadow-sm">
+          <h2 className="mb-2 text-lg font-semibold text-gray-900">Zoho Mail Integration</h2>
+          <p className="mb-4 text-sm text-gray-500">
+            Connect your portal to Zoho One to enable seamless single sign-on (SSO) and in-portal webmail features.
+          </p>
+          <div className="flex items-center gap-4">
+            <a
+              href="/api/auth/zoho"
+              className="inline-flex items-center justify-center rounded bg-[#1051F1] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[#0D44CB]"
+            >
+              Connect Zoho Account
+            </a>
+            {typeof window !== "undefined" && window.location.search.includes("zoho=connected") && (
+              <span className="text-sm font-medium text-green-600">
+                ✓ Zoho account connected successfully!
+              </span>
+            )}
+          </div>
+        </div>
+      </div>
   );
 }

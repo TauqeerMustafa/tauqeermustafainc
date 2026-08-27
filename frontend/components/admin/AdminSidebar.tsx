@@ -20,12 +20,13 @@ import {
 
 const links = [
   { title: "Dashboard",     href: "/admin/dashboard",     icon: LayoutDashboard },
+  { title: "Mailbox",       href: "/admin/mail",          icon: Mail },
   { title: "Client",        href: "/admin/client",        icon: Briefcase },
   { title: "Employees",     href: "/admin/employees",     icon: Users },
   { title: "Management",    href: "/admin/management",    icon: ShieldCheck },
-  { title: "Community",     href: "/admin/community",     icon: MessageSquare },
+  { title: "Community",     href: "/admin/community",     icon: Users },
   { title: "Applicants",    href: "/admin/careers",       icon: FolderOpen },
-  { title: "Contact",       href: "/admin/messages",      icon: Mail },
+  { title: "Contact",       href: "/admin/messages",      icon: MessageSquare },
   { title: "WhatsApp",      href: "/admin/whatsapp",      icon: MessageSquare },
   { title: "Services",      href: "/admin/services",      icon: Briefcase },
   { title: "Portfolio",     href: "/admin/portfolio",     icon: FolderOpen },
