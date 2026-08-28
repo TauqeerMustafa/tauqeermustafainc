@@ -169,6 +169,24 @@
   --border:                #26262a;
   --input:                 #26262a;
   --ring:                  #2f7de0;
+  --adm-bg:           #000000;
+  --adm-surface:      #121212;
+  --adm-surface-2:    #1e1e1e;
+  --adm-border:       #333333;
+  --adm-border-2:     #444444;
+  --adm-text:         #f5f5f7;
+  --adm-text-2:       #a1a1a6;
+  --adm-text-3:       #86868b;
+  --adm-ink:          #f5f5f7;
+  --adm-blue:         #2997ff;
+  --adm-blue-light:   #003366;
+  --adm-blue-mid:     #2997ff;
+  --adm-green:        #30d158;
+  --adm-green-light:  #004d1a;
+  --adm-amber:        #ff9f0a;
+  --adm-amber-light:  #663a00;
+  --adm-red:          #ff453a;
+  --adm-red-light:    #660000;
 }
 
 @theme inline {
@@ -379,3 +397,4 @@ a, button { text-underline-offset: 4px; }
     transition-duration: 0.01ms !important;
   }
 }
+

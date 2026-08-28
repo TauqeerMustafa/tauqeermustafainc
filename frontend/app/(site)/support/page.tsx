@@ -1,4 +1,4 @@
-﻿import type { Metadata } from "next";
+import type { Metadata } from "next";
 import Link from "next/link";
 import { MessageSquare, PhoneCall, BookOpen, Mail } from "lucide-react";
 
@@ -57,7 +57,26 @@ export default function SupportPage() {
             </Link>
           </div>
         </div>
+
+        <div className="mt-20">
+          <h2 className="text-3xl font-bold text-ink mb-8 text-center">Frequently Asked Questions</h2>
+          <div className="grid gap-4 max-w-3xl mx-auto">
+            <div className="rounded-xl border border-line-2 bg-surface p-6">
+              <h4 className="text-lg font-semibold text-ink mb-2">How do I access the client portal?</h4>
+              <p className="text-ink-muted">You can log in to the client portal using the credentials provided during your onboarding. If you lost your password, click "Forgot Password" on the login screen.</p>
+            </div>
+            <div className="rounded-xl border border-line-2 bg-surface p-6">
+              <h4 className="text-lg font-semibold text-ink mb-2">How fast do you respond to emergency tickets?</h4>
+              <p className="text-ink-muted">Emergency tickets have a 1-hour SLA. For immediate attention, please call the emergency hotline provided in your SLA agreement.</p>
+            </div>
+            <div className="rounded-xl border border-line-2 bg-surface p-6">
+              <h4 className="text-lg font-semibold text-ink mb-2">Where can I view my project deliverables?</h4>
+              <p className="text-ink-muted">All deliverables, milestones, and invoices are available within your specific project dashboard in the Client Portal.</p>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
 }
+

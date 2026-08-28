@@ -26,7 +26,18 @@ export default async function AdminMailPage() {
           </a>
         </div>
       ) : (
-        <div className="grid gap-6 md:grid-cols-2">
+        <div className="flex flex-col gap-6">
+          {/* Integrated Workspace iframe */}
+          <div className="rounded-xl border border-[var(--adm-border)] bg-[var(--adm-surface)] overflow-hidden shadow-sm h-[75vh]">
+            <iframe 
+              src="https://mail.zoho.com/zm/" 
+              title="Zoho Mail Workspace"
+              className="w-full h-full border-0"
+              sandbox="allow-same-origin allow-scripts allow-popups allow-forms"
+            />
+          </div>
+          
+          <div className="grid gap-6 md:grid-cols-2">
           <div className="rounded-xl border bg-white p-6 shadow-sm">
             <div className="mb-4 flex items-center justify-between">
               <h3 className="text-lg font-bold text-gray-900">Enterprise Webmail</h3>
@@ -75,3 +86,4 @@ export default async function AdminMailPage() {
     </div>
   );
 }
+

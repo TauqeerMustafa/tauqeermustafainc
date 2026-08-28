@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { Bell, LogOut, Menu, Search, ChevronDown } from "lucide-react";
+import ThemeToggle from "@/components/layout/ThemeToggle";
 import { useCurrentUser, useLogout } from "@/hooks/useAuth";
 
 type Props = { onMenuClick: () => void };
@@ -21,7 +22,7 @@ export default function AdminHeader({ onMenuClick }: Props) {
     <header
       className="sticky top-0 z-30 flex h-16 items-center justify-between gap-3 border-b px-4 backdrop-blur-md sm:h-[60px] sm:px-6 lg:px-8"
       style={{
-        background: "rgba(255,255,255,0.95)",
+        background: "var(--adm-surface)",
         borderColor: "var(--adm-border)",
         boxShadow: "0 1px 0 0 var(--adm-border), 0 4px 12px rgba(0,0,0,0.04)",
       }}
@@ -32,7 +33,7 @@ export default function AdminHeader({ onMenuClick }: Props) {
           type="button"
           onClick={onMenuClick}
           aria-label="Open menu"
-          className="flex h-9 w-9 shrink-0 items-center justify-center border transition hover:bg-gray-50 lg:hidden"
+          className="flex h-9 w-9 shrink-0 items-center justify-center border transition hover:bg-[var(--adm-surface-2)] lg:hidden"
           style={{ borderColor: "var(--adm-border)", color: "var(--adm-text-2)" }}
         >
           <Menu size={18} />
@@ -60,9 +61,10 @@ export default function AdminHeader({ onMenuClick }: Props) {
 
       {/* Right */}
       <div className="flex items-center gap-2">
+        <ThemeToggle />
         {/* Notifications */}
         <button
-          className="relative flex h-9 w-9 items-center justify-center border transition hover:bg-gray-50"
+          className="relative flex h-9 w-9 items-center justify-center border transition hover:bg-[var(--adm-surface-2)]"
           style={{ borderColor: "var(--adm-border)", color: "var(--adm-text-2)" }}
           aria-label="Notifications"
         >
@@ -76,7 +78,7 @@ export default function AdminHeader({ onMenuClick }: Props) {
 
         {/* User pill */}
         <div
-          className="hidden items-center gap-2.5 border px-3 py-1.5 transition hover:bg-gray-50 cursor-pointer sm:flex"
+          className="hidden items-center gap-2.5 border px-3 py-1.5 transition hover:bg-[var(--adm-surface-2)] cursor-pointer sm:flex"
           style={{ borderColor: "var(--adm-border)" }}
         >
           <div
@@ -110,3 +112,5 @@ export default function AdminHeader({ onMenuClick }: Props) {
     </header>
   );
 }
+
+
