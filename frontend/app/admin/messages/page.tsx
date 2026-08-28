@@ -22,7 +22,15 @@ export default function AdminMessagesPage() {
   const [pendingDelete, setPendingDelete] = useState<ContactMessage | null>(null);
   const [expanded, setExpanded] = useState<string | null>(null);
 
-  const messages = data?.data.items ?? [];
+  const allMessages = data?.data.items ?? [];
+  
+  // Filter out messages that belong to other dedicated sections
+  const messages = allMessages.filter(
+    (m) =>
+      !m.message.includes("Job Application:") &&
+      !m.message.includes("Community Application:") &&
+      !m.message.includes("Service: Community")
+  );
 
   async function handleDelete() {
     if (!pendingDelete) return;

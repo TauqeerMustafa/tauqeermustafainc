@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Pencil, Trash2 } from "lucide-react";
+import { Pencil, Trash2, Mail, MailOpen } from "lucide-react";
 
 import {
   AdminConfirmDialog,
@@ -15,6 +15,7 @@ import {
   adminInputClass,
 } from "@/components/admin/AdminUI";
 import { useCareers, useCreateCareer, useDeleteCareer, useUpdateCareer } from "@/hooks/useCareers";
+import { useMessages, useMarkMessageRead, useDeleteMessage } from "@/hooks/useMessages";
 import type { Career } from "@/types";
 import type { CareerPayload } from "@/services/career.service";
 
@@ -86,26 +87,63 @@ export default function AdminCareersPage() {
 
   const isSaving = createCareer.isPending || updateCareer.isPending;
 
+  const allMessages = messagesQuery.data?.data.items ?? [];
+  const applications = allMessages.filter((m) => m.message.includes("Job Application:"));
+
   return (
     <div>
-      <AdminPageHeader
-        title="Careers & Applicants"
-        description="Manage open roles and review job applications."
-        actionLabel="New Role"
-        onAction={openCreate}
-      />
+      <div className="mb-6 flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight text-gray-900">Careers & Applicants</h1>
+          <p className="mt-1 text-sm text-gray-500">Manage open roles and review job applications.</p>
+        </div>
+        {activeTab === 'roles' && (
+          <button
+            onClick={openCreate}
+            className="rounded bg-black px-4 py-2 text-sm font-semibold text-white transition hover:bg-gray-800"
+          >
+            New Role
+          </button>
+        )}
+      </div>
 
-      {isLoading ? <AdminLoadingState label="Loading roles..." /> : null}
-      {isError ? (
-        <AdminErrorState message="Could not load job listings. Confirm the backend is running and reachable." />
-      ) : null}
+      <div className="mb-6 flex border-b border-gray-200">
+        <button
+          onClick={() => setActiveTab('roles')}
+          className={`border-b-2 px-4 py-3 text-sm font-semibold transition ${
+            activeTab === 'roles' ? 'border-action text-action' : 'border-transparent text-gray-500 hover:text-gray-700'
+          }`}
+        >
+          Job Postings
+        </button>
+        <button
+          onClick={() => setActiveTab('applications')}
+          className={`border-b-2 px-4 py-3 text-sm font-semibold transition flex items-center gap-2 ${
+            activeTab === 'applications' ? 'border-action text-action' : 'border-transparent text-gray-500 hover:text-gray-700'
+          }`}
+        >
+          Applications
+          {applications.filter(a => !a.is_read).length > 0 && (
+            <span className="rounded-full bg-red-100 px-2 py-0.5 text-xs text-red-600">
+              {applications.filter(a => !a.is_read).length}
+            </span>
+          )}
+        </button>
+      </div>
 
-      {!isLoading && !isError && jobs.length === 0 ? (
-        <AdminEmptyState title="No roles yet" description="Post your first opening to get started." />
-      ) : null}
+      {activeTab === 'roles' && (
+        <>
+          {isLoading ? <AdminLoadingState label="Loading roles..." /> : null}
+          {isError ? (
+            <AdminErrorState message="Could not load job listings. Confirm the backend is running and reachable." />
+          ) : null}
 
-      {!isLoading && !isError && jobs.length > 0 ? (
-        <div className="overflow-x-auto border border-line-2 bg-surface">
+          {!isLoading && !isError && jobs.length === 0 ? (
+            <AdminEmptyState title="No roles yet" description="Post your first opening to get started." />
+          ) : null}
+
+          {!isLoading && !isError && jobs.length > 0 ? (
+            <div className="overflow-x-auto border border-line-2 bg-surface">
           <table className="w-full min-w-[640px] text-left text-sm">
             <thead className="border-b border-line-2 bg-canvas text-xs uppercase tracking-wide text-ink-muted">
               <tr>
@@ -154,8 +192,68 @@ export default function AdminCareersPage() {
               ))}
             </tbody>
           </table>
+            </div>
+          ) : null}
+        </>
+      )}
+
+      {activeTab === 'applications' && (
+        <div className="space-y-4">
+          {applications.length === 0 ? (
+            <AdminEmptyState title="No applications yet" description="Job applications will appear here." />
+          ) : (
+            applications.map((msg) => (
+              <div
+                key={msg.id}
+                className={`overflow-hidden rounded-xl border transition ${
+                  msg.is_read ? "border-line-2 bg-surface" : "border-action/20 bg-blue-50/30"
+                }`}
+              >
+                <div
+                  className="flex cursor-pointer items-center justify-between p-4 sm:p-5"
+                  onClick={() => {
+                    setExpandedApp(expandedApp === msg.id ? null : msg.id);
+                    if (!msg.is_read) markRead.mutate(msg.id);
+                  }}
+                >
+                  <div className="flex items-center gap-4">
+                    <div
+                      className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full ${
+                        msg.is_read ? "bg-gray-100 text-gray-400" : "bg-action/10 text-action"
+                      }`}
+                    >
+                      {msg.is_read ? <MailOpen className="h-4 w-4" /> : <Mail className="h-4 w-4" />}
+                    </div>
+                    <div>
+                      <p className={`text-sm ${msg.is_read ? "font-medium text-gray-900" : "font-bold text-gray-900"}`}>
+                        {msg.name} <span className="font-normal text-gray-500">({msg.email})</span>
+                      </p>
+                      <p className="mt-0.5 text-xs text-gray-500">
+                        {new Date(msg.created_at).toLocaleString()}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                {expandedApp === msg.id && (
+                  <div className="border-t border-line-2 bg-gray-50/50 p-4 sm:p-6">
+                    <div className="prose prose-sm max-w-none whitespace-pre-wrap text-gray-700">
+                      {msg.message}
+                    </div>
+                    <div className="mt-6 flex justify-end">
+                      <button
+                        onClick={() => deleteMsg.mutate(msg.id)}
+                        className="flex items-center gap-2 rounded px-3 py-1.5 text-sm font-medium text-red-600 hover:bg-red-50"
+                      >
+                        <Trash2 className="h-4 w-4" /> Delete Application
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            ))
+          )}
         </div>
-      ) : null}
+      )}
 
       <AdminDrawer
         open={drawerOpen}
@@ -250,3 +348,4 @@ export default function AdminCareersPage() {
     </div>
   );
 }
+
