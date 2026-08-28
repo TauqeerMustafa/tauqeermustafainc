@@ -100,6 +100,7 @@ type SendMessagePayload = {
   mediaLink?: string;
   caption?: string;
   filename?: string;
+  markReadMessageId?: string;
 };
 
 export function useSendWhatsAppMessage() {

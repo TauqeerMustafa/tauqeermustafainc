@@ -717,6 +717,7 @@ function ChatView({
         type: "text",
         to: conv.number,
         message: reply,
+        markReadMessageId: conv.messages.filter((m) => m.direction === "inbound").at(-1)?.id,
       });
       setReply("");
     } catch (e: any) {
@@ -736,6 +737,7 @@ function ChatView({
         mediaId: up.id,
         caption: reply.trim() || undefined,
         filename: up.mediaType === "document" ? up.filename : undefined,
+        markReadMessageId: conv.messages.filter((m) => m.direction === "inbound").at(-1)?.id,
       });
       setReply("");
     } catch (e: any) {

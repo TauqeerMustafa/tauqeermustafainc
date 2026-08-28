@@ -16,7 +16,7 @@ import {
 } from "@/components/admin/AdminUI";
 import { useCareers, useCreateCareer, useDeleteCareer, useUpdateCareer } from "@/hooks/useCareers";
 import { useMessages, useMarkMessageRead, useDeleteMessage } from "@/hooks/useMessages";
-import type { Career } from "@/types";
+import type { Career, ContactMessage } from "@/types";
 import type { CareerPayload } from "@/services/career.service";
 
 const emptyForm: CareerPayload = {
@@ -41,11 +41,16 @@ export default function AdminCareersPage() {
   const createCareer = useCreateCareer();
   const updateCareer = useUpdateCareer();
   const deleteCareer = useDeleteCareer();
+  const messagesQuery = useMessages({ pageSize: 100, unreadOnly: false });
+  const markRead = useMarkMessageRead();
+  const deleteMsg = useDeleteMessage();
 
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [editing, setEditing] = useState<Career | null>(null);
   const [form, setForm] = useState<CareerPayload>(emptyForm);
   const [pendingDelete, setPendingDelete] = useState<Career | null>(null);
+  const [activeTab, setActiveTab] = useState<'roles' | 'applications'>('roles');
+  const [expandedApp, setExpandedApp] = useState<string | null>(null);
 
   const jobs = data?.data.items ?? [];
 
@@ -88,7 +93,7 @@ export default function AdminCareersPage() {
   const isSaving = createCareer.isPending || updateCareer.isPending;
 
   const allMessages = messagesQuery.data?.data.items ?? [];
-  const applications = allMessages.filter((m) => m.message.includes("Job Application:"));
+  const applications = allMessages.filter((m: ContactMessage) => m.message.includes("Job Application:"));
 
   return (
     <div>
@@ -123,9 +128,9 @@ export default function AdminCareersPage() {
           }`}
         >
           Applications
-          {applications.filter(a => !a.is_read).length > 0 && (
+          {applications.filter((a: ContactMessage) => !a.isRead).length > 0 && (
             <span className="rounded-full bg-red-100 px-2 py-0.5 text-xs text-red-600">
-              {applications.filter(a => !a.is_read).length}
+              {applications.filter((a: ContactMessage) => !a.isRead).length}
             </span>
           )}
         </button>
@@ -202,34 +207,34 @@ export default function AdminCareersPage() {
           {applications.length === 0 ? (
             <AdminEmptyState title="No applications yet" description="Job applications will appear here." />
           ) : (
-            applications.map((msg) => (
+            applications.map((msg: ContactMessage) => (
               <div
                 key={msg.id}
                 className={`overflow-hidden rounded-xl border transition ${
-                  msg.is_read ? "border-line-2 bg-surface" : "border-action/20 bg-blue-50/30"
+                  msg.isRead ? "border-line-2 bg-surface" : "border-action/20 bg-blue-50/30"
                 }`}
               >
                 <div
                   className="flex cursor-pointer items-center justify-between p-4 sm:p-5"
                   onClick={() => {
                     setExpandedApp(expandedApp === msg.id ? null : msg.id);
-                    if (!msg.is_read) markRead.mutate(msg.id);
+                    if (!msg.isRead) markRead.mutate({ id: msg.id, isRead: true });
                   }}
                 >
                   <div className="flex items-center gap-4">
                     <div
                       className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full ${
-                        msg.is_read ? "bg-gray-100 text-gray-400" : "bg-action/10 text-action"
+                        msg.isRead ? "bg-gray-100 text-gray-400" : "bg-action/10 text-action"
                       }`}
                     >
-                      {msg.is_read ? <MailOpen className="h-4 w-4" /> : <Mail className="h-4 w-4" />}
+                      {msg.isRead ? <MailOpen className="h-4 w-4" /> : <Mail className="h-4 w-4" />}
                     </div>
                     <div>
-                      <p className={`text-sm ${msg.is_read ? "font-medium text-gray-900" : "font-bold text-gray-900"}`}>
+                      <p className={`text-sm ${msg.isRead ? "font-medium text-gray-900" : "font-bold text-gray-900"}`}>
                         {msg.name} <span className="font-normal text-gray-500">({msg.email})</span>
                       </p>
                       <p className="mt-0.5 text-xs text-gray-500">
-                        {new Date(msg.created_at).toLocaleString()}
+                        {new Date(msg.createdAt).toLocaleString()}
                       </p>
                     </div>
                   </div>

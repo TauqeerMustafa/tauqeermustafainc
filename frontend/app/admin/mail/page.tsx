@@ -1,6 +1,8 @@
-﻿import { AdminPageHeader } from "@/components/admin/AdminUI";
+import { AdminPageHeader } from "@/components/admin/AdminUI";
 import { Mail, ExternalLink, ShieldCheck } from "lucide-react";
 import { kv } from "@vercel/kv";
+
+export const dynamic = "force-dynamic";
 
 export default async function AdminMailPage() {
   const isConnected = await kv.get("zoho_access_token");

@@ -12,7 +12,9 @@
 import { Redis } from "@upstash/redis";
 
 // Check if KV is configured
-const isConfigured = !!(process.env.KV_REST_API_URL && process.env.KV_REST_API_TOKEN);
+const hasKeys = !!(process.env.KV_REST_API_URL && process.env.KV_REST_API_TOKEN);
+const isSensitive = process.env.KV_REST_API_URL === "[SENSITIVE]";
+const isConfigured = hasKeys && !isSensitive;
 
 // Upstash Redis client (reads from env automatically)
 export const kv = isConfigured

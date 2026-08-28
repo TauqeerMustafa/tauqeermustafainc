@@ -1,4 +1,4 @@
-﻿import { NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { kv } from "@vercel/kv";
 
 export async function GET(request: Request) {
@@ -18,7 +18,7 @@ export async function GET(request: Request) {
   const clientSecret = process.env.ZOHO_CLIENT_SECRET;
   
   const redirectUri = process.env.NEXT_PUBLIC_SITE_URL 
-    ? `/api/auth/zoho/callback`
+    ? `${process.env.NEXT_PUBLIC_SITE_URL}/api/auth/zoho/callback`
     : "http://localhost:3000/api/auth/zoho/callback";
 
   if (!clientId || !clientSecret) {

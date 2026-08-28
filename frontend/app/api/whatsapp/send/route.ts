@@ -69,6 +69,7 @@ export async function POST(request: Request) {
       mediaLink,
       caption,
       filename,
+      markReadMessageId,
     } = body;
 
     const phoneNumberId = process.env.WHATSAPP_PHONE_NUMBER_ID?.trim();
@@ -284,12 +285,20 @@ export async function POST(request: Request) {
         status: "sent",
       };
 
-      // Persist to KV (fire-and-forget, don't block response)
-      fetch(`${new URL(request.url).origin}/api/whatsapp/messages`, {
+      // Persist to KV
+      await fetch(`${new URL(request.url).origin}/api/whatsapp/messages`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(storedMessage),
       }).catch((e) => console.error("[send] Failed to persist message:", e));
+    }
+
+    if (markReadMessageId) {
+      await graphPost(phoneNumberId, {
+        messaging_product: "whatsapp",
+        status: "read",
+        message_id: markReadMessageId,
+      }).catch((e) => console.error("[send] Failed to send read receipt:", e));
     }
 
     return NextResponse.json({ success: true, messageId, message: "Message sent successfully" });

@@ -82,8 +82,8 @@ export async function POST(request: Request) {
             ...(msg?.document?.filename ? { filename: msg.document.filename } : {}),
           };
 
-          // Persist to KV (fire-and-forget)
-          fetch(`${new URL(request.url).origin}/api/whatsapp/messages`, {
+          // Persist to KV
+          await fetch(`${new URL(request.url).origin}/api/whatsapp/messages`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(storedMessage),
@@ -91,7 +91,7 @@ export async function POST(request: Request) {
 
           // Simple auto-reply: mirror the keyword engine from the Baileys bot.
           // Only fires if token + phoneId are configured.
-          await handleAutoReply(request.url, from, text);
+          await handleAutoReply(request.url, from, text, msgId);
         }
 
         // Delivery / read receipts for our OUTBOUND messages → drive tick status.
@@ -100,7 +100,7 @@ export async function POST(request: Request) {
           const id = st?.id;
           const status = st?.status;
           if (!id || !status) continue;
-          fetch(`${new URL(request.url).origin}/api/whatsapp/messages`, {
+          await fetch(`${new URL(request.url).origin}/api/whatsapp/messages`, {
             method: "PATCH",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ id, status }),
@@ -119,7 +119,7 @@ export async function POST(request: Request) {
 }
 
 // ─── Auto-reply helper ────────────────────────────────────────────────────────
-async function handleAutoReply(requestUrl: string, to: string, incomingText: string) {
+async function handleAutoReply(requestUrl: string, to: string, incomingText: string, msgId: string) {
   const token         = process.env.WHATSAPP_TOKEN;
   const phoneNumberId = process.env.WHATSAPP_PHONE_NUMBER_ID;
   if (!token || !phoneNumberId || !incomingText) return;
@@ -161,7 +161,7 @@ async function handleAutoReply(requestUrl: string, to: string, incomingText: str
       }
 
       if (matched) {
-        await sendText(token, phoneNumberId, to, rule.reply);
+        await sendText(token, phoneNumberId, to, rule.reply, requestUrl, msgId);
         break; // Only send first matching rule
       }
     }
@@ -170,9 +170,17 @@ async function handleAutoReply(requestUrl: string, to: string, incomingText: str
   }
 }
 
-async function sendText(token: string, phoneNumberId: string, to: string, text: string) {
+async function sendText(token: string, phoneNumberId: string, to: string, text: string, requestUrl: string, msgId: string) {
   try {
+    // Send read receipt
     await fetch(`${GRAPH_URL}/${phoneNumberId}/messages`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+      body: JSON.stringify({ messaging_product: "whatsapp", status: "read", message_id: msgId }),
+    });
+
+    // Send reply
+    const res = await fetch(`${GRAPH_URL}/${phoneNumberId}/messages`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -185,6 +193,27 @@ async function sendText(token: string, phoneNumberId: string, to: string, text: 
         text: { body: text, preview_url: false },
       }),
     });
+    const data = await res.json();
+    const messageId = data?.messages?.[0]?.id;
+
+    if (messageId) {
+      const storedMessage = {
+        id: messageId,
+        from: phoneNumberId,
+        to,
+        jid: `${to}@s.whatsapp.net`,
+        type: "text",
+        body: text,
+        timestamp: new Date().toISOString(),
+        direction: "outbound" as const,
+        status: "sent",
+      };
+      await fetch(`${new URL(requestUrl).origin}/api/whatsapp/messages`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(storedMessage),
+      });
+    }
   } catch (e) {
     console.error("[webhook] Auto-reply failed:", e);
   }

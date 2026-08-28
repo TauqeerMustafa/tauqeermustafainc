@@ -1,11 +1,11 @@
-"use client";
+﻿const fs = require('fs');
+const content = "use client";
 
 import { useState } from "react";
 import { Mail, MailOpen, Trash2 } from "lucide-react";
 
 import { AdminPageHeader, AdminEmptyState, AdminLoadingState, AdminErrorState } from "@/components/admin/AdminUI";
 import { useMessages, useMarkMessageRead, useDeleteMessage } from "@/hooks/useMessages";
-import type { ContactMessage } from "@/types";
 
 export default function AdminCommunityPage() {
   const { data, isLoading, isError } = useMessages({ pageSize: 100, unreadOnly: false });
@@ -16,7 +16,7 @@ export default function AdminCommunityPage() {
 
   const allMessages = data?.data.items ?? [];
   const communityMessages = allMessages.filter(
-    (m: ContactMessage) =>
+    (m) =>
       m.message.includes("Community Application:") ||
       m.message.includes("Service: Community") ||
       m.message.includes("Community")
@@ -31,9 +31,9 @@ export default function AdminCommunityPage() {
           className="border-b-2 border-action px-4 py-3 text-sm font-semibold text-action flex items-center gap-2"
         >
           Applications
-          {communityMessages.filter((a: ContactMessage) => !a.isRead).length > 0 && (
+          {communityMessages.filter(a => !a.is_read).length > 0 && (
             <span className="rounded-full bg-red-100 px-2 py-0.5 text-xs text-red-600">
-              {communityMessages.filter((a: ContactMessage) => !a.isRead).length}
+              {communityMessages.filter(a => !a.is_read).length}
             </span>
           )}
         </button>
@@ -50,30 +50,30 @@ export default function AdminCommunityPage() {
 
       {!isLoading && !isError && communityMessages.length > 0 && (
         <div className="space-y-4">
-          {communityMessages.map((msg: ContactMessage) => (
+          {communityMessages.map((msg) => (
             <div
               key={msg.id}
-              className={msg.isRead ? "overflow-hidden rounded-xl border transition border-line-2 bg-surface" : "overflow-hidden rounded-xl border transition border-action/20 bg-blue-50/30"}
+              className={msg.is_read ? "overflow-hidden rounded-xl border transition border-line-2 bg-surface" : "overflow-hidden rounded-xl border transition border-action/20 bg-blue-50/30"}
             >
               <div
                 className="flex cursor-pointer items-center justify-between p-4 sm:p-5"
                 onClick={() => {
                   setExpandedApp(expandedApp === msg.id ? null : msg.id);
-                  if (!msg.isRead) markRead.mutate({ id: msg.id, isRead: true });
+                  if (!msg.is_read) markRead.mutate(msg.id);
                 }}
               >
                 <div className="flex items-center gap-4">
                   <div
-                    className={msg.isRead ? "flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gray-100 text-gray-400" : "flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-action/10 text-action"}
+                    className={msg.is_read ? "flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gray-100 text-gray-400" : "flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-action/10 text-action"}
                   >
-                    {msg.isRead ? <MailOpen className="h-4 w-4" /> : <Mail className="h-4 w-4" />}
+                    {msg.is_read ? <MailOpen className="h-4 w-4" /> : <Mail className="h-4 w-4" />}
                   </div>
                   <div>
-                    <p className={msg.isRead ? "text-sm font-medium text-gray-900" : "text-sm font-bold text-gray-900"}>
+                    <p className={msg.is_read ? "text-sm font-medium text-gray-900" : "text-sm font-bold text-gray-900"}>
                       {msg.name} <span className="font-normal text-gray-500">({msg.email})</span>
                     </p>
                     <p className="mt-0.5 text-xs text-gray-500">
-                      {new Date(msg.createdAt).toLocaleString()}
+                      {new Date(msg.created_at).toLocaleString()}
                     </p>
                   </div>
                 </div>
@@ -100,3 +100,5 @@ export default function AdminCommunityPage() {
     </div>
   );
 }
+;
+fs.writeFileSync('e:/Projects/tauqeer-inc/frontend/app/admin/community/page.tsx', content);
