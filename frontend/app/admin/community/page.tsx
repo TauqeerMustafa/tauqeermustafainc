@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import { Mail, MailOpen, Trash2 } from "lucide-react";
@@ -52,9 +52,7 @@ export default function AdminCommunityPage() {
           {communityMessages.map((msg) => (
             <div
               key={msg.id}
-              className={"overflow-hidden rounded-xl border transition $\{
-                msg.is_read ? "border-line-2 bg-surface" : "border-action/20 bg-blue-50/30"
-              \}}
+              className={\overflow-hidden rounded-xl border transition \\}
             >
               <div
                 className="flex cursor-pointer items-center justify-between p-4 sm:p-5"
@@ -65,14 +63,12 @@ export default function AdminCommunityPage() {
               >
                 <div className="flex items-center gap-4">
                   <div
-                    className={"flex h-10 w-10 shrink-0 items-center justify-center rounded-full $\{
-                      msg.is_read ? "bg-gray-100 text-gray-400" : "bg-action/10 text-action"
-                    \}}
+                    className={\lex h-10 w-10 shrink-0 items-center justify-center rounded-full \\}
                   >
                     {msg.is_read ? <MailOpen className="h-4 w-4" /> : <Mail className="h-4 w-4" />}
                   </div>
                   <div>
-                    <p className={"text-sm $\{msg.is_read ? "font-medium text-gray-900" : "font-bold text-gray-900"\}}>
+                    <p className={\	ext-sm \\}>
                       {msg.name} <span className="font-normal text-gray-500">({msg.email})</span>
                     </p>
                     <p className="mt-0.5 text-xs text-gray-500">
