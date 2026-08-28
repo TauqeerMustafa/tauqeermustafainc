@@ -52,7 +52,7 @@ export default function AdminCommunityPage() {
           {communityMessages.map((msg) => (
             <div
               key={msg.id}
-              className={\overflow-hidden rounded-xl border transition \\}
+              className={msg.is_read ? "overflow-hidden rounded-xl border transition border-line-2 bg-surface" : "overflow-hidden rounded-xl border transition border-action/20 bg-blue-50/30"}
             >
               <div
                 className="flex cursor-pointer items-center justify-between p-4 sm:p-5"
@@ -63,12 +63,12 @@ export default function AdminCommunityPage() {
               >
                 <div className="flex items-center gap-4">
                   <div
-                    className={\lex h-10 w-10 shrink-0 items-center justify-center rounded-full \\}
+                    className={msg.is_read ? "flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gray-100 text-gray-400" : "flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-action/10 text-action"}
                   >
                     {msg.is_read ? <MailOpen className="h-4 w-4" /> : <Mail className="h-4 w-4" />}
                   </div>
                   <div>
-                    <p className={\	ext-sm \\}>
+                    <p className={msg.is_read ? "text-sm font-medium text-gray-900" : "text-sm font-bold text-gray-900"}>
                       {msg.name} <span className="font-normal text-gray-500">({msg.email})</span>
                     </p>
                     <p className="mt-0.5 text-xs text-gray-500">
