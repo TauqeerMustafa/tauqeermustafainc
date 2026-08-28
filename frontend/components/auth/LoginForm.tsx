@@ -11,6 +11,7 @@ import { PageHero, Section } from "@/components/home/ui";
 import { useLogin } from "@/hooks/useAuth";
 import { useAuthContext } from "@/providers/auth-provider";
 import type { ApiError } from "@/types";
+import { appConfig } from "@/config/app";
 
 const loginSchema = z.object({
   email: z.email("Enter a valid email address."),
@@ -114,7 +115,7 @@ export default function LoginForm() {
                 {apiError?.status === undefined && (
                   <p className="mt-2 text-xs text-red-600">
                     Make sure the backend server is running at{" "}
-                    <code className="rounded bg-red-100 px-1 py-0.5">http://localhost:8000</code>
+                    <code className="rounded bg-red-100 px-1 py-0.5">{appConfig.apiBaseUrl}</code>
                   </p>
                 )}
               </div>

@@ -4,5 +4,5 @@ export const appConfig = {
   name: "Tauqeer Mustafa Inc.",
   siteUrl: "https://tauqeermustafa.tech",
   apiBaseUrl: env.NEXT_PUBLIC_API_URL,
-  apiTimeoutMs: 15000,
+  apiTimeoutMs: 60000,
 } as const;

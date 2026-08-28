@@ -1,4 +1,4 @@
-﻿import { NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 
 export async function GET(request: Request) {
   const clientId = process.env.ZOHO_CLIENT_ID;
@@ -8,14 +8,14 @@ export async function GET(request: Request) {
 
   // Use the production URL if available, otherwise fallback to localhost for dev
   const redirectUri = process.env.NEXT_PUBLIC_SITE_URL 
-    ? `/api/auth/zoho/callback`
+    ? `${process.env.NEXT_PUBLIC_SITE_URL}/api/auth/zoho/callback`
     : "http://localhost:3000/api/auth/zoho/callback";
 
   // Scopes needed for Zoho Mail
   // ZohoMail.messages.READ allows reading emails
   // ZohoMail.messages.CREATE allows sending emails
   // VirtualOffice.profile.READ for user info
-  const scope = "ZohoMail.messages.READ,ZohoMail.messages.CREATE,ZohoMail.messages.UPDATE,VirtualOffice.profile.READ";
+  const scope = "AaaServer.profile.READ";
 
   const zohoAuthUrl = new URL("https://accounts.zoho.com/oauth/v2/auth");
   zohoAuthUrl.searchParams.set("response_type", "code");
