@@ -14,7 +14,7 @@
  * Storage: Upstash Redis (KV) when configured, otherwise a no-op.
  */
 import { NextResponse } from "next/server";
-import { kv, KEYS, isKVConfigured } from "@/lib/kv";
+import { getKV, checkKVConfigured, KEYS } from "@/lib/kv";
 
 export type ConvMeta = {
   dealStatus?: string;
@@ -55,12 +55,12 @@ function normalizeMap(map: MetaMap): { map: MetaMap; changed: boolean } {
 }
 
 export async function GET() {
-  if (!isKVConfigured) return NextResponse.json({ success: true, data: {} });
+  if (!checkKVConfigured()) return NextResponse.json({ success: true, data: {} });
   try {
-    const stored = (await kv!.get<MetaMap>(KEYS.conversations)) || {};
+    const stored = (await getKV()!.get<MetaMap>(KEYS.conversations)) || {};
     const { map, changed } = normalizeMap(stored);
     // One-time migration: persist the collapsed shape so this only happens once.
-    if (changed) await kv!.set(KEYS.conversations, map);
+    if (changed) await getKV()!.set(KEYS.conversations, map);
     return NextResponse.json({ success: true, data: map });
   } catch (error) {
     console.error("[conversation-meta] GET error:", error);
@@ -69,17 +69,17 @@ export async function GET() {
 }
 
 export async function PUT(request: Request) {
-  if (!isKVConfigured) return NextResponse.json({ success: true, notice: "KV not configured" });
+  if (!checkKVConfigured()) return NextResponse.json({ success: true, notice: "KV not configured" });
   try {
     const { key, patch } = await request.json();
     if (!key || typeof key !== "string") {
       return NextResponse.json({ success: false, error: "key is required" }, { status: 400 });
     }
-    const stored = (await kv!.get<MetaMap>(KEYS.conversations)) || {};
+    const stored = (await getKV()!.get<MetaMap>(KEYS.conversations)) || {};
     const { map } = normalizeMap(stored);
     const k = normalizeKey(key);
     map[k] = { ...(map[k] || {}), ...(patch || {}) };
-    await kv!.set(KEYS.conversations, map);
+    await getKV()!.set(KEYS.conversations, map);
     return NextResponse.json({ success: true, data: map[k] });
   } catch (error) {
     console.error("[conversation-meta] PUT error:", error);
@@ -88,17 +88,18 @@ export async function PUT(request: Request) {
 }
 
 export async function DELETE(request: Request) {
-  if (!isKVConfigured) return NextResponse.json({ success: true, notice: "KV not configured" });
+  if (!checkKVConfigured()) return NextResponse.json({ success: true, notice: "KV not configured" });
   try {
     const key = new URL(request.url).searchParams.get("key");
     if (!key) return NextResponse.json({ success: false, error: "key is required" }, { status: 400 });
-    const stored = (await kv!.get<MetaMap>(KEYS.conversations)) || {};
+    const stored = (await getKV()!.get<MetaMap>(KEYS.conversations)) || {};
     const { map } = normalizeMap(stored);
     delete map[normalizeKey(key)];
-    await kv!.set(KEYS.conversations, map);
+    await getKV()!.set(KEYS.conversations, map);
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error("[conversation-meta] DELETE error:", error);
     return NextResponse.json({ success: false, error: String(error) }, { status: 500 });
   }
 }
+

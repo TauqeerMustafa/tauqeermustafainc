@@ -5,7 +5,7 @@
  * Storage: Upstash Redis (KV) when configured, otherwise empty
  */
 import { NextResponse } from "next/server";
-import { kv, KEYS, isKVConfigured } from "@/lib/kv";
+import { getKV, checkKVConfigured, KEYS } from "@/lib/kv";
 
 export type WAMessage = {
   id: string;
@@ -26,7 +26,7 @@ export type WAMessage = {
 
 export async function GET() {
   try {
-    if (!isKVConfigured) {
+    if (!checkKVConfigured()) {
       return NextResponse.json({
         success: true,
         data: [],
@@ -35,7 +35,7 @@ export async function GET() {
       });
     }
 
-    const messages = (await kv!.get<WAMessage[]>(KEYS.messages)) || [];
+    const messages = (await getKV()!.get<WAMessage[]>(KEYS.messages)) || [];
     return NextResponse.json({
       success: true,
       data: messages,
@@ -56,18 +56,18 @@ export async function GET() {
  */
 export async function POST(request: Request) {
   try {
-    if (!isKVConfigured) {
+    if (!checkKVConfigured()) {
       console.warn("[messages] POST: KV not configured, message not persisted");
       return NextResponse.json({ success: true, notice: "KV not configured" });
     }
 
     const message: WAMessage = await request.json();
-    const messages = (await kv!.get<WAMessage[]>(KEYS.messages)) || [];
+    const messages = (await getKV()!.get<WAMessage[]>(KEYS.messages)) || [];
     messages.push(message);
 
     // Keep last 1000 messages
     const trimmed = messages.slice(-1000);
-    await kv!.set(KEYS.messages, trimmed);
+    await getKV()!.set(KEYS.messages, trimmed);
 
     return NextResponse.json({ success: true, messageId: message.id });
   } catch (error) {
@@ -87,7 +87,7 @@ export async function POST(request: Request) {
  */
 export async function PATCH(request: Request) {
   try {
-    if (!isKVConfigured) {
+    if (!checkKVConfigured()) {
       return NextResponse.json({ success: true, notice: "KV not configured" });
     }
 
@@ -97,7 +97,7 @@ export async function PATCH(request: Request) {
     }
 
     const rank: Record<string, number> = { sent: 1, delivered: 2, read: 3 };
-    const messages = (await kv!.get<WAMessage[]>(KEYS.messages)) || [];
+    const messages = (await getKV()!.get<WAMessage[]>(KEYS.messages)) || [];
     let changed = false;
 
     for (const m of messages) {
@@ -110,7 +110,7 @@ export async function PATCH(request: Request) {
       break;
     }
 
-    if (changed) await kv!.set(KEYS.messages, messages);
+    if (changed) await getKV()!.set(KEYS.messages, messages);
     return NextResponse.json({ success: true, changed });
   } catch (error) {
     console.error("[messages] PATCH error:", error);
@@ -124,7 +124,7 @@ export async function PATCH(request: Request) {
  */
 export async function DELETE(request: Request) {
   try {
-    if (!isKVConfigured) {
+    if (!checkKVConfigured()) {
       return NextResponse.json({ success: true, notice: "KV not configured" });
     }
 
@@ -141,13 +141,14 @@ export async function DELETE(request: Request) {
       return (raw || "").replace(/[^0-9]/g, "");
     };
 
-    const messages = (await kv!.get<WAMessage[]>(KEYS.messages)) || [];
+    const messages = (await getKV()!.get<WAMessage[]>(KEYS.messages)) || [];
     const kept = messages.filter((m) => customerOf(m) !== number);
 
-    await kv!.set(KEYS.messages, kept);
+    await getKV()!.set(KEYS.messages, kept);
     return NextResponse.json({ success: true, deleted: messages.length - kept.length });
   } catch (error) {
     console.error("[messages] DELETE error:", error);
     return NextResponse.json({ success: false, error: String(error) }, { status: 500 });
   }
 }
+

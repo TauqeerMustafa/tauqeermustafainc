@@ -4,7 +4,7 @@
  * Auto-reply rules storage (Upstash Redis when configured, otherwise defaults)
  */
 import { NextResponse } from "next/server";
-import { kv, KEYS, isKVConfigured } from "@/lib/kv";
+import { getKV, checkKVConfigured, KEYS } from "@/lib/kv";
 
 const DEFAULT_RULES = [
   {
@@ -67,7 +67,7 @@ const DEFAULT_RULES = [
 
 export async function GET() {
   try {
-    if (!isKVConfigured) {
+    if (!checkKVConfigured()) {
       return NextResponse.json({
         success: true,
         data: DEFAULT_RULES,
@@ -75,12 +75,12 @@ export async function GET() {
       });
     }
 
-    let rules = await kv!.get<any[]>(KEYS.rules);
+    let rules = await getKV()!.get<any[]>(KEYS.rules);
 
     // Initialize with defaults if empty
     if (!rules || rules.length === 0) {
       rules = DEFAULT_RULES;
-      await kv!.set(KEYS.rules, rules);
+      await getKV()!.set(KEYS.rules, rules);
     }
 
     return NextResponse.json({
@@ -108,14 +108,14 @@ export async function PUT(request: Request) {
       );
     }
 
-    if (!isKVConfigured) {
+    if (!checkKVConfigured()) {
       return NextResponse.json({
         success: true,
         notice: "KV not configured — rules not persisted",
       });
     }
 
-    await kv!.set(KEYS.rules, rules);
+    await getKV()!.set(KEYS.rules, rules);
     return NextResponse.json({
       success: true,
       message: "Rules saved successfully",
@@ -128,3 +128,4 @@ export async function PUT(request: Request) {
     );
   }
 }
+

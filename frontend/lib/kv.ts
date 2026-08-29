@@ -1,30 +1,50 @@
 /**
- * Upstash Redis client for WhatsApp data storage.
+ * Upstash Redis client for WhatsApp + Zoho data storage.
  *
  * Setup:
  * 1. Go to vercel.com/dashboard → your project → Storage → Create Database → Upstash Redis
  * 2. Vercel automatically adds KV_REST_API_URL and KV_REST_API_TOKEN to your env
  * 3. Deploy — no manual env var setup needed
  *
- * Local dev: create .env.local with the two vars (copy from Vercel dashboard)
+ * Uses lazy initialization so that sensitive env vars injected at runtime
+ * (not available at build/module-init time on Vercel) are picked up correctly.
  */
 
 import { Redis } from "@upstash/redis";
 
-// Check if KV is configured
-const hasKeys = !!(process.env.KV_REST_API_URL && process.env.KV_REST_API_TOKEN);
-const isSensitive = process.env.KV_REST_API_URL === "[SENSITIVE]";
-const isConfigured = hasKeys && !isSensitive;
+let _kv: Redis | null = null;
+let _checked = false;
 
-// Upstash Redis client (reads from env automatically)
-export const kv = isConfigured
-  ? new Redis({
-      url: process.env.KV_REST_API_URL!,
-      token: process.env.KV_REST_API_TOKEN!,
-    })
-  : null;
+/** Returns the Redis client, or null if not configured. Evaluated lazily at request time. */
+export function getKV(): Redis | null {
+  if (_checked) return _kv;
+  _checked = true;
 
-export const isKVConfigured = isConfigured;
+  const url = process.env.KV_REST_API_URL;
+  const token = process.env.KV_REST_API_TOKEN;
+
+  if (!url || !token || url === "[SENSITIVE]" || token === "[SENSITIVE]") {
+    _kv = null;
+    return null;
+  }
+
+  try {
+    _kv = new Redis({ url, token });
+  } catch {
+    _kv = null;
+  }
+
+  return _kv;
+}
+
+/** Check at request time whether KV is available. */
+export function checkKVConfigured(): boolean {
+  return getKV() !== null;
+}
+
+// Backwards-compatible exports used by existing routes
+export const kv = null as Redis | null; // DEPRECATED — use getKV()
+export const isKVConfigured = false;    // DEPRECATED — use checkKVConfigured()
 
 // Storage keys
 export const KEYS = {

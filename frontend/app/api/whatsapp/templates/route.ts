@@ -5,7 +5,7 @@
  * Saved message templates (Upstash Redis when configured, otherwise defaults)
  */
 import { NextResponse } from "next/server";
-import { kv, KEYS, isKVConfigured } from "@/lib/kv";
+import { getKV, checkKVConfigured, KEYS } from "@/lib/kv";
 
 const DEFAULT_TEMPLATES = [
   {
@@ -60,7 +60,7 @@ const DEFAULT_TEMPLATES = [
 
 export async function GET() {
   try {
-    if (!isKVConfigured) {
+    if (!checkKVConfigured()) {
       return NextResponse.json({
         success: true,
         data: DEFAULT_TEMPLATES,
@@ -68,12 +68,12 @@ export async function GET() {
       });
     }
 
-    let templates = await kv!.get<any[]>(KEYS.templates);
+    let templates = await getKV()!.get<any[]>(KEYS.templates);
 
     // Initialize with defaults if empty
     if (!templates || templates.length === 0) {
       templates = DEFAULT_TEMPLATES;
-      await kv!.set(KEYS.templates, templates);
+      await getKV()!.set(KEYS.templates, templates);
     }
 
     return NextResponse.json({
@@ -101,14 +101,14 @@ export async function POST(request: Request) {
       );
     }
 
-    if (!isKVConfigured) {
+    if (!checkKVConfigured()) {
       return NextResponse.json({
         success: true,
         notice: "KV not configured — template not persisted",
       });
     }
 
-    const templates = (await kv!.get<any[]>(KEYS.templates)) || [];
+    const templates = (await getKV()!.get<any[]>(KEYS.templates)) || [];
 
     // Check if template exists, update or add
     const existingIndex = templates.findIndex((t) => t.name === name);
@@ -118,7 +118,7 @@ export async function POST(request: Request) {
       templates.push({ name, text });
     }
 
-    await kv!.set(KEYS.templates, templates);
+    await getKV()!.set(KEYS.templates, templates);
     return NextResponse.json({
       success: true,
       message: "Template saved successfully",
@@ -144,17 +144,17 @@ export async function DELETE(request: Request) {
       );
     }
 
-    if (!isKVConfigured) {
+    if (!checkKVConfigured()) {
       return NextResponse.json({
         success: true,
         notice: "KV not configured — template not deleted",
       });
     }
 
-    const templates = (await kv!.get<any[]>(KEYS.templates)) || [];
+    const templates = (await getKV()!.get<any[]>(KEYS.templates)) || [];
     const filtered = templates.filter((t) => t.name !== name);
 
-    await kv!.set(KEYS.templates, filtered);
+    await getKV()!.set(KEYS.templates, filtered);
     return NextResponse.json({
       success: true,
       message: "Template deleted successfully",
@@ -167,3 +167,4 @@ export async function DELETE(request: Request) {
     );
   }
 }
+

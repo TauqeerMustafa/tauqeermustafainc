@@ -1,14 +1,14 @@
 import { AdminPageHeader } from "@/components/admin/AdminUI";
 import { Mail, ExternalLink, ShieldCheck } from "lucide-react";
-import { kv, isKVConfigured } from "@/lib/kv";
+import { getKV, checkKVConfigured } from "@/lib/kv";
 
 export const dynamic = "force-dynamic";
 
 export default async function AdminMailPage() {
   let isConnected = false;
-  if (isKVConfigured) {
+  if (checkKVConfigured()) {
     try {
-      isConnected = !!(await kv!.get("zoho_access_token"));
+      isConnected = !!(await getKV()!.get("zoho_access_token"));
     } catch {
       // KV read failed — treat as disconnected
     }
