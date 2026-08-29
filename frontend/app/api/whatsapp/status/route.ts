@@ -9,11 +9,11 @@ export async function GET() {
   const token = process.env.WHATSAPP_TOKEN;
   const phoneId = process.env.WHATSAPP_PHONE_NUMBER_ID;
 
-  if (!token || !phoneId) {
+  if (!token || !phoneId || token === "[SENSITIVE]" || phoneId === "[SENSITIVE]") {
     return NextResponse.json({
       success: true,
       status: "disconnected",
-      reason: "WHATSAPP_TOKEN or WHATSAPP_PHONE_NUMBER_ID not configured in environment variables.",
+      reason: "WHATSAPP_TOKEN or WHATSAPP_PHONE_NUMBER_ID not configured in environment variables (or is hidden).",
     });
   }
 
