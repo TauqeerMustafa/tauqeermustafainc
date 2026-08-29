@@ -1,6 +1,7 @@
 import { AdminPageHeader } from "@/components/admin/AdminUI";
 import { Mail, ExternalLink, ShieldCheck } from "lucide-react";
 import { getKV, checkKVConfigured } from "@/lib/kv";
+import MailInbox from "@/components/admin/mail/MailInbox";
 
 export const dynamic = "force-dynamic";
 
@@ -34,14 +35,8 @@ export default async function AdminMailPage() {
         </div>
       ) : (
         <div className="flex flex-col gap-6">
-          {/* Integrated Workspace iframe */}
-          <div className="rounded-xl border border-[var(--adm-border)] bg-[var(--adm-surface)] overflow-hidden shadow-sm h-[75vh]">
-            <iframe 
-              src="https://mail.zoho.com/zm/" 
-              title="Zoho Mail Workspace"
-              className="w-full h-full border-0"
-              sandbox="allow-same-origin allow-scripts allow-popups allow-forms"
-            />
+          <div className="mb-6">
+            <MailInbox />
           </div>
           
           <div className="grid gap-6 md:grid-cols-2">
