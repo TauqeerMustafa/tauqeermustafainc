@@ -1,32 +1,28 @@
 /**
- * GET /api/whatsapp/messages
- * Returns all stored messages (received via webhook + sent via /send)
+ * /api/whatsapp/messages — client-facing message store API.
  *
- * Storage: Upstash Redis (KV) when configured, otherwise empty
+ * The admin panel reads and mutates the WhatsApp inbox through here (allowed by
+ * proxy.ts with an admin bearer token). All the actual KV logic — idempotent
+ * append, forward-only status ranking, conversation delete — lives in
+ * lib/wa-store so the webhook and /send handlers share exactly one
+ * implementation. This route is a thin HTTP wrapper over it.
  */
 import { NextResponse } from "next/server";
-import { getKV, checkKVConfigured, KEYS } from "@/lib/kv";
+import {
+  isStoreReady,
+  getMessages,
+  appendMessage,
+  updateMessageStatus,
+  deleteConversationMessages,
+  type WAMessage,
+} from "@/lib/wa-store";
 
-export type WAMessage = {
-  id: string;
-  from: string;
-  to: string;
-  jid?: string;
-  name?: string;
-  type: string;
-  body: string;
-  timestamp: string;
-  direction: "inbound" | "outbound";
-  status?: string;
-  /** Meta media reference for non-text messages (image, video, audio, doc, sticker). */
-  mediaId?: string;
-  mimeType?: string;
-  filename?: string;
-};
+// Re-exported for callers that still import the type from here.
+export type { WAMessage };
 
 export async function GET() {
   try {
-    if (!checkKVConfigured()) {
+    if (!isStoreReady()) {
       return NextResponse.json({
         success: true,
         data: [],
@@ -35,7 +31,7 @@ export async function GET() {
       });
     }
 
-    const messages = (await getKV()!.get<WAMessage[]>(KEYS.messages)) || [];
+    const messages = await getMessages();
     return NextResponse.json({
       success: true,
       data: messages,
@@ -52,24 +48,18 @@ export async function GET() {
 
 /**
  * POST /api/whatsapp/messages
- * Internal: called by webhook + send routes to persist a message
+ * Persist a message. Idempotent on id (see wa-store.appendMessage).
  */
 export async function POST(request: Request) {
   try {
-    if (!checkKVConfigured()) {
+    if (!isStoreReady()) {
       console.warn("[messages] POST: KV not configured, message not persisted");
       return NextResponse.json({ success: true, notice: "KV not configured" });
     }
 
     const message: WAMessage = await request.json();
-    const messages = (await getKV()!.get<WAMessage[]>(KEYS.messages)) || [];
-    messages.push(message);
-
-    // Keep last 1000 messages
-    const trimmed = messages.slice(-1000);
-    await getKV()!.set(KEYS.messages, trimmed);
-
-    return NextResponse.json({ success: true, messageId: message.id });
+    const stored = await appendMessage(message);
+    return NextResponse.json({ success: true, messageId: message.id, stored });
   } catch (error) {
     console.error("[messages] POST error:", error);
     return NextResponse.json(
@@ -81,13 +71,12 @@ export async function POST(request: Request) {
 
 /**
  * PATCH /api/whatsapp/messages
- * Update a stored message's delivery status by id (used by the webhook for
- * Meta delivery/read receipts). Status only advances forward:
+ * Update a stored message's delivery status by id. Status only advances forward:
  * sent → delivered → read, with "failed" able to override at any point.
  */
 export async function PATCH(request: Request) {
   try {
-    if (!checkKVConfigured()) {
+    if (!isStoreReady()) {
       return NextResponse.json({ success: true, notice: "KV not configured" });
     }
 
@@ -96,21 +85,7 @@ export async function PATCH(request: Request) {
       return NextResponse.json({ success: false, error: "id and status are required" }, { status: 400 });
     }
 
-    const rank: Record<string, number> = { sent: 1, delivered: 2, read: 3 };
-    const messages = (await getKV()!.get<WAMessage[]>(KEYS.messages)) || [];
-    let changed = false;
-
-    for (const m of messages) {
-      if (m.id !== id) continue;
-      const advance = status === "failed" || (rank[status] ?? 0) > (rank[m.status ?? ""] ?? 0);
-      if (advance) {
-        m.status = status;
-        changed = true;
-      }
-      break;
-    }
-
-    if (changed) await getKV()!.set(KEYS.messages, messages);
+    const changed = await updateMessageStatus(id, status);
     return NextResponse.json({ success: true, changed });
   } catch (error) {
     console.error("[messages] PATCH error:", error);
@@ -124,7 +99,7 @@ export async function PATCH(request: Request) {
  */
 export async function DELETE(request: Request) {
   try {
-    if (!checkKVConfigured()) {
+    if (!isStoreReady()) {
       return NextResponse.json({ success: true, notice: "KV not configured" });
     }
 
@@ -134,21 +109,10 @@ export async function DELETE(request: Request) {
       return NextResponse.json({ success: false, error: "number is required" }, { status: 400 });
     }
 
-    // The customer number for a message (prefer jid, else the non-us side).
-    const customerOf = (m: WAMessage) => {
-      if (m.jid) return m.jid.split("@")[0].split(":")[0].replace(/[^0-9]/g, "");
-      const raw = m.direction === "inbound" ? m.from : m.to;
-      return (raw || "").replace(/[^0-9]/g, "");
-    };
-
-    const messages = (await getKV()!.get<WAMessage[]>(KEYS.messages)) || [];
-    const kept = messages.filter((m) => customerOf(m) !== number);
-
-    await getKV()!.set(KEYS.messages, kept);
-    return NextResponse.json({ success: true, deleted: messages.length - kept.length });
+    const deleted = await deleteConversationMessages(number);
+    return NextResponse.json({ success: true, deleted });
   } catch (error) {
     console.error("[messages] DELETE error:", error);
     return NextResponse.json({ success: false, error: String(error) }, { status: 500 });
   }
 }
-

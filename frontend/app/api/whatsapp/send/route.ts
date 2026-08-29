@@ -10,6 +10,7 @@
  */
 import { NextResponse } from "next/server";
 import { META_TEMPLATES, buildSendComponents } from "@/lib/meta-templates";
+import { appendMessage, type WAMessage } from "@/lib/wa-store";
 
 const GRAPH_URL = "https://graph.facebook.com/v20.0";
 
@@ -273,7 +274,7 @@ export async function POST(request: Request) {
                 ? mediaBody
                 : templateText || template;
 
-      const storedMessage = {
+      const storedMessage: WAMessage = {
         id: messageId,
         from: phoneNumberId,
         to: recipient,
@@ -281,16 +282,15 @@ export async function POST(request: Request) {
         type: storedType,
         body: storedBody,
         timestamp: new Date().toISOString(),
-        direction: "outbound" as const,
+        direction: "outbound",
         status: "sent",
       };
 
-      // Persist to KV
-      await fetch(`${new URL(request.url).origin}/api/whatsapp/messages`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(storedMessage),
-      }).catch((e) => console.error("[send] Failed to persist message:", e));
+      // Persist directly to the store — going through /api/whatsapp/messages
+      // over HTTP would hit the admin auth gate in proxy.ts (401) and be dropped.
+      await appendMessage(storedMessage).catch((e) =>
+        console.error("[send] Failed to persist message:", e)
+      );
     }
 
     if (markReadMessageId) {

@@ -1,13 +1,29 @@
 /**
  * GET  /api/whatsapp/webhook  — Meta webhook verification (subscribe handshake)
- * POST /api/whatsapp/webhook  — Receive incoming WhatsApp messages
+ * POST /api/whatsapp/webhook  — Receive incoming WhatsApp messages + delivery receipts
  *
  * Env vars:
- *   WEBHOOK_VERIFY_TOKEN  – any string you chose when registering the webhook in Meta
- *   WHATSAPP_TOKEN        – used for auto-reply sends (optional; auto-reply disabled if absent)
+ *   WEBHOOK_VERIFY_TOKEN     – any string you chose when registering the webhook in Meta
+ *   WHATSAPP_APP_SECRET      – Meta app secret; enables X-Hub-Signature-256 verification (optional but recommended)
+ *   WHATSAPP_TOKEN           – used for auto-reply sends (auto-reply disabled if absent)
  *   WHATSAPP_PHONE_NUMBER_ID – used for auto-reply sends
+ *
+ * WHY THIS TALKS TO lib/wa-store DIRECTLY
+ * ───────────────────────────────────────
+ * It must NOT persist by fetching /api/whatsapp/messages: proxy.ts gates every
+ * /api/whatsapp/* route behind an admin bearer token, and a server-to-server
+ * fetch carries none — so those writes returned 401 and were silently dropped.
+ * The store is import-only, so the auth gate still protects real clients.
  */
 import { NextResponse } from "next/server";
+import { createHmac, timingSafeEqual } from "node:crypto";
+import {
+  appendMessage,
+  updateMessageStatus,
+  getRules,
+  matchRule,
+  type WAMessage,
+} from "@/lib/wa-store";
 
 const GRAPH_URL = "https://graph.facebook.com/v20.0";
 
@@ -18,7 +34,13 @@ export async function GET(request: Request) {
   const token     = searchParams.get("hub.verify_token");
   const challenge = searchParams.get("hub.challenge");
 
-  if (mode === "subscribe" && token === process.env.WEBHOOK_VERIFY_TOKEN) {
+  const expected = process.env.WEBHOOK_VERIFY_TOKEN;
+  if (!expected) {
+    console.error("[webhook] WEBHOOK_VERIFY_TOKEN is not set — cannot verify");
+    return new Response("Forbidden", { status: 403 });
+  }
+
+  if (mode === "subscribe" && token === expected) {
     console.log("[webhook] Verification successful");
     return new Response(challenge ?? "", { status: 200 });
   }
@@ -27,10 +49,44 @@ export async function GET(request: Request) {
   return new Response("Forbidden", { status: 403 });
 }
 
+// ─── Signature verification ──────────────────────────────────────────────────
+/**
+ * Verify Meta's X-Hub-Signature-256 header against the raw request body.
+ * Returns true when no app secret is configured (verification opt-in), so an
+ * unconfigured deployment still receives messages — but logs the gap.
+ */
+function signatureValid(raw: string, header: string | null): boolean {
+  const secret = process.env.WHATSAPP_APP_SECRET;
+  if (!secret) {
+    console.warn("[webhook] WHATSAPP_APP_SECRET unset — skipping signature check");
+    return true;
+  }
+  if (!header || !header.startsWith("sha256=")) return false;
+
+  const expected = "sha256=" + createHmac("sha256", secret).update(raw).digest("hex");
+  const a = Buffer.from(expected);
+  const b = Buffer.from(header);
+  if (a.length !== b.length) return false;
+  try {
+    return timingSafeEqual(a, b);
+  } catch {
+    return false;
+  }
+}
+
 // ─── POST: incoming message events ───────────────────────────────────────────
 export async function POST(request: Request) {
   try {
-    const body = await request.json();
+    // Read the RAW body first — signature is computed over the exact bytes Meta
+    // sent, so we cannot re-serialize a parsed object.
+    const raw = await request.text();
+
+    if (!signatureValid(raw, request.headers.get("x-hub-signature-256"))) {
+      console.warn("[webhook] Invalid signature — rejecting");
+      return NextResponse.json({ error: "invalid signature" }, { status: 401 });
+    }
+
+    const body = JSON.parse(raw);
 
     // Walk the standard Meta webhook envelope
     for (const entry of body?.entry ?? []) {
@@ -41,7 +97,7 @@ export async function POST(request: Request) {
         for (const msg of messages) {
           const from    = msg.from;         // sender number (digits only)
           const msgType = msg.type;         // "text" | "image" | "audio" | ...
-          const msgId   = msg.id ?? `msg_${Date.now()}`;
+          const msgId   = msg.id ?? `msg_${from}_${msg.timestamp ?? ""}`;
           const name    = value?.contacts?.find((c: any) => c.wa_id === from)?.profile?.name;
 
           // Non-text messages carry no .text.body. Pull whatever text they do
@@ -63,8 +119,7 @@ export async function POST(request: Request) {
 
           console.log(`[webhook] Message from ${from} (${msgType}): ${text.slice(0, 100)}`);
 
-          // Store the inbound message
-          const storedMessage = {
+          const storedMessage: WAMessage = {
             id: msgId,
             from,
             to: value?.metadata?.phone_number_id || "",
@@ -73,7 +128,7 @@ export async function POST(request: Request) {
             type: msgType,
             body: text,
             timestamp: new Date().toISOString(),
-            direction: "inbound" as const,
+            direction: "inbound",
             status: "received",
             // Keep the media reference so the attachment can be retrieved later
             // (Meta media ids stay valid for a limited window).
@@ -82,16 +137,14 @@ export async function POST(request: Request) {
             ...(msg?.document?.filename ? { filename: msg.document.filename } : {}),
           };
 
-          // Persist to KV
-          await fetch(`${new URL(request.url).origin}/api/whatsapp/messages`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(storedMessage),
-          }).catch((e) => console.error("[webhook] Failed to persist message:", e));
+          // Persist directly to the store. `appendMessage` is idempotent on id;
+          // it returns false when this delivery is a Meta retry of one we've
+          // already seen — in which case we must NOT auto-reply again.
+          const stored = await appendMessage(storedMessage);
 
-          // Simple auto-reply: keyword-matching engine for automated responses.
-          // Only fires if token + phoneId are configured.
-          await handleAutoReply(request.url, from, text, msgId);
+          if (stored) {
+            await handleAutoReply(from, text, msgId);
+          }
         }
 
         // Delivery / read receipts for our OUTBOUND messages → drive tick status.
@@ -100,11 +153,9 @@ export async function POST(request: Request) {
           const id = st?.id;
           const status = st?.status;
           if (!id || !status) continue;
-          await fetch(`${new URL(request.url).origin}/api/whatsapp/messages`, {
-            method: "PATCH",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ id, status }),
-          }).catch((e) => console.error("[webhook] Failed to update status:", e));
+          await updateMessageStatus(id, status).catch((e) =>
+            console.error("[webhook] Failed to update status:", e)
+          );
         }
       }
     }
@@ -119,67 +170,37 @@ export async function POST(request: Request) {
 }
 
 // ─── Auto-reply helper ────────────────────────────────────────────────────────
-async function handleAutoReply(requestUrl: string, to: string, incomingText: string, msgId: string) {
+async function handleAutoReply(to: string, incomingText: string, msgId: string) {
   const token         = process.env.WHATSAPP_TOKEN;
   const phoneNumberId = process.env.WHATSAPP_PHONE_NUMBER_ID;
   if (!token || !phoneNumberId || !incomingText) return;
 
-  const lower = incomingText.toLowerCase().trim();
-
   try {
-    // Fetch saved auto-reply rules from the API
-    const origin = new URL(requestUrl).origin;
-    const rulesRes = await fetch(`${origin}/api/whatsapp/rules`);
-    if (!rulesRes.ok) {
-      console.error("[webhook] Failed to fetch rules, using default");
-      return;
-    }
-
-    const rulesData = await rulesRes.json();
-    const rules = rulesData.data || [];
-
-    // Check each enabled rule
-    for (const rule of rules) {
-      if (!rule.enabled) continue;
-
-      const keywords = rule.keyword.split(',').map((k: string) => k.trim().toLowerCase());
-      let matched = false;
-
-      if (rule.mode === "contains") {
-        matched = keywords.some((kw: string) => lower.includes(kw));
-      } else if (rule.mode === "equals") {
-        matched = keywords.some((kw: string) => lower === kw);
-      } else if (rule.mode === "starts") {
-        matched = keywords.some((kw: string) => lower.startsWith(kw));
-      } else if (rule.mode === "regex") {
-        // Advanced: the keyword field is a regular expression (case-insensitive).
-        try {
-          matched = new RegExp(rule.keyword, "i").test(incomingText);
-        } catch {
-          console.warn(`[webhook] Invalid regex in rule ${rule.id}: ${rule.keyword}`);
-        }
-      }
-
-      if (matched) {
-        await sendText(token, phoneNumberId, to, rule.reply, requestUrl, msgId);
-        break; // Only send first matching rule
-      }
+    const rule = matchRule(await getRules(), incomingText);
+    if (rule) {
+      await sendText(token, phoneNumberId, to, rule.reply, msgId);
     }
   } catch (error) {
     console.error("[webhook] Auto-reply error:", error);
   }
 }
 
-async function sendText(token: string, phoneNumberId: string, to: string, text: string, requestUrl: string, msgId: string) {
+async function sendText(
+  token: string,
+  phoneNumberId: string,
+  to: string,
+  text: string,
+  msgId: string
+) {
   try {
-    // Send read receipt
+    // Mark the triggering message as read (blue ticks on the customer side).
     await fetch(`${GRAPH_URL}/${phoneNumberId}/messages`, {
       method: "POST",
       headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
       body: JSON.stringify({ messaging_product: "whatsapp", status: "read", message_id: msgId }),
-    });
+    }).catch(() => {});
 
-    // Send reply
+    // Send the reply
     const res = await fetch(`${GRAPH_URL}/${phoneNumberId}/messages`, {
       method: "POST",
       headers: {
@@ -197,7 +218,7 @@ async function sendText(token: string, phoneNumberId: string, to: string, text: 
     const messageId = data?.messages?.[0]?.id;
 
     if (messageId) {
-      const storedMessage = {
+      await appendMessage({
         id: messageId,
         from: phoneNumberId,
         to,
@@ -205,14 +226,11 @@ async function sendText(token: string, phoneNumberId: string, to: string, text: 
         type: "text",
         body: text,
         timestamp: new Date().toISOString(),
-        direction: "outbound" as const,
+        direction: "outbound",
         status: "sent",
-      };
-      await fetch(`${new URL(requestUrl).origin}/api/whatsapp/messages`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(storedMessage),
       });
+    } else {
+      console.error("[webhook] Auto-reply send returned no message id:", data);
     }
   } catch (e) {
     console.error("[webhook] Auto-reply failed:", e);

@@ -6,8 +6,7 @@
  * which is the same store the webhook + send routes already use.
  */
 import { NextResponse } from "next/server";
-import { getKV, checkKVConfigured, KEYS } from "@/lib/kv";
-import type { WAMessage } from "../messages/route";
+import { isStoreReady, getMessages, type WAMessage } from "@/lib/wa-store";
 
 export type Conversation = {
   jid: string;
@@ -18,7 +17,7 @@ export type Conversation = {
 };
 
 export async function GET() {
-  if (!checkKVConfigured()) {
+  if (!isStoreReady()) {
     return NextResponse.json({
       success: true,
       data: [],
@@ -27,7 +26,7 @@ export async function GET() {
   }
 
   try {
-    const messages = (await getKV()!.get<WAMessage[]>(KEYS.messages)) || [];
+    const messages = await getMessages();
 
     // Group messages by customer number
     const convMap = new Map<string, { name: string; messages: WAMessage[] }>();
