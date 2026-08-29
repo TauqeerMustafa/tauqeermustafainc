@@ -2,8 +2,8 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { usePathname } from "next/navigation";
-import {
+import { CheckSquare, usePathname } from "next/navigation";
+import { CheckSquare,
   LayoutDashboard,
   Briefcase,
   FolderOpen,
@@ -21,6 +21,7 @@ import {
 const links = [
   { title: "Dashboard",     href: "/admin/dashboard",     icon: LayoutDashboard },
   { title: "Mailbox",       href: "/admin/mail",          icon: Mail },
+  { title: "Tasks",         href: "/admin/tasks",         icon: CheckSquare },
   { title: "Client",        href: "/admin/client",        icon: Briefcase },
   { title: "Employees",     href: "/admin/employees",     icon: Users },
   { title: "Management",    href: "/admin/management",    icon: ShieldCheck },
@@ -163,3 +164,4 @@ export default function AdminSidebar({ isOpen, onClose }: Props) {
     </>
   );
 }
+

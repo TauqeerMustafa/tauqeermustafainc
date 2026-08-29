@@ -28,3 +28,5 @@ __all__ = [
     "Team",
     "User",
 ]
+
+from .task import ProjectTask

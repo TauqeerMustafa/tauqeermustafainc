@@ -15,7 +15,7 @@ export async function GET(request: Request) {
   // ZohoMail.messages.READ allows reading emails
   // ZohoMail.messages.CREATE allows sending emails
   // VirtualOffice.profile.READ for user info
-  const scope = "AaaServer.profile.READ";
+  const scope = "ZohoMail.messages.ALL,ZohoMail.accounts.READ";
 
   const zohoAuthUrl = new URL("https://accounts.zoho.com/oauth/v2/auth");
   zohoAuthUrl.searchParams.set("response_type", "code");
@@ -27,3 +27,5 @@ export async function GET(request: Request) {
 
   return NextResponse.redirect(zohoAuthUrl.toString());
 }
+
+

@@ -4,6 +4,8 @@ export const API_ENDPOINTS = {
     me: "/auth/me",
   },
   admin: {
+    tasks: "/tasks",
+    client: "/client",
     users: "/admin/users",
     roles: "/admin/roles",
     teams: "/admin/teams",
@@ -16,3 +18,4 @@ export const API_ENDPOINTS = {
   contact: "/contact",
   announcements: "/announcements",
 } as const;
+

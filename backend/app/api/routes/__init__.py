@@ -11,6 +11,7 @@ from app.api.routes.client import router as client_auth_router
 from app.api.routes.portfolio import router as portfolio_router
 from app.api.routes.service import router as service_router
 from app.api.routes.system import router as system_router
+from app.api.routes.task import router as task_router
 
 router = APIRouter()
 
@@ -25,3 +26,5 @@ router.include_router(portfolio_router)
 router.include_router(career_router)
 router.include_router(contact_router)
 router.include_router(announcement_router)
+router.include_router(task_router)
+
