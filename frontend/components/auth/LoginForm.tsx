@@ -21,7 +21,7 @@ const loginSchema = z.object({
 
 type LoginFormData = z.infer<typeof loginSchema>;
 
-export default function LoginForm() {
+export default function LoginForm({ redirectUrl = "/admin/dashboard" }: { redirectUrl?: string }) {
   const router = useRouter();
   const { isAuthenticated } = useAuthContext();
   const loginMutation = useLogin();
@@ -37,14 +37,14 @@ export default function LoginForm() {
 
   useEffect(() => {
     if (isAuthenticated) {
-      router.replace("/admin/dashboard");
+      router.replace(redirectUrl);
     }
   }, [isAuthenticated, router]);
 
   async function onSubmit(data: LoginFormData) {
     try {
       await loginMutation.mutateAsync(data);
-      router.replace("/admin/dashboard");
+      router.replace(redirectUrl);
     } catch (error) {
       // surfaced via loginMutation.isError below
       console.error("Login error:", error);
@@ -134,3 +134,4 @@ export default function LoginForm() {
     </>
   );
 }
+
