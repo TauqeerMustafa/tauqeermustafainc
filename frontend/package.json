@@ -17,6 +17,7 @@
     "@tanstack/react-query-devtools": "^5.101.2",
     "@upstash/redis": "^1.38.2",
     "@vercel/kv": "^3.0.0",
+    "adminator-admin-dashboard": "^4.3.0",
     "axios": "^1.18.1",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
