@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { CheckSquare, usePathname } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { CheckSquare,
   LayoutDashboard,
   Briefcase,
