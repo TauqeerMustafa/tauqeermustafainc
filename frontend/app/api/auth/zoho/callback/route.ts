@@ -17,9 +17,9 @@ export async function GET(request: Request) {
   const clientId = process.env.ZOHO_CLIENT_ID;
   const clientSecret = process.env.ZOHO_CLIENT_SECRET;
   
-  const redirectUri = process.env.NODE_ENV === "production"
-    ? "https://www.tauqeermustafa.tech/api/auth/zoho/callback"
-    : "http://localhost:3000/api/auth/zoho/callback";
+  const protocol = request.headers.get("x-forwarded-proto") || "http";
+  const host = request.headers.get("host") || "localhost:3000";
+  const redirectUri = `${protocol}://${host}/api/auth/zoho/callback`;
 
   if (!clientId || !clientSecret) {
     return NextResponse.json({ error: "Zoho credentials not configured" }, { status: 500 });

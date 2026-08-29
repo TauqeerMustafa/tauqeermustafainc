@@ -7,9 +7,9 @@ export async function GET(request: Request) {
   }
 
   // Use the production URL if available, otherwise fallback to localhost for dev
-  const redirectUri = process.env.NODE_ENV === "production"
-    ? "https://www.tauqeermustafa.tech/api/auth/zoho/callback"
-    : "http://localhost:3000/api/auth/zoho/callback";
+  const protocol = request.headers.get("x-forwarded-proto") || "http";
+  const host = request.headers.get("host") || "localhost:3000";
+  const redirectUri = `${protocol}://${host}/api/auth/zoho/callback`;
 
   // Scopes needed for Zoho Mail
   // ZohoMail.messages.READ allows reading emails
@@ -27,6 +27,7 @@ export async function GET(request: Request) {
 
   return NextResponse.redirect(zohoAuthUrl.toString());
 }
+
 
 
 
