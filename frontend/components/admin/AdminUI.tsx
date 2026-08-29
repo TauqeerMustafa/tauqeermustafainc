@@ -30,7 +30,7 @@ export function AdminPageHeader({
         <button
           type="button"
           onClick={onAction}
-          className="btn-press flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:shadow-md active:shadow-none"
+          className="btn-press rounded-[20px] flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:shadow-md active:shadow-none"
           style={{ background: "var(--adm-blue)" }}
         >
           <Plus size={16} />
@@ -110,7 +110,7 @@ export function AdminConfirmDialog({
   return (
     <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/20 p-4 backdrop-blur-sm">
       <div
-        className="adm-dialog w-full max-w-sm border p-6 shadow-xl"
+        className="adm-dialog w-full max-w-sm border p-6 shadow-xl rounded-[40px]"
         style={{ background: "var(--adm-surface)", borderColor: "var(--adm-border)" }}
       >
         <h3 className="text-lg font-semibold" style={{ color: "var(--adm-text)" }}>
@@ -125,7 +125,7 @@ export function AdminConfirmDialog({
           <button
             type="button"
             onClick={onCancel}
-            className="border px-4 py-2 text-sm font-semibold transition hover:bg-gray-50"
+            className="border rounded-[20px] px-4 py-2 text-sm font-semibold transition hover:bg-gray-50"
             style={{ borderColor: "var(--adm-border)", color: "var(--adm-text-2)" }}
           >
             Cancel
@@ -134,7 +134,7 @@ export function AdminConfirmDialog({
             type="button"
             onClick={onConfirm}
             disabled={isPending}
-            className="btn-press px-4 py-2 text-sm font-semibold text-white transition hover:opacity-90 disabled:opacity-50"
+            className="btn-press rounded-[20px] px-4 py-2 text-sm font-semibold text-white transition hover:opacity-90 disabled:opacity-50"
             style={{ background: "var(--adm-red)" }}
           >
             {isPending ? "Deleting…" : confirmLabel}
@@ -175,7 +175,7 @@ export function AdminDrawer({
             type="button"
             onClick={onClose}
             aria-label="Close"
-            className="flex h-9 w-9 items-center justify-center border transition hover:bg-gray-50"
+            className="flex h-9 w-9 rounded-full items-center justify-center border transition hover:bg-gray-50"
             style={{ borderColor: "var(--adm-border)", color: "var(--adm-text-2)" }}
           >
             <X size={18} />
@@ -210,7 +210,7 @@ export function AdminField({
 }
 
 export const adminInputClass =
-  "w-full border px-4 py-2.5 text-sm outline-none transition focus:border-[#141413] focus:ring-2 focus:ring-[#141413]/10";
+  "w-full border rounded-[999px] px-6 py-3 text-[16px] outline-none transition focus:border-[#141413] focus:ring-2 focus:ring-[#141413]/10";
 
 export const adminInputStyle = {
   borderColor: "var(--adm-border)",
@@ -235,7 +235,7 @@ export function AdminFormActions({
       <button
         type="button"
         onClick={onCancel}
-        className="border px-4 py-2.5 text-sm font-semibold transition hover:bg-gray-50"
+        className="border rounded-[20px] px-4 py-2.5 text-sm font-semibold transition hover:bg-gray-50"
         style={{ borderColor: "var(--adm-border)", color: "var(--adm-text-2)" }}
       >
         Cancel
@@ -243,7 +243,7 @@ export function AdminFormActions({
       <button
         type="submit"
         disabled={isPending}
-        className="btn-press px-5 py-2.5 text-sm font-semibold text-white transition hover:opacity-90 disabled:opacity-50"
+        className="btn-press rounded-[20px] px-5 py-2.5 text-sm font-semibold text-white transition hover:opacity-90 disabled:opacity-50"
         style={{ background: "var(--adm-blue)" }}
       >
         {isPending ? "Saving…" : submitLabel}
@@ -251,3 +251,5 @@ export function AdminFormActions({
     </div>
   );
 }
+
+

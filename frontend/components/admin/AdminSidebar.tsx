@@ -117,7 +117,7 @@ export default function AdminSidebar({ isOpen, onClose }: Props) {
                 key={item.href}
                 href={item.href}
                 onClick={onClose}
-                className={`adm-nav-link mb-0.5 flex items-center gap-3 px-3 py-2.5 text-sm font-medium transition-all ${
+                className={`adm-nav-link mb-0.5 flex items-center gap-3 rounded-[20px] px-4 py-2.5 text-[15px] font-medium transition-all ${
                   active ? "active" : ""
                 }`}
                 style={
@@ -164,4 +164,5 @@ export default function AdminSidebar({ isOpen, onClose }: Props) {
     </>
   );
 }
+
 
