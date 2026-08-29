@@ -63,7 +63,7 @@ export default function SupportPage() {
           <div className="grid gap-4 max-w-3xl mx-auto">
             <div className="rounded-xl border border-line-2 bg-surface p-6">
               <h4 className="text-lg font-semibold text-ink mb-2">How do I access the client portal?</h4>
-              <p className="text-ink-muted">You can log in to the client portal using the credentials provided during your onboarding. If you lost your password, click "Forgot Password" on the login screen.</p>
+              <p className="text-ink-muted">You can log in to the client portal using the credentials provided during your onboarding. If you lost your password, click &quot;Forgot Password&quot; on the login screen.</p>
             </div>
             <div className="rounded-xl border border-line-2 bg-surface p-6">
               <h4 className="text-lg font-semibold text-ink mb-2">How fast do you respond to emergency tickets?</h4>
@@ -79,4 +79,7 @@ export default function SupportPage() {
     </div>
   );
 }
+
+
+
 

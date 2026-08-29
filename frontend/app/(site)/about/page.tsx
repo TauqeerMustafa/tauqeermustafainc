@@ -1,4 +1,4 @@
-ï»¿import type { Metadata } from "next";
+import type { Metadata } from "next";
 import { ArrowRight, Award, Globe2, Users } from "lucide-react";
 import Link from "next/link";
 
@@ -27,13 +27,13 @@ const principles = [
   {
     title: "Technical depth first",
     description:
-      "We don't pitch features before understanding constraints. Discovery starts with the systems that already exist, the risks that matter, and the technical tradeoffs that will shape delivery.",
+      "We don&apos;t pitch features before understanding constraints. Discovery starts with the systems that already exist, the risks that matter, and the technical tradeoffs that will shape delivery.",
     icon: Globe2,
   },
   {
     title: "Security as engineering discipline",
     description:
-      "Secure defaults, threat modeling, and practical risk decisions are embedded in the delivery process â€” not added as a final audit. Every system is reviewed with an adversarial mindset before it ships.",
+      "Secure defaults, threat modeling, and practical risk decisions are embedded in the delivery process — not added as a final audit. Every system is reviewed with an adversarial mindset before it ships.",
     icon: Award,
   },
   {
@@ -49,7 +49,7 @@ const timeline = [
     year: "2023",
     title: "Founded",
     description:
-      "Tauqeer Mustafa established TMI in Islamabad to deliver integrated engineering and security work for companies that needed systems built with discipline â€” web platforms, security audits, AI automation, and cloud infrastructure managed as a unified practice.",
+      "Tauqeer Mustafa established TMI in Islamabad to deliver integrated engineering and security work for companies that needed systems built with discipline — web platforms, security audits, AI automation, and cloud infrastructure managed as a unified practice.",
   },
   {
     year: "2024",
@@ -61,7 +61,7 @@ const timeline = [
     year: "Present",
     title: "Current focus",
     description:
-      "TMI now works with startups, growing SaaS companies, and enterprises that need secure platforms built to handle real operational load. Five disciplines â€” web, security, AI, cloud, design â€” delivered as one integrated team. Engagements typically run 8â€“16 weeks, from discovery through launch support.",
+      "TMI now works with startups, growing SaaS companies, and enterprises that need secure platforms built to handle real operational load. Five disciplines — web, security, AI, cloud, design — delivered as one integrated team. Engagements typically run 8–16 weeks, from discovery through launch support.",
   },
 ];
 
@@ -71,7 +71,7 @@ export default function AboutPage() {
       <PageHero
         eyebrow="About TMI"
         title="Built around systems that need to work."
-        description="A digital agency delivering integrated web engineering, cybersecurity, AI, cloud, and design services. We work with companies that need platforms built to handle real operational pressure â€” not just prototypes."
+        description="A digital agency delivering integrated web engineering, cybersecurity, AI, cloud, and design services. We work with companies that need platforms built to handle real operational pressure — not just prototypes."
       />
 
       <Section className="bg-canvas" labelledBy="story-title">
@@ -88,7 +88,7 @@ export default function AboutPage() {
                 and platforms built without considering the operational reality they'd face in production.
               </p>
               <p>
-                The agency was built around a different model â€” five disciplines delivered as one integrated practice.
+                The agency was built around a different model — five disciplines delivered as one integrated practice.
                 Web engineering, cybersecurity, AI automation, cloud infrastructure, and product design, handled by a team
                 that understands how those capabilities need to work together. No handoffs between vendors. No security
                 theater added at the end. Systems designed to handle real load, real threats, and real maintainability constraints.
@@ -96,12 +96,12 @@ export default function AboutPage() {
               <p>
                 Today, TMI works with startups building their first secure platform, SaaS companies scaling beyond their
                 initial architecture, and enterprises that need operational systems rebuilt with modern tooling.
-                Engagements run 8â€“16 weeks on average, from discovery through launch support. Clients work directly with
-                Tauqeer â€” no account managers, no bloated markup, no surprises in scope.
+                Engagements run 8–16 weeks on average, from discovery through launch support. Clients work directly with
+                Tauqeer — no account managers, no bloated markup, no surprises in scope.
               </p>
               <p>
-                We're not trying to be the biggest agency. We're trying to be the one companies return to when the
-                work actually matters â€” when downtime has real cost, when a breach would end the business, when the
+                We&apos;re not trying to be the biggest agency. We&apos;re trying to be the one companies return to when the
+                work actually matters — when downtime has real cost, when a breach would end the business, when the
                 system needs to work under pressure.
               </p>
             </div>
@@ -115,7 +115,7 @@ export default function AboutPage() {
               </p>
               <p className="mt-3 text-[16px] font-light leading-[1.6] text-ink-muted">
                 Full-stack engineer with a background in security consulting and cloud
-                architecture. Leads every engagement from discovery through delivery â€”
+                architecture. Leads every engagement from discovery through delivery —
                 no account managers between you and the person writing the code.
               </p>
               <div className="mt-5 flex flex-wrap gap-x-5 gap-y-2">
@@ -202,7 +202,7 @@ export default function AboutPage() {
         <div className="mx-auto max-w-2xl text-center">
           <p className="font-mono text-[11px] font-semibold uppercase tracking-[0.14em] text-action">Ready to Start</p>
           <h2 id="cta-title" className="mt-4 text-[32px] font-bold uppercase leading-[1.1] tracking-[-0.02em] sm:text-[42px] text-ink">
-            Let's talk about what you're building.
+            Let&apos;s talk about what you're building.
           </h2>
           <p className="mt-6 text-[17px] leading-[1.47] tracking-[-0.374px] text-ink-muted">
             Tell us about your project. We'll come back with questions, a clear scope, and an honest timeline.
@@ -221,3 +221,6 @@ export default function AboutPage() {
     </>
   );
 }
+
+
+

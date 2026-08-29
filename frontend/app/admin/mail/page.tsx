@@ -82,8 +82,10 @@ export default async function AdminMailPage() {
             </ul>
           </div>
         </div>
+        </div>
       )}
     </div>
   );
 }
+
 
