@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { kv } from "@vercel/kv";
+import { kv, isKVConfigured } from "@/lib/kv";
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -25,6 +25,13 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: "Zoho credentials not configured" }, { status: 500 });
   }
 
+  if (!isKVConfigured) {
+    return NextResponse.json(
+      { error: "Redis (KV) is not configured. Zoho tokens cannot be stored. Please configure Upstash Redis on Vercel." },
+      { status: 500 }
+    );
+  }
+
   try {
     // Exchange code for tokens
     const tokenResponse = await fetch("https://accounts.zoho.com/oauth/v2/token", {
@@ -48,15 +55,14 @@ export async function GET(request: Request) {
     }
 
     // Securely store the token globally for the admin portal use
-    // In a real multi-tenant app, this would be tied to the specific user's ID
-    await kv.set("zoho_access_token", tokenData.access_token);
+    await kv!.set("zoho_access_token", tokenData.access_token);
     if (tokenData.refresh_token) {
-      await kv.set("zoho_refresh_token", tokenData.refresh_token);
+      await kv!.set("zoho_refresh_token", tokenData.refresh_token);
     }
     
     // Calculate expiration timestamp
     const expiresAt = Date.now() + (tokenData.expires_in * 1000);
-    await kv.set("zoho_token_expires_at", expiresAt);
+    await kv!.set("zoho_token_expires_at", expiresAt);
 
     // Redirect back to the admin settings or mail portal
     return NextResponse.redirect(new URL("/admin/settings?zoho=connected", request.url));
@@ -64,4 +70,3 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: "Internal Server Error", details: err.message }, { status: 500 });
   }
 }
-

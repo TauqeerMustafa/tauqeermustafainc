@@ -1,11 +1,18 @@
 import { AdminPageHeader } from "@/components/admin/AdminUI";
 import { Mail, ExternalLink, ShieldCheck } from "lucide-react";
-import { kv } from "@vercel/kv";
+import { kv, isKVConfigured } from "@/lib/kv";
 
 export const dynamic = "force-dynamic";
 
 export default async function AdminMailPage() {
-  const isConnected = await kv.get("zoho_access_token");
+  let isConnected = false;
+  if (isKVConfigured) {
+    try {
+      isConnected = !!(await kv!.get("zoho_access_token"));
+    } catch {
+      // KV read failed — treat as disconnected
+    }
+  }
 
   return (
     <div className="space-y-6">
@@ -69,7 +76,7 @@ export default async function AdminMailPage() {
               </li>
               <li className="flex items-start gap-2">
                 <span className="text-green-500">✓</span>
-                <span>Enterprise Spam & Phishing Protection</span>
+                <span>Enterprise Spam &amp; Phishing Protection</span>
               </li>
               <li className="flex items-start gap-2">
                 <span className="text-green-500">✓</span>
@@ -87,5 +94,3 @@ export default async function AdminMailPage() {
     </div>
   );
 }
-
-

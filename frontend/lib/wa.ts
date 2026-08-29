@@ -1,54 +1,34 @@
 /**
- * Server-only helper to talk to the WhatsApp bot service (Baileys).
- * Used exclusively by the /api/whatsapp/* route handlers — never import this
- * into a client component (it reads the secret ADMIN_API_KEY).
+ * Server-only helper for Meta WhatsApp Cloud API.
+ *
+ * This module provides utility functions for the official Meta Graph API.
+ * Used exclusively by /api/whatsapp/* route handlers.
  */
-import { NextResponse } from "next/server";
 
-const WA_SERVICE_URL = process.env.WA_SERVICE_URL || "http://localhost:3001";
-const ADMIN_API_KEY = process.env.ADMIN_API_KEY || "";
+const GRAPH_URL = "https://graph.facebook.com/v20.0";
 
-/** Fetch a path on the WA service, injecting the API key + JSON headers. */
-export function waFetch(path: string, init: RequestInit = {}) {
-  return fetch(`${WA_SERVICE_URL}${path}`, {
-    ...init,
-    headers: {
-      "Content-Type": "application/json",
-      ...(ADMIN_API_KEY ? { "x-api-key": ADMIN_API_KEY } : {}),
-      ...(init.headers || {}),
-    },
-    cache: "no-store",
-  });
+/** Build authorization headers for Meta Graph API calls. */
+export function metaHeaders(): Record<string, string> {
+  const token = process.env.WHATSAPP_TOKEN;
+  return {
+    "Content-Type": "application/json",
+    ...(token ? { Authorization: `Bearer ${token}` } : {}),
+  };
 }
 
-/**
- * Proxy a request to the WA service and mirror its JSON response + status.
- * Returns a friendly 502 if the bot service is unreachable.
- */
-export async function proxyToWA(path: string, init?: RequestInit) {
-  try {
-    const res = await waFetch(path, init);
-    const contentType = res.headers.get("content-type") || "";
-    if (!contentType.includes("application/json")) {
-      const text = await res.text();
-      return NextResponse.json(
-        {
-          success: false,
-          error: "Bot service returned a non-JSON response. Is it running?",
-          detail: text.slice(0, 200),
-        },
-        { status: 502 }
-      );
-    }
-    const data = await res.json();
-    return NextResponse.json(data, { status: res.status });
-  } catch {
-    return NextResponse.json(
-      {
-        success: false,
-        error: `Cannot reach the WhatsApp bot service at ${WA_SERVICE_URL}. Start it or check WA_SERVICE_URL.`,
-      },
-      { status: 502 }
-    );
-  }
+/** POST to the Meta Graph API messages endpoint. */
+export async function graphPost(phoneNumberId: string, body: object) {
+  const res = await fetch(`${GRAPH_URL}/${phoneNumberId}/messages`, {
+    method: "POST",
+    headers: metaHeaders(),
+    body: JSON.stringify(body),
+    cache: "no-store",
+  });
+  const json = await res.json();
+  return { ok: res.ok, status: res.status, json };
+}
+
+/** Check whether the Meta Cloud API credentials are configured. */
+export function isMetaConfigured(): boolean {
+  return !!(process.env.WHATSAPP_TOKEN && process.env.WHATSAPP_PHONE_NUMBER_ID);
 }

@@ -89,7 +89,7 @@ export async function POST(request: Request) {
             body: JSON.stringify(storedMessage),
           }).catch((e) => console.error("[webhook] Failed to persist message:", e));
 
-          // Simple auto-reply: mirror the keyword engine from the Baileys bot.
+          // Simple auto-reply: keyword-matching engine for automated responses.
           // Only fires if token + phoneId are configured.
           await handleAutoReply(request.url, from, text, msgId);
         }
