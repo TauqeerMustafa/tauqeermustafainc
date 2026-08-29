@@ -7,8 +7,8 @@ export async function GET(request: Request) {
   }
 
   // Use the production URL if available, otherwise fallback to localhost for dev
-  const redirectUri = process.env.NEXT_PUBLIC_SITE_URL 
-    ? `${process.env.NEXT_PUBLIC_SITE_URL}/api/auth/zoho/callback`
+  const redirectUri = process.env.NODE_ENV === "production"
+    ? "https://www.tauqeermustafa.tech/api/auth/zoho/callback"
     : "http://localhost:3000/api/auth/zoho/callback";
 
   // Scopes needed for Zoho Mail
@@ -27,5 +27,6 @@ export async function GET(request: Request) {
 
   return NextResponse.redirect(zohoAuthUrl.toString());
 }
+
 
 

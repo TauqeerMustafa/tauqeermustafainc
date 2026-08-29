@@ -17,8 +17,8 @@ export async function GET(request: Request) {
   const clientId = process.env.ZOHO_CLIENT_ID;
   const clientSecret = process.env.ZOHO_CLIENT_SECRET;
   
-  const redirectUri = process.env.NEXT_PUBLIC_SITE_URL 
-    ? `${process.env.NEXT_PUBLIC_SITE_URL}/api/auth/zoho/callback`
+  const redirectUri = process.env.NODE_ENV === "production"
+    ? "https://www.tauqeermustafa.tech/api/auth/zoho/callback"
     : "http://localhost:3000/api/auth/zoho/callback";
 
   if (!clientId || !clientSecret) {
@@ -64,3 +64,4 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: "Internal Server Error", details: err.message }, { status: 500 });
   }
 }
+
