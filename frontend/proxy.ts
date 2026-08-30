@@ -45,13 +45,6 @@ export async function proxy(request: NextRequest) {
       }
     }
 
-    // Rewrite subdomains to internal folders
-    if (hostname.includes("mail.tauqeermustafa.tech")) {
-      if (!pathname.startsWith("/mail") && !pathname.startsWith("/_next") && !pathname.startsWith("/api")) {
-        url.pathname = `/mail${pathname}`;
-        return NextResponse.rewrite(url);
-      }
-    }
 
     if (hostname.includes("portals.tauqeermustafa.tech")) {
       if (pathname === "/") {
