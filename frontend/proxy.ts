@@ -51,7 +51,7 @@ export async function proxy(request: NextRequest) {
         url.pathname = "/portals";
         return NextResponse.rewrite(url);
       }
-      if (!pathname.startsWith("/client") && !pathname.startsWith("/admin") && !pathname.startsWith("/portals")) {
+      if (!pathname.startsWith("/client") && !pathname.startsWith("/admin") && !pathname.startsWith("/portals") && !pathname.startsWith("/employees")) {
         url.pathname = `/client${pathname}`;
         return NextResponse.rewrite(url);
       }
