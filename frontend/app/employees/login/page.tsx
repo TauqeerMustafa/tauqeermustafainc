@@ -2,6 +2,7 @@
 
 import LoginForm from "@/components/auth/LoginForm";
 import { buildMetadata } from "@/lib/metadata";
+import { PORTAL } from "@/lib/rbac";
 
 export const metadata: Metadata = buildMetadata({
   title: "Employee Login",
@@ -11,5 +12,5 @@ export const metadata: Metadata = buildMetadata({
 });
 
 export default function EmployeeLoginPage() {
-  return <LoginForm redirectUrl="/employees/dashboard" />;
+  return <LoginForm portal={PORTAL.EMPLOYEES} />;
 }

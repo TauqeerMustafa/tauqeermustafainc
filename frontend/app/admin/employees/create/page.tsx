@@ -1,159 +1,224 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
-import { ArrowLeft, Save, Loader2 } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { ArrowLeft, Briefcase, Save, ShieldCheck, User } from "lucide-react";
 
-export default function CreateEmployee() {
+import {
+  ErrorBlock,
+  Field,
+  Panel,
+  PortalButton,
+  PortalPageHeader,
+  inputClass,
+} from "@/components/portal/PortalUI";
+import { useAdminRoles } from "@/hooks/useAdmin";
+import { useCreateEmployee } from "@/hooks/useEmployees";
+import type { CreateEmployeePayload } from "@/types";
+
+const EMPTY: CreateEmployeePayload = {
+  firstName: "",
+  lastName: "",
+  email: "",
+  password: "",
+  roleId: null,
+  employeeIdString: "",
+  jobTitle: "",
+  joiningDate: "",
+  status: "active",
+  address: "",
+  emergencyContact: "",
+};
+
+export default function CreateEmployeePage() {
   const router = useRouter();
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const create = useCreateEmployee();
+  const { data: rolesResponse } = useAdminRoles();
+  const [form, setForm] = useState<CreateEmployeePayload>(EMPTY);
 
-  const [formData, setFormData] = useState({
-    firstName: "",
-    lastName: "",
-    email: "",
-    password: "",
-    employeeId: "",
-    jobTitle: "",
-    departmentId: "",
-    roleId: "",
-    status: "active",
-    phone: "",
-    address: ""
-  });
+  const roles = rolesResponse?.data ?? [];
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
-  };
+  function set<K extends keyof CreateEmployeePayload>(key: K, value: CreateEmployeePayload[K]) {
+    setForm((previous) => ({ ...previous, [key]: value }));
+  }
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    setError(null);
-    try {
-      const res = await fetch("/api/employees", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          first_name: formData.firstName,
-          last_name: formData.lastName,
-          email: formData.email,
-          password: formData.password,
-          employee_id_string: formData.employeeId,
-          job_title: formData.jobTitle,
-          status: formData.status,
-          address: formData.address,
-          emergency_contact: formData.phone
-        })
-      });
-      if (!res.ok) {
-        const json = await res.json();
-        throw new Error(json.detail || "Failed to create employee");
-      }
-      router.push("/admin/employees");
-    } catch (err: any) {
-      setError(err.message);
-      setLoading(false);
-    }
-  };
+  function handleSubmit(event: React.FormEvent) {
+    event.preventDefault();
+    // Blank optional strings must go up as null, not "", so Pydantic's UUID and
+    // date fields don't reject them.
+    create.mutate(
+      {
+        ...form,
+        roleId: form.roleId || null,
+        employeeIdString: form.employeeIdString || null,
+        jobTitle: form.jobTitle || null,
+        joiningDate: form.joiningDate || null,
+        address: form.address || null,
+        emergencyContact: form.emergencyContact || null,
+      },
+      { onSuccess: (employee) => router.push(`/admin/employees/${employee.id}`) },
+    );
+  }
 
   return (
-    <div className="flex flex-col gap-6 max-w-4xl mx-auto">
+    <div className="flex max-w-4xl flex-col gap-8">
       <div className="flex items-center gap-4">
-        <Link href="/admin/employees" className="p-2 rounded-full hover:bg-[var(--adm-surface-2)] transition">
-          <ArrowLeft size={20} />
+        <Link
+          href="/admin/employees"
+          aria-label="Back to employees"
+          className="flex h-9 w-9 shrink-0 items-center justify-center border border-adm-border text-adm-text-2 transition hover:bg-adm-surface-2 hover:text-adm-text"
+        >
+          <ArrowLeft size={16} />
         </Link>
-        <div>
-          <h1 className="text-2xl font-bold uppercase" style={{ color: "var(--adm-text)" }}>New Employee</h1>
-          <p className="text-sm mt-1" style={{ color: "var(--adm-text-3)" }}>Create a new employee profile and account.</p>
-        </div>
+        <PortalPageHeader title="New Employee" description="Creates the login account and the employment record together." />
       </div>
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-6">
-        {error && (
-          <div className="p-4 border" style={{ background: "var(--adm-red-light)", color: "var(--adm-red)", borderColor: "var(--adm-red)" }}>
-            {error}
-          </div>
+        {create.isError && (
+          <ErrorBlock
+            message={(create.error as Error).message || "Could not create the employee."}
+          />
         )}
 
-        {/* Personal Info */}
-        <div className="border border-[var(--adm-border)] bg-[var(--adm-surface)] p-6 sm:p-8">
-          <h2 className="text-lg font-bold mb-6 uppercase" style={{ color: "var(--adm-text)" }}>Personal Information</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <label className="block text-sm font-semibold mb-2 text-[var(--adm-text-2)]">First Name *</label>
-              <input required type="text" name="firstName" value={formData.firstName} onChange={handleChange} className="w-full border border-[var(--adm-border)] bg-transparent px-4 py-2.5 outline-none focus:border-[var(--adm-blue)] transition" />
-            </div>
-            <div>
-              <label className="block text-sm font-semibold mb-2 text-[var(--adm-text-2)]">Last Name *</label>
-              <input required type="text" name="lastName" value={formData.lastName} onChange={handleChange} className="w-full border border-[var(--adm-border)] bg-transparent px-4 py-2.5 outline-none focus:border-[var(--adm-blue)] transition" />
-            </div>
-            <div>
-              <label className="block text-sm font-semibold mb-2 text-[var(--adm-text-2)]">Phone Number</label>
-              <input type="text" name="phone" value={formData.phone} onChange={handleChange} className="w-full border border-[var(--adm-border)] bg-transparent px-4 py-2.5 outline-none focus:border-[var(--adm-blue)] transition" />
-            </div>
-            <div className="md:col-span-2">
-              <label className="block text-sm font-semibold mb-2 text-[var(--adm-text-2)]">Address</label>
-              <input type="text" name="address" value={formData.address} onChange={handleChange} className="w-full border border-[var(--adm-border)] bg-transparent px-4 py-2.5 outline-none focus:border-[var(--adm-blue)] transition" />
-            </div>
+        <Panel title="Personal information" icon={User}>
+          <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
+            <Field label="First name" htmlFor="firstName">
+              <input
+                id="firstName"
+                required
+                value={form.firstName}
+                onChange={(e) => set("firstName", e.target.value)}
+                className={inputClass}
+              />
+            </Field>
+            <Field label="Last name" htmlFor="lastName">
+              <input
+                id="lastName"
+                required
+                value={form.lastName}
+                onChange={(e) => set("lastName", e.target.value)}
+                className={inputClass}
+              />
+            </Field>
+            <Field
+              label="Phone / emergency contact"
+              htmlFor="emergencyContact"
+              hint="Stored on both the employee record and the user profile."
+            >
+              <input
+                id="emergencyContact"
+                value={form.emergencyContact ?? ""}
+                onChange={(e) => set("emergencyContact", e.target.value)}
+                className={inputClass}
+              />
+            </Field>
+            <Field label="Address" htmlFor="address">
+              <input
+                id="address"
+                value={form.address ?? ""}
+                onChange={(e) => set("address", e.target.value)}
+                className={inputClass}
+              />
+            </Field>
           </div>
-        </div>
+        </Panel>
 
-        {/* Employment Info */}
-        <div className="border border-[var(--adm-border)] bg-[var(--adm-surface)] p-6 sm:p-8">
-          <h2 className="text-lg font-bold mb-6 uppercase" style={{ color: "var(--adm-text)" }}>Employment Details</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <label className="block text-sm font-semibold mb-2 text-[var(--adm-text-2)]">Employee ID</label>
-              <input type="text" name="employeeId" value={formData.employeeId} onChange={handleChange} className="w-full border border-[var(--adm-border)] bg-transparent px-4 py-2.5 outline-none focus:border-[var(--adm-blue)] transition" />
-            </div>
-            <div>
-              <label className="block text-sm font-semibold mb-2 text-[var(--adm-text-2)]">Job Title *</label>
-              <input required type="text" name="jobTitle" value={formData.jobTitle} onChange={handleChange} className="w-full border border-[var(--adm-border)] bg-transparent px-4 py-2.5 outline-none focus:border-[var(--adm-blue)] transition" />
-            </div>
-            <div>
-              <label className="block text-sm font-semibold mb-2 text-[var(--adm-text-2)]">Department</label>
-              <select name="departmentId" value={formData.departmentId} onChange={handleChange} className="w-full border border-[var(--adm-border)] bg-transparent px-4 py-2.5 outline-none focus:border-[var(--adm-blue)] transition appearance-none">
-                <option value="">Select Department</option>
-                {/* Populate from API later */}
-              </select>
-            </div>
-            <div>
-              <label className="block text-sm font-semibold mb-2 text-[var(--adm-text-2)]">Status</label>
-              <select name="status" value={formData.status} onChange={handleChange} className="w-full border border-[var(--adm-border)] bg-transparent px-4 py-2.5 outline-none focus:border-[var(--adm-blue)] transition appearance-none">
+        <Panel title="Employment details" icon={Briefcase}>
+          <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
+            <Field label="Employee ID" htmlFor="employeeIdString" hint="e.g. TMI-EMP-014">
+              <input
+                id="employeeIdString"
+                value={form.employeeIdString ?? ""}
+                onChange={(e) => set("employeeIdString", e.target.value)}
+                className={inputClass}
+              />
+            </Field>
+            <Field label="Job title" htmlFor="jobTitle">
+              <input
+                id="jobTitle"
+                value={form.jobTitle ?? ""}
+                onChange={(e) => set("jobTitle", e.target.value)}
+                className={inputClass}
+              />
+            </Field>
+            <Field label="Joining date" htmlFor="joiningDate">
+              <input
+                id="joiningDate"
+                type="date"
+                value={form.joiningDate ?? ""}
+                onChange={(e) => set("joiningDate", e.target.value)}
+                className={inputClass}
+              />
+            </Field>
+            <Field label="Status" htmlFor="status">
+              <select
+                id="status"
+                value={form.status ?? "active"}
+                onChange={(e) => set("status", e.target.value)}
+                className={inputClass}
+              >
                 <option value="active">Active</option>
                 <option value="inactive">Inactive</option>
+                <option value="on_leave">On leave</option>
               </select>
-            </div>
+            </Field>
           </div>
-        </div>
+        </Panel>
 
-        {/* Account Info */}
-        <div className="border border-[var(--adm-border)] bg-[var(--adm-surface)] p-6 sm:p-8">
-          <h2 className="text-lg font-bold mb-6 uppercase" style={{ color: "var(--adm-text)" }}>Company Account</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <label className="block text-sm font-semibold mb-2 text-[var(--adm-text-2)]">Company Email *</label>
-              <input required type="email" name="email" value={formData.email} onChange={handleChange} className="w-full border border-[var(--adm-border)] bg-transparent px-4 py-2.5 outline-none focus:border-[var(--adm-blue)] transition" />
-            </div>
-            <div>
-              <label className="block text-sm font-semibold mb-2 text-[var(--adm-text-2)]">Temporary Password *</label>
-              <input required type="password" name="password" value={formData.password} onChange={handleChange} className="w-full border border-[var(--adm-border)] bg-transparent px-4 py-2.5 outline-none focus:border-[var(--adm-blue)] transition" />
-            </div>
+        <Panel title="Company account" icon={ShieldCheck}>
+          <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
+            <Field label="Company email" htmlFor="email">
+              <input
+                id="email"
+                type="email"
+                required
+                value={form.email}
+                onChange={(e) => set("email", e.target.value)}
+                className={inputClass}
+              />
+            </Field>
+            <Field
+              label="Temporary password"
+              htmlFor="password"
+              hint="Share it over a secure channel; the employee should change it on first login."
+            >
+              <input
+                id="password"
+                type="password"
+                required
+                minLength={8}
+                autoComplete="new-password"
+                value={form.password}
+                onChange={(e) => set("password", e.target.value)}
+                className={inputClass}
+              />
+            </Field>
+            <Field label="Role" htmlFor="roleId" hint="Decides which portals this account can open.">
+              <select
+                id="roleId"
+                value={form.roleId ?? ""}
+                onChange={(e) => set("roleId", e.target.value || null)}
+                className={inputClass}
+              >
+                <option value="">No role (portal access denied)</option>
+                {roles.map((role) => (
+                  <option key={role.id} value={role.id}>
+                    {role.name}
+                  </option>
+                ))}
+              </select>
+            </Field>
           </div>
-        </div>
+        </Panel>
 
-        <div className="flex justify-end">
-          <button 
-            type="submit" 
-            disabled={loading}
-            className="flex items-center gap-2 bg-[var(--adm-blue)] px-8 py-3 text-sm font-semibold text-white transition hover:opacity-90 disabled:opacity-50"
-          >
-            {loading ? <Loader2 size={18} className="animate-spin" /> : <Save size={18} />}
-            Create Employee
-          </button>
+        <div className="flex justify-end gap-3">
+          <PortalButton variant="ghost" onClick={() => router.push("/admin/employees")}>
+            Cancel
+          </PortalButton>
+          <PortalButton type="submit" icon={Save} disabled={create.isPending}>
+            {create.isPending ? "Creating…" : "Create employee"}
+          </PortalButton>
         </div>
       </form>
     </div>

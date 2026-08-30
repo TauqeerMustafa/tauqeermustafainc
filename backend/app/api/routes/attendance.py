@@ -4,7 +4,7 @@ from fastapi import APIRouter, HTTPException, Query, status
 from sqlalchemy import func, select
 from typing import List
 
-from app.api.deps import CurrentUser, DatabaseSession, CurrentAdmin
+from app.api.deps import CurrentUser, DatabaseSession, CurrentAdmin, CurrentManager
 from app.models.attendance import Attendance
 from app.models.employee import Employee
 from app.schemas.attendance import AttendanceRead, AttendanceCheckIn, AttendanceCheckOut, AttendanceUpdate
@@ -103,13 +103,28 @@ def get_my_attendance(db: DatabaseSession, current_user: CurrentUser, limit: int
 
 # Admin routes for attendance
 @router.get("/admin", response_model=List[AttendanceRead])
-def get_all_attendance(db: DatabaseSession, current_admin: CurrentAdmin, date_str: str = Query(None, alias="date")):
-    query_date = datetime.strptime(date_str, "%Y-%m-%d").date() if date_str else datetime.now(timezone.utc).date()
-    
-    records = db.scalars(
-        select(Attendance).where(Attendance.date == query_date).order_by(Attendance.check_in_time.desc())
-    ).all()
-    
+def get_all_attendance(
+    db: DatabaseSession,
+    current_manager: CurrentManager,
+    date_str: str = Query(None, alias="date"),
+    employee_id: UUID = Query(None, alias="employeeId"),
+):
+    """Daily roster by default. Passing `employeeId` switches to that one
+    person's history instead, which is what the employee profile page reads."""
+    stmt = select(Attendance)
+
+    if employee_id:
+        stmt = stmt.where(Attendance.employee_id == employee_id).order_by(Attendance.date.desc())
+    else:
+        query_date = (
+            datetime.strptime(date_str, "%Y-%m-%d").date()
+            if date_str
+            else datetime.now(timezone.utc).date()
+        )
+        stmt = stmt.where(Attendance.date == query_date).order_by(Attendance.check_in_time.desc())
+
+    records = db.scalars(stmt).all()
+
     return [
         AttendanceRead(
             id=r.id,

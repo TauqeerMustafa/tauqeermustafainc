@@ -4,7 +4,7 @@ from fastapi import APIRouter, HTTPException, Query, status
 from sqlalchemy import func, select
 from typing import List
 
-from app.api.deps import CurrentUser, DatabaseSession, CurrentAdmin
+from app.api.deps import CurrentUser, DatabaseSession, CurrentAdmin, CurrentManager
 from app.models.document import Document
 from app.models.employee import Employee
 from app.schemas.document import DocumentCreate, DocumentRead
@@ -42,7 +42,7 @@ def upload_document(payload: DocumentCreate, db: DatabaseSession, current_admin:
     )
 
 @router.get("/admin", response_model=List[DocumentRead])
-def get_all_documents(db: DatabaseSession, current_admin: CurrentAdmin):
+def get_all_documents(db: DatabaseSession, current_manager: CurrentManager):
     records = db.scalars(select(Document).order_by(Document.created_at.desc())).all()
     
     return [

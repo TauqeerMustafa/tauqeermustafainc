@@ -1,141 +1,176 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useMemo, useState } from "react";
 import Link from "next/link";
-import { Search, Plus, MoreVertical, Edit2, UserX, Eye } from "lucide-react";
+import { Eye, Plus, Search, UserCheck, UserX, Users } from "lucide-react";
 
-export default function EmployeesList() {
-  const [employees, setEmployees] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
+import {
+  DataTable,
+  EmptyBlock,
+  ErrorBlock,
+  LoadingBlock,
+  Panel,
+  PortalButton,
+  PortalPageHeader,
+  StatCard,
+  StatusPill,
+  Td,
+} from "@/components/portal/PortalUI";
+import { useEmployees, useSetEmployeeStatus } from "@/hooks/useEmployees";
+import { roleLabel } from "@/lib/rbac";
+
+function initials(name: string | null | undefined) {
+  if (!name) return "E";
+  return name
+    .split(" ")
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0]?.toUpperCase())
+    .join("");
+}
+
+export default function AdminEmployeesPage() {
+  const { data, isLoading, isError, error, refetch } = useEmployees();
+  const setStatus = useSetEmployeeStatus();
   const [search, setSearch] = useState("");
 
-  useEffect(() => {
-    fetch("/api/employees") // Ideally use proper api service
-      .then((res) => {
-        if (!res.ok) throw new Error("Failed");
-        return res.json();
-      })
-      .then((data) => setEmployees(data))
-      .catch(() => {
-        // mock data if backend not running
-        setEmployees([
-          {
-            id: "1",
-            employee_id_string: "TM-EMP-001",
-            user: { first_name: "Muhammad", last_name: "Ali", email: "ali@example.com" },
-            job_title: "Business Development Exec",
-            department: { name: "Sales" },
-            status: "active",
-          }
-        ]);
-      })
-      .finally(() => setLoading(false));
-  }, []);
+  const employees = data ?? [];
+  const filtered = useMemo(() => {
+    const needle = search.trim().toLowerCase();
+    if (!needle) return employees;
+    return employees.filter((employee) =>
+      [employee.name, employee.email, employee.employeeIdString, employee.jobTitle]
+        .filter(Boolean)
+        .some((field) => (field as string).toLowerCase().includes(needle)),
+    );
+  }, [employees, search]);
 
-  const filteredEmployees = employees.filter((emp) => {
-    const name = `${emp.user?.first_name} ${emp.user?.last_name}`.toLowerCase();
-    return name.includes(search.toLowerCase()) || 
-           emp.employee_id_string?.toLowerCase().includes(search.toLowerCase());
-  });
+  const active = employees.filter((employee) => employee.status === "active").length;
 
   return (
-    <div className="flex flex-col gap-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold uppercase" style={{ color: "var(--adm-text)" }}>Employees</h1>
-          <p className="text-sm mt-1" style={{ color: "var(--adm-text-3)" }}>Manage company employees and roles.</p>
-        </div>
-        <Link
-          href="/admin/employees/create"
-          className="flex items-center gap-2 bg-[var(--adm-blue)] px-4 py-2.5 text-sm font-semibold text-white transition hover:opacity-90"
-        >
-          <Plus size={16} /> Add Employee
-        </Link>
+    <div className="flex flex-col gap-8">
+      <PortalPageHeader title="Employees" description="Every person on the roster, their role, and their account status.">
+        <PortalButton href="/admin/employees/create" icon={Plus}>
+          Add employee
+        </PortalButton>
+      </PortalPageHeader>
+
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+        <StatCard label="Total" value={employees.length} icon={Users} tone="blue" />
+        <StatCard label="Active" value={active} icon={UserCheck} tone="green" />
+        <StatCard label="Inactive" value={employees.length - active} icon={UserX} tone="red" />
       </div>
 
-      <div className="border border-[var(--adm-border)] bg-[var(--adm-surface)] overflow-hidden">
-        <div className="p-4 border-b border-[var(--adm-border)] flex items-center gap-4">
-          <div className="relative flex-1 max-w-md">
-            <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--adm-text-3)]" />
+      <Panel
+        title="Roster"
+        icon={Users}
+        padded={false}
+        action={
+          <div className="relative">
+            <Search size={14} className="pointer-events-none absolute left-3 top-2.5 text-adm-text-3" />
             <input
-              type="text"
-              placeholder="Search by name or ID..."
+              type="search"
               value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="w-full border border-[var(--adm-border)] bg-transparent pl-10 pr-4 py-2 text-sm outline-none focus:border-[var(--adm-blue)] transition"
+              onChange={(event) => setSearch(event.target.value)}
+              placeholder="Search name, email, ID"
+              aria-label="Search employees"
+              className="w-44 rounded-none border border-adm-border bg-adm-surface py-1.5 pl-8 pr-3 text-xs text-adm-text outline-none transition placeholder:text-adm-text-3 focus:border-adm-blue sm:w-64"
             />
           </div>
-          {/* Add more filters here later */}
-        </div>
-
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-sm">
-            <thead>
-              <tr className="border-b border-[var(--adm-border)] bg-[var(--adm-surface-2)]">
-                <th className="px-6 py-4 font-semibold text-[var(--adm-text-2)]">Employee</th>
-                <th className="px-6 py-4 font-semibold text-[var(--adm-text-2)]">ID</th>
-                <th className="px-6 py-4 font-semibold text-[var(--adm-text-2)]">Role & Dept</th>
-                <th className="px-6 py-4 font-semibold text-[var(--adm-text-2)]">Status</th>
-                <th className="px-6 py-4 font-semibold text-[var(--adm-text-2)] text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-[var(--adm-border)]">
-              {loading ? (
-                <tr>
-                  <td colSpan={5} className="p-8 text-center text-[var(--adm-text-3)]">Loading...</td>
-                </tr>
-              ) : filteredEmployees.length === 0 ? (
-                <tr>
-                  <td colSpan={5} className="p-8 text-center text-[var(--adm-text-3)]">No employees found.</td>
-                </tr>
-              ) : (
-                filteredEmployees.map((emp) => (
-                  <tr key={emp.id} className="transition hover:bg-[var(--adm-surface-2)]">
-                    <td className="px-6 py-4">
-                      <div className="flex items-center gap-3">
-                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[var(--adm-blue-light)] text-[var(--adm-blue)] font-bold">
-                          {emp.user?.first_name?.[0]}{emp.user?.last_name?.[0]}
-                        </div>
-                        <div>
-                          <p className="font-semibold text-[var(--adm-text)]">{emp.user?.first_name} {emp.user?.last_name}</p>
-                          <p className="text-xs text-[var(--adm-text-3)]">{emp.user?.email}</p>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 font-medium text-[var(--adm-text-2)]">{emp.employee_id_string || "-"}</td>
-                    <td className="px-6 py-4">
-                      <p className="font-medium text-[var(--adm-text-2)]">{emp.job_title || "Unknown Role"}</p>
-                      <p className="text-xs text-[var(--adm-text-3)]">{emp.department?.name || "No Dept"}</p>
-                    </td>
-                    <td className="px-6 py-4">
-                      <span className="inline-flex items-center px-2.5 py-0.5 text-xs font-semibold" style={
-                        emp.status === "active"
-                          ? { background: "var(--adm-green-light)", color: "var(--adm-green)" }
-                          : { background: "var(--adm-red-light)", color: "var(--adm-red)" }
-                      }>
-                        {emp.status}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 text-right">
-                      <div className="flex items-center justify-end gap-2">
-                        <Link href={`/admin/employees/${emp.id}`} className="p-1.5 hover:bg-[var(--adm-surface-2)] transition text-[var(--adm-text-2)]" title="View Profile">
-                          <Eye size={16} />
-                        </Link>
-                        <button className="p-1.5 hover:bg-[var(--adm-surface-2)] transition text-[var(--adm-text-2)]" title="Edit">
-                          <Edit2 size={16} />
-                        </button>
-                        <button className="p-1.5 hover:bg-[var(--adm-red-light)] transition" style={{ color: "var(--adm-red)" }} title="Deactivate">
-                          <UserX size={16} />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))
+        }
+      >
+        {isLoading ? (
+          <div className="p-5">
+            <LoadingBlock label="Loading employees…" />
+          </div>
+        ) : isError ? (
+          <div className="p-5">
+            <ErrorBlock
+              message={error instanceof Error ? error.message : "Could not load the employee roster."}
+              onRetry={() => refetch()}
+            />
+          </div>
+        ) : filtered.length === 0 ? (
+          <div className="p-5">
+            <EmptyBlock
+              title={employees.length === 0 ? "No employees" : "No matches"}
+              description={
+                employees.length === 0
+                  ? "Create the first employee to populate the roster."
+                  : "Nobody matches that search."
+              }
+            >
+              {employees.length === 0 && (
+                <PortalButton href="/admin/employees/create" variant="ghost" icon={Plus}>
+                  Add employee
+                </PortalButton>
               )}
-            </tbody>
-          </table>
-        </div>
-      </div>
+            </EmptyBlock>
+          </div>
+        ) : (
+          <DataTable head={["Employee", "ID", "Job title", "Role", "Status", "Actions"]}>
+            {filtered.map((employee) => {
+              const nextStatus = employee.status === "active" ? "inactive" : "active";
+              const busy = setStatus.isPending && setStatus.variables?.id === employee.id;
+              return (
+                <tr key={employee.id} className="transition hover:bg-adm-surface-2">
+                  <Td strong>
+                    <span className="flex items-center gap-3">
+                      <span className="flex h-9 w-9 shrink-0 items-center justify-center bg-adm-blue-light text-xs font-bold text-adm-blue">
+                        {initials(employee.name)}
+                      </span>
+                      <span className="min-w-0">
+                        <span className="block truncate">{employee.name ?? "Unnamed"}</span>
+                        <span className="block truncate text-xs font-normal text-adm-text-3">
+                          {employee.email ?? "—"}
+                        </span>
+                      </span>
+                    </span>
+                  </Td>
+                  <Td>{employee.employeeIdString || "—"}</Td>
+                  <Td>{employee.jobTitle || "—"}</Td>
+                  <Td>{employee.role ? roleLabel(employee.role) : "—"}</Td>
+                  <Td>
+                    <StatusPill status={employee.status} />
+                  </Td>
+                  <Td>
+                    <span className="flex items-center gap-1">
+                      <Link
+                        href={`/admin/employees/${employee.id}`}
+                        title="View profile"
+                        aria-label={`View ${employee.name ?? "employee"}`}
+                        className="p-2 text-adm-text-2 transition hover:bg-adm-surface-2 hover:text-adm-text"
+                      >
+                        <Eye size={15} />
+                      </Link>
+                      <button
+                        type="button"
+                        disabled={busy}
+                        onClick={() => setStatus.mutate({ id: employee.id, status: nextStatus })}
+                        title={nextStatus === "active" ? "Reactivate" : "Deactivate"}
+                        aria-label={`${nextStatus === "active" ? "Reactivate" : "Deactivate"} ${employee.name ?? "employee"}`}
+                        className={`p-2 transition disabled:opacity-40 ${
+                          nextStatus === "active"
+                            ? "text-adm-green hover:bg-adm-green-light"
+                            : "text-adm-red hover:bg-adm-red-light"
+                        }`}
+                      >
+                        {nextStatus === "active" ? <UserCheck size={15} /> : <UserX size={15} />}
+                      </button>
+                    </span>
+                  </Td>
+                </tr>
+              );
+            })}
+          </DataTable>
+        )}
+      </Panel>
+
+      {setStatus.isError && (
+        <p className="text-xs text-adm-red">
+          {(setStatus.error as Error).message || "Could not update that employee's status."}
+        </p>
+      )}
     </div>
   );
 }

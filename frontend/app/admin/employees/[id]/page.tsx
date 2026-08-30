@@ -1,158 +1,406 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useParams, useRouter } from "next/navigation";
-import { ArrowLeft, Loader2, Edit2, Mail, Phone, MapPin, Briefcase } from "lucide-react";
+import { useState } from "react";
 import Link from "next/link";
+import { useParams } from "next/navigation";
+import {
+  ArrowLeft,
+  Briefcase,
+  CalendarClock,
+  Edit2,
+  Mail,
+  MapPin,
+  Phone,
+  Plane,
+  ShieldCheck,
+} from "lucide-react";
 
-export default function EmployeeProfile() {
-  const { id } = useParams();
-  const router = useRouter();
-  const [employee, setEmployee] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState("overview");
+import {
+  DataTable,
+  EmptyBlock,
+  ErrorBlock,
+  Field,
+  Label,
+  LoadingBlock,
+  Panel,
+  PortalButton,
+  PortalDialog,
+  PortalPageHeader,
+  StatusPill,
+  Td,
+  inputClass,
+} from "@/components/portal/PortalUI";
+import { useEmployeeAttendance } from "@/hooks/useAttendance";
+import { useEmployee, useUpdateEmployee } from "@/hooks/useEmployees";
+import { useEmployeeLeave } from "@/hooks/useLeave";
+import { roleLabel } from "@/lib/rbac";
+import type { EmployeeRecord, UpdateEmployeePayload } from "@/types";
 
-  useEffect(() => {
-    fetch(`/api/employees/${id}`)
-      .then(res => {
-        if (!res.ok) throw new Error("Failed");
-        return res.json();
-      })
-      .then(data => setEmployee(data))
-      .catch(() => {
-        // mock for now
-        setEmployee({
-          id,
-          employee_id_string: "TM-EMP-001",
-          user: { first_name: "Muhammad", last_name: "Ali", email: "ali@example.com", phone: "+92 300 1234567" },
-          job_title: "Business Development Exec",
-          department: { name: "Sales" },
-          status: "active",
-          joining_date: "2024-01-15",
-          address: "123 Main St, Lahore",
-        });
-      })
-      .finally(() => setLoading(false));
-  }, [id]);
+const TABS = ["overview", "attendance", "leave"] as const;
+type Tab = (typeof TABS)[number];
 
-  if (loading) {
+function formatDate(value: string | null | undefined) {
+  if (!value) return "—";
+  const parsed = new Date(value);
+  return Number.isNaN(parsed.getTime())
+    ? value
+    : parsed.toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" });
+}
+
+function formatTime(value: string | null | undefined) {
+  if (!value) return "--:--";
+  const parsed = new Date(value);
+  return Number.isNaN(parsed.getTime())
+    ? value
+    : parsed.toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit" });
+}
+
+function initials(name: string | null | undefined) {
+  if (!name) return "E";
+  return name
+    .split(" ")
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0]?.toUpperCase())
+    .join("");
+}
+
+function draftFrom(employee: EmployeeRecord): UpdateEmployeePayload {
+  return {
+    jobTitle: employee.jobTitle ?? "",
+    joiningDate: employee.joiningDate ?? "",
+    status: employee.status,
+    address: employee.address ?? "",
+    emergencyContact: employee.emergencyContact ?? "",
+  };
+}
+
+export default function EmployeeProfilePage() {
+  const params = useParams<{ id: string }>();
+  const id = typeof params.id === "string" ? params.id : params.id?.[0];
+
+  const { data: employee, isLoading, isError, error, refetch } = useEmployee(id);
+  const update = useUpdateEmployee();
+  const [tab, setTab] = useState<Tab>("overview");
+  const [editing, setEditing] = useState(false);
+  const [draft, setDraft] = useState<UpdateEmployeePayload>({});
+
+  if (isLoading) return <LoadingBlock label="Loading employee…" />;
+
+  if (isError || !employee) {
     return (
-      <div className="flex h-96 items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-[var(--adm-blue)]" />
-      </div>
+      <ErrorBlock
+        message={error instanceof Error ? error.message : "That employee could not be loaded."}
+        onRetry={() => refetch()}
+      />
     );
   }
 
-  if (!employee) {
-    return <div className="text-center p-8">Employee not found</div>;
+  function openEditor() {
+    setDraft(draftFrom(employee as EmployeeRecord));
+    setEditing(true);
   }
 
-  const tabs = ["overview", "employment", "attendance", "leave", "tasks"];
+  function saveEditor(event: React.FormEvent) {
+    event.preventDefault();
+    if (!id) return;
+    // Empty optional strings become null so Pydantic's date field accepts them.
+    update.mutate(
+      {
+        id,
+        payload: {
+          ...draft,
+          jobTitle: draft.jobTitle || null,
+          joiningDate: draft.joiningDate || null,
+          address: draft.address || null,
+          emergencyContact: draft.emergencyContact || null,
+        },
+      },
+      { onSuccess: () => setEditing(false) },
+    );
+  }
 
   return (
-    <div className="flex flex-col gap-6 max-w-5xl mx-auto">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <Link href="/admin/employees" className="p-2 rounded-full hover:bg-[var(--adm-surface-2)] transition">
-            <ArrowLeft size={20} />
-          </Link>
-          <h1 className="text-2xl font-bold uppercase" style={{ color: "var(--adm-text)" }}>Employee Profile</h1>
-        </div>
-        <button className="flex items-center gap-2 border border-[var(--adm-border)] px-4 py-2 text-sm font-semibold transition hover:bg-[var(--adm-surface-2)]" style={{ background: "var(--adm-surface)", color: "var(--adm-text)" }}>
-          <Edit2 size={16} /> Edit Profile
-        </button>
+    <div className="flex flex-col gap-8">
+      <div className="flex items-start gap-4">
+        <Link
+          href="/admin/employees"
+          aria-label="Back to employees"
+          className="mt-1 flex h-9 w-9 shrink-0 items-center justify-center border border-adm-border text-adm-text-2 transition hover:bg-adm-surface-2 hover:text-adm-text"
+        >
+          <ArrowLeft size={16} />
+        </Link>
+        <PortalPageHeader
+          title={employee.name ?? "Employee"}
+          description={employee.jobTitle || "No job title on record."}
+        >
+          <PortalButton variant="ghost" icon={Edit2} onClick={openEditor}>
+            Edit record
+          </PortalButton>
+        </PortalPageHeader>
       </div>
 
-      {/* Header Card */}
-      <div className="border border-[var(--adm-border)] bg-[var(--adm-surface)] p-6 sm:p-8">
-        <div className="flex flex-col md:flex-row gap-6 items-start md:items-center">
-          <div className="flex h-24 w-24 shrink-0 items-center justify-center rounded-full bg-[var(--adm-blue-light)] text-[var(--adm-blue)] text-3xl font-bold">
-            {employee.user?.first_name?.[0]}{employee.user?.last_name?.[0]}
-          </div>
-          <div className="flex-1">
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-              <div>
-                <h2 className="text-2xl font-bold text-[var(--adm-text)]">{employee.user?.first_name} {employee.user?.last_name}</h2>
-                <p className="text-lg font-medium text-[var(--adm-text-2)]">{employee.job_title || "No Title"}</p>
-              </div>
-              <span className="inline-flex items-center px-3 py-1 text-sm font-semibold" style={
-                employee.status === "active"
-                  ? { background: "var(--adm-green-light)", color: "var(--adm-green)" }
-                  : { background: "var(--adm-red-light)", color: "var(--adm-red)" }
-              }>
-                {employee.status}
-              </span>
+      <section className="border border-adm-border bg-adm-surface p-6">
+        <div className="flex flex-col gap-6 md:flex-row md:items-center">
+          <span className="flex h-20 w-20 shrink-0 items-center justify-center bg-adm-blue-light text-2xl font-bold text-adm-blue">
+            {initials(employee.name)}
+          </span>
+          <div className="min-w-0 flex-1">
+            <div className="flex flex-wrap items-center gap-3">
+              <h2 className="text-xl font-bold uppercase tracking-[0.04em] text-adm-text">
+                {employee.name ?? "Unnamed"}
+              </h2>
+              <StatusPill status={employee.status} />
+              <Label>{roleLabel(employee.role)}</Label>
             </div>
-            
-            <div className="flex flex-wrap gap-x-6 gap-y-2 mt-4 pt-4 border-t border-[var(--adm-border)]">
-              <div className="flex items-center gap-2 text-sm text-[var(--adm-text-2)]">
-                <Briefcase size={16} className="text-[var(--adm-text-3)]" />
-                {employee.department?.name || "No Dept"}
-              </div>
-              <div className="flex items-center gap-2 text-sm text-[var(--adm-text-2)]">
-                <Mail size={16} className="text-[var(--adm-text-3)]" />
-                {employee.user?.email}
-              </div>
-              <div className="flex items-center gap-2 text-sm text-[var(--adm-text-2)]">
-                <Phone size={16} className="text-[var(--adm-text-3)]" />
-                {employee.user?.phone || "No Phone"}
-              </div>
-              <div className="flex items-center gap-2 text-sm text-[var(--adm-text-2)]">
-                <MapPin size={16} className="text-[var(--adm-text-3)]" />
-                {employee.address || "No Address"}
-              </div>
-            </div>
+            <dl className="mt-4 grid grid-cols-1 gap-x-8 gap-y-3 border-t border-adm-border pt-4 text-sm sm:grid-cols-2">
+              {[
+                { icon: Mail, label: "Email", value: employee.email },
+                { icon: Phone, label: "Phone", value: employee.phone || employee.emergencyContact },
+                { icon: Briefcase, label: "Employee ID", value: employee.employeeIdString },
+                { icon: MapPin, label: "Address", value: employee.address },
+              ].map(({ icon: Icon, label, value }) => (
+                <div key={label} className="flex items-center gap-2 text-adm-text-2">
+                  <Icon size={15} className="shrink-0 text-adm-text-3" />
+                  <dt className="sr-only">{label}</dt>
+                  <dd className="truncate">{value || "—"}</dd>
+                </div>
+              ))}
+            </dl>
           </div>
         </div>
+      </section>
+
+      <div className="flex gap-2 border-b border-adm-border" role="tablist" aria-label="Employee sections">
+        {TABS.map((name) => {
+          const active = tab === name;
+          return (
+            <button
+              key={name}
+              type="button"
+              role="tab"
+              aria-selected={active}
+              onClick={() => setTab(name)}
+              className={`-mb-px border-b-2 px-4 py-2.5 text-[11px] font-bold uppercase tracking-[0.14em] transition ${
+                active
+                  ? "border-adm-blue text-adm-blue"
+                  : "border-transparent text-adm-text-3 hover:text-adm-text"
+              }`}
+            >
+              {name}
+            </button>
+          );
+        })}
       </div>
 
-      {/* Tabs */}
-      <div className="flex gap-2 border-b border-[var(--adm-border)] overflow-x-auto pb-px">
-        {tabs.map((tab) => (
-          <button
-            key={tab}
-            onClick={() => setActiveTab(tab)}
-            className={`px-4 py-2.5 text-sm font-semibold capitalize whitespace-nowrap transition-colors border-b-2 ${
-              activeTab === tab 
-                ? "border-[var(--adm-blue)] text-[var(--adm-blue)]" 
-                : "border-transparent text-[var(--adm-text-3)] hover:text-[var(--adm-text-2)]"
-            }`}
-          >
-            {tab}
-          </button>
-        ))}
-      </div>
+      {tab === "overview" && <OverviewTab employee={employee} />}
+      {tab === "attendance" && <AttendanceTab employeeId={id} />}
+      {tab === "leave" && <LeaveTab employeeId={id} />}
 
-      {/* Tab Content */}
-      <div className="py-4">
-        {activeTab === "overview" && (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="border border-[var(--adm-border)] bg-[var(--adm-surface)] p-6">
-              <h3 className="font-bold mb-4 text-[var(--adm-text)] uppercase">Employment Information</h3>
-              <dl className="space-y-4 text-sm">
-                <div className="flex justify-between">
-                  <dt className="text-[var(--adm-text-3)]">Employee ID</dt>
-                  <dd className="font-medium" style={{ color: "var(--adm-text)" }}>{employee.employee_id_string || "-"}</dd>
-                </div>
-                <div className="flex justify-between">
-                  <dt className="text-[var(--adm-text-3)]">Joining Date</dt>
-                  <dd className="font-medium" style={{ color: "var(--adm-text)" }}>{employee.joining_date || "-"}</dd>
-                </div>
-                <div className="flex justify-between">
-                  <dt className="text-[var(--adm-text-3)]">Manager</dt>
-                  <dd className="font-medium" style={{ color: "var(--adm-text)" }}>{employee.manager ? `${employee.manager.user?.first_name} ${employee.manager.user?.last_name}` : "None"}</dd>
-                </div>
-              </dl>
-            </div>
+      <PortalDialog open={editing} title="Edit employment record" onClose={() => setEditing(false)}>
+        <form onSubmit={saveEditor} className="flex flex-col gap-5">
+          <p className="text-xs text-adm-text-3">
+            Name, email and role live on the linked user account and are edited under{" "}
+            <Link href="/admin/users" className="text-adm-blue underline">
+              Users
+            </Link>
+            .
+          </p>
+
+          <Field label="Job title" htmlFor="edit-job-title">
+            <input
+              id="edit-job-title"
+              value={draft.jobTitle ?? ""}
+              onChange={(event) => setDraft({ ...draft, jobTitle: event.target.value })}
+              className={inputClass}
+            />
+          </Field>
+
+          <Field label="Joining date" htmlFor="edit-joining-date">
+            <input
+              id="edit-joining-date"
+              type="date"
+              value={(draft.joiningDate ?? "").slice(0, 10)}
+              onChange={(event) => setDraft({ ...draft, joiningDate: event.target.value })}
+              className={inputClass}
+            />
+          </Field>
+
+          <Field label="Status" htmlFor="edit-status">
+            <select
+              id="edit-status"
+              value={draft.status ?? "active"}
+              onChange={(event) => setDraft({ ...draft, status: event.target.value })}
+              className={inputClass}
+            >
+              <option value="active">Active</option>
+              <option value="inactive">Inactive</option>
+              <option value="on_leave">On leave</option>
+            </select>
+          </Field>
+
+          <Field label="Address" htmlFor="edit-address">
+            <input
+              id="edit-address"
+              value={draft.address ?? ""}
+              onChange={(event) => setDraft({ ...draft, address: event.target.value })}
+              className={inputClass}
+            />
+          </Field>
+
+          <Field label="Emergency contact" htmlFor="edit-emergency">
+            <input
+              id="edit-emergency"
+              value={draft.emergencyContact ?? ""}
+              onChange={(event) => setDraft({ ...draft, emergencyContact: event.target.value })}
+              className={inputClass}
+            />
+          </Field>
+
+          {update.isError && (
+            <p className="text-xs text-adm-red">
+              {(update.error as Error).message || "Could not save the record."}
+            </p>
+          )}
+
+          <div className="flex justify-end gap-3 border-t border-adm-border pt-5">
+            <PortalButton variant="ghost" onClick={() => setEditing(false)}>
+              Cancel
+            </PortalButton>
+            <PortalButton type="submit" disabled={update.isPending}>
+              {update.isPending ? "Saving…" : "Save changes"}
+            </PortalButton>
           </div>
-        )}
-
-        {activeTab !== "overview" && (
-          <div className="py-12 text-center text-[var(--adm-text-3)] bg-[var(--adm-surface-2)] border border-dashed border-[var(--adm-border)]">
-            <p>This module is not yet implemented.</p>
-          </div>
-        )}
-      </div>
+        </form>
+      </PortalDialog>
     </div>
+  );
+}
+
+function OverviewTab({ employee }: { employee: EmployeeRecord }) {
+  const rows = [
+    { label: "Employee ID", value: employee.employeeIdString || "—" },
+    { label: "Job title", value: employee.jobTitle || "—" },
+    { label: "Joining date", value: formatDate(employee.joiningDate) },
+    { label: "Status", value: employee.status },
+    { label: "Role", value: roleLabel(employee.role) },
+    { label: "Emergency contact", value: employee.emergencyContact || "—" },
+  ];
+
+  return (
+    <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+      <Panel title="Employment" icon={Briefcase}>
+        <dl className="flex flex-col gap-3 text-sm">
+          {rows.map((row) => (
+            <div key={row.label} className="flex items-center justify-between gap-4">
+              <dt className="text-adm-text-3">{row.label}</dt>
+              <dd className="truncate font-semibold text-adm-text">{row.value}</dd>
+            </div>
+          ))}
+        </dl>
+      </Panel>
+
+      <Panel title="Account" icon={ShieldCheck}>
+        <dl className="flex flex-col gap-3 text-sm">
+          <div className="flex items-center justify-between gap-4">
+            <dt className="text-adm-text-3">Login email</dt>
+            <dd className="truncate font-semibold text-adm-text">{employee.email || "—"}</dd>
+          </div>
+          <div className="flex items-center justify-between gap-4">
+            <dt className="text-adm-text-3">Portal role</dt>
+            <dd className="font-semibold text-adm-text">{roleLabel(employee.role)}</dd>
+          </div>
+          <div className="flex items-center justify-between gap-4">
+            <dt className="text-adm-text-3">User ID</dt>
+            <dd className="truncate font-mono text-xs text-adm-text-2">{employee.userId}</dd>
+          </div>
+        </dl>
+        <p className="mt-4 border-t border-adm-border pt-4 text-xs text-adm-text-3">
+          Role assignment and account status are managed under Users, which owns the login record.
+        </p>
+      </Panel>
+    </div>
+  );
+}
+
+function AttendanceTab({ employeeId }: { employeeId: string | undefined }) {
+  const { data, isLoading, isError, error, refetch } = useEmployeeAttendance(employeeId);
+  const records = data ?? [];
+
+  return (
+    <Panel title="Attendance history" icon={CalendarClock} padded={false}>
+      {isLoading ? (
+        <div className="p-5">
+          <LoadingBlock label="Loading attendance…" />
+        </div>
+      ) : isError ? (
+        <div className="p-5">
+          <ErrorBlock
+            message={error instanceof Error ? error.message : "Could not load attendance."}
+            onRetry={() => refetch()}
+          />
+        </div>
+      ) : records.length === 0 ? (
+        <div className="p-5">
+          <EmptyBlock title="No attendance yet" description="This employee has not checked in." />
+        </div>
+      ) : (
+        <DataTable head={["Date", "Status", "Check in", "Check out", "Notes"]}>
+          {records.map((record) => (
+            <tr key={record.id} className="transition hover:bg-adm-surface-2">
+              <Td strong>{formatDate(record.date)}</Td>
+              <Td>
+                <StatusPill status={record.status} />
+              </Td>
+              <Td className="tabular-nums">{formatTime(record.checkInTime)}</Td>
+              <Td className="tabular-nums">{formatTime(record.checkOutTime)}</Td>
+              <Td className="max-w-xs truncate">{record.notes || "—"}</Td>
+            </tr>
+          ))}
+        </DataTable>
+      )}
+    </Panel>
+  );
+}
+
+function LeaveTab({ employeeId }: { employeeId: string | undefined }) {
+  const { data, isLoading, isError, error, refetch } = useEmployeeLeave(employeeId);
+  const requests = data ?? [];
+
+  return (
+    <Panel title="Leave history" icon={Plane} padded={false}>
+      {isLoading ? (
+        <div className="p-5">
+          <LoadingBlock label="Loading leave history…" />
+        </div>
+      ) : isError ? (
+        <div className="p-5">
+          <ErrorBlock
+            message={error instanceof Error ? error.message : "Could not load leave history."}
+            onRetry={() => refetch()}
+          />
+        </div>
+      ) : requests.length === 0 ? (
+        <div className="p-5">
+          <EmptyBlock title="No leave requests" description="Nothing has been submitted yet." />
+        </div>
+      ) : (
+        <DataTable head={["Type", "From", "To", "Status", "Reason"]}>
+          {requests.map((request) => (
+            <tr key={request.id} className="transition hover:bg-adm-surface-2">
+              <Td strong className="capitalize">
+                {request.leaveType}
+              </Td>
+              <Td>{formatDate(request.startDate)}</Td>
+              <Td>{formatDate(request.endDate)}</Td>
+              <Td>
+                <StatusPill status={request.status} />
+              </Td>
+              <Td className="max-w-xs truncate">{request.reason || "—"}</Td>
+            </tr>
+          ))}
+        </DataTable>
+      )}
+    </Panel>
   );
 }

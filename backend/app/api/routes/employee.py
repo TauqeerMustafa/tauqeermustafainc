@@ -4,34 +4,61 @@ from pydantic import BaseModel
 from typing import List, Optional
 from datetime import datetime
 
-from app.api.deps import CurrentAdmin, DatabaseSession, CurrentUser
+from app.api.deps import CurrentAdmin, CurrentManager, DatabaseSession, CurrentUser
 from app.models.employee import Employee
 from app.models.user import User
 from app.models.audit_log import AuditLog
 from app.models.role import Role
-from app.core.security import get_password_hash
+from app.core.security import hash_password
 from app.schemas.employee import EmployeeCreate, EmployeeUpdate, EmployeeResponse
 
 router = APIRouter()
 
+
+def _to_employee_response(employee: Employee) -> EmployeeResponse:
+    """Flatten the linked User row into the response.
+
+    The directory needs a name, email and role for every row; without this the
+    frontend had to fetch each employee's user separately (and previously just
+    rendered blanks).
+    """
+    user = employee.user
+    return EmployeeResponse(
+        id=employee.id,
+        user_id=employee.user_id,
+        employee_id_string=employee.employee_id_string,
+        job_title=employee.job_title,
+        department_id=employee.department_id,
+        manager_id=employee.manager_id,
+        joining_date=employee.joining_date,
+        status=employee.status,
+        address=employee.address,
+        emergency_contact=employee.emergency_contact,
+        name=f"{user.first_name} {user.last_name}".strip() if user else None,
+        email=user.email if user else None,
+        phone=user.phone if user else None,
+        role=(user.role.slug if user and user.role is not None else None),
+    )
+
+
 @router.get("/", response_model=List[EmployeeResponse])
 def get_employees(
     db: DatabaseSession,
-    current_admin: CurrentAdmin,
+    current_manager: CurrentManager,
 ):
     employees = db.query(Employee).all()
-    return employees
+    return [_to_employee_response(e) for e in employees]
 
 @router.get("/{id}", response_model=EmployeeResponse)
 def get_employee(
     id: UUID,
     db: DatabaseSession,
-    current_admin: CurrentAdmin,
+    current_manager: CurrentManager,
 ):
     employee = db.query(Employee).filter(Employee.id == id).first()
     if not employee:
         raise HTTPException(status_code=404, detail="Employee not found")
-    return employee
+    return _to_employee_response(employee)
 
 @router.post("/", response_model=EmployeeResponse, status_code=status.HTTP_201_CREATED)
 def create_employee(
@@ -49,7 +76,7 @@ def create_employee(
         first_name=payload.first_name,
         last_name=payload.last_name,
         email=payload.email,
-        password_hash=get_password_hash(payload.password),
+        password_hash=hash_password(payload.password),
         is_active=True,
         is_verified=True,
         status="approved",
@@ -86,7 +113,7 @@ def create_employee(
     
     db.commit()
     db.refresh(new_employee)
-    return new_employee
+    return _to_employee_response(new_employee)
 
 @router.patch("/{id}", response_model=EmployeeResponse)
 def update_employee(
@@ -115,7 +142,7 @@ def update_employee(
 
     db.commit()
     db.refresh(employee)
-    return employee
+    return _to_employee_response(employee)
 
 class StatusUpdate(BaseModel):
     status: str
@@ -151,4 +178,4 @@ def update_employee_status(
 
     db.commit()
     db.refresh(employee)
-    return employee
+    return _to_employee_response(employee)

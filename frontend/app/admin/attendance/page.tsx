@@ -1,144 +1,146 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { Users, Clock, Search, Calendar as CalendarIcon } from "lucide-react";
+import { useMemo, useState } from "react";
+import { CalendarDays, Clock, Search, UserX, Users } from "lucide-react";
 
-export default function AdminAttendancePage() {
-  const [records, setRecords] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [dateStr, setDateStr] = useState(new Date().toISOString().split("T")[0]);
+import {
+  DataTable,
+  EmptyBlock,
+  ErrorBlock,
+  Field,
+  LoadingBlock,
+  Panel,
+  PortalPageHeader,
+  StatCard,
+  StatusPill,
+  Td,
+  inputClass,
+} from "@/components/portal/PortalUI";
+import { useAttendanceRoster } from "@/hooks/useAttendance";
 
-  useEffect(() => {
-    setLoading(true);
-    fetch(`/api/attendance/admin?date=${dateStr}`)
-      .then(res => res.json())
-      .then(data => {
-        setRecords(data || []);
-      })
-      .catch(() => {
-        // Mock data
-        setRecords([
-          { id: "1", employee_name: "Alice Smith", status: "present", check_in_time: new Date().toISOString(), check_out_time: null },
-          { id: "2", employee_name: "Bob Johnson", status: "absent", check_in_time: null, check_out_time: null },
-        ]);
-      })
-      .finally(() => setLoading(false));
-  }, [dateStr]);
-
-  const formatTime = (isoString: string | null) => {
-    if (!isoString) return "--:--";
-    return new Date(isoString).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-  };
-
-  return (
-    <div className="flex flex-col gap-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold uppercase" style={{ color: "var(--adm-text)" }}>Daily Roster</h1>
-          <p className="text-sm mt-1" style={{ color: "var(--adm-text-3)" }}>Monitor employee attendance and work hours.</p>
-        </div>
-        <div className="flex items-center gap-3">
-          <div className="relative">
-            <input
-              type="date"
-              value={dateStr}
-              onChange={(e) => setDateStr(e.target.value)}
-              className="pl-10 pr-4 py-2.5 border border-[var(--adm-border)] bg-[var(--adm-surface)] outline-none focus:border-[var(--adm-blue)] text-sm font-semibold"
-            />
-            <CalendarIcon size={16} className="absolute left-4 top-3 text-[var(--adm-text-3)]" />
-          </div>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-3 gap-6">
-        <div className="border border-[var(--adm-border)] bg-[var(--adm-surface)] p-6 flex items-center gap-4">
-          <div className="h-12 w-12 rounded-full flex items-center justify-center" style={{ background: "var(--adm-blue-light)", color: "var(--adm-blue)" }}>
-            <Users size={24} />
-          </div>
-          <div>
-            <p className="text-sm font-semibold text-[var(--adm-text-3)] uppercase tracking-wider">Total Staff</p>
-            <p className="text-2xl font-bold text-[var(--adm-text)]">{records.length}</p>
-          </div>
-        </div>
-        <div className="border border-[var(--adm-border)] bg-[var(--adm-surface)] p-6 flex items-center gap-4">
-          <div className="h-12 w-12 rounded-full flex items-center justify-center" style={{ background: "var(--adm-green-light)", color: "var(--adm-green)" }}>
-            <CheckCircleIcon />
-          </div>
-          <div>
-            <p className="text-sm font-semibold text-[var(--adm-text-3)] uppercase tracking-wider">Present</p>
-            <p className="text-2xl font-bold text-[var(--adm-text)]">{records.filter(r => r.status === 'present').length}</p>
-          </div>
-        </div>
-        <div className="border border-[var(--adm-border)] bg-[var(--adm-surface)] p-6 flex items-center gap-4">
-          <div className="h-12 w-12 rounded-full flex items-center justify-center" style={{ background: "var(--adm-red-light)", color: "var(--adm-red)" }}>
-            <Clock size={24} />
-          </div>
-          <div>
-            <p className="text-sm font-semibold text-[var(--adm-text-3)] uppercase tracking-wider">Absent / Missing</p>
-            <p className="text-2xl font-bold text-[var(--adm-text)]">{records.filter(r => r.status !== 'present').length}</p>
-          </div>
-        </div>
-      </div>
-
-      <div className="border border-[var(--adm-border)] bg-[var(--adm-surface)] overflow-hidden">
-        <div className="p-6 border-b border-[var(--adm-border)] flex items-center justify-between" style={{ background: "var(--adm-surface-2)" }}>
-          <h2 className="font-bold text-[var(--adm-text)] uppercase">Roster for {new Date(dateStr).toLocaleDateString()}</h2>
-          <div className="relative">
-            <Search size={16} className="absolute left-3 top-2.5 text-[var(--adm-text-3)]" />
-            <input type="text" placeholder="Search employee..." className="pl-9 pr-4 py-2 border border-[var(--adm-border)] bg-transparent text-sm outline-none w-64 focus:border-[var(--adm-blue)]" />
-          </div>
-        </div>
-        <table className="w-full text-left text-sm">
-          <thead className="border-b border-[var(--adm-border)]" style={{ background: "var(--adm-surface-2)" }}>
-            <tr>
-              <th className="px-6 py-4 font-semibold text-[var(--adm-text-2)]">Employee</th>
-              <th className="px-6 py-4 font-semibold text-[var(--adm-text-2)]">Status</th>
-              <th className="px-6 py-4 font-semibold text-[var(--adm-text-2)]">Check In</th>
-              <th className="px-6 py-4 font-semibold text-[var(--adm-text-2)]">Check Out</th>
-              <th className="px-6 py-4 font-semibold text-[var(--adm-text-2)] text-right">Actions</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-[var(--adm-border)]">
-            {loading ? (
-              <tr><td colSpan={5} className="px-6 py-12 text-center text-[var(--adm-text-3)]">Loading roster...</td></tr>
-            ) : records.length === 0 ? (
-              <tr><td colSpan={5} className="px-6 py-12 text-center text-[var(--adm-text-3)]">No records found for this date.</td></tr>
-            ) : records.map((record) => (
-              <tr key={record.id} className="transition hover:bg-[var(--adm-surface-2)]">
-                <td className="px-6 py-4">
-                  <div className="flex items-center gap-3">
-                    <div className="h-8 w-8 rounded-full bg-[var(--adm-blue-light)] flex items-center justify-center text-[var(--adm-blue)] font-bold">
-                      {record.employee_name?.charAt(0) || "E"}
-                    </div>
-                    <span className="font-medium text-[var(--adm-text)]">{record.employee_name}</span>
-                  </div>
-                </td>
-                <td className="px-6 py-4">
-                  <span
-                    className="px-3 py-1 text-xs font-bold capitalize"
-                    style={record.status === 'present'
-                      ? { background: "var(--adm-green-light)", color: "var(--adm-green)" }
-                      : { background: "var(--adm-red-light)", color: "var(--adm-red)" }}
-                  >
-                    {record.status}
-                  </span>
-                </td>
-                <td className="px-6 py-4 font-medium text-[var(--adm-text)]">{formatTime(record.check_in_time)}</td>
-                <td className="px-6 py-4 font-medium text-[var(--adm-text)]">{formatTime(record.check_out_time)}</td>
-                <td className="px-6 py-4 text-right">
-                  <button className="text-sm font-semibold text-[var(--adm-blue)] hover:underline">Edit</button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    </div>
-  );
+function formatTime(value: string | null | undefined) {
+  if (!value) return "--:--";
+  const parsed = new Date(value);
+  return Number.isNaN(parsed.getTime())
+    ? value
+    : parsed.toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit" });
 }
 
-function CheckCircleIcon() {
+/** Local-time `YYYY-MM-DD`; `toISOString()` would roll back a day west of UTC. */
+function todayKey() {
+  const now = new Date();
+  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(
+    now.getDate(),
+  ).padStart(2, "0")}`;
+}
+
+export default function AdminAttendancePage() {
+  const [date, setDate] = useState(todayKey());
+  const [query, setQuery] = useState("");
+  const { data, isLoading, isError, error, refetch } = useAttendanceRoster(date);
+
+  const records = data ?? [];
+  const filtered = useMemo(() => {
+    const needle = query.trim().toLowerCase();
+    if (!needle) return records;
+    return records.filter((record) => (record.employeeName ?? "").toLowerCase().includes(needle));
+  }, [records, query]);
+
+  const present = records.filter((r) => r.status === "present").length;
+  const late = records.filter((r) => r.status === "late").length;
+  const away = records.length - present - late;
+
   return (
-    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+    <div className="flex flex-col gap-8">
+      <PortalPageHeader title="Daily Roster" description="Who is in, who is late, and who is away.">
+        <div className="w-52">
+          <Field label="Date" htmlFor="roster-date">
+            <input
+              id="roster-date"
+              type="date"
+              value={date}
+              max={todayKey()}
+              onChange={(event) => setDate(event.target.value)}
+              className={inputClass}
+            />
+          </Field>
+        </div>
+      </PortalPageHeader>
+
+      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+        <StatCard label="Logged" value={records.length} icon={Users} tone="blue" />
+        <StatCard label="Present" value={present} icon={Clock} tone="green" />
+        <StatCard label="Late" value={late} icon={CalendarDays} tone="amber" />
+        <StatCard label="Away" value={away < 0 ? 0 : away} icon={UserX} tone="red" />
+      </div>
+
+      <Panel
+        title={`Roster · ${new Date(date).toLocaleDateString(undefined, {
+          weekday: "long",
+          month: "long",
+          day: "numeric",
+        })}`}
+        icon={Users}
+        padded={false}
+        action={
+          <div className="relative">
+            <Search size={14} className="pointer-events-none absolute left-3 top-2.5 text-adm-text-3" />
+            <input
+              type="search"
+              value={query}
+              onChange={(event) => setQuery(event.target.value)}
+              placeholder="Search employee"
+              aria-label="Search employee"
+              className="w-40 rounded-none border border-adm-border bg-adm-surface py-1.5 pl-8 pr-3 text-xs text-adm-text outline-none transition placeholder:text-adm-text-3 focus:border-adm-blue sm:w-56"
+            />
+          </div>
+        }
+      >
+        {isLoading ? (
+          <div className="p-5">
+            <LoadingBlock label="Loading roster…" />
+          </div>
+        ) : isError ? (
+          <div className="p-5">
+            <ErrorBlock
+              message={error instanceof Error ? error.message : "Could not load the roster."}
+              onRetry={() => refetch()}
+            />
+          </div>
+        ) : filtered.length === 0 ? (
+          <div className="p-5">
+            <EmptyBlock
+              title={records.length === 0 ? "No records" : "No matches"}
+              description={
+                records.length === 0
+                  ? "Nobody has checked in on this date yet."
+                  : "No employee on this roster matches your search."
+              }
+            />
+          </div>
+        ) : (
+          <DataTable head={["Employee", "Status", "Check in", "Check out", "Notes"]}>
+            {filtered.map((record) => (
+              <tr key={record.id} className="transition hover:bg-adm-surface-2">
+                <Td strong>
+                  <span className="flex items-center gap-3">
+                    <span className="flex h-8 w-8 shrink-0 items-center justify-center bg-adm-blue-light text-xs font-bold text-adm-blue">
+                      {(record.employeeName ?? "E").charAt(0).toUpperCase()}
+                    </span>
+                    {record.employeeName ?? "Unknown"}
+                  </span>
+                </Td>
+                <Td>
+                  <StatusPill status={record.status} />
+                </Td>
+                <Td className="tabular-nums">{formatTime(record.checkInTime)}</Td>
+                <Td className="tabular-nums">{formatTime(record.checkOutTime)}</Td>
+                <Td className="max-w-xs truncate">{record.notes || "—"}</Td>
+              </tr>
+            ))}
+          </DataTable>
+        )}
+      </Panel>
+    </div>
   );
 }

@@ -1,240 +1,467 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { Shield, Plus, MoreVertical, Edit2, Trash2, CheckCircle2 } from "lucide-react";
-import Link from "next/link";
+import { useMemo, useState } from "react";
+import { Edit2, KeyRound, Plus, Shield, Trash2, Users } from "lucide-react";
 
-export default function RolesManagement() {
-  const [roles, setRoles] = useState<any[]>([]);
-  const [permissions, setPermissions] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
+import {
+  EmptyBlock,
+  ErrorBlock,
+  Field,
+  Label,
+  LoadingBlock,
+  Panel,
+  PortalButton,
+  PortalDialog,
+  PortalPageHeader,
+  StatCard,
+  inputClass,
+} from "@/components/portal/PortalUI";
+import {
+  useAdminPermissions,
+  useAdminRoles,
+  useAssignRolePermissions,
+  useCreateRole,
+  useDeleteRole,
+  useUpdateRole,
+} from "@/hooks/useAdmin";
+import type { AdminPermission, AdminRole } from "@/types";
 
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editingRole, setEditingRole] = useState<any>(null);
-  
-  const [formData, setFormData] = useState({
-    name: "",
-    slug: "",
-    hierarchy_level: 0,
-    description: "",
-  });
-  
-  const [selectedPermissions, setSelectedPermissions] = useState<string[]>([]);
+type Draft = { name: string; slug: string; hierarchyLevel: number; description: string };
 
-  useEffect(() => {
-    // Fetch roles and permissions
-    Promise.all([
-      fetch("/api/admin/roles").then(res => res.json()),
-      fetch("/api/admin/permissions").then(res => res.json())
-    ])
-    .then(([rolesData, permsData]) => {
-      setRoles(rolesData.data || []);
-      setPermissions(permsData.data || []);
-    })
-    .catch(() => {
-      // Mock data fallback
-      setRoles([
-        { id: "1", name: "Super Admin", slug: "super_admin", hierarchy_level: 100, is_system: true, description: "Full system access" },
-        { id: "2", name: "Manager", slug: "manager", hierarchy_level: 50, is_system: false, description: "Team management" },
-        { id: "3", name: "Employee", slug: "employee", hierarchy_level: 10, is_system: true, description: "Standard access" },
-      ]);
-      setPermissions([
-        { id: "p1", slug: "users.create", description: "Can create users" },
-        { id: "p2", slug: "users.edit", description: "Can edit users" },
-        { id: "p3", slug: "roles.manage", description: "Can manage roles" },
-      ]);
-    })
-    .finally(() => setLoading(false));
-  }, []);
+const EMPTY_DRAFT: Draft = { name: "", slug: "", hierarchyLevel: 10, description: "" };
 
-  const openCreateModal = () => {
-    setEditingRole(null);
-    setFormData({ name: "", slug: "", hierarchy_level: 10, description: "" });
-    setSelectedPermissions([]);
-    setIsModalOpen(true);
-  };
+/** `leads.read.team` → `leads`, so the picker can be grouped by subsystem. */
+function permissionGroup(slug: string) {
+  return slug.split(".")[0] ?? "other";
+}
 
-  const openEditModal = (role: any) => {
-    setEditingRole(role);
-    setFormData({
+function slugify(value: string) {
+  return value
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "_")
+    .replace(/^_+|_+$/g, "");
+}
+
+export default function RolesManagementPage() {
+  const roles = useAdminRoles();
+  const permissions = useAdminPermissions();
+  const createRole = useCreateRole();
+  const updateRole = useUpdateRole();
+  const deleteRole = useDeleteRole();
+  const assign = useAssignRolePermissions();
+
+  const [editorOpen, setEditorOpen] = useState(false);
+  const [editing, setEditing] = useState<AdminRole | null>(null);
+  const [draft, setDraft] = useState<Draft>(EMPTY_DRAFT);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [checked, setChecked] = useState<string[]>([]);
+  const [confirmDelete, setConfirmDelete] = useState<AdminRole | null>(null);
+
+  const roleList = roles.data?.data ?? [];
+  const permissionList = permissions.data?.data ?? [];
+
+  const selected = roleList.find((role) => role.id === selectedId) ?? null;
+
+  const grouped = useMemo(() => {
+    const buckets = new Map<string, AdminPermission[]>();
+    for (const permission of permissionList) {
+      const key = permissionGroup(permission.slug);
+      const bucket = buckets.get(key);
+      if (bucket) bucket.push(permission);
+      else buckets.set(key, [permission]);
+    }
+    return [...buckets.entries()].sort((a, b) => a[0].localeCompare(b[0]));
+  }, [permissionList]);
+
+  function openCreate() {
+    setEditing(null);
+    setDraft(EMPTY_DRAFT);
+    setEditorOpen(true);
+  }
+
+  function openEdit(role: AdminRole) {
+    setEditing(role);
+    setDraft({
       name: role.name,
       slug: role.slug,
-      hierarchy_level: role.hierarchy_level,
-      description: role.description || "",
+      hierarchyLevel: role.hierarchyLevel,
+      description: role.description ?? "",
     });
-    setSelectedPermissions(role.permissions?.map((p: any) => p.id) || []);
-    setIsModalOpen(true);
-  };
+    setEditorOpen(true);
+  }
 
-  const togglePermission = (permId: string) => {
-    setSelectedPermissions(prev => 
-      prev.includes(permId) ? prev.filter(id => id !== permId) : [...prev, permId]
-    );
-  };
+  function selectRole(role: AdminRole) {
+    setSelectedId(role.id);
+    setChecked((role.permissions ?? []).map((permission) => permission.id));
+  }
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    // In a real implementation, you would send POST/PATCH to /api/admin/roles
-    // and then POST to /api/admin/roles/{id}/permissions
-    alert("Role saved successfully!");
-    setIsModalOpen(false);
-  };
-
-  const handleDelete = (role: any) => {
-    if (role.is_system) return alert("System roles cannot be deleted");
-    if (confirm(`Are you sure you want to delete the ${role.name} role?`)) {
-      // API call to delete
-      setRoles(roles.filter(r => r.id !== role.id));
+  function submitRole(event: React.FormEvent) {
+    event.preventDefault();
+    const payload = {
+      name: draft.name.trim(),
+      hierarchyLevel: draft.hierarchyLevel,
+      description: draft.description.trim() || null,
+    };
+    if (editing) {
+      // The slug is the RBAC join key, so PATCH deliberately omits it.
+      updateRole.mutate(
+        { id: editing.id, payload },
+        { onSuccess: () => setEditorOpen(false) },
+      );
+      return;
     }
-  };
+    createRole.mutate(
+      { ...payload, slug: slugify(draft.slug || draft.name) },
+      {
+        onSuccess: (response) => {
+          setEditorOpen(false);
+          selectRole(response.data);
+        },
+      },
+    );
+  }
+
+  const editorBusy = editing ? updateRole.isPending : createRole.isPending;
+  const editorError = editing ? updateRole.error : createRole.error;
+
+  const dirty =
+    selected !== null &&
+    (() => {
+      const current = new Set((selected.permissions ?? []).map((p) => p.id));
+      return current.size !== checked.length || checked.some((id) => !current.has(id));
+    })();
 
   return (
-    <div className="flex flex-col gap-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold uppercase" style={{ color: "var(--adm-text)" }}>Roles & Permissions</h1>
-          <p className="text-sm mt-1" style={{ color: "var(--adm-text-3)" }}>Configure access levels and granular permissions for the system.</p>
-        </div>
-        <button
-          onClick={openCreateModal}
-          className="flex items-center gap-2 bg-[var(--adm-blue)] px-4 py-2.5 text-sm font-semibold text-white transition hover:opacity-90"
-        >
-          <Plus size={16} /> Create Role
-        </button>
+    <div className="flex flex-col gap-8">
+      <PortalPageHeader
+        title="Roles & Permissions"
+        description="Access levels are defined here; every portal and API route gates on the permission slugs below."
+      >
+        <PortalButton onClick={openCreate} icon={Plus}>
+          Create role
+        </PortalButton>
+      </PortalPageHeader>
+
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+        <StatCard label="Roles" value={roleList.length} icon={Shield} tone="blue" />
+        <StatCard
+          label="System roles"
+          value={roleList.filter((role) => role.isSystem).length}
+          icon={Users}
+          tone="neutral"
+          hint="Protected from deletion."
+        />
+        <StatCard
+          label="Permissions"
+          value={permissionList.length}
+          icon={KeyRound}
+          tone="green"
+          hint="Granular capabilities available to assign."
+        />
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Roles List */}
-        <div className="lg:col-span-1 flex flex-col gap-4">
-          {loading ? (
-            <div className="p-8 text-center text-[var(--adm-text-3)]">Loading roles...</div>
-          ) : (
-            roles.map((role) => (
-              <div
-                key={role.id}
-                className="border border-[var(--adm-border)] bg-[var(--adm-surface)] p-5 hover:border-[var(--adm-blue)] transition cursor-pointer group relative"
-              >
-                <div className="flex items-start justify-between mb-2">
-                  <div className="flex items-center gap-2">
-                    <Shield size={18} className="text-[var(--adm-blue)]" />
-                    <h3 className="font-bold text-[var(--adm-text)]">{role.name}</h3>
-                  </div>
-                  {role.is_system && (
-                    <span className="text-[10px] uppercase font-bold px-2 py-0.5" style={{ background: "var(--adm-surface-2)", color: "var(--adm-text-2)" }}>System</span>
-                  )}
-                </div>
-
-                <p className="text-sm text-[var(--adm-text-3)] mb-4 line-clamp-2">
-                  {role.description || "No description provided."}
-                </p>
-
-                <div className="flex items-center justify-between text-xs text-[var(--adm-text-2)] font-medium">
-                  <span>Level {role.hierarchy_level} Authority</span>
-                  <span>{role.permissions?.length || 0} Permissions</span>
-                </div>
-
-                {/* Hover Actions */}
-                <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition flex gap-1 bg-[var(--adm-surface)] border border-[var(--adm-border)]">
-                  <button onClick={(e) => { e.stopPropagation(); openEditModal(role); }} className="p-2 hover:bg-[var(--adm-surface-2)]" style={{ color: "var(--adm-text-2)" }}>
-                    <Edit2 size={14} />
+      {roles.isLoading ? (
+        <LoadingBlock label="Loading roles…" />
+      ) : roles.isError ? (
+        <ErrorBlock
+          message={roles.error instanceof Error ? roles.error.message : "Could not load roles."}
+          onRetry={() => roles.refetch()}
+        />
+      ) : roleList.length === 0 ? (
+        <EmptyBlock title="No roles" description="Create the first role to start delegating access.">
+          <PortalButton onClick={openCreate} variant="ghost" icon={Plus}>
+            Create role
+          </PortalButton>
+        </EmptyBlock>
+      ) : (
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+          <div className="flex flex-col gap-3 lg:col-span-1">
+            {roleList.map((role) => {
+              const isSelected = role.id === selectedId;
+              return (
+                <div
+                  key={role.id}
+                  className={`border bg-adm-surface p-5 transition ${
+                    isSelected ? "border-adm-blue" : "border-adm-border hover:border-adm-border-2"
+                  }`}
+                >
+                  <button
+                    type="button"
+                    onClick={() => selectRole(role)}
+                    aria-pressed={isSelected}
+                    className="block w-full text-left"
+                  >
+                    <span className="flex items-start justify-between gap-3">
+                      <span className="flex min-w-0 items-center gap-2">
+                        <Shield size={16} className="shrink-0 text-adm-blue" />
+                        <span className="truncate text-sm font-bold uppercase tracking-[0.06em] text-adm-text">
+                          {role.name}
+                        </span>
+                      </span>
+                      {role.isSystem && <Label>System</Label>}
+                    </span>
+                    <span className="mt-2 block text-sm text-adm-text-3">
+                      {role.description || "No description provided."}
+                    </span>
+                    <span className="mt-4 flex items-center justify-between text-xs font-semibold text-adm-text-2">
+                      <span className="font-mono lowercase text-adm-text-3">{role.slug}</span>
+                      <span className="tabular-nums">
+                        Level {role.hierarchyLevel} · {role.permissions?.length ?? 0} perms
+                      </span>
+                    </span>
                   </button>
-                  {!role.is_system && (
-                    <button onClick={(e) => { e.stopPropagation(); handleDelete(role); }} className="p-2 hover:bg-[var(--adm-red-light)]" style={{ color: "var(--adm-red)" }}>
-                      <Trash2 size={14} />
+
+                  <div className="mt-4 flex items-center gap-1 border-t border-adm-border pt-3">
+                    <button
+                      type="button"
+                      onClick={() => openEdit(role)}
+                      aria-label={`Edit ${role.name}`}
+                      className="p-2 text-adm-text-2 transition hover:bg-adm-surface-2 hover:text-adm-text"
+                    >
+                      <Edit2 size={14} />
                     </button>
-                  )}
+                    {!role.isSystem && (
+                      <button
+                        type="button"
+                        onClick={() => setConfirmDelete(role)}
+                        aria-label={`Delete ${role.name}`}
+                        className="p-2 text-adm-red transition hover:bg-adm-red-light"
+                      >
+                        <Trash2 size={14} />
+                      </button>
+                    )}
+                  </div>
                 </div>
-              </div>
-            ))
-          )}
-        </div>
-
-        {/* Selected Role / Info Panel */}
-        <div className="lg:col-span-2">
-          <div className="border border-[var(--adm-border)] bg-[var(--adm-surface)] p-8 h-full min-h-[400px] flex flex-col items-center justify-center text-center">
-            <Shield size={48} className="text-[var(--adm-border)] mb-4" />
-            <h3 className="text-xl font-bold text-[var(--adm-text)] mb-2 uppercase">Role Management</h3>
-            <p className="text-[var(--adm-text-3)] max-w-md">
-              Select a role from the list to view its configuration, or create a new custom role to delegate specific permissions to your team.
-            </p>
+              );
+            })}
           </div>
-        </div>
-      </div>
 
-      {/* Create/Edit Modal */}
-      {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-          <div className="bg-[var(--adm-surface)] w-full max-w-2xl max-h-[90vh] flex flex-col overflow-hidden border border-[var(--adm-border)]">
-            <div className="px-8 py-6 border-b border-[var(--adm-border)]">
-              <h2 className="text-xl font-bold text-[var(--adm-text)] uppercase">
-                {editingRole ? `Edit ${editingRole.name}` : "Create Custom Role"}
-              </h2>
-            </div>
-            
-            <div className="p-8 overflow-y-auto flex-1">
-              <form id="roleForm" onSubmit={handleSubmit} className="flex flex-col gap-6">
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-semibold mb-2 text-[var(--adm-text-2)]">Role Name *</label>
-                    <input required type="text" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} className="w-full border border-[var(--adm-border)] bg-transparent px-4 py-2.5 outline-none focus:border-[var(--adm-blue)] transition" />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-semibold mb-2 text-[var(--adm-text-2)]">Unique Slug *</label>
-                    <input required disabled={!!editingRole} type="text" value={formData.slug} onChange={e => setFormData({...formData, slug: e.target.value.toLowerCase().replace(/\s+/g, "_")})} className="w-full border border-[var(--adm-border)] px-4 py-2.5 outline-none disabled:opacity-70" style={{ background: "var(--adm-surface-2)", color: "var(--adm-text)" }} />
-                  </div>
-                </div>
+          <div className="lg:col-span-2">
+            {!selected ? (
+              <Panel title="Permission matrix" icon={KeyRound}>
+                <EmptyBlock
+                  title="Select a role"
+                  description="Pick a role on the left to review and change the permissions it grants."
+                />
+              </Panel>
+            ) : (
+              <Panel
+                title={`${selected.name} · permissions`}
+                icon={KeyRound}
+                action={
+                  <span className="text-[11px] font-bold uppercase tracking-[0.14em] text-adm-text-3 tabular-nums">
+                    {checked.length} selected
+                  </span>
+                }
+              >
+                {selected.isSystem ? (
+                  <p className="border border-adm-border bg-adm-surface-2 p-4 text-sm text-adm-text-2">
+                    {selected.name} is a system role. Its permissions are fixed in the backend so an
+                    operator cannot lock themselves out of the admin portal.
+                  </p>
+                ) : permissions.isLoading ? (
+                  <LoadingBlock label="Loading permissions…" />
+                ) : permissions.isError ? (
+                  <ErrorBlock
+                    message={
+                      permissions.error instanceof Error
+                        ? permissions.error.message
+                        : "Could not load the permission catalogue."
+                    }
+                    onRetry={() => permissions.refetch()}
+                  />
+                ) : (
+                  <div className="flex flex-col gap-6">
+                    {grouped.map(([group, items]) => (
+                      <div key={group} className="flex flex-col gap-3">
+                        <Label>{group}</Label>
+                        <div className="grid grid-cols-1 gap-2 md:grid-cols-2">
+                          {items.map((permission) => {
+                            const on = checked.includes(permission.id);
+                            return (
+                              <label
+                                key={permission.id}
+                                className={`flex cursor-pointer items-start gap-3 border p-3 transition ${
+                                  on
+                                    ? "border-adm-blue bg-adm-blue-light"
+                                    : "border-adm-border hover:bg-adm-surface-2"
+                                }`}
+                              >
+                                <input
+                                  type="checkbox"
+                                  checked={on}
+                                  onChange={() =>
+                                    setChecked((previous) =>
+                                      previous.includes(permission.id)
+                                        ? previous.filter((id) => id !== permission.id)
+                                        : [...previous, permission.id],
+                                    )
+                                  }
+                                  className="mt-0.5 h-4 w-4 shrink-0 accent-adm-blue"
+                                />
+                                <span className="min-w-0">
+                                  <span className="block truncate font-mono text-xs font-bold text-adm-text">
+                                    {permission.slug}
+                                  </span>
+                                  <span className="block text-xs text-adm-text-3">
+                                    {permission.description || "No description"}
+                                  </span>
+                                </span>
+                              </label>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    ))}
 
-                <div>
-                  <label className="block text-sm font-semibold mb-2 text-[var(--adm-text-2)]">Description</label>
-                  <input type="text" value={formData.description} onChange={e => setFormData({...formData, description: e.target.value})} className="w-full border border-[var(--adm-border)] bg-transparent px-4 py-2.5 outline-none focus:border-[var(--adm-blue)] transition" />
-                </div>
+                    {assign.isError && (
+                      <p className="text-xs text-adm-red">
+                        {(assign.error as Error).message || "Could not save the permission set."}
+                      </p>
+                    )}
 
-                <div>
-                  <label className="block text-sm font-semibold mb-2 text-[var(--adm-text-2)]">Hierarchy Level (Authority)</label>
-                  <input type="number" min="0" max="99" value={formData.hierarchy_level} onChange={e => setFormData({...formData, hierarchy_level: parseInt(e.target.value)})} className="w-full border border-[var(--adm-border)] bg-transparent px-4 py-2.5 outline-none focus:border-[var(--adm-blue)] transition" />
-                  <p className="text-xs text-[var(--adm-text-3)] mt-1">Higher numbers indicate more authority. Max 99 (100 is reserved for Super Admin).</p>
-                </div>
-
-                <div className="pt-4 border-t border-[var(--adm-border)]">
-                  <h3 className="font-bold text-[var(--adm-text)] mb-4">Assign Permissions</h3>
-                  
-                  {editingRole?.is_system ? (
-                    <div className="p-4 text-sm" style={{ background: "var(--adm-surface-2)", color: "var(--adm-text-2)" }}>
-                      System roles have intrinsic permissions that cannot be modified through the UI.
+                    <div className="flex items-center justify-end gap-3 border-t border-adm-border pt-5">
+                      <PortalButton
+                        variant="ghost"
+                        disabled={!dirty || assign.isPending}
+                        onClick={() => selectRole(selected)}
+                      >
+                        Reset
+                      </PortalButton>
+                      <PortalButton
+                        disabled={!dirty || assign.isPending}
+                        onClick={() =>
+                          assign.mutate({ id: selected.id, permissionIds: checked })
+                        }
+                      >
+                        {assign.isPending ? "Saving…" : "Save permissions"}
+                      </PortalButton>
                     </div>
-                  ) : (
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                      {permissions.map(perm => (
-                        <label key={perm.id} className={`flex items-start gap-3 p-3 border cursor-pointer transition ${selectedPermissions.includes(perm.id) ? "border-[var(--adm-blue)] bg-[var(--adm-blue-light)]" : "border-[var(--adm-border)] hover:bg-[var(--adm-surface-2)]"}`}>
-                          <input 
-                            type="checkbox" 
-                            className="mt-1"
-                            checked={selectedPermissions.includes(perm.id)}
-                            onChange={() => togglePermission(perm.id)}
-                          />
-                          <div>
-                            <p className="text-sm font-bold text-[var(--adm-text)]">{perm.slug}</p>
-                            <p className="text-xs text-[var(--adm-text-3)]">{perm.description || "No description"}</p>
-                          </div>
-                        </label>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              </form>
-            </div>
-
-            <div className="px-8 py-4 border-t border-[var(--adm-border)] flex items-center justify-end gap-3" style={{ background: "var(--adm-surface-2)" }}>
-              <button type="button" onClick={() => setIsModalOpen(false)} className="px-4 py-2 text-sm font-semibold text-[var(--adm-text-2)] hover:text-[var(--adm-text)] transition">
-                Cancel
-              </button>
-              <button type="submit" form="roleForm" className="px-6 py-2 bg-[var(--adm-blue)] text-white text-sm font-semibold hover:opacity-90 transition">
-                Save Role
-              </button>
-            </div>
+                  </div>
+                )}
+              </Panel>
+            )}
           </div>
         </div>
       )}
+
+      <PortalDialog
+        open={editorOpen}
+        title={editing ? `Edit ${editing.name}` : "Create role"}
+        onClose={() => setEditorOpen(false)}
+      >
+        <form onSubmit={submitRole} className="flex flex-col gap-5">
+          <Field label="Role name" htmlFor="role-name">
+            <input
+              id="role-name"
+              required
+              value={draft.name}
+              onChange={(event) => setDraft({ ...draft, name: event.target.value })}
+              className={inputClass}
+            />
+          </Field>
+
+          <Field
+            label="Slug"
+            htmlFor="role-slug"
+            hint={
+              editing
+                ? "The slug is the RBAC join key and cannot change once users reference it."
+                : "Lowercase identifier used by the API. Derived from the name if left blank."
+            }
+          >
+            <input
+              id="role-slug"
+              disabled={Boolean(editing)}
+              value={draft.slug}
+              onChange={(event) => setDraft({ ...draft, slug: slugify(event.target.value) })}
+              placeholder={slugify(draft.name) || "custom_role"}
+              className={`${inputClass} font-mono disabled:opacity-60`}
+            />
+          </Field>
+
+          <Field label="Description" htmlFor="role-description">
+            <input
+              id="role-description"
+              value={draft.description}
+              onChange={(event) => setDraft({ ...draft, description: event.target.value })}
+              className={inputClass}
+            />
+          </Field>
+
+          <Field
+            label="Hierarchy level"
+            htmlFor="role-level"
+            hint="Higher wins when deciding who may act on whom. 100 is reserved for the administrator role."
+          >
+            <input
+              id="role-level"
+              type="number"
+              min={0}
+              max={99}
+              value={draft.hierarchyLevel}
+              onChange={(event) =>
+                setDraft({ ...draft, hierarchyLevel: Number(event.target.value) || 0 })
+              }
+              className={inputClass}
+            />
+          </Field>
+
+          {editorError && (
+            <p className="text-xs text-adm-red">
+              {(editorError as Error).message || "Could not save the role."}
+            </p>
+          )}
+
+          <div className="flex justify-end gap-3 border-t border-adm-border pt-5">
+            <PortalButton variant="ghost" onClick={() => setEditorOpen(false)}>
+              Cancel
+            </PortalButton>
+            <PortalButton type="submit" disabled={editorBusy}>
+              {editorBusy ? "Saving…" : editing ? "Save changes" : "Create role"}
+            </PortalButton>
+          </div>
+        </form>
+      </PortalDialog>
+
+      <PortalDialog
+        open={confirmDelete !== null}
+        title="Delete role"
+        onClose={() => setConfirmDelete(null)}
+      >
+        {confirmDelete && (
+          <div className="flex flex-col gap-5">
+            <p className="text-sm text-adm-text-2">
+              Delete <span className="font-semibold text-adm-text">{confirmDelete.name}</span>? The
+              API refuses if any user still holds it, so reassign those accounts first.
+            </p>
+            {deleteRole.isError && (
+              <p className="text-xs text-adm-red">
+                {(deleteRole.error as Error).message || "Could not delete the role."}
+              </p>
+            )}
+            <div className="flex justify-end gap-3 border-t border-adm-border pt-5">
+              <PortalButton variant="ghost" onClick={() => setConfirmDelete(null)}>
+                Cancel
+              </PortalButton>
+              <PortalButton
+                variant="danger"
+                disabled={deleteRole.isPending}
+                onClick={() =>
+                  deleteRole.mutate(confirmDelete.id, {
+                    onSuccess: () => {
+                      if (selectedId === confirmDelete.id) setSelectedId(null);
+                      setConfirmDelete(null);
+                    },
+                  })
+                }
+              >
+                {deleteRole.isPending ? "Deleting…" : "Delete role"}
+              </PortalButton>
+            </div>
+          </div>
+        )}
+      </PortalDialog>
     </div>
   );
 }

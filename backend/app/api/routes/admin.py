@@ -3,14 +3,25 @@ from datetime import datetime, timezone
 
 from fastapi import APIRouter, HTTPException, Query, status
 from sqlalchemy import func, select
+from sqlalchemy.orm import selectinload
 
 from app.api.deps import CurrentAdmin, DatabaseSession
 from app.core.security import hash_password
-from app.models.role import Role
+from app.models.role import Permission, Role, RolePermission
 from app.models.team import Team
 from app.models.user import User
 from app.schemas.common import ApiResponse, PaginatedResult, Pagination
-from app.schemas.crm import AdminUserCreate, AdminUserRead, RoleRead, TeamRead, UpdateUserRequest
+from app.schemas.crm import (
+    AdminUserCreate,
+    AdminUserRead,
+    AssignPermissionsRequest,
+    PermissionRead,
+    RoleCreate,
+    RoleRead,
+    RoleUpdate,
+    TeamRead,
+    UpdateUserRequest,
+)
 
 router = APIRouter(prefix="/admin", tags=["admin"])
 
@@ -56,6 +67,22 @@ def _get_team(db: DatabaseSession, team_id: uuid.UUID | None) -> Team | None:
 def _split_name(name: str) -> tuple[str, str]:
     parts = name.strip().split(" ", 1)
     return parts[0], parts[1] if len(parts) > 1 else ""
+
+
+def _to_role_read(role: Role) -> RoleRead:
+    """Roles always travel with their permission list — the admin UI shows a
+    per-role count and pre-checks the assignment boxes from it."""
+    return RoleRead(
+        id=role.id,
+        slug=role.slug,
+        name=role.name,
+        hierarchy_level=role.hierarchy_level,
+        description=role.description,
+        is_system=role.is_system,
+        permissions=[
+            PermissionRead(id=p.id, slug=p.slug, description=p.description) for p in role.permissions
+        ],
+    )
 
 
 @router.get("/users", response_model=ApiResponse[PaginatedResult[AdminUserRead]])
@@ -182,20 +209,12 @@ def update_user(
 
 @router.get("/roles", response_model=ApiResponse[list[RoleRead]])
 def list_roles(db: DatabaseSession, _admin: CurrentAdmin) -> ApiResponse[list[RoleRead]]:
-    roles = db.scalars(select(Role).order_by(Role.hierarchy_level.desc(), Role.name.asc())).all()
-    return ApiResponse(
-        data=[
-            RoleRead(
-                id=role.id,
-                slug=role.slug,
-                name=role.name,
-                hierarchy_level=role.hierarchy_level,
-                description=role.description,
-                is_system=role.is_system,
-            )
-            for role in roles
-        ]
-    )
+    roles = db.scalars(
+        select(Role)
+        .options(selectinload(Role.permissions))
+        .order_by(Role.hierarchy_level.desc(), Role.name.asc())
+    ).all()
+    return ApiResponse(data=[_to_role_read(role) for role in roles])
 
 
 @router.get("/teams", response_model=ApiResponse[list[TeamRead]])
@@ -228,9 +247,6 @@ def admin_metrics(db: DatabaseSession, _admin: CurrentAdmin) -> ApiResponse[dict
     suspended = db.scalar(select(func.count()).select_from(User).where(User.status == "suspended")) or 0
     return ApiResponse(data={"total": total, "pending": pending, "approved": approved, "suspended": suspended})
 
-from app.schemas.crm import PermissionRead, RoleCreate, RoleUpdate, AssignPermissionsRequest
-from app.models.role import Permission, RolePermission
-
 @router.get("/permissions", response_model=ApiResponse[list[PermissionRead]])
 def list_permissions(db: DatabaseSession, _admin: CurrentAdmin) -> ApiResponse[list[PermissionRead]]:
     permissions = db.scalars(select(Permission).order_by(Permission.slug.asc())).all()
@@ -250,7 +266,7 @@ def create_role(payload: RoleCreate, db: DatabaseSession, _admin: CurrentAdmin) 
     existing = db.scalar(select(Role).where(Role.slug == payload.slug))
     if existing:
         raise HTTPException(status_code=400, detail="Role with this slug already exists")
-    
+
     role = Role(
         slug=payload.slug,
         name=payload.name,
@@ -261,48 +277,26 @@ def create_role(payload: RoleCreate, db: DatabaseSession, _admin: CurrentAdmin) 
     db.add(role)
     db.commit()
     db.refresh(role)
-    
-    return ApiResponse(
-        data=RoleRead(
-            id=role.id,
-            slug=role.slug,
-            name=role.name,
-            hierarchy_level=role.hierarchy_level,
-            description=role.description,
-            is_system=role.is_system,
-            permissions=[]
-        ),
-        message="Role created successfully"
-    )
+
+    return ApiResponse(data=_to_role_read(role), message="Role created successfully")
 
 @router.patch("/roles/{role_id}", response_model=ApiResponse[RoleRead])
 def update_role(role_id: uuid.UUID, payload: RoleUpdate, db: DatabaseSession, _admin: CurrentAdmin) -> ApiResponse[RoleRead]:
     role = db.get(Role, role_id)
     if not role:
         raise HTTPException(status_code=404, detail="Role not found")
-        
+
     if payload.name is not None:
         role.name = payload.name
     if payload.description is not None:
         role.description = payload.description
     if payload.hierarchy_level is not None:
         role.hierarchy_level = payload.hierarchy_level
-        
+
     db.commit()
     db.refresh(role)
-    
-    return ApiResponse(
-        data=RoleRead(
-            id=role.id,
-            slug=role.slug,
-            name=role.name,
-            hierarchy_level=role.hierarchy_level,
-            description=role.description,
-            is_system=role.is_system,
-            permissions=[PermissionRead(id=p.id, slug=p.slug, description=p.description) for p in role.permissions]
-        ),
-        message="Role updated successfully"
-    )
+
+    return ApiResponse(data=_to_role_read(role), message="Role updated successfully")
 
 @router.delete("/roles/{role_id}", response_model=ApiResponse[dict])
 def delete_role(role_id: uuid.UUID, db: DatabaseSession, _admin: CurrentAdmin) -> ApiResponse[dict]:
@@ -327,26 +321,27 @@ def assign_role_permissions(role_id: uuid.UUID, payload: AssignPermissionsReques
     role = db.get(Role, role_id)
     if not role:
         raise HTTPException(status_code=404, detail="Role not found")
-    
-    # Remove existing permissions
-    db.query(RolePermission).filter(RolePermission.role_id == role_id).delete()
-    
-    # Add new permissions
-    for perm_id in payload.permission_ids:
-        db.add(RolePermission(role_id=role_id, permission_id=perm_id))
-        
-    db.commit()
-    db.refresh(role)
-    
-    return ApiResponse(
-        data=RoleRead(
-            id=role.id,
-            slug=role.slug,
-            name=role.name,
-            hierarchy_level=role.hierarchy_level,
-            description=role.description,
-            is_system=role.is_system,
-            permissions=[PermissionRead(id=p.id, slug=p.slug, description=p.description) for p in role.permissions]
-        ),
-        message="Permissions updated successfully"
+    if role.is_system:
+        raise HTTPException(status_code=400, detail="System role permissions cannot be reassigned")
+
+    # De-duplicate before the insert: the join table has a uniqueness constraint,
+    # and a repeated id in the payload would otherwise abort the transaction.
+    wanted = list(dict.fromkeys(payload.permission_ids))
+    if wanted:
+        known = set(db.scalars(select(Permission.id).where(Permission.id.in_(wanted))).all())
+        missing = [str(pid) for pid in wanted if pid not in known]
+        if missing:
+            raise HTTPException(status_code=400, detail=f"Unknown permission ids: {', '.join(missing)}")
+
+    db.query(RolePermission).filter(RolePermission.role_id == role_id).delete(
+        synchronize_session=False
     )
+    for perm_id in wanted:
+        db.add(RolePermission(role_id=role_id, permission_id=perm_id))
+
+    db.commit()
+    # The bulk delete above bypassed the identity map, so drop the cached
+    # relationship and let it reload from the committed rows.
+    db.expire(role, ["permissions"])
+
+    return ApiResponse(data=_to_role_read(role), message="Permissions updated successfully")

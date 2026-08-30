@@ -4,7 +4,7 @@ from fastapi import APIRouter, HTTPException, Query, status
 from sqlalchemy import func, select
 from typing import List
 
-from app.api.deps import CurrentUser, DatabaseSession, CurrentAdmin
+from app.api.deps import CurrentUser, DatabaseSession, CurrentManager
 from app.models.leave import LeaveRequest
 from app.models.employee import Employee
 from app.schemas.leave import LeaveRequestCreate, LeaveRequestUpdate, LeaveRequestRead
@@ -71,11 +71,18 @@ def get_my_leave_requests(db: DatabaseSession, current_user: CurrentUser):
 
 # Admin routes
 @router.get("/admin", response_model=List[LeaveRequestRead])
-def get_all_leave_requests(db: DatabaseSession, current_admin: CurrentAdmin, status: str = Query(None)):
+def get_all_leave_requests(
+    db: DatabaseSession,
+    current_manager: CurrentManager,
+    status: str = Query(None),
+    employee_id: UUID = Query(None, alias="employeeId"),
+):
     stmt = select(LeaveRequest).order_by(LeaveRequest.created_at.desc())
     if status:
         stmt = stmt.where(LeaveRequest.status == status)
-        
+    if employee_id:
+        stmt = stmt.where(LeaveRequest.employee_id == employee_id)
+
     records = db.scalars(stmt).all()
     
     return [
@@ -95,16 +102,24 @@ def get_all_leave_requests(db: DatabaseSession, current_admin: CurrentAdmin, sta
     ]
 
 @router.patch("/admin/{leave_id}/status", response_model=LeaveRequestRead)
-def update_leave_status(leave_id: UUID, payload: LeaveRequestUpdate, db: DatabaseSession, current_admin: CurrentAdmin):
+def update_leave_status(
+    leave_id: UUID, payload: LeaveRequestUpdate, db: DatabaseSession, current_manager: CurrentManager
+):
+    """Approve or reject a request.
+
+    Manager-gated to match ``GET /admin`` above: that already showed the queue to
+    execs and team leads, so admin-only decisions left them looking at a list
+    they could not act on. ``manager_id`` records who actually decided.
+    """
     leave = db.get(LeaveRequest, leave_id)
     if not leave:
         raise HTTPException(status_code=404, detail="Leave request not found")
-        
+
     leave.status = payload.status
-    leave.manager_id = current_admin.id
+    leave.manager_id = current_manager.id
     if payload.manager_notes:
         leave.manager_notes = payload.manager_notes
-        
+
     db.commit()
     db.refresh(leave)
     

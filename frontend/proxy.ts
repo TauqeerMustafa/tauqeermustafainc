@@ -22,6 +22,15 @@ import type { NextRequest } from "next/server";
 //   diagnose — ops endpoint, guarded by its own WA_DIAGNOSE_KEY
 const OPEN_PATHS = ["/api/whatsapp/webhook", "/api/whatsapp/diagnose"];
 
+/**
+ * Path prefixes that already resolve on the portals host and must NOT be
+ * rewritten under /client. The four portals each own a real namespace
+ * (see frontend/config/portals.ts), plus /portals is the chooser itself.
+ * `/management` was missing from this list, so https://portals…/management/login
+ * rewrote to /client/management/login and 404'd.
+ */
+const PORTAL_PREFIXES = ["/portals", "/admin", "/employees", "/management", "/client"];
+
 function unauthorized(status: number, error: string) {
   return NextResponse.json({ success: false, error }, { status });
 }
@@ -51,7 +60,7 @@ export async function proxy(request: NextRequest) {
         url.pathname = "/portals";
         return NextResponse.rewrite(url);
       }
-      if (!pathname.startsWith("/client") && !pathname.startsWith("/admin") && !pathname.startsWith("/portals") && !pathname.startsWith("/employees")) {
+      if (!PORTAL_PREFIXES.some((prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`))) {
         url.pathname = `/client${pathname}`;
         return NextResponse.rewrite(url);
       }

@@ -6,9 +6,11 @@ import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import { ArrowLeft, Loader2, ShieldCheck } from "lucide-react";
 
-import { PageHero, Section } from "@/components/home/ui";
+import { Field, PortalButton, inputClass } from "@/components/portal/PortalUI";
 import { useLogin } from "@/hooks/useAuth";
+import { PORTAL, PORTAL_HOME_PATH, PORTAL_LABEL, type PortalId } from "@/lib/rbac";
 import { useAuthContext } from "@/providers/auth-provider";
 import type { ApiError } from "@/types";
 import { appConfig } from "@/config/app";
@@ -21,10 +23,33 @@ const loginSchema = z.object({
 
 type LoginFormData = z.infer<typeof loginSchema>;
 
-export default function LoginForm({ redirectUrl = "/admin/dashboard" }: { redirectUrl?: string }) {
+/** Portal-specific sub-headline, so three portals stop claiming to be the admin one. */
+const BLURB: Record<PortalId, string> = {
+  [PORTAL.ADMIN]: "Full control of people, content, access, and customer communication.",
+  [PORTAL.EMPLOYEES]: "Check in, request leave, and pick up your assigned work.",
+  [PORTAL.MANAGEMENT]: "Headcount, delivery health, and pipeline reporting for leadership.",
+  [PORTAL.CLIENT]: "Track your projects and access shared documents.",
+};
+
+/**
+ * Shared sign-in card for the staff portals (/admin, /employees, /management).
+ *
+ * It used to hard-code the marketing palette, render the marketing `PageHero`,
+ * and announce "Access the admin workspace" no matter which portal mounted it —
+ * so an employee signing in was told they were entering admin. It now takes the
+ * portal it belongs to and derives its copy and landing route from lib/rbac.
+ */
+export default function LoginForm({
+  portal = PORTAL.ADMIN,
+  redirectUrl,
+}: {
+  portal?: PortalId;
+  redirectUrl?: string;
+}) {
   const router = useRouter();
   const { isAuthenticated } = useAuthContext();
   const loginMutation = useLogin();
+  const destination = redirectUrl ?? PORTAL_HOME_PATH[portal];
 
   const {
     register,
@@ -35,103 +60,112 @@ export default function LoginForm({ redirectUrl = "/admin/dashboard" }: { redire
     defaultValues: { remember: false },
   });
 
+  // `destination` belongs in the dep list: it changes with the portal prop, and
+  // omitting it meant a re-render could redirect to a stale route.
   useEffect(() => {
-    if (isAuthenticated) {
-      router.replace(redirectUrl);
-    }
-  }, [isAuthenticated, router]);
+    if (isAuthenticated) router.replace(destination);
+  }, [isAuthenticated, router, destination]);
 
   async function onSubmit(data: LoginFormData) {
     try {
       await loginMutation.mutateAsync(data);
-      router.replace(redirectUrl);
-    } catch (error) {
-      // surfaced via loginMutation.isError below
-      console.error("Login error:", error);
+      router.replace(destination);
+    } catch {
+      // Surfaced by the error panel below; a failed sign-in must not navigate.
     }
   }
 
   const apiError = loginMutation.error as ApiError | undefined;
-  const errorMessage = apiError?.message ?? "Unable to connect to the server. Please check if the backend is running or try again later.";
+  const busy = isSubmitting || loginMutation.isPending;
 
   return (
-    <>
-      <div className="border-b border-[#e2ded9] bg-white px-5 py-4 sm:px-6">
-        <Link href="/" className="text-sm font-semibold text-[#141413] hover:text-[#2a2a28]">
-          &larr; Back to tauqeermustafa.tech
-        </Link>
-      </div>
+    <div className="adm-page flex min-h-screen flex-col bg-adm-bg">
+      <div className="m-stripe" aria-hidden="true" />
+      <div className="flex flex-1 items-center justify-center p-4 sm:p-8">
+        <div className="w-full max-w-md">
+          <Link
+            href="/portals"
+            className="mb-6 inline-flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.14em] text-adm-text-3 transition hover:text-adm-text"
+          >
+            <ArrowLeft size={14} />
+            All portals
+          </Link>
 
-      <PageHero
-        eyebrow="Login"
-        title="Access the admin workspace."
-        description="Sign in to manage services, portfolio, blog posts, job listings, and incoming messages."
-      />
-
-      <Section className="bg-[#f3f0ee]" labelledBy="login-title">
-        <div className="mx-auto max-w-md rounded-none border border-[#e2ded9] bg-white p-8 shadow-sm">
-          <h2 id="login-title" className="text-2xl font-semibold tracking-tight text-[#141413]">
-            Sign in
-          </h2>
-          <form onSubmit={handleSubmit(onSubmit)} className="mt-8 grid gap-5" noValidate>
-            <label className="grid gap-2 text-sm font-semibold text-[#141413]">
-              Email
-              <input
-                type="email"
-                autoComplete="email"
-                {...register("email")}
-                className="rounded-none border border-[#e2ded9] bg-white px-4 py-3 text-sm outline-none transition focus:border-[#141413] focus:ring-2 focus:ring-[#141413]/20"
-                placeholder="admin@tauqeermustafa.tech"
-              />
-              {errors.email ? <p className="text-sm font-normal text-red-600">{errors.email.message}</p> : null}
-            </label>
-            <label className="grid gap-2 text-sm font-semibold text-[#141413]">
-              Password
-              <input
-                type="password"
-                autoComplete="current-password"
-                {...register("password")}
-                className="rounded-none border border-[#e2ded9] bg-white px-4 py-3 text-sm outline-none transition focus:border-[#141413] focus:ring-2 focus:ring-[#141413]/20"
-                placeholder="Password"
-              />
-              {errors.password ? <p className="text-sm font-normal text-red-600">{errors.password.message}</p> : null}
-            </label>
-            <div className="flex items-center justify-between gap-4 text-sm">
-              <label className="flex items-center gap-2 font-medium text-[#141413]">
-                <input
-                  type="checkbox"
-                  {...register("remember")}
-                  className="h-4 w-4 rounded border-[#e2ded9] accent-[#141413]"
-                />
-                Stay signed in
-              </label>
+          <div className="border border-adm-border bg-adm-surface">
+            <div className="flex items-center gap-3 border-b border-adm-border bg-adm-surface-2 px-6 py-4">
+              <span className="flex h-9 w-9 shrink-0 items-center justify-center bg-adm-blue-light text-adm-blue">
+                <ShieldCheck size={17} />
+              </span>
+              <div className="min-w-0">
+                <h1 className="text-sm font-bold uppercase tracking-[0.12em] text-adm-text">
+                  {PORTAL_LABEL[portal]} portal
+                </h1>
+                <p className="truncate text-xs text-adm-text-3">{BLURB[portal]}</p>
+              </div>
             </div>
 
-            {loginMutation.isError ? (
-              <div className="rounded-lg border border-red-200 bg-red-50 p-4">
-                <p className="text-sm font-medium text-red-800" role="alert">
-                  {errorMessage}
-                </p>
-                {apiError?.status === undefined && (
-                  <p className="mt-2 text-xs text-red-600">
-                    Make sure the backend server is running at{" "}
-                    <code className="rounded bg-red-100 px-1 py-0.5">{appConfig.apiBaseUrl}</code>
-                  </p>
-                )}
-              </div>
-            ) : null}
+            <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5 p-6" noValidate>
+              <Field label="Email" htmlFor="login-email">
+                <input
+                  id="login-email"
+                  type="email"
+                  autoComplete="email"
+                  placeholder="you@tauqeermustafa.tech"
+                  className={inputClass}
+                  {...register("email")}
+                />
+                {errors.email && <p className="mt-1 text-xs text-adm-red">{errors.email.message}</p>}
+              </Field>
 
-            <button
-              type="submit"
-              disabled={isSubmitting || loginMutation.isPending}
-              className="rounded-none bg-[#141413] px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-[#2a2a28] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#141413] disabled:opacity-50"
-            >
-              {isSubmitting || loginMutation.isPending ? "Signing in..." : "Sign in"}
-            </button>
-          </form>
+              <Field label="Password" htmlFor="login-password">
+                <input
+                  id="login-password"
+                  type="password"
+                  autoComplete="current-password"
+                  placeholder="••••••••"
+                  className={inputClass}
+                  {...register("password")}
+                />
+                {errors.password && (
+                  <p className="mt-1 text-xs text-adm-red">{errors.password.message}</p>
+                )}
+              </Field>
+
+              <label className="flex items-center gap-2.5 text-xs text-adm-text-2">
+                <input
+                  type="checkbox"
+                  className="h-4 w-4 accent-adm-blue"
+                  {...register("remember")}
+                />
+                Stay signed in on this device
+              </label>
+
+              {loginMutation.isError && (
+                <div className="border border-adm-red/40 bg-adm-red-light p-4">
+                  <p className="text-xs font-semibold text-adm-red" role="alert">
+                    {apiError?.message ?? "Sign-in failed. Check your details and try again."}
+                  </p>
+                  {apiError?.status === undefined && (
+                    <p className="mt-2 text-xs text-adm-text-3">
+                      No response from the API at{" "}
+                      <code className="text-adm-text-2">{appConfig.apiBaseUrl}</code> — it may be
+                      asleep or unreachable.
+                    </p>
+                  )}
+                </div>
+              )}
+
+              <PortalButton type="submit" disabled={busy} icon={busy ? Loader2 : undefined}>
+                {busy ? "Signing in…" : "Sign in"}
+              </PortalButton>
+            </form>
+          </div>
+
+          <p className="mt-5 text-center text-xs text-adm-text-3">
+            Trouble signing in? Contact your administrator.
+          </p>
         </div>
-      </Section>
-    </>
+      </div>
+    </div>
   );
 }
-

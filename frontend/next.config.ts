@@ -17,11 +17,9 @@ const nextConfig: NextConfig = {
       },
     ],
   },
-  eslint: { ignoreDuringBuilds: true },
+  // Next 16 dropped `next lint`, so the old `eslint: { ignoreDuringBuilds }`
+  // key no longer exists on NextConfig — linting is a separate `eslint` run.
   typescript: { ignoreBuildErrors: true },
-  async redirects() {
-    return [];
-  },
 };
 
 export default nextConfig;

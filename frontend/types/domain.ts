@@ -91,6 +91,12 @@ export interface AdminUser {
   createdAt: string;
 }
 
+export interface AdminPermission {
+  id: string;
+  slug: string;
+  description?: string | null;
+}
+
 export interface AdminRole {
   id: string;
   slug: string;
@@ -98,6 +104,8 @@ export interface AdminRole {
   hierarchyLevel: number;
   description?: string;
   isSystem: boolean;
+  /** GET /admin/roles eager-loads these, so counts are available on the list. */
+  permissions?: AdminPermission[];
 }
 
 export interface AdminTeam {
@@ -120,4 +128,72 @@ export interface LoginCredentials {
   email: string;
   password: string;
   remember?: boolean;
+}
+
+// ── Leads / sales pipeline ────────────────────────────────────────────────────
+
+export type LeadStatus =
+  | "new"
+  | "contacted"
+  | "follow_up"
+  | "qualified"
+  | "proposal_sent"
+  | "won"
+  | "lost";
+
+export type LeadSource = "cold_call" | "linkedin" | "referral" | "email" | "other";
+
+export interface LeadActivity {
+  id: string;
+  type: string;
+  body: string;
+  authorId?: string | null;
+  authorName?: string | null;
+  createdAt: string;
+}
+
+export interface Lead {
+  id: string;
+  companyName: string;
+  contactPerson: string;
+  contactTitle?: string | null;
+  phone?: string | null;
+  email?: string | null;
+  source: LeadSource | string;
+  industry?: string | null;
+  status: LeadStatus | string;
+  estimatedValue?: number | null;
+  currency: string;
+  nextFollowUpDate?: string | null;
+  assignedExecId?: string | null;
+  assignedExecName?: string | null;
+  createdById?: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface LeadDetail extends Lead {
+  activities: LeadActivity[];
+}
+
+export interface PipelineStage {
+  status: string;
+  label: string;
+  count: number;
+  value: number;
+}
+
+/**
+ * GET /leads/pipeline. `scope` echoes the slice the caller was allowed to see
+ * ('own' | 'team' | 'all') so the UI can label the totals honestly.
+ */
+export interface LeadPipeline {
+  scope: "own" | "team" | "all" | string;
+  stages: PipelineStage[];
+  totalLeads: number;
+  totalValue: number;
+  openValue: number;
+  wonValue: number;
+  lostValue: number;
+  followUpsDue: number;
 }

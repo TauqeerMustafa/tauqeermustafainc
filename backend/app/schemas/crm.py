@@ -216,3 +216,31 @@ class LeadRead(CamelModel):
 
 class LeadDetail(LeadRead):
     activities: list[LeadActivityRead] = Field(default_factory=list)
+
+
+# ── Pipeline reporting ───────────────────────────────────────────────────────────
+class PipelineStage(CamelModel):
+    """One column of the sales funnel, aggregated over the caller's read scope."""
+
+    status: str
+    label: str
+    count: int = 0
+    value: float = 0.0
+
+
+class LeadPipelineResponse(CamelModel):
+    """Aggregate view behind the management portal's Pipeline page.
+
+    ``scope`` echoes which slice the caller was allowed to see ('own', 'team' or
+    'all') so the UI can label the numbers honestly instead of implying they are
+    company-wide.
+    """
+
+    scope: str
+    stages: list[PipelineStage] = Field(default_factory=list)
+    total_leads: int = 0
+    total_value: float = 0.0
+    open_value: float = 0.0
+    won_value: float = 0.0
+    lost_value: float = 0.0
+    follow_ups_due: int = 0

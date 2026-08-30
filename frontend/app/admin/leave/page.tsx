@@ -1,85 +1,223 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { Check, X, Inbox } from "lucide-react";
+import { useState } from "react";
+import { Check, X } from "lucide-react";
+
+import {
+  EmptyBlock,
+  ErrorBlock,
+  Field,
+  Label,
+  LoadingBlock,
+  PortalButton,
+  PortalDialog,
+  PortalPageHeader,
+  StatusPill,
+  inputClass,
+} from "@/components/portal/PortalUI";
+import { useDecideLeave, useLeaveQueue } from "@/hooks/useLeave";
+import type { LeaveRequest } from "@/types";
+
+const FILTERS = [
+  { value: "pending", label: "Pending" },
+  { value: "approved", label: "Approved" },
+  { value: "rejected", label: "Rejected" },
+  { value: "", label: "All" },
+] as const;
+
+function formatDate(value: string | null | undefined) {
+  if (!value) return "—";
+  const parsed = new Date(value);
+  return Number.isNaN(parsed.getTime())
+    ? value
+    : parsed.toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" });
+}
+
+type Decision = { request: LeaveRequest; status: "approved" | "rejected" };
 
 export default function AdminLeavePage() {
-  const [requests, setRequests] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [filter, setFilter] = useState<string>("pending");
+  const { data, isLoading, isError, error, refetch } = useLeaveQueue(filter);
+  const decide = useDecideLeave();
+  const [pending, setPending] = useState<Decision | null>(null);
+  const [notes, setNotes] = useState("");
 
-  useEffect(() => {
-    fetch("/api/leave/admin?status=pending")
-      .then(res => res.json())
-      .then(data => setRequests(data || []))
-      .catch(() => {
-        // Mock data
-        setRequests([
-          { id: "1", employee_name: "Alice Smith", start_date: "2024-11-10", end_date: "2024-11-12", leave_type: "sick", reason: "Fever and rest" },
-          { id: "2", employee_name: "Bob Johnson", start_date: "2024-12-01", end_date: "2024-12-14", leave_type: "vacation", reason: "Winter break" },
-        ]);
-      })
-      .finally(() => setLoading(false));
-  }, []);
+  const requests = data ?? [];
 
-  const handleAction = (id: string, action: 'approved' | 'rejected') => {
-    // API call to PATCH /api/leave/admin/{id}/status
-    setRequests(requests.filter(r => r.id !== id));
-    alert(`Request ${action} successfully!`);
-  };
+  function confirm() {
+    if (!pending) return;
+    decide.mutate(
+      {
+        id: pending.request.id,
+        payload: { status: pending.status, managerNotes: notes.trim() || undefined },
+      },
+      {
+        onSuccess: () => {
+          setPending(null);
+          setNotes("");
+        },
+      },
+    );
+  }
 
   return (
-    <div className="flex flex-col gap-6">
-      <div>
-        <h1 className="text-2xl font-bold uppercase" style={{ color: "var(--adm-text)" }}>Leave Approvals</h1>
-        <p className="text-sm mt-1" style={{ color: "var(--adm-text-3)" }}>Review and manage employee time-off requests.</p>
+    <div className="flex flex-col gap-8">
+      <PortalPageHeader
+        title="Leave Approvals"
+        description="Review time-off requests and record the reasoning behind each decision."
+      />
+
+      <div className="flex flex-wrap gap-2" role="tablist" aria-label="Filter by status">
+        {FILTERS.map((option) => {
+          const active = filter === option.value;
+          return (
+            <button
+              key={option.label}
+              type="button"
+              role="tab"
+              aria-selected={active}
+              onClick={() => setFilter(option.value)}
+              className={`border px-4 py-2 text-[11px] font-bold uppercase tracking-[0.14em] transition ${
+                active
+                  ? "border-adm-blue bg-adm-blue-light text-adm-blue"
+                  : "border-adm-border text-adm-text-3 hover:bg-adm-surface-2 hover:text-adm-text"
+              }`}
+            >
+              {option.label}
+            </button>
+          );
+        })}
       </div>
 
-      <div className="grid grid-cols-1 gap-4">
-        {loading ? (
-          <div className="p-12 text-center text-[var(--adm-text-3)]">Loading requests...</div>
-        ) : requests.length === 0 ? (
-          <div className="p-16 text-center flex flex-col items-center gap-4 bg-[var(--adm-surface)] border border-[var(--adm-border)]">
-            <div className="h-16 w-16 rounded-full flex items-center justify-center" style={{ background: "var(--adm-surface-2)", color: "var(--adm-text-3)" }}>
-              <Inbox size={32} />
-            </div>
-            <div>
-              <p className="font-bold text-[var(--adm-text)]">Inbox Zero!</p>
-              <p className="text-sm text-[var(--adm-text-3)]">There are no pending leave requests to review.</p>
+      {isLoading ? (
+        <LoadingBlock label="Loading requests…" />
+      ) : isError ? (
+        <ErrorBlock
+          message={error instanceof Error ? error.message : "Could not load the approval queue."}
+          onRetry={() => refetch()}
+        />
+      ) : requests.length === 0 ? (
+        <EmptyBlock
+          title={filter === "pending" ? "Inbox zero" : "Nothing to show"}
+          description={
+            filter === "pending"
+              ? "There are no leave requests waiting on a decision."
+              : "No requests match this filter."
+          }
+        />
+      ) : (
+        <ul className="flex flex-col gap-4">
+          {requests.map((request) => (
+            <li
+              key={request.id}
+              className="flex flex-col gap-5 border border-adm-border bg-adm-surface p-5 md:flex-row md:items-center md:justify-between"
+            >
+              <div className="flex min-w-0 items-start gap-4">
+                <span className="flex h-11 w-11 shrink-0 items-center justify-center bg-adm-blue-light text-base font-bold text-adm-blue">
+                  {(request.employeeName ?? "E").charAt(0).toUpperCase()}
+                </span>
+                <div className="min-w-0">
+                  <div className="flex flex-wrap items-center gap-3">
+                    <h3 className="text-sm font-bold uppercase tracking-[0.06em] text-adm-text">
+                      {request.employeeName ?? "Unknown employee"}
+                    </h3>
+                    <Label>{request.leaveType}</Label>
+                    <StatusPill status={request.status} />
+                  </div>
+                  <p className="mt-1.5 text-sm font-semibold text-adm-text-2">
+                    {formatDate(request.startDate)} → {formatDate(request.endDate)}
+                  </p>
+                  {request.reason && (
+                    <p className="mt-1 text-sm text-adm-text-3">{request.reason}</p>
+                  )}
+                  {request.managerNotes && (
+                    <p className="mt-2 border-l-2 border-adm-border pl-3 text-xs text-adm-text-3">
+                      Manager note: {request.managerNotes}
+                    </p>
+                  )}
+                </div>
+              </div>
+
+              {request.status === "pending" && (
+                <div className="flex shrink-0 items-center gap-2">
+                  <PortalButton
+                    variant="ghost"
+                    icon={X}
+                    onClick={() => {
+                      setPending({ request, status: "rejected" });
+                      setNotes("");
+                    }}
+                  >
+                    Reject
+                  </PortalButton>
+                  <PortalButton
+                    icon={Check}
+                    onClick={() => {
+                      setPending({ request, status: "approved" });
+                      setNotes("");
+                    }}
+                  >
+                    Approve
+                  </PortalButton>
+                </div>
+              )}
+            </li>
+          ))}
+        </ul>
+      )}
+
+      <PortalDialog
+        open={pending !== null}
+        title={pending?.status === "rejected" ? "Reject request" : "Approve request"}
+        onClose={() => setPending(null)}
+      >
+        {pending && (
+          <div className="flex flex-col gap-5">
+            <p className="text-sm text-adm-text-2">
+              {pending.status === "rejected" ? "Rejecting" : "Approving"}{" "}
+              <span className="font-semibold text-adm-text">
+                {pending.request.employeeName ?? "this employee"}
+              </span>
+              &apos;s {pending.request.leaveType} leave from {formatDate(pending.request.startDate)} to{" "}
+              {formatDate(pending.request.endDate)}.
+            </p>
+
+            <Field label="Manager notes" htmlFor="decision-notes" hint="Optional, visible to the employee.">
+              <textarea
+                id="decision-notes"
+                rows={3}
+                value={notes}
+                onChange={(event) => setNotes(event.target.value)}
+                className={`${inputClass} resize-none`}
+                placeholder="Add context for this decision…"
+              />
+            </Field>
+
+            {decide.isError && (
+              <p className="text-xs text-adm-red">
+                {(decide.error as Error).message || "Could not record the decision."}
+              </p>
+            )}
+
+            <div className="flex justify-end gap-3 border-t border-adm-border pt-5">
+              <PortalButton variant="ghost" onClick={() => setPending(null)}>
+                Cancel
+              </PortalButton>
+              <PortalButton
+                variant={pending.status === "rejected" ? "danger" : "primary"}
+                disabled={decide.isPending}
+                onClick={confirm}
+              >
+                {decide.isPending
+                  ? "Saving…"
+                  : pending.status === "rejected"
+                    ? "Reject request"
+                    : "Approve request"}
+              </PortalButton>
             </div>
           </div>
-        ) : (
-          requests.map((req) => (
-            <div key={req.id} className="border border-[var(--adm-border)] bg-[var(--adm-surface)] p-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
-              <div className="flex items-start gap-4">
-                <div className="h-12 w-12 rounded-full bg-[var(--adm-blue-light)] flex items-center justify-center text-[var(--adm-blue)] font-bold text-lg shrink-0">
-                  {req.employee_name?.charAt(0) || "E"}
-                </div>
-                <div>
-                  <div className="flex items-center gap-3 mb-1">
-                    <h3 className="font-bold text-[var(--adm-text)]">{req.employee_name}</h3>
-                    <span className="px-2.5 py-0.5 text-[10px] uppercase font-bold tracking-wider" style={{ background: "var(--adm-surface-2)", color: "var(--adm-text-2)" }}>
-                      {req.leave_type}
-                    </span>
-                  </div>
-                  <p className="text-sm font-semibold text-[var(--adm-text-2)] mb-2">
-                    {req.start_date} &rarr; {req.end_date}
-                  </p>
-                  <p className="text-sm text-[var(--adm-text-3)] italic">"{req.reason}"</p>
-                </div>
-              </div>
-              
-              <div className="flex items-center gap-2 w-full md:w-auto">
-                <button onClick={() => handleAction(req.id, 'rejected')} className="flex-1 md:flex-none px-6 py-2.5 border font-bold text-sm hover:bg-[var(--adm-red-light)] transition flex items-center justify-center gap-2" style={{ borderColor: "var(--adm-red)", color: "var(--adm-red)" }}>
-                  <X size={16} /> Reject
-                </button>
-                <button onClick={() => handleAction(req.id, 'approved')} className="flex-1 md:flex-none px-6 py-2.5 text-white font-bold text-sm transition hover:opacity-90 flex items-center justify-center gap-2" style={{ background: "var(--adm-green)" }}>
-                  <Check size={16} /> Approve
-                </button>
-              </div>
-            </div>
-          ))
         )}
-      </div>
+      </PortalDialog>
     </div>
   );
 }

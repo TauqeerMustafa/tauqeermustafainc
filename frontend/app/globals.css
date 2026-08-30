@@ -234,6 +234,30 @@
   --color-m-blue-mid:    #1c69d4;
   --color-m-red:         #e22718;
 
+  /* ── Portal (admin/employees/client/management) palette ──
+     Registering the --adm-* tokens here is what makes `bg-adm-surface`,
+     `text-adm-text-3`, `border-adm-border` … real utilities. Before this the
+     tokens existed only as raw custom properties, so every portal file had to
+     reach for inline `style={{}}` or `[var(--adm-x)]` and the styling drifted
+     file by file. */
+  --color-adm-bg:          var(--adm-bg);
+  --color-adm-surface:     var(--adm-surface);
+  --color-adm-surface-2:   var(--adm-surface-2);
+  --color-adm-border:      var(--adm-border);
+  --color-adm-border-2:    var(--adm-border-2);
+  --color-adm-text:        var(--adm-text);
+  --color-adm-text-2:      var(--adm-text-2);
+  --color-adm-text-3:      var(--adm-text-3);
+  --color-adm-blue:        var(--adm-blue);
+  --color-adm-blue-light:  var(--adm-blue-light);
+  --color-adm-blue-mid:    var(--adm-blue-mid);
+  --color-adm-green:       var(--adm-green);
+  --color-adm-green-light: var(--adm-green-light);
+  --color-adm-amber:       var(--adm-amber);
+  --color-adm-amber-light: var(--adm-amber-light);
+  --color-adm-red:         var(--adm-red);
+  --color-adm-red-light:   var(--adm-red-light);
+
   --radius-sm: 0.5rem; --radius-md: 0.688rem; --radius-lg: 1.125rem; --radius-xl: 2.5rem;
 }
 

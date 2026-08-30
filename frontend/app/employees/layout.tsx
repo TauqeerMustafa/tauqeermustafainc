@@ -1,30 +1,12 @@
-"use client";
-import { ReactNode, useState } from "react";
-import { usePathname } from "next/navigation";
+import type { ReactNode } from "react";
 
-import PortalGuard from "@/components/portal/PortalGuard";
-import PortalSidebar from "@/components/portal/PortalSidebar";
-import PortalHeader from "@/components/portal/PortalHeader";
+import PortalShell from "@/components/portal/PortalShell";
+import { PORTAL } from "@/lib/rbac";
 
-export default function EmployeeLayout({ children }: { children: ReactNode }) {
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const pathname = usePathname();
-
-  if (pathname === "/employees/login") {
-    return <>{children}</>;
-  }
-
+export default function EmployeesLayout({ children }: { children: ReactNode }) {
   return (
-    <PortalGuard>
-      <div className="flex min-h-screen" style={{ background: "var(--adm-bg)" }}>
-        <PortalSidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
-        <div className="flex min-w-0 flex-1 flex-col">
-          <PortalHeader onMenuClick={() => setIsSidebarOpen(true)} />
-          <main className="adm-page flex-1 p-4 sm:p-6 lg:p-8 max-w-[1400px] mx-auto w-full">
-            {children}
-          </main>
-        </div>
-      </div>
-    </PortalGuard>
+    <PortalShell portal={PORTAL.EMPLOYEES} publicPaths={["/employees/login"]}>
+      {children}
+    </PortalShell>
   );
 }

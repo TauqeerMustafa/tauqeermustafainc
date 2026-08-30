@@ -1,7 +1,14 @@
 import { API_ENDPOINTS } from "@/constants/api";
 import { apiRequest } from "@/lib/api-client";
 import type { ApiResponse, PaginatedResponse } from "@/types/api";
-import type { AdminMetrics, AdminRole, AdminTeam, AdminUser, UserStatus } from "@/types";
+import type {
+  AdminMetrics,
+  AdminPermission,
+  AdminRole,
+  AdminTeam,
+  AdminUser,
+  UserStatus,
+} from "@/types";
 
 export interface AdminUserListParams {
   page?: number;
@@ -25,6 +32,20 @@ export interface UpdateAdminUserPayload {
   roleSlug?: string;
   teamId?: string | null;
   status?: UserStatus;
+}
+
+export interface CreateRolePayload {
+  slug: string;
+  name: string;
+  hierarchyLevel: number;
+  description?: string | null;
+}
+
+/** PATCH /admin/roles/{id} cannot move a slug — it is the RBAC join key. */
+export interface UpdateRolePayload {
+  name?: string;
+  hierarchyLevel?: number;
+  description?: string | null;
 }
 
 export const adminService = {
@@ -55,6 +76,34 @@ export const adminService = {
     apiRequest<ApiResponse<AdminRole[]>>({
       url: API_ENDPOINTS.admin.roles,
       method: "GET",
+    }),
+  permissions: () =>
+    apiRequest<ApiResponse<AdminPermission[]>>({
+      url: API_ENDPOINTS.admin.permissions,
+      method: "GET",
+    }),
+  createRole: (payload: CreateRolePayload) =>
+    apiRequest<ApiResponse<AdminRole>>({
+      url: API_ENDPOINTS.admin.roles,
+      method: "POST",
+      data: payload,
+    }),
+  updateRole: (id: string, payload: UpdateRolePayload) =>
+    apiRequest<ApiResponse<AdminRole>>({
+      url: `${API_ENDPOINTS.admin.roles}/${id}`,
+      method: "PATCH",
+      data: payload,
+    }),
+  deleteRole: (id: string) =>
+    apiRequest<ApiResponse<{ deleted: boolean }>>({
+      url: `${API_ENDPOINTS.admin.roles}/${id}`,
+      method: "DELETE",
+    }),
+  assignRolePermissions: (id: string, permissionIds: string[]) =>
+    apiRequest<ApiResponse<AdminRole>>({
+      url: `${API_ENDPOINTS.admin.roles}/${id}/permissions`,
+      method: "POST",
+      data: { permissionIds },
     }),
   teams: () =>
     apiRequest<ApiResponse<AdminTeam[]>>({

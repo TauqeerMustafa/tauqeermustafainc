@@ -1,10 +1,11 @@
-﻿import { AdminPageHeader, AdminEmptyState } from "@/components/admin/AdminUI";
+import { redirect } from "next/navigation";
 
-export default function AdminManagementPage() {
-  return (
-    <div>
-      <AdminPageHeader title="Management" description="High-level company metrics, OKRs, and strategic documents." />
-      <AdminEmptyState title="No metrics available" description="Executive dashboards and management reporting will appear here." />
-    </div>
-  );
+/**
+ * Management reporting now lives in its own portal at `/management`, alongside
+ * /admin and /employees. This stub used to render an empty "no metrics" panel;
+ * it redirects to the real dashboard so old bookmarks and nav links still land
+ * somewhere useful. Admins qualify as `CurrentManager`, so access is unchanged.
+ */
+export default function AdminManagementRedirect() {
+  redirect("/management/dashboard");
 }

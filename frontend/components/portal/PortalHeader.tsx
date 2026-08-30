@@ -1,27 +1,22 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { Bell, LogOut, Menu, Search, ChevronDown } from "lucide-react";
+import { Bell, LogOut, Menu, Search } from "lucide-react";
+
 import { useCurrentUser, useLogout } from "@/hooks/useAuth";
+import { PORTAL_LOGIN_PATH, roleLabel, type PortalId } from "@/lib/rbac";
 
-type Props = { onMenuClick: () => void };
+type Props = { portal: PortalId; onMenuClick: () => void };
 
-export default function PortalHeader({ onMenuClick }: Props) {
+export default function PortalHeader({ portal, onMenuClick }: Props) {
   const router = useRouter();
   const logout = useLogout();
   const { data } = useCurrentUser();
   const user = data?.data;
 
-  const role = user?.role || "EMPLOYEE";
-  const isAdmin = role === "SUPER_ADMIN" || role === "ADMIN";
-
   function handleLogout() {
     logout();
-    if (isAdmin) {
-      router.replace("/admin/login");
-    } else {
-      router.replace("/employees/login");
-    }
+    router.replace(PORTAL_LOGIN_PATH[portal]);
   }
 
   return (
@@ -82,24 +77,29 @@ export default function PortalHeader({ onMenuClick }: Props) {
 
         {/* User pill */}
         <div
-          className="hidden items-center gap-2.5 border px-3 py-1.5 transition hover:bg-[var(--adm-surface-2)] cursor-pointer sm:flex"
+          className="hidden items-center gap-2.5 border px-3 py-1.5 sm:flex"
           style={{ borderColor: "var(--adm-border)" }}
         >
           <div
-            className="flex h-7 w-7 shrink-0 items-center justify-center text-white text-xs font-semibold"
+            className="flex h-7 w-7 shrink-0 items-center justify-center text-xs font-bold text-white"
             style={{ background: "var(--adm-blue)" }}
           >
             {user?.name?.[0]?.toUpperCase() ?? "U"}
           </div>
           <div className="min-w-0">
-            <p className="truncate text-sm font-semibold leading-tight" style={{ color: "var(--adm-text)" }}>
+            <p
+              className="truncate text-sm font-semibold leading-tight"
+              style={{ color: "var(--adm-text)" }}
+            >
               {user?.name ?? "User"}
             </p>
-            <p className="truncate text-[10px] uppercase tracking-wider" style={{ color: "var(--adm-text-3)" }}>
-              {role.replace("_", " ")}
+            <p
+              className="truncate text-[10px] font-semibold uppercase tracking-wider"
+              style={{ color: "var(--adm-text-3)" }}
+            >
+              {roleLabel(user?.role)}
             </p>
           </div>
-          <ChevronDown size={14} style={{ color: "var(--adm-text-3)" }} />
         </div>
 
         {/* Logout */}
