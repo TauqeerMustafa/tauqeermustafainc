@@ -16,6 +16,8 @@ import {
 } from "@/components/admin/AdminUI";
 import { useCareers, useCreateCareer, useDeleteCareer, useUpdateCareer } from "@/hooks/useCareers";
 import { useMessages, useMarkMessageRead, useDeleteMessage } from "@/hooks/useMessages";
+import { Tabs } from "@/components/portal/PortalUI";
+import { MESSAGE_KIND, isMessageKind } from "@/lib/message-kind";
 import type { Career, ContactMessage } from "@/types";
 import type { CareerPayload } from "@/services/career.service";
 
@@ -93,47 +95,38 @@ export default function AdminCareersPage() {
   const isSaving = createCareer.isPending || updateCareer.isPending;
 
   const allMessages = messagesQuery.data?.data.items ?? [];
-  const applications = allMessages.filter((m: ContactMessage) => m.message.includes("Job Application:"));
+  // Shared classifier — see lib/message-kind.ts for why this is not inlined.
+  const applications = allMessages.filter((m: ContactMessage) =>
+    isMessageKind(m.message, MESSAGE_KIND.JOB),
+  );
+  const unreadApplications = applications.filter((a: ContactMessage) => !a.isRead).length;
 
   return (
     <div>
       <div className="mb-6 flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
         <div>
-          <h1 className="text-2xl font-bold uppercase tracking-tight text-[var(--adm-text)]">Careers & Applicants</h1>
-          <p className="mt-1 text-sm text-[var(--adm-text-3)]">Manage open roles and review job applications.</p>
+          <h1 className="text-2xl font-bold uppercase tracking-tight text-adm-text">Careers & Applicants</h1>
+          <p className="mt-1 text-sm text-adm-text-3">Manage open roles and review job applications.</p>
         </div>
         {activeTab === 'roles' && (
           <button
             onClick={openCreate}
-            className="bg-[var(--adm-blue)] px-4 py-2 text-sm font-semibold text-white transition hover:opacity-90"
+            className="bg-adm-blue px-4 py-2 text-sm font-semibold text-white transition hover:opacity-90"
           >
             New Role
           </button>
         )}
       </div>
 
-      <div className="mb-6 flex border-b border-[var(--adm-border)]">
-        <button
-          onClick={() => setActiveTab('roles')}
-          className={`border-b-2 px-4 py-3 text-sm font-semibold transition ${
-            activeTab === 'roles' ? 'border-action text-action' : 'border-transparent text-[var(--adm-text-3)] hover:text-[var(--adm-text-2)]'
-          }`}
-        >
-          Job Postings
-        </button>
-        <button
-          onClick={() => setActiveTab('applications')}
-          className={`border-b-2 px-4 py-3 text-sm font-semibold transition flex items-center gap-2 ${
-            activeTab === 'applications' ? 'border-action text-action' : 'border-transparent text-[var(--adm-text-3)] hover:text-[var(--adm-text-2)]'
-          }`}
-        >
-          Applications
-          {applications.filter((a: ContactMessage) => !a.isRead).length > 0 && (
-            <span className="bg-[var(--adm-red-light)] px-2 py-0.5 text-xs text-[var(--adm-red)]">
-              {applications.filter((a: ContactMessage) => !a.isRead).length}
-            </span>
-          )}
-        </button>
+      <div className="mb-6">
+        <Tabs<'roles' | 'applications'>
+          value={activeTab}
+          onChange={setActiveTab}
+          tabs={[
+            { id: 'roles', label: 'Job Postings' },
+            { id: 'applications', label: 'Applications', count: unreadApplications },
+          ]}
+        />
       </div>
 
       {activeTab === 'roles' && (
@@ -148,9 +141,9 @@ export default function AdminCareersPage() {
           ) : null}
 
           {!isLoading && !isError && jobs.length > 0 ? (
-            <div className="overflow-x-auto border border-line-2 bg-surface">
+            <div className="overflow-x-auto border border-adm-border bg-adm-surface">
           <table className="w-full min-w-[640px] text-left text-sm">
-            <thead className="border-b border-line-2 bg-canvas text-xs uppercase tracking-wide text-ink-muted">
+            <thead className="border-b border-adm-border bg-adm-surface-2 text-xs uppercase tracking-wide text-adm-text-3">
               <tr>
                 <th className="px-4 py-3 font-semibold">Role</th>
                 <th className="px-4 py-3 font-semibold">Location</th>
@@ -158,17 +151,17 @@ export default function AdminCareersPage() {
                 <th className="px-4 py-3 font-semibold text-right">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-line">
+            <tbody className="divide-y divide-adm-border">
               {jobs.map((job) => (
-                <tr key={job.id} className="text-ink transition hover:bg-canvas">
+                <tr key={job.id} className="text-adm-text transition hover:bg-adm-surface-2">
                   <td className="px-4 py-3">
-                    <p className="font-semibold text-ink">{job.title}</p>
-                    <p className="text-xs text-ink-muted">{job.type}</p>
+                    <p className="font-semibold text-adm-text">{job.title}</p>
+                    <p className="text-xs text-adm-text-3">{job.type}</p>
                   </td>
-                  <td className="px-4 py-3 text-ink-muted">{job.location}</td>
+                  <td className="px-4 py-3 text-adm-text-3">{job.location}</td>
                   <td className="px-4 py-3">
                     <span
-                      className={`px-2 py-1 text-xs font-semibold ${job.isOpen ? "bg-action/10 text-action" : "bg-line-2 text-ink-muted"}`}
+                      className={`px-2 py-1 text-xs font-semibold ${job.isOpen ? "bg-adm-blue/10 text-adm-blue" : "bg-adm-border text-adm-text-3"}`}
                     >
                       {job.isOpen ? "Open" : "Closed"}
                     </span>
@@ -179,7 +172,7 @@ export default function AdminCareersPage() {
                         type="button"
                         onClick={() => openEdit(job)}
                         aria-label={`Edit ${job.title}`}
-                        className="flex h-8 w-8 items-center justify-center border border-line-2 text-ink-muted transition hover:border-ink hover:text-ink"
+                        className="flex h-8 w-8 items-center justify-center border border-adm-border text-adm-text-3 transition hover:border-adm-text hover:text-adm-text"
                       >
                         <Pencil size={14} />
                       </button>
@@ -187,7 +180,7 @@ export default function AdminCareersPage() {
                         type="button"
                         onClick={() => setPendingDelete(job)}
                         aria-label={`Delete ${job.title}`}
-                        className="flex h-8 w-8 items-center justify-center border border-line-2 text-ink-muted transition hover:border-[var(--adm-red)] hover:text-[var(--adm-red)]"
+                        className="flex h-8 w-8 items-center justify-center border border-adm-border text-adm-text-3 transition hover:border-adm-red hover:text-adm-red"
                       >
                         <Trash2 size={14} />
                       </button>
@@ -211,7 +204,7 @@ export default function AdminCareersPage() {
               <div
                 key={msg.id}
                 className={`overflow-hidden border transition ${
-                  msg.isRead ? "border-line-2 bg-surface" : "border-action/20 bg-[var(--adm-blue-light)]"
+                  msg.isRead ? "border-adm-border bg-adm-surface" : "border-adm-blue/20 bg-adm-blue-light"
                 }`}
               >
                 <div
@@ -224,30 +217,30 @@ export default function AdminCareersPage() {
                   <div className="flex items-center gap-4">
                     <div
                       className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full ${
-                        msg.isRead ? "bg-[var(--adm-surface-2)] text-[var(--adm-text-3)]" : "bg-action/10 text-action"
+                        msg.isRead ? "bg-adm-surface-2 text-adm-text-3" : "bg-adm-blue/10 text-adm-blue"
                       }`}
                     >
                       {msg.isRead ? <MailOpen className="h-4 w-4" /> : <Mail className="h-4 w-4" />}
                     </div>
                     <div>
-                      <p className={`text-sm ${msg.isRead ? "font-medium text-[var(--adm-text)]" : "font-bold text-[var(--adm-text)]"}`}>
-                        {msg.name} <span className="font-normal text-[var(--adm-text-3)]">({msg.email})</span>
+                      <p className={`text-sm ${msg.isRead ? "font-medium text-adm-text" : "font-bold text-adm-text"}`}>
+                        {msg.name} <span className="font-normal text-adm-text-3">({msg.email})</span>
                       </p>
-                      <p className="mt-0.5 text-xs text-[var(--adm-text-3)]">
+                      <p className="mt-0.5 text-xs text-adm-text-3">
                         {new Date(msg.createdAt).toLocaleString()}
                       </p>
                     </div>
                   </div>
                 </div>
                 {expandedApp === msg.id && (
-                  <div className="border-t border-line-2 bg-[var(--adm-surface-2)] p-4 sm:p-6">
-                    <div className="prose prose-sm max-w-none whitespace-pre-wrap text-[var(--adm-text-2)]">
+                  <div className="border-t border-adm-border bg-adm-surface-2 p-4 sm:p-6">
+                    <div className="prose prose-sm max-w-none whitespace-pre-wrap text-adm-text-2">
                       {msg.message}
                     </div>
                     <div className="mt-6 flex justify-end">
                       <button
                         onClick={() => deleteMsg.mutate(msg.id)}
-                        className="flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-[var(--adm-red)] hover:bg-[var(--adm-surface-2)]"
+                        className="flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-adm-red hover:bg-adm-surface-2"
                       >
                         <Trash2 className="h-4 w-4" /> Delete Application
                       </button>
@@ -328,12 +321,12 @@ export default function AdminCareersPage() {
               onChange={(e) => setForm({ ...form, responsibilities: toList(e.target.value) })}
             />
           </AdminField>
-          <label className="flex items-center gap-2 text-sm font-medium text-[var(--adm-text-2)]">
+          <label className="flex items-center gap-2 text-sm font-medium text-adm-text-2">
             <input
               type="checkbox"
               checked={form.isOpen}
               onChange={(e) => setForm({ ...form, isOpen: e.target.checked })}
-              className="h-4 w-4 accent-[var(--adm-blue)]"
+              className="h-4 w-4 accent-adm-blue"
             />
             Open for applications
           </label>

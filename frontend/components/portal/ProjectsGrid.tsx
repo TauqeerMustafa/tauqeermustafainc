@@ -20,9 +20,9 @@ export default function ProjectsGrid({ isAdmin = false }) {
   }, [isAdmin]);
 
   const getStatusColor = (status: string) => {
-    if (status === 'done') return 'bg-[var(--adm-green-light)] text-[var(--adm-green)]';
-    if (status === 'planning') return 'bg-[var(--adm-amber-light)] text-[var(--adm-amber)]';
-    return 'bg-[var(--adm-blue-light)] text-[var(--adm-blue)]';
+    if (status === 'done') return 'bg-adm-green-light text-adm-green';
+    if (status === 'planning') return 'bg-adm-amber-light text-adm-amber';
+    return 'bg-adm-blue-light text-adm-blue';
   };
 
   return (
@@ -35,7 +35,7 @@ export default function ProjectsGrid({ isAdmin = false }) {
           </p>
         </div>
         {isAdmin && (
-          <button className="flex items-center gap-2 bg-[var(--adm-blue)] px-6 py-2.5 text-sm font-bold text-white transition hover:opacity-90">
+          <button className="flex items-center gap-2 bg-adm-blue px-6 py-2.5 text-sm font-bold text-white transition hover:opacity-90">
             <Plus size={16} /> New Project
           </button>
         )}
@@ -43,40 +43,40 @@ export default function ProjectsGrid({ isAdmin = false }) {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {loading ? (
-          <div className="col-span-full py-12 text-center text-[var(--adm-text-3)]">Loading projects...</div>
+          <div className="col-span-full py-12 text-center text-adm-text-3">Loading projects...</div>
         ) : projects.length === 0 ? (
-          <div className="col-span-full py-20 flex flex-col items-center justify-center text-center bg-[var(--adm-surface)] border border-[var(--adm-border)]">
-            <FolderOpen size={48} className="text-[var(--adm-text-3)] mb-4" />
-            <p className="font-bold text-[var(--adm-text)]">No Active Projects</p>
-            <p className="text-sm text-[var(--adm-text-3)]">You haven't been assigned to any projects yet.</p>
+          <div className="col-span-full py-20 flex flex-col items-center justify-center text-center bg-adm-surface border border-adm-border">
+            <FolderOpen size={48} className="text-adm-text-3 mb-4" />
+            <p className="font-bold text-adm-text">No Active Projects</p>
+            <p className="text-sm text-adm-text-3">You haven't been assigned to any projects yet.</p>
           </div>
         ) : projects.map((proj) => (
-          <div key={proj.id} className="border border-[var(--adm-border)] bg-[var(--adm-surface)] p-6 flex flex-col group hover:border-[var(--adm-blue)] transition cursor-pointer">
+          <div key={proj.id} className="border border-adm-border bg-adm-surface p-6 flex flex-col group hover:border-adm-blue transition cursor-pointer">
             <div className="flex items-start justify-between mb-4">
               <div className={`px-3 py-1 text-[10px] font-bold uppercase tracking-wider ${getStatusColor(proj.status)}`}>
                 {proj.status.replace('_', ' ')}
               </div>
-              <div className="h-8 w-8 rounded-full bg-[var(--adm-surface-2)] flex items-center justify-center group-hover:bg-[var(--adm-blue-light)] group-hover:text-[var(--adm-blue)] transition">
+              <div className="h-8 w-8 rounded-full bg-adm-surface-2 flex items-center justify-center group-hover:bg-adm-blue-light group-hover:text-adm-blue transition">
                 <ChevronRight size={16} />
               </div>
             </div>
             
-            <h3 className="text-xl font-bold text-[var(--adm-text)] mb-6 line-clamp-2">{proj.title}</h3>
+            <h3 className="text-xl font-bold text-adm-text mb-6 line-clamp-2">{proj.title}</h3>
             
             <div className="mt-auto">
-              <div className="flex items-center justify-between text-xs font-semibold text-[var(--adm-text-3)] mb-2">
+              <div className="flex items-center justify-between text-xs font-semibold text-adm-text-3 mb-2">
                 <span>Progress</span>
                 <span>{proj.progress}%</span>
               </div>
-              <div className="h-2 w-full bg-[var(--adm-surface-2)] overflow-hidden mb-6">
-                <div className={`h-full transition-all duration-1000 ${proj.progress === 100 ? 'bg-[var(--adm-green)]' : 'bg-[var(--adm-blue)]'}`} style={{ width: `${proj.progress}%` }}></div>
+              <div className="h-2 w-full bg-adm-surface-2 overflow-hidden mb-6">
+                <div className={`h-full transition-all duration-1000 ${proj.progress === 100 ? 'bg-adm-green' : 'bg-adm-blue'}`} style={{ width: `${proj.progress}%` }}></div>
               </div>
               
-              <div className="flex items-center justify-between border-t border-[var(--adm-border)] pt-4">
-                <div className="flex items-center gap-1.5 text-sm font-semibold text-[var(--adm-text-2)]">
+              <div className="flex items-center justify-between border-t border-adm-border pt-4">
+                <div className="flex items-center gap-1.5 text-sm font-semibold text-adm-text-2">
                   <Users size={16} /> {proj.team} Members
                 </div>
-                <div className="flex items-center gap-1.5 text-sm font-semibold text-[var(--adm-text-2)]">
+                <div className="flex items-center gap-1.5 text-sm font-semibold text-adm-text-2">
                   <Clock size={16} /> {proj.deadline}
                 </div>
               </div>

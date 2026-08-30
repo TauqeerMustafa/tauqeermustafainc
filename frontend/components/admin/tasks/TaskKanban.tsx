@@ -62,7 +62,7 @@ export default function TaskKanban({ isAdmin = false }) {
               {loading ? (
                 <div className="text-center text-sm py-4" style={{ color: "var(--adm-text-3)" }}>Loading...</div>
               ) : tasks.filter(t => t.status === col.id).map(task => (
-                <div key={task.id} className="p-4 border cursor-grab transition hover:border-[color:var(--adm-border-2)]" style={{ background: "var(--adm-surface)", borderColor: "var(--adm-border)" }}>
+                <div key={task.id} className="p-4 border cursor-grab transition hover:border-adm-border-2" style={{ background: "var(--adm-surface)", borderColor: "var(--adm-border)" }}>
                   <div className="flex items-start justify-between mb-2">
                     <span className="text-[10px] uppercase font-bold px-2 py-0.5" style={getPriorityStyle(task.priority)}>
                       {task.priority}
@@ -73,7 +73,7 @@ export default function TaskKanban({ isAdmin = false }) {
 
                   <div className="flex items-center justify-between text-xs font-medium pt-3 border-t" style={{ color: "var(--adm-text-3)", borderColor: "var(--adm-border)" }}>
                     <div className="flex items-center gap-1.5">
-                      <div className="h-5 w-5 rounded-full bg-[var(--adm-blue-light)] text-[var(--adm-blue)] flex items-center justify-center font-bold text-[8px]">
+                      <div className="h-5 w-5 rounded-full bg-adm-blue-light text-adm-blue flex items-center justify-center font-bold text-[8px]">
                         {task.assigned_to_name?.charAt(0) || "U"}
                       </div>
                       <span className="truncate max-w-[80px]">{task.assigned_to_name || "Unassigned"}</span>

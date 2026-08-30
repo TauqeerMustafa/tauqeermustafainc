@@ -128,7 +128,7 @@ export function AdminConfirmDialog({
           <button
             type="button"
             onClick={onCancel}
-            className="border px-4 py-2 text-xs font-bold uppercase tracking-wider transition hover:bg-[var(--adm-surface-2)]"
+            className="border px-4 py-2 text-xs font-bold uppercase tracking-wider transition hover:bg-adm-surface-2"
             style={{ borderColor: "var(--adm-border)", color: "var(--adm-text-2)" }}
           >
             Cancel
@@ -178,7 +178,7 @@ export function AdminDrawer({
             type="button"
             onClick={onClose}
             aria-label="Close"
-            className="flex h-9 w-9 items-center justify-center border transition hover:bg-[var(--adm-surface-2)]"
+            className="flex h-9 w-9 items-center justify-center border transition hover:bg-adm-surface-2"
             style={{ borderColor: "var(--adm-border)", color: "var(--adm-text-2)" }}
           >
             <X size={18} />
@@ -217,7 +217,7 @@ export function AdminField({
 }
 
 export const adminInputClass =
-  "w-full border rounded-none px-4 py-3 text-[15px] outline-none transition focus:border-[color:var(--adm-blue)] focus:ring-2 focus:ring-[color:var(--adm-blue)]/25";
+  "w-full border rounded-none px-4 py-3 text-[15px] outline-none transition focus:border-adm-blue focus:ring-2 focus:ring-adm-blue/25";
 
 export const adminInputStyle = {
   borderColor: "var(--adm-border)",
@@ -242,7 +242,7 @@ export function AdminFormActions({
       <button
         type="button"
         onClick={onCancel}
-        className="border px-4 py-2.5 text-xs font-bold uppercase tracking-wider transition hover:bg-[var(--adm-surface-2)]"
+        className="border px-4 py-2.5 text-xs font-bold uppercase tracking-wider transition hover:bg-adm-surface-2"
         style={{ borderColor: "var(--adm-border)", color: "var(--adm-text-2)" }}
       >
         Cancel

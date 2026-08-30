@@ -2085,7 +2085,7 @@ function RulesTab() {
             <button
               type="button"
               onClick={() => setIsEditing(false)}
-              className="border px-4 py-2 text-sm font-semibold transition hover:bg-[var(--adm-surface-2)]"
+              className="border px-4 py-2 text-sm font-semibold transition hover:bg-adm-surface-2"
               style={{ borderColor: "var(--adm-border)", color: "var(--adm-text-2)" }}
             >
               Cancel
@@ -2126,7 +2126,7 @@ function RulesTab() {
           <button
             type="button"
             onClick={addRule}
-            className="border px-4 py-2 text-sm font-semibold transition hover:bg-[var(--adm-surface-2)]"
+            className="border px-4 py-2 text-sm font-semibold transition hover:bg-adm-surface-2"
             style={{ borderColor: "var(--adm-border)", color: "var(--adm-text)" }}
           >
             + Add Rule

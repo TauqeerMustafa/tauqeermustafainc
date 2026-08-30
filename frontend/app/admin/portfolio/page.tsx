@@ -110,9 +110,9 @@ export default function AdminPortfolioPage() {
       ) : null}
 
       {!isLoading && !isError && projects.length > 0 ? (
-        <div className="overflow-x-auto border border-[var(--adm-border)]">
+        <div className="overflow-x-auto border border-adm-border">
           <table className="w-full min-w-[640px] text-left text-sm">
-            <thead className="border-b border-[var(--adm-border)] bg-[var(--adm-surface-2)] text-xs uppercase tracking-wide text-[var(--adm-text-3)]">
+            <thead className="border-b border-adm-border bg-adm-surface-2 text-xs uppercase tracking-wide text-adm-text-3">
               <tr>
                 <th className="px-4 py-3 font-semibold">Project</th>
                 <th className="px-4 py-3 font-semibold">Category</th>
@@ -120,22 +120,22 @@ export default function AdminPortfolioPage() {
                 <th className="px-4 py-3 font-semibold text-right">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-[var(--adm-border)]">
+            <tbody className="divide-y divide-adm-border">
               {projects.map((project) => (
-                <tr key={project.id} className="text-[var(--adm-text-2)]">
+                <tr key={project.id} className="text-adm-text-2">
                   <td className="px-4 py-3">
-                    <p className="font-semibold text-[var(--adm-text)]">{project.title}</p>
-                    <p className="text-xs text-[var(--adm-text-3)]">/{project.slug}</p>
+                    <p className="font-semibold text-adm-text">{project.title}</p>
+                    <p className="text-xs text-adm-text-3">/{project.slug}</p>
                   </td>
-                  <td className="px-4 py-3 text-[var(--adm-text-2)]">{project.category}</td>
-                  <td className="px-4 py-3 text-[var(--adm-text-2)]">{project.technologies.slice(0, 3).join(", ")}</td>
+                  <td className="px-4 py-3 text-adm-text-2">{project.category}</td>
+                  <td className="px-4 py-3 text-adm-text-2">{project.technologies.slice(0, 3).join(", ")}</td>
                   <td className="px-4 py-3">
                     <div className="flex justify-end gap-2">
                       <button
                         type="button"
                         onClick={() => openEdit(project)}
                         aria-label={`Edit ${project.title}`}
-                        className="flex h-8 w-8 items-center justify-center border border-[var(--adm-border)] text-[var(--adm-text-2)] transition hover:border-[var(--adm-blue)]"
+                        className="flex h-8 w-8 items-center justify-center border border-adm-border text-adm-text-2 transition hover:border-adm-blue"
                       >
                         <Pencil size={14} />
                       </button>
@@ -143,7 +143,7 @@ export default function AdminPortfolioPage() {
                         type="button"
                         onClick={() => setPendingDelete(project)}
                         aria-label={`Delete ${project.title}`}
-                        className="flex h-8 w-8 items-center justify-center border border-[var(--adm-border)] text-[var(--adm-text-2)] transition hover:border-[var(--adm-red)] hover:text-[var(--adm-red)]"
+                        className="flex h-8 w-8 items-center justify-center border border-adm-border text-adm-text-2 transition hover:border-adm-red hover:text-adm-red"
                       >
                         <Trash2 size={14} />
                       </button>

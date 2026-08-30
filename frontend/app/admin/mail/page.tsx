@@ -75,7 +75,7 @@ export default async function AdminMailPage({
               <div className="flex items-center gap-3">
                 <span className="text-xs font-bold uppercase tracking-wider" style={{ color: "var(--adm-text-3)" }}>Inbox for:</span>
                 <div className="relative group">
-                  <button className="flex items-center gap-2 border px-3 py-1.5 text-sm font-medium transition hover:bg-[var(--adm-surface)]"
+                  <button className="flex items-center gap-2 border px-3 py-1.5 text-sm font-medium transition hover:bg-adm-surface"
                     style={{ borderColor: "var(--adm-border)", background: "var(--adm-surface)", color: "var(--adm-text)" }}
                   >
                     {activeMailbox?.primaryAddress}
@@ -89,7 +89,7 @@ export default async function AdminMailPage({
                       <Link
                         key={mb.id}
                         href={`/admin/mail?mailbox=${mb.id}`}
-                        className="px-4 py-2 text-sm transition hover:bg-[var(--adm-surface-2)]"
+                        className="px-4 py-2 text-sm transition hover:bg-adm-surface-2"
                         style={{ color: mb.id === activeMailbox?.id ? "var(--adm-blue)" : "var(--adm-text-2)", fontWeight: mb.id === activeMailbox?.id ? 600 : 400 }}
                       >
                         {mb.primaryAddress}
@@ -123,7 +123,7 @@ export default async function AdminMailPage({
                 {messages.map((msg: any) => (
                   <div
                     key={msg.id}
-                    className="p-4 cursor-pointer transition-colors flex flex-col md:flex-row md:items-center gap-2 md:gap-4 group hover:bg-[var(--adm-surface-2)]"
+                    className="p-4 cursor-pointer transition-colors flex flex-col md:flex-row md:items-center gap-2 md:gap-4 group hover:bg-adm-surface-2"
                     style={{ borderColor: "var(--adm-border)" }}
                   >
                     <div className="flex-shrink-0 w-56 font-medium truncate" style={{ color: "var(--adm-text)" }}>

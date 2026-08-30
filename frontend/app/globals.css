@@ -4,7 +4,33 @@
 
 @custom-variant dark (&:is(.dark *));
 
-/* ── TMI Design System — BMW Corporate + BMW M + Mastercard ────── */
+/* ════════════════════════════════════════════════════════════════════
+   TMI DESIGN SYSTEM — "Precision Editorial"
+   A deliberate hybrid of three source systems (see DESIGN-bmw.md,
+   DESIGN-bmw-m.md, DESIGN-mastercard.md):
+
+     · BMW corporate → STRUCTURE. 0px-radius plates, hairlines instead of
+       drop shadows, one action blue (#1c69d4), the 700/300 weight contrast.
+     · BMW M         → THE DARK THEME. Pure-black canvas, white UPPERCASE
+       display type, #bbbbbb body copy, M tricolor as brand signature only.
+     · Mastercard    → THE LIGHT THEME'S WARMTH. Canvas cream (#f3f0ee) in
+       place of sterile white, lifted cream panels, the eyebrow label with
+       its accent dot, editorial whitespace, and pill-shaped controls.
+
+   THE RECONCILIATION RULE — applied without exception:
+     ┌─────────────────────────────────────────────────────────────┐
+     │  STRUCTURE IS SQUARE.  CONTROLS ARE ROUND.                  │
+     │  Plates — cards, panels, tables, inputs, primary buttons —  │
+     │  are radius 0 (BMW). Controls — chips, badges, avatars,     │
+     │  toggles, icon buttons, progress bars — are full pills      │
+     │  (Mastercard). Nothing lands in the 8–12px middle ground    │
+     │  that both source systems explicitly reject.                │
+     └─────────────────────────────────────────────────────────────┘
+
+   Both themes are real and equal: `defaultTheme="system"` in
+   providers/app-providers.tsx means a first-time visitor gets whichever
+   their device asks for, and the toggle then persists their choice.
+   ═════════════════════════════════════════════════════════════════════ */
 :root {
   /* Font stacks */
   --font-sans: "TMI Grotesk", "SF Pro Display", "SF Pro Text", ui-sans-serif,
@@ -12,20 +38,24 @@
   --font-mono: "TMI Mono", "SF Mono", "SFMono-Regular", Consolas,
     "Liberation Mono", monospace;
 
-  /* ═══ Pure BMW M — semantic theme tokens · LIGHT ═══════════════════
+  /* ═══ Semantic theme tokens · LIGHT (Mastercard cream + BMW ink) ═════
      These flip in the .dark block below. Everything visual should ride
      on these (bg-canvas / text-ink / border-line / bg-action …) so the
      whole site inverts with one class on <html>. The M tricolor stripe
      stays literal (see --m-* + .m-stripe) — it is brand, not theme. */
-  --canvas:        #ffffff;  /* page background            */
-  --surface:       #f4f4f5;  /* raised section panel        */
-  --surface-2:     #ececef;  /* deeper panel / tile         */
-  --ink-2:         #3a3a3a;  /* secondary text              */
-  --line-2:        #d6d6da;  /* stronger hairline / outline */
+  --canvas:        #f3f0ee;  /* Canvas Cream — never sterile white */
+  --surface:       #fcfbfa;  /* Lifted Cream — paper laid on paper */
+  --surface-2:     #eae5e1;  /* deeper tile / table head / hover   */
+  --ink-2:         #3c3c3c;  /* secondary text              */
+  --line-2:        #c8c0b8;  /* stronger hairline / outline */
   --action:        #1c69d4;  /* the single BMW action blue  */
-  --action-strong: #0066b1;  /* action hover / deep accent  */
+  --action-strong: #0653b6;  /* action pressed / deep accent */
   --on-action:     #ffffff;  /* text on the action blue     */
   --dot-grid:      rgba(0,0,0,0.08); /* .tmi-dot-grid tint    */
+  /* NOTE: shadcn already owns a token literally named --accent (a neutral
+     surface tint), so our saturated brand signal lives under --signal to
+     avoid the collision. Used for the eyebrow dot and nothing else. */
+  --signal:        #cf4500;  /* Mastercard Signal Orange */
 
   /* ── Surface palette ── */
   /* Warm cream (Mastercard) — default light background */
@@ -113,38 +143,47 @@
   --paper:            #ffffff;
   --line-soft2:       #efefef;
 
-  /* ── Admin / Portal panel tokens — Pure BMW M (black canvas) ──────
-     The portal (admin + employee) is a single black-canvas surface per
-     DESIGN-bmw-m.md. There is NO light mode: the .dark block below
-     resolves to the same values so the theme never flips. Depth comes
-     from surface contrast + hairlines, never drop shadows. The M
-     tricolor (--m-*) is brand signature only — accents/dividers, never
-     button fills; the single BMW action blue carries interaction. */
-  --adm-bg:           #000000;  /* page canvas                       */
-  --adm-surface:      #1a1a1a;  /* card / panel / header / sidebar    */
-  --adm-surface-2:    #262626;  /* elevated: hover, inputs, footer    */
-  --adm-border:       #3c3c3c;  /* hairline                           */
-  --adm-border-2:     #565656;  /* hairline-strong / outline          */
-  --adm-text:         #ffffff;  /* ink / headings                     */
-  --adm-text-2:       #bbbbbb;  /* body                               */
-  --adm-text-3:       #7e7e7e;  /* muted / meta                       */
-  --adm-ink:          #ffffff;
+  /* ── Portal panel tokens · LIGHT ─────────────────────────────────
+     The four portals (admin, management, employees, client) share one
+     surface system. In light mode it is Mastercard: canvas cream floor,
+     lifted-cream plates, warm hairlines, ink-black display type. In dark
+     mode (see .dark) it becomes BMW M: pure-black floor, #1a1a1a plates,
+     white display, #bbbbbb body. The single BMW action blue carries every
+     interaction in both; the M tricolor (--m-*) is brand signature only —
+     dividers and accents, never a button fill.
+
+     Depth is hairline-first in both themes. Light mode is allowed the one
+     Mastercard shadow (48px spread, 8% opacity — "atmospheric cushioning")
+     on genuinely floating chrome; dark mode resolves it to none, per BMW M. */
+  --adm-bg:           #f3f0ee;  /* page canvas — Canvas Cream         */
+  --adm-surface:      #fcfbfa;  /* card / panel / header / sidebar    */
+  --adm-surface-2:    #eae5e1;  /* elevated: hover, inputs, table head */
+  --adm-border:       #e0dad4;  /* hairline                           */
+  --adm-border-2:     #c8c0b8;  /* hairline-strong / outline          */
+  --adm-text:         #141413;  /* Ink Black — headings               */
+  --adm-text-2:       #3c3c3c;  /* body                               */
+  --adm-text-3:       #6b6b6b;  /* muted / meta                       */
+  --adm-ink:          #141413;
   --adm-blue:         #1c69d4;  /* the single BMW action blue         */
-  --adm-blue-light:   #0e1e33;  /* deep blue tint — active nav pill   */
-  --adm-blue-mid:     #0066b1;
-  --adm-green:        #0fa336;
-  --adm-green-light:  #0d2a16;
-  --adm-amber:        #f4b400;
-  --adm-amber-light:  #33290a;
-  --adm-red:          #e22718;  /* M red — destructive only           */
-  --adm-red-light:    #2a0f0d;
+  --adm-blue-light:   #e7effc;  /* blue tint — active nav / stat icon */
+  --adm-blue-mid:     #0653b6;
+  --adm-green:        #0f7a30;
+  --adm-green-light:  #e2f4e7;
+  --adm-amber:        #9a6100;
+  --adm-amber-light:  #fbf0d9;
+  --adm-red:          #c31e11;  /* destructive only                   */
+  --adm-red-light:    #fbe6e3;
+  --adm-accent:       #cf4500;  /* Signal Orange — eyebrow dot only   */
+  --adm-shadow:       0 24px 48px rgba(20, 20, 19, 0.08);
+  --adm-shadow-sm:    0 4px 24px rgba(20, 20, 19, 0.05);
 }
 
-/* ═══ Pure BMW M — DARK theme (pure black canvas) ═══════════════════
+/* ═══ DARK THEME — BMW M (pure-black canvas) ════════════════════════
    Redefining the primitives is enough: every bg-canvas / text-ink /
-   border-line / bg-surface utility resolves through these vars, so the
-   entire site inverts. Opacity utilities (text-ink/60, bg-ink/[0.06])
-   also invert because --ink flips white↔near-black. */
+   border-line / bg-surface / bg-adm-surface utility resolves through
+   these vars, so the entire site and all four portals invert together.
+   Opacity utilities (text-ink/60, bg-ink/[0.06]) also invert because
+   --ink flips white↔near-black. */
 .dark {
   --canvas:        #000000;
   --surface:       #0c0c0d;
@@ -158,6 +197,7 @@
   --action:        #2f7de0;   /* a touch brighter to hold up on black */
   --action-strong: #1c69d4;
   --on-action:     #ffffff;
+  --signal:        #f37338;   /* Light Signal Orange reads on black   */
   --dot-grid:      rgba(255,255,255,0.06);
 
   /* shadcn / base compat — flip alongside the semantic tokens */
@@ -175,8 +215,12 @@
   --border:                #26262a;
   --input:                 #26262a;
   --ring:                  #2f7de0;
-  /* Admin/portal tokens: identical to :root — the portal has no light
-     mode, so toggling .dark must not change it (see DESIGN-bmw-m.md). */
+
+  /* ── Portal panel tokens · DARK (BMW M) ───────────────────────────
+     Canvas #000, plates #1a1a1a, elevated #262626, hairline #3c3c3c —
+     the BMW M surface ladder verbatim. Tone tints go deep-and-desaturated
+     so a status chip glows rather than glares, and shadows resolve to
+     none: on a black canvas, depth is surface contrast, not light. */
   --adm-bg:           #000000;
   --adm-surface:      #1a1a1a;
   --adm-surface-2:    #262626;
@@ -186,15 +230,18 @@
   --adm-text-2:       #bbbbbb;
   --adm-text-3:       #7e7e7e;
   --adm-ink:          #ffffff;
-  --adm-blue:         #1c69d4;
+  --adm-blue:         #2f7de0;
   --adm-blue-light:   #0e1e33;
   --adm-blue-mid:     #0066b1;
-  --adm-green:        #0fa336;
+  --adm-green:        #22c25a;
   --adm-green-light:  #0d2a16;
   --adm-amber:        #f4b400;
   --adm-amber-light:  #33290a;
-  --adm-red:          #e22718;
+  --adm-red:          #e22718;  /* M red */
   --adm-red-light:    #2a0f0d;
+  --adm-accent:       #f37338;
+  --adm-shadow:       none;
+  --adm-shadow-sm:    none;
 }
 
 @theme inline {
@@ -217,7 +264,7 @@
   --color-secondary-foreground: var(--secondary-foreground);
   --color-destructive:          var(--destructive);
 
-  /* ── Pure BMW M semantic utilities (theme-flipping) ── */
+  /* ── Semantic site utilities (theme-flipping) ── */
   --color-canvas:        var(--canvas);
   --color-surface:       var(--surface);
   --color-surface-2:     var(--surface-2);
@@ -229,6 +276,7 @@
   --color-action:        var(--action);
   --color-action-strong: var(--action-strong);
   --color-on-action:     var(--on-action);
+  --color-signal:        var(--signal);
   /* M tricolor — literal brand signature, never theme-flipped */
   --color-m-blue:        #0066b1;
   --color-m-blue-mid:    #1c69d4;
@@ -257,8 +305,17 @@
   --color-adm-amber-light: var(--adm-amber-light);
   --color-adm-red:         var(--adm-red);
   --color-adm-red-light:   var(--adm-red-light);
+  --color-adm-accent:      var(--adm-accent);
 
+  /* Radius scale — the hybrid's binary decision. `rounded-none` for every
+     plate (BMW), `rounded-full` for every control (Mastercard). The legacy
+     sm/md/lg/xl steps survive only for shadcn internals. */
   --radius-sm: 0.5rem; --radius-md: 0.688rem; --radius-lg: 1.125rem; --radius-xl: 2.5rem;
+
+  /* Mastercard "atmospheric cushioning" — 48px spread, 8% opacity. Resolves
+     to `none` in dark mode, where BMW M forbids shadows outright. */
+  --shadow-adm:    var(--adm-shadow);
+  --shadow-adm-sm: var(--adm-shadow-sm);
 }
 
 ::selection { background: #0066cc; color: #ffffff; }
@@ -382,19 +439,81 @@
   animation: shimmer 1.6s linear infinite;
 }
 
-/* ── Admin / Portal panel — Pure BMW M ───────────────────────────── */
+/* ── Portal panel primitives ──────────────────────────────────────────
+   Structural plates: square corners, hairline borders, and — in light mode
+   only — the single Mastercard cushion shadow. `--adm-shadow` resolves to
+   `none` under .dark, so one rule serves both themes. */
 .adm-card {
   background: var(--adm-surface);
   border: 1px solid var(--adm-border);
-  border-radius: 0;            /* BMW M: sharp corners, no radius */
-  box-shadow: none;            /* BMW M: no drop shadows          */
+  border-radius: 0;            /* structure is square */
+  box-shadow: var(--adm-shadow-sm);
   position: relative;
-  transition: border-color 0.2s ease, background 0.2s ease, transform 0.22s cubic-bezier(0.22,1,0.36,1);
+  transition: border-color 0.2s ease, background 0.2s ease,
+              box-shadow 0.25s cubic-bezier(0.22,1,0.36,1),
+              transform 0.22s cubic-bezier(0.22,1,0.36,1);
 }
 .adm-card:hover {
   border-color: var(--adm-border-2);
+  box-shadow: var(--adm-shadow);
   transform: translateY(-2px);
 }
+
+/* Mastercard eyebrow — a tiny Signal Orange dot ahead of an uppercase,
+   +4%-tracked 11px label. It is the system's section-category signal, and
+   per the source guide the dot is not optional: it is the identity. */
+.adm-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--adm-text-3);
+}
+.adm-eyebrow::before {
+  content: "";
+  width: 5px;
+  height: 5px;
+  flex: none;
+  border-radius: 9999px;       /* controls are round */
+  background: var(--adm-accent);
+}
+
+/* AdminLTE `callout` — a note plate carrying a 3px tone bar on its leading
+   edge. Tone comes from a --callout custom property set by the component. */
+.adm-callout {
+  border-left: 3px solid var(--callout, var(--adm-blue));
+  background: var(--adm-surface);
+  border-top: 1px solid var(--adm-border);
+  border-right: 1px solid var(--adm-border);
+  border-bottom: 1px solid var(--adm-border);
+}
+
+/* AdminLTE `timeline` — a single hairline spine with square nodes hung off
+   it. The spine is a pseudo-element so list items stay semantic. */
+.adm-timeline { position: relative; }
+.adm-timeline::before {
+  content: "";
+  position: absolute;
+  top: 0.4rem;
+  bottom: 0.4rem;
+  left: 11px;
+  width: 1px;
+  background: var(--adm-border);
+}
+
+/* Adminator's themed scrollbar, retargeted onto our tokens. */
+.adm-scroll { scrollbar-width: thin; scrollbar-color: var(--adm-border-2) transparent; }
+.adm-scroll::-webkit-scrollbar { width: 8px; height: 8px; }
+.adm-scroll::-webkit-scrollbar-track { background: transparent; }
+.adm-scroll::-webkit-scrollbar-thumb {
+  background: var(--adm-border-2);
+  border-radius: 9999px;
+}
+.adm-scroll::-webkit-scrollbar-thumb:hover { background: var(--adm-text-3); }
 
 .adm-nav-link { position: relative; transition: background 0.18s ease, color 0.18s ease; }
 .adm-nav-link.active::before {

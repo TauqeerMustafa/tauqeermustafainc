@@ -89,6 +89,30 @@ export const PORTAL_LABEL: Record<PortalId, string> = {
   [PORTAL.MANAGEMENT]: "Management",
 };
 
+/** One-line pitch for each portal, shown on the `/portals` chooser. */
+export const PORTAL_DESCRIPTION: Record<PortalId, string> = {
+  [PORTAL.ADMIN]: "Run the company: people, projects, documents, and configuration.",
+  [PORTAL.MANAGEMENT]: "Executive signals — attendance, delivery, and pipeline at a glance.",
+  [PORTAL.EMPLOYEES]: "Your day: attendance, leave, tasks, and team resources.",
+  [PORTAL.CLIENT]: "Your private workspace — project progress and a direct line to the team.",
+};
+
+/** Who each portal is for, phrased for a visitor deciding where to sign in. */
+export const PORTAL_ROLES_HINT: Record<PortalId, string> = {
+  [PORTAL.ADMIN]: "Administrators",
+  [PORTAL.MANAGEMENT]: "Executives & team leads",
+  [PORTAL.EMPLOYEES]: "All staff",
+  [PORTAL.CLIENT]: "Clients",
+};
+
+/** Display order for the chooser — staff portals first, clients last. */
+export const PORTAL_CHOOSER: readonly PortalId[] = [
+  PORTAL.ADMIN,
+  PORTAL.MANAGEMENT,
+  PORTAL.EMPLOYEES,
+  PORTAL.CLIENT,
+];
+
 /** Human-readable role name for badges and profile headers. */
 export const ROLE_LABEL: Record<string, string> = {
   [ROLE.ADMIN]: "Administrator",

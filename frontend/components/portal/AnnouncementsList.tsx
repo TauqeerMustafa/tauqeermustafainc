@@ -36,7 +36,7 @@ export default function AnnouncementsPage({ isAdmin = false }) {
           </p>
         </div>
         {isAdmin && (
-          <button className="flex items-center gap-2 bg-[var(--adm-blue)] px-6 py-2.5 text-sm font-bold text-white transition hover:opacity-90">
+          <button className="flex items-center gap-2 bg-adm-blue px-6 py-2.5 text-sm font-bold text-white transition hover:opacity-90">
             <Plus size={16} /> New Broadcast
           </button>
         )}
@@ -46,33 +46,33 @@ export default function AnnouncementsPage({ isAdmin = false }) {
         {loading ? (
           <div className="p-12 text-center animate-pulse" style={{ color: "var(--adm-text-3)" }}>Loading announcements...</div>
         ) : announcements.length === 0 ? (
-          <div className="py-20 flex flex-col items-center justify-center text-center bg-[var(--adm-surface)] border border-[var(--adm-border)]">
+          <div className="py-20 flex flex-col items-center justify-center text-center bg-adm-surface border border-adm-border">
             <Megaphone size={48} className="mb-4" style={{ color: "var(--adm-text-3)" }} />
-            <p className="font-bold text-[var(--adm-text)]">No Announcements</p>
-            <p className="text-sm text-[var(--adm-text-3)]">There is no news to share right now.</p>
+            <p className="font-bold text-adm-text">No Announcements</p>
+            <p className="text-sm text-adm-text-3">There is no news to share right now.</p>
           </div>
         ) : (
           announcements.map((item) => (
-            <div key={item.id} className="border border-[var(--adm-border)] bg-[var(--adm-surface)] p-8 flex flex-col hover:border-[var(--adm-blue)] transition">
+            <div key={item.id} className="border border-adm-border bg-adm-surface p-8 flex flex-col hover:border-adm-blue transition">
               <div className="flex items-start justify-between mb-4">
                 <div className="flex items-center gap-3">
-                  <div className="h-10 w-10 rounded-full bg-[var(--adm-blue-light)] text-[var(--adm-blue)] flex items-center justify-center">
+                  <div className="h-10 w-10 rounded-full bg-adm-blue-light text-adm-blue flex items-center justify-center">
                     <Megaphone size={18} />
                   </div>
                   <div>
-                    <h2 className="text-xl font-bold uppercase text-[var(--adm-text)]">{item.title}</h2>
-                    <p className="text-xs text-[var(--adm-text-3)] font-semibold mt-0.5">{new Date(item.created_at).toLocaleString()}</p>
+                    <h2 className="text-xl font-bold uppercase text-adm-text">{item.title}</h2>
+                    <p className="text-xs text-adm-text-3 font-semibold mt-0.5">{new Date(item.created_at).toLocaleString()}</p>
                   </div>
                 </div>
                 {isAdmin && (
                   <div className="flex items-center gap-2">
-                    {!item.is_published && <span className="bg-[var(--adm-amber-light)] text-[var(--adm-amber)] text-[10px] uppercase font-bold tracking-wider px-2 py-1">Draft</span>}
-                    <button className="h-8 w-8 rounded-full hover:bg-[var(--adm-surface-2)] flex items-center justify-center text-[var(--adm-text-3)] hover:text-[var(--adm-blue)] transition"><Edit size={14} /></button>
-                    <button className="h-8 w-8 rounded-full hover:bg-[var(--adm-red-light)] flex items-center justify-center text-[var(--adm-text-3)] hover:text-[var(--adm-red)] transition"><Trash2 size={14} /></button>
+                    {!item.is_published && <span className="bg-adm-amber-light text-adm-amber text-[10px] uppercase font-bold tracking-wider px-2 py-1">Draft</span>}
+                    <button className="h-8 w-8 rounded-full hover:bg-adm-surface-2 flex items-center justify-center text-adm-text-3 hover:text-adm-blue transition"><Edit size={14} /></button>
+                    <button className="h-8 w-8 rounded-full hover:bg-adm-red-light flex items-center justify-center text-adm-text-3 hover:text-adm-red transition"><Trash2 size={14} /></button>
                   </div>
                 )}
               </div>
-              <p className="text-[var(--adm-text-2)] whitespace-pre-wrap leading-relaxed mt-2">{item.body}</p>
+              <p className="text-adm-text-2 whitespace-pre-wrap leading-relaxed mt-2">{item.body}</p>
             </div>
           ))
         )}

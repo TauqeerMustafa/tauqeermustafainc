@@ -16,6 +16,13 @@ import {
   type PortalId,
 } from "@/lib/rbac";
 
+/**
+ * Portal sidebar — AdminLTE's sectioned nav rail rendered in BMW chrome: the M
+ * stripe on top, squared plates, a 3px action rail on the active row (drawn by
+ * `.adm-nav-link.active::before`). All colour comes from `adm-*` utilities so
+ * the rail flips light↔dark with the theme rather than being pinned to black.
+ */
+
 type Props = { portal: PortalId; isOpen: boolean; onClose: () => void };
 
 export default function PortalSidebar({ portal, isOpen, onClose }: Props) {
@@ -51,40 +58,27 @@ export default function PortalSidebar({ portal, isOpen, onClose }: Props) {
         />
       )}
       <aside
-        className={`fixed inset-y-0 left-0 z-50 flex w-[264px] flex-col border-r transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] lg:static lg:z-auto lg:translate-x-0 ${
+        className={`fixed inset-y-0 left-0 z-50 flex w-[264px] flex-col border-r border-adm-border bg-adm-surface transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] lg:static lg:z-auto lg:translate-x-0 ${
           isOpen ? "translate-x-0" : "-translate-x-full"
         }`}
-        style={{ borderColor: "var(--adm-border)", background: "var(--adm-surface)" }}
       >
         {/* BMW M signature stripe */}
-        <div className="m-stripe" />
+        <div className="m-stripe" aria-hidden="true" />
 
-        <div
-          className="flex items-center justify-between gap-2 border-b px-5 py-5"
-          style={{ borderColor: "var(--adm-border)" }}
-        >
+        <div className="flex items-center justify-between gap-2 border-b border-adm-border px-5 py-5">
           <Link
             href={PORTAL_HOME_PATH[portal]}
             className="group inline-flex min-w-0 items-center gap-2.5"
             onClick={onClose}
           >
-            <span
-              className="relative flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden border transition group-hover:border-[color:var(--adm-border-2)]"
-              style={{ borderColor: "var(--adm-border)" }}
-            >
+            <span className="relative flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden border border-adm-border transition group-hover:border-adm-border-2">
               <Image src="/logo-mark.svg" alt="" fill sizes="32px" className="object-cover" />
             </span>
             <span className="min-w-0">
-              <span
-                className="block text-sm font-bold uppercase leading-tight tracking-wide"
-                style={{ color: "var(--adm-text)" }}
-              >
+              <span className="block text-sm font-bold uppercase leading-tight tracking-wide text-adm-text">
                 TM INC
               </span>
-              <span
-                className="block truncate font-mono text-[10px] uppercase tracking-widest"
-                style={{ color: "var(--adm-blue)" }}
-              >
+              <span className="block truncate font-mono text-[10px] uppercase tracking-widest text-adm-blue">
                 {PORTAL_LABEL[portal]} Portal
               </span>
             </span>
@@ -94,20 +88,20 @@ export default function PortalSidebar({ portal, isOpen, onClose }: Props) {
             type="button"
             onClick={onClose}
             aria-label="Close menu"
-            className="flex h-8 w-8 shrink-0 items-center justify-center border transition hover:bg-[var(--adm-surface-2)] lg:hidden"
-            style={{ borderColor: "var(--adm-border)", color: "var(--adm-text-2)" }}
+            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-adm-border text-adm-text-2 transition hover:bg-adm-surface-2 hover:text-adm-text lg:hidden"
           >
             <X size={16} />
           </button>
         </div>
-        <nav className="flex-1 overflow-y-auto px-3 py-4" aria-label={`${PORTAL_LABEL[portal]} navigation`}>
+
+        <nav
+          className="adm-scroll flex-1 overflow-y-auto px-3 py-4"
+          aria-label={`${PORTAL_LABEL[portal]} navigation`}
+        >
           {sections.map((section, index) => (
             <div key={section.title ?? `group-${index}`} className={index > 0 ? "mt-5" : ""}>
               {section.title && (
-                <p
-                  className="mb-2 px-4 text-[10px] font-bold uppercase tracking-widest"
-                  style={{ color: "var(--adm-text-3)" }}
-                >
+                <p className="mb-2 px-4 text-[10px] font-bold uppercase tracking-widest text-adm-text-3">
                   {section.title}
                 </p>
               )}
@@ -123,37 +117,28 @@ export default function PortalSidebar({ portal, isOpen, onClose }: Props) {
                     onClick={onClose}
                     aria-current={active ? "page" : undefined}
                     className={`adm-nav-link mb-0.5 flex items-center gap-3 rounded-none px-4 py-2.5 text-[14px] font-medium transition-all ${
-                      active ? "active" : ""
-                    }`}
-                    style={
                       active
-                        ? { background: "var(--adm-blue-light)", color: "var(--adm-blue)" }
-                        : { color: "var(--adm-text-2)" }
-                    }
+                        ? "active bg-adm-blue-light text-adm-blue"
+                        : "text-adm-text-2 hover:bg-adm-surface-2 hover:text-adm-text"
+                    }`}
                   >
                     <Icon
                       size={17}
-                      className="shrink-0"
-                      style={{ color: active ? "var(--adm-blue)" : "var(--adm-text-3)" }}
+                      className={`shrink-0 ${active ? "text-adm-blue" : "text-adm-text-3"}`}
                     />
                     <span className="flex-1 truncate">{item.label}</span>
-                    {active && <ChevronRight size={14} style={{ color: "var(--adm-blue)" }} />}
+                    {active && <ChevronRight size={14} className="text-adm-blue" />}
                   </Link>
                 );
               })}
             </div>
           ))}
         </nav>
-        <div
-          className="border-t"
-          style={{ borderColor: "var(--adm-border)", background: "var(--adm-surface-2)" }}
-        >
+
+        <div className="border-t border-adm-border bg-adm-surface-2">
           {otherPortals.length > 0 && (
-            <div className="border-b px-3 py-3" style={{ borderColor: "var(--adm-border)" }}>
-              <p
-                className="mb-2 px-1 text-[10px] font-bold uppercase tracking-widest"
-                style={{ color: "var(--adm-text-3)" }}
-              >
+            <div className="border-b border-adm-border px-3 py-3">
+              <p className="mb-2 px-1 text-[10px] font-bold uppercase tracking-widest text-adm-text-3">
                 Switch Portal
               </p>
               {otherPortals.map((target) => (
@@ -161,8 +146,7 @@ export default function PortalSidebar({ portal, isOpen, onClose }: Props) {
                   key={target}
                   href={PORTAL_HOME_PATH[target]}
                   onClick={onClose}
-                  className="flex items-center gap-2 px-1 py-1.5 text-[13px] font-medium transition hover:text-[color:var(--adm-blue)]"
-                  style={{ color: "var(--adm-text-2)" }}
+                  className="flex items-center gap-2 px-1 py-1.5 text-[13px] font-medium text-adm-text-2 transition hover:text-adm-blue"
                 >
                   <ExternalLink size={13} className="shrink-0" />
                   <span className="truncate">{PORTAL_LABEL[target]}</span>
@@ -171,7 +155,7 @@ export default function PortalSidebar({ portal, isOpen, onClose }: Props) {
             </div>
           )}
 
-          <p className="px-5 py-4 text-[11px]" style={{ color: "var(--adm-text-3)" }}>
+          <p className="px-5 py-4 text-[11px] text-adm-text-3">
             Tauqeer Mustafa Inc. &copy; {new Date().getFullYear()}
           </p>
         </div>
