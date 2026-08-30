@@ -227,3 +227,126 @@ def admin_metrics(db: DatabaseSession, _admin: CurrentAdmin) -> ApiResponse[dict
     approved = db.scalar(select(func.count()).select_from(User).where(User.status == "approved")) or 0
     suspended = db.scalar(select(func.count()).select_from(User).where(User.status == "suspended")) or 0
     return ApiResponse(data={"total": total, "pending": pending, "approved": approved, "suspended": suspended})
+
+from app.schemas.crm import PermissionRead, RoleCreate, RoleUpdate, AssignPermissionsRequest
+from app.models.role import Permission, RolePermission
+
+@router.get("/permissions", response_model=ApiResponse[list[PermissionRead]])
+def list_permissions(db: DatabaseSession, _admin: CurrentAdmin) -> ApiResponse[list[PermissionRead]]:
+    permissions = db.scalars(select(Permission).order_by(Permission.slug.asc())).all()
+    return ApiResponse(
+        data=[
+            PermissionRead(
+                id=p.id,
+                slug=p.slug,
+                description=p.description
+            )
+            for p in permissions
+        ]
+    )
+
+@router.post("/roles", response_model=ApiResponse[RoleRead], status_code=status.HTTP_201_CREATED)
+def create_role(payload: RoleCreate, db: DatabaseSession, _admin: CurrentAdmin) -> ApiResponse[RoleRead]:
+    existing = db.scalar(select(Role).where(Role.slug == payload.slug))
+    if existing:
+        raise HTTPException(status_code=400, detail="Role with this slug already exists")
+    
+    role = Role(
+        slug=payload.slug,
+        name=payload.name,
+        hierarchy_level=payload.hierarchy_level,
+        description=payload.description,
+        is_system=False
+    )
+    db.add(role)
+    db.commit()
+    db.refresh(role)
+    
+    return ApiResponse(
+        data=RoleRead(
+            id=role.id,
+            slug=role.slug,
+            name=role.name,
+            hierarchy_level=role.hierarchy_level,
+            description=role.description,
+            is_system=role.is_system,
+            permissions=[]
+        ),
+        message="Role created successfully"
+    )
+
+@router.patch("/roles/{role_id}", response_model=ApiResponse[RoleRead])
+def update_role(role_id: uuid.UUID, payload: RoleUpdate, db: DatabaseSession, _admin: CurrentAdmin) -> ApiResponse[RoleRead]:
+    role = db.get(Role, role_id)
+    if not role:
+        raise HTTPException(status_code=404, detail="Role not found")
+        
+    if payload.name is not None:
+        role.name = payload.name
+    if payload.description is not None:
+        role.description = payload.description
+    if payload.hierarchy_level is not None:
+        role.hierarchy_level = payload.hierarchy_level
+        
+    db.commit()
+    db.refresh(role)
+    
+    return ApiResponse(
+        data=RoleRead(
+            id=role.id,
+            slug=role.slug,
+            name=role.name,
+            hierarchy_level=role.hierarchy_level,
+            description=role.description,
+            is_system=role.is_system,
+            permissions=[PermissionRead(id=p.id, slug=p.slug, description=p.description) for p in role.permissions]
+        ),
+        message="Role updated successfully"
+    )
+
+@router.delete("/roles/{role_id}", response_model=ApiResponse[dict])
+def delete_role(role_id: uuid.UUID, db: DatabaseSession, _admin: CurrentAdmin) -> ApiResponse[dict]:
+    role = db.get(Role, role_id)
+    if not role:
+        raise HTTPException(status_code=404, detail="Role not found")
+    if role.is_system:
+        raise HTTPException(status_code=400, detail="Cannot delete a system role")
+        
+    # Check if role is in use
+    in_use = db.scalar(select(func.count()).select_from(User).where(User.role_id == role_id))
+    if in_use and in_use > 0:
+        raise HTTPException(status_code=400, detail="Cannot delete role that is assigned to users")
+        
+    db.delete(role)
+    db.commit()
+    
+    return ApiResponse(data={"deleted": True}, message="Role deleted successfully")
+
+@router.post("/roles/{role_id}/permissions", response_model=ApiResponse[RoleRead])
+def assign_role_permissions(role_id: uuid.UUID, payload: AssignPermissionsRequest, db: DatabaseSession, _admin: CurrentAdmin) -> ApiResponse[RoleRead]:
+    role = db.get(Role, role_id)
+    if not role:
+        raise HTTPException(status_code=404, detail="Role not found")
+    
+    # Remove existing permissions
+    db.query(RolePermission).filter(RolePermission.role_id == role_id).delete()
+    
+    # Add new permissions
+    for perm_id in payload.permission_ids:
+        db.add(RolePermission(role_id=role_id, permission_id=perm_id))
+        
+    db.commit()
+    db.refresh(role)
+    
+    return ApiResponse(
+        data=RoleRead(
+            id=role.id,
+            slug=role.slug,
+            name=role.name,
+            hierarchy_level=role.hierarchy_level,
+            description=role.description,
+            is_system=role.is_system,
+            permissions=[PermissionRead(id=p.id, slug=p.slug, description=p.description) for p in role.permissions]
+        ),
+        message="Permissions updated successfully"
+    )

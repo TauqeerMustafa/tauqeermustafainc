@@ -1,9 +1,10 @@
-﻿"use client";
+"use client";
 import { ReactNode, useState } from "react";
 import { usePathname } from "next/navigation";
-import EmployeeGuard from "@/components/employee/EmployeeGuard";
-import EmployeeSidebar from "@/components/employee/EmployeeSidebar";
-import AdminHeader from "@/components/admin/AdminHeader";
+
+import PortalGuard from "@/components/portal/PortalGuard";
+import PortalSidebar from "@/components/portal/PortalSidebar";
+import PortalHeader from "@/components/portal/PortalHeader";
 
 export default function EmployeeLayout({ children }: { children: ReactNode }) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -14,17 +15,16 @@ export default function EmployeeLayout({ children }: { children: ReactNode }) {
   }
 
   return (
-    <EmployeeGuard>
+    <PortalGuard>
       <div className="flex min-h-screen" style={{ background: "var(--adm-bg)" }}>
-        <EmployeeSidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
+        <PortalSidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
         <div className="flex min-w-0 flex-1 flex-col">
-          <AdminHeader onMenuClick={() => setIsSidebarOpen(true)} />
-          <main className="adm-page flex-1 p-4 sm:p-6 lg:p-8">
+          <PortalHeader onMenuClick={() => setIsSidebarOpen(true)} />
+          <main className="adm-page flex-1 p-4 sm:p-6 lg:p-8 max-w-[1400px] mx-auto w-full">
             {children}
           </main>
         </div>
       </div>
-    </EmployeeGuard>
+    </PortalGuard>
   );
 }
-

@@ -63,6 +63,21 @@ class RoleRead(CamelModel):
     hierarchy_level: int
     description: str | None = None
     is_system: bool
+    permissions: list[PermissionRead] = Field(default_factory=list)
+
+class RoleCreate(CamelModel):
+    slug: str = Field(min_length=1, max_length=60)
+    name: str = Field(min_length=1, max_length=120)
+    hierarchy_level: int = Field(default=0, ge=0)
+    description: str | None = Field(default=None, max_length=300)
+
+class RoleUpdate(CamelModel):
+    name: str | None = Field(default=None, min_length=1, max_length=120)
+    hierarchy_level: int | None = Field(default=None, ge=0)
+    description: str | None = Field(default=None, max_length=300)
+
+class AssignPermissionsRequest(CamelModel):
+    permission_ids: list[uuid.UUID]
 
 
 # ── Teams ───────────────────────────────────────────────────────────────────────

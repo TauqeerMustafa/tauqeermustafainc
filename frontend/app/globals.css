@@ -113,25 +113,31 @@
   --paper:            #ffffff;
   --line-soft2:       #efefef;
 
-  /* ── Admin panel tokens ── */
-  --adm-bg: #f3f0ee;
-  --adm-surface: #fcfbfa;
-  --adm-surface-2: #f4f4f4;
-  --adm-border:       #e0e0e0;
-  --adm-border-2:     #cccccc;
-  --adm-text: #141413;
-  --adm-text-2: #696969;
-  --adm-text-3: #696969;
-  --adm-ink: #141413;
-  --adm-blue: #141413;
-  --adm-blue-light: #e8e2da;
-  --adm-blue-mid:     #0066cc;
-  --adm-green:        #16a34a;
-  --adm-green-light:  #f0fdf4;
-  --adm-amber:        #b45309;
-  --adm-amber-light:  #fffbeb;
-  --adm-red:          #dc2626;
-  --adm-red-light:    #fef2f2;
+  /* ── Admin / Portal panel tokens — Pure BMW M (black canvas) ──────
+     The portal (admin + employee) is a single black-canvas surface per
+     DESIGN-bmw-m.md. There is NO light mode: the .dark block below
+     resolves to the same values so the theme never flips. Depth comes
+     from surface contrast + hairlines, never drop shadows. The M
+     tricolor (--m-*) is brand signature only — accents/dividers, never
+     button fills; the single BMW action blue carries interaction. */
+  --adm-bg:           #000000;  /* page canvas                       */
+  --adm-surface:      #1a1a1a;  /* card / panel / header / sidebar    */
+  --adm-surface-2:    #262626;  /* elevated: hover, inputs, footer    */
+  --adm-border:       #3c3c3c;  /* hairline                           */
+  --adm-border-2:     #565656;  /* hairline-strong / outline          */
+  --adm-text:         #ffffff;  /* ink / headings                     */
+  --adm-text-2:       #bbbbbb;  /* body                               */
+  --adm-text-3:       #7e7e7e;  /* muted / meta                       */
+  --adm-ink:          #ffffff;
+  --adm-blue:         #1c69d4;  /* the single BMW action blue         */
+  --adm-blue-light:   #0e1e33;  /* deep blue tint — active nav pill   */
+  --adm-blue-mid:     #0066b1;
+  --adm-green:        #0fa336;
+  --adm-green-light:  #0d2a16;
+  --adm-amber:        #f4b400;
+  --adm-amber-light:  #33290a;
+  --adm-red:          #e22718;  /* M red — destructive only           */
+  --adm-red-light:    #2a0f0d;
 }
 
 /* ═══ Pure BMW M — DARK theme (pure black canvas) ═══════════════════
@@ -169,24 +175,26 @@
   --border:                #26262a;
   --input:                 #26262a;
   --ring:                  #2f7de0;
+  /* Admin/portal tokens: identical to :root — the portal has no light
+     mode, so toggling .dark must not change it (see DESIGN-bmw-m.md). */
   --adm-bg:           #000000;
-  --adm-surface:      #121212;
-  --adm-surface-2:    #1e1e1e;
-  --adm-border:       #333333;
-  --adm-border-2:     #444444;
-  --adm-text:         #f5f5f7;
-  --adm-text-2:       #a1a1a6;
-  --adm-text-3:       #86868b;
-  --adm-ink:          #f5f5f7;
-  --adm-blue:         #2997ff;
-  --adm-blue-light:   #003366;
-  --adm-blue-mid:     #2997ff;
-  --adm-green:        #30d158;
-  --adm-green-light:  #004d1a;
-  --adm-amber:        #ff9f0a;
-  --adm-amber-light:  #663a00;
-  --adm-red:          #ff453a;
-  --adm-red-light:    #660000;
+  --adm-surface:      #1a1a1a;
+  --adm-surface-2:    #262626;
+  --adm-border:       #3c3c3c;
+  --adm-border-2:     #565656;
+  --adm-text:         #ffffff;
+  --adm-text-2:       #bbbbbb;
+  --adm-text-3:       #7e7e7e;
+  --adm-ink:          #ffffff;
+  --adm-blue:         #1c69d4;
+  --adm-blue-light:   #0e1e33;
+  --adm-blue-mid:     #0066b1;
+  --adm-green:        #0fa336;
+  --adm-green-light:  #0d2a16;
+  --adm-amber:        #f4b400;
+  --adm-amber-light:  #33290a;
+  --adm-red:          #e22718;
+  --adm-red-light:    #2a0f0d;
 }
 
 @theme inline {
@@ -350,24 +358,24 @@
   animation: shimmer 1.6s linear infinite;
 }
 
-/* ── Admin panel ─────────────────────────────────────────────────── */
+/* ── Admin / Portal panel — Pure BMW M ───────────────────────────── */
 .adm-card {
   background: var(--adm-surface);
   border: 1px solid var(--adm-border);
-  border-radius: 40px; box-shadow: 0 24px 48px rgba(0,0,0,0.08);
+  border-radius: 0;            /* BMW M: sharp corners, no radius */
+  box-shadow: none;            /* BMW M: no drop shadows          */
   position: relative;
-  transition: border-color 0.2s ease, box-shadow 0.22s ease, transform 0.22s cubic-bezier(0.22,1,0.36,1);
+  transition: border-color 0.2s ease, background 0.2s ease, transform 0.22s cubic-bezier(0.22,1,0.36,1);
 }
 .adm-card:hover {
-  border-color: var(--adm-ink);
-  box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+  border-color: var(--adm-border-2);
   transform: translateY(-2px);
 }
 
 .adm-nav-link { position: relative; transition: background 0.18s ease, color 0.18s ease; }
 .adm-nav-link.active::before {
   content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 3px;
-  background: var(--adm-blue); border-radius: 0 2px 2px 0;
+  background: var(--adm-blue); border-radius: 0;
 }
 
 @keyframes adm-page-in   { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }

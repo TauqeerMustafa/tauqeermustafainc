@@ -103,30 +103,30 @@ export default function AdminServicesPage() {
       ) : null}
 
       {!isLoading && !isError && services.length > 0 ? (
-        <div className="overflow-x-auto border border-white/10">
+        <div className="overflow-x-auto border border-[var(--adm-border)]">
           <table className="w-full min-w-[560px] text-left text-sm">
-            <thead className="border-b border-white/10 bg-white/5 text-xs uppercase tracking-wide text-slate-400">
+            <thead className="border-b border-[var(--adm-border)] bg-[var(--adm-surface-2)] text-xs uppercase tracking-wide text-[var(--adm-text-3)]">
               <tr>
                 <th className="px-4 py-3 font-semibold">Service</th>
                 <th className="px-4 py-3 font-semibold">Outcomes</th>
                 <th className="px-4 py-3 font-semibold text-right">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-white/10">
+            <tbody className="divide-y divide-[var(--adm-border)]">
               {services.map((service) => (
-                <tr key={service.id} className="text-slate-200">
+                <tr key={service.id} className="text-[var(--adm-text-2)]">
                   <td className="px-4 py-3">
-                    <p className="font-semibold text-white">{service.title}</p>
-                    <p className="text-xs text-slate-500">/{service.slug}</p>
+                    <p className="font-semibold text-[var(--adm-text)]">{service.title}</p>
+                    <p className="text-xs text-[var(--adm-text-3)]">/{service.slug}</p>
                   </td>
-                  <td className="px-4 py-3 text-slate-400">{service.outcomes.length} listed</td>
+                  <td className="px-4 py-3 text-[var(--adm-text-2)]">{service.outcomes.length} listed</td>
                   <td className="px-4 py-3">
                     <div className="flex justify-end gap-2">
                       <button
                         type="button"
                         onClick={() => openEdit(service)}
                         aria-label={`Edit ${service.title}`}
-                        className="flex h-8 w-8 items-center justify-center border border-white/10 text-slate-300 transition hover:border-yellow-400"
+                        className="flex h-8 w-8 items-center justify-center border border-[var(--adm-border)] text-[var(--adm-text-2)] transition hover:border-[var(--adm-blue)]"
                       >
                         <Pencil size={14} />
                       </button>
@@ -134,7 +134,7 @@ export default function AdminServicesPage() {
                         type="button"
                         onClick={() => setPendingDelete(service)}
                         aria-label={`Delete ${service.title}`}
-                        className="flex h-8 w-8 items-center justify-center border border-white/10 text-slate-300 transition hover:border-red-400 hover:text-red-400"
+                        className="flex h-8 w-8 items-center justify-center border border-[var(--adm-border)] text-[var(--adm-text-2)] transition hover:border-[var(--adm-red)] hover:text-[var(--adm-red)]"
                       >
                         <Trash2 size={14} />
                       </button>

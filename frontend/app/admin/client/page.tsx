@@ -14,19 +14,19 @@ export default function AdminClientPage() {
 
       <div className="grid grid-cols-1 gap-5 md:grid-cols-4 mb-6">
         {[
-          { label: "New Leads", value: 12, color: "text-blue-600" },
-          { label: "Active Clients", value: 45, color: "text-green-600" },
-          { label: "Projects in Progress", value: 8, color: "text-orange-600" },
-          { label: "Total Revenue (MRR)", value: "$12,400", color: "text-purple-600" },
+          { label: "New Leads", value: 12, color: "var(--adm-blue)" },
+          { label: "Active Clients", value: 45, color: "var(--adm-green)" },
+          { label: "Projects in Progress", value: 8, color: "var(--adm-amber)" },
+          { label: "Total Revenue (MRR)", value: "$12,400", color: "var(--adm-text)" },
         ].map((stat, i) => (
-          <div key={i} className="rounded-xl border border-[var(--adm-border)] bg-[var(--adm-surface)] p-5 shadow-sm transition hover:shadow-md">
+          <div key={i} className="border border-[var(--adm-border)] bg-[var(--adm-surface)] p-5 transition hover:border-[color:var(--adm-border-2)]">
             <p className="text-xs font-semibold uppercase tracking-wider text-[var(--adm-text-3)]">{stat.label}</p>
-            <p className={`mt-2 text-2xl font-bold ${stat.color}`}>{stat.value}</p>
+            <p className="mt-2 text-2xl font-bold" style={{ color: stat.color }}>{stat.value}</p>
           </div>
         ))}
       </div>
 
-      <div className="rounded-xl border border-[var(--adm-border)] bg-[var(--adm-surface)] shadow-sm">
+      <div className="border border-[var(--adm-border)] bg-[var(--adm-surface)]">
         <div className="border-b border-[var(--adm-border)] px-5 py-4">
           <h3 className="font-semibold text-[var(--adm-text)]">Recent Leads</h3>
         </div>
@@ -49,7 +49,7 @@ export default function AdminClientPage() {
                 <td className="px-5 py-3 font-medium text-[var(--adm-text)]">{lead.company}</td>
                 <td className="px-5 py-3 text-[var(--adm-text-2)]">{lead.person}</td>
                 <td className="px-5 py-3">
-                  <span className="inline-block rounded-full bg-blue-100 px-2 py-0.5 text-[11px] font-semibold tracking-wider text-blue-800">
+                  <span className="inline-block px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wider" style={{ background: "var(--adm-blue-light)", color: "var(--adm-blue)" }}>
                     {lead.status}
                   </span>
                 </td>

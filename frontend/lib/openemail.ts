@@ -37,3 +37,43 @@ export async function fetchOpenEmailMessages(mailboxId: string) {
   const data = await res.json();
   return data;
 }
+
+export async function fetchOpenEmailMessage(mailboxId: string, messageId: string) {
+  const token = process.env.OPENEMAIL_API_KEY;
+  if (!token) throw new Error('OPENEMAIL_API_KEY is missing');
+
+  const res = await fetch(`${OPENEMAIL_API_URL}/mailboxes/${mailboxId}/messages/${messageId}`, {
+    headers: {
+      Authorization: `Bearer ${token}`
+    },
+    next: { revalidate: 0 }
+  });
+
+  if (!res.ok) {
+    throw new Error(`Failed to fetch message: ${res.statusText}`);
+  }
+
+  const data = await res.json();
+  return data;
+}
+
+export async function sendOpenEmailMessage(mailboxId: string, payload: any) {
+  const token = process.env.OPENEMAIL_API_KEY;
+  if (!token) throw new Error('OPENEMAIL_API_KEY is missing');
+
+  const res = await fetch(`${OPENEMAIL_API_URL}/mailboxes/${mailboxId}/messages`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(payload)
+  });
+
+  if (!res.ok) {
+    throw new Error(`Failed to send message: ${res.statusText}`);
+  }
+
+  const data = await res.json();
+  return data;
+}

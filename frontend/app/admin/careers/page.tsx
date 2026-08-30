@@ -99,24 +99,24 @@ export default function AdminCareersPage() {
     <div>
       <div className="mb-6 flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-gray-900">Careers & Applicants</h1>
-          <p className="mt-1 text-sm text-gray-500">Manage open roles and review job applications.</p>
+          <h1 className="text-2xl font-bold uppercase tracking-tight text-[var(--adm-text)]">Careers & Applicants</h1>
+          <p className="mt-1 text-sm text-[var(--adm-text-3)]">Manage open roles and review job applications.</p>
         </div>
         {activeTab === 'roles' && (
           <button
             onClick={openCreate}
-            className="rounded bg-black px-4 py-2 text-sm font-semibold text-white transition hover:bg-gray-800"
+            className="bg-[var(--adm-blue)] px-4 py-2 text-sm font-semibold text-white transition hover:opacity-90"
           >
             New Role
           </button>
         )}
       </div>
 
-      <div className="mb-6 flex border-b border-gray-200">
+      <div className="mb-6 flex border-b border-[var(--adm-border)]">
         <button
           onClick={() => setActiveTab('roles')}
           className={`border-b-2 px-4 py-3 text-sm font-semibold transition ${
-            activeTab === 'roles' ? 'border-action text-action' : 'border-transparent text-gray-500 hover:text-gray-700'
+            activeTab === 'roles' ? 'border-action text-action' : 'border-transparent text-[var(--adm-text-3)] hover:text-[var(--adm-text-2)]'
           }`}
         >
           Job Postings
@@ -124,12 +124,12 @@ export default function AdminCareersPage() {
         <button
           onClick={() => setActiveTab('applications')}
           className={`border-b-2 px-4 py-3 text-sm font-semibold transition flex items-center gap-2 ${
-            activeTab === 'applications' ? 'border-action text-action' : 'border-transparent text-gray-500 hover:text-gray-700'
+            activeTab === 'applications' ? 'border-action text-action' : 'border-transparent text-[var(--adm-text-3)] hover:text-[var(--adm-text-2)]'
           }`}
         >
           Applications
           {applications.filter((a: ContactMessage) => !a.isRead).length > 0 && (
-            <span className="rounded-full bg-red-100 px-2 py-0.5 text-xs text-red-600">
+            <span className="bg-[var(--adm-red-light)] px-2 py-0.5 text-xs text-[var(--adm-red)]">
               {applications.filter((a: ContactMessage) => !a.isRead).length}
             </span>
           )}
@@ -187,7 +187,7 @@ export default function AdminCareersPage() {
                         type="button"
                         onClick={() => setPendingDelete(job)}
                         aria-label={`Delete ${job.title}`}
-                        className="flex h-8 w-8 items-center justify-center border border-line-2 text-ink-muted transition hover:border-[#dc2626] hover:text-[#dc2626]"
+                        className="flex h-8 w-8 items-center justify-center border border-line-2 text-ink-muted transition hover:border-[var(--adm-red)] hover:text-[var(--adm-red)]"
                       >
                         <Trash2 size={14} />
                       </button>
@@ -210,8 +210,8 @@ export default function AdminCareersPage() {
             applications.map((msg: ContactMessage) => (
               <div
                 key={msg.id}
-                className={`overflow-hidden rounded-xl border transition ${
-                  msg.isRead ? "border-line-2 bg-surface" : "border-action/20 bg-blue-50/30"
+                className={`overflow-hidden border transition ${
+                  msg.isRead ? "border-line-2 bg-surface" : "border-action/20 bg-[var(--adm-blue-light)]"
                 }`}
               >
                 <div
@@ -224,30 +224,30 @@ export default function AdminCareersPage() {
                   <div className="flex items-center gap-4">
                     <div
                       className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full ${
-                        msg.isRead ? "bg-gray-100 text-gray-400" : "bg-action/10 text-action"
+                        msg.isRead ? "bg-[var(--adm-surface-2)] text-[var(--adm-text-3)]" : "bg-action/10 text-action"
                       }`}
                     >
                       {msg.isRead ? <MailOpen className="h-4 w-4" /> : <Mail className="h-4 w-4" />}
                     </div>
                     <div>
-                      <p className={`text-sm ${msg.isRead ? "font-medium text-gray-900" : "font-bold text-gray-900"}`}>
-                        {msg.name} <span className="font-normal text-gray-500">({msg.email})</span>
+                      <p className={`text-sm ${msg.isRead ? "font-medium text-[var(--adm-text)]" : "font-bold text-[var(--adm-text)]"}`}>
+                        {msg.name} <span className="font-normal text-[var(--adm-text-3)]">({msg.email})</span>
                       </p>
-                      <p className="mt-0.5 text-xs text-gray-500">
+                      <p className="mt-0.5 text-xs text-[var(--adm-text-3)]">
                         {new Date(msg.createdAt).toLocaleString()}
                       </p>
                     </div>
                   </div>
                 </div>
                 {expandedApp === msg.id && (
-                  <div className="border-t border-line-2 bg-gray-50/50 p-4 sm:p-6">
-                    <div className="prose prose-sm max-w-none whitespace-pre-wrap text-gray-700">
+                  <div className="border-t border-line-2 bg-[var(--adm-surface-2)] p-4 sm:p-6">
+                    <div className="prose prose-sm max-w-none whitespace-pre-wrap text-[var(--adm-text-2)]">
                       {msg.message}
                     </div>
                     <div className="mt-6 flex justify-end">
                       <button
                         onClick={() => deleteMsg.mutate(msg.id)}
-                        className="flex items-center gap-2 rounded px-3 py-1.5 text-sm font-medium text-red-600 hover:bg-red-50"
+                        className="flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-[var(--adm-red)] hover:bg-[var(--adm-surface-2)]"
                       >
                         <Trash2 className="h-4 w-4" /> Delete Application
                       </button>
@@ -328,12 +328,12 @@ export default function AdminCareersPage() {
               onChange={(e) => setForm({ ...form, responsibilities: toList(e.target.value) })}
             />
           </AdminField>
-          <label className="flex items-center gap-2 text-sm font-medium text-slate-200">
+          <label className="flex items-center gap-2 text-sm font-medium text-[var(--adm-text-2)]">
             <input
               type="checkbox"
               checked={form.isOpen}
               onChange={(e) => setForm({ ...form, isOpen: e.target.checked })}
-              className="h-4 w-4 accent-yellow-400"
+              className="h-4 w-4 accent-[var(--adm-blue)]"
             />
             Open for applications
           </label>

@@ -1,5 +1,5 @@
 /**
- * Upstash Redis client for WhatsApp + Zoho data storage.
+ * Upstash Redis client for WhatsApp data storage.
  *
  * Setup:
  * 1. Go to vercel.com/dashboard → your project → Storage → Create Database → Upstash Redis

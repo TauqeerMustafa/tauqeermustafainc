@@ -1222,7 +1222,7 @@ function SendTab({
 
   return (
     <div className="mx-auto max-w-3xl">
-      <div className="space-y-6 border bg-white p-6" style={{ borderColor: "var(--adm-border)" }}>
+      <div className="space-y-6 border p-6" style={{ borderColor: "var(--adm-border)", background: "var(--adm-surface)" }}>
         {/* Message Type */}
         <div>
           <label className="mb-3 block text-sm font-semibold" style={{ color: "var(--adm-text)" }}>
@@ -1234,9 +1234,7 @@ function SendTab({
                 key={type}
                 type="button"
                 onClick={() => setMessageType(type)}
-                className={`border px-4 py-3 text-sm font-semibold capitalize transition ${
-                  messageType === type ? "shadow-sm" : ""
-                }`}
+                className={`border px-4 py-3 text-sm font-semibold capitalize transition`}
                 style={{
                   borderColor: messageType === type ? "var(--adm-blue)" : "var(--adm-border)",
                   background: messageType === type ? "var(--adm-blue-light)" : "var(--adm-surface)",
@@ -1510,8 +1508,8 @@ function SendTab({
         {/* Error / Success */}
         {sendError && (
           <div
-            className="flex items-center gap-2 border bg-red-50 p-4 text-sm"
-            style={{ borderColor: "var(--adm-red)", color: "var(--adm-red)" }}
+            className="flex items-center gap-2 border p-4 text-sm"
+            style={{ borderColor: "var(--adm-red)", background: "var(--adm-red-light)", color: "var(--adm-red)" }}
           >
             <AlertCircle size={16} className="shrink-0" />
             {sendError}
@@ -1519,8 +1517,8 @@ function SendTab({
         )}
         {sendSuccess && (
           <div
-            className="flex items-center gap-2 border bg-green-50 p-4 text-sm"
-            style={{ borderColor: "var(--adm-green)", color: "var(--adm-green)" }}
+            className="flex items-center gap-2 border p-4 text-sm"
+            style={{ borderColor: "var(--adm-green)", background: "var(--adm-green-light)", color: "var(--adm-green)" }}
           >
             <CheckCheck size={16} className="shrink-0" />
             Message sent successfully!
@@ -1531,7 +1529,7 @@ function SendTab({
           type="button"
           onClick={handleSend}
           disabled={sendMessage.isPending}
-          className="flex w-full items-center justify-center gap-2 px-6 py-4 text-sm font-semibold text-white transition hover:shadow-md disabled:opacity-50"
+          className="flex w-full items-center justify-center gap-2 px-6 py-4 text-sm font-semibold text-white transition hover:opacity-90 disabled:opacity-50"
           style={{ background: "var(--adm-blue)" }}
         >
           <Send size={16} />
@@ -1572,7 +1570,7 @@ function ButtonPreview({
         Live Preview
       </label>
       <div
-        className="overflow-hidden rounded-lg border p-4"
+        className="overflow-hidden border p-4"
         style={{
           borderColor: "var(--adm-border)",
           background:
@@ -1635,11 +1633,11 @@ function ButtonPreview({
 
 function metaStatusStyle(status: string): { label: string; color: string; bg: string } {
   const s = (status || "").toUpperCase();
-  if (s === "APPROVED") return { label: "Approved", color: "#10B981", bg: "#D1FAE5" };
+  if (s === "APPROVED") return { label: "Approved", color: "var(--adm-green)", bg: "var(--adm-green-light)" };
   if (s === "REJECTED" || s === "DISABLED" || s === "PAUSED")
-    return { label: s.charAt(0) + s.slice(1).toLowerCase(), color: "#EF4444", bg: "#FEE2E2" };
-  if (s === "NOT_SUBMITTED") return { label: "Not submitted", color: "#6B7280", bg: "#F3F4F6" };
-  return { label: "Pending review", color: "#F59E0B", bg: "#FEF3C7" };
+    return { label: s.charAt(0) + s.slice(1).toLowerCase(), color: "var(--adm-red)", bg: "var(--adm-red-light)" };
+  if (s === "NOT_SUBMITTED") return { label: "Not submitted", color: "var(--adm-text-3)", bg: "var(--adm-surface-2)" };
+  return { label: "Pending review", color: "var(--adm-amber)", bg: "var(--adm-amber-light)" };
 }
 
 function MetaTemplatesTab({ defaultRecipient }: { defaultRecipient: string }) {
@@ -1685,7 +1683,7 @@ function MetaTemplatesTab({ defaultRecipient }: { defaultRecipient: string }) {
       {!configured && (
         <div
           className="flex items-start gap-2 border p-4 text-sm"
-          style={{ borderColor: "var(--adm-amber, #F59E0B)", background: "#FEF3C7", color: "#92400E" }}
+          style={{ borderColor: "var(--adm-amber)", background: "var(--adm-amber-light)", color: "var(--adm-amber)" }}
         >
           <AlertCircle size={16} className="mt-0.5 shrink-0" />
           <span>{notice || "Set WHATSAPP_BUSINESS_ACCOUNT_ID to submit templates."}</span>
@@ -1696,7 +1694,7 @@ function MetaTemplatesTab({ defaultRecipient }: { defaultRecipient: string }) {
       <div className="flex flex-wrap items-center justify-between gap-3">
         <p className="text-sm" style={{ color: "var(--adm-text-2)" }}>
           <strong>{templates.length}</strong> templates ·{" "}
-          <span style={{ color: "#10B981" }}>
+          <span style={{ color: "var(--adm-green)" }}>
             <strong>{approvedCount}</strong> approved
           </span>
         </p>
@@ -1798,7 +1796,7 @@ function MetaTemplateCard({ template, defaultRecipient }: { template: MetaTempla
   };
 
   return (
-    <div className="border bg-white" style={{ borderColor: "var(--adm-border)" }}>
+    <div className="border" style={{ borderColor: "var(--adm-border)", background: "var(--adm-surface)" }}>
       <div className="flex items-start justify-between gap-3 p-4">
         <div className="min-w-0">
           <div className="mb-1 flex flex-wrap items-center gap-2">
@@ -1806,13 +1804,13 @@ function MetaTemplateCard({ template, defaultRecipient }: { template: MetaTempla
               {template.name}
             </span>
             <span
-              className="rounded-full px-2 py-0.5 text-[11px] font-semibold"
+              className="px-2 py-0.5 text-[11px] font-semibold"
               style={{ color: badge.color, background: badge.bg }}
             >
               {badge.label}
             </span>
             <span
-              className="rounded-full px-2 py-0.5 text-[11px] font-medium"
+              className="px-2 py-0.5 text-[11px] font-medium"
               style={{ color: "var(--adm-text-3)", background: "var(--adm-surface-2)" }}
             >
               {template.category}
@@ -1836,7 +1834,7 @@ function MetaTemplateCard({ template, defaultRecipient }: { template: MetaTempla
               {template.buttons.map((b) => (
                 <span
                   key={b}
-                  className="rounded border px-2 py-1 text-xs font-medium"
+                  className="border px-2 py-1 text-xs font-medium"
                   style={{ borderColor: "var(--adm-border)", color: "#00a5f4" }}
                 >
                   {b}
@@ -1972,7 +1970,7 @@ function TemplateManager({ templates }: { templates: WATemplate[] }) {
       {templates.length > 0 && (
         <div className="mt-3 space-y-2">
           {templates.map((t) => (
-            <div key={t.name} className="flex items-start justify-between gap-3 rounded border p-2" style={{ borderColor: "var(--adm-border)" }}>
+            <div key={t.name} className="flex items-start justify-between gap-3 border p-2" style={{ borderColor: "var(--adm-border)" }}>
               <div className="min-w-0 text-sm">
                 <span className="font-semibold" style={{ color: "var(--adm-text)" }}>
                   {t.name}
@@ -2087,7 +2085,7 @@ function RulesTab() {
             <button
               type="button"
               onClick={() => setIsEditing(false)}
-              className="border px-4 py-2 text-sm font-semibold transition hover:bg-gray-50"
+              className="border px-4 py-2 text-sm font-semibold transition hover:bg-[var(--adm-surface-2)]"
               style={{ borderColor: "var(--adm-border)", color: "var(--adm-text-2)" }}
             >
               Cancel
@@ -2107,8 +2105,8 @@ function RulesTab() {
 
       {saveRules.isError && (
         <div
-          className="flex items-center gap-2 border bg-red-50 p-4 text-sm"
-          style={{ borderColor: "var(--adm-red)", color: "var(--adm-red)" }}
+          className="flex items-center gap-2 border p-4 text-sm"
+          style={{ borderColor: "var(--adm-red)", background: "var(--adm-red-light)", color: "var(--adm-red)" }}
         >
           <AlertCircle size={16} />
           Failed to save rules.
@@ -2128,7 +2126,7 @@ function RulesTab() {
           <button
             type="button"
             onClick={addRule}
-            className="border px-4 py-2 text-sm font-semibold transition hover:shadow-sm"
+            className="border px-4 py-2 text-sm font-semibold transition hover:bg-[var(--adm-surface-2)]"
             style={{ borderColor: "var(--adm-border)", color: "var(--adm-text)" }}
           >
             + Add Rule
@@ -2144,8 +2142,8 @@ function RulesTab() {
           {rules.map((rule) => (
             <div
               key={rule.id}
-              className="flex items-start justify-between gap-3 border bg-white p-4 rounded"
-              style={{ borderColor: "var(--adm-border)" }}
+              className="flex items-start justify-between gap-3 border p-4"
+              style={{ borderColor: "var(--adm-border)", background: "var(--adm-surface)" }}
             >
               <div className="min-w-0">
                 <p className="font-semibold" style={{ color: "var(--adm-text)" }}>
@@ -2159,9 +2157,9 @@ function RulesTab() {
                 </p>
               </div>
               <span
-                className="shrink-0 rounded-full px-2 py-0.5 text-xs font-semibold"
+                className="shrink-0 px-2 py-0.5 text-xs font-semibold"
                 style={{
-                  background: rule.enabled ? "#DCFCE7" : "var(--adm-surface-2)",
+                  background: rule.enabled ? "var(--adm-green-light)" : "var(--adm-surface-2)",
                   color: rule.enabled ? "var(--adm-green)" : "var(--adm-text-3)",
                 }}
               >
@@ -2185,7 +2183,7 @@ function RuleEditor({
   onRemove: (id: string) => void;
 }) {
   return (
-    <div className="border bg-white p-4 rounded" style={{ borderColor: "var(--adm-border)" }}>
+    <div className="border p-4" style={{ borderColor: "var(--adm-border)", background: "var(--adm-surface)" }}>
       <div className="grid gap-3 sm:grid-cols-2">
         <AdminField label="Keyword or phrase" htmlFor={`kw-${rule.id}`}>
           <input
@@ -2270,8 +2268,8 @@ function StatsTab() {
       </div>
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard title="Total Messages" value={stats.total} iconBg="var(--adm-blue-light)" iconColor="var(--adm-blue)" icon={<MessageSquare size={22} />} />
-        <StatCard title="Received" value={stats.inbound} iconBg="#DBEAFE" iconColor="#2563EB" icon={<MessageSquare size={22} />} />
-        <StatCard title="Sent" value={stats.outbound} iconBg="#DCFCE7" iconColor="#16A34A" icon={<Send size={20} />} />
+        <StatCard title="Received" value={stats.inbound} iconBg="var(--adm-blue-light)" iconColor="var(--adm-blue)" icon={<MessageSquare size={22} />} />
+        <StatCard title="Sent" value={stats.outbound} iconBg="var(--adm-green-light)" iconColor="var(--adm-green)" icon={<Send size={20} />} />
         <StatCard title="Today" value={stats.today} iconBg="var(--adm-blue-light)" iconColor="var(--adm-blue)" icon={<BarChart3 size={22} />} />
       </div>
     </div>
@@ -2292,7 +2290,7 @@ function StatCard({
   iconColor: string;
 }) {
   return (
-    <div className="flex items-center justify-between border bg-white p-5 rounded" style={{ borderColor: "var(--adm-border)" }}>
+    <div className="flex items-center justify-between border p-5" style={{ borderColor: "var(--adm-border)", background: "var(--adm-surface)" }}>
       <div>
         <p className="text-xs font-medium uppercase tracking-wide" style={{ color: "var(--adm-text-3)" }}>
           {title}

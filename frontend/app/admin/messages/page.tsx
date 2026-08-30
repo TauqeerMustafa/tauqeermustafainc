@@ -49,7 +49,7 @@ export default function AdminMessagesPage() {
         <button
           type="button"
           onClick={() => setUnreadOnly(false)}
-          className={`px-3 py-1.5 text-sm font-semibold transition ${!unreadOnly ? "bg-[#0066cc] text-white" : "border text-[#6e6e73] hover:bg-gray-50"}`}
+          className={`px-3 py-1.5 text-sm font-semibold transition ${!unreadOnly ? "bg-[var(--adm-blue)] text-white" : "border text-[var(--adm-text-2)] hover:bg-[var(--adm-surface-2)]"}`}
           style={!unreadOnly ? {} : { borderColor: "var(--adm-border)" }}
         >
           All
@@ -57,7 +57,7 @@ export default function AdminMessagesPage() {
         <button
           type="button"
           onClick={() => setUnreadOnly(true)}
-          className={`px-3 py-1.5 text-sm font-semibold transition ${unreadOnly ? "bg-[#0066cc] text-white" : "border text-[#6e6e73] hover:bg-gray-50"}`}
+          className={`px-3 py-1.5 text-sm font-semibold transition ${unreadOnly ? "bg-[var(--adm-blue)] text-white" : "border text-[var(--adm-text-2)] hover:bg-[var(--adm-surface-2)]"}`}
           style={unreadOnly ? {} : { borderColor: "var(--adm-border)" }}
         >
           Unread
@@ -87,7 +87,7 @@ export default function AdminMessagesPage() {
                       markRead.mutate({ id: message.id, isRead: true });
                     }
                   }}
-                  className="flex w-full items-start justify-between gap-4 px-4 py-4 text-left sm:px-6 transition hover:bg-gray-50/50"
+                  className="flex w-full items-start justify-between gap-4 px-4 py-4 text-left sm:px-6 transition hover:bg-[var(--adm-surface-2)]"
                 >
                   <div className="flex min-w-0 items-start gap-3">
                     {message.isRead ? (
@@ -114,7 +114,7 @@ export default function AdminMessagesPage() {
                     <div className="mt-4 flex flex-wrap gap-3">
                       <a
                         href={`mailto:${message.email}`}
-                        className="border px-3 py-1.5 text-xs font-semibold transition hover:bg-white"
+                        className="border px-3 py-1.5 text-xs font-semibold transition hover:bg-[var(--adm-surface-2)]"
                         style={{ borderColor: "var(--adm-border)", color: "var(--adm-text-2)" }}
                       >
                         Reply by email
@@ -122,7 +122,7 @@ export default function AdminMessagesPage() {
                       <button
                         type="button"
                         onClick={() => markRead.mutate({ id: message.id, isRead: !message.isRead })}
-                        className="border px-3 py-1.5 text-xs font-semibold transition hover:bg-white"
+                        className="border px-3 py-1.5 text-xs font-semibold transition hover:bg-[var(--adm-surface-2)]"
                         style={{ borderColor: "var(--adm-border)", color: "var(--adm-text-2)" }}
                       >
                         Mark as {message.isRead ? "unread" : "read"}
@@ -130,7 +130,7 @@ export default function AdminMessagesPage() {
                       <button
                         type="button"
                         onClick={() => setPendingDelete(message)}
-                        className="flex items-center gap-1.5 border px-3 py-1.5 text-xs font-semibold transition hover:bg-red-50 hover:border-red-200"
+                        className="flex items-center gap-1.5 border px-3 py-1.5 text-xs font-semibold transition hover:bg-[var(--adm-red-light)] hover:border-[var(--adm-red)]"
                         style={{ borderColor: "var(--adm-border)", color: "var(--adm-red)" }}
                       >
                         <Trash2 size={12} />

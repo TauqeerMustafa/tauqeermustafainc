@@ -3,9 +3,9 @@
 import { ReactNode, useState } from "react";
 import { usePathname } from "next/navigation";
 
-import AdminGuard from "@/components/admin/AdminGuard";
-import AdminSidebar from "@/components/admin/AdminSidebar";
-import AdminHeader from "@/components/admin/AdminHeader";
+import PortalGuard from "@/components/portal/PortalGuard";
+import PortalSidebar from "@/components/portal/PortalSidebar";
+import PortalHeader from "@/components/portal/PortalHeader";
 
 export default function AdminLayout({ children }: { children: ReactNode }) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -16,16 +16,16 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
   }
 
   return (
-    <AdminGuard>
+    <PortalGuard>
       <div className="flex min-h-screen" style={{ background: "var(--adm-bg)" }}>
-        <AdminSidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
+        <PortalSidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
         <div className="flex min-w-0 flex-1 flex-col">
-          <AdminHeader onMenuClick={() => setIsSidebarOpen(true)} />
-          <main className="adm-page flex-1 p-4 sm:p-6 lg:p-8">
+          <PortalHeader onMenuClick={() => setIsSidebarOpen(true)} />
+          <main className="adm-page flex-1 p-4 sm:p-6 lg:p-8 max-w-[1400px] mx-auto w-full">
             {children}
           </main>
         </div>
       </div>
-    </AdminGuard>
+    </PortalGuard>
   );
 }

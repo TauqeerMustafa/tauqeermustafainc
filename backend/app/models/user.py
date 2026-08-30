@@ -98,3 +98,4 @@ class User(Base):
 
     role = relationship("Role", foreign_keys=[role_id], lazy="joined")
     team = relationship("Team", foreign_keys=[team_id], lazy="select")
+    employee = relationship("Employee", back_populates="user", uselist=False, lazy="select", cascade="all, delete-orphan")

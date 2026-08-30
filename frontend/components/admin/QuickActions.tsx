@@ -11,10 +11,10 @@ const actions = [
 ];
 
 const iconColors: Record<string, { bg: string; icon: string; border: string }> = {
-  blue:  { bg: "var(--adm-blue-light)",  icon: "var(--adm-blue)",  border: "var(--adm-blue-mid)" },
-  green: { bg: "var(--adm-green-light)", icon: "var(--adm-green)", border: "#A7F3D0" },
-  amber: { bg: "var(--adm-amber-light)", icon: "var(--adm-amber)", border: "#FDE68A" },
-  red:   { bg: "var(--adm-red-light)",   icon: "var(--adm-red)",   border: "#FECACA" },
+  blue:  { bg: "var(--adm-blue-light)",  icon: "var(--adm-blue)",  border: "var(--adm-border)" },
+  green: { bg: "var(--adm-green-light)", icon: "var(--adm-green)", border: "var(--adm-border)" },
+  amber: { bg: "var(--adm-amber-light)", icon: "var(--adm-amber)", border: "var(--adm-border)" },
+  red:   { bg: "var(--adm-red-light)",   icon: "var(--adm-red)",   border: "var(--adm-border)" },
 };
 
 export default function QuickActions() {

@@ -17,7 +17,10 @@ export function AdminPageHeader({
   return (
     <div className="mb-6 flex flex-col gap-4 sm:mb-8 sm:flex-row sm:items-center sm:justify-between">
       <div>
-        <h1 className="text-xl font-bold sm:text-2xl" style={{ color: "var(--adm-text)" }}>
+        <h1
+          className="text-xl font-bold uppercase sm:text-2xl"
+          style={{ color: "var(--adm-text)", letterSpacing: "-0.01em" }}
+        >
           {title}
         </h1>
         {description && (
@@ -30,7 +33,7 @@ export function AdminPageHeader({
         <button
           type="button"
           onClick={onAction}
-          className="btn-press rounded-[20px] flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:shadow-md active:shadow-none"
+          className="btn-press flex items-center justify-center gap-2 px-5 py-2.5 text-xs font-bold uppercase tracking-wider text-white transition hover:opacity-90"
           style={{ background: "var(--adm-blue)" }}
         >
           <Plus size={16} />
@@ -57,7 +60,7 @@ export function AdminErrorState({ message = "Something went wrong loading this d
   return (
     <div
       className="flex flex-col items-center gap-3 border py-16 text-center"
-      style={{ borderColor: "#FECACA", background: "var(--adm-red-light)", color: "var(--adm-red)" }}
+      style={{ borderColor: "var(--adm-red)", background: "var(--adm-red-light)", color: "var(--adm-red)" }}
     >
       <AlertTriangle size={22} />
       <p className="max-w-sm text-sm">{message}</p>
@@ -108,12 +111,12 @@ export function AdminConfirmDialog({
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/20 p-4 backdrop-blur-sm">
+    <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
       <div
-        className="adm-dialog w-full max-w-sm border p-6 shadow-xl rounded-[40px]"
+        className="adm-dialog w-full max-w-sm border p-6"
         style={{ background: "var(--adm-surface)", borderColor: "var(--adm-border)" }}
       >
-        <h3 className="text-lg font-semibold" style={{ color: "var(--adm-text)" }}>
+        <h3 className="text-lg font-semibold uppercase" style={{ color: "var(--adm-text)" }}>
           {title}
         </h3>
         {description && (
@@ -125,7 +128,7 @@ export function AdminConfirmDialog({
           <button
             type="button"
             onClick={onCancel}
-            className="border rounded-[20px] px-4 py-2 text-sm font-semibold transition hover:bg-gray-50"
+            className="border px-4 py-2 text-xs font-bold uppercase tracking-wider transition hover:bg-[var(--adm-surface-2)]"
             style={{ borderColor: "var(--adm-border)", color: "var(--adm-text-2)" }}
           >
             Cancel
@@ -134,7 +137,7 @@ export function AdminConfirmDialog({
             type="button"
             onClick={onConfirm}
             disabled={isPending}
-            className="btn-press rounded-[20px] px-4 py-2 text-sm font-semibold text-white transition hover:opacity-90 disabled:opacity-50"
+            className="btn-press px-4 py-2 text-xs font-bold uppercase tracking-wider text-white transition hover:opacity-90 disabled:opacity-50"
             style={{ background: "var(--adm-red)" }}
           >
             {isPending ? "Deleting…" : confirmLabel}
@@ -159,23 +162,23 @@ export function AdminDrawer({
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-[60] flex justify-end bg-black/20 backdrop-blur-sm">
+    <div className="fixed inset-0 z-[60] flex justify-end bg-black/60 backdrop-blur-sm">
       <div
-        className="adm-drawer w-full max-w-lg overflow-y-auto border-l p-6 shadow-2xl sm:p-8"
+        className="adm-drawer w-full max-w-lg overflow-y-auto border-l p-6 sm:p-8"
         style={{ background: "var(--adm-surface)", borderColor: "var(--adm-border)" }}
         role="dialog"
         aria-modal="true"
         aria-label={title}
       >
         <div className="mb-6 flex items-center justify-between gap-4">
-          <h2 className="text-lg font-bold" style={{ color: "var(--adm-text)" }}>
+          <h2 className="text-lg font-bold uppercase" style={{ color: "var(--adm-text)" }}>
             {title}
           </h2>
           <button
             type="button"
             onClick={onClose}
             aria-label="Close"
-            className="flex h-9 w-9 rounded-full items-center justify-center border transition hover:bg-gray-50"
+            className="flex h-9 w-9 items-center justify-center border transition hover:bg-[var(--adm-surface-2)]"
             style={{ borderColor: "var(--adm-border)", color: "var(--adm-text-2)" }}
           >
             <X size={18} />
@@ -200,7 +203,11 @@ export function AdminField({
 }) {
   return (
     <div className="grid gap-2">
-      <label htmlFor={htmlFor} className="text-sm font-semibold" style={{ color: "var(--adm-text-2)" }}>
+      <label
+        htmlFor={htmlFor}
+        className="text-xs font-bold uppercase tracking-wider"
+        style={{ color: "var(--adm-text-2)" }}
+      >
         {label}
       </label>
       {children}
@@ -210,11 +217,11 @@ export function AdminField({
 }
 
 export const adminInputClass =
-  "w-full border rounded-[999px] px-6 py-3 text-[16px] outline-none transition focus:border-[#141413] focus:ring-2 focus:ring-[#141413]/10";
+  "w-full border rounded-none px-4 py-3 text-[15px] outline-none transition focus:border-[color:var(--adm-blue)] focus:ring-2 focus:ring-[color:var(--adm-blue)]/25";
 
 export const adminInputStyle = {
   borderColor: "var(--adm-border)",
-  background: "var(--adm-surface)",
+  background: "var(--adm-surface-2)",
   color: "var(--adm-text)",
 };
 
@@ -235,7 +242,7 @@ export function AdminFormActions({
       <button
         type="button"
         onClick={onCancel}
-        className="border rounded-[20px] px-4 py-2.5 text-sm font-semibold transition hover:bg-gray-50"
+        className="border px-4 py-2.5 text-xs font-bold uppercase tracking-wider transition hover:bg-[var(--adm-surface-2)]"
         style={{ borderColor: "var(--adm-border)", color: "var(--adm-text-2)" }}
       >
         Cancel
@@ -243,7 +250,7 @@ export function AdminFormActions({
       <button
         type="submit"
         disabled={isPending}
-        className="btn-press rounded-[20px] px-5 py-2.5 text-sm font-semibold text-white transition hover:opacity-90 disabled:opacity-50"
+        className="btn-press px-5 py-2.5 text-xs font-bold uppercase tracking-wider text-white transition hover:opacity-90 disabled:opacity-50"
         style={{ background: "var(--adm-blue)" }}
       >
         {isPending ? "Saving…" : submitLabel}
@@ -251,5 +258,3 @@ export function AdminFormActions({
     </div>
   );
 }
-
-
