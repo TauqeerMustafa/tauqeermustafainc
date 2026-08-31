@@ -85,6 +85,14 @@ class User(Base):
         DateTime(timezone=True), nullable=True
     )
 
+    # ── open.email mailbox ────────────────────────────────────────────────────
+    # Provisioned automatically on user creation. ``address`` is the mailbox's
+    # primary address (equal to ``email``); ``mailbox_id`` is the open.email id,
+    # null when provisioning was skipped (missing key) or the address already
+    # had a mailbox.
+    openemail_mailbox_id: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    openemail_address: Mapped[str | None] = mapped_column(String(255), nullable=True)
+
     created_at: Mapped[DateTime] = mapped_column(
         DateTime(timezone=True),
         server_default=func.now(),

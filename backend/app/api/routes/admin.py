@@ -37,6 +37,7 @@ def _to_admin_user_read(user: User) -> AdminUserRead:
         status=user.status,
         team_id=user.team_id,
         team_name=user.team.name if user.team else None,
+        openemail_address=user.openemail_address,
         approved_at=user.approved_at,
         created_at=user.created_at,
     )
@@ -148,6 +149,15 @@ def create_user(
             password=payload.password
         )
 
+    # Always auto-provision an open.email mailbox so every new user has a
+    # working inbox at their account email. Non-fatal: if the key is absent,
+    # the address is taken, or the API is down, the user is still created and
+    # the address falls back to their account email.
+    from app.services.openemail import provision_user_mailbox as provision_openemail_mailbox
+    mailbox = provision_openemail_mailbox(payload.email)
+    openemail_mailbox_id = mailbox.get("id") if mailbox else None
+    openemail_address = (mailbox.get("primaryAddress") if mailbox else None) or payload.email
+
     user = User(
         first_name=first_name,
         last_name=last_name,
@@ -160,6 +170,8 @@ def create_user(
         is_superuser=role.slug == "admin",
         role_id=role.id,
         team_id=payload.team_id,
+        openemail_mailbox_id=openemail_mailbox_id,
+        openemail_address=openemail_address,
         approved_by_id=admin.id if user_status == "approved" else None,
         approved_at=now if user_status == "approved" else None,
     )

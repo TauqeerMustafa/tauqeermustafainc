@@ -87,6 +87,8 @@ export interface AdminUser {
   status: UserStatus;
   teamId?: string;
   teamName?: string;
+  /** Auto-provisioned open.email address (equals the account email). */
+  openemailAddress?: string | null;
   approvedAt?: string;
   createdAt: string;
 }

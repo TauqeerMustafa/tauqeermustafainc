@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Check, ChevronDown, Clock3, MoreHorizontal, PauseCircle, Search, ShieldCheck, UserRound, X } from "lucide-react";
+import { Check, ChevronDown, Clock3, Mail, MoreHorizontal, PauseCircle, Search, ShieldCheck, UserRound, X } from "lucide-react";
 
 import {
   AdminDrawer,
@@ -62,6 +62,7 @@ export default function AdminUsersPage() {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [form, setForm] = useState<CreateAdminUserPayload>(emptyForm);
   const [menuId, setMenuId] = useState<string | null>(null);
+  const [lastCreated, setLastCreated] = useState<{ name: string; address?: string | null } | null>(null);
 
   const queryParams = useMemo(() => ({ pageSize: 50, search: search.trim() || undefined, status }), [search, status]);
   const usersQuery = useAdminUsers(queryParams);
@@ -82,7 +83,8 @@ export default function AdminUsersPage() {
 
   async function handleCreate(event: React.FormEvent) {
     event.preventDefault();
-    await createUser.mutateAsync({ ...form, teamId: form.teamId || undefined, phone: form.phone || undefined });
+    const created = await createUser.mutateAsync({ ...form, teamId: form.teamId || undefined, phone: form.phone || undefined });
+    setLastCreated({ name: created.data.name, address: created.data.openemailAddress });
     setDrawerOpen(false);
   }
 
@@ -103,6 +105,23 @@ export default function AdminUsersPage() {
         actionLabel="Add user"
         onAction={openCreate}
       />
+
+      {lastCreated ? (
+        <div className="mb-6 flex items-start justify-between gap-3 border p-4" style={{ borderColor: "var(--adm-green)", background: "var(--adm-green-light)" }}>
+          <div className="flex items-start gap-3">
+            <Mail size={18} className="mt-0.5 shrink-0" style={{ color: "var(--adm-green)" }} />
+            <div>
+              <p className="text-sm font-semibold" style={{ color: "var(--adm-text)" }}>{lastCreated.name} was created</p>
+              <p className="text-xs" style={{ color: "var(--adm-text-2)" }}>
+                {lastCreated.address
+                  ? <>Mailbox <span className="font-semibold">{lastCreated.address}</span> is assigned to this user.</>
+                  : "Account created. A mailbox will be assigned once open.email is configured."}
+              </p>
+            </div>
+          </div>
+          <button type="button" aria-label="Dismiss" onClick={() => setLastCreated(null)} className="shrink-0" style={{ color: "var(--adm-text-3)" }}><X size={16} /></button>
+        </div>
+      ) : null}
 
       <div className="mb-6 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
         {[
@@ -148,7 +167,7 @@ export default function AdminUsersPage() {
           <table className="w-full min-w-[760px] text-left text-sm">
             <thead className="border-b" style={{ borderColor: "var(--adm-border)", background: "var(--adm-surface-2)" }}>
               <tr>
-                {['User', 'Role', 'Team', 'Status', 'Joined', ''].map((heading) => <th key={heading} className="px-4 py-3 text-[10px] font-semibold uppercase tracking-widest" style={{ color: "var(--adm-text-3)" }}>{heading}</th>)}
+                {['User', 'Role', 'Team', 'Mailbox', 'Status', 'Joined', ''].map((heading) => <th key={heading} className="px-4 py-3 text-[10px] font-semibold uppercase tracking-widest" style={{ color: "var(--adm-text-3)" }}>{heading}</th>)}
               </tr>
             </thead>
             <tbody>
@@ -164,6 +183,11 @@ export default function AdminUsersPage() {
                     </td>
                     <td className="px-4 py-4"><span className="font-medium" style={{ color: "var(--adm-text-2)" }}>{user.roleName ?? user.roleSlug ?? "Unassigned"}</span></td>
                     <td className="px-4 py-4" style={{ color: "var(--adm-text-2)" }}>{user.teamName ?? "—"}</td>
+                    <td className="px-4 py-4 text-xs">
+                      {user.openemailAddress
+                        ? <span className="inline-flex items-center gap-1.5" style={{ color: "var(--adm-text-2)" }}><Mail size={13} style={{ color: "var(--adm-text-3)" }} />{user.openemailAddress}</span>
+                        : <span style={{ color: "var(--adm-text-3)" }}>—</span>}
+                    </td>
                     <td className="px-4 py-4"><span className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold" style={{ background: style.background, color: style.color }}><span className="h-1.5 w-1.5 rounded-full" style={{ background: style.color }} />{style.label}</span></td>
                     <td className="px-4 py-4 text-xs" style={{ color: "var(--adm-text-3)" }}>{formatDate(user.createdAt)}</td>
                     <td className="relative px-4 py-4 text-right">
@@ -188,7 +212,7 @@ export default function AdminUsersPage() {
       <AdminDrawer open={drawerOpen} title="Add a user" onClose={() => setDrawerOpen(false)}>
         <form onSubmit={handleCreate} className="grid gap-5">
           <AdminField label="Full name" htmlFor="user-name"><input id="user-name" required className={adminInputClass} style={adminInputStyle} value={form.name} onChange={(event) => setForm({ ...form, name: event.target.value })} /></AdminField>
-          <AdminField label="Email address" htmlFor="user-email"><input id="user-email" required type="email" className={adminInputClass} style={adminInputStyle} value={form.email} onChange={(event) => setForm({ ...form, email: event.target.value })} /></AdminField>
+          <AdminField label="Email address" htmlFor="user-email"><input id="user-email" required type="email" className={adminInputClass} style={adminInputStyle} value={form.email} onChange={(event) => setForm({ ...form, email: event.target.value })} /><p className="flex items-center gap-1.5 text-xs" style={{ color: "var(--adm-text-3)" }}><Mail size={12} />An open.email mailbox at this address is created automatically and assigned to the user.</p></AdminField>
           <AdminField label="Temporary password" htmlFor="user-password"><input id="user-password" required minLength={8} type="password" className={adminInputClass} style={adminInputStyle} value={form.password} onChange={(event) => setForm({ ...form, password: event.target.value })} /><p className="text-xs" style={{ color: "var(--adm-text-3)" }}>At least 8 characters. Share this securely with the new user.</p></AdminField>
           <AdminField label="Phone (optional)" htmlFor="user-phone"><input id="user-phone" className={adminInputClass} style={adminInputStyle} value={form.phone} onChange={(event) => setForm({ ...form, phone: event.target.value })} /></AdminField>
           <div className="grid gap-5 sm:grid-cols-2">

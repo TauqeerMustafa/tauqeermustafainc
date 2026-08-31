@@ -111,6 +111,7 @@ class AdminUserRead(CamelModel):
     status: str
     team_id: uuid.UUID | None = None
     team_name: str | None = None
+    openemail_address: str | None = None
     approved_at: datetime | None = None
     created_at: datetime
 
