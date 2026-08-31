@@ -41,6 +41,15 @@ class Settings(BaseSettings):
     google_client_secret: str | None = None
     google_redirect_uri: str | None = None
 
+    # Shared secret that guards the unauthenticated scheduled-mail dispatch
+    # endpoint (POST /mail/scheduled/dispatch). An external cron passes it in
+    # the ``X-Cron-Secret`` header. When unset, dispatch is disabled (503) so a
+    # misconfigured deploy can never expose an open trigger.
+    cron_secret: str | None = None
+    # open.email org-wide API key. Already used by mailbox provisioning via
+    # os.environ; declared here so scheduled-send can read it through settings.
+    openemail_api_key: str | None = None
+
     model_config = SettingsConfigDict(
         env_file=_ENV_FILE if _ENV_FILE.exists() else None,
         env_file_encoding="utf-8",

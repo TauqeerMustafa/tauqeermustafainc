@@ -2,11 +2,12 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
-  AlertTriangle, Archive, ChevronDown, Clock, Edit3, Inbox as InboxIcon,
-  Loader2, Mail, RefreshCw, Reply, Send, Trash2, Ban, FileText, ArrowUpRight, X,
+  AlertTriangle, Archive, CalendarClock, CheckCircle2, ChevronDown, Clock, Edit3, Inbox as InboxIcon,
+  Loader2, Mail, RefreshCw, Reply, Send, Trash2, Ban, FileText, ArrowUpRight, X, XCircle,
 } from "lucide-react";
 
 import { getStoredToken } from "@/lib/auth-storage";
+import { apiRequest } from "@/lib/api-client";
 
 /**
  * The /api/mail/* routes are authenticated + scoped per user (see lib/mail-auth):
@@ -26,6 +27,21 @@ function authFetch(input: string, init: RequestInit = {}) {
 
 type Mailbox = { id: string; primaryAddress: string };
 type Message = Record<string, any>;
+
+/** A server-side scheduled message (backend /mail/scheduled, camelCase JSON). */
+type ScheduledMail = {
+  id: string;
+  fromAddress: string;
+  to: string[];
+  subject: string;
+  text?: string | null;
+  sendAt: string;
+  status: "pending" | "sent" | "failed" | "canceled";
+  attempts: number;
+  error?: string | null;
+  sentAt?: string | null;
+  createdAt: string;
+};
 
 type FolderKey = "all" | "inbox" | "sent" | "drafts" | "spam" | "scheduled" | "outbox" | "archive" | "trash";
 
@@ -89,6 +105,12 @@ function whenOf(msg: Message): string {
   return d ? d.toLocaleDateString() : "";
 }
 
+/** Format a Date as the value an <input type="datetime-local"> expects (local time). */
+function toLocalInputValue(d: Date): string {
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+
 export default function Webmail({
   initialTo = "",
   initialSubject = "",
@@ -122,6 +144,11 @@ export default function Webmail({
   const [sending, setSending] = useState(false);
   const [sendError, setSendError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
+
+  // Server-side scheduled send — delivers even if this device is offline.
+  const [scheduledAt, setScheduledAt] = useState("");
+  const [scheduling, setScheduling] = useState(false);
+  const [scheduledMail, setScheduledMail] = useState<ScheduledMail[]>([]);
 
   const active = mailboxes.find((m) => m.id === activeId) ?? null;
 
@@ -160,9 +187,19 @@ export default function Webmail({
     }
   }, []);
 
+  const loadScheduled = useCallback(async () => {
+    try {
+      const res = await apiRequest<{ data: ScheduledMail[] }>({ url: "/mail/scheduled", method: "GET" });
+      setScheduledMail(res.data ?? []);
+    } catch {
+      // Non-fatal: the Scheduled folder simply shows empty if the list can't load.
+    }
+  }, []);
+
   useEffect(() => {
     loadMailboxes();
-  }, [loadMailboxes]);
+    loadScheduled();
+  }, [loadMailboxes, loadScheduled]);
 
   useEffect(() => {
     if (activeId) loadMessages(activeId);
@@ -191,6 +228,7 @@ export default function Webmail({
     setTo("");
     setSubject("");
     setBodyText("");
+    setScheduledAt("");
     setSendError(null);
   }
 
@@ -199,6 +237,7 @@ export default function Webmail({
     setTo(addr(msg.from));
     setSubject(/^re:/i.test(msg.subject || "") ? msg.subject : `Re: ${msg.subject || ""}`);
     setBodyText("");
+    setScheduledAt("");
     setSendError(null);
   }
 
@@ -228,6 +267,57 @@ export default function Webmail({
       setSendError(err.message);
     } finally {
       setSending(false);
+    }
+  }
+
+  async function handleSchedule() {
+    if (!active) return;
+    if (!to.trim() || !subject.trim() || !bodyText.trim()) {
+      setSendError("Add a recipient, subject, and message before scheduling.");
+      return;
+    }
+    const when = new Date(scheduledAt);
+    if (!scheduledAt || isNaN(when.getTime()) || when.getTime() <= Date.now()) {
+      setSendError("Pick a date and time in the future to schedule this message.");
+      return;
+    }
+    setScheduling(true);
+    setSendError(null);
+    try {
+      // Hits the backend queue (not open.email directly): the row is persisted
+      // server-side and a cron delivers it, so it sends even if this device is off.
+      await apiRequest({
+        url: "/mail/scheduled",
+        method: "POST",
+        data: {
+          to: [to.trim()],
+          subject: subject.trim(),
+          text: bodyText,
+          sendAt: when.toISOString(),
+          mailboxId: active.id,
+          fromAddress: active.primaryAddress,
+        },
+      });
+      setComposing(false);
+      setScheduledAt("");
+      setNotice(`Message scheduled for ${when.toLocaleString()}.`);
+      await loadScheduled();
+      setFolder("scheduled");
+    } catch (err: any) {
+      setSendError(err?.message || "Could not schedule the message.");
+    } finally {
+      setScheduling(false);
+    }
+  }
+
+  async function cancelScheduled(id: string) {
+    setNotice(null);
+    try {
+      await apiRequest({ url: `/mail/scheduled/${id}`, method: "DELETE" });
+      setNotice("Scheduled message canceled.");
+      await loadScheduled();
+    } catch (e: any) {
+      setNotice(`Cancel failed — ${e?.message || "unknown error"}`);
     }
   }
 
@@ -264,8 +354,10 @@ export default function Webmail({
       }
       if (!matched && !names.some((n) => KNOWN.has(n))) c.inbox++;
     }
+    // The Scheduled folder is backed by our own server-side queue, not open.email labels.
+    c.scheduled = scheduledMail.filter((s) => s.status === "pending").length;
     return c;
-  }, [messages, trash]);
+  }, [messages, trash, scheduledMail]);
 
   const visible = useMemo(() => {
     if (folder === "trash") return trash;
@@ -370,11 +462,34 @@ export default function Webmail({
               </div>
             )}
             <textarea required value={bodyText} onChange={(e) => setBodyText(e.target.value)} placeholder="Write your message…" className="flex-1 resize-none bg-transparent p-5 text-sm outline-none" style={{ color: "var(--adm-text-2)" }} />
-            <div className="flex justify-end gap-3 border-t p-4" style={{ borderColor: "var(--adm-border)" }}>
-              <button type="button" onClick={() => setComposing(false)} className="border px-5 py-2 text-xs font-semibold uppercase tracking-wider transition hover:bg-adm-surface-2" style={{ borderColor: "var(--adm-border)", color: "var(--adm-text-2)" }}>Discard</button>
-              <button type="submit" disabled={sending} className="btn-press flex items-center gap-2 rounded-full px-5 py-2 text-xs font-bold uppercase tracking-wider text-white transition hover:opacity-90 disabled:opacity-50" style={{ background: "var(--adm-blue)" }}>
-                {sending ? <Loader2 size={14} className="animate-spin" /> : <Send size={14} />}{sending ? "Sending…" : "Send"}
-              </button>
+            <div className="flex flex-wrap items-center justify-between gap-3 border-t p-4" style={{ borderColor: "var(--adm-border)" }}>
+              <label className="flex items-center gap-2 text-xs" style={{ color: "var(--adm-text-3)" }} title="Schedule this message to send later — it delivers from the server even if your laptop is off">
+                <CalendarClock size={14} />
+                <span className="font-semibold uppercase tracking-wider">Schedule</span>
+                <input
+                  type="datetime-local"
+                  value={scheduledAt}
+                  min={toLocalInputValue(new Date())}
+                  onChange={(e) => setScheduledAt(e.target.value)}
+                  className="border bg-transparent px-2 py-1 text-xs outline-none"
+                  style={{ borderColor: "var(--adm-border)", color: "var(--adm-text)" }}
+                />
+                {scheduledAt && (
+                  <button type="button" onClick={() => setScheduledAt("")} aria-label="Clear schedule" className="transition hover:opacity-70"><X size={13} /></button>
+                )}
+              </label>
+              <div className="flex gap-3">
+                <button type="button" onClick={() => setComposing(false)} className="border px-5 py-2 text-xs font-semibold uppercase tracking-wider transition hover:bg-adm-surface-2" style={{ borderColor: "var(--adm-border)", color: "var(--adm-text-2)" }}>Discard</button>
+                {scheduledAt ? (
+                  <button type="button" onClick={handleSchedule} disabled={scheduling} className="btn-press flex items-center gap-2 rounded-full px-5 py-2 text-xs font-bold uppercase tracking-wider text-white transition hover:opacity-90 disabled:opacity-50" style={{ background: "var(--adm-blue)" }}>
+                    {scheduling ? <Loader2 size={14} className="animate-spin" /> : <CalendarClock size={14} />}{scheduling ? "Scheduling…" : "Schedule send"}
+                  </button>
+                ) : (
+                  <button type="submit" disabled={sending} className="btn-press flex items-center gap-2 rounded-full px-5 py-2 text-xs font-bold uppercase tracking-wider text-white transition hover:opacity-90 disabled:opacity-50" style={{ background: "var(--adm-blue)" }}>
+                    {sending ? <Loader2 size={14} className="animate-spin" /> : <Send size={14} />}{sending ? "Sending…" : "Send"}
+                  </button>
+                )}
+              </div>
             </div>
           </form>
         ) : selected ? (
@@ -410,11 +525,45 @@ export default function Webmail({
           <div className="flex flex-1 flex-col">
             <div className="flex items-center justify-between border-b px-5 py-3" style={{ borderColor: "var(--adm-border)" }}>
               <h2 className="text-sm font-bold uppercase tracking-wider" style={{ color: "var(--adm-text)" }}>{FOLDERS.find((f) => f.key === folder)?.label}</h2>
-              <button type="button" onClick={() => loadMessages(activeId, true)} aria-label="Refresh" className="flex h-8 w-8 items-center justify-center rounded-full transition hover:bg-adm-surface-2" style={{ color: "var(--adm-text-3)" }}>
+              <button type="button" onClick={() => (folder === "scheduled" ? loadScheduled() : loadMessages(activeId, true))} aria-label="Refresh" className="flex h-8 w-8 items-center justify-center rounded-full transition hover:bg-adm-surface-2" style={{ color: "var(--adm-text-3)" }}>
                 <RefreshCw size={15} className={refreshing ? "animate-spin" : ""} />
               </button>
             </div>
-            <div className="flex-1 divide-y overflow-y-auto" style={{ borderColor: "var(--adm-border)" }}>
+            {folder === "scheduled" ? (
+              <div className="flex-1 divide-y overflow-y-auto" style={{ borderColor: "var(--adm-border)" }}>
+                {scheduledMail.length === 0 ? (
+                  <div className="flex h-full flex-col items-center justify-center py-20" style={{ color: "var(--adm-text-3)" }}>
+                    <Clock className="mb-3 h-10 w-10 opacity-30" /><p className="text-sm">No scheduled messages.</p>
+                    <p className="mt-1 text-xs">Compose a message and pick a “Schedule” time to queue one.</p>
+                  </div>
+                ) : (
+                  scheduledMail.map((s) => {
+                    const when = parseWhen(s.sendAt);
+                    const meta =
+                      s.status === "pending" ? { Icon: Clock, color: "var(--adm-blue)", label: "Scheduled" }
+                      : s.status === "sent" ? { Icon: CheckCircle2, color: "var(--adm-blue)", label: "Sent" }
+                      : s.status === "canceled" ? { Icon: Ban, color: "var(--adm-text-3)", label: "Canceled" }
+                      : { Icon: XCircle, color: "var(--adm-red)", label: "Failed" };
+                    const B = meta.Icon;
+                    return (
+                      <div key={s.id} className="flex items-center gap-4 px-5 py-3.5">
+                        <div className="w-48 shrink-0 truncate text-sm font-semibold" style={{ color: "var(--adm-text)" }}>{s.to.join(", ")}</div>
+                        <div className="min-w-0 flex-1">
+                          <p className="truncate text-sm font-medium" style={{ color: "var(--adm-text)" }}>{s.subject || "(No subject)"}</p>
+                          <p className="flex items-center gap-1.5 truncate text-xs" style={{ color: meta.color }}>
+                            <B size={12} />{meta.label}{when ? ` · ${when.toLocaleString()}` : ""}{s.status === "failed" && s.error ? ` — ${s.error}` : ""}
+                          </p>
+                        </div>
+                        {s.status === "pending" && (
+                          <button type="button" onClick={() => cancelScheduled(s.id)} className="shrink-0 rounded-full border px-3 py-1.5 text-xs font-semibold transition hover:bg-adm-red-light" style={{ borderColor: "var(--adm-border)", color: "var(--adm-red)" }}>Cancel</button>
+                        )}
+                      </div>
+                    );
+                  })
+                )}
+              </div>
+            ) : (
+              <div className="flex-1 divide-y overflow-y-auto" style={{ borderColor: "var(--adm-border)" }}>
               {visible.length === 0 ? (
                 <div className="flex h-full flex-col items-center justify-center py-20" style={{ color: "var(--adm-text-3)" }}>
                   <Mail className="mb-3 h-10 w-10 opacity-30" /><p className="text-sm">No messages in {FOLDERS.find((f) => f.key === folder)?.label}.</p>
@@ -435,6 +584,7 @@ export default function Webmail({
                 ))
               )}
             </div>
+            )}
           </div>
         )}
       </section>

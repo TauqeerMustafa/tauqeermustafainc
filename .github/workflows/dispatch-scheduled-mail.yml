@@ -1,0 +1,56 @@
+name: Dispatch scheduled email
+
+# Delivers queued "schedule send" messages from the backend so they go out even
+# when no one's laptop or admin session is online. Every ~5 minutes this POSTs
+# the backend's dispatch endpoint, which sends any message whose time has come.
+#
+# Required GitHub repo secret:
+#   CRON_SECRET  - must equal the CRON_SECRET env var set on the backend (Render).
+# Optional GitHub repo secret:
+#   BACKEND_URL  - override the backend base URL (defaults to the Render service).
+#
+# NOTE: GitHub's scheduled runs can be delayed several minutes under load, which
+# is fine for email. For tighter/guaranteed timing, point an uptime cron
+# (e.g. cron-job.org) at the same endpoint with the X-Cron-Secret header.
+
+on:
+  schedule:
+    - cron: "*/5 * * * *" # every 5 minutes (GitHub's minimum interval)
+  workflow_dispatch: {} # allow manual runs from the Actions tab
+
+concurrency:
+  group: dispatch-scheduled-mail
+  cancel-in-progress: false
+
+jobs:
+  dispatch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: POST /mail/scheduled/dispatch
+        env:
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+          BACKEND_URL: ${{ secrets.BACKEND_URL }}
+        run: |
+          if [ -z "$CRON_SECRET" ]; then
+            echo "CRON_SECRET repo secret is not set; nothing to do."
+            exit 0
+          fi
+          BASE="${BACKEND_URL:-https://tauqeer-inc-backend.onrender.com}"
+          echo "Dispatching due scheduled mail via $BASE"
+          code=$(curl -sS -o /tmp/resp.json -w "%{http_code}" \
+            -X POST "$BASE/mail/scheduled/dispatch" \
+            -H "X-Cron-Secret: $CRON_SECRET" \
+            --max-time 120 --retry 2 --retry-delay 10)
+          echo "HTTP $code"
+          cat /tmp/resp.json 2>/dev/null || true
+          echo
+          # Render's free tier may cold-start; treat 5xx as soft so the next
+          # tick retries instead of marking the workflow permanently red.
+          if [ "$code" -ge 500 ]; then
+            echo "::warning::Backend returned $code (likely cold start); will retry next tick."
+            exit 0
+          fi
+          if [ "$code" -ge 400 ]; then
+            echo "::error::Dispatch rejected with $code"
+            exit 1
+          fi

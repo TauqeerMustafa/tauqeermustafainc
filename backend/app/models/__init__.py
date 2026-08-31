@@ -12,6 +12,7 @@ from app.models.leave import LeaveRequest
 from app.models.portfolio import Portfolio
 from app.models.portal import ClientMessage, ClientProject, VerificationCode
 from app.models.role import Permission, Role, RolePermission
+from app.models.scheduled_email import ScheduledEmail
 from app.models.service import Service
 from app.models.task import ProjectTask
 from app.models.team import Team
@@ -37,6 +38,7 @@ __all__ = [
     "Permission",
     "Role",
     "RolePermission",
+    "ScheduledEmail",
     "Service",
     "ProjectTask",
     "Team",
