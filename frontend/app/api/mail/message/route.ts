@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { fetchOpenEmailMessageContent } from "@/lib/openemail";
+import { assertMailboxAccess, mailErrorStatus, resolveMailUser } from "@/lib/mail-auth";
 
 export const dynamic = "force-dynamic";
 
@@ -14,6 +15,9 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: "Missing required parameters" }, { status: 400 });
     }
 
+    const user = await resolveMailUser(request);
+    await assertMailboxAccess(user, mailbox);
+
     const data = await fetchOpenEmailMessageContent(mailbox, messageId);
     const content = data.html || data.htmlBody || data.text || data.textBody || data.body || "";
 
@@ -23,6 +27,9 @@ export async function GET(request: Request) {
       attachments: data.attachments || [],
     });
   } catch (error: any) {
-    return NextResponse.json({ error: error.message || "Internal Server Error" }, { status: 500 });
+    return NextResponse.json(
+      { error: error.message || "Internal Server Error" },
+      { status: mailErrorStatus(error) },
+    );
   }
 }

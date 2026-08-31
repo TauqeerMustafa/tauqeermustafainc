@@ -1,16 +1,17 @@
 import { NextResponse } from "next/server";
-import { fetchOpenEmailMailboxes } from "@/lib/openemail";
+import { allowedMailboxes, mailErrorStatus, resolveMailUser } from "@/lib/mail-auth";
 
 export const dynamic = "force-dynamic";
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
-    const data = await fetchOpenEmailMailboxes();
-    const mailboxes = (data.mailboxes || [])
-      .filter((m: any) => m.primaryAddress)
-      .map((m: any) => ({ id: m.id, primaryAddress: m.primaryAddress }));
+    const user = await resolveMailUser(request);
+    const mailboxes = await allowedMailboxes(user);
     return NextResponse.json({ mailboxes });
   } catch (error: any) {
-    return NextResponse.json({ error: error.message || "Internal Server Error" }, { status: 500 });
+    return NextResponse.json(
+      { error: error.message || "Internal Server Error" },
+      { status: mailErrorStatus(error) },
+    );
   }
 }

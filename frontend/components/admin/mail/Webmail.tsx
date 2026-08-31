@@ -6,6 +6,24 @@ import {
   Loader2, Mail, RefreshCw, Reply, Send, Trash2, Ban, FileText, ArrowUpRight, X,
 } from "lucide-react";
 
+import { getStoredToken } from "@/lib/auth-storage";
+
+/**
+ * The /api/mail/* routes are authenticated + scoped per user (see lib/mail-auth):
+ * a non-admin only ever reaches their own mailbox. So every call must carry the
+ * portal session token, exactly like the axios client does for the backend.
+ */
+function authFetch(input: string, init: RequestInit = {}) {
+  const token = getStoredToken();
+  return fetch(input, {
+    ...init,
+    headers: {
+      ...(init.headers ?? {}),
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
+  });
+}
+
 type Mailbox = { id: string; primaryAddress: string };
 type Message = Record<string, any>;
 
@@ -87,7 +105,7 @@ export default function Webmail({
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch("/api/mail/mailboxes");
+      const res = await authFetch("/api/mail/mailboxes");
       const json = await res.json();
       if (!res.ok || json.error) throw new Error(json.error || "Could not load mailboxes.");
       setMailboxes(json.mailboxes || []);
@@ -105,8 +123,8 @@ export default function Webmail({
     setError(null);
     try {
       const [live, expunged] = await Promise.all([
-        fetch(`/api/mail/messages?mailbox=${mailboxId}`).then((r) => r.json()),
-        fetch(`/api/mail/messages?mailbox=${mailboxId}&state=expunged`).then((r) => r.json()),
+        authFetch(`/api/mail/messages?mailbox=${mailboxId}`).then((r) => r.json()),
+        authFetch(`/api/mail/messages?mailbox=${mailboxId}&state=expunged`).then((r) => r.json()),
       ]);
       if (live.error) throw new Error(live.error);
       setMessages(live.messages || []);
@@ -132,7 +150,7 @@ export default function Webmail({
     setContent(null);
     setLoadingContent(true);
     try {
-      const res = await fetch(`/api/mail/message?mailbox=${activeId}&id=${msg.id}`);
+      const res = await authFetch(`/api/mail/message?mailbox=${activeId}&id=${msg.id}`);
       const json = await res.json();
       if (!res.ok || json.error) throw new Error(json.error || "Could not load the message.");
       setContent({ html: Boolean(json.isHtml), body: json.content });
@@ -166,7 +184,7 @@ export default function Webmail({
     setSending(true);
     setSendError(null);
     try {
-      const res = await fetch("/api/mail/send", {
+      const res = await authFetch("/api/mail/send", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -193,7 +211,7 @@ export default function Webmail({
     if (!active) return;
     setNotice(null);
     try {
-      const res = await fetch("/api/mail/delete", {
+      const res = await authFetch("/api/mail/delete", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ mailbox: active.id, id: msg.id }),
