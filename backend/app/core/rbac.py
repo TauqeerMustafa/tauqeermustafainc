@@ -18,6 +18,8 @@ from app.models.user import User
 ROLE_ADMIN = "admin"
 ROLE_TEAM_LEAD = "team_lead"
 ROLE_EXEC = "exec"
+ROLE_MEMBER = "member"  # ordinary staff / "Employee" — seeded by e5f2b8d3c1a9
+ROLE_CLIENT = "client"  # client-portal access — seeded by b7c2d8e4f901
 
 # ── Permission slugs ──────────────────────────────────────────────────────────
 P_LEADS_READ_OWN = "leads.read.own"

@@ -2,9 +2,8 @@
 
 When an admin creates any user, we automatically provision an open.email
 mailbox whose primary address is the account email the admin entered, so the
-new user has a working inbox from day one. This mirrors the shape of
-``app/services/microsoft.py`` but is intentionally *non-fatal*: mail
-provisioning must never block account creation. If the API key is missing, the
+new user has a working inbox from day one. It is intentionally *non-fatal*:
+mail provisioning must never block account creation. If the API key is missing, the
 address is already taken, or the API is unreachable, we log and return ``None``
 and the user is still created.
 

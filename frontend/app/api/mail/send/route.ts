@@ -1,27 +1,31 @@
 import { NextResponse } from "next/server";
 import { sendOpenEmailMessage } from "@/lib/openemail";
 
+export const dynamic = "force-dynamic";
+
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { accountId, fromAddress, toAddress, subject, content } = body;
+    // `accountId` is the sending mailbox id; kept for backward compatibility.
+    const mailbox = body.mailbox || body.accountId;
+    const { fromAddress, fromName, toAddress, subject, content, text } = body;
+    const messageText = text ?? content;
 
-    if (!accountId || !toAddress || !subject || !content) {
+    if (!mailbox || !fromAddress || !toAddress || !subject || !messageText) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
     }
 
-    const payload = {
+    const data = await sendOpenEmailMessage(mailbox, {
+      from: fromAddress,
+      fromName,
       to: [toAddress],
-      subject: subject,
-      body: content,
-      // OpenEmail API might not need fromAddress if mailbox handles it, but include if necessary
-    };
+      subject,
+      text: messageText,
+      save: true,
+    });
 
-    const resData = await sendOpenEmailMessage(accountId, payload);
-
-    return NextResponse.json({ success: true, data: resData });
+    return NextResponse.json({ success: true, data });
   } catch (error: any) {
-    console.error("Mail send error:", error);
     return NextResponse.json({ error: error.message || "Internal Server Error" }, { status: 500 });
   }
 }

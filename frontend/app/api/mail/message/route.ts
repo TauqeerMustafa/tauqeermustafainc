@@ -1,24 +1,28 @@
 import { NextResponse } from "next/server";
-import { fetchOpenEmailMessage } from "@/lib/openemail";
+import { fetchOpenEmailMessageContent } from "@/lib/openemail";
+
+export const dynamic = "force-dynamic";
 
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
-    const accountId = searchParams.get("accountId");
-    const messageId = searchParams.get("messageId");
+    // Accept both the new `mailbox`/`id` params and the legacy accountId/messageId.
+    const mailbox = searchParams.get("mailbox") || searchParams.get("accountId");
+    const messageId = searchParams.get("id") || searchParams.get("messageId");
 
-    if (!accountId || !messageId) {
+    if (!mailbox || !messageId) {
       return NextResponse.json({ error: "Missing required parameters" }, { status: 400 });
     }
 
-    const messageData = await fetchOpenEmailMessage(accountId, messageId);
+    const data = await fetchOpenEmailMessageContent(mailbox, messageId);
+    const content = data.html || data.htmlBody || data.text || data.textBody || data.body || "";
 
-    // openemail structure might have htmlBody or textBody
     return NextResponse.json({
-      content: messageData.htmlBody || messageData.textBody || messageData.body || "No content available.",
+      content: content || "No content available.",
+      isHtml: Boolean(data.html || data.htmlBody),
+      attachments: data.attachments || [],
     });
   } catch (error: any) {
-    console.error("Message fetch error:", error);
     return NextResponse.json({ error: error.message || "Internal Server Error" }, { status: 500 });
   }
 }

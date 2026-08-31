@@ -137,17 +137,6 @@ def create_user(
     first_name, last_name = _split_name(payload.name)
     user_status = payload.status.value
     now = datetime.now(timezone.utc)
-    
-    if payload.create_ms_mailbox:
-        from app.services.microsoft import provision_user_mailbox
-        display_name = f"{first_name} {last_name}".strip()
-        provision_user_mailbox(
-            first_name=first_name,
-            last_name=last_name,
-            display_name=display_name,
-            email=payload.email,
-            password=payload.password
-        )
 
     # Always auto-provision an open.email mailbox so every new user has a
     # working inbox at their account email. Non-fatal: if the key is absent,

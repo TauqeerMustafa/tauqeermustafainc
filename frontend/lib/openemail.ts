@@ -1,79 +1,100 @@
-export const OPENEMAIL_API_URL = 'https://api.open.email/api/v1';
+/**
+ * Server-only open.email REST client. Holds OPENEMAIL_API_KEY — never import
+ * into a client component; go through the /api/mail/* routes instead.
+ *
+ * Endpoints (verified against open.email docs):
+ *   GET  /mailboxes
+ *   GET  /mailboxes/{id}/messages?limit=&state=&order=&cursor=
+ *   GET  /mailboxes/{id}/messages/{messageId}/content
+ *   POST /mailboxes/{id}/send?save=true
+ * Trash is the message list with state=expunged. Folders are modelled as
+ * labels (open.email is label-based, like Gmail).
+ */
+export const OPENEMAIL_API_URL = "https://api.open.email/api/v1";
+
+function authHeaders(json = false): HeadersInit {
+  const token = process.env.OPENEMAIL_API_KEY;
+  if (!token) throw new Error("OPENEMAIL_API_KEY is missing");
+  const headers: Record<string, string> = { Authorization: `Bearer ${token}` };
+  if (json) headers["Content-Type"] = "application/json";
+  return headers;
+}
+
+async function oeFetch(path: string, init?: RequestInit) {
+  const res = await fetch(`${OPENEMAIL_API_URL}${path}`, {
+    ...init,
+    headers: { ...authHeaders(init?.method === "POST"), ...(init?.headers ?? {}) },
+    cache: "no-store",
+  });
+  if (!res.ok) {
+    let detail = res.statusText;
+    try {
+      const body = await res.json();
+      detail = body?.error || body?.message || detail;
+    } catch {
+      /* non-JSON error body */
+    }
+    throw new Error(`open.email ${res.status}: ${detail}`);
+  }
+  // DELETE and some actions return an empty body.
+  const text = await res.text();
+  return text ? JSON.parse(text) : {};
+}
 
 export async function fetchOpenEmailMailboxes() {
-  const token = process.env.OPENEMAIL_API_KEY;
-  if (!token) throw new Error('OPENEMAIL_API_KEY is missing');
-
-  const res = await fetch(`${OPENEMAIL_API_URL}/mailboxes`, {
-    headers: {
-      Authorization: `Bearer ${token}`
-    },
-    next: { revalidate: 0 }
-  });
-
-  if (!res.ok) {
-    throw new Error(`Failed to fetch mailboxes: ${res.statusText}`);
-  }
-
-  const data = await res.json();
-  return data;
+  return oeFetch(`/mailboxes`);
 }
 
-export async function fetchOpenEmailMessages(mailboxId: string) {
-  const token = process.env.OPENEMAIL_API_KEY;
-  if (!token) throw new Error('OPENEMAIL_API_KEY is missing');
-
-  const res = await fetch(`${OPENEMAIL_API_URL}/mailboxes/${mailboxId}/messages`, {
-    headers: {
-      Authorization: `Bearer ${token}`
-    },
-    next: { revalidate: 0 }
-  });
-
-  if (!res.ok) {
-    throw new Error(`Failed to fetch messages: ${res.statusText}`);
-  }
-
-  const data = await res.json();
-  return data;
+export interface MessageListOptions {
+  limit?: number;
+  state?: "active" | "expunged";
+  order?: string;
+  cursor?: string;
 }
 
-export async function fetchOpenEmailMessage(mailboxId: string, messageId: string) {
-  const token = process.env.OPENEMAIL_API_KEY;
-  if (!token) throw new Error('OPENEMAIL_API_KEY is missing');
-
-  const res = await fetch(`${OPENEMAIL_API_URL}/mailboxes/${mailboxId}/messages/${messageId}`, {
-    headers: {
-      Authorization: `Bearer ${token}`
-    },
-    next: { revalidate: 0 }
-  });
-
-  if (!res.ok) {
-    throw new Error(`Failed to fetch message: ${res.statusText}`);
-  }
-
-  const data = await res.json();
-  return data;
+export async function fetchOpenEmailMessages(mailboxId: string, opts: MessageListOptions = {}) {
+  const params = new URLSearchParams();
+  params.set("limit", String(opts.limit ?? 100));
+  if (opts.state) params.set("state", opts.state);
+  if (opts.order) params.set("order", opts.order);
+  if (opts.cursor) params.set("cursor", opts.cursor);
+  return oeFetch(`/mailboxes/${mailboxId}/messages?${params.toString()}`);
 }
 
-export async function sendOpenEmailMessage(mailboxId: string, payload: any) {
-  const token = process.env.OPENEMAIL_API_KEY;
-  if (!token) throw new Error('OPENEMAIL_API_KEY is missing');
+export async function fetchOpenEmailMessageContent(mailboxId: string, messageId: string) {
+  return oeFetch(`/mailboxes/${mailboxId}/messages/${messageId}/content`);
+}
 
-  const res = await fetch(`${OPENEMAIL_API_URL}/mailboxes/${mailboxId}/messages`, {
+export interface SendMessageInput {
+  from: string;
+  fromName?: string;
+  to: string[];
+  subject: string;
+  text?: string;
+  html?: string;
+  save?: boolean;
+}
+
+export async function sendOpenEmailMessage(mailboxId: string, input: SendMessageInput) {
+  const body: Record<string, unknown> = {
+    from: { address: input.from, ...(input.fromName ? { name: input.fromName } : {}) },
+    to: input.to.filter(Boolean).map((address) => ({ address })),
+    subject: input.subject,
+  };
+  if (input.text) body.text = input.text;
+  if (input.html) body.html = input.html;
+  const save = input.save === false ? "" : "?save=true";
+  return oeFetch(`/mailboxes/${mailboxId}/send${save}`, {
     method: "POST",
-    headers: {
-      Authorization: `Bearer ${token}`,
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify(payload)
+    body: JSON.stringify(body),
   });
+}
 
-  if (!res.ok) {
-    throw new Error(`Failed to send message: ${res.statusText}`);
-  }
-
-  const data = await res.json();
-  return data;
+/**
+ * Best-effort delete. open.email's docs group "trash" under the Messages API
+ * but do not publish the exact path, so this uses the conventional REST route;
+ * failures surface to the caller rather than being silently swallowed.
+ */
+export async function deleteOpenEmailMessage(mailboxId: string, messageId: string) {
+  return oeFetch(`/mailboxes/${mailboxId}/messages/${messageId}`, { method: "DELETE" });
 }
