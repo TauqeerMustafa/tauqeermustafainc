@@ -71,6 +71,11 @@ export const adminService = {
       method: "PATCH",
       data: payload,
     }),
+  deleteUser: (id: string) =>
+    apiRequest<ApiResponse<{ deleted: boolean }>>({
+      url: `${API_ENDPOINTS.admin.users}/${id}`,
+      method: "DELETE",
+    }),
   roles: () =>
     apiRequest<ApiResponse<AdminRole[]>>({
       url: API_ENDPOINTS.admin.roles,

@@ -2,7 +2,7 @@ import uuid
 from datetime import datetime, timezone
 
 from fastapi import APIRouter, HTTPException, Query, status
-from sqlalchemy import func, select
+from sqlalchemy import delete, func, select
 from sqlalchemy.orm import selectinload
 
 from app.api.deps import CurrentAdmin, DatabaseSession
@@ -206,6 +206,47 @@ def update_user(
     db.commit()
     db.refresh(user)
     return ApiResponse(data=_to_admin_user_read(user), message="User updated successfully")
+
+
+@router.delete("/users/{user_id}", response_model=ApiResponse[dict])
+def delete_user(
+    user_id: uuid.UUID,
+    db: DatabaseSession,
+    admin: CurrentAdmin,
+) -> ApiResponse[dict]:
+    """Permanently delete a user.
+
+    Every FK into ``users`` is declared ON DELETE SET NULL or CASCADE, so a
+    single delete lets Postgres detach the user's leads/tasks/documents and
+    remove their employee/portal rows on its own — we go through Core ``delete``
+    (rather than ORM cascade) so this never depends on lazily loading a related
+    table. The open.email mailbox is left intact (open.email publishes no
+    verified delete-mailbox endpoint); it can be reassigned to a future user of
+    the same address.
+    """
+    user = db.get(User, user_id)
+    if user is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+    if user.id == admin.id:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="You cannot delete your own account",
+        )
+    if user.is_superuser:
+        remaining_admins = db.scalar(
+            select(func.count())
+            .select_from(User)
+            .where(User.is_superuser.is_(True), User.id != user.id)
+        ) or 0
+        if remaining_admins == 0:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Cannot delete the last administrator account",
+            )
+
+    db.execute(delete(User).where(User.id == user_id))
+    db.commit()
+    return ApiResponse(data={"deleted": True}, message="User deleted successfully")
 
 
 @router.get("/roles", response_model=ApiResponse[list[RoleRead]])

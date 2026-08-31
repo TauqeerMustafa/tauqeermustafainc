@@ -1,9 +1,10 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Check, ChevronDown, Clock3, Mail, MoreHorizontal, PauseCircle, Search, ShieldCheck, UserRound, X } from "lucide-react";
+import { Check, ChevronDown, Clock3, Mail, MoreHorizontal, PauseCircle, Search, ShieldCheck, Trash2, UserRound, X } from "lucide-react";
 
 import {
+  AdminConfirmDialog,
   AdminDrawer,
   AdminEmptyState,
   AdminErrorState,
@@ -14,7 +15,7 @@ import {
   adminInputClass,
   adminInputStyle,
 } from "@/components/admin/AdminUI";
-import { useAdminMetrics, useAdminRoles, useAdminTeams, useAdminUsers, useCreateAdminUser, useUpdateAdminUser } from "@/hooks/useAdmin";
+import { useAdminMetrics, useAdminRoles, useAdminTeams, useAdminUsers, useCreateAdminUser, useDeleteAdminUser, useUpdateAdminUser } from "@/hooks/useAdmin";
 import type { AdminUser, UserStatus } from "@/types";
 import type { CreateAdminUserPayload } from "@/services/admin.service";
 
@@ -63,6 +64,8 @@ export default function AdminUsersPage() {
   const [form, setForm] = useState<CreateAdminUserPayload>(emptyForm);
   const [menuId, setMenuId] = useState<string | null>(null);
   const [lastCreated, setLastCreated] = useState<{ name: string; address?: string | null } | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<AdminUser | null>(null);
+  const [actionError, setActionError] = useState<string | null>(null);
 
   const queryParams = useMemo(() => ({ pageSize: 50, search: search.trim() || undefined, status }), [search, status]);
   const usersQuery = useAdminUsers(queryParams);
@@ -71,6 +74,7 @@ export default function AdminUsersPage() {
   const metricsQuery = useAdminMetrics();
   const createUser = useCreateAdminUser();
   const updateUser = useUpdateAdminUser();
+  const deleteUser = useDeleteAdminUser();
 
   const users = usersQuery.data?.data.items ?? [];
   const roles = rolesQuery.data?.data ?? [];
@@ -91,6 +95,17 @@ export default function AdminUsersPage() {
   async function changeStatus(user: AdminUser, nextStatus: UserStatus) {
     setMenuId(null);
     await updateUser.mutateAsync({ id: user.id, payload: { status: nextStatus } });
+  }
+
+  async function confirmDelete() {
+    if (!deleteTarget) return;
+    try {
+      await deleteUser.mutateAsync(deleteTarget.id);
+      setDeleteTarget(null);
+    } catch (err) {
+      setActionError(err instanceof Error ? err.message : "Could not delete this user.");
+      setDeleteTarget(null);
+    }
   }
 
   const metrics = metricsQuery.data?.data;
@@ -120,6 +135,13 @@ export default function AdminUsersPage() {
             </div>
           </div>
           <button type="button" aria-label="Dismiss" onClick={() => setLastCreated(null)} className="shrink-0" style={{ color: "var(--adm-text-3)" }}><X size={16} /></button>
+        </div>
+      ) : null}
+
+      {actionError ? (
+        <div className="mb-6 flex items-start justify-between gap-3 border p-4" style={{ borderColor: "var(--adm-red)", background: "var(--adm-red-light)" }}>
+          <p className="text-sm font-medium" style={{ color: "var(--adm-red)" }}>{actionError}</p>
+          <button type="button" aria-label="Dismiss" onClick={() => setActionError(null)} className="shrink-0" style={{ color: "var(--adm-text-3)" }}><X size={16} /></button>
         </div>
       ) : null}
 
@@ -198,6 +220,7 @@ export default function AdminUsersPage() {
                           {user.status === "approved" ? <button type="button" onClick={() => changeStatus(user, "suspended")} className="flex w-full items-center gap-2 px-3 py-2 text-sm hover:bg-adm-surface-2" style={{ color: "var(--adm-red)" }}><PauseCircle size={14} />Suspend access</button> : null}
                           {user.status === "suspended" ? <button type="button" onClick={() => changeStatus(user, "approved")} className="flex w-full items-center gap-2 px-3 py-2 text-sm hover:bg-adm-surface-2" style={{ color: "var(--adm-green)" }}><Check size={14} />Restore access</button> : null}
                           {user.status === "pending" ? <button type="button" onClick={() => changeStatus(user, "rejected")} className="flex w-full items-center gap-2 px-3 py-2 text-sm hover:bg-adm-surface-2" style={{ color: "var(--adm-text-2)" }}><X size={14} />Reject request</button> : null}
+                          <button type="button" onClick={() => { setMenuId(null); setActionError(null); setDeleteTarget(user); }} className="mt-1 flex w-full items-center gap-2 border-t px-3 py-2 text-sm hover:bg-adm-red-light" style={{ borderColor: "var(--adm-border)", color: "var(--adm-red)" }}><Trash2 size={14} />Delete user</button>
                         </div>
                       ) : null}
                     </td>
@@ -223,6 +246,20 @@ export default function AdminUsersPage() {
           <AdminFormActions onCancel={() => setDrawerOpen(false)} isPending={createUser.isPending} submitLabel="Create user" />
         </form>
       </AdminDrawer>
+
+      <AdminConfirmDialog
+        open={Boolean(deleteTarget)}
+        title="Delete user"
+        description={
+          deleteTarget
+            ? `Permanently delete ${deleteTarget.name} (${deleteTarget.email})? This removes the account and detaches their leads, tasks, and other records. This cannot be undone.`
+            : undefined
+        }
+        confirmLabel="Delete user"
+        isPending={deleteUser.isPending}
+        onConfirm={confirmDelete}
+        onCancel={() => setDeleteTarget(null)}
+      />
     </div>
   );
 }

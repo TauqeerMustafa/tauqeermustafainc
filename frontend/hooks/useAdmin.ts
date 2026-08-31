@@ -74,6 +74,18 @@ export function useUpdateAdminUser() {
   });
 }
 
+export function useDeleteAdminUser() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => adminService.deleteUser(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.admin.users });
+      queryClient.invalidateQueries({ queryKey: queryKeys.admin.metrics });
+      queryClient.invalidateQueries({ queryKey: queryKeys.admin.teams });
+    },
+  });
+}
+
 /** A role change can widen or narrow what any signed-in user may see, so the
  *  user list goes stale alongside the role list itself. */
 function invalidateRoles(queryClient: ReturnType<typeof useQueryClient>) {
