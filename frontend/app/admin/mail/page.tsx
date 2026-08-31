@@ -1,6 +1,7 @@
 import { AdminPageHeader } from "@/components/admin/AdminUI";
 import { Mail, ChevronDown } from "lucide-react";
 import { fetchOpenEmailMailboxes, fetchOpenEmailMessages } from "@/lib/openemail";
+import { ComposeMail } from "@/components/admin/mail/ComposeMail";
 import Link from "next/link";
 
 export const dynamic = "force-dynamic";
@@ -17,7 +18,7 @@ function extractEmail(address: any) {
 export default async function AdminMailPage({
   searchParams,
 }: {
-  searchParams: { mailbox?: string };
+  searchParams: { mailbox?: string; compose?: string; to?: string; subject?: string };
 }) {
   let mailboxes: any[] = [];
   let messages: any[] = [];
@@ -98,12 +99,13 @@ export default async function AdminMailPage({
                   </div>
                 </div>
               </div>
-              <button
-                className="btn-press px-4 py-1.5 text-xs font-bold uppercase tracking-wider text-white transition hover:opacity-90"
-                style={{ background: "var(--adm-blue)" }}
-              >
-                Compose
-              </button>
+              <ComposeMail
+                mailboxes={mailboxes.map((mb: any) => ({ id: mb.id, primaryAddress: mb.primaryAddress }))}
+                activeMailboxId={activeMailbox?.id}
+                initialTo={searchParams.to ?? ""}
+                initialSubject={searchParams.subject ?? ""}
+                autoOpen={Boolean(searchParams.compose || searchParams.to)}
+              />
             </div>
           )}
 
