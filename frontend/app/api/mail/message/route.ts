@@ -6,10 +6,12 @@ export const dynamic = "force-dynamic";
 
 /** Keys that hold metadata, never the body — skipped by the deep-scan fallback. */
 const META_KEYS = new Set([
-  "id", "messageid", "threadid", "mailboxid", "inboxid", "subject", "from", "to",
-  "cc", "bcc", "fromaddr", "toaddr", "date", "createdat", "receivedat", "sentat",
-  "direction", "state", "labels", "label", "snippet", "preview", "filename", "url",
-  "contenttype", "mimetype", "address", "email", "name", "cursor", "nextcursor",
+  "id", "messageid", "messageidheader", "threadid", "mailboxid", "inboxid", "subject",
+  "from", "to", "cc", "bcc", "replyto", "fromaddr", "toaddr", "date", "createdat",
+  "receivedat", "sentat", "direction", "state", "labels", "label", "snippet", "preview",
+  "filename", "url", "contenttype", "mimetype", "address", "email", "name", "cursor",
+  "nextcursor", "section", "charset", "size", "boundary", "encoding", "truncated",
+  "inreplyto", "messageid", "uid", "uidvalidity", "modseq",
 ]);
 
 function firstString(...vals: unknown[]): string | null {
@@ -19,6 +21,21 @@ function firstString(...vals: unknown[]): string | null {
 
 function looksHtml(s: string): boolean {
   return /<[a-z!][\s\S]*>/i.test(s);
+}
+
+/**
+ * open.email returns each body part as an object `{ content, charset, size, ... }`
+ * (confirmed: `text: { content: "…" }`, `html: { content: "…" }|null`). Accept the
+ * part object, a `{ value }` variant, or a bare string.
+ */
+function partContent(part: unknown): string | null {
+  if (typeof part === "string") return part.trim() ? part : null;
+  if (part && typeof part === "object") {
+    const p = part as Record<string, unknown>;
+    if (typeof p.content === "string" && p.content.trim()) return p.content;
+    if (typeof p.value === "string" && p.value.trim()) return p.value;
+  }
+  return null;
 }
 
 /** Collect every non-metadata string value in the payload (bounded depth). */
@@ -54,18 +71,18 @@ function extractBody(data: any): { content: string; isHtml: boolean } {
   );
   const c = (nested ?? {}) as Record<string, any>;
 
-  const html = firstString(
-    data.html, data.htmlBody, data.bodyHtml, data.contentHtml,
-    c.html, c.htmlBody, c.bodyHtml, c.contentHtml,
-    data.html?.value, c.html?.value,
-  );
+  // Confirmed open.email shape: html/text are part objects with `.content`.
+  const html =
+    partContent(data.html) ?? partContent(c.html) ??
+    firstString(data.htmlBody, data.bodyHtml, data.contentHtml, c.htmlBody, c.bodyHtml, c.contentHtml);
   if (html) return { content: html, isHtml: true };
 
-  const text = firstString(
-    data.text, data.textBody, data.bodyText, data.contentText, data.plain, data.plainText,
-    c.text, c.textBody, c.bodyText, c.contentText, c.plain, c.plainText,
-    data.text?.value, c.text?.value,
-  );
+  const text =
+    partContent(data.text) ?? partContent(c.text) ??
+    firstString(
+      data.textBody, data.bodyText, data.contentText, data.plain, data.plainText,
+      c.textBody, c.bodyText, c.contentText, c.plain, c.plainText,
+    );
   if (text) return { content: text, isHtml: false };
 
   const body = firstString(data.body, c.body);

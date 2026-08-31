@@ -76,9 +76,12 @@ export interface SendMessageInput {
 }
 
 export async function sendOpenEmailMessage(mailboxId: string, input: SendMessageInput) {
+  // open.email validates addresses under `email` (NOT `address`) — sending
+  // `address` returns `400 validation_failed` on body.from.email / body.to.0.email.
+  // Body text goes in `text`/`html` (a `body` field is silently ignored).
   const body: Record<string, unknown> = {
-    from: { address: input.from, ...(input.fromName ? { name: input.fromName } : {}) },
-    to: input.to.filter(Boolean).map((address) => ({ address })),
+    from: { email: input.from, ...(input.fromName ? { name: input.fromName } : {}) },
+    to: input.to.filter(Boolean).map((email) => ({ email })),
     subject: input.subject,
   };
   if (input.text) body.text = input.text;
