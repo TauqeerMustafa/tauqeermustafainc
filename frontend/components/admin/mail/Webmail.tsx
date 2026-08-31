@@ -58,11 +58,35 @@ function labelNames(msg: Message): string[] {
 
 const KNOWN = new Set(FOLDERS.flatMap((f) => f.match));
 
+/**
+ * Normalise whatever open.email puts on a message into a Date. The API returns a
+ * unix timestamp in *seconds* (~1.7e9); handing that straight to `new Date()`,
+ * which expects milliseconds, is what pinned every message to "21/01/1970". ISO
+ * strings and millisecond epochs pass through untouched.
+ */
+function parseWhen(v: unknown): Date | null {
+  if (v == null || v === "") return null;
+  if (typeof v === "number") {
+    const d = new Date(v < 1e12 ? v * 1000 : v);
+    return isNaN(d.getTime()) ? null : d;
+  }
+  if (typeof v === "string") {
+    if (/^\d+$/.test(v.trim())) {
+      const n = Number(v);
+      const d = new Date(n < 1e12 ? n * 1000 : n);
+      return isNaN(d.getTime()) ? null : d;
+    }
+    const d = new Date(v);
+    return isNaN(d.getTime()) ? null : d;
+  }
+  return null;
+}
+
 function whenOf(msg: Message): string {
-  const v = msg.receivedAt || msg.date || msg.createdAt || msg.sentAt;
-  if (!v) return "";
-  const d = new Date(v);
-  return isNaN(d.getTime()) ? "" : d.toLocaleDateString();
+  const raw =
+    msg.receivedAt || msg.date || msg.createdAt || msg.sentAt || msg.timestamp || msg.time;
+  const d = parseWhen(raw);
+  return d ? d.toLocaleDateString() : "";
 }
 
 export default function Webmail({

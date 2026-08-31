@@ -66,6 +66,13 @@ export const taskService = {
       method: "POST",
       data: payload,
     }),
+  /** The signed-in user's own assigned tasks — reads `/tasks/me`, which is open
+   *  to any authenticated user, unlike the manager-gated `list`. */
+  mine: () =>
+    apiRequest<ApiResponse<ProjectTask[]>>({
+      url: `${API_ENDPOINTS.admin.tasks}/me`,
+      method: "GET",
+    }),
   update: (id: string, payload: UpdateTaskPayload) =>
     apiRequest<ApiResponse<ProjectTask>>({
       url: `${API_ENDPOINTS.admin.tasks}/${id}`,

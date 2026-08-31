@@ -6,18 +6,20 @@ import { queryKeys } from "@/constants/query-keys";
 import { documentService } from "@/services";
 import type { UploadDocumentPayload } from "@/types";
 
-export function useMyDocuments() {
+export function useMyDocuments(enabled = true) {
   return useQuery({
     queryKey: queryKeys.documents.me,
     queryFn: documentService.mine,
+    enabled,
   });
 }
 
 /** Every document in the vault — admin/manager scope. */
-export function useAllDocuments() {
+export function useAllDocuments(enabled = true) {
   return useQuery({
     queryKey: queryKeys.documents.all,
     queryFn: documentService.all,
+    enabled,
   });
 }
 

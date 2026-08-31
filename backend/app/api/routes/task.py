@@ -12,7 +12,7 @@ from datetime import date
 from fastapi import APIRouter, HTTPException, Query, status
 from sqlalchemy import func, or_, select
 
-from app.api.deps import CurrentAdmin, CurrentManager, DatabaseSession
+from app.api.deps import CurrentAdmin, CurrentManager, CurrentUser, DatabaseSession
 from app.models.task import ProjectTask
 from app.schemas.task import ProjectTaskCreate, ProjectTaskUpdate, ProjectTaskResponse
 from app.schemas.common import ApiResponse, PaginatedResult, Pagination
@@ -88,6 +88,26 @@ def list_tasks(
             ),
         )
     )
+
+
+@router.get("/me", response_model=ApiResponse[list[ProjectTaskResponse]])
+def list_my_tasks(
+    db: DatabaseSession,
+    current_user: CurrentUser,
+) -> ApiResponse[list[ProjectTaskResponse]]:
+    """The signed-in user's own assigned tasks.
+
+    ``GET /tasks`` is ``CurrentManager``, so a regular member's task board cannot
+    read it. This returns only the caller's tasks and is open to any
+    authenticated user — the employee portal board reads from here. Declared
+    before the ``/{task_id}`` write routes so ``/me`` is never parsed as an id.
+    """
+    rows = db.scalars(
+        select(ProjectTask)
+        .where(ProjectTask.assigned_to_id == current_user.id)
+        .order_by(ProjectTask.created_at.desc())
+    ).all()
+    return ApiResponse(data=[_to_read(row) for row in rows])
 
 
 @router.post("", response_model=ApiResponse[ProjectTaskResponse], status_code=status.HTTP_201_CREATED)
