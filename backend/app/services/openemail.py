@@ -75,6 +75,76 @@ def provision_user_mailbox(email: str) -> dict | None:
     return data.get("data", data) if isinstance(data, dict) else None
 
 
+def list_mailboxes() -> list[dict]:
+    """Return every mailbox on the org account, or ``[]`` on any problem.
+
+    open.email may return a bare list, ``{"mailboxes": [...]}`` or
+    ``{"data": [...]}``; all three are normalized to a list. Never raises —
+    callers treat an empty list as "could not enumerate".
+    """
+    token = os.environ.get("OPENEMAIL_API_KEY")
+    if not token:
+        logger.warning("OPENEMAIL_API_KEY is not set; cannot list mailboxes")
+        return []
+
+    try:
+        response = httpx.get(
+            f"{OPENEMAIL_API_URL}/mailboxes",
+            headers={"Authorization": f"Bearer {token}"},
+            timeout=15.0,
+        )
+    except httpx.RequestError as exc:
+        logger.error("open.email request error listing mailboxes: %s", exc)
+        return []
+
+    if response.status_code not in (200, 201):
+        logger.error(
+            "open.email list mailboxes failed (%s): %s",
+            response.status_code,
+            response.text[:500],
+        )
+        return []
+
+    try:
+        data = response.json()
+    except ValueError:
+        return []
+
+    if isinstance(data, list):
+        items = data
+    elif isinstance(data, dict):
+        items = data.get("mailboxes") or data.get("data") or []
+    else:
+        items = []
+    return [m for m in items if isinstance(m, dict)]
+
+
+def find_mailbox_by_address(email: str) -> dict | None:
+    """Find an existing mailbox whose primary address equals ``email``."""
+    target = email.strip().lower()
+    for mb in list_mailboxes():
+        addr = str(mb.get("primaryAddress") or "").strip().lower()
+        if addr and addr == target:
+            return mb
+    return None
+
+
+def ensure_user_mailbox(email: str) -> dict | None:
+    """Idempotently guarantee a mailbox exists for ``email`` and return it.
+
+    Unlike :func:`provision_user_mailbox`, this first looks the address up so a
+    mailbox that already exists (e.g. the user was recreated, or provisioning
+    once failed after the mailbox was made) is *linked* rather than reported as
+    a duplicate. Used by the admin backfill so existing users created while the
+    key was missing can be repaired without deleting them. Returns ``None`` only
+    when no mailbox exists and one could not be created.
+    """
+    existing = find_mailbox_by_address(email)
+    if existing:
+        return existing
+    return provision_user_mailbox(email)
+
+
 class OpenEmailSendError(RuntimeError):
     """Raised when open.email rejects or fails a send. Carries the status so the
     scheduler can record a useful error against the queued row."""

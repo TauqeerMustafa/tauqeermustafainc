@@ -38,6 +38,7 @@ def _to_admin_user_read(user: User) -> AdminUserRead:
         team_id=user.team_id,
         team_name=user.team.name if user.team else None,
         openemail_address=user.openemail_address,
+        has_mailbox=bool(user.openemail_mailbox_id),
         approved_at=user.approved_at,
         created_at=user.created_at,
     )
@@ -141,9 +142,10 @@ def create_user(
     # Always auto-provision an open.email mailbox so every new user has a
     # working inbox at their account email. Non-fatal: if the key is absent,
     # the address is taken, or the API is down, the user is still created and
-    # the address falls back to their account email.
-    from app.services.openemail import provision_user_mailbox as provision_openemail_mailbox
-    mailbox = provision_openemail_mailbox(payload.email)
+    # the address falls back to their account email. ``ensure_user_mailbox``
+    # links an already-existing mailbox at this address instead of skipping it.
+    from app.services.openemail import ensure_user_mailbox
+    mailbox = ensure_user_mailbox(payload.email)
     openemail_mailbox_id = mailbox.get("id") if mailbox else None
     openemail_address = (mailbox.get("primaryAddress") if mailbox else None) or payload.email
 
@@ -168,6 +170,77 @@ def create_user(
     db.commit()
     db.refresh(user)
     return ApiResponse(data=_to_admin_user_read(user), message="User created successfully")
+
+
+@router.post("/users/provision-mailboxes", response_model=ApiResponse[dict])
+def provision_missing_mailboxes(
+    db: DatabaseSession,
+    _admin: CurrentAdmin,
+) -> ApiResponse[dict]:
+    """Backfill open.email mailboxes for every user that has none.
+
+    Repairs accounts created while OPENEMAIL_API_KEY was absent: each user
+    missing ``openemail_mailbox_id`` is linked to a find-or-created mailbox.
+    Idempotent — users that already have a mailbox are left untouched.
+    """
+    from app.services.openemail import ensure_user_mailbox
+
+    users = db.scalars(select(User).where(User.openemail_mailbox_id.is_(None))).all()
+
+    provisioned = 0
+    failed = 0
+    for user in users:
+        mailbox = ensure_user_mailbox(user.email)
+        if mailbox and mailbox.get("id"):
+            user.openemail_mailbox_id = mailbox["id"]
+            user.openemail_address = mailbox.get("primaryAddress") or user.email
+            provisioned += 1
+        else:
+            failed += 1
+    db.commit()
+
+    return ApiResponse(
+        data={"total": len(users), "provisioned": provisioned, "failed": failed},
+        message=(
+            f"Provisioned {provisioned} mailbox(es)"
+            + (f"; {failed} could not be created" if failed else "")
+        ),
+    )
+
+
+@router.post("/users/{user_id}/provision-mailbox", response_model=ApiResponse[AdminUserRead])
+def provision_single_mailbox(
+    user_id: uuid.UUID,
+    db: DatabaseSession,
+    _admin: CurrentAdmin,
+) -> ApiResponse[AdminUserRead]:
+    """Create (or link an existing) open.email mailbox for one user.
+
+    Repairs a single account whose mailbox was never provisioned. Fails with a
+    clear 502 when the mailbox cannot be created so the admin knows to check
+    OPENEMAIL_API_KEY / that the address's domain is managed in open.email.
+    """
+    user = db.get(User, user_id)
+    if user is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+
+    from app.services.openemail import ensure_user_mailbox
+
+    mailbox = ensure_user_mailbox(user.email)
+    if not mailbox or not mailbox.get("id"):
+        raise HTTPException(
+            status_code=status.HTTP_502_BAD_GATEWAY,
+            detail=(
+                "Could not provision a mailbox. Confirm OPENEMAIL_API_KEY is set on the "
+                "backend and that this address's domain is managed in open.email."
+            ),
+        )
+
+    user.openemail_mailbox_id = mailbox["id"]
+    user.openemail_address = mailbox.get("primaryAddress") or user.email
+    db.commit()
+    db.refresh(user)
+    return ApiResponse(data=_to_admin_user_read(user), message="Mailbox provisioned")
 
 
 @router.patch("/users/{user_id}", response_model=ApiResponse[AdminUserRead])

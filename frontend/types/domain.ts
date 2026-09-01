@@ -89,6 +89,8 @@ export interface AdminUser {
   teamName?: string;
   /** Auto-provisioned open.email address (equals the account email). */
   openemailAddress?: string | null;
+  /** True only when a real open.email mailbox is linked (not just an address). */
+  hasMailbox?: boolean;
   approvedAt?: string;
   createdAt: string;
 }

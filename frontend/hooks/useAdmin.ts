@@ -86,6 +86,28 @@ export function useDeleteAdminUser() {
   });
 }
 
+/** Provision (or link) an open.email mailbox for one user. */
+export function useProvisionMailbox() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => adminService.provisionMailbox(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.admin.users });
+    },
+  });
+}
+
+/** Backfill mailboxes for every user missing one. */
+export function useProvisionAllMailboxes() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: () => adminService.provisionAllMailboxes(),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.admin.users });
+    },
+  });
+}
+
 /** A role change can widen or narrow what any signed-in user may see, so the
  *  user list goes stale alongside the role list itself. */
 function invalidateRoles(queryClient: ReturnType<typeof useQueryClient>) {

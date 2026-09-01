@@ -76,6 +76,18 @@ export const adminService = {
       url: `${API_ENDPOINTS.admin.users}/${id}`,
       method: "DELETE",
     }),
+  /** Create (or link an existing) open.email mailbox for one user. */
+  provisionMailbox: (id: string) =>
+    apiRequest<ApiResponse<AdminUser>>({
+      url: `${API_ENDPOINTS.admin.users}/${id}/provision-mailbox`,
+      method: "POST",
+    }),
+  /** Backfill mailboxes for every user that has none. */
+  provisionAllMailboxes: () =>
+    apiRequest<ApiResponse<{ total: number; provisioned: number; failed: number }>>({
+      url: `${API_ENDPOINTS.admin.users}/provision-mailboxes`,
+      method: "POST",
+    }),
   roles: () =>
     apiRequest<ApiResponse<AdminRole[]>>({
       url: API_ENDPOINTS.admin.roles,

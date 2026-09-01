@@ -112,6 +112,10 @@ class AdminUserRead(CamelModel):
     team_id: uuid.UUID | None = None
     team_name: str | None = None
     openemail_address: str | None = None
+    # True only when a real open.email mailbox is linked. ``openemail_address``
+    # can be set (it falls back to the account email) while no mailbox exists,
+    # so the UI keys "needs a mailbox" off this flag, not the address.
+    has_mailbox: bool = False
     approved_at: datetime | None = None
     created_at: datetime
 

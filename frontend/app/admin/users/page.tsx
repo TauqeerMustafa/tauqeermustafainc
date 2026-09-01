@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Check, ChevronDown, Clock3, Mail, MoreHorizontal, PauseCircle, Search, ShieldCheck, Trash2, UserRound, X } from "lucide-react";
+import { Check, ChevronDown, Clock3, Loader2, Mail, MailPlus, MailWarning, MoreHorizontal, PauseCircle, Search, ShieldCheck, Trash2, UserRound, X } from "lucide-react";
 
 import {
   AdminConfirmDialog,
@@ -15,7 +15,7 @@ import {
   adminInputClass,
   adminInputStyle,
 } from "@/components/admin/AdminUI";
-import { useAdminMetrics, useAdminRoles, useAdminTeams, useAdminUsers, useCreateAdminUser, useDeleteAdminUser, useUpdateAdminUser } from "@/hooks/useAdmin";
+import { useAdminMetrics, useAdminRoles, useAdminTeams, useAdminUsers, useCreateAdminUser, useDeleteAdminUser, useProvisionAllMailboxes, useProvisionMailbox, useUpdateAdminUser } from "@/hooks/useAdmin";
 import type { AdminUser, UserStatus } from "@/types";
 import type { CreateAdminUserPayload } from "@/services/admin.service";
 
@@ -63,9 +63,11 @@ export default function AdminUsersPage() {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [form, setForm] = useState<CreateAdminUserPayload>(emptyForm);
   const [menuId, setMenuId] = useState<string | null>(null);
-  const [lastCreated, setLastCreated] = useState<{ name: string; address?: string | null } | null>(null);
+  const [lastCreated, setLastCreated] = useState<{ name: string; address?: string | null; hasMailbox?: boolean } | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<AdminUser | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
+  const [provisionNotice, setProvisionNotice] = useState<string | null>(null);
+  const [provisioningId, setProvisioningId] = useState<string | null>(null);
 
   const queryParams = useMemo(() => ({ pageSize: 50, search: search.trim() || undefined, status }), [search, status]);
   const usersQuery = useAdminUsers(queryParams);
@@ -75,10 +77,13 @@ export default function AdminUsersPage() {
   const createUser = useCreateAdminUser();
   const updateUser = useUpdateAdminUser();
   const deleteUser = useDeleteAdminUser();
+  const provisionMailbox = useProvisionMailbox();
+  const provisionAll = useProvisionAllMailboxes();
 
   const users = usersQuery.data?.data.items ?? [];
   const roles = rolesQuery.data?.data ?? [];
   const teams = teamsQuery.data?.data ?? [];
+  const missingMailbox = users.filter((user) => !user.hasMailbox);
 
   function openCreate() {
     setForm(emptyForm);
@@ -88,7 +93,7 @@ export default function AdminUsersPage() {
   async function handleCreate(event: React.FormEvent) {
     event.preventDefault();
     const created = await createUser.mutateAsync({ ...form, teamId: form.teamId || undefined, phone: form.phone || undefined });
-    setLastCreated({ name: created.data.name, address: created.data.openemailAddress });
+    setLastCreated({ name: created.data.name, address: created.data.openemailAddress, hasMailbox: created.data.hasMailbox });
     setDrawerOpen(false);
   }
 
@@ -105,6 +110,37 @@ export default function AdminUsersPage() {
     } catch (err) {
       setActionError(err instanceof Error ? err.message : "Could not delete this user.");
       setDeleteTarget(null);
+    }
+  }
+
+  async function handleProvisionOne(user: AdminUser) {
+    setMenuId(null);
+    setActionError(null);
+    setProvisionNotice(null);
+    setProvisioningId(user.id);
+    try {
+      const res = await provisionMailbox.mutateAsync(user.id);
+      setProvisionNotice(`Mailbox ${res.data.openemailAddress ?? ""} is ready for ${res.data.name}.`.trim());
+    } catch (err) {
+      setActionError(err instanceof Error ? err.message : "Could not provision a mailbox for this user.");
+    } finally {
+      setProvisioningId(null);
+    }
+  }
+
+  async function handleProvisionAll() {
+    setActionError(null);
+    setProvisionNotice(null);
+    try {
+      const res = await provisionAll.mutateAsync();
+      const { provisioned, failed } = res.data;
+      setProvisionNotice(
+        failed
+          ? `Provisioned ${provisioned} mailbox(es); ${failed} could not be created. Confirm OPENEMAIL_API_KEY is set on the backend and that each address's domain is managed in open.email.`
+          : `Provisioned ${provisioned} mailbox(es). Everyone now has an inbox.`,
+      );
+    } catch (err) {
+      setActionError(err instanceof Error ? err.message : "Could not provision mailboxes.");
     }
   }
 
@@ -128,9 +164,9 @@ export default function AdminUsersPage() {
             <div>
               <p className="text-sm font-semibold" style={{ color: "var(--adm-text)" }}>{lastCreated.name} was created</p>
               <p className="text-xs" style={{ color: "var(--adm-text-2)" }}>
-                {lastCreated.address
+                {lastCreated.hasMailbox
                   ? <>Mailbox <span className="font-semibold">{lastCreated.address}</span> is assigned to this user.</>
-                  : "Account created. A mailbox will be assigned once open.email is configured."}
+                  : "Account created, but a mailbox couldn't be provisioned yet. Use “Provision all missing” once OPENEMAIL_API_KEY is set on the backend."}
               </p>
             </div>
           </div>
@@ -142,6 +178,32 @@ export default function AdminUsersPage() {
         <div className="mb-6 flex items-start justify-between gap-3 border p-4" style={{ borderColor: "var(--adm-red)", background: "var(--adm-red-light)" }}>
           <p className="text-sm font-medium" style={{ color: "var(--adm-red)" }}>{actionError}</p>
           <button type="button" aria-label="Dismiss" onClick={() => setActionError(null)} className="shrink-0" style={{ color: "var(--adm-text-3)" }}><X size={16} /></button>
+        </div>
+      ) : null}
+
+      {provisionNotice ? (
+        <div className="mb-6 flex items-start justify-between gap-3 border p-4" style={{ borderColor: "var(--adm-green)", background: "var(--adm-green-light)" }}>
+          <div className="flex items-start gap-3">
+            <MailPlus size={18} className="mt-0.5 shrink-0" style={{ color: "var(--adm-green)" }} />
+            <p className="text-sm font-medium" style={{ color: "var(--adm-text)" }}>{provisionNotice}</p>
+          </div>
+          <button type="button" aria-label="Dismiss" onClick={() => setProvisionNotice(null)} className="shrink-0" style={{ color: "var(--adm-text-3)" }}><X size={16} /></button>
+        </div>
+      ) : null}
+
+      {missingMailbox.length > 0 ? (
+        <div className="mb-6 flex flex-col gap-3 border p-4 sm:flex-row sm:items-center sm:justify-between" style={{ borderColor: "var(--adm-amber)", background: "var(--adm-amber-light)" }}>
+          <div className="flex items-start gap-3">
+            <MailWarning size={18} className="mt-0.5 shrink-0" style={{ color: "var(--adm-amber)" }} />
+            <div>
+              <p className="text-sm font-semibold" style={{ color: "var(--adm-text)" }}>{missingMailbox.length} user{missingMailbox.length === 1 ? "" : "s"} {missingMailbox.length === 1 ? "has" : "have"} no mailbox</p>
+              <p className="text-xs" style={{ color: "var(--adm-text-2)" }}>These accounts can&apos;t send or receive email until a mailbox is created for them. This provisions one for every user missing one.</p>
+            </div>
+          </div>
+          <button type="button" onClick={handleProvisionAll} disabled={provisionAll.isPending} className="inline-flex shrink-0 items-center justify-center gap-2 rounded-full px-4 py-2 text-sm font-semibold text-white transition hover:opacity-90 disabled:opacity-60" style={{ background: "var(--adm-amber)" }}>
+            {provisionAll.isPending ? <Loader2 size={15} className="animate-spin" /> : <MailPlus size={15} />}
+            {provisionAll.isPending ? "Provisioning…" : "Provision all missing"}
+          </button>
         </div>
       ) : null}
 
@@ -206,9 +268,14 @@ export default function AdminUsersPage() {
                     <td className="px-4 py-4"><span className="font-medium" style={{ color: "var(--adm-text-2)" }}>{user.roleName ?? user.roleSlug ?? "Unassigned"}</span></td>
                     <td className="px-4 py-4" style={{ color: "var(--adm-text-2)" }}>{user.teamName ?? "—"}</td>
                     <td className="px-4 py-4 text-xs">
-                      {user.openemailAddress
-                        ? <span className="inline-flex items-center gap-1.5" style={{ color: "var(--adm-text-2)" }}><Mail size={13} style={{ color: "var(--adm-text-3)" }} />{user.openemailAddress}</span>
-                        : <span style={{ color: "var(--adm-text-3)" }}>—</span>}
+                      {user.hasMailbox ? (
+                        <span className="inline-flex items-center gap-1.5" style={{ color: "var(--adm-text-2)" }}><Mail size={13} style={{ color: "var(--adm-text-3)" }} />{user.openemailAddress}</span>
+                      ) : (
+                        <button type="button" onClick={(event) => { event.stopPropagation(); handleProvisionOne(user); }} disabled={provisioningId === user.id} className="inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 font-semibold transition hover:opacity-90 disabled:opacity-60" style={{ borderColor: "var(--adm-amber)", color: "var(--adm-amber)" }}>
+                          {provisioningId === user.id ? <Loader2 size={12} className="animate-spin" /> : <MailWarning size={12} />}
+                          {provisioningId === user.id ? "Creating…" : "No mailbox — create"}
+                        </button>
+                      )}
                     </td>
                     <td className="px-4 py-4"><span className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold" style={{ background: style.background, color: style.color }}><span className="h-1.5 w-1.5 rounded-full" style={{ background: style.color }} />{style.label}</span></td>
                     <td className="px-4 py-4 text-xs" style={{ color: "var(--adm-text-3)" }}>{formatDate(user.createdAt)}</td>
