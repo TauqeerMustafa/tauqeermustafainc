@@ -24,6 +24,19 @@ logger = logging.getLogger(__name__)
 OPENEMAIL_API_URL = "https://api.open.email/api/v1"
 
 
+def _api_token() -> str | None:
+    """The open.email API key, from Settings first, then the raw environment.
+
+    Settings reads ``backend/.env`` *and* real process env vars (Render injects
+    the latter), whereas ``os.environ`` alone misses a value that lives only in
+    the ``.env`` file — so local dev would wrongly see "key missing". Preferring
+    Settings makes provisioning/send behave the same locally and in prod.
+    """
+    from app.core.config import settings
+
+    return settings.openemail_api_key or os.environ.get("OPENEMAIL_API_KEY")
+
+
 def provision_user_mailbox(email: str) -> dict | None:
     """Create an open.email mailbox for ``email`` and return its record.
 
@@ -31,7 +44,7 @@ def provision_user_mailbox(email: str) -> dict | None:
     skipped or failed (missing key, duplicate address, network/API error).
     Never raises — account creation must proceed regardless.
     """
-    token = os.environ.get("OPENEMAIL_API_KEY")
+    token = _api_token()
     if not token:
         logger.warning(
             "OPENEMAIL_API_KEY is not set; skipping mailbox provisioning for %s", email
@@ -82,7 +95,7 @@ def list_mailboxes() -> list[dict]:
     ``{"data": [...]}``; all three are normalized to a list. Never raises —
     callers treat an empty list as "could not enumerate".
     """
-    token = os.environ.get("OPENEMAIL_API_KEY")
+    token = _api_token()
     if not token:
         logger.warning("OPENEMAIL_API_KEY is not set; cannot list mailboxes")
         return []
@@ -170,7 +183,7 @@ def send_message(
     like interactive ones. Raises :class:`OpenEmailSendError` on any failure so
     the dispatcher can mark the row failed rather than silently dropping it.
     """
-    token = os.environ.get("OPENEMAIL_API_KEY")
+    token = _api_token()
     if not token:
         raise OpenEmailSendError("OPENEMAIL_API_KEY is not set")
 
