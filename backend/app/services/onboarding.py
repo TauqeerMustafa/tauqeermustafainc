@@ -153,12 +153,14 @@ else — it was generated for you and nobody else should ever need it.
 
 Your work is already waiting on the portal:
 
-  * Tasks        everything assigned to you, by stage
-  * My Pipeline  your own lead book — source it, work it, log every touch
-  * Attendance   check in when you start and out when you finish
-  * Documents    company policies, including the lead generation playbook
+  * Tasks          everything assigned to you, by stage
+  * My Pipeline    your own lead book - source it, work it, log every touch
+  * Lead Playbook  how we find leads, and what your first week looks like
+  * Attendance     check in when you start and out when you finish
+  * Documents      company policies and handbooks
 
-Read the tasks in order. If something is unclear, ask before you guess.
+Start with Lead Playbook, then read the tasks in order. If something is unclear,
+ask before you guess.
 
 Welcome aboard.
 

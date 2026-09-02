@@ -13,6 +13,7 @@
 import {
   BarChart3,
   Bell,
+  BookOpen,
   Briefcase,
   Building2,
   CalendarDays,
@@ -175,6 +176,7 @@ export const PORTAL_NAV: Record<PortalId, NavSection[]> = {
       items: [
         { label: "Announcements", href: "/employees/announcements", icon: Bell },
         { label: "Documents", href: "/employees/documents", icon: FileText },
+        { label: "Lead Playbook", href: "/employees/playbook", icon: BookOpen },
       ],
     },
     {
@@ -209,6 +211,7 @@ export const PORTAL_NAV: Record<PortalId, NavSection[]> = {
           permission: [PERMISSION.LEADS_READ_TEAM, PERMISSION.LEADS_READ_ALL],
         },
         { label: "Objectives", href: "/management/objectives", icon: Target },
+        { label: "Lead Playbook", href: "/management/playbook", icon: BookOpen },
       ],
     },
     {

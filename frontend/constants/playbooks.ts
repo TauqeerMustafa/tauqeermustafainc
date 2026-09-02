@@ -37,7 +37,7 @@ const LEAD_GEN_WEEK_ONE: PlaybookTask[] = [
   {
     title: "Read the lead-gen playbook and learn the stages",
     description:
-      "Open Documents → Lead Generation Playbook. Learn what each pipeline stage means: new (in the book, not contacted), contacted (first message delivered), follow_up (needs a second touch, follow-up date set), qualified (confirmed need and you know who signs), proposal_sent, won, lost. Ask before you guess.",
+      "Open Lead Playbook in the sidebar, under Company. Learn what each pipeline stage means: new (in the book, not contacted), contacted (first message delivered), follow_up (needs a second touch, follow-up date set), qualified (confirmed need and you know who signs), proposal_sent, won, lost. Ask before you guess.",
     priority: "high",
     dueInDays: 0,
   },
