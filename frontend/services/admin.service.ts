@@ -25,6 +25,12 @@ export interface CreateAdminUserPayload {
   roleSlug: string;
   teamId?: string;
   status: UserStatus;
+  /** Mail the credentials out now — the only moment the API still has them in
+   *  plaintext, since it hashes the password before returning. */
+  sendWelcomeEmail?: boolean;
+  /** Personal address to deliver to; the company mailbox these credentials
+   *  unlock cannot be read until after the first sign-in. */
+  welcomeEmailTo?: string;
 }
 
 export interface UpdateAdminUserPayload {

@@ -133,6 +133,13 @@ class AdminUserCreate(CamelModel):
     role_slug: str = Field(default="exec", min_length=1, max_length=60)
     team_id: uuid.UUID | None = None
     status: UserStatus = UserStatus.approved
+    # Mail the credentials out at creation time. This is the only chance to do
+    # it: ``password`` is hashed immediately and cannot be recovered later.
+    send_welcome_email: bool = False
+    # Personal address to deliver to. A new hire cannot read the company mailbox
+    # the credentials unlock, so falling back to ``email`` is a closed loop —
+    # useful only when the account is replacing one the person already reads.
+    welcome_email_to: EmailStr | None = None
 
 
 class UpdateUserRequest(CamelModel):

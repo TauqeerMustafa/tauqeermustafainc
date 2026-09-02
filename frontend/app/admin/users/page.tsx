@@ -35,7 +35,23 @@ const emptyForm: CreateAdminUserPayload = {
   roleSlug: "exec",
   teamId: "",
   status: "approved",
+  sendWelcomeEmail: true,
+  welcomeEmailTo: "",
 };
+
+/**
+ * A password nobody had to invent. Ambiguous glyphs (O/0, l/1) are left out
+ * because this gets read off a screen and typed by hand at least once.
+ */
+function generatePassword() {
+  const alphabet = "ABCDEFGHJKMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789";
+  const symbols = "!@#$%&*?";
+  const bytes = new Uint32Array(14);
+  crypto.getRandomValues(bytes);
+  const core = Array.from(bytes, (byte) => alphabet[byte % alphabet.length]).join("");
+  const tail = symbols[bytes[0] % symbols.length];
+  return `${core}${tail}`;
+}
 
 const statusStyles: Record<UserStatus, { label: string; background: string; color: string }> = {
   pending: { label: "Pending", background: "var(--adm-amber-light)", color: "var(--adm-amber)" },
@@ -63,7 +79,7 @@ export default function AdminUsersPage() {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [form, setForm] = useState<CreateAdminUserPayload>(emptyForm);
   const [menuId, setMenuId] = useState<string | null>(null);
-  const [lastCreated, setLastCreated] = useState<{ name: string; address?: string | null; hasMailbox?: boolean } | null>(null);
+  const [lastCreated, setLastCreated] = useState<{ name: string; address?: string | null; hasMailbox?: boolean; note?: string } | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<AdminUser | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
   const [provisionNotice, setProvisionNotice] = useState<string | null>(null);
@@ -92,8 +108,21 @@ export default function AdminUsersPage() {
 
   async function handleCreate(event: React.FormEvent) {
     event.preventDefault();
-    const created = await createUser.mutateAsync({ ...form, teamId: form.teamId || undefined, phone: form.phone || undefined });
-    setLastCreated({ name: created.data.name, address: created.data.openemailAddress, hasMailbox: created.data.hasMailbox });
+    const created = await createUser.mutateAsync({
+      ...form,
+      teamId: form.teamId || undefined,
+      phone: form.phone || undefined,
+      // Empty string is not a valid EmailStr — drop the field and let the API
+      // fall back to the account address.
+      welcomeEmailTo: form.welcomeEmailTo?.trim() || undefined,
+    });
+    setLastCreated({
+      name: created.data.name,
+      address: created.data.openemailAddress,
+      hasMailbox: created.data.hasMailbox,
+      // The API says whether the credentials actually left the building.
+      note: form.sendWelcomeEmail ? created.message : undefined,
+    });
     setDrawerOpen(false);
   }
 
@@ -168,6 +197,9 @@ export default function AdminUsersPage() {
                   ? <>Mailbox <span className="font-semibold">{lastCreated.address}</span> is assigned to this user.</>
                   : "Account created, but a mailbox couldn't be provisioned yet. Use “Provision all missing” once OPENEMAIL_API_KEY is set on the backend."}
               </p>
+              {lastCreated.note ? (
+                <p className="mt-1 text-xs font-medium" style={{ color: "var(--adm-text)" }}>{lastCreated.note}</p>
+              ) : null}
             </div>
           </div>
           <button type="button" aria-label="Dismiss" onClick={() => setLastCreated(null)} className="shrink-0" style={{ color: "var(--adm-text-3)" }}><X size={16} /></button>
@@ -303,7 +335,27 @@ export default function AdminUsersPage() {
         <form onSubmit={handleCreate} className="grid gap-5">
           <AdminField label="Full name" htmlFor="user-name"><input id="user-name" required className={adminInputClass} style={adminInputStyle} value={form.name} onChange={(event) => setForm({ ...form, name: event.target.value })} /></AdminField>
           <AdminField label="Email address" htmlFor="user-email"><input id="user-email" required type="email" className={adminInputClass} style={adminInputStyle} value={form.email} onChange={(event) => setForm({ ...form, email: event.target.value })} /><p className="flex items-center gap-1.5 text-xs" style={{ color: "var(--adm-text-3)" }}><Mail size={12} />An open.email mailbox at this address is created automatically and assigned to the user.</p></AdminField>
-          <AdminField label="Temporary password" htmlFor="user-password"><input id="user-password" required minLength={8} type="password" className={adminInputClass} style={adminInputStyle} value={form.password} onChange={(event) => setForm({ ...form, password: event.target.value })} /><p className="text-xs" style={{ color: "var(--adm-text-3)" }}>At least 8 characters. Share this securely with the new user.</p></AdminField>
+          <AdminField label="Temporary password" htmlFor="user-password">
+            <div className="flex items-center gap-2">
+              {/* Shown as text on purpose: the admin has to be able to read it
+                  back, and it is a throwaway the user is told to change. */}
+              <input id="user-password" required minLength={8} type="text" autoComplete="off" spellCheck={false} className={`${adminInputClass} font-mono`} style={adminInputStyle} value={form.password} onChange={(event) => setForm({ ...form, password: event.target.value })} />
+              <button type="button" onClick={() => setForm({ ...form, password: generatePassword() })} className="btn-press shrink-0 border px-3 py-2 text-xs font-bold uppercase tracking-wider" style={{ borderColor: "var(--adm-border)", color: "var(--adm-text-2)" }}>Generate</button>
+            </div>
+            <p className="text-xs" style={{ color: "var(--adm-text-3)" }}>At least 8 characters. Emailed below, or share it securely yourself.</p>
+          </AdminField>
+          <AdminField label="Welcome email" htmlFor="user-welcome">
+            <label className="flex items-start gap-2.5 text-sm" style={{ color: "var(--adm-text-2)" }}>
+              <input id="user-welcome" type="checkbox" className="mt-0.5" checked={Boolean(form.sendWelcomeEmail)} onChange={(event) => setForm({ ...form, sendWelcomeEmail: event.target.checked })} />
+              <span>Email a congratulations message with these credentials and the portal link.</span>
+            </label>
+            {form.sendWelcomeEmail ? (
+              <>
+                <input type="email" placeholder="Deliver to (personal address)" aria-label="Deliver the welcome email to" className={adminInputClass} style={adminInputStyle} value={form.welcomeEmailTo ?? ""} onChange={(event) => setForm({ ...form, welcomeEmailTo: event.target.value })} />
+                <p className="text-xs" style={{ color: "var(--adm-text-3)" }}>Use a personal address — the new company mailbox can only be opened after the first sign-in. Left blank, it goes to the account address above.</p>
+              </>
+            ) : null}
+          </AdminField>
           <AdminField label="Phone (optional)" htmlFor="user-phone"><input id="user-phone" className={adminInputClass} style={adminInputStyle} value={form.phone} onChange={(event) => setForm({ ...form, phone: event.target.value })} /></AdminField>
           <div className="grid gap-5 sm:grid-cols-2">
             <AdminField label="Role" htmlFor="user-role"><select id="user-role" className={adminInputClass} style={adminInputStyle} value={form.roleSlug} onChange={(event) => setForm({ ...form, roleSlug: event.target.value })}>{roles.map((role) => <option key={role.id} value={role.slug}>{role.name}</option>)}</select></AdminField>

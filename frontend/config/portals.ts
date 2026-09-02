@@ -151,6 +151,14 @@ export const PORTAL_NAV: Record<PortalId, NavSection[]> = {
       title: "My Work",
       items: [
         { label: "Tasks", href: "/employees/tasks", icon: CheckSquare },
+        {
+          // Own-scope lead work: granted to the member role by f1b7c3d9e482, so
+          // staff who do outbound see their book and staff who don't see nothing.
+          label: "My Pipeline",
+          href: "/employees/pipeline",
+          icon: BarChart3,
+          permission: [PERMISSION.LEADS_READ_OWN],
+        },
         { label: "Projects", href: "/employees/projects", icon: FolderKanban },
         { label: "Messages", href: "/employees/messages", icon: MessagesSquare },
       ],

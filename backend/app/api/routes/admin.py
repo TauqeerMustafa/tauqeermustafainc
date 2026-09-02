@@ -177,7 +177,29 @@ def create_user(
 
     db.commit()
     db.refresh(user)
-    return ApiResponse(data=_to_admin_user_read(user), message="User created successfully")
+
+    # Credentials go out last, once the account is committed and the mailbox is
+    # linked — so the message never advertises a login that does not exist yet.
+    message = "User created successfully"
+    if payload.send_welcome_email:
+        from app.services.onboarding import send_welcome_email
+
+        recipient = payload.welcome_email_to or payload.email
+        sent = send_welcome_email(
+            to_email=str(recipient),
+            name=payload.name,
+            account_email=str(payload.email),
+            password=payload.password,
+            role_slug=role.slug,
+            role_name=role.name,
+        )
+        message = (
+            f"User created and credentials emailed to {recipient}"
+            if sent
+            else "User created, but the credentials email could not be sent. Confirm SMTP is configured."
+        )
+
+    return ApiResponse(data=_to_admin_user_read(user), message=message)
 
 
 @router.post("/users/provision-mailboxes", response_model=ApiResponse[dict])
