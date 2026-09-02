@@ -35,10 +35,26 @@ export function useManagementDashboard() {
 }
 
 /** Full project book for the Delivery page — see `/dashboard/projects`. */
-export function useManagementProjects() {
+export function useManagementProjects(options: { enabled?: boolean } = {}) {
   return useQuery({
     queryKey: queryKeys.dashboard.projects,
     queryFn: dashboardService.projects,
     staleTime: 30 * 1000,
+    enabled: options.enabled ?? true,
+  });
+}
+
+/**
+ * The signed-in user's own projects. `/dashboard/projects` is manager-gated, so
+ * a member reading it would 403 — the staff Projects page uses this instead.
+ * `enabled` lets a shared component declare both hooks (hook rules) while only
+ * firing the request its audience is allowed to make.
+ */
+export function useMyProjects(options: { enabled?: boolean } = {}) {
+  return useQuery({
+    queryKey: queryKeys.dashboard.myProjects,
+    queryFn: dashboardService.myProjects,
+    staleTime: 30 * 1000,
+    enabled: options.enabled ?? true,
   });
 }

@@ -11,6 +11,7 @@ from app.models.audit_log import AuditLog
 from app.models.role import Role
 from app.core.security import hash_password
 from app.schemas.employee import EmployeeCreate, EmployeeUpdate, EmployeeResponse
+from app.services.openemail import provision_user_mailbox
 
 router = APIRouter()
 
@@ -72,6 +73,10 @@ def create_employee(
         raise HTTPException(status_code=400, detail="Email already registered")
 
     # 1. Create User account
+    # Provision the open.email mailbox first so the account is created with a
+    # working inbox, exactly like Admin → Users. Non-fatal: if the key is
+    # absent or the address is taken, we fall back to the account email.
+    mailbox = provision_user_mailbox(payload.email)
     new_user = User(
         first_name=payload.first_name,
         last_name=payload.last_name,
@@ -81,6 +86,8 @@ def create_employee(
         is_verified=True,
         status="approved",
         role_id=payload.role_id,
+        openemail_mailbox_id=mailbox.get("id") if mailbox else None,
+        openemail_address=(mailbox.get("primaryAddress") if mailbox else None) or payload.email,
         phone=payload.emergency_contact # Store phone in user too if needed
     )
     db.add(new_user)

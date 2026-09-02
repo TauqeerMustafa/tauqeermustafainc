@@ -419,6 +419,78 @@ def get_management_dashboard(db: DatabaseSession, current_manager: CurrentManage
     )
 
 
+@router.get("/projects/me", response_model=list[ManagementProjectRow])
+def get_my_projects(db: DatabaseSession, current_user: CurrentUser):
+    """Projects the signed-in user actually works on.
+
+    ``/dashboard/projects`` is manager-gated, so the staff Projects page needs
+    its own unprivileged view: a project appears here only when the caller has a
+    task on it. Task counts are scoped to *their* tasks — an employee's board
+    should read "3 of my tasks open", not the whole team's load.
+
+    Deliberately returns an empty list rather than 403 when nobody has assigned
+    them anything yet; the page renders its own empty state.
+    """
+    today = datetime.now(timezone.utc).date()
+
+    my_project_ids = set(
+        db.scalars(
+            select(ProjectTask.project_id).where(
+                ProjectTask.assigned_to_id == current_user.id,
+                ProjectTask.project_id.is_not(None),
+            )
+        ).all()
+    )
+    if not my_project_ids:
+        return []
+
+    projects = db.scalars(
+        select(ClientProject)
+        .where(ClientProject.id.in_(my_project_ids))
+        .order_by(ClientProject.updated_at.desc())
+    ).all()
+
+    client_ids = {p.client_id for p in projects}
+    name_by_id: dict[UUID, str] = {}
+    if client_ids:
+        for user in db.scalars(select(User).where(User.id.in_(client_ids))).all():
+            name_by_id[user.id] = f"{user.first_name} {user.last_name}".strip() or user.email
+
+    mine = (
+        ProjectTask.assigned_to_id == current_user.id,
+        ProjectTask.project_id.in_(my_project_ids),
+        ProjectTask.status != "done",
+    )
+    open_counts = dict(
+        db.execute(
+            select(ProjectTask.project_id, func.count()).where(*mine).group_by(ProjectTask.project_id)
+        ).all()
+    )
+    overdue_counts = dict(
+        db.execute(
+            select(ProjectTask.project_id, func.count())
+            .where(*mine, ProjectTask.due_date.is_not(None), ProjectTask.due_date < today)
+            .group_by(ProjectTask.project_id)
+        ).all()
+    )
+
+    return [
+        ManagementProjectRow(
+            id=str(p.id),
+            name=p.name,
+            status=p.status,
+            progress=p.progress,
+            next_milestone=p.next_milestone,
+            summary=p.summary,
+            client_name=name_by_id.get(p.client_id),
+            open_tasks=open_counts.get(p.id, 0),
+            overdue_tasks=overdue_counts.get(p.id, 0),
+            updated_at=p.updated_at,
+        )
+        for p in projects
+    ]
+
+
 @router.get("/projects", response_model=list[ManagementProjectRow])
 def get_management_projects(db: DatabaseSession, current_manager: CurrentManager):
     """Full delivery table for the management portal's Delivery page.

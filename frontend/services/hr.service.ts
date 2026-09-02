@@ -153,4 +153,11 @@ export const dashboardService = {
       url: API_ENDPOINTS.dashboard.projects,
       method: "GET",
     }),
+  /** The caller's own projects. Same shape, no manager gate, task counts scoped
+   *  to their assignments — what a staff member may see of the delivery book. */
+  myProjects: () =>
+    apiRequest<ManagementProjectRow[]>({
+      url: API_ENDPOINTS.dashboard.myProjects,
+      method: "GET",
+    }),
 };

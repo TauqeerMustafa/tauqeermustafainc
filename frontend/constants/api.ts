@@ -40,6 +40,9 @@ export const API_ENDPOINTS = {
     admin: "/dashboard/admin",
     management: "/dashboard/management",
     projects: "/dashboard/projects",
+    // Unprivileged view of the same shape: only the caller's own projects, so
+    // the staff Projects page does not need the manager-gated route above.
+    myProjects: "/dashboard/projects/me",
   },
   leads: {
     root: "/leads",

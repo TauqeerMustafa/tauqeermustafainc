@@ -11,6 +11,7 @@ from app.models.role import Permission, Role, RolePermission
 from app.models.team import Team
 from app.models.user import User
 from app.schemas.common import ApiResponse, PaginatedResult, Pagination
+from app.services.onboarding import ensure_employee_profile
 from app.schemas.crm import (
     AdminUserCreate,
     AdminUserRead,
@@ -167,6 +168,13 @@ def create_user(
         approved_at=now if user_status == "approved" else None,
     )
     db.add(user)
+    db.flush()
+
+    # Every staff account also needs an HR profile: the employee portal
+    # (dashboard, attendance, leave, documents) resolves the caller through it
+    # and 403s without one. Clients are skipped — they have no HR record.
+    ensure_employee_profile(db, user)
+
     db.commit()
     db.refresh(user)
     return ApiResponse(data=_to_admin_user_read(user), message="User created successfully")

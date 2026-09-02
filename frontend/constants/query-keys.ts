@@ -59,6 +59,7 @@ export const queryKeys = {
     admin: ["dashboard", "admin"] as const,
     management: ["dashboard", "management"] as const,
     projects: ["dashboard", "projects"] as const,
+    myProjects: ["dashboard", "projects", "mine"] as const,
   },
   tasks: {
     list: (params: string) => ["tasks", "list", params] as const,
