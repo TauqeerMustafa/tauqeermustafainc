@@ -3,6 +3,8 @@
 import { AlertTriangle, Inbox, Loader2, Plus, X } from "lucide-react";
 import { type ReactNode } from "react";
 
+import { useI18n } from "@/lib/i18n";
+
 export function AdminPageHeader({
   title,
   description,
@@ -108,6 +110,8 @@ export function AdminConfirmDialog({
   onConfirm: () => void;
   onCancel: () => void;
 }) {
+  const { t } = useI18n();
+
   if (!open) return null;
 
   return (
@@ -131,7 +135,7 @@ export function AdminConfirmDialog({
             className="border px-4 py-2 text-xs font-bold uppercase tracking-wider transition hover:bg-adm-surface-2"
             style={{ borderColor: "var(--adm-border)", color: "var(--adm-text-2)" }}
           >
-            Cancel
+            {t("Cancel")}
           </button>
           <button
             type="button"
@@ -140,7 +144,7 @@ export function AdminConfirmDialog({
             className="btn-press px-4 py-2 text-xs font-bold uppercase tracking-wider text-white transition hover:opacity-90 disabled:opacity-50"
             style={{ background: "var(--adm-red)" }}
           >
-            {isPending ? "Deleting…" : confirmLabel}
+            {isPending ? t("Deleting…") : confirmLabel}
           </button>
         </div>
       </div>
@@ -234,6 +238,8 @@ export function AdminFormActions({
   isPending?: boolean;
   submitLabel?: string;
 }) {
+  const { t } = useI18n();
+
   return (
     <div
       className="mt-8 flex justify-end gap-3 border-t pt-6"
@@ -245,7 +251,7 @@ export function AdminFormActions({
         className="border px-4 py-2.5 text-xs font-bold uppercase tracking-wider transition hover:bg-adm-surface-2"
         style={{ borderColor: "var(--adm-border)", color: "var(--adm-text-2)" }}
       >
-        Cancel
+        {t("Cancel")}
       </button>
       <button
         type="submit"
@@ -253,7 +259,7 @@ export function AdminFormActions({
         className="btn-press px-5 py-2.5 text-xs font-bold uppercase tracking-wider text-white transition hover:opacity-90 disabled:opacity-50"
         style={{ background: "var(--adm-blue)" }}
       >
-        {isPending ? "Saving…" : submitLabel}
+        {isPending ? t("Saving…") : submitLabel}
       </button>
     </div>
   );

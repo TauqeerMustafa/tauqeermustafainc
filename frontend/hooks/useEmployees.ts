@@ -6,10 +6,16 @@ import { queryKeys } from "@/constants/query-keys";
 import { employeeService } from "@/services";
 import type { CreateEmployeePayload, UpdateEmployeePayload } from "@/types";
 
-export function useEmployees() {
+/**
+ * The employee roster. `/employees` is manager-gated, so callers that render for
+ * everyone (the document vault's assignee picker, say) pass `enabled` to hold the
+ * request back rather than trip a 403.
+ */
+export function useEmployees(enabled = true) {
   return useQuery({
     queryKey: queryKeys.employees.all,
     queryFn: employeeService.list,
+    enabled,
   });
 }
 

@@ -32,8 +32,11 @@ export const API_ENDPOINTS = {
   },
   documents: {
     upload: "/documents/upload",
+    file: "/documents/file",
     me: "/documents/me",
     all: "/documents/admin",
+    detail: (id: string) => `/documents/${id}`,
+    download: (id: string) => `/documents/${id}/file`,
   },
   dashboard: {
     employee: "/dashboard/employee",

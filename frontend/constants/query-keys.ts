@@ -65,6 +65,9 @@ export const queryKeys = {
     myProjects: ["dashboard", "projects", "mine"] as const,
   },
   tasks: {
+    /** Prefix for every task query — what a write invalidates, since a new task
+     *  can land in any cached filter set. */
+    all: ["tasks"] as const,
     list: (params: string) => ["tasks", "list", params] as const,
     mine: ["tasks", "mine"] as const,
   },

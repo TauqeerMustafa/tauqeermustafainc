@@ -7,6 +7,7 @@ import { ChevronRight, ExternalLink, X } from "lucide-react";
 
 import { PORTAL_NAV, isNavItemActive, type NavItem } from "@/config/portals";
 import { useCurrentUser } from "@/hooks/useAuth";
+import { useI18n } from "@/lib/i18n";
 import {
   PORTAL_HOME_PATH,
   PORTAL_LABEL,
@@ -28,6 +29,7 @@ type Props = { portal: PortalId; isOpen: boolean; onClose: () => void };
 export default function PortalSidebar({ portal, isOpen, onClose }: Props) {
   const pathname = usePathname();
   const { data } = useCurrentUser();
+  const { t } = useI18n();
   const user = data?.data ?? null;
 
   /** An item shows only if the viewer clears both its role and permission gate. */
@@ -58,8 +60,8 @@ export default function PortalSidebar({ portal, isOpen, onClose }: Props) {
         />
       )}
       <aside
-        className={`fixed inset-y-0 left-0 z-50 flex w-[264px] flex-col border-r border-adm-border bg-adm-surface transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] lg:static lg:z-auto lg:translate-x-0 ${
-          isOpen ? "translate-x-0" : "-translate-x-full"
+        className={`fixed inset-y-0 start-0 z-50 flex w-[264px] flex-col border-e border-adm-border bg-adm-surface transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] lg:static lg:z-auto lg:translate-x-0 ${
+          isOpen ? "translate-x-0" : "-translate-x-full rtl:translate-x-full"
         }`}
       >
         {/* BMW M signature stripe */}
@@ -79,7 +81,7 @@ export default function PortalSidebar({ portal, isOpen, onClose }: Props) {
                 TM INC
               </span>
               <span className="block truncate font-mono text-[10px] uppercase tracking-widest text-adm-blue">
-                {PORTAL_LABEL[portal]} Portal
+                {t(PORTAL_LABEL[portal])} {t("Portal")}
               </span>
             </span>
           </Link>
@@ -87,7 +89,7 @@ export default function PortalSidebar({ portal, isOpen, onClose }: Props) {
           <button
             type="button"
             onClick={onClose}
-            aria-label="Close menu"
+            aria-label={t("Close menu")}
             className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-adm-border text-adm-text-2 transition hover:bg-adm-surface-2 hover:text-adm-text lg:hidden"
           >
             <X size={16} />
@@ -96,13 +98,13 @@ export default function PortalSidebar({ portal, isOpen, onClose }: Props) {
 
         <nav
           className="adm-scroll flex-1 overflow-y-auto px-3 py-4"
-          aria-label={`${PORTAL_LABEL[portal]} navigation`}
+          aria-label={`${t(PORTAL_LABEL[portal])} ${t("navigation")}`}
         >
           {sections.map((section, index) => (
             <div key={section.title ?? `group-${index}`} className={index > 0 ? "mt-5" : ""}>
               {section.title && (
                 <p className="mb-2 px-4 text-[10px] font-bold uppercase tracking-widest text-adm-text-3">
-                  {section.title}
+                  {t(section.title)}
                 </p>
               )}
 
@@ -126,8 +128,8 @@ export default function PortalSidebar({ portal, isOpen, onClose }: Props) {
                       size={17}
                       className={`shrink-0 ${active ? "text-adm-blue" : "text-adm-text-3"}`}
                     />
-                    <span className="flex-1 truncate">{item.label}</span>
-                    {active && <ChevronRight size={14} className="text-adm-blue" />}
+                    <span className="flex-1 truncate">{t(item.label)}</span>
+                    {active && <ChevronRight size={14} className="text-adm-blue rtl:rotate-180" />}
                   </Link>
                 );
               })}
@@ -139,7 +141,7 @@ export default function PortalSidebar({ portal, isOpen, onClose }: Props) {
           {otherPortals.length > 0 && (
             <div className="border-b border-adm-border px-3 py-3">
               <p className="mb-2 px-1 text-[10px] font-bold uppercase tracking-widest text-adm-text-3">
-                Switch Portal
+                {t("Switch Portal")}
               </p>
               {otherPortals.map((target) => (
                 <Link
@@ -149,7 +151,7 @@ export default function PortalSidebar({ portal, isOpen, onClose }: Props) {
                   className="flex items-center gap-2 px-1 py-1.5 text-[13px] font-medium text-adm-text-2 transition hover:text-adm-blue"
                 >
                   <ExternalLink size={13} className="shrink-0" />
-                  <span className="truncate">{PORTAL_LABEL[target]}</span>
+                  <span className="truncate">{t(PORTAL_LABEL[target])}</span>
                 </Link>
               ))}
             </div>

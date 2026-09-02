@@ -6,6 +6,7 @@ import { useEffect, useState, type ReactNode } from "react";
 import PortalGuard from "@/components/portal/PortalGuard";
 import PortalHeader from "@/components/portal/PortalHeader";
 import PortalSidebar from "@/components/portal/PortalSidebar";
+import { useI18n } from "@/lib/i18n";
 import type { PortalId } from "@/lib/rbac";
 
 /**
@@ -27,6 +28,7 @@ export default function PortalShell({
 }) {
   const pathname = usePathname();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const { dir } = useI18n();
 
   // Close the drawer on navigation so a mobile tap doesn't leave it covering
   // the page it just opened.
@@ -44,7 +46,10 @@ export default function PortalShell({
 
   return (
     <PortalGuard portal={portal}>
-      <div className="flex min-h-screen" style={{ background: "var(--adm-bg)" }}>
+      {/* `dir` sits here, not on <html>: Urdu and Arabic should flip the portal
+          chrome without mirroring the marketing site rendered by the same root
+          layout. */}
+      <div dir={dir} className="flex min-h-screen" style={{ background: "var(--adm-bg)" }}>
         <PortalSidebar
           portal={portal}
           isOpen={isSidebarOpen}

@@ -23,3 +23,9 @@ class DocumentRead(CamelModel):
 
     uploaded_by_name: Optional[str] = None
     employee_name: Optional[str] = None
+
+    # Present only for documents stored as real files (see DocumentFile); a
+    # link-only document leaves these null and is opened straight from file_url.
+    file_name: Optional[str] = None
+    mime_type: Optional[str] = None
+    size_bytes: Optional[int] = None

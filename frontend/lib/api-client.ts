@@ -26,6 +26,13 @@ apiClient.interceptors.request.use((config) => {
     config.headers.Authorization = `Bearer ${token}`;
   }
 
+  // The instance sets `application/json` for every request, which would make a
+  // file upload unparseable: multipart needs the boundary axios generates, and
+  // it only does that when the header is absent. Let the browser fill it in.
+  if (typeof FormData !== "undefined" && config.data instanceof FormData) {
+    delete config.headers["Content-Type"];
+  }
+
   return config;
 });
 

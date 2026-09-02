@@ -10,10 +10,16 @@ import {
   type UpdateRolePayload,
 } from "@/services";
 
-export function useAdminUsers(params: AdminUserListParams = {}) {
+/**
+ * `/admin/users` is admin-only, so a component shared with the employee portals
+ * (the task board's assignee picker) passes `enabled` to hold the request back
+ * rather than trip a 403.
+ */
+export function useAdminUsers(params: AdminUserListParams = {}, enabled = true) {
   return useQuery({
     queryKey: [...queryKeys.admin.users, params],
     queryFn: () => adminService.users(params),
+    enabled,
   });
 }
 

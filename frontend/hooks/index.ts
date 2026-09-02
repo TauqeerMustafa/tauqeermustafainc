@@ -34,7 +34,13 @@ export {
   useManagementDashboard,
   useManagementProjects,
 } from "@/hooks/useDashboard";
-export { useAllDocuments, useMyDocuments, useUploadDocument } from "@/hooks/useDocuments";
+export {
+  useAllDocuments,
+  useDeleteDocument,
+  useMyDocuments,
+  useUploadDocument,
+  useUploadDocumentFile,
+} from "@/hooks/useDocuments";
 export {
   useCreateEmployee,
   useEmployee,
@@ -62,4 +68,10 @@ export {
 } from "@/hooks/useLeads";
 
 // Delivery (project tasks).
-export { useTasks, useMyTasks } from "@/hooks/useTasks";
+export {
+  useCreateTask,
+  useDeleteTask,
+  useMyTasks,
+  useTasks,
+  useUpdateTask,
+} from "@/hooks/useTasks";

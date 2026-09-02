@@ -3,9 +3,11 @@
 import { useRouter } from "next/navigation";
 import { Bell, LogOut, Menu, Search } from "lucide-react";
 
+import LanguageSwitcher from "@/components/portal/LanguageSwitcher";
 import PortalThemeToggle from "@/components/portal/PortalThemeToggle";
 import { Avatar } from "@/components/portal/PortalUI";
 import { useCurrentUser, useLogout } from "@/hooks/useAuth";
+import { useI18n } from "@/lib/i18n";
 import { PORTAL_LOGIN_PATH, roleLabel, type PortalId } from "@/lib/rbac";
 
 /**
@@ -23,6 +25,7 @@ export default function PortalHeader({ portal, onMenuClick }: Props) {
   const router = useRouter();
   const logout = useLogout();
   const { data } = useCurrentUser();
+  const { t } = useI18n();
   const user = data?.data;
 
   function handleLogout() {
@@ -36,7 +39,7 @@ export default function PortalHeader({ portal, onMenuClick }: Props) {
         <button
           type="button"
           onClick={onMenuClick}
-          aria-label="Open menu"
+          aria-label={t("Open menu")}
           className={`${ICON_BUTTON} lg:hidden`}
         >
           <Menu size={18} />
@@ -50,17 +53,18 @@ export default function PortalHeader({ portal, onMenuClick }: Props) {
           />
           <input
             type="search"
-            placeholder="Search anything…"
-            aria-label="Search"
+            placeholder={t("Search anything…")}
+            aria-label={t("Search anything…")}
             className="w-56 border border-adm-border bg-adm-surface-2 py-2 pl-9 pr-4 text-sm text-adm-text outline-none transition placeholder:text-adm-text-3 focus:border-adm-blue focus:ring-2 focus:ring-adm-blue/25 lg:w-72"
           />
         </div>
       </div>
 
       <div className="flex items-center gap-2">
+        <LanguageSwitcher />
         <PortalThemeToggle />
 
-        <button type="button" className={`relative ${ICON_BUTTON}`} aria-label="Notifications">
+        <button type="button" className={`relative ${ICON_BUTTON}`} aria-label={t("Notifications")}>
           <Bell size={17} />
           <span
             className="animate-bounce-subtle absolute right-2 top-2 h-2 w-2 rounded-full border-2 border-adm-surface bg-adm-blue"
@@ -73,7 +77,7 @@ export default function PortalHeader({ portal, onMenuClick }: Props) {
           <Avatar name={user?.name} size={28} />
           <div className="min-w-0">
             <p className="truncate text-sm font-semibold leading-tight text-adm-text">
-              {user?.name ?? "User"}
+              {user?.name ?? t("User")}
             </p>
             <p className="truncate text-[10px] font-bold uppercase tracking-[0.12em] text-adm-text-3">
               {roleLabel(user?.role)}
@@ -84,7 +88,7 @@ export default function PortalHeader({ portal, onMenuClick }: Props) {
         <button
           type="button"
           onClick={handleLogout}
-          aria-label="Log out"
+          aria-label={t("Log out")}
           className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-adm-border text-adm-text-2 transition hover:border-adm-red hover:bg-adm-red-light hover:text-adm-red"
         >
           <LogOut size={17} />

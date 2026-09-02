@@ -6,6 +6,7 @@ from app.models.career import Career
 from app.models.contact_message import ContactMessage
 from app.models.department import Department
 from app.models.document import Document
+from app.models.document_file import DocumentFile
 from app.models.employee import Employee
 from app.models.lead import Lead, LeadActivity
 from app.models.leave import LeaveRequest
@@ -27,6 +28,7 @@ __all__ = [
     "ContactMessage",
     "Department",
     "Document",
+    "DocumentFile",
     "Employee",
     "Lead",
     "LeadActivity",

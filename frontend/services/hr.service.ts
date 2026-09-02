@@ -13,6 +13,7 @@ import type {
   ManagementProjectRow,
   UpdateEmployeePayload,
   UpdateLeaveStatusPayload,
+  UploadDocumentFilePayload,
   UploadDocumentPayload,
 } from "@/types";
 
@@ -97,11 +98,48 @@ export const documentService = {
     apiRequest<HrDocument[]>({ url: API_ENDPOINTS.documents.me, method: "GET" }),
   all: () =>
     apiRequest<HrDocument[]>({ url: API_ENDPOINTS.documents.all, method: "GET" }),
+  /** Register a document that already lives at a public URL. */
   upload: (payload: UploadDocumentPayload) =>
     apiRequest<HrDocument>({
       url: API_ENDPOINTS.documents.upload,
       method: "POST",
       data: payload,
+    }),
+  /**
+   * Upload the actual file. The API stores the bytes and hands back a document
+   * whose `fileUrl` points at its own download route.
+   */
+  uploadFile: ({ file, title, documentType, employeeId }: UploadDocumentFilePayload) => {
+    const form = new FormData();
+    form.append("file", file);
+    form.append("title", title);
+    if (documentType) form.append("documentType", documentType);
+    // Left out entirely when unset — a blank string is not a UUID.
+    if (employeeId) form.append("employeeId", employeeId);
+
+    return apiRequest<HrDocument>({
+      url: API_ENDPOINTS.documents.file,
+      method: "POST",
+      data: form,
+    });
+  },
+  remove: (id: string) =>
+    apiRequest<{ id: string }>({
+      url: API_ENDPOINTS.documents.detail(id),
+      method: "DELETE",
+    }),
+  /**
+   * Fetch a stored file as a blob.
+   *
+   * The download route is authenticated, and an `<a href>` sends no headers — so
+   * the bytes have to come through the API client (which attaches the bearer
+   * token) and be handed to the browser as an object URL.
+   */
+  download: (id: string) =>
+    apiRequest<Blob>({
+      url: API_ENDPOINTS.documents.download(id),
+      method: "GET",
+      responseType: "blob",
     }),
 };
 

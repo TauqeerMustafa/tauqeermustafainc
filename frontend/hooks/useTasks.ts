@@ -1,9 +1,14 @@
 "use client";
 
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { queryKeys } from "@/constants/query-keys";
-import { taskService, type TaskListParams } from "@/services";
+import {
+  taskService,
+  type CreateTaskPayload,
+  type TaskListParams,
+  type UpdateTaskPayload,
+} from "@/services";
 
 /** Stable cache key for a filter set — object identity would miss every hit. */
 function serialize(params: TaskListParams) {
@@ -41,5 +46,44 @@ export function useMyTasks(enabled = true) {
     queryFn: taskService.mine,
     select: (response) => response.data,
     enabled,
+  });
+}
+
+/**
+ * Every board and dashboard a task appears on. `tasks.list` is keyed by filter
+ * set, so the whole `["tasks", "list"]` prefix has to go — a new task may belong
+ * to any of the cached filter combinations.
+ */
+function invalidateTasks(queryClient: ReturnType<typeof useQueryClient>) {
+  queryClient.invalidateQueries({ queryKey: queryKeys.tasks.all });
+  queryClient.invalidateQueries({ queryKey: queryKeys.dashboard.employee });
+  queryClient.invalidateQueries({ queryKey: queryKeys.dashboard.admin });
+  queryClient.invalidateQueries({ queryKey: queryKeys.dashboard.management });
+  queryClient.invalidateQueries({ queryKey: queryKeys.dashboard.projects });
+}
+
+/** Writes to `/tasks` are admin-only, so these are for the admin board. */
+export function useCreateTask() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (payload: CreateTaskPayload) => taskService.create(payload),
+    onSuccess: () => invalidateTasks(queryClient),
+  });
+}
+
+export function useUpdateTask() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, payload }: { id: string; payload: UpdateTaskPayload }) =>
+      taskService.update(id, payload),
+    onSuccess: () => invalidateTasks(queryClient),
+  });
+}
+
+export function useDeleteTask() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => taskService.delete(id),
+    onSuccess: () => invalidateTasks(queryClient),
   });
 }

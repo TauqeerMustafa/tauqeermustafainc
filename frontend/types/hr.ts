@@ -62,11 +62,26 @@ export interface HrDocument {
   createdAt: string;
   uploadedByName?: string | null;
   employeeName?: string | null;
+  /**
+   * Set only for documents whose bytes the API stores (`POST /documents/file`).
+   * A link-only document leaves these null and is opened straight from `fileUrl`.
+   */
+  fileName?: string | null;
+  mimeType?: string | null;
+  sizeBytes?: number | null;
 }
 
 export interface UploadDocumentPayload {
   title: string;
   fileUrl: string;
+  documentType?: string;
+  employeeId?: string | null;
+}
+
+/** Multipart upload — the browser sends the bytes, not a URL. */
+export interface UploadDocumentFilePayload {
+  file: File;
+  title: string;
   documentType?: string;
   employeeId?: string | null;
 }
