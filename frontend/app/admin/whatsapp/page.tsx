@@ -30,6 +30,8 @@ import {
   Circle,
   Lock,
   Smile,
+  SmilePlus,
+  CornerUpLeft,
   Mic,
   X,
 } from "lucide-react";
@@ -60,6 +62,9 @@ import {
   useDeleteConversation,
 } from "@/hooks/useWhatsApp";
 import type { WAMessage, AutoReplyRule, WATemplate, MetaTemplate, MediaKind, ConvMeta } from "@/hooks/useWhatsApp";
+import { useVoiceRecorder, formatDuration } from "@/hooks/useVoiceRecorder";
+import { EmojiPicker, QUICK_REACTIONS } from "@/components/admin/whatsapp/EmojiPicker";
+import { MessageMedia, mediaKindOf } from "@/components/admin/whatsapp/MessageMedia";
 import { BUTTON_TEMPLATES } from "@/lib/button-templates";
 import { countVariables } from "@/lib/meta-templates";
 
@@ -692,8 +697,13 @@ function ChatView({
   const [menuOpen, setMenuOpen] = useState(false);
   const [showDetails, setShowDetails] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [showEmoji, setShowEmoji] = useState(false);
+  /** The message the next send will quote, set by a bubble's Reply action. */
+  const [replyTo, setReplyTo] = useState<WAMessage | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
   const endRef = useRef<HTMLDivElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const voice = useVoiceRecorder();
 
   const name = meta?.name || (conv.name !== conv.number ? conv.name : `+${conv.number}`);
   const lastTs = conv.messages.at(-1)?.timestamp ?? "";
@@ -709,6 +719,9 @@ function ChatView({
     endRef.current?.scrollIntoView({ block: "end" });
   }, [lastTs, conv.messages.length]);
 
+  /** Newest inbound message, so a send can double as a read receipt. */
+  const lastInboundId = conv.messages.filter((m) => m.direction === "inbound").at(-1)?.id;
+
   const handleReply = async () => {
     if (!reply.trim()) return;
     setError("");
@@ -717,9 +730,11 @@ function ChatView({
         type: "text",
         to: conv.number,
         message: reply,
-        markReadMessageId: conv.messages.filter((m) => m.direction === "inbound").at(-1)?.id,
+        replyTo: replyTo?.id,
+        markReadMessageId: lastInboundId,
       });
       setReply("");
+      setReplyTo(null);
     } catch (e: any) {
       setError(e.message || "Failed to send");
     }
@@ -737,9 +752,11 @@ function ChatView({
         mediaId: up.id,
         caption: reply.trim() || undefined,
         filename: up.mediaType === "document" ? up.filename : undefined,
-        markReadMessageId: conv.messages.filter((m) => m.direction === "inbound").at(-1)?.id,
+        replyTo: replyTo?.id,
+        markReadMessageId: lastInboundId,
       });
       setReply("");
+      setReplyTo(null);
     } catch (e: any) {
       setError(e.message || "Upload failed");
     } finally {
@@ -747,6 +764,83 @@ function ChatView({
       if (fileRef.current) fileRef.current.value = "";
     }
   };
+
+  /** Finish a recording and send it as a WhatsApp voice note. */
+  const handleVoiceSend = async () => {
+    setError("");
+    let recording;
+    try {
+      recording = await voice.stop();
+    } catch {
+      setError("Could not finish the recording");
+      return;
+    }
+    if (!recording) {
+      setError("Nothing was recorded — hold on a moment longer.");
+      return;
+    }
+    setUploading(true);
+    try {
+      const up = await uploadWhatsAppMedia(recording.file);
+      await sendMessage.mutateAsync({
+        type: "media",
+        to: conv.number,
+        mediaType: "audio",
+        mediaId: up.id,
+        // `voice: true` is what makes WhatsApp show a waveform instead of a file.
+        voice: true,
+        replyTo: replyTo?.id,
+        markReadMessageId: lastInboundId,
+      });
+      setReplyTo(null);
+    } catch (e: any) {
+      setError(e.message || "Could not send the voice note");
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const handleMicPress = async () => {
+    if (voice.recording) {
+      await handleVoiceSend();
+      return;
+    }
+    const ok = await voice.start();
+    if (!ok && voice.error) setError(voice.error);
+  };
+
+  /** Emoji reactions are their own message type on the Cloud API. */
+  const handleReact = async (target: WAMessage, emoji: string) => {
+    setError("");
+    try {
+      await sendMessage.mutateAsync({
+        type: "reaction",
+        to: conv.number,
+        reactionTo: target.id,
+        emoji,
+      });
+    } catch (e: any) {
+      setError(e.message || "Could not send the reaction");
+    }
+  };
+
+  const insertEmoji = (emoji: string) => {
+    setReply((current) => current + emoji);
+    setShowEmoji(false);
+    textareaRef.current?.focus();
+  };
+
+  // Reactions are messages too; they belong on the bubble they point at rather
+  // than in the flow. An empty emoji is WhatsApp's "reaction removed".
+  const reactionsByTarget = new Map<string, string[]>();
+  for (const m of conv.messages) {
+    if (m.type !== "reaction" || !m.reactionTo) continue;
+    const emoji = (m.body || "").trim();
+    const current = reactionsByTarget.get(m.reactionTo) ?? [];
+    reactionsByTarget.set(m.reactionTo, emoji ? [...current, emoji] : current);
+  }
+  const byId = new Map(conv.messages.map((m) => [m.id, m]));
+  const visible = conv.messages.filter((m) => m.type !== "reaction");
 
   const canSend = !!reply.trim();
 
@@ -885,8 +979,8 @@ function ChatView({
           </span>
         </div>
 
-        {conv.messages.map((msg, i) => {
-          const prev = conv.messages[i - 1];
+        {visible.map((msg, i) => {
+          const prev = visible[i - 1];
           const showDate = !prev || dayKey(prev.timestamp) !== dayKey(msg.timestamp);
           // A "tail" (bubble beak) shows only on the first message of a run from
           // the same side, exactly like WhatsApp.
@@ -903,7 +997,14 @@ function ChatView({
                   </span>
                 </div>
               )}
-              <MessageBubble message={msg} tail={tail} />
+              <MessageBubble
+                message={msg}
+                tail={tail}
+                quoted={msg.replyTo ? byId.get(msg.replyTo) : undefined}
+                reactions={reactionsByTarget.get(msg.id)}
+                onReply={setReplyTo}
+                onReact={handleReact}
+              />
             </div>
           );
         })}
@@ -914,6 +1015,28 @@ function ChatView({
         <p className="px-4 py-1 text-xs" style={{ background: WA.panel, color: "var(--adm-red)" }}>
           {error}
         </p>
+      )}
+
+      {/* Reply target — what the next message will quote */}
+      {replyTo && (
+        <div
+          className="flex items-start gap-2 border-t px-4 pt-2"
+          style={{ background: WA.panel, borderColor: WA.divider }}
+        >
+          <div className="min-w-0 flex-1">
+            <QuotedPreview quoted={replyTo} outbound={false} />
+          </div>
+          <button
+            type="button"
+            onClick={() => setReplyTo(null)}
+            className="mt-1 flex h-7 w-7 shrink-0 items-center justify-center rounded-full transition hover:bg-black/5"
+            style={{ color: WA.icon }}
+            aria-label="Cancel reply"
+            title="Cancel reply"
+          >
+            <X size={17} />
+          </button>
+        </div>
       )}
 
       {/* Composer */}
@@ -927,51 +1050,109 @@ function ChatView({
             if (f) handleFile(f);
           }}
         />
-        <button
-          type="button"
-          className="mb-1.5 flex h-6 shrink-0 items-center"
-          style={{ color: WA.icon }}
-          aria-label="Emoji"
-          title="Emoji"
-          tabIndex={-1}
-        >
-          <Smile size={25} />
-        </button>
-        <button
-          type="button"
-          onClick={() => fileRef.current?.click()}
-          disabled={uploading || sendMessage.isPending}
-          className="mb-1.5 flex h-6 shrink-0 items-center disabled:opacity-50"
-          style={{ color: WA.icon }}
-          aria-label="Attach media"
-          title="Attach photo / video / document"
-        >
-          <Paperclip size={24} style={{ transform: "rotate(-45deg)" }} />
-        </button>
-        <textarea
-          value={reply}
-          onChange={(e) => setReply(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === "Enter" && !e.shiftKey) {
-              e.preventDefault();
-              handleReply();
-            }
-          }}
-          rows={1}
-          placeholder={uploading ? "Uploading…" : "Type a message"}
-          className="max-h-28 flex-1 resize-none rounded-lg border-0 px-4 py-2.5 text-[15px] outline-none"
-          style={{ background: "#fff", color: WA.text }}
-        />
-        <button
-          type="button"
-          onClick={canSend ? handleReply : undefined}
-          disabled={sendMessage.isPending || uploading}
-          className="mb-0.5 flex h-11 w-11 shrink-0 items-center justify-center rounded-full disabled:opacity-50"
-          style={{ color: WA.icon }}
-          aria-label={canSend ? "Send" : "Voice message"}
-        >
-          {canSend ? <Send size={22} style={{ color: WA.green }} /> : <Mic size={24} />}
-        </button>
+
+        {voice.recording ? (
+          /* Recording: the composer becomes cancel · level · timer · send. */
+          <>
+            <button
+              type="button"
+              onClick={voice.cancel}
+              className="mb-1 flex h-8 w-8 shrink-0 items-center justify-center rounded-full transition hover:bg-black/5"
+              style={{ color: "#f15c6d" }}
+              aria-label="Discard recording"
+              title="Discard recording"
+            >
+              <Trash2 size={20} />
+            </button>
+            <div className="mb-1 flex h-10 flex-1 items-center gap-3 rounded-lg px-3" style={{ background: "#fff" }}>
+              <span className="h-2.5 w-2.5 shrink-0 animate-pulse rounded-full" style={{ background: "#f15c6d" }} />
+              <span className="text-[15px] tabular-nums" style={{ color: WA.text }}>
+                {formatDuration(voice.seconds)}
+              </span>
+              {/* Live input level, so it's obvious the mic is picking sound up. */}
+              <span className="flex h-6 flex-1 items-center gap-[3px]" aria-hidden>
+                {Array.from({ length: 22 }).map((_, i) => {
+                  const reach = Math.max(0.12, voice.level * (0.55 + 0.45 * Math.sin(i * 1.7)));
+                  return (
+                    <span
+                      key={i}
+                      className="w-[3px] rounded-full transition-[height] duration-100"
+                      style={{ height: `${Math.round(4 + reach * 18)}px`, background: WA.green, opacity: 0.85 }}
+                    />
+                  );
+                })}
+              </span>
+              <span className="shrink-0 text-[11.5px]" style={{ color: WA.sub }}>
+                {voice.seconds >= voice.maxSeconds ? "max length" : "recording…"}
+              </span>
+            </div>
+            <button
+              type="button"
+              onClick={handleVoiceSend}
+              disabled={uploading || sendMessage.isPending}
+              className="mb-0.5 flex h-11 w-11 shrink-0 items-center justify-center rounded-full disabled:opacity-50"
+              style={{ background: WA.green, color: "#fff" }}
+              aria-label="Send voice message"
+              title="Send voice message"
+            >
+              <Send size={20} />
+            </button>
+          </>
+        ) : (
+          <>
+            <div className="relative mb-1.5 flex h-6 shrink-0 items-center">
+              <button
+                type="button"
+                onClick={() => setShowEmoji((v) => !v)}
+                style={{ color: showEmoji ? WA.green : WA.icon }}
+                aria-label="Emoji"
+                aria-expanded={showEmoji}
+                title="Emoji"
+              >
+                <Smile size={25} />
+              </button>
+              {showEmoji && <EmojiPicker onPick={insertEmoji} onClose={() => setShowEmoji(false)} />}
+            </div>
+            <button
+              type="button"
+              onClick={() => fileRef.current?.click()}
+              disabled={uploading || sendMessage.isPending}
+              className="mb-1.5 flex h-6 shrink-0 items-center disabled:opacity-50"
+              style={{ color: WA.icon }}
+              aria-label="Attach media"
+              title="Attach photo / video / document"
+            >
+              <Paperclip size={24} style={{ transform: "rotate(-45deg)" }} />
+            </button>
+            <textarea
+              ref={textareaRef}
+              value={reply}
+              onChange={(e) => setReply(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && !e.shiftKey) {
+                  e.preventDefault();
+                  handleReply();
+                }
+                if (e.key === "Escape" && replyTo) setReplyTo(null);
+              }}
+              rows={1}
+              placeholder={uploading ? "Uploading…" : replyTo ? "Reply…" : "Type a message"}
+              className="max-h-28 flex-1 resize-none rounded-lg border-0 px-4 py-2.5 text-[15px] outline-none"
+              style={{ background: "#fff", color: WA.text }}
+            />
+            <button
+              type="button"
+              onClick={canSend ? handleReply : handleMicPress}
+              disabled={sendMessage.isPending || uploading}
+              className="mb-0.5 flex h-11 w-11 shrink-0 items-center justify-center rounded-full disabled:opacity-50"
+              style={{ color: WA.icon }}
+              aria-label={canSend ? "Send" : "Record a voice message"}
+              title={canSend ? "Send" : "Record a voice message"}
+            >
+              {canSend ? <Send size={22} style={{ color: WA.green }} /> : <Mic size={24} />}
+            </button>
+          </>
+        )}
       </div>
     </div>
   );
@@ -1013,29 +1194,147 @@ function Ticks({ status, small }: { status?: string; small?: boolean }) {
   return <Clock size={small ? 11 : 12} style={{ color: WA.tickGrey }} />;
 }
 
-function MessageBubble({ message, tail }: { message: WAMessage; tail?: boolean }) {
+/** The quoted original shown above a reply, WhatsApp-style. */
+function QuotedPreview({ quoted, outbound }: { quoted: WAMessage; outbound: boolean }) {
+  const label = quoted.direction === "outbound" ? "You" : quoted.name || `+${numberOf(quoted)}`;
+  const accent = quoted.direction === "outbound" ? WA.green : "#53bdeb";
+  return (
+    <div
+      className="mb-1 overflow-hidden rounded-[4px] px-2 py-1"
+      style={{
+        background: outbound ? "rgba(6,95,70,0.10)" : "rgba(11,20,26,0.05)",
+        borderLeft: `4px solid ${accent}`,
+      }}
+    >
+      <p className="truncate text-[12.5px] font-medium" style={{ color: accent }}>
+        {label}
+      </p>
+      <p className="line-clamp-2 text-[12.5px]" style={{ color: WA.sub }}>
+        {describeMessage(quoted) || "Message"}
+      </p>
+    </div>
+  );
+}
+
+/** Reply + react affordances, revealed on hover over a bubble. */
+function BubbleActions({
+  message,
+  onReply,
+  onReact,
+  align,
+}: {
+  message: WAMessage;
+  onReply?: (m: WAMessage) => void;
+  onReact?: (m: WAMessage, emoji: string) => void;
+  align: "left" | "right";
+}) {
+  const [open, setOpen] = useState(false);
+  if (!onReply && !onReact) return null;
+  return (
+    <span
+      className={`relative flex shrink-0 items-center gap-0.5 transition-opacity ${open ? "opacity-100" : "opacity-0 group-hover:opacity-100"}`}
+      style={{ color: WA.icon }}
+    >
+      {onReply && (
+        <button
+          type="button"
+          onClick={() => onReply(message)}
+          className="flex h-7 w-7 items-center justify-center rounded-full bg-white/80 shadow-sm transition hover:bg-white"
+          aria-label="Reply to this message"
+          title="Reply"
+        >
+          <CornerUpLeft size={14} />
+        </button>
+      )}
+      {onReact && (
+        <>
+          <button
+            type="button"
+            onClick={() => setOpen(!open)}
+            className="flex h-7 w-7 items-center justify-center rounded-full bg-white/80 shadow-sm transition hover:bg-white"
+            aria-label="React to this message"
+            title="React"
+          >
+            <SmilePlus size={14} />
+          </button>
+          {open && (
+            <>
+              <span className="fixed inset-0 z-30" onClick={() => setOpen(false)} />
+              <span
+                className={`absolute bottom-full z-40 mb-1 flex gap-0.5 rounded-full bg-white px-1.5 py-1 shadow-lg ${align === "right" ? "right-0" : "left-0"}`}
+              >
+                {QUICK_REACTIONS.map((emoji) => (
+                  <button
+                    key={emoji}
+                    type="button"
+                    onClick={() => {
+                      onReact(message, emoji);
+                      setOpen(false);
+                    }}
+                    className="flex h-8 w-8 items-center justify-center rounded-full text-[19px] transition hover:bg-black/5"
+                  >
+                    {emoji}
+                  </button>
+                ))}
+              </span>
+            </>
+          )}
+        </>
+      )}
+    </span>
+  );
+}
+
+function MessageBubble({
+  message,
+  tail,
+  quoted,
+  reactions,
+  onReply,
+  onReact,
+}: {
+  message: WAMessage;
+  tail?: boolean;
+  /** The message this one replies to, resolved from `replyTo`. */
+  quoted?: WAMessage;
+  /** Emoji other people applied to this message. */
+  reactions?: string[];
+  onReply?: (m: WAMessage) => void;
+  onReact?: (m: WAMessage, emoji: string) => void;
+}) {
   const isOutbound = message.direction === "outbound";
   const text = describeMessage(message);
-  const isPlaceholder = !(message.body || "").trim() && !MEDIA_LABELS[message.type];
+  const mediaKind = mediaKindOf(message);
+  const isSticker = mediaKind === "sticker";
+  const framed = mediaKind === "image" || mediaKind === "video";
+  // Stored media bodies read "[image] caption" \u2014 strip the label to get the caption.
+  const captionText = (message.body || "").trim().replace(/^\[[a-z]+\]\s*/i, "");
+  const hasCaption = !!mediaKind && !!captionText && captionText !== MEDIA_LABELS[message.type];
+  const isPlaceholder = !mediaKind && !(message.body || "").trim() && !MEDIA_LABELS[message.type];
   const time = new Date(message.timestamp).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
   const spacer = isOutbound ? "\u00A0".repeat(11) : "\u00A0".repeat(7);
-  const isImage = message.type === "image" && message.mediaId;
+  // Photos and videos float the timestamp over the media when there's no caption.
+  const overMedia = framed && !hasCaption;
   
   return (
-    <div className={`flex ${isOutbound ? "justify-end" : "justify-start"} ${tail ? "mt-2.5" : "mt-0.5"}`}>
+    <div
+      className={`group flex items-center gap-1 ${isOutbound ? "justify-end" : "justify-start"} ${tail ? "mt-2.5" : "mt-0.5"} ${reactions?.length ? "mb-3" : ""}`}
+    >
+      {/* Hover actions sit outside the bubble so they never cover its text. */}
+      {isOutbound && <BubbleActions message={message} onReply={onReply} onReact={onReact} align="right" />}
       <div
-        className={`relative max-w-[65%] text-[14.2px] leading-[19px] ${isImage ? "p-1 pb-5" : "px-[9px] pb-[8px] pt-[6px]"}`}
+        className={`relative max-w-[65%] text-[14.2px] leading-[19px] ${framed ? "p-1" : isSticker ? "" : "px-[9px] pb-[8px] pt-[6px]"}`}
         style={{
-          background: isOutbound ? WA.out : WA.in,
+          background: isSticker ? "transparent" : isOutbound ? WA.out : WA.in,
           color: WA.text,
           borderRadius: 7.5,
-          boxShadow: "0 1px 0.5px rgba(11,20,26,0.13)",
-          borderTopRightRadius: tail && isOutbound ? 0 : 7.5,
-          borderTopLeftRadius: tail && !isOutbound ? 0 : 7.5,
+          boxShadow: isSticker ? "none" : "0 1px 0.5px rgba(11,20,26,0.13)",
+          borderTopRightRadius: tail && isOutbound && !isSticker ? 0 : 7.5,
+          borderTopLeftRadius: tail && !isOutbound && !isSticker ? 0 : 7.5,
         }}
       >
         {/* Little bubble beak */}
-        {tail && (
+        {tail && !isSticker && (
           <span
             aria-hidden
             className="absolute top-0"
@@ -1050,22 +1349,22 @@ function MessageBubble({ message, tail }: { message: WAMessage; tail?: boolean }
             } as React.CSSProperties}
           />
         )}
-        
-        {isImage ? (
-          <div className="relative">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img 
-              src={`/api/whatsapp/media/${message.mediaId}`} 
-              alt="WhatsApp Media" 
-              className="rounded-md max-h-[300px] object-cover" 
-            />
-            {text && text !== MEDIA_LABELS["image"] && (
-              <div className="px-1 pt-1 pb-0.5 whitespace-pre-wrap break-words">
-                {text}
-                <span aria-hidden style={{ display: "inline-block" }}>{spacer}</span>
-              </div>
-            )}
-          </div>
+
+        {quoted && <QuotedPreview quoted={quoted} outbound={isOutbound} />}
+
+        {mediaKind ? (
+          <MessageMedia
+            message={message}
+            outbound={isOutbound}
+            caption={
+              hasCaption ? (
+                <div className="whitespace-pre-wrap break-words px-1 pb-0.5 pt-1">
+                  {captionText}
+                  <span aria-hidden style={{ display: "inline-block" }}>{spacer}</span>
+                </div>
+              ) : undefined
+            }
+          />
         ) : (
           <span
             className="whitespace-pre-wrap break-words"
@@ -1079,16 +1378,39 @@ function MessageBubble({ message, tail }: { message: WAMessage; tail?: boolean }
         )}
 
         {/* Floated inline timestamp + ticks */}
-        <span
-          className={`pointer-events-none absolute bottom-[3px] right-[7px] flex items-center gap-1 ${isImage && (!text || text === MEDIA_LABELS["image"]) ? "text-white bg-black/30 px-1.5 rounded-full bottom-[5px]" : ""}`}
-          style={{ height: 15 }}
-        >
-          <span className="text-[11px] leading-none" style={isImage && (!text || text === MEDIA_LABELS["image"]) ? { color: "white" } : { color: WA.sub }}>
-            {time}
+        {!isSticker && (
+          <span
+            className={`pointer-events-none absolute bottom-[3px] right-[7px] flex items-center gap-1 ${overMedia ? "rounded-full bg-black/35 px-1.5 text-white" : ""}`}
+            style={{ height: 15, bottom: overMedia ? 7 : 3, right: overMedia ? 9 : 7 }}
+          >
+            <span
+              className="text-[11px] leading-none"
+              style={overMedia ? { color: "white" } : { color: WA.sub }}
+            >
+              {time}
+            </span>
+            {isOutbound && <Ticks status={message.status} small={true} />}
           </span>
-          {isOutbound && <Ticks status={message.status} small={true} />}
-        </span>
+        )}
+
+        {/* Reactions ride the bubble's lower edge, as in WhatsApp. */}
+        {!!reactions?.length && (
+          <span
+            className="absolute -bottom-3 flex items-center gap-0.5 rounded-full bg-white px-1.5 py-0.5 text-[12px] shadow-sm"
+            style={{ [isOutbound ? "right" : "left"]: 6 } as React.CSSProperties}
+          >
+            {[...new Set(reactions)].slice(0, 3).map((emoji) => (
+              <span key={emoji}>{emoji}</span>
+            ))}
+            {reactions.length > 1 && (
+              <span className="text-[11px]" style={{ color: WA.sub }}>
+                {reactions.length}
+              </span>
+            )}
+          </span>
+        )}
       </div>
+      {!isOutbound && <BubbleActions message={message} onReply={onReply} onReact={onReact} align="left" />}
     </div>
   );
 }

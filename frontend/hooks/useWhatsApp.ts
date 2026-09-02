@@ -3,6 +3,7 @@
  * All calls go through the Next.js /api/whatsapp/* proxy routes.
  */
 
+import { useEffect, useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
 import { getStoredToken } from "@/lib/auth-storage";
@@ -44,6 +45,12 @@ export type WAMessage = {
   mediaId?: string;
   mimeType?: string;
   filename?: string;
+  /** Voice notes are audio recorded in-app or sent with `voice: true`. */
+  voice?: boolean;
+  /** Id of the message this one replies to (Meta `context.id`). */
+  replyTo?: string;
+  /** For type "reaction": the message the emoji was applied to. */
+  reactionTo?: string;
 };
 
 export type AutoReplyRule = {
@@ -82,7 +89,7 @@ export function useWhatsAppMessages() {
 }
 
 type SendMessagePayload = {
-  type: "text" | "media" | "buttons" | "template" | "meta_template";
+  type: "text" | "media" | "buttons" | "template" | "meta_template" | "reaction";
   to: string;
   message?: string;
   headerText?: string;
@@ -100,7 +107,14 @@ type SendMessagePayload = {
   mediaLink?: string;
   caption?: string;
   filename?: string;
+  /** Marks an audio upload as a voice note rather than a music file. */
+  voice?: boolean;
   markReadMessageId?: string;
+  /** Post as a threaded reply to this Meta message id. */
+  replyTo?: string;
+  // reaction
+  emoji?: string;
+  reactionTo?: string;
 };
 
 export function useSendWhatsAppMessage() {
@@ -144,6 +158,52 @@ export async function uploadWhatsAppMedia(file: File): Promise<UploadedMedia> {
   const data = await res.json();
   if (!res.ok || !data?.success) throw new Error(data?.error || "Upload failed");
   return data;
+}
+
+/**
+ * Object URL for one Meta media id (image, voice note, video, document).
+ *
+ * `/api/whatsapp/media/*` is admin-gated by the proxy, and a browser cannot put
+ * an `Authorization` header on `<img src>` or `<audio src>` — pointing those at
+ * the route directly returns 401. So fetch the bytes with the session token and
+ * hand the element a blob URL instead. The URL is revoked on unmount.
+ */
+export function useAuthedMedia(mediaId?: string) {
+  const [url, setUrl] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!mediaId) {
+      setUrl(null);
+      return;
+    }
+    let objectUrl: string | null = null;
+    let cancelled = false;
+
+    (async () => {
+      setError(null);
+      try {
+        const res = await fetch(`${API_BASE}/media/${mediaId}`, { headers: authHeaders() });
+        if (!res.ok) {
+          // Meta media ids expire; say so rather than showing a broken element.
+          throw new Error(res.status === 404 ? "This attachment has expired." : `Attachment unavailable (${res.status})`);
+        }
+        const blob = await res.blob();
+        if (cancelled) return;
+        objectUrl = URL.createObjectURL(blob);
+        setUrl(objectUrl);
+      } catch (e) {
+        if (!cancelled) setError(e instanceof Error ? e.message : "Attachment unavailable");
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+      if (objectUrl) URL.revokeObjectURL(objectUrl);
+    };
+  }, [mediaId]);
+
+  return { url, error };
 }
 
 export function useWhatsAppStats() {

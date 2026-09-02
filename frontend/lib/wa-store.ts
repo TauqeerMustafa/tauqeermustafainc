@@ -41,6 +41,12 @@ export type WAMessage = {
   mediaId?: string;
   mimeType?: string;
   filename?: string;
+  /** Voice notes are audio with `voice: true` on the Meta payload. */
+  voice?: boolean;
+  /** Id of the message this one replies to (Meta `context.id`). */
+  replyTo?: string;
+  /** For type "reaction": the message the emoji was applied to. */
+  reactionTo?: string;
 };
 
 export type AutoReplyRule = {

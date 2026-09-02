@@ -6,7 +6,9 @@
  *   WHATSAPP_TOKEN             – permanent system-user or temp access token
  *   WHATSAPP_PHONE_NUMBER_ID   – the Phone Number ID to send from
  *
- * Supported body.type: text | buttons | template | meta_template | media
+ * Supported body.type: text | buttons | template | meta_template | media | reaction
+ *
+ * Any type may carry `replyTo` (a Meta message id) to post as a threaded reply.
  */
 import { NextResponse } from "next/server";
 import { META_TEMPLATES, buildSendComponents } from "@/lib/meta-templates";
@@ -71,6 +73,11 @@ export async function POST(request: Request) {
       caption,
       filename,
       markReadMessageId,
+      // threading + reactions
+      replyTo,
+      emoji,
+      reactionTo,
+      voice,
     } = body;
 
     const phoneNumberId = process.env.WHATSAPP_PHONE_NUMBER_ID?.trim();
@@ -130,6 +137,24 @@ export async function POST(request: Request) {
           to: recipient,
           type: kind,
           [kind]: mediaObj,
+        };
+        break;
+      }
+
+      case "reaction": {
+        // Emoji reactions ride their own message type; an empty emoji removes one.
+        const target = reactionTo || replyTo;
+        if (!target) {
+          return NextResponse.json(
+            { success: false, error: "reactionTo (the message id being reacted to) is required" },
+            { status: 400 }
+          );
+        }
+        payload = {
+          messaging_product: "whatsapp",
+          to: recipient,
+          type: "reaction",
+          reaction: { message_id: String(target), emoji: emoji == null ? "" : String(emoji) },
         };
         break;
       }
@@ -221,9 +246,16 @@ export async function POST(request: Request) {
 
       default:
         return NextResponse.json(
-          { success: false, error: "Invalid type. Use: text | media | buttons | template | meta_template" },
+          { success: false, error: "Invalid type. Use: text | media | buttons | template | meta_template | reaction" },
           { status: 400 }
         );
+    }
+
+    // Threaded reply. Meta accepts `context` on plain and media messages; a
+    // reaction already names its target and a template reply is rejected, so
+    // those are left alone.
+    if (replyTo && (type === "text" || type === "media")) {
+      payload.context = { message_id: String(replyTo) };
     }
 
     const { ok, status, json: data } = await graphPost(phoneNumberId, payload);
@@ -272,7 +304,9 @@ export async function POST(request: Request) {
               ? metaBody
               : type === "media"
                 ? mediaBody
-                : templateText || template;
+                : type === "reaction"
+                  ? String(emoji ?? "")
+                  : templateText || template;
 
       const storedMessage: WAMessage = {
         id: messageId,
@@ -284,6 +318,13 @@ export async function POST(request: Request) {
         timestamp: new Date().toISOString(),
         direction: "outbound",
         status: "sent",
+        // Keep the media reference so the inbox can play/preview what we sent
+        // instead of showing a bare "[audio]" placeholder.
+        ...(type === "media" && mediaId ? { mediaId: String(mediaId) } : {}),
+        ...(type === "media" && filename ? { filename: String(filename) } : {}),
+        ...(type === "media" && voice ? { voice: true } : {}),
+        ...(replyTo ? { replyTo: String(replyTo) } : {}),
+        ...(type === "reaction" ? { reactionTo: String(reactionTo || replyTo || "") } : {}),
       };
 
       // Persist directly to the store — going through /api/whatsapp/messages

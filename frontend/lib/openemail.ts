@@ -70,6 +70,8 @@ export interface SendMessageInput {
   from: string;
   fromName?: string;
   to: string[];
+  cc?: string[];
+  bcc?: string[];
   subject: string;
   text?: string;
   html?: string;
@@ -80,18 +82,48 @@ export async function sendOpenEmailMessage(mailboxId: string, input: SendMessage
   // open.email validates addresses under `email` (NOT `address`) — sending
   // `address` returns `400 validation_failed` on body.from.email / body.to.0.email.
   // Body text goes in `text`/`html` (a `body` field is silently ignored).
-  const body: Record<string, unknown> = {
+  const save = input.save === false ? "" : "?save=true";
+  const path = `/mailboxes/${mailboxId}/send${save}`;
+
+  const asEmails = (list?: string[]) => (list ?? []).filter(Boolean).map((email) => ({ email }));
+  const base: Record<string, unknown> = {
     from: { email: input.from, ...(input.fromName ? { name: input.fromName } : {}) },
-    to: input.to.filter(Boolean).map((email) => ({ email })),
     subject: input.subject,
   };
-  if (input.text) body.text = input.text;
-  if (input.html) body.html = input.html;
-  const save = input.save === false ? "" : "?save=true";
-  return oeFetch(`/mailboxes/${mailboxId}/send${save}`, {
-    method: "POST",
-    body: JSON.stringify(body),
-  });
+  if (input.text) base.text = input.text;
+  if (input.html) base.html = input.html;
+
+  const to = asEmails(input.to);
+  const cc = asEmails(input.cc);
+  const bcc = asEmails(input.bcc);
+
+  try {
+    return await oeFetch(path, {
+      method: "POST",
+      body: JSON.stringify({
+        ...base,
+        to,
+        ...(cc.length ? { cc } : {}),
+        ...(bcc.length ? { bcc } : {}),
+      }),
+    });
+  } catch (err) {
+    // Some accounts 400 on `cc`/`bcc` as unknown fields. Rather than lose the
+    // message, retry: fold Cc into To (Cc isn't secret anyway) and deliver Bcc
+    // as a separate blind send so those recipients stay hidden from the others.
+    const hasExtra = cc.length || bcc.length;
+    const message = err instanceof Error ? err.message : "";
+    if (!hasExtra || !/\b400\b|validation|\bcc\b|\bbcc\b/i.test(message)) throw err;
+
+    const result = await oeFetch(path, {
+      method: "POST",
+      body: JSON.stringify({ ...base, to: [...to, ...cc] }),
+    });
+    if (bcc.length) {
+      await oeFetch(path, { method: "POST", body: JSON.stringify({ ...base, to: bcc }) });
+    }
+    return result;
+  }
 }
 
 /**

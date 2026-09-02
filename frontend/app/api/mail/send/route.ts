@@ -4,15 +4,27 @@ import { assertMailboxAccess, mailErrorStatus, resolveMailUser } from "@/lib/mai
 
 export const dynamic = "force-dynamic";
 
+/** Accept a comma/semicolon-separated string, an array, or nothing → clean list. */
+function toList(value: unknown): string[] {
+  if (Array.isArray(value)) return value.map((v) => String(v).trim()).filter(Boolean);
+  if (typeof value === "string") return value.split(/[,;]/).map((v) => v.trim()).filter(Boolean);
+  return [];
+}
+
 export async function POST(request: Request) {
   try {
     const body = await request.json();
     // `accountId` is the sending mailbox id; kept for backward compatibility.
     const mailbox = body.mailbox || body.accountId;
-    const { fromName, toAddress, subject, content, text } = body;
+    const { fromName, subject, content, text } = body;
     const messageText = text ?? content;
 
-    if (!mailbox || !toAddress || !subject || !messageText) {
+    // `to` may arrive as an array or a string; `toAddress` is the legacy single field.
+    const to = toList(body.to ?? body.toAddress);
+    const cc = toList(body.cc);
+    const bcc = toList(body.bcc);
+
+    if (!mailbox || to.length === 0 || !subject || !messageText) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
     }
 
@@ -25,7 +37,9 @@ export async function POST(request: Request) {
     const data = await sendOpenEmailMessage(mailbox, {
       from: fromAddress,
       fromName,
-      to: [toAddress],
+      to,
+      cc,
+      bcc,
       subject,
       text: messageText,
       save: true,

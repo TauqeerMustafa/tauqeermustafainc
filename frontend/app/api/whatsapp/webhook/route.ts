@@ -135,6 +135,13 @@ export async function POST(request: Request) {
             ...(media?.id ? { mediaId: media.id } : {}),
             ...(media?.mime_type ? { mimeType: media.mime_type } : {}),
             ...(msg?.document?.filename ? { filename: msg.document.filename } : {}),
+            // A voice note is audio with `voice: true`; the inbox plays it inline
+            // rather than offering it as a file.
+            ...(msg?.audio?.voice ? { voice: true } : {}),
+            // Threading: `context.id` is the message being replied to, and a
+            // reaction names the message it was applied to.
+            ...(msg?.context?.id ? { replyTo: String(msg.context.id) } : {}),
+            ...(msg?.reaction?.message_id ? { reactionTo: String(msg.reaction.message_id) } : {}),
           };
 
           // Persist directly to the store. `appendMessage` is idempotent on id;

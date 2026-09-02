@@ -14,11 +14,14 @@ export async function GET(request: Request, props: { params: Promise<{ id: strin
   }
 
   try {
-    // 1. Get the media URL from Meta
-    const metaRes = await fetch(`/`, {
-      headers: { Authorization: `Bearer ` },
+    // 1. Get the media URL from Meta.
+    // Both fetches below lost their `${…}` interpolations at some point: this one
+    // requested the literal path "/" with an empty bearer, so every image, voice
+    // note and document in the inbox failed to load.
+    const metaRes = await fetch(`${GRAPH_URL}/${id}`, {
+      headers: { Authorization: `Bearer ${token}` },
     });
-    
+
     if (!metaRes.ok) {
       return NextResponse.json({ error: "Failed to fetch media metadata from Meta" }, { status: metaRes.status });
     }
@@ -31,9 +34,10 @@ export async function GET(request: Request, props: { params: Promise<{ id: strin
       return NextResponse.json({ error: "No media URL returned by Meta" }, { status: 404 });
     }
 
-    // 2. Download the actual binary data from the media URL
+    // 2. Download the actual binary data from the media URL. Meta's CDN link is
+    // signed but still requires the app token.
     const mediaRes = await fetch(mediaUrl, {
-      headers: { Authorization: `Bearer ` },
+      headers: { Authorization: `Bearer ${token}` },
     });
 
     if (!mediaRes.ok) {
