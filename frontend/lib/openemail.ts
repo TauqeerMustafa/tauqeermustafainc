@@ -42,7 +42,8 @@ async function oeFetch(path: string, init?: RequestInit) {
 }
 
 export async function fetchOpenEmailMailboxes() {
-  return oeFetch(`/mailboxes`);
+  const data = await oeFetch(`/identities`);
+  return { mailboxes: data.identities || [] };
 }
 
 export interface MessageListOptions {

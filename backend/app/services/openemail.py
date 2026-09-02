@@ -53,7 +53,7 @@ def provision_user_mailbox(email: str) -> dict | None:
 
     try:
         response = httpx.post(
-            f"{OPENEMAIL_API_URL}/mailboxes",
+            f"{OPENEMAIL_API_URL}/identities",
             headers={
                 "Authorization": f"Bearer {token}",
                 "Content-Type": "application/json",
@@ -102,7 +102,7 @@ def list_mailboxes() -> list[dict]:
 
     try:
         response = httpx.get(
-            f"{OPENEMAIL_API_URL}/mailboxes",
+            f"{OPENEMAIL_API_URL}/identities",
             headers={"Authorization": f"Bearer {token}"},
             timeout=15.0,
         )
@@ -126,7 +126,7 @@ def list_mailboxes() -> list[dict]:
     if isinstance(data, list):
         items = data
     elif isinstance(data, dict):
-        items = data.get("mailboxes") or data.get("data") or []
+        items = data.get("identities") or data.get("mailboxes") or data.get("data") or []
     else:
         items = []
     return [m for m in items if isinstance(m, dict)]
