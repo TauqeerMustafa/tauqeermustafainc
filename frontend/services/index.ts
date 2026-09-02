@@ -10,6 +10,7 @@ export { announcementService } from "./announcement.service";
 export { authService } from "./auth.service";
 export { blogService } from "./blog.service";
 export { careerService } from "./career.service";
+export { clientMessageService } from "./client.service";
 export { contactService } from "./contact.service";
 export {
   attendanceService,

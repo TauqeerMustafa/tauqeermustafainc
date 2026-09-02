@@ -104,6 +104,7 @@ export const PORTAL_NAV: Record<PortalId, NavSection[]> = {
       title: "Inbox",
       items: [
         { label: "Contact Messages", href: "/admin/messages", icon: MessagesSquare },
+        { label: "Client Portal", href: "/admin/client-messages", icon: Building2 },
         { label: "Webmail", href: "/admin/mail", icon: Mail },
         { label: "WhatsApp", href: "/admin/whatsapp", icon: MessageCircle },
       ],
@@ -209,21 +210,21 @@ export const PORTAL_NAV: Record<PortalId, NavSection[]> = {
   ],
 
   // ── Client: external customers ─────────────────────────────────────────────
+  // The client portal is a single page with in-page sections, and it renders its
+  // own `ClientShell` header rather than `PortalShell`'s sidebar. This list is
+  // kept in step with that header: it previously advertised /client/projects,
+  // /client/documents, /client/invoices and /client/settings, none of which
+  // exist, so anything that ever read this config would have linked to 404s.
   [PORTAL.CLIENT]: [
     {
-      items: [{ label: "Dashboard", href: "/client/dashboard", icon: LayoutDashboard }],
+      items: [{ label: "Overview", href: "/client/dashboard", icon: LayoutDashboard }],
     },
     {
       title: "Engagement",
       items: [
-        { label: "Projects", href: "/client/projects", icon: FolderKanban },
-        { label: "Documents", href: "/client/documents", icon: FileText },
-        { label: "Invoices", href: "/client/invoices", icon: Building2 },
+        { label: "Messages", href: "/client/dashboard#messages", icon: MessagesSquare },
+        { label: "Settings", href: "/client/dashboard#settings", icon: Settings },
       ],
-    },
-    {
-      title: "Account",
-      items: [{ label: "Settings", href: "/client/settings", icon: Settings }],
     },
   ],
 };

@@ -76,6 +76,9 @@ class ClientMessageRead(CamelModel):
     author_name: str
     body: str
     created_at: datetime
+    # Lets the client portal tell a reply from the team apart from its own note.
+    from_team: bool = False
+    read_at: datetime | None = None
 
 
 class ClientOverview(CamelModel):
@@ -83,3 +86,35 @@ class ClientOverview(CamelModel):
     projects: list[ClientProjectRead]
     messages: list[ClientMessageRead]
     unread_messages: int
+
+
+class MessagesReadResponse(CamelModel):
+    marked_read: int
+
+
+class ClientThreadMessage(CamelModel):
+    """One message in the staff-side inbox, with enough context to answer it."""
+
+    id: uuid.UUID
+    client_id: uuid.UUID
+    client_name: str
+    client_email: str
+    project_id: uuid.UUID | None = None
+    author_name: str
+    # False when the client wrote it, True when it is a reply from the team.
+    from_team: bool
+    body: str
+    created_at: datetime
+    read_at: datetime | None = None
+
+
+class ClientThread(CamelModel):
+    """A client's whole conversation, newest message first."""
+
+    client_id: uuid.UUID
+    client_name: str
+    client_email: str
+    last_message_at: datetime | None = None
+    # Client notes with no team reply after them — the queue staff must work.
+    awaiting_reply: int
+    messages: list[ClientThreadMessage]

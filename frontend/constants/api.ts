@@ -50,6 +50,13 @@ export const API_ENDPOINTS = {
     byId: (id: string) => `/leads/${id}`,
     activities: (id: string) => `/leads/${id}/activities`,
   },
+  // Staff side of the client portal's "Direct line". Manager-gated: without
+  // these two routes a client's messages went into a table no portal read, and
+  // nothing could write a reply.
+  clients: {
+    threads: "/clients/threads",
+    reply: (clientId: string) => `/clients/${clientId}/messages`,
+  },
   services: "/services",
   blogs: "/blog",
   portfolio: "/portfolio",

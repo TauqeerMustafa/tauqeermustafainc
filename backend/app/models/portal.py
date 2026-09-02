@@ -47,5 +47,8 @@ class ClientMessage(Base):
     author_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
     body: Mapped[str] = mapped_column(Text, nullable=False)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+    # Only ever set on inbound messages (author_id != client_id): a client's own
+    # note is never unread to them. Drives the dashboard's "Open messages" count.
+    read_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
 
     project = relationship("ClientProject", lazy="joined")

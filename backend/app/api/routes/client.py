@@ -5,9 +5,9 @@ from typing import Annotated
 
 from fastapi import APIRouter, Body, HTTPException, status
 from fastapi.responses import RedirectResponse
-from sqlalchemy import delete, select
+from sqlalchemy import delete, func, select, update
 
-from app.api.deps import CurrentUser, DatabaseSession
+from app.api.deps import CurrentManager, CurrentUser, DatabaseSession
 from app.api.routes.auth import _to_user_read
 from app.core.config import settings
 from app.core.security import (
@@ -32,8 +32,11 @@ from app.schemas.portal import (
     ClientRegisterResponse,
     ClientMessageRead,
     ClientProjectRead,
+    ClientThread,
+    ClientThreadMessage,
     CodeSentResponse,
     CodeVerificationResponse,
+    MessagesReadResponse,
     SendCodeRequest,
     VerifyCodeRequest,
 )
@@ -41,6 +44,10 @@ from app.services.verification import exchange_google_code, google_authorization
 
 router = APIRouter(prefix="/auth/client", tags=["client-auth"])
 portal_router = APIRouter(prefix="/client", tags=["client-portal"])
+# Staff side of the same conversation. Without this the client portal's "Direct
+# line" was write-only: clients posted notes into a table no portal ever read,
+# and nothing could create a reply, so their inbox could never fill.
+staff_router = APIRouter(prefix="/clients", tags=["clients"])
 
 
 def _client_role(db: DatabaseSession) -> Role:
@@ -189,8 +196,33 @@ def client_overview(current_user: CurrentUser, db: DatabaseSession) -> ApiRespon
     message_reads = []
     for message in messages:
         author = db.get(User, message.author_id)
-        message_reads.append(ClientMessageRead(id=message.id, project_id=message.project_id, author_name=f"{author.first_name} {author.last_name}".strip() if author else "TMI team", body=message.body, created_at=message.created_at))
-    return ApiResponse(data=ClientOverview(user=_to_user_read(current_user, db), projects=project_reads, messages=message_reads, unread_messages=0))
+        message_reads.append(ClientMessageRead(id=message.id, project_id=message.project_id, author_name=_display_name(author), body=message.body, created_at=message.created_at, from_team=message.author_id != current_user.id, read_at=message.read_at))
+    # Replies the client has not opened yet. Their own outgoing notes never count.
+    unread = db.scalar(
+        select(func.count(ClientMessage.id)).where(
+            ClientMessage.client_id == current_user.id,
+            ClientMessage.author_id != current_user.id,
+            ClientMessage.read_at.is_(None),
+        )
+    ) or 0
+    return ApiResponse(data=ClientOverview(user=_to_user_read(current_user, db), projects=project_reads, messages=message_reads, unread_messages=unread))
+
+
+@portal_router.post("/messages/read", response_model=ApiResponse[MessagesReadResponse])
+def mark_client_messages_read(current_user: CurrentUser, db: DatabaseSession) -> ApiResponse[MessagesReadResponse]:
+    """Clear the unread counter for the caller's inbound messages."""
+    _verified_client(current_user)
+    result = db.execute(
+        update(ClientMessage)
+        .where(
+            ClientMessage.client_id == current_user.id,
+            ClientMessage.author_id != current_user.id,
+            ClientMessage.read_at.is_(None),
+        )
+        .values(read_at=datetime.now(timezone.utc))
+    )
+    db.commit()
+    return ApiResponse(data=MessagesReadResponse(marked_read=result.rowcount or 0), message="Messages marked as read")
 
 
 @portal_router.post("/messages", response_model=ApiResponse[ClientMessageRead], status_code=status.HTTP_201_CREATED)
@@ -204,3 +236,138 @@ def send_client_message(body: Annotated[str, Body(embed=True)], current_user: Cu
     db.commit()
     db.refresh(message)
     return ApiResponse(data=ClientMessageRead(id=message.id, project_id=None, author_name=f"{current_user.first_name} {current_user.last_name}".strip(), body=message.body, created_at=message.created_at), message="Message sent")
+
+
+def _display_name(user: User | None) -> str:
+    if user is None:
+        return "TMI team"
+    return f"{user.first_name} {user.last_name}".strip() or user.email
+
+
+@staff_router.get("/threads", response_model=ApiResponse[list[ClientThread]])
+def list_client_threads(
+    current_user: CurrentManager,
+    db: DatabaseSession,
+    client_id: uuid.UUID | None = None,
+) -> ApiResponse[list[ClientThread]]:
+    """Every client conversation, busiest first, so staff can actually answer.
+
+    ``awaiting_reply`` counts the client's own notes that have no team message
+    after them — that is the real work queue, and it is what the admin inbox
+    sorts on. Clients with no messages are included so staff can open a thread
+    and start one.
+    """
+    clients_query = select(User).join(Role, User.role_id == Role.id).where(Role.slug == "client")
+    if client_id is not None:
+        clients_query = clients_query.where(User.id == client_id)
+    clients = list(db.scalars(clients_query.order_by(User.created_at.desc())).all())
+    if not clients:
+        return ApiResponse(data=[])
+
+    client_ids = [client.id for client in clients]
+    rows = list(
+        db.scalars(
+            select(ClientMessage)
+            .where(ClientMessage.client_id.in_(client_ids))
+            .order_by(ClientMessage.created_at.desc())
+        ).all()
+    )
+
+    # One lookup per distinct author rather than per message.
+    authors: dict[uuid.UUID, User | None] = {}
+    for row in rows:
+        if row.author_id not in authors:
+            authors[row.author_id] = db.get(User, row.author_id)
+
+    by_client: dict[uuid.UUID, list[ClientMessage]] = {cid: [] for cid in client_ids}
+    for row in rows:
+        by_client[row.client_id].append(row)
+
+    threads: list[ClientThread] = []
+    for client in clients:
+        messages = by_client[client.id]
+        # Newest first, so the client notes before the newest team reply are answered.
+        awaiting = 0
+        for message in messages:
+            if message.author_id != client.id:
+                break
+            awaiting += 1
+        threads.append(
+            ClientThread(
+                client_id=client.id,
+                client_name=_display_name(client),
+                client_email=client.email,
+                last_message_at=messages[0].created_at if messages else None,
+                awaiting_reply=awaiting,
+                messages=[
+                    ClientThreadMessage(
+                        id=message.id,
+                        client_id=client.id,
+                        client_name=_display_name(client),
+                        client_email=client.email,
+                        project_id=message.project_id,
+                        author_name=_display_name(authors.get(message.author_id)),
+                        from_team=message.author_id != client.id,
+                        body=message.body,
+                        created_at=message.created_at,
+                        read_at=message.read_at,
+                    )
+                    for message in messages
+                ],
+            )
+        )
+
+    # Waiting clients first, then most recent activity. None sorts last.
+    threads.sort(
+        key=lambda thread: (
+            -thread.awaiting_reply,
+            -(thread.last_message_at.timestamp() if thread.last_message_at else 0),
+        )
+    )
+    return ApiResponse(data=threads)
+
+
+@staff_router.post(
+    "/{client_id}/messages",
+    response_model=ApiResponse[ClientThreadMessage],
+    status_code=status.HTTP_201_CREATED,
+)
+def reply_to_client(
+    client_id: uuid.UUID,
+    body: Annotated[str, Body(embed=True)],
+    current_user: CurrentManager,
+    db: DatabaseSession,
+) -> ApiResponse[ClientThreadMessage]:
+    """Answer a client as the signed-in staff member.
+
+    ``author_id`` is the staff user, which is exactly what makes the row inbound
+    for the client and lets their unread counter and ``/client/messages/read``
+    mean something.
+    """
+    client = db.get(User, client_id)
+    if client is None or client.role is None or client.role.slug != "client":
+        raise HTTPException(status_code=404, detail="Client not found")
+
+    clean_body = body.strip()
+    if not clean_body or len(clean_body) > 5000:
+        raise HTTPException(status_code=400, detail="Message must contain between 1 and 5000 characters")
+
+    message = ClientMessage(client_id=client.id, author_id=current_user.id, body=clean_body)
+    db.add(message)
+    db.commit()
+    db.refresh(message)
+    return ApiResponse(
+        data=ClientThreadMessage(
+            id=message.id,
+            client_id=client.id,
+            client_name=_display_name(client),
+            client_email=client.email,
+            project_id=message.project_id,
+            author_name=_display_name(current_user),
+            from_team=True,
+            body=message.body,
+            created_at=message.created_at,
+            read_at=None,
+        ),
+        message="Reply sent",
+    )

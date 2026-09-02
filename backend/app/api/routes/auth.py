@@ -110,6 +110,13 @@ def update_me(
         current_user.first_name = parts[0]
         current_user.last_name = parts[1] if len(parts) > 1 else ""
 
+    if payload.phone is not None:
+        phone = payload.phone.strip()
+        if phone != (current_user.phone or ""):
+            current_user.phone = phone or None
+            # A new number has not been proven yet, so drop the old proof.
+            current_user.phone_verified_at = None
+
     if payload.new_password:
         if not payload.current_password or not verify_password(
             payload.current_password, current_user.password_hash

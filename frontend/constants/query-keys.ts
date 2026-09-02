@@ -54,6 +54,9 @@ export const queryKeys = {
     pipeline: ["leads", "pipeline"] as const,
     detail: (id: string) => ["leads", "detail", id] as const,
   },
+  clients: {
+    threads: ["clients", "threads"] as const,
+  },
   dashboard: {
     employee: ["dashboard", "employee"] as const,
     admin: ["dashboard", "admin"] as const,
