@@ -166,36 +166,72 @@ Welcome aboard.
 """
 
 
-def send_welcome_email(
+_WELCOME_SUBJECT = "Welcome to Tauqeer Mustafa Inc — your portal credentials"
+
+
+def _send_via_openemail(
     *,
     to_email: str,
-    name: str,
-    account_email: str,
-    password: str,
-    role_slug: str | None,
-    role_name: str,
+    subject: str,
+    text: str,
+    sender_mailbox_id: str | None,
+    sender_address: str | None,
+    sender_name: str | None,
 ) -> bool:
-    """Mail the credentials to ``to_email``. Returns whether it actually sent.
+    """Send through the company's open.email account. Never raises.
 
-    ``to_email`` is usually a personal address: a brand-new hire cannot read the
-    company mailbox these credentials unlock, so mailing them there would be a
-    closed loop. Never raises — the account already exists by this point, and
-    failing the request would leave the admin thinking nothing was created.
+    Preferred over SMTP because the API key is already configured for mailbox
+    provisioning, so onboarding works with no extra mail setup. Sends from the
+    admin who created the account when they have a mailbox — the new hire then
+    has a real person to reply to, and ``save=true`` leaves the message in that
+    admin's Sent folder as the record that credentials went out.
     """
-    if not all((settings.smtp_host, settings.smtp_from_email)):
-        logger.warning(
-            "SMTP is not configured; welcome email for %s was not sent", account_email
+    from app.services import openemail
+
+    mailbox_id = sender_mailbox_id
+    from_email = sender_address
+    if not mailbox_id:
+        # No mailbox on the creating admin (older account, or provisioning was
+        # off): fall back to a company mailbox. Filter on primaryAddress first —
+        # open.email lists mailboxes that have none, and those cannot send —
+        # then prefer admin@ over whatever happens to come back first.
+        candidates = [m for m in openemail.list_mailboxes() if m.get("primaryAddress")]
+        candidates.sort(
+            key=lambda m: 0 if str(m["primaryAddress"]).startswith("admin@") else 1
         )
+        fallback = next(iter(candidates), None)
+        if fallback:
+            mailbox_id = fallback.get("id")
+            from_email = from_email or fallback.get("primaryAddress")
+    if not mailbox_id or not from_email:
         return False
 
-    login_url = login_url_for_role(role_slug)
+    try:
+        openemail.send_message(
+            mailbox_id,
+            from_email=from_email,
+            from_name=sender_name or "Tauqeer Mustafa Inc",
+            to=[to_email],
+            subject=subject,
+            text=text,
+            save=True,
+        )
+    except Exception:
+        logger.warning("open.email could not deliver to %s; trying SMTP", to_email)
+        return False
+    return True
+
+
+def _send_via_smtp(*, to_email: str, subject: str, text: str) -> bool:
+    """Fallback path, used only when open.email is unavailable. Never raises."""
+    if not all((settings.smtp_host, settings.smtp_from_email)):
+        return False
+
     message = EmailMessage()
-    message["Subject"] = "Welcome to Tauqeer Mustafa Inc — your portal credentials"
+    message["Subject"] = subject
     message["From"] = settings.smtp_from_email
     message["To"] = to_email
-    message.set_content(
-        _welcome_body(name, account_email, password, role_name, login_url)
-    )
+    message.set_content(text)
 
     try:
         with smtplib.SMTP(settings.smtp_host, settings.smtp_port, timeout=20) as server:
@@ -205,6 +241,49 @@ def send_welcome_email(
                 server.login(settings.smtp_username, settings.smtp_password)
             server.send_message(message)
     except Exception:
-        logger.exception("could not send the welcome email for %s", account_email)
+        logger.exception("SMTP could not deliver to %s", to_email)
         return False
     return True
+
+
+def send_welcome_email(
+    *,
+    to_email: str,
+    name: str,
+    account_email: str,
+    password: str,
+    role_slug: str | None,
+    role_name: str,
+    sender_mailbox_id: str | None = None,
+    sender_address: str | None = None,
+    sender_name: str | None = None,
+) -> str | None:
+    """Mail the credentials to ``to_email``. Returns the channel used, or None.
+
+    ``to_email`` is usually a personal address: a brand-new hire cannot read the
+    company mailbox these credentials unlock, so mailing them there would be a
+    closed loop. Never raises — the account already exists by this point, and
+    failing the request would leave the admin thinking nothing was created. The
+    return value is the channel name so the response can say how it went out,
+    and ``None`` so the admin knows to hand the credentials over another way.
+    """
+    body = _welcome_body(
+        name, account_email, password, role_name, login_url_for_role(role_slug)
+    )
+
+    if _send_via_openemail(
+        to_email=to_email,
+        subject=_WELCOME_SUBJECT,
+        text=body,
+        sender_mailbox_id=sender_mailbox_id,
+        sender_address=sender_address,
+        sender_name=sender_name,
+    ):
+        return "open.email"
+    if _send_via_smtp(to_email=to_email, subject=_WELCOME_SUBJECT, text=body):
+        return "SMTP"
+
+    logger.warning(
+        "no mail channel available; credentials for %s were not sent", account_email
+    )
+    return None

@@ -352,7 +352,7 @@ export default function AdminUsersPage() {
             {form.sendWelcomeEmail ? (
               <>
                 <input type="email" placeholder="Deliver to (personal address)" aria-label="Deliver the welcome email to" className={adminInputClass} style={adminInputStyle} value={form.welcomeEmailTo ?? ""} onChange={(event) => setForm({ ...form, welcomeEmailTo: event.target.value })} />
-                <p className="text-xs" style={{ color: "var(--adm-text-3)" }}>Use a personal address — the new company mailbox can only be opened after the first sign-in. Left blank, it goes to the account address above.</p>
+                <p className="text-xs" style={{ color: "var(--adm-text-3)" }}>Use a personal address — the new company mailbox can only be opened after the first sign-in. Left blank, it goes to the account address above. Sent from your own mailbox, so they can just reply.</p>
               </>
             ) : null}
           </AdminField>

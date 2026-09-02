@@ -185,18 +185,24 @@ def create_user(
         from app.services.onboarding import send_welcome_email
 
         recipient = payload.welcome_email_to or payload.email
-        sent = send_welcome_email(
+        channel = send_welcome_email(
             to_email=str(recipient),
             name=payload.name,
             account_email=str(payload.email),
             password=payload.password,
             role_slug=role.slug,
             role_name=role.name,
+            # From the admin doing the onboarding, so the hire can just reply.
+            sender_mailbox_id=admin.openemail_mailbox_id,
+            sender_address=admin.openemail_address or str(admin.email),
+            sender_name=f"{admin.first_name or ''} {admin.last_name or ''}".strip() or None,
         )
         message = (
-            f"User created and credentials emailed to {recipient}"
-            if sent
-            else "User created, but the credentials email could not be sent. Confirm SMTP is configured."
+            f"User created and credentials emailed to {recipient} via {channel}"
+            if channel
+            else "User created, but the credentials email could not be sent. "
+            "Set OPENEMAIL_API_KEY (or SMTP_*) on the backend, then hand the "
+            "password over manually — it is shown above and cannot be recovered later."
         )
 
     return ApiResponse(data=_to_admin_user_read(user), message=message)
