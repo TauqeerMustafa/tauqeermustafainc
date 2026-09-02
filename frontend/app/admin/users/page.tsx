@@ -1,7 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import { Check, ChevronDown, Clock3, Loader2, Mail, MailPlus, MailWarning, MoreHorizontal, PauseCircle, Search, ShieldCheck, Trash2, UserRound, X } from "lucide-react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { Check, ChevronDown, Clock3, ListChecks, Loader2, Mail, MailPlus, MailWarning, MoreHorizontal, PauseCircle, Search, ShieldCheck, Trash2, UserRound, X } from "lucide-react";
 
 import {
   AdminConfirmDialog,
@@ -16,6 +16,7 @@ import {
   adminInputStyle,
 } from "@/components/admin/AdminUI";
 import { useAdminMetrics, useAdminRoles, useAdminTeams, useAdminUsers, useCreateAdminUser, useDeleteAdminUser, useProvisionAllMailboxes, useProvisionMailbox, useUpdateAdminUser } from "@/hooks/useAdmin";
+import { readOnboardPrefill, suggestCompanyEmail } from "@/lib/onboarding-link";
 import type { AdminUser, UserStatus } from "@/types";
 import type { CreateAdminUserPayload } from "@/services/admin.service";
 
@@ -78,8 +79,11 @@ export default function AdminUsersPage() {
   const [status, setStatus] = useState<UserStatus | "all">("all");
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [form, setForm] = useState<CreateAdminUserPayload>(emptyForm);
+  // True while the drawer holds an applicant pulled off Messages, so the copy
+  // and the post-create nudge can speak to onboarding rather than a bare add.
+  const [fromApplication, setFromApplication] = useState(false);
   const [menuId, setMenuId] = useState<string | null>(null);
-  const [lastCreated, setLastCreated] = useState<{ name: string; address?: string | null; hasMailbox?: boolean; note?: string } | null>(null);
+  const [lastCreated, setLastCreated] = useState<{ name: string; address?: string | null; hasMailbox?: boolean; note?: string; offerPlaybook?: boolean } | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<AdminUser | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
   const [provisionNotice, setProvisionNotice] = useState<string | null>(null);
@@ -103,8 +107,36 @@ export default function AdminUsersPage() {
 
   function openCreate() {
     setForm(emptyForm);
+    setFromApplication(false);
     setDrawerOpen(true);
   }
+
+  // Arriving from "Onboard as intern" on a job application: open the create
+  // drawer prefilled with what the applicant already sent. The company address
+  // is only a suggestion (the admin owns the final mailbox name), the personal
+  // address is where the credentials go, and the role defaults to Employee —
+  // interns hold the member role. Runs once; the query is then stripped so a
+  // refresh does not reopen a stale form.
+  const onboardHandled = useRef(false);
+  useEffect(() => {
+    if (onboardHandled.current) return;
+    onboardHandled.current = true;
+    const prefill = readOnboardPrefill(window.location.search);
+    if (!prefill) return;
+    setForm({
+      ...emptyForm,
+      name: prefill.name,
+      email: suggestCompanyEmail(prefill.name),
+      password: generatePassword(),
+      roleSlug: "member",
+      status: "approved",
+      sendWelcomeEmail: true,
+      welcomeEmailTo: prefill.personalEmail,
+    });
+    setFromApplication(true);
+    setDrawerOpen(true);
+    window.history.replaceState(null, "", "/admin/users");
+  }, []);
 
   async function handleCreate(event: React.FormEvent) {
     event.preventDefault();
@@ -122,7 +154,10 @@ export default function AdminUsersPage() {
       hasMailbox: created.data.hasMailbox,
       // The API says whether the credentials actually left the building.
       note: form.sendWelcomeEmail ? created.message : undefined,
+      // A fresh Employee hire needs their week-one board; point straight to it.
+      offerPlaybook: fromApplication || form.roleSlug === "member",
     });
+    setFromApplication(false);
     setDrawerOpen(false);
   }
 
@@ -199,6 +234,12 @@ export default function AdminUsersPage() {
               </p>
               {lastCreated.note ? (
                 <p className="mt-1 text-xs font-medium" style={{ color: "var(--adm-text)" }}>{lastCreated.note}</p>
+              ) : null}
+              {lastCreated.offerPlaybook ? (
+                <a href="/admin/tasks" className="mt-2 inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-widest" style={{ color: "var(--adm-blue)" }}>
+                  <ListChecks size={13} />
+                  Assign their week-one playbook
+                </a>
               ) : null}
             </div>
           </div>
@@ -331,7 +372,7 @@ export default function AdminUsersPage() {
         </div>
       ) : null}
 
-      <AdminDrawer open={drawerOpen} title="Add a user" onClose={() => setDrawerOpen(false)}>
+      <AdminDrawer open={drawerOpen} title={fromApplication ? "Onboard new hire" : "Add a user"} onClose={() => setDrawerOpen(false)}>
         <form onSubmit={handleCreate} className="grid gap-5">
           <AdminField label="Full name" htmlFor="user-name"><input id="user-name" required className={adminInputClass} style={adminInputStyle} value={form.name} onChange={(event) => setForm({ ...form, name: event.target.value })} /></AdminField>
           <AdminField label="Email address" htmlFor="user-email"><input id="user-email" required type="email" className={adminInputClass} style={adminInputStyle} value={form.email} onChange={(event) => setForm({ ...form, email: event.target.value })} /><p className="flex items-center gap-1.5 text-xs" style={{ color: "var(--adm-text-3)" }}><Mail size={12} />An open.email mailbox at this address is created automatically and assigned to the user.</p></AdminField>

@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Mail, MailOpen, Trash2 } from "lucide-react";
+import { Mail, MailOpen, Trash2, UserPlus } from "lucide-react";
 
 import { AdminConfirmDialog } from "@/components/admin/AdminUI";
 import {
@@ -16,6 +16,7 @@ import {
 } from "@/components/portal/PortalUI";
 import { useDeleteMessage, useMarkMessageRead, useMessages } from "@/hooks/useMessages";
 import { MESSAGE_KIND_LABEL, classifyMessage, type MessageKind } from "@/lib/message-kind";
+import { onboardHref } from "@/lib/onboarding-link";
 import type { ContactMessage } from "@/types";
 
 type Filter = "all" | MessageKind;
@@ -144,6 +145,17 @@ export default function AdminMessagesPage() {
                     {message.message}
                   </p>
                   <div className="mt-4 flex flex-wrap gap-3">
+                    {kind === "job" && (
+                      // The applicant is already a record — hire straight from it
+                      // rather than retyping their name and email into Users.
+                      <a
+                        href={onboardHref(message.name, message.email)}
+                        className="flex items-center gap-1.5 border border-adm-blue px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.14em] text-adm-blue transition hover:bg-adm-blue-light"
+                      >
+                        <UserPlus size={12} />
+                        Onboard as intern
+                      </a>
+                    )}
                     <a
                       href={`/admin/mail?compose=1&to=${encodeURIComponent(message.email)}&subject=${encodeURIComponent(`Re: your message to Tauqeer Mustafa Inc`)}`}
                       className="border border-adm-border px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.14em] text-adm-text-2 transition hover:bg-adm-surface hover:text-adm-text"
