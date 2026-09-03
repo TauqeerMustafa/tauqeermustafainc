@@ -36,6 +36,11 @@ export type WAMessage = {
   to: string;
   jid?: string;
   name?: string;
+  /**
+   * Which of the business's own numbers this belongs to (a Meta Phone Number ID).
+   * Absent on messages stored before the account had a second number.
+   */
+  channel?: string;
   type: string;
   body: string;
   timestamp: string;
@@ -51,6 +56,8 @@ export type WAMessage = {
   replyTo?: string;
   /** For type "reaction": the message the emoji was applied to. */
   reactionTo?: string;
+  /** Id of the button or list row the contact tapped. */
+  choiceId?: string;
 };
 
 export type AutoReplyRule = {
@@ -91,6 +98,12 @@ export function useWhatsAppMessages() {
 type SendMessagePayload = {
   type: "text" | "media" | "buttons" | "template" | "meta_template" | "reaction";
   to: string;
+  /**
+   * Which of the business's numbers to send as (a Meta Phone Number ID). Omit for
+   * the primary. Replies must pass the conversation's own channel, or the
+   * customer gets an answer from a number they never wrote to.
+   */
+  from?: string;
   message?: string;
   headerText?: string;
   bodyText?: string;
@@ -148,16 +161,58 @@ export type UploadedMedia = {
   mediaType: MediaKind;
   filename: string;
   mimeType: string;
+  /** The number the media id belongs to — send it from this one. */
+  from?: string;
   error?: string;
 };
 
-export async function uploadWhatsAppMedia(file: File): Promise<UploadedMedia> {
+/**
+ * Upload a file and get a Meta media id back.
+ *
+ * `from` matters: a media id belongs to the number that uploaded it, so a file
+ * uploaded against one number cannot be sent from the other.
+ */
+export async function uploadWhatsAppMedia(file: File, from?: string): Promise<UploadedMedia> {
   const form = new FormData();
   form.append("file", file);
+  if (from) form.append("from", from);
   const res = await fetch(`${API_BASE}/upload`, { method: "POST", body: form, headers: authHeaders() });
   const data = await res.json();
   if (!res.ok || !data?.success) throw new Error(data?.error || "Upload failed");
   return data;
+}
+
+// ── Sending numbers (the business's own WhatsApp numbers) ────────────────────
+
+export type WANumberInfo = {
+  /** Meta Phone Number ID. */
+  id: string;
+  label: string;
+  primary: boolean;
+  displayNumber?: string | null;
+  verifiedName?: string | null;
+  quality?: string | null;
+  canSend: boolean;
+  error?: string | null;
+};
+
+/**
+ * The numbers this deployment can send from. Enriched from Meta server-side, so
+ * it is cached hard here — the list changes with a deployment, not with traffic.
+ */
+export function useWhatsAppNumbers() {
+  return useQuery<{ success: boolean; data: WANumberInfo[] }>({
+    queryKey: ["whatsapp-numbers"],
+    queryFn: () => getJSON("/numbers"),
+    staleTime: 5 * 60 * 1000,
+  });
+}
+
+/** Readable name for a number id, for headers and pickers. */
+export function describeNumber(n?: WANumberInfo | null): string {
+  if (!n) return "";
+  const shown = n.displayNumber || n.id;
+  return n.label ? `${n.label} (${shown})` : shown;
 }
 
 /**
@@ -169,19 +224,22 @@ export async function uploadWhatsAppMedia(file: File): Promise<UploadedMedia> {
  * hand the element a blob URL instead. The URL is revoked on unmount.
  */
 export function useAuthedMedia(mediaId?: string) {
-  const [url, setUrl] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  /**
+   * Both pieces of state are tagged with the id they describe, so switching
+   * attachments (or having none) needs no write in the effect body — the stale
+   * pair simply stops matching. Writing state there synchronously is what the
+   * set-state-in-effect rule forbids, and it caused a cascading render per chat
+   * bubble on every poll.
+   */
+  const [loaded, setLoaded] = useState<{ id: string; url: string } | null>(null);
+  const [failed, setFailed] = useState<{ id: string; message: string } | null>(null);
 
   useEffect(() => {
-    if (!mediaId) {
-      setUrl(null);
-      return;
-    }
+    if (!mediaId) return;
     let objectUrl: string | null = null;
     let cancelled = false;
 
     (async () => {
-      setError(null);
       try {
         const res = await fetch(`${API_BASE}/media/${mediaId}`, { headers: authHeaders() });
         if (!res.ok) {
@@ -191,9 +249,11 @@ export function useAuthedMedia(mediaId?: string) {
         const blob = await res.blob();
         if (cancelled) return;
         objectUrl = URL.createObjectURL(blob);
-        setUrl(objectUrl);
+        setLoaded({ id: mediaId, url: objectUrl });
       } catch (e) {
-        if (!cancelled) setError(e instanceof Error ? e.message : "Attachment unavailable");
+        if (!cancelled) {
+          setFailed({ id: mediaId, message: e instanceof Error ? e.message : "Attachment unavailable" });
+        }
       }
     })();
 
@@ -203,7 +263,10 @@ export function useAuthedMedia(mediaId?: string) {
     };
   }, [mediaId]);
 
-  return { url, error };
+  return {
+    url: loaded && loaded.id === mediaId ? loaded.url : null,
+    error: failed && failed.id === mediaId ? failed.message : null,
+  };
 }
 
 export function useWhatsAppStats() {

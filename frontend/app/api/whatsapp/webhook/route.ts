@@ -6,7 +6,15 @@
  *   WEBHOOK_VERIFY_TOKEN     – any string you chose when registering the webhook in Meta
  *   WHATSAPP_APP_SECRET      – Meta app secret; enables X-Hub-Signature-256 verification (optional but recommended)
  *   WHATSAPP_TOKEN           – used for auto-reply sends (auto-reply disabled if absent)
- *   WHATSAPP_PHONE_NUMBER_ID – used for auto-reply sends
+ *   WHATSAPP_PHONE_NUMBER_ID – the default sender; see lib/wa-numbers
+ *
+ * MORE THAN ONE NUMBER
+ * ────────────────────
+ * One webhook serves every number on the WhatsApp Business Account, and each
+ * event names the number it arrived on in `value.metadata.phone_number_id`. That
+ * id is stored on the message and used as the sender for the auto-reply, so a
+ * customer who writes to the second number is answered by the second number —
+ * previously every reply went out from whatever `WHATSAPP_PHONE_NUMBER_ID` held.
  *
  * WHY THIS TALKS TO lib/wa-store DIRECTLY
  * ───────────────────────────────────────
@@ -17,6 +25,7 @@
  */
 import { NextResponse } from "next/server";
 import { createHmac, timingSafeEqual } from "node:crypto";
+import { isKnownNumber, primaryNumberId } from "@/lib/wa-numbers";
 import {
   appendMessage,
   updateMessageStatus,
@@ -93,6 +102,9 @@ export async function POST(request: Request) {
       for (const change of entry?.changes ?? []) {
         const value    = change?.value;
         const messages = value?.messages ?? [];
+        // The number this event arrived on. One webhook serves the whole WABA,
+        // so this — not the environment — decides who replies.
+        const channel  = String(value?.metadata?.phone_number_id || "");
 
         for (const msg of messages) {
           const from    = msg.from;         // sender number (digits only)
@@ -117,13 +129,23 @@ export async function POST(request: Request) {
                 `${location.latitude}, ${location.longitude}`
               : "");
 
-          console.log(`[webhook] Message from ${from} (${msgType}): ${text.slice(0, 100)}`);
+          // What the contact TAPPED, as opposed to what the button said. Titles
+          // are copy and get reworded; ids are stable, so this is what a scripted
+          // flow branches on.
+          const choiceId =
+            msg?.interactive?.button_reply?.id ??
+            msg?.interactive?.list_reply?.id ??
+            msg?.button?.payload ??
+            null;
+
+          console.log(`[webhook] Message from ${from} on ${channel} (${msgType}): ${text.slice(0, 100)}`);
 
           const storedMessage: WAMessage = {
             id: msgId,
             from,
-            to: value?.metadata?.phone_number_id || "",
+            to: channel,
             jid: `${from}@s.whatsapp.net`,
+            channel,
             name: name || from,
             type: msgType,
             body: text,
@@ -142,6 +164,7 @@ export async function POST(request: Request) {
             // reaction names the message it was applied to.
             ...(msg?.context?.id ? { replyTo: String(msg.context.id) } : {}),
             ...(msg?.reaction?.message_id ? { reactionTo: String(msg.reaction.message_id) } : {}),
+            ...(choiceId ? { choiceId: String(choiceId) } : {}),
           };
 
           // Persist directly to the store. `appendMessage` is idempotent on id;
@@ -150,7 +173,7 @@ export async function POST(request: Request) {
           const stored = await appendMessage(storedMessage);
 
           if (stored) {
-            await handleAutoReply(from, text, msgId);
+            await handleAutoReply(from, text, msgId, channel);
           }
         }
 
@@ -177,10 +200,25 @@ export async function POST(request: Request) {
 }
 
 // ─── Auto-reply helper ────────────────────────────────────────────────────────
-async function handleAutoReply(to: string, incomingText: string, msgId: string) {
+/**
+ * Answer on the same number the message came in on.
+ *
+ * `channel` is whatever Meta put in `value.metadata.phone_number_id`. It is
+ * checked against the configured list before use: an unrecognised id would be a
+ * number this deployment was never set up for, and sending to it would only earn
+ * a Graph error, so fall back to the primary instead.
+ */
+async function handleAutoReply(to: string, incomingText: string, msgId: string, channel: string) {
   const token         = process.env.WHATSAPP_TOKEN;
-  const phoneNumberId = process.env.WHATSAPP_PHONE_NUMBER_ID;
+  const phoneNumberId = isKnownNumber(channel) ? channel : primaryNumberId();
   if (!token || !phoneNumberId || !incomingText) return;
+
+  if (channel && channel !== phoneNumberId) {
+    console.warn(
+      `[webhook] Message arrived on unconfigured number ${channel} — replying from ${phoneNumberId}. ` +
+        "Add it to WHATSAPP_PHONE_NUMBERS so replies go out from the right number."
+    );
+  }
 
   try {
     const rule = matchRule(await getRules(), incomingText);
@@ -230,6 +268,7 @@ async function sendText(
         from: phoneNumberId,
         to,
         jid: `${to}@s.whatsapp.net`,
+        channel: phoneNumberId,
         type: "text",
         body: text,
         timestamp: new Date().toISOString(),

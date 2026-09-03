@@ -4,14 +4,20 @@
  *
  * Env vars (set in Vercel):
  *   WHATSAPP_TOKEN             – permanent system-user or temp access token
- *   WHATSAPP_PHONE_NUMBER_ID   – the Phone Number ID to send from
+ *   WHATSAPP_PHONE_NUMBER_ID   – the default Phone Number ID to send from
+ *   WHATSAPP_PHONE_NUMBER_ID_2 – a second number on the same WABA (optional)
  *
  * Supported body.type: text | buttons | template | meta_template | media | reaction
  *
- * Any type may carry `replyTo` (a Meta message id) to post as a threaded reply.
+ * Any type may carry `replyTo` (a Meta message id) to post as a threaded reply,
+ * and `from` (a configured Phone Number ID) to choose which of the business's
+ * numbers it is sent as. `from` is checked against lib/wa-numbers rather than
+ * passed to Meta as given, so an admin token cannot send as a number this
+ * deployment was never configured with. Omit it and the primary number is used.
  */
 import { NextResponse } from "next/server";
 import { META_TEMPLATES, buildSendComponents } from "@/lib/meta-templates";
+import { resolveNumberId } from "@/lib/wa-numbers";
 import { appendMessage, type WAMessage } from "@/lib/wa-store";
 
 const GRAPH_URL = "https://graph.facebook.com/v20.0";
@@ -78,15 +84,20 @@ export async function POST(request: Request) {
       emoji,
       reactionTo,
       voice,
+      // which of the business's numbers this goes out as
+      from,
+      phoneNumberId: requestedPhoneNumberId,
     } = body;
 
-    const phoneNumberId = process.env.WHATSAPP_PHONE_NUMBER_ID?.trim();
-    if (!phoneNumberId) {
-      return NextResponse.json(
-        { success: false, error: "WHATSAPP_PHONE_NUMBER_ID is not configured" },
-        { status: 500 }
-      );
+    // The sender is chosen by the caller but validated here — see lib/wa-numbers.
+    const sender = resolveNumberId(from ?? requestedPhoneNumberId);
+    if (!sender.ok) {
+      // A bad `from` is the caller's mistake (400); nothing configured at all is
+      // the deployment's (500).
+      const status = from || requestedPhoneNumberId ? 400 : 500;
+      return NextResponse.json({ success: false, error: sender.error }, { status });
     }
+    const phoneNumberId = sender.id;
 
     if (!to) {
       return NextResponse.json(
@@ -313,6 +324,10 @@ export async function POST(request: Request) {
         from: phoneNumberId,
         to: recipient,
         jid: `${recipient}@s.whatsapp.net`,
+        // Which of our numbers this went out as. `from` already carries it for
+        // outbound, but the inbox needs one field that means the same thing in
+        // both directions — otherwise a reply can leave from the wrong number.
+        channel: phoneNumberId,
         type: storedType,
         body: storedBody,
         timestamp: new Date().toISOString(),

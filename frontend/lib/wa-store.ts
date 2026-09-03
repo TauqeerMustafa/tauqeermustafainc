@@ -32,6 +32,13 @@ export type WAMessage = {
   to: string;
   jid?: string;
   name?: string;
+  /**
+   * Which of the business's own numbers this message belongs to (a Meta Phone
+   * Number ID). Set in both directions so a reply can go back out from the
+   * number the customer actually wrote to. Absent on messages stored before the
+   * account had a second number — treat that as the primary.
+   */
+  channel?: string;
   type: string;
   body: string;
   timestamp: string;
@@ -47,6 +54,11 @@ export type WAMessage = {
   replyTo?: string;
   /** For type "reaction": the message the emoji was applied to. */
   reactionTo?: string;
+  /**
+   * The id of the button or list row the contact tapped. Titles are display
+   * text and get rewritten; ids are what a scripted flow can branch on.
+   */
+  choiceId?: string;
 };
 
 export type AutoReplyRule = {

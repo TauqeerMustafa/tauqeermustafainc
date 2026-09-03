@@ -60,8 +60,18 @@ import {
   useConversationMeta,
   useUpdateConversationMeta,
   useDeleteConversation,
+  useWhatsAppNumbers,
+  describeNumber,
 } from "@/hooks/useWhatsApp";
-import type { WAMessage, AutoReplyRule, WATemplate, MetaTemplate, MediaKind, ConvMeta } from "@/hooks/useWhatsApp";
+import type {
+  WAMessage,
+  AutoReplyRule,
+  WATemplate,
+  MetaTemplate,
+  MediaKind,
+  ConvMeta,
+  WANumberInfo,
+} from "@/hooks/useWhatsApp";
 import { useVoiceRecorder, formatDuration } from "@/hooks/useVoiceRecorder";
 import { EmojiPicker, QUICK_REACTIONS } from "@/components/admin/whatsapp/EmojiPicker";
 import { MessageMedia, mediaKindOf } from "@/components/admin/whatsapp/MessageMedia";
@@ -94,6 +104,15 @@ type Conversation = {
   number: string;
   name: string;
   messages: WAMessage[];
+  /**
+   * Which of our numbers this thread runs on, taken from the newest message.
+   *
+   * Threads are keyed by the customer's number alone — conversation metadata,
+   * archiving and delete all use that key — so someone who writes to both of our
+   * numbers appears once. Answering on the newest message's number is what keeps
+   * a reply landing where the customer last spoke to us.
+   */
+  channel?: string;
   dealStatus?: DealStatus;
   notes?: string;
   tags?: string[];
@@ -103,6 +122,11 @@ function numberOf(m: WAMessage): string {
   if (m.jid) return m.jid.split("@")[0].split(":")[0];
   const raw = m.direction === "inbound" ? m.from : m.to;
   return (raw || "unknown").replace(/[^0-9]/g, "") || "unknown";
+}
+
+/** Our own number on a message — stored explicitly, or the opposite side of it. */
+function channelOf(m: WAMessage): string {
+  return (m.channel || (m.direction === "inbound" ? m.to : m.from) || "").trim();
 }
 
 /** Group messages into conversations, newest activity first. */
@@ -121,6 +145,7 @@ function groupConversations(messages: WAMessage[]): Conversation[] {
   const convos = [...byNumber.values()];
   for (const c of convos) {
     c.messages.sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
+    c.channel = channelOf(c.messages.at(-1)!) || undefined;
   }
   convos.sort((a, b) => {
     const at = a.messages.at(-1) ? new Date(a.messages.at(-1)!.timestamp).getTime() : 0;
@@ -131,6 +156,53 @@ function groupConversations(messages: WAMessage[]): Conversation[] {
 }
 
 // ─── Page ───────────────────────────────────────────────────────────────
+
+/**
+ * Which of the business's numbers a message goes out as.
+ *
+ * Rendered only when there is more than one — a picker with a single option is
+ * noise, and until the account had a second number there was nothing to choose.
+ */
+function SenderPicker({
+  numbers,
+  value,
+  onChange,
+  id = "waSender",
+  label = "Send from",
+}: {
+  numbers: WANumberInfo[];
+  value: string;
+  onChange: (id: string) => void;
+  id?: string;
+  label?: string;
+}) {
+  if (numbers.length < 2) return null;
+  const chosen = numbers.find((n) => n.id === value);
+
+  return (
+    <AdminField label={label} htmlFor={id}>
+      <select
+        id={id}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        className={adminInputClass}
+        style={adminInputStyle}
+      >
+        {numbers.map((n) => (
+          <option key={n.id} value={n.id}>
+            {describeNumber(n)}
+            {n.canSend ? "" : " — not sending"}
+          </option>
+        ))}
+      </select>
+      {chosen && !chosen.canSend && (
+        <p className="mt-2 text-xs" style={{ color: "var(--adm-red, #dc2626)" }}>
+          {chosen.error || "Meta will not accept a message from this number."}
+        </p>
+      )}
+    </AdminField>
+  );
+}
 
 export default function AdminWhatsAppPage() {
   const [activeTab, setActiveTab] = useState<TabKey>("inbox");
@@ -372,10 +444,12 @@ function SelectWithCustom({
 function InboxTab({ onReply }: { onReply: (number: string) => void }) {
   const { data, isLoading, isError, refetch } = useWhatsAppMessages();
   const { data: metaData } = useConversationMeta();
+  const { data: numbersData } = useWhatsAppNumbers();
   const updateMeta = useUpdateConversationMeta();
   const deleteConv = useDeleteConversation();
 
   const metaMap = metaData?.data ?? {};
+  const numbers = numbersData?.data ?? [];
 
   const [searchQuery, setSearchQuery] = useState("");
   const [filter, setFilter] = useState<"all" | "unread">("all");
@@ -419,6 +493,16 @@ function InboxTab({ onReply }: { onReply: (number: string) => void }) {
   };
 
   const totalUnread = activeList.reduce((n, x) => n + (x.unread > 0 ? 1 : 0), 0);
+
+  /**
+   * Which of our numbers a thread came in on — shown in the list only when there
+   * is more than one, otherwise every row would carry the same redundant tag.
+   */
+  const channelTag = (conv: Conversation): string | undefined => {
+    if (numbers.length < 2 || !conv.channel) return undefined;
+    const n = numbers.find((x) => x.id === conv.channel);
+    return n ? n.label || n.displayNumber || undefined : undefined;
+  };
 
   return (
     <div
@@ -524,6 +608,7 @@ function InboxTab({ onReply }: { onReply: (number: string) => void }) {
                 conv={conv}
                 meta={meta}
                 unread={unread}
+                channel={channelTag(conv)}
                 active={selected === conv.number}
                 onClick={() => setSelected(conv.number)}
               />
@@ -590,12 +675,15 @@ function ChatListItem({
   conv,
   meta,
   unread,
+  channel,
   active,
   onClick,
 }: {
   conv: Conversation;
   meta?: ConvMeta;
   unread: number;
+  /** Label of the number this thread is on; only set when the business has two. */
+  channel?: string;
   active: boolean;
   onClick: () => void;
 }) {
@@ -643,6 +731,15 @@ function ChatListItem({
             <span className="truncate">{preview || "No messages"}</span>
           </span>
           <span className="flex shrink-0 items-center gap-1.5">
+            {channel && (
+              <span
+                className="max-w-[92px] truncate px-1.5 py-px text-[10px] font-semibold uppercase tracking-wide"
+                style={{ background: WA.listBg, color: WA.sub, border: `1px solid ${WA.divider}` }}
+                title={`Received on ${channel}`}
+              >
+                {channel}
+              </span>
+            )}
             {dealCfg && (
               <span
                 className="rounded-full px-1.5 py-px text-[10px] font-semibold"
@@ -692,6 +789,15 @@ function ChatView({
   onRefresh: () => void;
 }) {
   const sendMessage = useSendWhatsAppMessage();
+  const { data: numbersData } = useWhatsAppNumbers();
+  const numbers = numbersData?.data ?? [];
+  /**
+   * Answer as the number this thread is on. Undefined when the thread predates
+   * the second number (nothing was recorded) or names one we are no longer
+   * configured with — the server then falls back to the primary.
+   */
+  const sender = numbers.some((n) => n.id === conv.channel) ? conv.channel : undefined;
+  const senderInfo = numbers.find((n) => n.id === sender);
   const [reply, setReply] = useState("");
   const [error, setError] = useState("");
   const [menuOpen, setMenuOpen] = useState(false);
@@ -729,6 +835,7 @@ function ChatView({
       await sendMessage.mutateAsync({
         type: "text",
         to: conv.number,
+        from: sender,
         message: reply,
         replyTo: replyTo?.id,
         markReadMessageId: lastInboundId,
@@ -744,10 +851,11 @@ function ChatView({
     setError("");
     setUploading(true);
     try {
-      const up = await uploadWhatsAppMedia(file);
+      const up = await uploadWhatsAppMedia(file, sender);
       await sendMessage.mutateAsync({
         type: "media",
         to: conv.number,
+        from: up.from ?? sender,
         mediaType: up.mediaType,
         mediaId: up.id,
         caption: reply.trim() || undefined,
@@ -781,10 +889,11 @@ function ChatView({
     }
     setUploading(true);
     try {
-      const up = await uploadWhatsAppMedia(recording.file);
+      const up = await uploadWhatsAppMedia(recording.file, sender);
       await sendMessage.mutateAsync({
         type: "media",
         to: conv.number,
+        from: up.from ?? sender,
         mediaType: "audio",
         mediaId: up.id,
         // `voice: true` is what makes WhatsApp show a waveform instead of a file.
@@ -816,6 +925,7 @@ function ChatView({
       await sendMessage.mutateAsync({
         type: "reaction",
         to: conv.number,
+        from: sender,
         reactionTo: target.id,
         emoji,
       });
@@ -870,7 +980,13 @@ function ChatView({
               {name}
             </p>
             <p className="truncate text-[13px]" style={{ color: WA.sub }}>
-              click here for contact info
+              {/* With two numbers on the account, whose line this is matters more
+                  than the stock prompt — a reply goes out from it. */}
+              {numbers.length > 1
+                ? senderInfo
+                  ? `on ${describeNumber(senderInfo)}`
+                  : "number not recorded — replies use the primary"
+                : "click here for contact info"}
             </p>
           </div>
         </button>
@@ -1440,6 +1556,8 @@ function SendTab({
   const [mediaKind, setMediaKind] = useState<MediaKind>("image");
   const [mediaLink, setMediaLink] = useState("");
   const [mediaId, setMediaId] = useState("");
+  /** The number an uploaded media id belongs to — Meta scopes ids per number. */
+  const [mediaFrom, setMediaFrom] = useState("");
   const [mediaFileName, setMediaFileName] = useState("");
   const [caption, setCaption] = useState("");
   const [uploading, setUploading] = useState(false);
@@ -1448,9 +1566,17 @@ function SendTab({
   const { data: templatesData } = useWhatsAppTemplates();
   const templates: WATemplate[] = templatesData?.data ?? [];
 
+  const { data: numbersData } = useWhatsAppNumbers();
+  const numbers = numbersData?.data ?? [];
+  const [senderChoice, setSenderChoice] = useState("");
+  // Derived rather than seeded in an effect: the list arrives after first render,
+  // and an untouched picker should follow the primary.
+  const sender = senderChoice || numbers.find((n) => n.primary)?.id || "";
+
   const resetMedia = () => {
     setMediaLink("");
     setMediaId("");
+    setMediaFrom("");
     setMediaFileName("");
     setCaption("");
   };
@@ -1459,8 +1585,9 @@ function SendTab({
     setSendError("");
     setUploading(true);
     try {
-      const up = await uploadWhatsAppMedia(file);
+      const up = await uploadWhatsAppMedia(file, sender);
       setMediaId(up.id);
+      setMediaFrom(up.from ?? sender);
       setMediaKind(up.mediaType);
       setMediaFileName(up.filename);
       setMediaLink(""); // uploaded id takes precedence over link
@@ -1483,6 +1610,7 @@ function SendTab({
 
     try {
       const payload: Record<string, unknown> = { type: messageType, to };
+      if (sender) payload.from = sender;
 
       if (messageType === "text") {
         if (!messageText.trim()) {
@@ -1493,6 +1621,13 @@ function SendTab({
       } else if (messageType === "media") {
         if (!mediaId && !mediaLink.trim()) {
           setSendError("Upload a file or paste a public media URL");
+          return;
+        }
+        // A media id only exists for the number it was uploaded against; sending
+        // it from the other number fails inside Meta as "media id not found".
+        if (mediaId && mediaFrom && sender && mediaFrom !== sender) {
+          const label = describeNumber(numbers.find((n) => n.id === sender)) || sender;
+          setSendError(`That file was uploaded for a different number. Upload it again for ${label}.`);
           return;
         }
         payload.mediaType = mediaKind;
@@ -1568,6 +1703,9 @@ function SendTab({
             ))}
           </div>
         </div>
+
+        {/* Send from — only when the business has more than one number */}
+        <SenderPicker numbers={numbers} value={sender} onChange={setSenderChoice} id="sendFrom" />
 
         {/* Recipient */}
         <AdminField label="Recipient (phone with country code)" htmlFor="recipient">
@@ -1965,7 +2103,15 @@ function metaStatusStyle(status: string): { label: string; color: string; bg: st
 function MetaTemplatesTab({ defaultRecipient }: { defaultRecipient: string }) {
   const { data, isLoading, refetch } = useMetaTemplates();
   const submitTemplate = useSubmitMetaTemplate();
+  const { data: numbersData } = useWhatsAppNumbers();
   const [banner, setBanner] = useState("");
+  const [senderChoice, setSenderChoice] = useState("");
+
+  const numbers = numbersData?.data ?? [];
+  // A template is the only way to open a conversation with someone who has never
+  // written to us, so it decides which of our numbers the customer first sees.
+  // Derived, not seeded in an effect: the list arrives after first render.
+  const sender = senderChoice || numbers.find((n) => n.primary)?.id || "";
 
   const templates = data?.data ?? [];
   const configured = data?.configured;
@@ -2012,6 +2158,25 @@ function MetaTemplatesTab({ defaultRecipient }: { defaultRecipient: string }) {
         </div>
       )}
 
+      {/* Which number the first contact comes from — only when there are two */}
+      {numbers.length > 1 && (
+        <div
+          className="border p-4"
+          style={{ borderColor: "var(--adm-border)", background: "var(--adm-surface)" }}
+        >
+          <SenderPicker
+            numbers={numbers}
+            value={sender}
+            onChange={setSenderChoice}
+            id="templateFrom"
+            label="Send templates from"
+          />
+          <p className="mt-2 text-xs" style={{ color: "var(--adm-text-3)" }}>
+            Whichever number you pick is the one the customer replies to, and the one the 24-hour window opens on.
+          </p>
+        </div>
+      )}
+
       {/* Toolbar */}
       <div className="flex flex-wrap items-center justify-between gap-3">
         <p className="text-sm" style={{ color: "var(--adm-text-2)" }}>
@@ -2055,14 +2220,23 @@ function MetaTemplatesTab({ defaultRecipient }: { defaultRecipient: string }) {
       {/* Template cards */}
       <div className="space-y-4">
         {templates.map((tpl) => (
-          <MetaTemplateCard key={tpl.name} template={tpl} defaultRecipient={defaultRecipient} />
+          <MetaTemplateCard key={tpl.name} template={tpl} defaultRecipient={defaultRecipient} from={sender} />
         ))}
       </div>
     </div>
   );
 }
 
-function MetaTemplateCard({ template, defaultRecipient }: { template: MetaTemplate; defaultRecipient: string }) {
+function MetaTemplateCard({
+  template,
+  defaultRecipient,
+  from,
+}: {
+  template: MetaTemplate;
+  defaultRecipient: string;
+  /** Number to send as, chosen once for the whole tab. Omit for the primary. */
+  from?: string;
+}) {
   const submitTemplate = useSubmitMetaTemplate();
   const sendMessage = useSendWhatsAppMessage();
 
@@ -2103,6 +2277,7 @@ function MetaTemplateCard({ template, defaultRecipient }: { template: MetaTempla
       await sendMessage.mutateAsync({
         type: "meta_template",
         to,
+        ...(from ? { from } : {}),
         metaTemplateName: template.name,
         templateVars: vars,
         templateLanguage: template.language,
@@ -2469,7 +2644,7 @@ function RulesTab() {
             >
               <div className="min-w-0">
                 <p className="font-semibold" style={{ color: "var(--adm-text)" }}>
-                  Keyword: "{rule.keyword}"{" "}
+                  Keyword: &quot;{rule.keyword}&quot;{" "}
                   <span className="text-xs font-normal" style={{ color: "var(--adm-text-3)" }}>
                     ({rule.mode})
                   </span>

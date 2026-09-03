@@ -5,10 +5,17 @@
  *
  * Accepts multipart/form-data:
  *   file – the media file (required)
+ *   from – Phone Number ID to upload against (optional; defaults to the primary)
  *
- * Returns: { success, id, mediaType, filename, mimeType }
+ * A media id belongs to the number that uploaded it. With two numbers on the
+ * account, uploading against one and sending from the other fails inside Meta
+ * with an unhelpful "media id not found", so the sender has to be named here as
+ * well as on /send. Ids are validated against lib/wa-numbers.
+ *
+ * Returns: { success, id, mediaType, filename, mimeType, from }
  */
 import { NextResponse } from "next/server";
+import { resolveNumberId } from "@/lib/wa-numbers";
 
 const GRAPH_URL = "https://graph.facebook.com/v20.0";
 
@@ -38,13 +45,15 @@ export async function POST(request: Request) {
     return NextResponse.json({ success: false, error: "No file provided" }, { status: 400 });
   }
 
-  const phoneNumberId = process.env.WHATSAPP_PHONE_NUMBER_ID?.trim();
-  if (!phoneNumberId) {
+  const requestedFrom = form.get("from") ?? form.get("phoneNumberId");
+  const sender = resolveNumberId(typeof requestedFrom === "string" ? requestedFrom : null);
+  if (!sender.ok) {
     return NextResponse.json(
-      { success: false, error: "WHATSAPP_PHONE_NUMBER_ID is not configured" },
-      { status: 500 }
+      { success: false, error: sender.error },
+      { status: typeof requestedFrom === "string" && requestedFrom ? 400 : 500 }
     );
   }
+  const phoneNumberId = sender.id;
 
   // WhatsApp media size caps (MB): image 5, video/audio 16, document 100.
   const mime = file.type || "application/octet-stream";
@@ -77,6 +86,8 @@ export async function POST(request: Request) {
       mediaType: kind,
       filename: file.name || "file",
       mimeType: mime,
+      // Echo the number the id belongs to so the send that follows uses the same one.
+      from: phoneNumberId,
     });
   } catch (error) {
     return NextResponse.json(
