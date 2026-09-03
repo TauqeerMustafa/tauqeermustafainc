@@ -144,74 +144,123 @@ export async function deleteConversationMessages(number: string): Promise<number
 
 /* ── Auto-reply rules ──────────────────────────────────────────────────── */
 
+/**
+ * Bumped whenever the shipped rules below change in a way a live deployment
+ * should pick up. See `getRules` for what "should pick up" means.
+ */
+const RULES_VERSION = 2;
+
+/**
+ * Keyword replies for contacts already in a conversation.
+ *
+ * A stranger's first message is NOT answered from here — the webhook opens the
+ * scripted list in lib/wa-flow instead, because a tap beats asking someone to
+ * type "services". These cover the words people send mid-conversation, and they
+ * hand back to the flow rather than restating a menu in text.
+ *
+ * Two rules the copy follows: no emojis, and never name a price. What we charge
+ * depends on scope, and a number sent by an auto-reply is one we then have to
+ * argue our way out of.
+ */
 export const DEFAULT_RULES: AutoReplyRule[] = [
   {
-    id: "welcome",
-    keyword: "hi, hello, hey, salam, assalam o alaikum, assalamualaikum",
-    mode: "contains",
-    reply:
-      "👋 *Welcome to Tauqeer Mustafa Inc!*\n\nThank you for reaching out. How can we help you today?\n\nQuick options:\n• Reply *services* to see what we offer\n• Reply *pricing* for our rates\n• Reply *contact* to speak with our team\n• Reply *hours* for business hours",
-    enabled: true,
-  },
-  {
     id: "services",
-    keyword: "services, what do you do, what do you offer, products",
+    keyword: "services, what do you do, what do you offer, service, help with",
     mode: "contains",
     reply:
-      "🚀 *Our Services*\n\nWe specialize in:\n\n✓ *Web Development* - Custom websites & web apps\n✓ *Mobile Apps* - iOS & Android development\n✓ *UI/UX Design* - Beautiful, user-friendly interfaces\n✓ *E-commerce* - Online stores & payment integration\n✓ *API Development* - Backend systems & integrations\n\nReply *pricing* for rates or *contact* to discuss your project!",
+      "We work in three areas:\n\n" +
+      "1. Cybersecurity consulting. We review how customer and payment data moves through your business, name what is exposed, and hand back a fix list in priority order.\n\n" +
+      "2. Financial compliance. Controls, records and reporting put in place so growth does not outrun your bookkeeping, and so an audit is routine.\n\n" +
+      "3. SEO and AdSense management. Work on the traffic you already have and the spend you already make, reported in enquiries rather than impressions.\n\n" +
+      "Tell me which one is closest to your situation, along with your company name, and the right person picks it up.",
     enabled: true,
   },
   {
     id: "pricing",
-    keyword: "price, pricing, cost, how much, rates, budget, quote",
+    keyword: "price, pricing, cost, how much, rates, budget, quote, fees",
     mode: "contains",
     reply:
-      "💰 *Pricing & Quotes*\n\nOur pricing is tailored to your specific needs:\n\n📱 *Mobile Apps* - Starting from $5,000\n🌐 *Websites* - Starting from $2,000\n🎨 *Design Projects* - Starting from $1,000\n⚡ *Hourly Rate* - $50-150/hour\n\nEvery project is unique! Share your requirements and we'll send you a detailed quote within 24 hours.\n\nReady to start? Reply *yes* or send us your project details!",
+      "Fair question, and the honest answer is that it depends on scope, so we do not quote before we understand the work.\n\n" +
+      "Send these and you get a written proposal with a fixed price inside two working days:\n\n" +
+      "1. Company name and website\n" +
+      "2. Which of the three services you need\n" +
+      "3. The outcome you want, and any deadline you are working to\n\n" +
+      "If the work turns out to be smaller than you expect, we say so.",
     enabled: true,
   },
   {
     id: "hours",
-    keyword: "hours, timing, open, schedule, available, when",
+    keyword: "hours, timing, open, schedule, available, when are you",
     mode: "contains",
     reply:
-      "🕒 *Business Hours*\n\n📅 Monday - Friday: 9:00 AM - 6:00 PM (PKT)\n📅 Saturday: 10:00 AM - 4:00 PM (PKT)\n📅 Sunday: Closed\n\n⚡ *Response Time*\nWe typically respond within 2-4 hours during business hours.\n\nFor urgent matters, reply *urgent* and we'll prioritize your request!",
+      "Monday to Saturday, 09:00 to 18:00 Pakistan time. Sunday is closed.\n\n" +
+      "Messages sent inside those hours are usually answered within a few hours. " +
+      "Anything sent outside them is answered first thing the next working morning.\n\n" +
+      "If it cannot wait, send the word urgent and it goes to the top of this inbox.",
     enabled: true,
   },
   {
     id: "contact",
-    keyword: "contact, reach, call, email, phone, speak, talk",
+    keyword: "contact, reach, call, email, phone, speak, talk to, human",
     mode: "contains",
     reply:
-      "📞 *Get in Touch*\n\n*Tauqeer Mustafa Inc*\n\n📧 Email: contact@tauqeermustafa.tech\n🌐 Website: https://tauqeermustafa.tech\n💼 LinkedIn: tauqeer-mustafa\n\n*Prefer a call?*\nSend us your best time and phone number, and we'll call you within 24 hours!\n\nOr simply continue chatting here - we're here to help! 💬",
+      "You are already in the right place. A person reads this inbox, Monday to Saturday, 09:00 to 18:00 Pakistan time.\n\n" +
+      "If a call is easier, send a number and two times that suit you and we will ring you.\n\n" +
+      "By email: contact@tauqeermustafa.tech",
     enabled: true,
   },
   {
     id: "portfolio",
-    keyword: "portfolio, work, projects, examples, past work, cases",
+    keyword: "portfolio, work, projects, examples, past work, case study, references",
     mode: "contains",
     reply:
-      "🎨 *Our Portfolio*\n\nWe've built amazing projects for clients worldwide!\n\n✨ Check out our work:\n👉 https://tauqeermustafa.tech\n\nOur specialties:\n• E-commerce platforms\n• SaaS applications\n• Mobile apps (iOS & Android)\n• Corporate websites\n• Custom integrations\n\nInterested in something similar? Reply *yes* and let's discuss your vision!",
+      "Our work and written case studies are at tauqeermustafa.tech.\n\n" +
+      "Tell me which of the three services you are weighing up and I will send the closest comparable engagement, " +
+      "including what it cost to run and what changed as a result.",
     enabled: true,
   },
   {
     id: "urgent",
-    keyword: "urgent, emergency, asap, immediately, now, critical",
+    keyword: "urgent, emergency, asap, immediately, critical, breach, hacked",
     mode: "contains",
     reply:
-      "🚨 *Urgent Request Received*\n\nWe've flagged your message as HIGH PRIORITY.\n\nA team member will respond within the next 30 minutes during business hours.\n\nIf this is outside business hours, we'll contact you first thing in the morning.\n\nPlease share:\n1️⃣ Brief description of the issue\n2️⃣ Your contact number\n3️⃣ Best time to reach you\n\nThank you for your patience! 🙏",
+      "Flagged as urgent. This is now ahead of everything else in this inbox.\n\n" +
+      "Send what you can, even if it is incomplete:\n\n" +
+      "1. What you are seeing, and when you first noticed it\n" +
+      "2. What is affected, and whether customer or payment data is involved\n" +
+      "3. A number to call you on\n\n" +
+      "Keep whatever logs and alerts you already have. Do not wipe or rebuild anything before we have spoken, unless something is still actively spreading.",
     enabled: true,
   },
   {
     id: "thanks",
-    keyword: "thank, thanks, appreciate, grateful",
+    keyword: "thank, thanks, shukriya, appreciate, grateful",
     mode: "contains",
-    reply:
-      "😊 You're very welcome!\n\nIs there anything else we can help you with?\n\n• Reply *services* to see what we offer\n• Reply *pricing* for rates\n• Reply *contact* to get in touch\n\nWe're here whenever you need us! 💙",
+    reply: "Glad to help. Anything else, send it here and someone will pick it up.",
     enabled: true,
   },
 ];
 
-/** Rules as stored, seeding defaults on first read. */
+/** Ids of the rules this file has ever shipped, for the upgrade check below. */
+const SHIPPED_RULE_IDS = new Set([
+  ...DEFAULT_RULES.map((r) => r.id),
+  // Retired: "welcome" now belongs to the scripted flow, not a keyword rule.
+  "welcome",
+]);
+
+/** Pictographs, dingbats and variation selectors — anything decorative. */
+const EMOJI = /[\u{1F000}-\u{1FAFF}\u{2190}-\u{2BFF}\u{FE0F}\u{2600}-\u{27BF}]/u;
+
+/**
+ * Rules as stored, seeding defaults on first read.
+ *
+ * A deployment that has been running already has the previous rules in KV, and
+ * those advertised the wrong business in emoji-covered copy. Replacing them
+ * blindly would throw away an admin's own wording, so an upgrade happens only
+ * when the stored set is provably untouched: every id is one this file shipped,
+ * and at least one reply still carries an emoji, which only the old seed did.
+ * Anything hand-written is left exactly as the admin left it.
+ */
 export async function getRules(): Promise<AutoReplyRule[]> {
   const kv = getKV();
   if (!kv) return DEFAULT_RULES;
@@ -219,8 +268,24 @@ export async function getRules(): Promise<AutoReplyRule[]> {
   const stored = await kv.get<AutoReplyRule[]>(KEYS.rules);
   if (!stored || stored.length === 0) {
     await kv.set(KEYS.rules, DEFAULT_RULES);
+    await kv.set(KEYS.rulesVersion, RULES_VERSION);
     return DEFAULT_RULES;
   }
+
+  const version = Number((await kv.get<number>(KEYS.rulesVersion)) ?? 1);
+  if (version < RULES_VERSION) {
+    const untouched =
+      stored.every((r) => SHIPPED_RULE_IDS.has(r.id)) && stored.some((r) => EMOJI.test(r.reply));
+    if (untouched) {
+      await kv.set(KEYS.rules, DEFAULT_RULES);
+      await kv.set(KEYS.rulesVersion, RULES_VERSION);
+      console.log("[wa-store] Replaced the unedited default auto-reply rules with the current set.");
+      return DEFAULT_RULES;
+    }
+    // Edited by hand — keep it, and stop re-checking on every read.
+    await kv.set(KEYS.rulesVersion, RULES_VERSION);
+  }
+
   return stored;
 }
 
@@ -228,6 +293,8 @@ export async function setRules(rules: AutoReplyRule[]): Promise<boolean> {
   const kv = getKV();
   if (!kv) return false;
   await kv.set(KEYS.rules, rules);
+  // The admin's own set is current by definition; never upgrade over it later.
+  await kv.set(KEYS.rulesVersion, RULES_VERSION);
   return true;
 }
 

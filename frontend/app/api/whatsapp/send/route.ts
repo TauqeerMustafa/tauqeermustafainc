@@ -7,7 +7,12 @@
  *   WHATSAPP_PHONE_NUMBER_ID   – the default Phone Number ID to send from
  *   WHATSAPP_PHONE_NUMBER_ID_2 – a second number on the same WABA (optional)
  *
- * Supported body.type: text | buttons | template | meta_template | media | reaction
+ * Supported body.type: text | buttons | list | template | meta_template | media | reaction
+ *
+ * `list` sends an interactive list — up to ten choices in one tap, which is how
+ * a first message can offer more than the three a button row allows. Pass
+ * `flowStep: "<id>"` to send a step of the scripted lead flow (lib/wa-flow)
+ * word-for-word, or `listRows[]` + `listButton` to compose one by hand.
  *
  * Any type may carry `replyTo` (a Meta message id) to post as a threaded reply,
  * and `from` (a configured Phone Number ID) to choose which of the business's
@@ -17,6 +22,7 @@
  */
 import { NextResponse } from "next/server";
 import { META_TEMPLATES, buildSendComponents } from "@/lib/meta-templates";
+import { flowStep, stepPayload, stepTranscript } from "@/lib/wa-flow";
 import { resolveNumberId } from "@/lib/wa-numbers";
 import { appendMessage, type WAMessage } from "@/lib/wa-store";
 
@@ -87,6 +93,12 @@ export async function POST(request: Request) {
       // which of the business's numbers this goes out as
       from,
       phoneNumberId: requestedPhoneNumberId,
+      // interactive list
+      listRows,
+      listButton,
+      listTitle,
+      /** Send a step of the scripted lead flow verbatim — see lib/wa-flow. */
+      flowStep: flowStepId,
     } = body;
 
     // The sender is chosen by the caller but validated here — see lib/wa-numbers.
@@ -108,6 +120,9 @@ export async function POST(request: Request) {
 
     const recipient = toE164(to);
     let payload: Record<string, unknown>;
+    // Set when the message came from the scripted flow, so the inbox can show
+    // the options that were offered instead of a bare question.
+    let flowTranscript = "";
 
     switch (type) {
       case "text": {
@@ -177,11 +192,14 @@ export async function POST(request: Request) {
             { status: 400 }
           );
         }
-        // Meta interactive reply buttons are hard-capped at 3.
-        const metaButtons = buttons.slice(0, 3).map((b: string, i: number) => ({
-          type: "reply",
-          reply: { id: `btn_${i}`, title: String(b).slice(0, 20) },
-        }));
+        // Meta interactive reply buttons are hard-capped at 3. A button may be
+        // given as plain text, or as { id, title } when the id has to mean
+        // something — the webhook branches on the id, never on the title.
+        const metaButtons = buttons.slice(0, 3).map((b: string | { id?: string; title?: string }, i: number) => {
+          const title = typeof b === "string" ? b : String(b?.title ?? "");
+          const id = typeof b === "string" ? `btn_${i}` : String(b?.id || `btn_${i}`);
+          return { type: "reply", reply: { id: id.slice(0, 256), title: title.slice(0, 20) } };
+        });
         payload = {
           messaging_product: "whatsapp",
           to: recipient,
@@ -192,6 +210,65 @@ export async function POST(request: Request) {
             body: { text: bodyText },
             ...(footerText ? { footer: { text: String(footerText).slice(0, 60) } } : {}),
             action: { buttons: metaButtons },
+          },
+        };
+        break;
+      }
+
+      case "list": {
+        // An interactive list: one tap picks from up to ten rows, which is how a
+        // first message can offer more than the three choices a button row holds.
+        // Pass `flowStep` to send a step of the scripted lead flow (lib/wa-flow)
+        // — that is the wording customers get from the webhook, so a test send
+        // and the real thing cannot drift apart.
+        if (flowStepId) {
+          const step = flowStep(String(flowStepId));
+          if (!step) {
+            return NextResponse.json(
+              { success: false, error: `Unknown flow step: ${flowStepId}` },
+              { status: 400 }
+            );
+          }
+          payload = stepPayload(step, recipient);
+          flowTranscript = stepTranscript(step);
+          break;
+        }
+
+        if (!bodyText || !Array.isArray(listRows) || listRows.length === 0) {
+          return NextResponse.json(
+            { success: false, error: "bodyText and listRows[] are required (or pass flowStep)" },
+            { status: 400 }
+          );
+        }
+        const rows = listRows
+          .slice(0, 10)
+          .map((r: string | { id?: string; title?: string; description?: string }, i: number) => {
+            const title = typeof r === "string" ? r : String(r?.title ?? "");
+            const id = typeof r === "string" ? `row_${i}` : String(r?.id || `row_${i}`);
+            const description = typeof r === "string" ? "" : String(r?.description ?? "");
+            return {
+              id: id.slice(0, 200),
+              title: title.slice(0, 24),
+              ...(description ? { description: description.slice(0, 72) } : {}),
+            };
+          })
+          .filter((r) => r.title);
+        if (rows.length === 0) {
+          return NextResponse.json({ success: false, error: "listRows[] have no titles" }, { status: 400 });
+        }
+        payload = {
+          messaging_product: "whatsapp",
+          to: recipient,
+          type: "interactive",
+          interactive: {
+            type: "list",
+            ...(headerText ? { header: { type: "text", text: String(headerText).slice(0, 60) } } : {}),
+            body: { text: String(bodyText).slice(0, 1024) },
+            ...(footerText ? { footer: { text: String(footerText).slice(0, 60) } } : {}),
+            action: {
+              button: String(listButton || "Choose an option").slice(0, 20),
+              sections: [{ title: String(listTitle || "Options").slice(0, 24), rows }],
+            },
           },
         };
         break;
@@ -257,7 +334,10 @@ export async function POST(request: Request) {
 
       default:
         return NextResponse.json(
-          { success: false, error: "Invalid type. Use: text | media | buttons | template | meta_template | reaction" },
+          {
+            success: false,
+            error: "Invalid type. Use: text | media | buttons | list | template | meta_template | reaction",
+          },
           { status: 400 }
         );
     }
@@ -304,20 +384,28 @@ export async function POST(request: Request) {
       }
 
       const storedType =
-        type === "buttons" ? "interactive" : type === "meta_template" ? "template" : type === "media" ? String(mediaType || "media") : type;
+        type === "buttons" || type === "list"
+          ? "interactive"
+          : type === "meta_template"
+            ? "template"
+            : type === "media"
+              ? String(mediaType || "media")
+              : type;
 
       const storedBody =
         type === "text"
           ? message
           : type === "buttons"
             ? buttonsBody
-            : type === "meta_template"
-              ? metaBody
-              : type === "media"
-                ? mediaBody
-                : type === "reaction"
-                  ? String(emoji ?? "")
-                  : templateText || template;
+            : type === "list"
+              ? flowTranscript || [headerText, bodyText, footerText].filter(Boolean).join("\n\n")
+              : type === "meta_template"
+                ? metaBody
+                : type === "media"
+                  ? mediaBody
+                  : type === "reaction"
+                    ? String(emoji ?? "")
+                    : templateText || template;
 
       const storedMessage: WAMessage = {
         id: messageId,

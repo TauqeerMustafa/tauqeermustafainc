@@ -16,6 +16,13 @@
  * customer who writes to the second number is answered by the second number —
  * previously every reply went out from whatever `WHATSAPP_PHONE_NUMBER_ID` held.
  *
+ * SCRIPTED LEAD FLOW
+ * ──────────────────
+ * A stranger's first message is answered with the interactive list in
+ * lib/wa-flow, and each tap after that is answered with the step its id names.
+ * Keyword rules still handle everyone already in a conversation. See
+ * `handleAutoReply` for the order the three take.
+ *
  * WHY THIS TALKS TO lib/wa-store DIRECTLY
  * ───────────────────────────────────────
  * It must NOT persist by fetching /api/whatsapp/messages: proxy.ts gates every
@@ -26,9 +33,11 @@
 import { NextResponse } from "next/server";
 import { createHmac, timingSafeEqual } from "node:crypto";
 import { isKnownNumber, primaryNumberId } from "@/lib/wa-numbers";
+import { FLOW_ENTRY, flowStep, resolveChoice, stepPayload, stepTranscript, type FlowStep } from "@/lib/wa-flow";
 import {
   appendMessage,
   updateMessageStatus,
+  getMessages,
   getRules,
   matchRule,
   type WAMessage,
@@ -110,7 +119,9 @@ export async function POST(request: Request) {
           const from    = msg.from;         // sender number (digits only)
           const msgType = msg.type;         // "text" | "image" | "audio" | ...
           const msgId   = msg.id ?? `msg_${from}_${msg.timestamp ?? ""}`;
-          const name    = value?.contacts?.find((c: any) => c.wa_id === from)?.profile?.name;
+          const name    = value?.contacts?.find(
+            (c: { wa_id?: string; profile?: { name?: string } }) => c.wa_id === from
+          )?.profile?.name;
 
           // Non-text messages carry no .text.body. Pull whatever text they do
           // have (caption, reaction emoji, button title, location label) so the
@@ -173,7 +184,7 @@ export async function POST(request: Request) {
           const stored = await appendMessage(storedMessage);
 
           if (stored) {
-            await handleAutoReply(from, text, msgId, channel);
+            await handleAutoReply(from, text, msgId, channel, choiceId ? String(choiceId) : null);
           }
         }
 
@@ -207,11 +218,31 @@ export async function POST(request: Request) {
  * checked against the configured list before use: an unrecognised id would be a
  * number this deployment was never set up for, and sending to it would only earn
  * a Graph error, so fall back to the primary instead.
+ *
+ * WHAT ANSWERS, IN ORDER
+ * ──────────────────────
+ * 1. A tap inside the scripted lead flow (lib/wa-flow) — the id the contact
+ *    tapped names the next step, so this needs no stored cursor.
+ * 2. A contact nobody has ever replied to gets the flow's opening list. This is
+ *    ahead of keyword rules on purpose: "hi" from a stranger should open the
+ *    list of what we do, not a canned greeting that asks them to type a word.
+ * 3. Keyword rules, for everyone already in a conversation.
+ *
+ * Only one of the three ever fires, so a contact never gets two answers at once.
  */
-async function handleAutoReply(to: string, incomingText: string, msgId: string, channel: string) {
+async function handleAutoReply(
+  to: string,
+  incomingText: string,
+  msgId: string,
+  channel: string,
+  choiceId: string | null
+) {
   const token         = process.env.WHATSAPP_TOKEN;
   const phoneNumberId = isKnownNumber(channel) ? channel : primaryNumberId();
-  if (!token || !phoneNumberId || !incomingText) return;
+  if (!token || !phoneNumberId) return;
+  // A tap carries an id but sometimes no useful text; plain messages are the
+  // other way round. Nothing to work with means nothing to answer.
+  if (!incomingText && !choiceId) return;
 
   if (channel && channel !== phoneNumberId) {
     console.warn(
@@ -221,6 +252,20 @@ async function handleAutoReply(to: string, incomingText: string, msgId: string, 
   }
 
   try {
+    const next = resolveChoice(choiceId);
+    if (next) {
+      await sendFlowStep(token, phoneNumberId, to, next, msgId);
+      return;
+    }
+
+    if (await isFirstContact(to)) {
+      const entry = flowStep(FLOW_ENTRY);
+      if (entry) {
+        await sendFlowStep(token, phoneNumberId, to, entry, msgId);
+        return;
+      }
+    }
+
     const rule = matchRule(await getRules(), incomingText);
     if (rule) {
       await sendText(token, phoneNumberId, to, rule.reply, msgId);
@@ -228,6 +273,73 @@ async function handleAutoReply(to: string, incomingText: string, msgId: string, 
   } catch (error) {
     console.error("[webhook] Auto-reply error:", error);
   }
+}
+
+/**
+ * Has anyone — a person or this webhook — ever sent this number anything?
+ *
+ * Deliberately "no outbound" rather than "one inbound": Meta retries deliveries
+ * and a contact often fires off two or three messages before we answer, so
+ * counting their messages would greet them twice. Once something has gone out,
+ * the opening list has already been offered.
+ */
+async function isFirstContact(number: string): Promise<boolean> {
+  try {
+    const all = await getMessages();
+    return !all.some((m) => m.direction === "outbound" && m.to === number);
+  } catch (e) {
+    // Better to stay quiet than to greet someone mid-conversation.
+    console.error("[webhook] Could not check conversation history:", e);
+    return false;
+  }
+}
+
+/** Send one step of the scripted flow and record it in the inbox. */
+async function sendFlowStep(
+  token: string,
+  phoneNumberId: string,
+  to: string,
+  step: FlowStep,
+  msgId: string
+) {
+  await markRead(token, phoneNumberId, msgId);
+
+  const res = await fetch(`${GRAPH_URL}/${phoneNumberId}/messages`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+    body: JSON.stringify(stepPayload(step, to)),
+    cache: "no-store",
+  });
+  const data = await res.json();
+  const messageId = data?.messages?.[0]?.id;
+
+  if (!messageId) {
+    console.error(`[webhook] Flow step "${step.id}" was not sent:`, data?.error?.message ?? data);
+    return;
+  }
+
+  await appendMessage({
+    id: messageId,
+    from: phoneNumberId,
+    to,
+    jid: `${to}@s.whatsapp.net`,
+    channel: phoneNumberId,
+    type: step.kind === "text" ? "text" : "interactive",
+    // Spell the options out — the interactive part cannot be read back later.
+    body: stepTranscript(step),
+    timestamp: new Date().toISOString(),
+    direction: "outbound",
+    status: "sent",
+  });
+}
+
+/** Blue ticks on the customer's side. Failure here must not block the reply. */
+async function markRead(token: string, phoneNumberId: string, msgId: string) {
+  await fetch(`${GRAPH_URL}/${phoneNumberId}/messages`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+    body: JSON.stringify({ messaging_product: "whatsapp", status: "read", message_id: msgId }),
+  }).catch(() => {});
 }
 
 async function sendText(
@@ -238,12 +350,7 @@ async function sendText(
   msgId: string
 ) {
   try {
-    // Mark the triggering message as read (blue ticks on the customer side).
-    await fetch(`${GRAPH_URL}/${phoneNumberId}/messages`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-      body: JSON.stringify({ messaging_product: "whatsapp", status: "read", message_id: msgId }),
-    }).catch(() => {});
+    await markRead(token, phoneNumberId, msgId);
 
     // Send the reply
     const res = await fetch(`${GRAPH_URL}/${phoneNumberId}/messages`, {

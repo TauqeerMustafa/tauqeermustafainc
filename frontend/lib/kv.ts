@@ -50,6 +50,13 @@ export const isKVConfigured = false;    // DEPRECATED — use checkKVConfigured(
 export const KEYS = {
   messages: "whatsapp:messages",
   rules: "whatsapp:rules",
+  // Which revision of the shipped auto-reply rules a deployment has taken. See
+  // getRules() in lib/wa-store: it upgrades an untouched set, never an edited one.
+  rulesVersion: "whatsapp:rules:version",
   templates: "whatsapp:templates",
+  // Same idea as rulesVersion, for the canned messages seeded by
+  // /api/whatsapp/templates: an untouched default set is upgraded, an edited one
+  // is left alone.
+  templatesVersion: "whatsapp:templates:version",
   conversations: "whatsapp:conversations",
 };
