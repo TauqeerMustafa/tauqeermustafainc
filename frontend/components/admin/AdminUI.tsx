@@ -156,11 +156,15 @@ export function AdminDrawer({
   open,
   title,
   onClose,
+  width = "default",
   children,
 }: {
   open: boolean;
   title: string;
   onClose: () => void;
+  /** `wide` is for drawers holding an editable list rather than a form — a row of
+   *  title + priority + date does not fit in `max-w-lg`. */
+  width?: "default" | "wide";
   children: ReactNode;
 }) {
   if (!open) return null;
@@ -168,7 +172,7 @@ export function AdminDrawer({
   return (
     <div className="fixed inset-0 z-[60] flex justify-end bg-black/60 backdrop-blur-sm">
       <div
-        className="adm-drawer w-full max-w-lg overflow-y-auto border-l p-6 sm:p-8"
+        className={`adm-drawer w-full ${width === "wide" ? "max-w-2xl" : "max-w-lg"} overflow-y-auto border-l p-6 sm:p-8`}
         style={{ background: "var(--adm-surface)", borderColor: "var(--adm-border)" }}
         role="dialog"
         aria-modal="true"
