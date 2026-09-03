@@ -16,6 +16,7 @@ import {
   adminInputStyle,
 } from "@/components/admin/AdminUI";
 import { useAdminMetrics, useAdminRoles, useAdminTeams, useAdminUsers, useCreateAdminUser, useDeleteAdminUser, useProvisionAllMailboxes, useProvisionMailbox, useUpdateAdminUser } from "@/hooks/useAdmin";
+import { generatePassword } from "@/lib/credentials";
 import { readOnboardPrefill, suggestCompanyEmail } from "@/lib/onboarding-link";
 import type { AdminUser, UserStatus } from "@/types";
 import type { CreateAdminUserPayload } from "@/services/admin.service";
@@ -39,20 +40,6 @@ const emptyForm: CreateAdminUserPayload = {
   sendWelcomeEmail: true,
   welcomeEmailTo: "",
 };
-
-/**
- * A password nobody had to invent. Ambiguous glyphs (O/0, l/1) are left out
- * because this gets read off a screen and typed by hand at least once.
- */
-function generatePassword() {
-  const alphabet = "ABCDEFGHJKMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789";
-  const symbols = "!@#$%&*?";
-  const bytes = new Uint32Array(14);
-  crypto.getRandomValues(bytes);
-  const core = Array.from(bytes, (byte) => alphabet[byte % alphabet.length]).join("");
-  const tail = symbols[bytes[0] % symbols.length];
-  return `${core}${tail}`;
-}
 
 const statusStyles: Record<UserStatus, { label: string; background: string; color: string }> = {
   pending: { label: "Pending", background: "var(--adm-amber-light)", color: "var(--adm-amber)" },

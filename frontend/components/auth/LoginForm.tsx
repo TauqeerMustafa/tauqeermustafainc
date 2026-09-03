@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useCallback, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -11,6 +11,7 @@ import { ArrowLeft, Loader2, ShieldCheck } from "lucide-react";
 import { Field, PortalButton, inputClass } from "@/components/portal/PortalUI";
 import { useLogin } from "@/hooks/useAuth";
 import { PORTAL, PORTAL_HOME_PATH, PORTAL_LABEL, type PortalId } from "@/lib/rbac";
+import { returnToOrHome } from "@/lib/return-to";
 import { useAuthContext } from "@/providers/auth-provider";
 import type { ApiError } from "@/types";
 import { appConfig } from "@/config/app";
@@ -49,7 +50,19 @@ export default function LoginForm({
   const router = useRouter();
   const { isAuthenticated } = useAuthContext();
   const loginMutation = useLogin();
-  const destination = redirectUrl ?? PORTAL_HOME_PATH[portal];
+
+  /**
+   * Where to land after a successful sign-in: an explicit prop wins, otherwise
+   * the `next` the guard recorded when it turned this person away, otherwise the
+   * dashboard. Read from `window` at navigation time rather than held in state —
+   * an already-authenticated visitor redirects on the first commit, before any
+   * state set from an effect could have settled.
+   */
+  const destination = useCallback(() => {
+    if (redirectUrl) return redirectUrl;
+    if (typeof window === "undefined") return PORTAL_HOME_PATH[portal];
+    return returnToOrHome(window.location.search, portal);
+  }, [redirectUrl, portal]);
 
   const {
     register,
@@ -60,16 +73,14 @@ export default function LoginForm({
     defaultValues: { remember: false },
   });
 
-  // `destination` belongs in the dep list: it changes with the portal prop, and
-  // omitting it meant a re-render could redirect to a stale route.
   useEffect(() => {
-    if (isAuthenticated) router.replace(destination);
+    if (isAuthenticated) router.replace(destination());
   }, [isAuthenticated, router, destination]);
 
   async function onSubmit(data: LoginFormData) {
     try {
       await loginMutation.mutateAsync(data);
-      router.replace(destination);
+      router.replace(destination());
     } catch {
       // Surfaced by the error panel below; a failed sign-in must not navigate.
     }

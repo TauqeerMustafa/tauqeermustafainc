@@ -2,18 +2,18 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 
 import { useCurrentUser } from "@/hooks/useAuth";
 import {
   PORTAL_HOME_PATH,
   PORTAL_LABEL,
-  PORTAL_LOGIN_PATH,
   canAccessPortal,
   portalsForRole,
   roleLabel,
   type PortalId,
 } from "@/lib/rbac";
+import { currentLocationPath, loginUrlWithReturnTo } from "@/lib/return-to";
 import { useAuthContext } from "@/providers/auth-provider";
 
 /** Full-bleed message panel used for every terminal guard state. */
@@ -72,14 +72,22 @@ export default function PortalGuard({
   const { data, isError } = useCurrentUser();
 
   const user = data?.data;
-  const loginUrl = PORTAL_LOGIN_PATH[portal];
   const stillChecking = !user && !isError;
+
+  // The page we turned away, so signing in again re-opens the link the person
+  // actually followed instead of dumping them on the dashboard. Captured once,
+  // during the first render, before any redirect can rewrite the URL — the
+  // server pass returns "" and only the "session expired" branch reads it, so
+  // there is nothing for hydration to disagree about.
+  const [returnTo] = useState(currentLocationPath);
 
   useEffect(() => {
     if (!isAuthenticated || isError) {
-      router.replace(loginUrl);
+      // Read the location here rather than from state: on a first-paint bounce
+      // the state has not settled yet, but `window` is already accurate.
+      router.replace(loginUrlWithReturnTo(portal, currentLocationPath()));
     }
-  }, [isAuthenticated, isError, router, loginUrl]);
+  }, [isAuthenticated, isError, router, portal]);
 
   if (!isAuthenticated) {
     return null;
@@ -102,7 +110,7 @@ export default function PortalGuard({
         title="Session expired"
         body="Your session is no longer valid. Sign in again to continue."
       >
-        <GuardLink href={loginUrl} label="Back to login" />
+        <GuardLink href={loginUrlWithReturnTo(portal, returnTo)} label="Back to login" />
       </GuardNotice>
     );
   }

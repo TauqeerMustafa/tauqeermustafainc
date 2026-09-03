@@ -3,6 +3,8 @@
 import { ReactNode, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { getClientToken, setClientToken } from "@/lib/client-auth";
+import { PORTAL } from "@/lib/rbac";
+import { loginUrlWithReturnTo } from "@/lib/return-to";
 
 export default function ClientGuard({ children }: { children: ReactNode }) {
   const router = useRouter();
@@ -17,7 +19,10 @@ export default function ClientGuard({ children }: { children: ReactNode }) {
     }
     const token = callbackToken || getClientToken();
     if (!token) {
-      router.replace("/client/login");
+      // Carry the page we turned away so signing in re-opens the link the
+      // client followed, not the dashboard. The token is already stripped from
+      // the URL above, so it is never handed back through `next`.
+      router.replace(loginUrlWithReturnTo(PORTAL.CLIENT, url.pathname + url.search));
       return;
     }
     const frame = window.requestAnimationFrame(() => setReady(true));

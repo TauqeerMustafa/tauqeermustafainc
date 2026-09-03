@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { Mail, MailOpen, Trash2, UserPlus } from "lucide-react";
 
 import { AdminConfirmDialog } from "@/components/admin/AdminUI";
+import BulkOnboardDrawer, { type BulkApplicant } from "@/components/admin/BulkOnboardDrawer";
 import {
   Badge,
   EmptyBlock,
@@ -37,6 +38,7 @@ export default function AdminMessagesPage() {
 
   const [pendingDelete, setPendingDelete] = useState<ContactMessage | null>(null);
   const [expanded, setExpanded] = useState<string | null>(null);
+  const [bulkOpen, setBulkOpen] = useState(false);
 
   const all = data?.data.items ?? [];
 
@@ -52,6 +54,17 @@ export default function AdminMessagesPage() {
 
   const visible = tagged.filter(
     (t) => (filter === "all" || t.kind === filter) && (!unreadOnly || !t.message.isRead),
+  );
+
+  // Everyone who applied for a job, in the order they applied. Hiring is a
+  // batch job at intake time, so this feeds one drawer rather than one link per
+  // row — the per-row "Onboard as intern" link still handles the odd single.
+  const applicants: BulkApplicant[] = useMemo(
+    () =>
+      tagged
+        .filter((t) => t.kind === "job")
+        .map(({ message }) => ({ id: message.id, name: message.name, email: message.email })),
+    [tagged],
   );
 
   async function handleDelete() {
@@ -89,6 +102,16 @@ export default function AdminMessagesPage() {
             />
             Unread only
           </label>
+          {applicants.length > 0 && (
+            <button
+              type="button"
+              onClick={() => setBulkOpen(true)}
+              className="flex items-center gap-1.5 border border-adm-blue px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.14em] text-adm-blue transition hover:bg-adm-blue-light"
+            >
+              <UserPlus size={12} />
+              Hire all {applicants.length}
+            </button>
+          )}
           <span className="ml-auto text-xs text-adm-text-3">{visible.length} shown</span>
         </Toolbar>
 
@@ -184,6 +207,12 @@ export default function AdminMessagesPage() {
           );
         })}
       </Panel>
+
+      <BulkOnboardDrawer
+        open={bulkOpen}
+        applicants={applicants}
+        onClose={() => setBulkOpen(false)}
+      />
 
       <AdminConfirmDialog
         open={Boolean(pendingDelete)}

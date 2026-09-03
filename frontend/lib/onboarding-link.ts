@@ -35,6 +35,28 @@ export function suggestCompanyEmail(name: string): string {
   return first ? `${first}@${host}` : "";
 }
 
+/**
+ * `suggestCompanyEmail`, kept unique against addresses already in play —
+ * `ali@host`, then `ali2@host`, `ali3@host`. Two hires who share a first name
+ * are common enough that a silent collision (a 409 mid-run) is worse than a
+ * numbered address the admin can see and edit before anything is created.
+ * Returns "" when the name yields no usable local part.
+ */
+export function uniqueCompanyEmail(name: string, taken: Iterable<string>): string {
+  const base = suggestCompanyEmail(name);
+  if (!base) return "";
+
+  const used = new Set(Array.from(taken, (value) => value.trim().toLowerCase()));
+  if (!used.has(base.toLowerCase())) return base;
+
+  const [local, host] = base.split("@");
+  for (let suffix = 2; suffix < 100; suffix += 1) {
+    const candidate = `${local}${suffix}@${host}`;
+    if (!used.has(candidate.toLowerCase())) return candidate;
+  }
+  return "";
+}
+
 export interface OnboardPrefill {
   name: string;
   personalEmail: string;

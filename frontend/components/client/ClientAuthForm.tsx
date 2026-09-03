@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import { FormEvent, useState } from "react";
 import { ArrowRight, CheckCircle2, Mail, ShieldCheck } from "lucide-react";
 import { clientApiUrl, setClientToken } from "@/lib/client-auth";
+import { PORTAL } from "@/lib/rbac";
+import { returnToOrHome } from "@/lib/return-to";
 
 type Props = { mode: "login" | "register" };
 
@@ -33,7 +35,9 @@ export default function ClientAuthForm({ mode }: Props) {
         router.push(`/client/verify?user=${userId}`);
       } else {
         setClientToken(payload.data.access_token);
-        router.push("/client/dashboard");
+        // Honour the `next` the guard recorded, so an expired session returns to
+        // the page the client was actually on. Validated to this portal.
+        router.push(returnToOrHome(window.location.search, PORTAL.CLIENT));
       }
     } catch (requestError) {
       setError(requestError instanceof Error ? requestError.message : "Unable to complete this request.");

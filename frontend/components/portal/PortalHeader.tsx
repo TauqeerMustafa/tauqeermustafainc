@@ -8,7 +8,8 @@ import PortalThemeToggle from "@/components/portal/PortalThemeToggle";
 import { Avatar } from "@/components/portal/PortalUI";
 import { useCurrentUser, useLogout } from "@/hooks/useAuth";
 import { useI18n } from "@/lib/i18n";
-import { PORTAL_LOGIN_PATH, roleLabel, type PortalId } from "@/lib/rbac";
+import { roleLabel, type PortalId } from "@/lib/rbac";
+import { currentLocationPath, loginUrlWithReturnTo } from "@/lib/return-to";
 
 /**
  * Portal topbar — Adminator's layout (menu · search | actions · identity) in
@@ -29,8 +30,12 @@ export default function PortalHeader({ portal, onMenuClick }: Props) {
   const user = data?.data;
 
   function handleLogout() {
+    // Remember the page before clearing the token: signing back in reopens it.
+    // Same helper the guard uses, so the two redirects cannot disagree about
+    // where a returning session lands.
+    const back = loginUrlWithReturnTo(portal, currentLocationPath());
     logout();
-    router.replace(PORTAL_LOGIN_PATH[portal]);
+    router.replace(back);
   }
 
   return (
