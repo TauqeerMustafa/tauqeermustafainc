@@ -3,21 +3,21 @@
 /**
  * Hand a playbook to a whole intake in one pass.
  *
- * A playbook is the same eight cards every time, so assigning it one person at a
- * time means repeating eight identical decisions per hire — and the week-one set
- * only works if everybody starts it on the same day. This picks any number of
- * people and posts the set for all of them from one shared start date.
+ * A playbook is the same set of cards every time, so assigning it one person at a
+ * time means repeating a dozen identical decisions per hire — and a trial set only
+ * works if everybody starts it on the same day. This picks any number of people
+ * and posts the set for all of them from one shared start date.
  *
  * The set is a starting point, not a fixed menu: every card's title, detail,
  * priority and due date is editable here, cards can be dropped, and one-off cards
  * can be added. A playbook that cannot be adjusted gets abandoned the first time
- * an intake needs seven of its eight cards.
+ * an intake needs twelve of its thirteen cards.
  *
  * Two deliberate choices, both matching the bulk-hire drawer:
  *  - Tasks are posted **sequentially**, one request each, so a failure halfway
  *    leaves a partial set the admin can see per person and retry, rather than an
  *    opaque batch.
- *  - Progress is reported per person, not as one bar. "Ayesha 8/8, Bilal 5/8"
+ *  - Progress is reported per person, not as one bar. "Ayesha 13/13, Bilal 5/13"
  *    tells the admin who to chase; "62%" does not.
  */
 
@@ -240,8 +240,8 @@ export default function PlaybookDrawer({ onClose }: { onClose: () => void }) {
   const entries = Object.values(progress);
   const created = entries.reduce((sum, entry) => sum + entry.done, 0);
   const failed = entries.reduce((sum, entry) => sum + entry.failed, 0);
-  // One line per distinct cause: eight cards failing for the same reason is one
-  // problem, not eight.
+  // One line per distinct cause: a whole set failing for the same reason is one
+  // problem, not thirteen.
   const causes = [...new Set(entries.map((entry) => entry.error).filter(Boolean))] as string[];
 
   function submitLabel() {

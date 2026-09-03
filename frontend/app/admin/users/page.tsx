@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Check, ChevronDown, Clock3, ListChecks, Loader2, Mail, MailPlus, MailWarning, MoreHorizontal, PauseCircle, Search, ShieldCheck, Trash2, UserRound, X } from "lucide-react";
 
 import {
@@ -17,7 +17,7 @@ import {
 } from "@/components/admin/AdminUI";
 import { useAdminMetrics, useAdminRoles, useAdminTeams, useAdminUsers, useCreateAdminUser, useDeleteAdminUser, useProvisionAllMailboxes, useProvisionMailbox, useUpdateAdminUser } from "@/hooks/useAdmin";
 import { generatePassword } from "@/lib/credentials";
-import { readOnboardPrefill, suggestCompanyEmail } from "@/lib/onboarding-link";
+import { readOnboardPrefill, suggestCompanyEmail, type OnboardPrefill } from "@/lib/onboarding-link";
 import type { AdminUser, UserStatus } from "@/types";
 import type { CreateAdminUserPayload } from "@/services/admin.service";
 
@@ -61,14 +61,49 @@ function formatDate(value: string) {
   return new Intl.DateTimeFormat("en", { month: "short", day: "numeric", year: "numeric" }).format(new Date(value));
 }
 
+/**
+ * Arriving from "Onboard as intern" on a job application: read the applicant off
+ * the query string.
+ *
+ * Read during the first render rather than from an effect. PortalGuard renders
+ * nothing until the stored token resolves on the client, so this page never
+ * mounts on the server pass — there is nothing for hydration to disagree about,
+ * and the drawer opens already filled instead of flashing empty first.
+ */
+function initialPrefill(): OnboardPrefill | null {
+  if (typeof window === "undefined") return null;
+  return readOnboardPrefill(window.location.search);
+}
+
+/**
+ * The create form as it should open for an applicant. The company address is
+ * only a suggestion (the admin owns the final mailbox name), the personal
+ * address is where the credentials go, and the role is Employee — interns hold
+ * the member role.
+ */
+function prefilledForm(prefill: OnboardPrefill | null): CreateAdminUserPayload {
+  if (!prefill) return emptyForm;
+  return {
+    ...emptyForm,
+    name: prefill.name,
+    email: suggestCompanyEmail(prefill.name),
+    password: generatePassword(),
+    roleSlug: "member",
+    status: "approved",
+    sendWelcomeEmail: true,
+    welcomeEmailTo: prefill.personalEmail,
+  };
+}
+
 export default function AdminUsersPage() {
+  const [prefill] = useState(initialPrefill);
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState<UserStatus | "all">("all");
-  const [drawerOpen, setDrawerOpen] = useState(false);
-  const [form, setForm] = useState<CreateAdminUserPayload>(emptyForm);
+  const [drawerOpen, setDrawerOpen] = useState(prefill !== null);
+  const [form, setForm] = useState<CreateAdminUserPayload>(() => prefilledForm(prefill));
   // True while the drawer holds an applicant pulled off Messages, so the copy
   // and the post-create nudge can speak to onboarding rather than a bare add.
-  const [fromApplication, setFromApplication] = useState(false);
+  const [fromApplication, setFromApplication] = useState(prefill !== null);
   const [menuId, setMenuId] = useState<string | null>(null);
   const [lastCreated, setLastCreated] = useState<{ name: string; address?: string | null; hasMailbox?: boolean; note?: string; offerPlaybook?: boolean } | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<AdminUser | null>(null);
@@ -98,32 +133,12 @@ export default function AdminUsersPage() {
     setDrawerOpen(true);
   }
 
-  // Arriving from "Onboard as intern" on a job application: open the create
-  // drawer prefilled with what the applicant already sent. The company address
-  // is only a suggestion (the admin owns the final mailbox name), the personal
-  // address is where the credentials go, and the role defaults to Employee —
-  // interns hold the member role. Runs once; the query is then stripped so a
-  // refresh does not reopen a stale form.
-  const onboardHandled = useRef(false);
+  // Strip the onboarding query once the form has it, so a refresh does not
+  // reopen a stale prefill. Browser history is an external system — the one
+  // thing an effect is actually for.
   useEffect(() => {
-    if (onboardHandled.current) return;
-    onboardHandled.current = true;
-    const prefill = readOnboardPrefill(window.location.search);
-    if (!prefill) return;
-    setForm({
-      ...emptyForm,
-      name: prefill.name,
-      email: suggestCompanyEmail(prefill.name),
-      password: generatePassword(),
-      roleSlug: "member",
-      status: "approved",
-      sendWelcomeEmail: true,
-      welcomeEmailTo: prefill.personalEmail,
-    });
-    setFromApplication(true);
-    setDrawerOpen(true);
-    window.history.replaceState(null, "", "/admin/users");
-  }, []);
+    if (prefill) window.history.replaceState(null, "", "/admin/users");
+  }, [prefill]);
 
   async function handleCreate(event: React.FormEvent) {
     event.preventDefault();
@@ -141,7 +156,7 @@ export default function AdminUsersPage() {
       hasMailbox: created.data.hasMailbox,
       // The API says whether the credentials actually left the building.
       note: form.sendWelcomeEmail ? created.message : undefined,
-      // A fresh Employee hire needs their week-one board; point straight to it.
+      // A fresh Employee hire needs their trial board; point straight to it.
       offerPlaybook: fromApplication || form.roleSlug === "member",
     });
     setFromApplication(false);
@@ -225,7 +240,7 @@ export default function AdminUsersPage() {
               {lastCreated.offerPlaybook ? (
                 <a href="/admin/tasks" className="mt-2 inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-widest" style={{ color: "var(--adm-blue)" }}>
                   <ListChecks size={13} />
-                  Assign their week-one playbook
+                  Assign their trial playbook
                 </a>
               ) : null}
             </div>

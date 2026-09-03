@@ -1,7 +1,7 @@
 /**
  * Employees → Lead Playbook.
  *
- * The plan the week-one task set tells a new starter to read, served to the
+ * The plan the trial task set tells a new starter to read, served to the
  * people who have to follow it. Static: the markdown is fixed at build time, so
  * this prerenders once and costs nothing per view.
  */
@@ -22,7 +22,7 @@ export default function EmployeePlaybookPage() {
     <div className="flex flex-col gap-8">
       <PortalPageHeader
         title="Lead Playbook"
-        description="How we find leads and what is expected of you this week. Work it in My Pipeline."
+        description="How we find leads and what is expected of you on the trial. Work it in My Pipeline."
       />
       <PlaybookPanel>
         <PlaybookDoc markdown={markdown} />

@@ -357,7 +357,7 @@ function BulkOnboardForm({
               className="mt-1.5 inline-block font-bold uppercase tracking-widest"
               style={{ color: "var(--adm-blue)" }}
             >
-              Assign their week-one playbook
+              Assign their trial playbook
             </a>
           )}
         </div>

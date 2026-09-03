@@ -171,7 +171,7 @@ Your work is already waiting on the portal:
 
   * Tasks          everything assigned to you, by stage
   * My Pipeline    your own lead book - source it, work it, log every touch
-  * Lead Playbook  how we find leads, and what your first week looks like
+  * Lead Playbook  how we find leads, and what is expected of you
   * Attendance     check in when you start and out when you finish
   * Documents      company policies and handbooks
 

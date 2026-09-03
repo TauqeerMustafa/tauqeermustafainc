@@ -2,7 +2,7 @@
  * Server-only loader for the documents kept as markdown under `content/`.
  *
  * `content/lead-gen-playbook.md` is the single copy of the lead-generation plan:
- * the root `LEAD-GEN-PLAYBOOK.md` only points here, and the week-one task set in
+ * the root `LEAD-GEN-PLAYBOOK.md` only points here, and the trial task set in
  * `constants/playbooks.ts` sends new starters to the portal page that renders
  * it. A plan that changes in one place cannot leave a stale copy behind.
  *

@@ -21,7 +21,7 @@ export default function ManagementPlaybookPage() {
     <div className="flex flex-col gap-8">
       <PortalPageHeader
         title="Lead Playbook"
-        description="The standard your team is held to: sources, stages, logging, and the week-one targets."
+        description="The standard your team is held to: sources, stages, logging, and the trial targets."
       />
       <PlaybookPanel>
         <PlaybookDoc markdown={markdown} />

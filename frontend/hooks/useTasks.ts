@@ -81,9 +81,9 @@ export function useCreateTask() {
  * always reaches the end of the list.
  *
  * The cache is invalidated once, after the last request, rather than per task
- * the way `useCreateTask` does it — eight tasks across ten people is eighty
- * requests, and five invalidated query trees on each would refetch the board the
- * admin is watching eighty times over.
+ * the way `useCreateTask` does it — a thirteen-card playbook across ten people is
+ * a hundred and thirty requests, and five invalidated query trees on each would
+ * refetch the board the admin is watching a hundred and thirty times over.
  */
 export function useCreateTasks() {
   const queryClient = useQueryClient();
