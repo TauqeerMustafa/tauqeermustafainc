@@ -126,7 +126,11 @@ export default function CreateEmployeePage() {
 
         <Panel title="Employment details" icon={Briefcase}>
           <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
-            <Field label="Employee ID" htmlFor="employeeIdString" hint="e.g. TMI-EMP-014">
+            <Field
+              label="Employee ID"
+              htmlFor="employeeIdString"
+              hint="Leave blank to issue the next one, e.g. 006014"
+            >
               <input
                 id="employeeIdString"
                 value={form.employeeIdString ?? ""}

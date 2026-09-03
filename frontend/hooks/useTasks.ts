@@ -71,6 +71,51 @@ export function useCreateTask() {
   });
 }
 
+/**
+ * Create many tasks in one action — a playbook handed to a whole intake.
+ *
+ * Sequential because the API takes one task per request, and a stop halfway has
+ * to leave a visible partial set rather than an unknown one. Nothing is thrown
+ * for a single failure: `onResult` reports each request as it lands, so the
+ * caller can show which person is done and which one needs a retry, and the run
+ * always reaches the end of the list.
+ *
+ * The cache is invalidated once, after the last request, rather than per task
+ * the way `useCreateTask` does it — eight tasks across ten people is eighty
+ * requests, and five invalidated query trees on each would refetch the board the
+ * admin is watching eighty times over.
+ */
+export function useCreateTasks() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({
+      payloads,
+      onResult,
+    }: {
+      payloads: CreateTaskPayload[];
+      onResult?: (index: number, error?: Error) => void;
+    }) => {
+      let created = 0;
+      for (const [index, payload] of payloads.entries()) {
+        try {
+          await taskService.create(payload);
+          created += 1;
+          onResult?.(index);
+        } catch (error) {
+          onResult?.(
+            index,
+            error instanceof Error ? error : new Error("Could not create this task."),
+          );
+        }
+      }
+      return created;
+    },
+    // Rows exist even when the run ends badly, so the refetch cannot hang off
+    // success.
+    onSettled: () => invalidateTasks(queryClient),
+  });
+}
+
 export function useUpdateTask() {
   const queryClient = useQueryClient();
   return useMutation({

@@ -22,11 +22,12 @@ moment: see :func:`send_welcome_email`.
 
 from __future__ import annotations
 
+import re
 import smtplib
 from datetime import date
 from email.message import EmailMessage
 
-from sqlalchemy import func, select
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.core.config import settings
@@ -37,8 +38,22 @@ from app.models.user import User
 
 logger = get_logger(__name__)
 
-# Human-facing staff numbers: TMI-0001, TMI-0002, ...
-EMPLOYEE_ID_PREFIX = "TMI-"
+# Human-facing staff numbers: 006001, 006002, ... Six digits, and the series
+# starts partway in rather than at 1 on purpose — a staff number gets quoted in
+# email signatures and to clients, and "000001" tells them exactly how many
+# people work here. Migration ``d2f8b6a3c514`` moved the earlier ``TMI-0001``
+# codes into this series, so there is one format on the books.
+EMPLOYEE_ID_WIDTH = 6
+EMPLOYEE_ID_START = 6001
+
+# What counts as one of ours. The column also holds whatever an admin typed by
+# hand, and those are left out of the numbering rather than parsed.
+_ISSUED_CODE = re.compile(r"^[0-9]+$")
+
+
+def format_employee_number(value: int) -> str:
+    """``6001`` → ``"006001"``."""
+    return f"{value:0{EMPLOYEE_ID_WIDTH}d}"
 
 
 def _role_slug(user: User) -> str | None:
@@ -52,20 +67,21 @@ def is_staff_user(user: User) -> bool:
 
 
 def next_employee_number(db: Session) -> str:
-    """Next free ``TMI-0000`` code.
+    """Next free staff number, e.g. ``006001``.
 
-    Derived from how many codes already use the prefix rather than from a
-    sequence, then advanced past any collision so a manually-assigned code can
-    never wedge onboarding.
+    Taken from the highest number already issued rather than from a count of
+    rows, so deleting a profile cannot hand the same code to two people. Then
+    advanced past any collision, so a code somebody assigned by hand can never
+    wedge onboarding.
     """
-    used = db.scalar(
-        select(func.count(Employee.id)).where(
-            Employee.employee_id_string.like(f"{EMPLOYEE_ID_PREFIX}%")
-        )
-    ) or 0
-    candidate = used + 1
+    issued = [
+        int(code)
+        for (code,) in db.execute(select(Employee.employee_id_string)).all()
+        if code and _ISSUED_CODE.match(code.strip())
+    ]
+    candidate = max(max(issued, default=0) + 1, EMPLOYEE_ID_START)
     for _ in range(1000):
-        code = f"{EMPLOYEE_ID_PREFIX}{candidate:04d}"
+        code = format_employee_number(candidate)
         if db.scalar(select(Employee.id).where(Employee.employee_id_string == code)) is None:
             return code
         candidate += 1

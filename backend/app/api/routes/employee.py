@@ -11,6 +11,7 @@ from app.models.audit_log import AuditLog
 from app.models.role import Role
 from app.core.security import hash_password
 from app.schemas.employee import EmployeeCreate, EmployeeUpdate, EmployeeResponse
+from app.services.onboarding import next_employee_number
 from app.services.openemail import provision_user_mailbox
 
 router = APIRouter()
@@ -96,7 +97,12 @@ def create_employee(
     # 2. Create Employee profile
     new_employee = Employee(
         user_id=new_user.id,
-        employee_id_string=payload.employee_id_string,
+        # The form leaves this blank in the normal case: issue the next staff
+        # number rather than storing nothing, so both creation paths — here and
+        # Admin → Users — number people the same way.
+        employee_id_string=(
+            (payload.employee_id_string or "").strip() or next_employee_number(db) or None
+        ),
         job_title=payload.job_title,
         department_id=payload.department_id,
         manager_id=payload.manager_id,

@@ -11,8 +11,8 @@ import {
   adminInputClass,
   adminInputStyle,
 } from "@/components/admin/AdminUI";
+import PlaybookDrawer from "@/components/admin/tasks/PlaybookDrawer";
 import { useAdminUsers } from "@/hooks/useAdmin";
-import { PLAYBOOKS, playbookDueDate } from "@/constants/playbooks";
 import { useManagementProjects } from "@/hooks/useDashboard";
 import { useCreateTask, useDeleteTask, useMyTasks, useTasks, useUpdateTask } from "@/hooks/useTasks";
 import { useI18n } from "@/lib/i18n";
@@ -83,17 +83,13 @@ export default function TaskKanban({ isAdmin = false }) {
   const [formError, setFormError] = useState<string | null>(null);
   const [pendingDelete, setPendingDelete] = useState<ProjectTask | null>(null);
 
-  // Playbook state: an onboarding set assigned to one person in one action.
+  // Playbook assignment lives in its own drawer — it fans one set out across
+  // several people and owns the progress that goes with that.
   const [isPlaybookOpen, setPlaybookOpen] = useState(false);
-  const [playbookId, setPlaybookId] = useState(PLAYBOOKS[0]?.id ?? "");
-  const [playbookAssignee, setPlaybookAssignee] = useState("");
-  const [playbookStart, setPlaybookStart] = useState(() => new Date().toISOString().slice(0, 10));
-  const [playbookError, setPlaybookError] = useState<string | null>(null);
-  const [playbookBusy, setPlaybookBusy] = useState(false);
 
   // Both pickers hit gated routes and only matter while a drawer is open, so
   // they stay unfetched until an admin opens one.
-  const pickersEnabled = isAdmin && (isFormOpen || isPlaybookOpen);
+  const pickersEnabled = isAdmin && isFormOpen;
   const projectsQuery = useManagementProjects({ enabled: pickersEnabled });
   const usersQuery = useAdminUsers({ pageSize: 100 }, pickersEnabled);
   // `assigned_to_id` is a FK to users, not to the employee roster.
@@ -177,46 +173,6 @@ export default function TaskKanban({ isAdmin = false }) {
     }
   }
 
-  const playbook = PLAYBOOKS.find((entry) => entry.id === playbookId) ?? PLAYBOOKS[0];
-
-  /**
-   * Assigns a whole playbook. Posted one at a time rather than in parallel so a
-   * failure halfway through leaves a partial set the admin can see and finish,
-   * instead of an unpredictable subset.
-   */
-  async function assignPlaybook(event: React.FormEvent) {
-    event.preventDefault();
-    if (!playbook) return;
-    if (!playbookAssignee) {
-      setPlaybookError(t("Choose who these tasks are for."));
-      return;
-    }
-
-    setPlaybookError(null);
-    setPlaybookBusy(true);
-    try {
-      for (const template of playbook.tasks) {
-        await createTask.mutateAsync({
-          title: template.title,
-          description: template.description,
-          status: "todo",
-          priority: template.priority,
-          dueDate: playbookDueDate(playbookStart, template.dueInDays),
-          projectId: null,
-          assignedToId: playbookAssignee,
-        });
-      }
-      setPlaybookOpen(false);
-      setPlaybookAssignee("");
-    } catch (error) {
-      setPlaybookError(
-        error instanceof Error ? error.message : t("Could not assign this playbook."),
-      );
-    } finally {
-      setPlaybookBusy(false);
-    }
-  }
-
   return (
     <div className="flex h-full min-h-[70vh] flex-col gap-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -234,10 +190,7 @@ export default function TaskKanban({ isAdmin = false }) {
           <div className="flex items-center gap-2">
             <button
               type="button"
-              onClick={() => {
-                setPlaybookError(null);
-                setPlaybookOpen(true);
-              }}
+              onClick={() => setPlaybookOpen(true)}
               className="btn-press flex items-center justify-center gap-2 border px-5 py-2.5 text-sm font-bold transition hover:opacity-90"
               style={{ borderColor: "var(--adm-border)", color: "var(--adm-text-2)" }}
             >
@@ -532,102 +485,7 @@ export default function TaskKanban({ isAdmin = false }) {
         </AdminDrawer>
       )}
 
-      {isAdmin && playbook && (
-        <AdminDrawer
-          open={isPlaybookOpen}
-          title={t("Assign playbook")}
-          onClose={() => setPlaybookOpen(false)}
-        >
-          <form onSubmit={assignPlaybook} className="grid gap-5">
-            <AdminField label={t("Playbook")} htmlFor="playbook-id">
-              <select
-                id="playbook-id"
-                value={playbookId}
-                onChange={(event) => setPlaybookId(event.target.value)}
-                className={adminInputClass}
-                style={adminInputStyle}
-              >
-                {PLAYBOOKS.map((entry) => (
-                  <option key={entry.id} value={entry.id}>
-                    {t(entry.name)}
-                  </option>
-                ))}
-              </select>
-              <p className="text-xs" style={{ color: "var(--adm-text-3)" }}>
-                {t(playbook.summary)}
-              </p>
-            </AdminField>
-
-            <AdminField label={t("Assign to")} htmlFor="playbook-assignee">
-              <select
-                id="playbook-assignee"
-                required
-                value={playbookAssignee}
-                onChange={(event) => setPlaybookAssignee(event.target.value)}
-                className={adminInputClass}
-                style={adminInputStyle}
-              >
-                <option value="">{t("Choose a person…")}</option>
-                {users.map((option) => (
-                  <option key={option.id} value={option.id}>
-                    {option.name || option.email}
-                  </option>
-                ))}
-              </select>
-            </AdminField>
-
-            <AdminField label={t("Start date")} htmlFor="playbook-start">
-              <input
-                id="playbook-start"
-                type="date"
-                required
-                value={playbookStart}
-                onChange={(event) => setPlaybookStart(event.target.value)}
-                className={adminInputClass}
-                style={adminInputStyle}
-              />
-              <p className="text-xs" style={{ color: "var(--adm-text-3)" }}>
-                {t("Due dates are spread across the week from this date.")}
-              </p>
-            </AdminField>
-
-            <ol className="grid gap-2">
-              {playbook.tasks.map((template, index) => (
-                <li
-                  key={template.title}
-                  className="flex items-start justify-between gap-3 border p-3 text-sm"
-                  style={{ borderColor: "var(--adm-border)", background: "var(--adm-surface-2)" }}
-                >
-                  <span style={{ color: "var(--adm-text)" }}>
-                    <span className="me-2 font-bold" style={{ color: "var(--adm-text-3)" }}>
-                      {index + 1}.
-                    </span>
-                    {t(template.title)}
-                  </span>
-                  <span
-                    className="shrink-0 text-[11px] font-bold uppercase tracking-wider"
-                    style={{ color: "var(--adm-text-3)" }}
-                  >
-                    {playbookDueDate(playbookStart, template.dueInDays)}
-                  </span>
-                </li>
-              ))}
-            </ol>
-
-            {playbookError && (
-              <p className="text-sm" role="alert" style={{ color: "var(--adm-red)" }}>
-                {playbookError}
-              </p>
-            )}
-
-            <AdminFormActions
-              onCancel={() => setPlaybookOpen(false)}
-              isPending={playbookBusy}
-              submitLabel={t("Assign {count} tasks", { count: playbook.tasks.length })}
-            />
-          </form>
-        </AdminDrawer>
-      )}
+      {isAdmin && isPlaybookOpen && <PlaybookDrawer onClose={() => setPlaybookOpen(false)} />}
 
       <AdminConfirmDialog
         open={Boolean(pendingDelete)}
