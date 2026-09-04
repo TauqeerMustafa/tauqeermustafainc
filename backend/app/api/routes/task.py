@@ -10,7 +10,7 @@ import uuid
 from datetime import date
 
 from fastapi import APIRouter, HTTPException, Query, status
-from sqlalchemy import func, or_, select
+from sqlalchemy import delete, func, or_, select
 
 from app.api.deps import CurrentAdmin, CurrentManager, CurrentUser, DatabaseSession
 from app.models.task import ProjectTask
@@ -140,6 +140,14 @@ def update_task(
     db.commit()
     db.refresh(task)
     return ApiResponse(data=_to_read(task), message="Task updated successfully")
+
+
+@router.delete("/all/clear", response_model=ApiResponse[dict])
+def clear_all_tasks(db: DatabaseSession, _: CurrentAdmin) -> ApiResponse[dict]:
+    """Delete all project tasks."""
+    result = db.execute(delete(ProjectTask))
+    db.commit()
+    return ApiResponse(data={"deleted": result.rowcount}, message="All tasks deleted successfully")
 
 
 @router.delete("/{task_id}", response_model=ApiResponse[dict])

@@ -14,7 +14,14 @@ import {
 import PlaybookDrawer from "@/components/admin/tasks/PlaybookDrawer";
 import { useAdminUsers } from "@/hooks/useAdmin";
 import { useManagementProjects } from "@/hooks/useDashboard";
-import { useCreateTask, useDeleteTask, useMyTasks, useTasks, useUpdateTask } from "@/hooks/useTasks";
+import {
+  useCreateTask,
+  useDeleteAllTasks,
+  useDeleteTask,
+  useMyTasks,
+  useTasks,
+  useUpdateTask,
+} from "@/hooks/useTasks";
 import { useI18n } from "@/lib/i18n";
 import type { CreateTaskPayload, ProjectTask } from "@/services";
 
@@ -98,6 +105,8 @@ export default function TaskKanban({ isAdmin = false }) {
   const createTask = useCreateTask();
   const updateTask = useUpdateTask();
   const deleteTask = useDeleteTask();
+  const deleteAllTasks = useDeleteAllTasks();
+  const [isClearAllOpen, setClearAllOpen] = useState(false);
 
   function openCreate(status = "todo") {
     setEditing(null);
@@ -188,6 +197,21 @@ export default function TaskKanban({ isAdmin = false }) {
         </div>
         {isAdmin && (
           <div className="flex items-center gap-2">
+            {tasks.length > 0 && (
+              <button
+                type="button"
+                onClick={() => setClearAllOpen(true)}
+                className="btn-press flex items-center justify-center gap-2 border px-4 py-2.5 text-sm font-bold transition hover:opacity-90"
+                style={{
+                  borderColor: "var(--adm-border)",
+                  color: "var(--adm-red)",
+                  background: "var(--adm-surface)",
+                }}
+              >
+                <Trash2 size={16} />
+                {t("Delete all tasks")}
+              </button>
+            )}
             <button
               type="button"
               onClick={() => setPlaybookOpen(true)}
@@ -502,6 +526,24 @@ export default function TaskKanban({ isAdmin = false }) {
         onConfirm={handleDelete}
         onCancel={() => setPendingDelete(null)}
       />
+
+      {isAdmin && (
+        <AdminConfirmDialog
+          open={isClearAllOpen}
+          title={t("Delete all tasks")}
+          description={t(
+            "Are you sure you want to delete all tasks? This will permanently remove all tasks assigned to users and projects. Only tasks will be deleted.",
+          )}
+          confirmLabel={t("Delete all tasks")}
+          isPending={deleteAllTasks.isPending}
+          onConfirm={async () => {
+            const ids = tasks.map((t) => t.id);
+            await deleteAllTasks.mutateAsync(ids);
+            setClearAllOpen(false);
+          }}
+          onCancel={() => setClearAllOpen(false)}
+        />
+      )}
     </div>
   );
 }

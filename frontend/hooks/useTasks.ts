@@ -132,3 +132,22 @@ export function useDeleteTask() {
     onSuccess: () => invalidateTasks(queryClient),
   });
 }
+
+export function useDeleteAllTasks() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (taskIds?: string[]) => {
+      try {
+        await taskService.deleteAll();
+      } catch {
+        // Sequential fallback if backend endpoint isn't deployed yet
+        if (taskIds && taskIds.length > 0) {
+          for (const id of taskIds) {
+            await taskService.delete(id).catch(() => {});
+          }
+        }
+      }
+    },
+    onSettled: () => invalidateTasks(queryClient),
+  });
+}

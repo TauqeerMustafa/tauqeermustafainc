@@ -84,4 +84,9 @@ export const taskService = {
       url: `${API_ENDPOINTS.admin.tasks}/${id}`,
       method: "DELETE",
     }),
+  deleteAll: () =>
+    apiRequest<ApiResponse<{ deleted: number }>>({
+      url: `${API_ENDPOINTS.admin.tasks}/all/clear`,
+      method: "DELETE",
+    }),
 };
