@@ -146,36 +146,33 @@
   /* ── Portal panel tokens · LIGHT ─────────────────────────────────
      The four portals (admin, management, employees, client) share one
      surface system. In light mode it is Mastercard: canvas cream floor,
-     lifted-cream plates, warm hairlines, ink-black display type. In dark
-     mode (see .dark) it becomes BMW M: pure-black floor, #1a1a1a plates,
-     white display, #bbbbbb body. The single BMW action blue carries every
-     interaction in both; the M tricolor (--m-*) is brand signature only —
-     dividers and accents, never a button fill.
-
-     Depth is hairline-first in both themes. Light mode is allowed the one
-     Mastercard shadow (48px spread, 8% opacity — "atmospheric cushioning")
-     on genuinely floating chrome; dark mode resolves it to none, per BMW M. */
-  --adm-bg:           #f3f0ee;  /* page canvas — Canvas Cream         */
-  --adm-surface:      #fcfbfa;  /* card / panel / header / sidebar    */
-  --adm-surface-2:    #eae5e1;  /* elevated: hover, inputs, table head */
-  --adm-border:       #e0dad4;  /* hairline                           */
-  --adm-border-2:     #c8c0b8;  /* hairline-strong / outline          */
-  --adm-text:         #141413;  /* Ink Black — headings               */
-  --adm-text-2:       #3c3c3c;  /* body                               */
-  --adm-text-3:       #6b6b6b;  /* muted / meta                       */
-  --adm-ink:          #141413;
-  --adm-blue:         #1c69d4;  /* the single BMW action blue         */
-  --adm-blue-light:   #e7effc;  /* blue tint — active nav / stat icon */
-  --adm-blue-mid:     #0653b6;
-  --adm-green:        #0f7a30;
-  --adm-green-light:  #e2f4e7;
-  --adm-amber:        #9a6100;
-  --adm-amber-light:  #fbf0d9;
-  --adm-red:          #c31e11;  /* destructive only                   */
-  --adm-red-light:    #fbe6e3;
-  --adm-accent:       #cf4500;  /* Signal Orange — eyebrow dot only   */
-  --adm-shadow:       0 24px 48px rgba(20, 20, 19, 0.08);
-  --adm-shadow-sm:    0 4px 24px rgba(20, 20, 19, 0.05);
+  /* ── Portal panel tokens · LIGHT (Apple Design System) ───────────────
+     Canvas parchment (#f5f5f7), pure white surface plates (#ffffff),
+     hairlines (#e5e5ea), Action Blue (#0066cc), and SF Pro ink text (#1d1d1f). */
+  --adm-bg:           #f5f5f7;  /* Apple canvas-parchment             */
+  --adm-surface:      #ffffff;  /* Apple pure white card surface      */
+  --adm-surface-2:    #f5f5f7;  /* Apple subtle elevated surface      */
+  --adm-border:       #e5e5ea;  /* Apple signature hairline           */
+  --adm-border-2:     #d2d2d7;  /* Apple medium border                */
+  --adm-text:         #1d1d1f;  /* Apple SF Pro Ink                   */
+  --adm-text-2:       #424245;  /* Apple secondary text               */
+  --adm-text-3:       #86868b;  /* Apple muted tertiary / meta        */
+  --adm-ink:          #1d1d1f;
+  --adm-blue:         #0066cc;  /* Apple Action Blue                  */
+  --adm-blue-light:   #e8f2fc;  /* Apple subtle blue tint             */
+  --adm-blue-mid:     #0071e3;  /* Apple Focus Blue                   */
+  --adm-green:        #34c759;  /* Apple System Green                 */
+  --adm-green-light:  #eaf9ed;
+  --adm-amber:        #ff9500;  /* Apple System Orange/Amber          */
+  --adm-amber-light:  #fff8eb;
+  --adm-red:          #ff3b30;  /* Apple System Red                   */
+  --adm-red-light:    #ffeeed;
+  --adm-accent:       #0066cc;  /* Apple Action Blue                  */
+  --adm-shadow:       0 2px 12px rgba(0, 0, 0, 0.04), 0 1px 3px rgba(0, 0, 0, 0.02);
+  --adm-shadow-sm:    0 1px 3px rgba(0, 0, 0, 0.04);
+  --adm-radius:       16px;
+  --adm-radius-sm:    10px;
+  --adm-radius-lg:    20px;
 }
 
 /* ═══ DARK THEME — BMW M (pure-black canvas) ════════════════════════
@@ -216,32 +213,33 @@
   --input:                 #26262a;
   --ring:                  #2f7de0;
 
-  /* ── Portal panel tokens · DARK (BMW M) ───────────────────────────
-     Canvas #000, plates #1a1a1a, elevated #262626, hairline #3c3c3c —
-     the BMW M surface ladder verbatim. Tone tints go deep-and-desaturated
-     so a status chip glows rather than glares, and shadows resolve to
-     none: on a black canvas, depth is surface contrast, not light. */
-  --adm-bg:           #000000;
-  --adm-surface:      #1a1a1a;
-  --adm-surface-2:    #262626;
-  --adm-border:       #3c3c3c;
-  --adm-border-2:     #565656;
-  --adm-text:         #ffffff;
-  --adm-text-2:       #bbbbbb;
-  --adm-text-3:       #7e7e7e;
+  /* ── Portal panel tokens · DARK (Apple Design System Dark) ─────────
+     True black canvas (#000000), Apple dark surface plates (#1c1c1e),
+     elevated surface (#2c2c2e), hairline (#38383a), Action Blue (#2997ff). */
+  --adm-bg:           #000000;  /* Apple true black canvas            */
+  --adm-surface:      #1c1c1e;  /* Apple dark surface                 */
+  --adm-surface-2:    #2c2c2e;  /* Apple elevated dark surface        */
+  --adm-border:       #38383a;  /* Apple dark hairline                */
+  --adm-border-2:     #48484a;  /* Apple dark medium border           */
+  --adm-text:         #ffffff;  /* Apple dark primary text            */
+  --adm-text-2:       #ebebf599;/* Apple dark secondary text          */
+  --adm-text-3:       #ebebf54d;/* Apple dark tertiary text           */
   --adm-ink:          #ffffff;
-  --adm-blue:         #2f7de0;
-  --adm-blue-light:   #0e1e33;
-  --adm-blue-mid:     #0066b1;
-  --adm-green:        #22c25a;
+  --adm-blue:         #2997ff;  /* Apple Action Blue on dark          */
+  --adm-blue-light:   #0e2640;
+  --adm-blue-mid:     #0071e3;
+  --adm-green:        #30d158;
   --adm-green-light:  #0d2a16;
-  --adm-amber:        #f4b400;
+  --adm-amber:        #ffd60a;
   --adm-amber-light:  #33290a;
-  --adm-red:          #e22718;  /* M red */
+  --adm-red:          #ff453a;
   --adm-red-light:    #2a0f0d;
-  --adm-accent:       #f37338;
-  --adm-shadow:       none;
-  --adm-shadow-sm:    none;
+  --adm-accent:       #2997ff;
+  --adm-shadow:       0 2px 12px rgba(0, 0, 0, 0.4);
+  --adm-shadow-sm:    0 1px 3px rgba(0, 0, 0, 0.3);
+  --adm-radius:       16px;
+  --adm-radius-sm:    10px;
+  --adm-radius-lg:    20px;
 }
 
 @theme inline {
@@ -515,10 +513,15 @@
 }
 .adm-scroll::-webkit-scrollbar-thumb:hover { background: var(--adm-text-3); }
 
-.adm-nav-link { position: relative; transition: background 0.18s ease, color 0.18s ease; }
-.adm-nav-link.active::before {
-  content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 3px;
-  background: var(--adm-blue); border-radius: 0;
+.adm-nav-link {
+  position: relative;
+  border-radius: 10px;
+  transition: all 0.15s cubic-bezier(0.2, 0, 0, 1);
+}
+.adm-nav-link.active {
+  background: var(--adm-blue-light);
+  color: var(--adm-blue);
+  font-weight: 600;
 }
 
 @keyframes adm-page-in   { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }

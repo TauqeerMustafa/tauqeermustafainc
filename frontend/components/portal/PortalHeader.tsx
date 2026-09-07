@@ -53,14 +53,14 @@ export default function PortalHeader({ portal, onMenuClick }: Props) {
         <div className="relative hidden md:block">
           <Search
             size={15}
-            className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-adm-text-3"
+            className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-adm-text-3"
             aria-hidden="true"
           />
           <input
             type="search"
             placeholder={t("Search anything…")}
             aria-label={t("Search anything…")}
-            className="w-56 border border-adm-border bg-adm-surface-2 py-2 pl-9 pr-4 text-sm text-adm-text outline-none transition placeholder:text-adm-text-3 focus:border-adm-blue focus:ring-2 focus:ring-adm-blue/25 lg:w-72"
+            className="w-56 rounded-full border border-adm-border bg-adm-surface-2 py-1.5 pl-9 pr-4 text-sm text-adm-text outline-none transition placeholder:text-adm-text-3 focus:border-adm-blue focus:bg-adm-surface focus:ring-2 focus:ring-adm-blue/20 lg:w-72"
           />
         </div>
       </div>
@@ -70,21 +70,21 @@ export default function PortalHeader({ portal, onMenuClick }: Props) {
         <PortalThemeToggle />
 
         <button type="button" className={`relative ${ICON_BUTTON}`} aria-label={t("Notifications")}>
-          <Bell size={17} />
+          <Bell size={16} />
           <span
             className="animate-bounce-subtle absolute right-2 top-2 h-2 w-2 rounded-full border-2 border-adm-surface bg-adm-blue"
             aria-hidden="true"
           />
         </button>
 
-        {/* Identity plate — square, because it is structure, not a control. */}
-        <div className="hidden items-center gap-2.5 border border-adm-border px-3 py-1.5 sm:flex">
-          <Avatar name={user?.name} size={28} />
+        {/* Identity pill */}
+        <div className="hidden items-center gap-2.5 rounded-full border border-adm-border bg-adm-surface-2/60 px-3 py-1 sm:flex">
+          <Avatar name={user?.name} size={26} />
           <div className="min-w-0">
-            <p className="truncate text-sm font-semibold leading-tight text-adm-text">
+            <p className="truncate text-xs font-semibold leading-tight text-adm-text">
               {user?.name ?? t("User")}
             </p>
-            <p className="truncate text-[10px] font-bold uppercase tracking-[0.12em] text-adm-text-3">
+            <p className="truncate text-[9px] font-medium uppercase tracking-wider text-adm-text-3">
               {roleLabel(user?.role)}
             </p>
           </div>

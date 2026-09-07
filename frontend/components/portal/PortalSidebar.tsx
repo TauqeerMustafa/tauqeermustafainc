@@ -64,23 +64,20 @@ export default function PortalSidebar({ portal, isOpen, onClose }: Props) {
           isOpen ? "translate-x-0" : "-translate-x-full rtl:translate-x-full"
         }`}
       >
-        {/* BMW M signature stripe */}
-        <div className="m-stripe" aria-hidden="true" />
-
-        <div className="flex items-center justify-between gap-2 border-b border-adm-border px-5 py-5">
+        <div className="flex items-center justify-between gap-2 border-b border-adm-border px-5 py-4">
           <Link
             href={PORTAL_HOME_PATH[portal]}
             className="group inline-flex min-w-0 items-center gap-2.5"
             onClick={onClose}
           >
-            <span className="relative flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden border border-adm-border transition group-hover:border-adm-border-2">
+            <span className="relative flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-adm-border transition group-hover:border-adm-border-2">
               <Image src="/logo-mark.svg" alt="" fill sizes="32px" className="object-cover" />
             </span>
             <span className="min-w-0">
-              <span className="block text-sm font-bold uppercase leading-tight tracking-wide text-adm-text">
-                TM INC
+              <span className="block text-sm font-semibold leading-tight tracking-tight text-adm-text">
+                TM Inc.
               </span>
-              <span className="block truncate font-mono text-[10px] uppercase tracking-widest text-adm-blue">
+              <span className="block truncate text-[11px] font-medium tracking-wide text-adm-blue">
                 {t(PORTAL_LABEL[portal])} {t("Portal")}
               </span>
             </span>
@@ -103,7 +100,7 @@ export default function PortalSidebar({ portal, isOpen, onClose }: Props) {
           {sections.map((section, index) => (
             <div key={section.title ?? `group-${index}`} className={index > 0 ? "mt-5" : ""}>
               {section.title && (
-                <p className="mb-2 px-4 text-[10px] font-bold uppercase tracking-widest text-adm-text-3">
+                <p className="mb-2 px-3.5 text-[11px] font-medium uppercase tracking-wider text-adm-text-3">
                   {t(section.title)}
                 </p>
               )}
@@ -118,9 +115,9 @@ export default function PortalSidebar({ portal, isOpen, onClose }: Props) {
                     href={item.href}
                     onClick={onClose}
                     aria-current={active ? "page" : undefined}
-                    className={`adm-nav-link mb-0.5 flex items-center gap-3 rounded-none px-4 py-2.5 text-[14px] font-medium transition-all ${
+                    className={`adm-nav-link mb-1 flex items-center gap-3 rounded-xl px-3.5 py-2 text-[14px] font-medium transition-all ${
                       active
-                        ? "active bg-adm-blue-light text-adm-blue"
+                        ? "active bg-adm-blue-light text-adm-blue font-semibold"
                         : "text-adm-text-2 hover:bg-adm-surface-2 hover:text-adm-text"
                     }`}
                   >
@@ -137,10 +134,10 @@ export default function PortalSidebar({ portal, isOpen, onClose }: Props) {
           ))}
         </nav>
 
-        <div className="border-t border-adm-border bg-adm-surface-2">
+        <div className="border-t border-adm-border bg-adm-surface">
           {otherPortals.length > 0 && (
-            <div className="border-b border-adm-border px-3 py-3">
-              <p className="mb-2 px-1 text-[10px] font-bold uppercase tracking-widest text-adm-text-3">
+            <div className="border-b border-adm-border px-3.5 py-3">
+              <p className="mb-2 px-1 text-[10px] font-medium uppercase tracking-wider text-adm-text-3">
                 {t("Switch Portal")}
               </p>
               {otherPortals.map((target) => (
@@ -148,7 +145,7 @@ export default function PortalSidebar({ portal, isOpen, onClose }: Props) {
                   key={target}
                   href={PORTAL_HOME_PATH[target]}
                   onClick={onClose}
-                  className="flex items-center gap-2 px-1 py-1.5 text-[13px] font-medium text-adm-text-2 transition hover:text-adm-blue"
+                  className="flex items-center gap-2 rounded-lg px-2 py-1.5 text-[13px] font-medium text-adm-text-2 transition hover:bg-adm-surface-2 hover:text-adm-blue"
                 >
                   <ExternalLink size={13} className="shrink-0" />
                   <span className="truncate">{t(PORTAL_LABEL[target])}</span>
@@ -157,7 +154,7 @@ export default function PortalSidebar({ portal, isOpen, onClose }: Props) {
             </div>
           )}
 
-          <p className="px-5 py-4 text-[11px] text-adm-text-3">
+          <p className="px-5 py-4 text-[11px] text-adm-text-3 font-normal">
             Tauqeer Mustafa Inc. &copy; {new Date().getFullYear()}
           </p>
         </div>

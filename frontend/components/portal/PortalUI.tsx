@@ -1,29 +1,21 @@
 "use client";
 
 /**
- * Shared portal design primitives.
+ * Shared portal design primitives — Apple Design System.
  *
  * Every portal page (admin, employees, management, client) composes its UI from
- * these instead of hand-rolling `border border-adm-border bg-[…]`
- * strings, which is what let each page drift into its own look. The `--adm-*`
- * tokens are registered in `@theme inline`, so these use real Tailwind
- * utilities (`bg-adm-surface`, `text-adm-text-3`) rather than inline styles —
- * which is also what lets the whole portal flip light↔dark for free.
+ * these primitives. The `--adm-*` tokens are registered in `@theme inline`, so
+ * these use real Tailwind utilities (`bg-adm-surface`, `text-adm-text-3`) rather
+ * than inline styles — which is also what lets the whole portal flip light↔dark for free.
  *
- * House rules, per the hybrid system in globals.css:
- *   · STRUCTURE IS SQUARE — cards, panels, tables, inputs, primary buttons all
- *     `rounded-none` (BMW / BMW M).
- *   · CONTROLS ARE ROUND — chips, badges, avatars, progress bars, icon-only
- *     buttons all `rounded-full` (Mastercard).
- *   · Display type is UPPERCASE and bold; body copy is `text-adm-text-2`.
- *   · One action blue. The M tricolor is a divider/accent, never a fill.
- *   · Depth is hairline-first; the one allowed shadow is light-mode only and
- *     resolves to `none` under `.dark`.
- *
- * The widget vocabulary below (SmallBox, InfoBox, Callout, Progress, Timeline,
- * DescriptionBlock, Breadcrumb, Tabs, Pagination) is lifted from the AdminLTE /
- * Adminator dashboard templates and re-expressed in these tokens — the layout
- * ideas are theirs, none of their Bootstrap chrome comes along.
+ * Apple Design System specifications (DESIGN.md):
+ *   · STRUCTURE IS CLEAN & ROUNDED — cards, panels, dialogs all `rounded-2xl`
+ *     with soft hairlines (`#e5e5ea`) and subtle shadows.
+ *   · CONTROLS ARE SLEEK — pill buttons (`rounded-full`), inputs (`rounded-xl`),
+ *     chips and badges (`rounded-full`).
+ *   · TYPOGRAPHY — SF Pro display/text with natural casing and tight letter-spacing.
+ *   · ONE ACTION BLUE — Apple Action Blue (`#0066cc` light / `#2997ff` dark).
+ *   · CANVAS — Apple canvas parchment (`#f5f5f7` light / `#000000` dark).
  */
 
 import Link from "next/link";
@@ -59,9 +51,9 @@ const SOLID: Record<Tone, string> = {
   neutral: "bg-adm-text-3",
 };
 
-/** Shared input skin — 0px radius, elevated fill, blue focus ring. */
+/** Shared input skin — Apple 12px rounded, surface fill, Action Blue focus ring. */
 export const inputClass =
-  "w-full rounded-none border border-adm-border bg-adm-surface-2 px-4 py-2.5 text-[15px] text-adm-text outline-none transition placeholder:text-adm-text-3 focus:border-adm-blue focus:ring-2 focus:ring-adm-blue/25";
+  "w-full rounded-xl border border-adm-border bg-adm-surface px-3.5 py-2.5 text-[15px] text-adm-text outline-none transition placeholder:text-adm-text-3 focus:border-adm-blue focus:ring-2 focus:ring-adm-blue/20";
 
 export function Field({
   label,
@@ -102,16 +94,15 @@ export function PortalDialog({
 }) {
   if (!open) return null;
   return (
-    <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm">
+    <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/40 p-4 backdrop-blur-md">
       <div
-        className="adm-dialog w-full max-w-lg border border-adm-border bg-adm-surface"
+        className="adm-dialog w-full max-w-lg overflow-hidden rounded-2xl border border-adm-border bg-adm-surface shadow-2xl"
         role="dialog"
         aria-modal="true"
         aria-label={title}
       >
-        <div className="m-stripe" aria-hidden="true" />
         <div className="flex items-center justify-between gap-4 border-b border-adm-border px-6 py-4">
-          <h2 className="text-sm font-bold uppercase tracking-[0.14em] text-adm-text">{title}</h2>
+          <h2 className="text-base font-semibold tracking-tight text-adm-text">{title}</h2>
           <button
             type="button"
             onClick={onClose}
@@ -127,11 +118,11 @@ export function PortalDialog({
   );
 }
 
-/** 13px/700/1.5px-tracking uppercase label — the system's utility voice. */
+/** 11px font-medium label — Apple clean utility voice. */
 export function Label({ children, className = "" }: { children: ReactNode; className?: string }) {
   return (
     <span
-      className={`text-[11px] font-bold uppercase tracking-[0.14em] text-adm-text-3 ${className}`}
+      className={`text-[11px] font-medium uppercase tracking-wider text-adm-text-3 ${className}`}
     >
       {children}
     </span>
@@ -151,13 +142,12 @@ export function PortalPageHeader({
   return (
     <header className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
       <div className="min-w-0">
-        <div className="m-stripe mb-4 w-16" aria-hidden="true" />
-        <h1 className="truncate text-2xl font-bold uppercase tracking-[-0.01em] text-adm-text sm:text-3xl">
+        <h1 className="truncate text-2xl font-semibold tracking-tight text-adm-text sm:text-3xl">
           {title}
         </h1>
-        {description && <p className="mt-2 text-sm text-adm-text-2">{description}</p>}
+        {description && <p className="mt-1.5 text-sm font-normal text-adm-text-3">{description}</p>}
       </div>
-      {children && <div className="flex shrink-0 flex-wrap items-center gap-3">{children}</div>}
+      {children && <div className="flex shrink-0 flex-wrap items-center gap-2.5">{children}</div>}
     </header>
   );
 }
@@ -180,13 +170,13 @@ export function PortalButton({
   href?: string;
 }) {
   const base =
-    "btn-press inline-flex items-center justify-center gap-2 px-5 py-2.5 text-[11px] font-bold uppercase tracking-[0.14em] transition disabled:opacity-40";
+    "inline-flex items-center justify-center gap-2 rounded-full px-5 py-2 text-sm font-medium shadow-sm transition active:scale-[0.98] disabled:opacity-40";
   const skin =
     variant === "primary"
       ? "bg-adm-blue text-white hover:opacity-90"
       : variant === "danger"
         ? "bg-adm-red text-white hover:opacity-90"
-        : "border border-adm-border text-adm-text-2 hover:bg-adm-surface-2 hover:text-adm-text";
+        : "border border-adm-border-2 bg-adm-surface text-adm-text hover:bg-adm-surface-2";
 
   const body = (
     <>
@@ -209,7 +199,7 @@ export function PortalButton({
   );
 }
 
-/** A bordered panel with an uppercase header strip. */
+/** An Apple-style card panel with clean hairlines and subtle elevation. */
 export function Panel({
   title,
   icon: Icon,
@@ -226,11 +216,11 @@ export function Panel({
   tone?: Tone;
 }) {
   return (
-    <section className="flex min-w-0 flex-col border border-adm-border bg-adm-surface">
+    <section className="flex min-w-0 flex-col overflow-hidden rounded-2xl border border-adm-border bg-adm-surface shadow-sm">
       {title && (
-        <div className="flex items-center justify-between gap-3 border-b border-adm-border bg-adm-surface-2 px-5 py-3.5">
-          <h2 className="flex items-center gap-2 text-[12px] font-bold uppercase tracking-[0.14em] text-adm-text">
-            {Icon && <Icon size={15} className={TONE[tone].fg} />}
+        <div className="flex items-center justify-between gap-3 border-b border-adm-border/80 bg-adm-surface px-5 py-3.5">
+          <h2 className="flex items-center gap-2 text-sm font-semibold tracking-tight text-adm-text">
+            {Icon && <Icon size={16} className={TONE[tone].fg} />}
             {title}
           </h2>
           {action}
@@ -241,7 +231,7 @@ export function Panel({
   );
 }
 
-/** Big-number KPI tile. Becomes a link when `href` is supplied. */
+/** Apple-style big-number KPI tile. */
 export function StatCard({
   label,
   value,
@@ -262,20 +252,20 @@ export function StatCard({
       <div className="mb-3 flex items-center gap-3">
         {Icon && (
           <span
-            className={`flex h-8 w-8 shrink-0 items-center justify-center ${TONE[tone].bg} ${TONE[tone].fg}`}
+            className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-xl ${TONE[tone].bg} ${TONE[tone].fg}`}
           >
             <Icon size={16} />
           </span>
         )}
         <Label>{label}</Label>
       </div>
-      <p className="adm-stat-value text-3xl font-bold tabular-nums text-adm-text">{value}</p>
+      <p className="adm-stat-value text-3xl font-semibold tracking-tight tabular-nums text-adm-text">{value}</p>
       {hint && <p className="mt-1 text-xs text-adm-text-3">{hint}</p>}
     </>
   );
 
   const shell =
-    "block min-w-0 border border-adm-border bg-adm-surface p-5 transition hover:border-adm-border-2";
+    "block min-w-0 rounded-2xl border border-adm-border bg-adm-surface p-5 shadow-sm transition hover:shadow-md hover:border-adm-border-2";
 
   return href ? (
     <Link href={href} className={shell}>
@@ -311,7 +301,7 @@ export function StatusPill({ status }: { status: string | null | undefined }) {
 
 export function LoadingBlock({ label = "Loading…" }: { label?: string }) {
   return (
-    <div className="flex items-center justify-center gap-3 border border-adm-border bg-adm-surface py-16 text-sm text-adm-text-3">
+    <div className="flex items-center justify-center gap-3 rounded-2xl border border-adm-border bg-adm-surface py-16 text-sm font-medium text-adm-text-3 shadow-sm">
       <Loader2 size={18} className="animate-spin text-adm-blue" />
       {label}
     </div>
@@ -326,7 +316,7 @@ export function ErrorBlock({
   onRetry?: () => void;
 }) {
   return (
-    <div className="flex flex-col items-center gap-3 border border-adm-red bg-adm-red-light py-14 text-center">
+    <div className="flex flex-col items-center gap-3 rounded-2xl border border-adm-red/20 bg-adm-red-light/50 py-14 text-center shadow-sm">
       <AlertTriangle size={22} className="text-adm-red" />
       <p className="max-w-sm px-6 text-sm text-adm-text-2">{message}</p>
       {onRetry && (
@@ -348,16 +338,16 @@ export function EmptyBlock({
   children?: ReactNode;
 }) {
   return (
-    <div className="flex flex-col items-center gap-3 border border-dashed border-adm-border py-14 text-center">
+    <div className="flex flex-col items-center gap-3 rounded-2xl border border-dashed border-adm-border bg-adm-surface py-14 text-center shadow-sm">
       <Inbox size={22} className="text-adm-text-3" />
-      <p className="text-sm font-bold uppercase tracking-[0.1em] text-adm-text">{title}</p>
+      <p className="text-sm font-semibold tracking-tight text-adm-text">{title}</p>
       {description && <p className="max-w-sm px-6 text-sm text-adm-text-3">{description}</p>}
       {children}
     </div>
   );
 }
 
-/** Horizontal-scrolling table scaffold — headers get the uppercase label voice. */
+/** Horizontal-scrolling table scaffold — Apple styled with rounded corners and clean hairlines. */
 export function DataTable({
   head,
   children,
@@ -366,23 +356,25 @@ export function DataTable({
   children: ReactNode;
 }) {
   return (
-    <div className="overflow-x-auto">
-      <table className="w-full min-w-[560px] border-collapse text-left text-sm">
-        <thead>
-          <tr className="border-b border-adm-border bg-adm-surface-2">
-            {head.map((cell) => (
-              <th
-                key={cell}
-                className="px-5 py-3 text-[10px] font-bold uppercase tracking-[0.14em] text-adm-text-3"
-                scope="col"
-              >
-                {cell}
-              </th>
-            ))}
-          </tr>
-        </thead>
-        <tbody className="divide-y divide-adm-border">{children}</tbody>
-      </table>
+    <div className="overflow-hidden rounded-2xl border border-adm-border bg-adm-surface shadow-sm">
+      <div className="overflow-x-auto">
+        <table className="w-full min-w-[560px] border-collapse text-left text-sm">
+          <thead>
+            <tr className="border-b border-adm-border bg-adm-surface-2/60">
+              {head.map((cell) => (
+                <th
+                  key={cell}
+                  className="px-5 py-3 text-[11px] font-medium uppercase tracking-wider text-adm-text-3"
+                  scope="col"
+                >
+                  {cell}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-adm-border">{children}</tbody>
+        </table>
+      </div>
     </div>
   );
 }
@@ -552,7 +544,7 @@ export function InfoBox({
   note?: string;
 }) {
   return (
-    <div className="flex min-w-0 items-stretch border border-adm-border bg-adm-surface">
+    <div className="flex min-w-0 items-stretch overflow-hidden rounded-2xl border border-adm-border bg-adm-surface shadow-sm">
       <span
         className={`flex w-14 shrink-0 items-center justify-center ${TONE[tone].bg} ${TONE[tone].fg}`}
       >
@@ -560,7 +552,7 @@ export function InfoBox({
       </span>
       <div className="min-w-0 flex-1 px-4 py-3.5">
         <Label>{label}</Label>
-        <p className="mt-1 truncate text-2xl font-bold tabular-nums text-adm-text">{value}</p>
+        <p className="mt-1 truncate text-2xl font-semibold tracking-tight tabular-nums text-adm-text">{value}</p>
         {typeof progress === "number" && (
           <div className="mt-2.5 grid gap-1.5">
             <Progress value={progress} tone={tone} size="sm" />
@@ -576,8 +568,7 @@ export function InfoBox({
 }
 
 /**
- * AdminLTE's small-box: a solid-tone tile with an oversized watermark glyph and
- * an optional footer link. Use sparingly — one row at the top of a dashboard.
+ * Solid-tone tile with an oversized watermark glyph and an optional footer link.
  */
 export function SmallBox({
   label,
@@ -595,22 +586,22 @@ export function SmallBox({
   linkLabel?: string;
 }) {
   return (
-    <div className={`relative min-w-0 overflow-hidden text-white ${SOLID[tone]}`}>
+    <div className={`relative min-w-0 overflow-hidden rounded-2xl text-white shadow-sm ${SOLID[tone]}`}>
       <Icon
         size={104}
         className="pointer-events-none absolute -right-4 -top-4 opacity-15"
         aria-hidden="true"
       />
       <div className="relative px-5 pb-4 pt-5">
-        <p className="text-3xl font-bold tabular-nums leading-none">{value}</p>
-        <p className="mt-2 text-[11px] font-bold uppercase tracking-[0.14em] text-white/80">
+        <p className="text-3xl font-semibold tracking-tight tabular-nums leading-none">{value}</p>
+        <p className="mt-2 text-[11px] font-medium uppercase tracking-wider text-white/80">
           {label}
         </p>
       </div>
       {href && (
         <Link
           href={href}
-          className="relative flex items-center justify-center gap-1.5 bg-black/15 px-5 py-2 text-[10px] font-bold uppercase tracking-[0.14em] text-white/90 transition hover:bg-black/25 hover:text-white"
+          className="relative flex items-center justify-center gap-1.5 bg-black/15 px-5 py-2 text-xs font-medium text-white/90 transition hover:bg-black/25 hover:text-white"
         >
           {linkLabel}
           <ChevronRight size={13} />
@@ -629,7 +620,7 @@ const RAIL: Record<Tone, string> = {
   neutral: "var(--adm-border-2)",
 };
 
-/** AdminLTE's callout — an inline advisory with a 3px tone rail on the left. */
+/** An Apple-styled inline advisory callout. */
 export function Callout({
   title,
   tone = "blue",
@@ -643,7 +634,7 @@ export function Callout({
 }) {
   return (
     <div
-      className="adm-callout px-5 py-4"
+      className="adm-callout overflow-hidden rounded-2xl border border-adm-border bg-adm-surface px-5 py-4 shadow-sm"
       style={{ "--callout": RAIL[tone] } as CSSProperties}
       role="note"
     >
@@ -768,8 +759,7 @@ export function Breadcrumb({ items }: { items: readonly Crumb[] }) {
 }
 
 /**
- * BMW's category tabs: no pills, no boxes — uppercase labels on a hairline,
- * the active one carrying a 2px action-blue underline. `count` renders a pill.
+ * Apple category tabs: smooth font-medium text with Action Blue active state.
  */
 export function Tabs<T extends string>({
   tabs,
@@ -791,9 +781,9 @@ export function Tabs<T extends string>({
             role="tab"
             aria-selected={active}
             onClick={() => onChange(tab.id)}
-            className={`-mb-px flex shrink-0 items-center gap-2 border-b-2 px-5 py-3 text-[11px] font-bold uppercase tracking-[0.14em] transition ${
+            className={`-mb-px flex shrink-0 items-center gap-2 border-b-2 px-5 py-3 text-sm font-medium transition ${
               active
-                ? "border-adm-blue text-adm-blue"
+                ? "border-adm-blue text-adm-blue font-semibold"
                 : "border-transparent text-adm-text-3 hover:text-adm-text"
             }`}
           >
