@@ -20,6 +20,7 @@
  */
 import { NextResponse } from "next/server";
 import { waNumbers } from "@/lib/wa-numbers";
+import { usableAccounts, WAAccount } from "@/lib/wa-accounts";
 
 const GRAPH_URL = "https://graph.facebook.com/v20.0";
 
@@ -135,7 +136,7 @@ export async function GET(request: Request) {
 
   const slotParam = new URL(request.url).searchParams.get("slot");
   const slot = slotParam ? parseInt(slotParam, 10) : 1;
-  const account = usableAccounts().find(a => a.slot === slot) || usableAccounts()[0];
+  const account = usableAccounts().find((a: WAAccount) => a.slot === slot) || usableAccounts()[0];
   const token = account?.token?.trim();
   const wabaId = account?.wabaId?.trim();
   const configured = waNumbers().filter(n => (n.slot ?? 1) === (account?.slot ?? 1));

@@ -58,17 +58,6 @@ type MediaKind = (typeof MEDIA_KINDS)[number];
 export async function POST(request: Request) {
 
 
-    const numberDef = waNumbers().find((n) => n.id === phoneNumberId);
-    const account = accountAt(numberDef?.slot ?? 1);
-    const token = account.token;
-
-    if (!token) {
-      return NextResponse.json(
-        { success: false, error: `WHATSAPP_TOKEN not configured for this sender's app (Slot ${account.slot})` },
-        { status: 500 }
-      );
-    }
-
   try {
     const body = await request.json();
     const {
@@ -115,6 +104,19 @@ export async function POST(request: Request) {
       return NextResponse.json({ success: false, error: sender.error }, { status });
     }
     const phoneNumberId = sender.id;
+
+
+    const numberDef = waNumbers().find((n) => n.id === phoneNumberId);
+    const account = accountAt(numberDef?.slot ?? 1);
+    const token = account.token;
+
+    if (!token) {
+      return NextResponse.json(
+        { success: false, error: `WHATSAPP_TOKEN not configured for this sender's app (Slot ${account.slot})` },
+        { status: 500 }
+      );
+    }
+
 
     if (!to) {
       return NextResponse.json(

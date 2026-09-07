@@ -15,6 +15,7 @@
  * Admin-gated by proxy.ts like every other /api/whatsapp/* route.
  */
 import { NextResponse } from "next/server";
+import { accountAt } from "@/lib/wa-accounts";
 import { waNumbers, type WANumber } from "@/lib/wa-numbers";
 
 const GRAPH_URL = "https://graph.facebook.com/v20.0";

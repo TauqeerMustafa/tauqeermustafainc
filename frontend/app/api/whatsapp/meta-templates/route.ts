@@ -79,7 +79,7 @@ function parseMetaComponents(components: unknown[]): {
   return { header, body, bodyExample, footer, buttons };
 }
 
-export async function GET() {
+export async function GET(request: Request) {
   const { token, wabaId } = config(request);
 
   // Always return our predefined library so the UI can render even before setup.

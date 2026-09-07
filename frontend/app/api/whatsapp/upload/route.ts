@@ -16,6 +16,7 @@
  */
 import { NextResponse } from "next/server";
 import { resolveNumberId } from "@/lib/wa-numbers";
+import { usableAccounts } from "@/lib/wa-accounts";
 
 const GRAPH_URL = "https://graph.facebook.com/v20.0";
 

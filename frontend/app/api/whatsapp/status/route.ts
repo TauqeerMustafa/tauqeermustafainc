@@ -7,6 +7,7 @@
  */
 import { NextResponse } from "next/server";
 import { waNumbers } from "@/lib/wa-numbers";
+import { usableAccounts } from "@/lib/wa-accounts";
 
 export async function GET() {
   const accounts = usableAccounts();

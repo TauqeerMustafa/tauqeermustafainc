@@ -31,6 +31,7 @@
  * The store is import-only, so the auth gate still protects real clients.
  */
 import { NextResponse } from "next/server";
+import { accountAt } from "@/lib/wa-accounts";
 import { createHmac, timingSafeEqual } from "node:crypto";
 import { isKnownNumber, primaryNumberId, waNumbers } from "@/lib/wa-numbers";
 import { FLOW_ENTRY, flowStep, resolveChoice, stepPayload, stepTranscript, type FlowStep } from "@/lib/wa-flow";
