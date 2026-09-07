@@ -9,6 +9,7 @@ import {
   RefreshCw,
   Trash2,
   Bot,
+  GitBranch,
   MessageSquare,
   BarChart3,
   Search,
@@ -61,6 +62,9 @@ import {
   useUpdateConversationMeta,
   useDeleteConversation,
   useWhatsAppNumbers,
+  useWhatsAppFlow,
+  useSaveWhatsAppFlow,
+  useResetWhatsAppFlow,
   describeNumber,
 } from "@/hooks/useWhatsApp";
 import type {
@@ -71,6 +75,7 @@ import type {
   MediaKind,
   ConvMeta,
   WANumberInfo,
+  FlowStep,
 } from "@/hooks/useWhatsApp";
 import { useVoiceRecorder, formatDuration } from "@/hooks/useVoiceRecorder";
 import { EmojiPicker, QUICK_REACTIONS } from "@/components/admin/whatsapp/EmojiPicker";
@@ -79,7 +84,7 @@ import { BUTTON_TEMPLATES } from "@/lib/button-templates";
 import { countVariables } from "@/lib/meta-templates";
 
 type MessageType = "text" | "media" | "buttons" | "template";
-type TabKey = "inbox" | "pipeline" | "send" | "templates" | "rules" | "stats" | "numbers";
+type TabKey = "inbox" | "pipeline" | "send" | "templates" | "rules" | "flow" | "stats" | "numbers";
 type DealStatus = "new" | "contacted" | "negotiating" | "won" | "lost";
 
 const TABS: { key: TabKey; label: string; icon: React.ReactNode }[] = [
@@ -88,6 +93,7 @@ const TABS: { key: TabKey; label: string; icon: React.ReactNode }[] = [
   { key: "send", label: "Send Message", icon: <Send size={16} /> },
   { key: "templates", label: "Start Chat", icon: <Sparkles size={16} /> },
   { key: "rules", label: "Auto-Reply", icon: <Bot size={16} /> },
+  { key: "flow", label: "Bot Flow", icon: <GitBranch size={16} /> },
   { key: "stats", label: "Stats", icon: <BarChart3 size={16} /> },
   { key: "numbers", label: "Phone Lines", icon: <Phone size={16} /> },
 ];
@@ -129,6 +135,13 @@ function numberOf(m: WAMessage): string {
 /** Our own number on a message — stored explicitly, or the opposite side of it. */
 function channelOf(m: WAMessage): string {
   return (m.channel || (m.direction === "inbound" ? m.to : m.from) || "").trim();
+}
+
+function messageBelongsToChannel(m: WAMessage, channelId: string, isPrimary: boolean): boolean {
+  const ch = channelOf(m);
+  if (ch === channelId) return true;
+  if (!ch && isPrimary) return true;
+  return false;
 }
 
 /** Group messages into conversations, newest activity first. */
@@ -210,6 +223,7 @@ export default function AdminWhatsAppPage() {
   const [activeTab, setActiveTab] = useState<TabKey>("inbox");
   const [prefillRecipient, setPrefillRecipient] = useState<string | null>(null);
   const [prefillSender, setPrefillSender] = useState<string | null>(null);
+  const [inboxChannel, setInboxChannel] = useState<string | undefined>(undefined);
 
   const { data: numbersData } = useWhatsAppNumbers();
   const numbers = numbersData?.data ?? [];
@@ -224,6 +238,11 @@ export default function AdminWhatsAppPage() {
     setActiveTab("send");
   };
 
+  const openLineInbox = (channelId: string) => {
+    setInboxChannel(channelId);
+    setActiveTab("inbox");
+  };
+
   return (
     <div>
       <AdminPageHeader
@@ -231,32 +250,42 @@ export default function AdminWhatsAppPage() {
         description="Manage customer conversations, send messages, and track deals"
       />
 
-      {/* Connected Phone Lines Status Header */}
+      {/* Connected Phone Lines Header & Direct Inbox Switcher */}
       {numbers.length > 0 && (
         <div className="mb-4 flex flex-wrap items-center gap-2">
           <span className="text-xs font-semibold uppercase tracking-wider text-gray-500">
-            Lines:
+            Switch Inbox:
           </span>
           {numbers.map((n, i) => {
             const isSendable = n.canSend !== false;
+            const isCurrent =
+              activeTab === "inbox" &&
+              (inboxChannel === n.id || (!inboxChannel && (n.primary || i === 0)));
             return (
               <button
                 key={n.id}
                 type="button"
-                onClick={() => setActiveTab("numbers")}
-                className="inline-flex items-center gap-1.5 rounded-full border bg-white px-3 py-1 text-xs font-medium shadow-sm transition hover:bg-gray-50"
-                style={{ borderColor: isSendable ? "var(--adm-border)" : "var(--adm-red)" }}
-                title={`Click to view line details (${n.id})`}
+                onClick={() => openLineInbox(n.id)}
+                className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-medium shadow-sm transition ${
+                  isCurrent
+                    ? "bg-emerald-50 border-emerald-600 ring-2 ring-emerald-500/20 text-emerald-950 font-bold"
+                    : "bg-white hover:bg-gray-50 text-gray-800"
+                }`}
+                style={{ borderColor: isCurrent ? "#059669" : isSendable ? "var(--adm-border)" : "var(--adm-red)" }}
+                title={`Open separated inbox for ${n.displayNumber || n.label || n.id}`}
               >
                 <span
                   className="h-2 w-2 rounded-full"
                   style={{ background: isSendable ? "#22C55E" : "#EF4444" }}
                 />
-                <span className="font-semibold text-gray-800">
+                <span>
                   {n.displayNumber || n.label || `Line ${i + 1}`}
                 </span>
                 {n.primary && (
-                  <span className="text-[10px] font-bold text-blue-600">(Primary)</span>
+                  <span className="text-[10px] font-bold text-blue-600">(Line 1)</span>
+                )}
+                {!n.primary && (
+                  <span className="text-[10px] font-bold text-purple-600">(Line 2)</span>
                 )}
                 {!isSendable && (
                   <span className="text-[10px] font-bold text-red-600">(Error)</span>
@@ -290,7 +319,13 @@ export default function AdminWhatsAppPage() {
         ))}
       </div>
 
-      {activeTab === "inbox" && <InboxTab onReply={goReply} />}
+      {activeTab === "inbox" && (
+        <InboxTab
+          onReply={goReply}
+          selectedChannel={inboxChannel}
+          onSelectChannel={setInboxChannel}
+        />
+      )}
       {activeTab === "pipeline" && <PipelineTab onOpenChat={goReply} />}
       {activeTab === "send" && (
         <SendTab
@@ -305,6 +340,7 @@ export default function AdminWhatsAppPage() {
       )}
       {activeTab === "templates" && <MetaTemplatesTab defaultRecipient={prefillRecipient ?? ""} />}
       {activeTab === "rules" && <RulesTab />}
+      {activeTab === "flow" && <FlowTab />}
       {activeTab === "stats" && <StatsTab />}
       {activeTab === "numbers" && <NumbersTab onSendFrom={goSendFrom} />}
     </div>
@@ -494,7 +530,15 @@ function SelectWithCustom({
   );
 }
 
-function InboxTab({ onReply }: { onReply: (number: string) => void }) {
+function InboxTab({
+  onReply,
+  selectedChannel: controlledChannel,
+  onSelectChannel: setControlledChannel,
+}: {
+  onReply: (number: string) => void;
+  selectedChannel?: string;
+  onSelectChannel?: (channelId: string) => void;
+}) {
   const { data, isLoading, isError, refetch } = useWhatsAppMessages();
   const { data: metaData } = useConversationMeta();
   const { data: numbersData } = useWhatsAppNumbers();
@@ -503,6 +547,16 @@ function InboxTab({ onReply }: { onReply: (number: string) => void }) {
 
   const metaMap = metaData?.data ?? {};
   const numbers = numbersData?.data ?? [];
+
+  // Each inbox starts in its own dedicated, separated view (Line 1 by default)
+  const [internalChannel, setInternalChannel] = useState<string>("");
+  const activeChannel = controlledChannel !== undefined ? controlledChannel : internalChannel || numbers[0]?.id || "all";
+
+  const handleSelectChannel = (ch: string) => {
+    if (setControlledChannel) setControlledChannel(ch);
+    setInternalChannel(ch);
+    setSelected(null);
+  };
 
   const [searchQuery, setSearchQuery] = useState("");
   const [filter, setFilter] = useState<"all" | "unread">("all");
@@ -514,7 +568,24 @@ function InboxTab({ onReply }: { onReply: (number: string) => void }) {
     return <AdminErrorState message="Could not load messages. Check your WhatsApp configuration." />;
 
   const allMessages = data?.data ?? [];
-  const conversations = groupConversations(allMessages);
+
+  // Pre-calculate conversation and unread counts for EACH separate line
+  const lineStats: Record<string, { count: number; unread: number }> = {};
+  for (const n of numbers) {
+    const lineMsgs = allMessages.filter((m) => messageBelongsToChannel(m, n.id, n.primary));
+    const lineConvs = groupConversations(lineMsgs);
+    const unreads = lineConvs.reduce((acc, c) => acc + (unreadCount(c, metaMap[c.number]) > 0 ? 1 : 0), 0);
+    lineStats[n.id] = { count: lineConvs.length, unread: unreads };
+  }
+
+  // Filter messages strictly for the active line so inboxes are 100% separated
+  const activeLine = numbers.find((n) => n.id === activeChannel);
+  const filteredMessages =
+    activeChannel === "all" || !activeLine
+      ? allMessages
+      : allMessages.filter((m) => messageBelongsToChannel(m, activeChannel, activeLine.primary));
+
+  const conversations = groupConversations(filteredMessages);
 
   const withMeta = conversations.map((conv) => {
     const meta = metaMap[conv.number];
@@ -530,6 +601,10 @@ function InboxTab({ onReply }: { onReply: (number: string) => void }) {
   const archivedList = searched.filter((x) => x.meta?.archived);
   const activeList = searched
     .filter((x) => !x.meta?.archived)
+    .filter((x) => {
+      if (x.meta?.snoozedUntil && new Date(x.meta.snoozedUntil) > new Date()) return false;
+      return true;
+    })
     .filter((x) => (filter === "unread" ? x.unread > 0 : true))
     .sort((a, b) => Number(!!b.meta?.pinned) - Number(!!a.meta?.pinned));
   const list = showArchived ? archivedList : activeList;
@@ -587,6 +662,68 @@ function InboxTab({ onReply }: { onReply: (number: string) => void }) {
             </button>
           </div>
         </div>
+
+        {/* Dedicated Separate Inboxes Switcher */}
+        {numbers.length > 1 && (
+          <div className="border-b bg-gray-50/90 p-2.5" style={{ borderColor: WA.divider }}>
+            <div className="mb-1.5 flex items-center justify-between">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-gray-500">
+                Select WhatsApp Inbox:
+              </span>
+              <button
+                type="button"
+                onClick={() => handleSelectChannel("all")}
+                className={`text-[11px] px-2 py-0.5 rounded font-semibold transition ${
+                  activeChannel === "all"
+                    ? "bg-gray-800 text-white"
+                    : "text-gray-500 hover:text-gray-800"
+                }`}
+              >
+                Combined
+              </button>
+            </div>
+            <div className="grid grid-cols-2 gap-1.5">
+              {numbers.map((n, idx) => {
+                const isActive = activeChannel === n.id;
+                const stats = lineStats[n.id] || { count: 0, unread: 0 };
+                const display = n.displayNumber || n.label || `Line ${idx + 1}`;
+                return (
+                  <button
+                    key={n.id}
+                    type="button"
+                    onClick={() => handleSelectChannel(n.id)}
+                    className={`flex flex-col rounded-lg border p-2 text-left transition ${
+                      isActive
+                        ? "border-emerald-600 bg-white shadow-sm ring-2 ring-emerald-500/20"
+                        : "border-gray-200 bg-white/70 hover:bg-white"
+                    }`}
+                  >
+                    <div className="flex items-center justify-between gap-1">
+                      <span className="flex items-center gap-1.5 text-xs font-bold text-gray-900 truncate">
+                        <span
+                          className="h-2 w-2 rounded-full shrink-0"
+                          style={{ background: n.canSend !== false ? "#16a34a" : "#dc2626" }}
+                        />
+                        <span className="truncate">{display}</span>
+                      </span>
+                      {stats.unread > 0 && (
+                        <span className="rounded-full bg-emerald-600 px-1.5 py-0.2 text-[10px] font-bold text-white shrink-0">
+                          {stats.unread}
+                        </span>
+                      )}
+                    </div>
+                    <div className="mt-1 flex items-center justify-between text-[10px] text-gray-500">
+                      <span className="font-medium text-emerald-800/80">
+                        {n.primary ? "Line 1" : "Line 2"}
+                      </span>
+                      <span>{stats.count} chats</span>
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
 
         {/* Search + filter chips */}
         <div className="px-3 pb-1.5 pt-1.5" style={{ background: WA.listBg }}>
@@ -674,9 +811,10 @@ function InboxTab({ onReply }: { onReply: (number: string) => void }) {
       <section className={`${selected ? "flex" : "hidden md:flex"} flex-1 flex-col`}>
         {selectedConv ? (
           <ChatView
-            key={selectedConv.conv.number}
+            key={`${selectedConv.conv.number}_${activeChannel}`}
             conv={selectedConv.conv}
             meta={selectedConv.meta}
+            channelId={activeChannel !== "all" ? activeChannel : undefined}
             onBack={() => setSelected(null)}
             onMarkRead={() => patch(selectedConv.conv.number, { lastReadAt: new Date().toISOString() })}
             onMarkUnread={() => {
@@ -819,6 +957,7 @@ function ChatListItem({
 function ChatView({
   conv,
   meta,
+  channelId,
   onBack,
   onMarkRead,
   onMarkUnread,
@@ -831,6 +970,7 @@ function ChatView({
 }: {
   conv: Conversation;
   meta?: ConvMeta;
+  channelId?: string;
   onBack: () => void;
   onMarkRead: () => void;
   onMarkUnread: () => void;
@@ -844,12 +984,7 @@ function ChatView({
   const sendMessage = useSendWhatsAppMessage();
   const { data: numbersData } = useWhatsAppNumbers();
   const numbers = numbersData?.data ?? [];
-  /**
-   * Answer as the number this thread is on. Undefined when the thread predates
-   * the second number (nothing was recorded) or names one we are no longer
-   * configured with — the server then falls back to the primary.
-   */
-  const sender = numbers.some((n) => n.id === conv.channel) ? conv.channel : undefined;
+  const sender = channelId || (numbers.some((n) => n.id === conv.channel) ? conv.channel : undefined);
   const senderInfo = numbers.find((n) => n.id === sender);
   const [reply, setReply] = useState("");
   const [error, setError] = useState("");
@@ -1044,13 +1179,15 @@ function ChatView({
               {name}
             </p>
             <p className="truncate text-[13px]" style={{ color: WA.sub }}>
-              {/* With two numbers on the account, whose line this is matters more
-                  than the stock prompt — a reply goes out from it. */}
-              {numbers.length > 1
-                ? senderInfo
-                  ? `on ${describeNumber(senderInfo)}`
-                  : "number not recorded — replies use the primary"
-                : "click here for contact info"}
+              {senderInfo ? (
+                <span className="inline-flex items-center gap-1 font-semibold text-emerald-700">
+                  <span className="h-1.5 w-1.5 rounded-full bg-emerald-600 inline-block" />
+                  {senderInfo.primary ? "Line 1" : "Line 2"}
+                  {senderInfo.displayNumber ? ` (${senderInfo.displayNumber})` : ""}
+                </span>
+              ) : (
+                "Contact info"
+              )}
             </p>
           </div>
         </button>
@@ -1933,13 +2070,11 @@ function SendTab({
                   ))}
                 </select>
               </div>
-              <p className="mt-2 text-xs" style={{ color: "var(--adm-text-3)" }}>
-                Pick a ready-made message, then tweak the header, body, footer & buttons below.
-              </p>
+
             </AdminField>
 
             {/* Header */}
-            <AdminField label="Header (optional, bold title)" htmlFor="headerText">
+            <AdminField label="Header (optional)" htmlFor="headerText">
               <input
                 type="text"
                 id="headerText"
@@ -1970,7 +2105,7 @@ function SendTab({
             </AdminField>
 
             {/* Footer */}
-            <AdminField label="Footer (optional, small grey text)" htmlFor="footerText">
+            <AdminField label="Footer (optional)" htmlFor="footerText">
               <input
                 type="text"
                 id="footerText"
@@ -1989,10 +2124,7 @@ function SendTab({
             {/* Button inputs */}
             <div>
               <label className="mb-2 block text-sm font-semibold" style={{ color: "var(--adm-text)" }}>
-                Interactive Buttons{" "}
-                <span className="text-xs font-normal" style={{ color: "var(--adm-text-3)" }}>
-                  (max 3, shown as blue clickable buttons in WhatsApp)
-                </span>
+                Interactive Buttons <span className="text-xs font-normal text-gray-400">(max 3)</span>
               </label>
               <div className="space-y-2">
                 {buttons.map((btn, index) => (
@@ -2258,9 +2390,7 @@ function MetaTemplatesTab({ defaultRecipient }: { defaultRecipient: string }) {
             id="templateFrom"
             label="Send templates from"
           />
-          <p className="mt-2 text-xs" style={{ color: "var(--adm-text-3)" }}>
-            Whichever number you pick is the one the customer replies to, and the one the 24-hour window opens on.
-          </p>
+
         </div>
       )}
 
@@ -2615,6 +2745,399 @@ function TemplateManager({ templates }: { templates: WATemplate[] }) {
 }
 
 // ─── Auto-Reply Rules ─────────────────────────────────────────────────────
+
+// ??? Programmatic Lead Flow Editor ??????????????????????????????????????????
+
+const FLOW_STEP_LABELS: Record<string, { label: string; icon: string }> = {
+  start: { label: "1. Initial Greeting & Services", icon: "?" },
+  security: { label: "2. Cybersecurity Follow-up", icon: "???" },
+  compliance: { label: "3. Compliance Follow-up", icon: "??" },
+  seo: { label: "4. SEO & AdSense Follow-up", icon: "??" },
+  client: { label: "5. Existing Client Support", icon: "??" },
+  careers: { label: "6. Careers & Internship", icon: "??" },
+  details: { label: "7. Lead Intake Questions", icon: "??" },
+  urgent: { label: "8. Urgent Incident Alert", icon: "??" },
+  apply: { label: "9. Job Application Instructions", icon: "??" },
+  human: { label: "10. Talk to Human / Hours", icon: "??" },
+};
+
+function FlowTab() {
+  const { data, isLoading, isError, refetch } = useWhatsAppFlow();
+  const saveFlow = useSaveWhatsAppFlow();
+  const resetFlow = useResetWhatsAppFlow();
+
+  const [steps, setSteps] = useState<FlowStep[]>([]);
+  const [selectedStepId, setSelectedStepId] = useState<string>("start");
+  const [saveSuccess, setSaveSuccess] = useState(false);
+  const [resetting, setResetting] = useState(false);
+
+  useEffect(() => {
+    if (data?.data) {
+      setSteps(JSON.parse(JSON.stringify(data.data)));
+    }
+  }, [data]);
+
+  if (isLoading) return <AdminLoadingState label="Loading programmatic bot flow..." />;
+  if (isError) return <AdminErrorState message="Could not load bot flow." />;
+
+  const currentStep = steps.find((s) => s.id === selectedStepId) || steps[0];
+
+  const updateStepField = (field: string, value: any) => {
+    setSteps((prev) =>
+      prev.map((s) => {
+        if (s.id !== selectedStepId) return s;
+        return { ...s, [field]: value };
+      })
+    );
+  };
+
+  const updateListRow = (secIndex: number, rowIndex: number, field: string, value: string) => {
+    setSteps((prev) =>
+      prev.map((s) => {
+        if (s.id !== selectedStepId || s.kind !== "list") return s;
+        const newSecs = [...s.sections];
+        const sec = { ...newSecs[secIndex] };
+        const newRows = [...sec.rows];
+        newRows[rowIndex] = { ...newRows[rowIndex], [field]: value };
+        sec.rows = newRows;
+        newSecs[secIndex] = sec;
+        return { ...s, sections: newSecs };
+      })
+    );
+  };
+
+  const updateButtonTitle = (btnIndex: number, title: string) => {
+    setSteps((prev) =>
+      prev.map((s) => {
+        if (s.id !== selectedStepId || s.kind !== "buttons") return s;
+        const newButtons = [...s.buttons];
+        if (newButtons[btnIndex]) {
+          newButtons[btnIndex] = { ...newButtons[btnIndex], title };
+        }
+        return { ...s, buttons: newButtons };
+      })
+    );
+  };
+
+  const handleSave = async () => {
+    try {
+      await saveFlow.mutateAsync(steps);
+      setSaveSuccess(true);
+      setTimeout(() => setSaveSuccess(false), 3000);
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const handleReset = async () => {
+    if (!confirm("Reset all programmatic flow messages to built-in defaults?")) return;
+    setResetting(true);
+    try {
+      await resetFlow.mutateAsync();
+      await refetch();
+    } finally {
+      setResetting(false);
+    }
+  };
+
+  return (
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <div className="flex items-center gap-2">
+            <h2 className="text-lg font-bold" style={{ color: "var(--adm-text)" }}>
+              Programmatic Bot Flow
+            </h2>
+            <span
+              className={`rounded-full px-2.5 py-0.5 text-xs font-semibold ${
+                data?.isCustom
+                  ? "bg-purple-100 text-purple-800"
+                  : "bg-gray-100 text-gray-700"
+              }`}
+            >
+              {data?.isCustom ? "Customized" : "Built-in Defaults"}
+            </span>
+          </div>
+          <p className="text-xs text-gray-500 mt-0.5">
+            Automated messages sent to new contacts and interactive option selections.
+          </p>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={handleReset}
+            disabled={resetting || resetFlow.isPending}
+            className="border px-3 py-2 text-xs font-semibold rounded hover:bg-gray-50 transition text-gray-600 disabled:opacity-50"
+            style={{ borderColor: "var(--adm-border)" }}
+          >
+            Reset Defaults
+          </button>
+          <button
+            type="button"
+            onClick={handleSave}
+            disabled={saveFlow.isPending}
+            className="flex items-center gap-1.5 px-4 py-2 text-xs font-semibold text-white rounded shadow-sm transition hover:opacity-90 disabled:opacity-50"
+            style={{ background: "#059669" }}
+          >
+            <Check size={14} />
+            {saveFlow.isPending ? "Saving..." : saveSuccess ? "Saved!" : "Save Changes"}
+          </button>
+        </div>
+      </div>
+
+      {saveSuccess && (
+        <div className="flex items-center gap-2 rounded border border-emerald-300 bg-emerald-50 p-3 text-xs font-medium text-emerald-800">
+          <CheckCheck size={16} className="shrink-0 text-emerald-600" />
+          Programmatic messages saved successfully. All new WhatsApp interactions will use these texts.
+        </div>
+      )}
+
+      {/* Step Selector pills */}
+      <div className="flex flex-wrap gap-1.5 border-b pb-3" style={{ borderColor: "var(--adm-border)" }}>
+        {steps.map((s) => {
+          const isSelected = s.id === selectedStepId;
+          const meta = FLOW_STEP_LABELS[s.id] || { label: s.id, icon: "??" };
+          return (
+            <button
+              key={s.id}
+              type="button"
+              onClick={() => setSelectedStepId(s.id)}
+              className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium transition ${
+                isSelected
+                  ? "bg-gray-900 text-white shadow-sm"
+                  : "border border-gray-200 bg-white text-gray-700 hover:bg-gray-50"
+              }`}
+            >
+              <span>{meta.icon}</span>
+              <span>{meta.label}</span>
+              <span className="text-[10px] opacity-60 uppercase font-mono">({s.kind})</span>
+            </button>
+          );
+        })}
+      </div>
+
+      {currentStep && (
+        <div className="grid gap-6 lg:grid-cols-12">
+          {/* Editor Form */}
+          <div className="space-y-4 lg:col-span-7">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-bold uppercase tracking-wide text-gray-500">
+                Step: <span className="text-gray-900 font-mono">{currentStep.id}</span>
+              </span>
+              <span className="rounded bg-gray-100 px-2 py-0.5 text-[11px] font-semibold text-gray-700">
+                {currentStep.kind === "list"
+                  ? "Interactive List"
+                  : currentStep.kind === "buttons"
+                  ? "Reply Buttons"
+                  : "Plain Text"}
+              </span>
+            </div>
+
+            {/* Header if kind != text */}
+            {currentStep.kind !== "text" && (
+              <AdminField label="Header (optional)" htmlFor="flowHeader">
+                <input
+                  id="flowHeader"
+                  type="text"
+                  value={currentStep.header || ""}
+                  onChange={(e) => updateStepField("header", e.target.value)}
+                  maxLength={60}
+                  className={adminInputClass}
+                  style={adminInputStyle}
+                  placeholder="e.g. Tauqeer Mustafa Inc"
+                />
+                <p className="mt-1 text-right text-[11px] text-gray-400">
+                  {(currentStep.header || "").length}/60 chars
+                </p>
+              </AdminField>
+            )}
+
+            {/* Body */}
+            <AdminField label="Message Text (Body)" htmlFor="flowBody">
+              <textarea
+                id="flowBody"
+                value={currentStep.body}
+                onChange={(e) => updateStepField("body", e.target.value)}
+                maxLength={currentStep.kind === "text" ? 4096 : 1024}
+                rows={6}
+                className={adminInputClass}
+                style={adminInputStyle}
+                placeholder="Message text sent to customer..."
+              />
+              <div className="mt-1 flex items-center justify-between text-[11px] text-gray-400">
+                <span>Supports WhatsApp *bold*, _italic_</span>
+                <span>
+                  {currentStep.body.length}/{currentStep.kind === "text" ? 4096 : 1024} chars
+                </span>
+              </div>
+            </AdminField>
+
+            {/* Footer if kind != text */}
+            {currentStep.kind !== "text" && (
+              <AdminField label="Footer (optional)" htmlFor="flowFooter">
+                <input
+                  id="flowFooter"
+                  type="text"
+                  value={currentStep.footer || ""}
+                  onChange={(e) => updateStepField("footer", e.target.value)}
+                  maxLength={60}
+                  className={adminInputClass}
+                  style={adminInputStyle}
+                  placeholder="e.g. Mon to Sat, 09:00 to 18:00"
+                />
+                <p className="mt-1 text-right text-[11px] text-gray-400">
+                  {(currentStep.footer || "").length}/60 chars
+                </p>
+              </AdminField>
+            )}
+
+            {/* List specific button and rows */}
+            {currentStep.kind === "list" && (
+              <div className="space-y-4 rounded-lg border bg-gray-50/50 p-4" style={{ borderColor: "var(--adm-border)" }}>
+                <AdminField label="List Menu Button Label" htmlFor="flowListBtn">
+                  <input
+                    id="flowListBtn"
+                    type="text"
+                    value={currentStep.button}
+                    onChange={(e) => updateStepField("button", e.target.value)}
+                    maxLength={20}
+                    className={adminInputClass}
+                    style={adminInputStyle}
+                    placeholder="Choose an option"
+                  />
+                  <p className="mt-1 text-right text-[11px] text-gray-400">
+                    {currentStep.button.length}/20 chars
+                  </p>
+                </AdminField>
+
+                <div className="space-y-3">
+                  <span className="block text-xs font-semibold text-gray-700">List Options & Rows:</span>
+                  {currentStep.sections.map((sec: any, secIdx: number) => (
+                    <div key={sec.title || secIdx} className="space-y-2 border-t pt-2" style={{ borderColor: "var(--adm-border)" }}>
+                      <span className="text-[11px] font-bold uppercase text-gray-500">{sec.title}</span>
+                      {sec.rows.map((row: any, rowIdx: number) => (
+                        <div key={row.id} className="grid grid-cols-1 sm:grid-cols-2 gap-2 bg-white p-2.5 rounded border" style={{ borderColor: "var(--adm-border)" }}>
+                          <div>
+                            <label className="text-[10px] font-medium text-gray-500 block">Title (max 24 chars)</label>
+                            <input
+                              type="text"
+                              value={row.title}
+                              onChange={(e) => updateListRow(secIdx, rowIdx, "title", e.target.value)}
+                              maxLength={24}
+                              className={adminInputClass}
+                              style={{ ...adminInputStyle, fontSize: "12px", padding: "4px 8px" }}
+                            />
+                          </div>
+                          <div>
+                            <label className="text-[10px] font-medium text-gray-500 block">Description (max 72 chars)</label>
+                            <input
+                              type="text"
+                              value={row.description || ""}
+                              onChange={(e) => updateListRow(secIdx, rowIdx, "description", e.target.value)}
+                              maxLength={72}
+                              className={adminInputClass}
+                              style={{ ...adminInputStyle, fontSize: "12px", padding: "4px 8px" }}
+                            />
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Buttons specific options */}
+            {currentStep.kind === "buttons" && (
+              <div className="space-y-3 rounded-lg border bg-gray-50/50 p-4" style={{ borderColor: "var(--adm-border)" }}>
+                <span className="block text-xs font-semibold text-gray-700">Interactive Buttons (max 20 chars each):</span>
+                {currentStep.buttons.map((btn: any, btnIdx: number) => (
+                  <div key={btn.id} className="flex items-center gap-2 bg-white p-2 rounded border" style={{ borderColor: "var(--adm-border)" }}>
+                    <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-[11px] font-bold text-emerald-800">
+                      {btnIdx + 1}
+                    </span>
+                    <input
+                      type="text"
+                      value={btn.title}
+                      onChange={(e) => updateButtonTitle(btnIdx, e.target.value)}
+                      maxLength={20}
+                      className={adminInputClass}
+                      style={{ ...adminInputStyle, fontSize: "13px", padding: "6px 10px" }}
+                    />
+                    <span className="text-[10px] text-gray-400 shrink-0 font-mono">
+                      {btn.title.length}/20
+                    </span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Live WhatsApp Simulation Bubble */}
+          <div className="lg:col-span-5">
+            <div className="sticky top-6">
+              <span className="mb-2 block text-xs font-bold uppercase tracking-wider text-gray-500">
+                Live Preview
+              </span>
+              <div
+                className="rounded-xl p-4 shadow-inner"
+                style={{
+                  backgroundColor: "#E5DDD5",
+                  backgroundImage: DOODLE,
+                  minHeight: "260px",
+                }}
+              >
+                <div className="max-w-[90%] rounded-lg bg-white p-3 shadow text-[13px] text-gray-900 space-y-1.5">
+                  {currentStep.kind !== "text" && currentStep.header && (
+                    <p className="font-bold text-gray-900 border-b pb-1 text-sm border-gray-100">
+                      {currentStep.header}
+                    </p>
+                  )}
+                  <p className="whitespace-pre-wrap leading-relaxed text-gray-800">
+                    {currentStep.body}
+                  </p>
+                  {currentStep.kind !== "text" && currentStep.footer && (
+                    <p className="text-[11px] text-gray-500 pt-1">
+                      {currentStep.footer}
+                    </p>
+                  )}
+                  <div className="flex justify-end pt-1">
+                    <span className="text-[10px] text-gray-400">12:00 PM</span>
+                  </div>
+                </div>
+
+                {/* List action button below bubble */}
+                {currentStep.kind === "list" && (
+                  <div className="mt-1.5 max-w-[90%]">
+                    <div className="flex items-center justify-center rounded-lg bg-white py-2 text-xs font-semibold text-emerald-700 shadow border border-gray-100">
+                      ?? {currentStep.button || "Choose an option"}
+                    </div>
+                  </div>
+                )}
+
+                {/* Button actions below bubble */}
+                {currentStep.kind === "buttons" && (
+                  <div className="mt-1.5 max-w-[90%] space-y-1">
+                    {currentStep.buttons.map((b: any) => (
+                      <div
+                        key={b.id}
+                        className="flex items-center justify-center rounded-lg bg-white py-2 text-xs font-semibold text-emerald-700 shadow border border-gray-100"
+                      >
+                        {b.title || "Button"}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
 
 function RulesTab() {
   const { data, isLoading, isError } = useAutoReplyRules();
@@ -3029,14 +3552,7 @@ function NumbersTab({ onSendFrom }: { onSendFrom?: (numberId: string) => void })
         </div>
       )}
 
-      {/* Meta WhatsApp Integration Info Card */}
-      <div className="rounded-lg border p-4 text-xs" style={{ borderColor: "var(--adm-border)", background: "var(--adm-surface)" }}>
-        <p className="font-semibold text-gray-800 text-sm mb-1">About Multi-Number WhatsApp</p>
-        <p className="text-gray-600 leading-relaxed">
-          Both incoming messages and outgoing replies are automatically routed through the corresponding WhatsApp number.
-          When a customer contacts your primary or secondary line, their replies and 24-hour customer service window remain on that exact line.
-        </p>
-      </div>
+
     </div>
   );
 }

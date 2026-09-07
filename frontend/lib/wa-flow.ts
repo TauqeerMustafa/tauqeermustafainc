@@ -39,6 +39,8 @@
  * from messages already on people's phones stop resolving.
  */
 
+import { getKV, KEYS } from "@/lib/kv";
+
 export type FlowChoice = {
   /** Stable id sent to Meta and returned on tap. Never reword these. */
   id: string;
@@ -89,7 +91,7 @@ const DETAILS_ASK =
   "3. *Outcome* — what you want to be different\n\n" +
   "A voice note is fine if that is quicker.";
 
-const STEPS: FlowStep[] = [
+export const DEFAULT_STEPS: FlowStep[] = [
   {
     kind: "list",
     id: "start",
@@ -262,6 +264,8 @@ const STEPS: FlowStep[] = [
   },
 ];
 
+export const STEPS: FlowStep[] = DEFAULT_STEPS;
+
 const BY_ID = new Map(STEPS.map((s) => [s.id, s]));
 
 /**
@@ -295,6 +299,79 @@ export function resolveChoice(choiceId?: string | null): FlowStep | null {
 /** True when this id belongs to the flow at all (used to skip keyword rules). */
 export function isFlowChoice(choiceId?: string | null): boolean {
   return !!choiceId && CHOICES.has(choiceId);
+}
+
+// ─── Dynamic / Editable Flow (Backed by Upstash KV) ──────────────────────────
+
+/**
+ * Fetches current flow steps: returns customized steps if saved in KV,
+ * or falls back to built-in DEFAULT_STEPS.
+ */
+export async function getFlowSteps(): Promise<FlowStep[]> {
+  const kv = getKV();
+  if (kv) {
+    try {
+      const custom = await kv.get<FlowStep[]>(KEYS.flow);
+      if (Array.isArray(custom) && custom.length > 0) {
+        return custom;
+      }
+    } catch (e) {
+      console.error("[wa-flow] Failed to load custom flow from KV:", e);
+    }
+  }
+  return [...DEFAULT_STEPS];
+}
+
+/** Saves customized flow steps into Upstash KV. */
+export async function saveFlowSteps(steps: FlowStep[]): Promise<boolean> {
+  const kv = getKV();
+  if (!kv) return false;
+  try {
+    await kv.set(KEYS.flow, steps);
+    return true;
+  } catch (e) {
+    console.error("[wa-flow] Failed to save custom flow to KV:", e);
+    return false;
+  }
+}
+
+/** Resets custom flow in Upstash KV back to built-in defaults. */
+export async function resetFlowSteps(): Promise<boolean> {
+  const kv = getKV();
+  if (!kv) return false;
+  try {
+    await kv.del(KEYS.flow);
+    return true;
+  } catch (e) {
+    console.error("[wa-flow] Failed to reset flow in KV:", e);
+    return false;
+  }
+}
+
+/** Fetches a single step by ID, honoring custom copy if stored in KV. */
+export async function getEffectiveFlowStep(id?: string | null): Promise<FlowStep | null> {
+  if (!id) return null;
+  const steps = await getFlowSteps();
+  return steps.find((s) => s.id === id) ?? flowStep(id);
+}
+
+/** Resolves the step a choice tap leads to, honoring custom copy if stored in KV. */
+export async function resolveEffectiveChoice(choiceId?: string | null): Promise<FlowStep | null> {
+  if (!choiceId) return null;
+  const steps = await getFlowSteps();
+  for (const step of steps) {
+    const choices =
+      step.kind === "list"
+        ? step.sections.flatMap((s) => s.rows)
+        : step.kind === "buttons"
+        ? step.buttons
+        : [];
+    const choice = choices.find((c) => c.id === choiceId);
+    if (choice) {
+      return steps.find((s) => s.id === choice.next) ?? flowStep(choice.next);
+    }
+  }
+  return resolveChoice(choiceId);
 }
 
 // ─── Rendering ───────────────────────────────────────────────────────────────

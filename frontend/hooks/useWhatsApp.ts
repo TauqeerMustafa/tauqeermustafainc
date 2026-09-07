@@ -7,6 +7,8 @@ import { useEffect, useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
 import { getStoredToken } from "@/lib/auth-storage";
+import type { FlowStep } from "@/lib/wa-flow";
+export type { FlowStep };
 
 const API_BASE = "/api/whatsapp";
 
@@ -442,5 +444,46 @@ export function useDeleteConversation() {
       queryClient.invalidateQueries({ queryKey: ["whatsapp-messages"] });
       queryClient.invalidateQueries({ queryKey: ["whatsapp-conv-meta"] });
     },
+  });
+}
+
+// ?? Programmatic Lead Flow (Bot Messages) ???????????????????????????????????
+
+export function useWhatsAppFlow() {
+  return useQuery<{ success: boolean; data: FlowStep[]; isCustom: boolean }>({
+    queryKey: ["whatsapp-flow"],
+    queryFn: () => getJSON("/flow"),
+  });
+}
+
+export function useSaveWhatsAppFlow() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (steps: FlowStep[]) => {
+      const res = await fetch(`${API_BASE}/flow`, {
+        method: "PUT",
+        headers: authHeaders({ "Content-Type": "application/json" }),
+        body: JSON.stringify({ steps }),
+      });
+      if (!res.ok) throw new Error("Failed to save flow");
+      return res.json();
+    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["whatsapp-flow"] }),
+  });
+}
+
+export function useResetWhatsAppFlow() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async () => {
+      const res = await fetch(`${API_BASE}/flow`, {
+        method: "POST",
+        headers: authHeaders({ "Content-Type": "application/json" }),
+        body: JSON.stringify({ action: "reset" }),
+      });
+      if (!res.ok) throw new Error("Failed to reset flow");
+      return res.json();
+    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["whatsapp-flow"] }),
   });
 }

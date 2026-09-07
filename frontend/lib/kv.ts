@@ -72,4 +72,5 @@ export const KEYS = {
   templatesVersion: "whatsapp:templates:version",
   templatesSeed: "whatsapp:templates:seed",
   conversations: "whatsapp:conversations",
+  flow: "whatsapp:flow",
 };

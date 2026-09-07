@@ -34,7 +34,7 @@ import { NextResponse } from "next/server";
 import { accountAt } from "@/lib/wa-accounts";
 import { createHmac, timingSafeEqual } from "node:crypto";
 import { isKnownNumber, primaryNumberId, waNumbers } from "@/lib/wa-numbers";
-import { FLOW_ENTRY, flowStep, resolveChoice, stepPayload, stepTranscript, type FlowStep } from "@/lib/wa-flow";
+import { FLOW_ENTRY, flowStep, resolveChoice, getEffectiveFlowStep, resolveEffectiveChoice, stepPayload, stepTranscript, type FlowStep } from "@/lib/wa-flow";
 import {
   appendMessage,
   updateMessageStatus,
@@ -257,14 +257,14 @@ async function handleAutoReply(
   }
 
   try {
-    const next = resolveChoice(choiceId);
+    const next = await resolveEffectiveChoice(choiceId);
     if (next) {
       await sendFlowStep(token, phoneNumberId, to, next, msgId);
       return;
     }
 
     if (await isFirstContact(to)) {
-      const entry = flowStep(FLOW_ENTRY);
+      const entry = await getEffectiveFlowStep(FLOW_ENTRY);
       if (entry) {
         await sendFlowStep(token, phoneNumberId, to, entry, msgId);
         return;
