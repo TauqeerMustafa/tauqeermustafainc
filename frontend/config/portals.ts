@@ -67,6 +67,7 @@ export const PORTAL_NAV: Record<PortalId, NavSection[]> = {
     {
       title: "People",
       items: [
+        { label: "Overview", href: "/admin/people", icon: LayoutDashboard },
         {
           label: "Employees",
           href: "/admin/employees",

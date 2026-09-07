@@ -16,6 +16,7 @@ import {
   Tabs,
   inputClass,
 } from "@/components/portal/PortalUI";
+import PeopleBanner from "@/components/portal/PeopleBanner";
 import { useDecideLeave, useLeaveQueue } from "@/hooks/useLeave";
 import type { LeaveRequest } from "@/types";
 
@@ -63,6 +64,8 @@ export default function AdminLeavePage() {
 
   return (
     <div className="flex flex-col gap-8">
+      <PeopleBanner active="leave" />
+
       <PortalPageHeader
         title="Leave Approvals"
         description="Review time-off requests and record the reasoning behind each decision."

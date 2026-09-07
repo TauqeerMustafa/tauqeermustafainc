@@ -16,6 +16,7 @@ import {
   Td,
   inputClass,
 } from "@/components/portal/PortalUI";
+import PeopleBanner from "@/components/portal/PeopleBanner";
 import { useAttendanceRoster } from "@/hooks/useAttendance";
 
 function formatTime(value: string | null | undefined) {
@@ -52,6 +53,8 @@ export default function AdminAttendancePage() {
 
   return (
     <div className="flex flex-col gap-8">
+      <PeopleBanner active="attendance" />
+
       <PortalPageHeader title="Daily Roster" description="Who is in, who is late, and who is away.">
         <div className="w-52">
           <Field label="Date" htmlFor="roster-date">

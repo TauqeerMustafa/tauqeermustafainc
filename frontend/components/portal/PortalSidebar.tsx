@@ -100,9 +100,20 @@ export default function PortalSidebar({ portal, isOpen, onClose }: Props) {
           {sections.map((section, index) => (
             <div key={section.title ?? `group-${index}`} className={index > 0 ? "mt-5" : ""}>
               {section.title && (
-                <p className="mb-2 px-3.5 text-[11px] font-medium uppercase tracking-wider text-adm-text-3">
-                  {t(section.title)}
-                </p>
+                section.title === "People" && portal === "admin" ? (
+                  <Link
+                    href="/admin/people"
+                    onClick={onClose}
+                    className="group mb-2 flex items-center justify-between px-3.5 text-[11px] font-medium uppercase tracking-wider text-adm-text-3 transition hover:text-adm-blue"
+                  >
+                    <span>{t(section.title)}</span>
+                    <ChevronRight size={11} className="opacity-60 transition-transform group-hover:translate-x-0.5 group-hover:opacity-100" />
+                  </Link>
+                ) : (
+                  <p className="mb-2 px-3.5 text-[11px] font-medium uppercase tracking-wider text-adm-text-3">
+                    {t(section.title)}
+                  </p>
+                )
               )}
 
               {section.items.map((item) => {

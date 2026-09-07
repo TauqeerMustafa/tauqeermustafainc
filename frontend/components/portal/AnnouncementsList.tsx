@@ -24,6 +24,7 @@ import {
   adminInputClass,
   adminInputStyle,
 } from "@/components/admin/AdminUI";
+import PeopleBanner from "@/components/portal/PeopleBanner";
 import {
   useAnnouncements,
   useCreateAnnouncement,
@@ -114,6 +115,8 @@ export default function AnnouncementsPage({ isAdmin = false }) {
 
   return (
     <div className="flex flex-col gap-6 max-w-5xl mx-auto w-full h-full min-h-[70vh]">
+      {isAdmin && <PeopleBanner active="announcements" />}
+
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold uppercase" style={{ color: "var(--adm-text)" }}>Company Announcements</h1>

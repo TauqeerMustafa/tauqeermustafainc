@@ -16,6 +16,7 @@ import {
   StatusPill,
   Td,
 } from "@/components/portal/PortalUI";
+import PeopleBanner from "@/components/portal/PeopleBanner";
 import { useEmployees, useSetEmployeeStatus } from "@/hooks/useEmployees";
 import { roleLabel } from "@/lib/rbac";
 
@@ -49,6 +50,8 @@ export default function AdminEmployeesPage() {
 
   return (
     <div className="flex flex-col gap-8">
+      <PeopleBanner active="employees" />
+
       <PortalPageHeader title="Employees" description="Every person on the roster, their role, and their account status.">
         <PortalButton href="/admin/employees/create" icon={Plus}>
           Add employee

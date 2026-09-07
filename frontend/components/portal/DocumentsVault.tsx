@@ -12,6 +12,7 @@ import {
   adminInputStyle,
 } from "@/components/admin/AdminUI";
 import { Tabs } from "@/components/portal/PortalUI";
+import PeopleBanner from "@/components/portal/PeopleBanner";
 import { useEmployees } from "@/hooks/useEmployees";
 import {
   useAllDocuments,
@@ -191,6 +192,8 @@ export default function DocumentsVault({ isAdmin = false }) {
 
   return (
     <div className="flex h-full min-h-[70vh] flex-col gap-6">
+      {isAdmin && <PeopleBanner active="documents" />}
+
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-2xl font-bold uppercase" style={{ color: "var(--adm-text)" }}>
