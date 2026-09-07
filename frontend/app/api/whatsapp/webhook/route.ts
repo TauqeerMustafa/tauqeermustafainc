@@ -31,7 +31,7 @@
  * The store is import-only, so the auth gate still protects real clients.
  */
 import { NextResponse } from "next/server";
-import { accountAt } from "@/lib/wa-accounts";
+import { accountAt, appSecrets } from "@/lib/wa-accounts";
 import { createHmac, timingSafeEqual } from "node:crypto";
 import { isKnownNumber, primaryNumberId, waNumbers } from "@/lib/wa-numbers";
 import { FLOW_ENTRY, flowStep, resolveChoice, getEffectiveFlowStep, resolveEffectiveChoice, stepPayload, stepTranscript, type FlowStep } from "@/lib/wa-flow";
@@ -76,22 +76,24 @@ export async function GET(request: Request) {
  * unconfigured deployment still receives messages — but logs the gap.
  */
 function signatureValid(raw: string, header: string | null): boolean {
-  const secret = process.env.WHATSAPP_APP_SECRET;
-  if (!secret) {
-    console.warn("[webhook] WHATSAPP_APP_SECRET unset — skipping signature check");
+  const secrets = appSecrets();
+  if (secrets.length === 0) {
+    console.warn("[webhook] No WHATSAPP_APP_SECRET configured — skipping signature check");
     return true;
   }
   if (!header || !header.startsWith("sha256=")) return false;
 
-  const expected = "sha256=" + createHmac("sha256", secret).update(raw).digest("hex");
-  const a = Buffer.from(expected);
-  const b = Buffer.from(header);
-  if (a.length !== b.length) return false;
-  try {
-    return timingSafeEqual(a, b);
-  } catch {
-    return false;
+  for (const secret of secrets) {
+    const expected = "sha256=" + createHmac("sha256", secret).update(raw).digest("hex");
+    const a = Buffer.from(expected);
+    const b = Buffer.from(header);
+    if (a.length === b.length) {
+      try {
+        if (timingSafeEqual(a, b)) return true;
+      } catch {}
+    }
   }
+  return false;
 }
 
 // ─── POST: incoming message events ───────────────────────────────────────────
@@ -115,7 +117,7 @@ export async function POST(request: Request) {
         const messages = value?.messages ?? [];
         // The number this event arrived on. One webhook serves the whole WABA,
         // so this — not the environment — decides who replies.
-        const channel  = String(value?.metadata?.phone_number_id || "");
+        const channel  = String(value?.metadata?.phone_number_id || value?.metadata?.display_phone_number || "");
 
         for (const msg of messages) {
           const from    = msg.from;         // sender number (digits only)

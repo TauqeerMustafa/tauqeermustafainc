@@ -92,10 +92,11 @@ export async function GET(request: Request) {
       if (res.ok && Array.isArray(json?.data)) {
         for (const item of json.data) {
           if (!item.id) continue;
+          // primary is corrected below after the full list is built
           discoveredMap.set(item.id, {
             id: String(item.id),
             label: item.verified_name || item.display_phone_number || `Line ${discoveredMap.size + 1}`,
-            primary: discoveredMap.size === 0,
+            primary: false,
             slot: account.slot,
             displayNumber: item.display_phone_number ?? null,
             verifiedName: item.verified_name ?? null,
@@ -136,6 +137,14 @@ export async function GET(request: Request) {
   }
 
   const resultList = Array.from(discoveredMap.values());
+
+  // 3. Fix the primary flag: the number configured as WHATSAPP_PHONE_NUMBER_ID
+  //    is always primary, regardless of Meta's WABA response order.
+  //    Fall back to the first entry only if nothing matches.
+  const configuredPrimaryId = configured.find((n) => n.primary)?.id;
+  for (const n of resultList) {
+    n.primary = configuredPrimaryId ? n.id === configuredPrimaryId : false;
+  }
   if (resultList.length > 0 && !resultList.some((n) => n.primary)) {
     resultList[0].primary = true;
   }
@@ -146,3 +155,4 @@ export async function GET(request: Request) {
   cache = { at: Date.now(), data: resultList };
   return NextResponse.json({ success: true, data: resultList });
 }
+

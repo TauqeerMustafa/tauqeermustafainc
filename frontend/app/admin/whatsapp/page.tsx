@@ -137,11 +137,61 @@ function channelOf(m: WAMessage): string {
   return (m.channel || (m.direction === "inbound" ? m.to : m.from) || "").trim();
 }
 
-function messageBelongsToChannel(m: WAMessage, channelId: string, isPrimary: boolean): boolean {
+function messageBelongsToChannel(
+  m: WAMessage,
+  numberInfo: WANumberInfo | undefined,
+  allNumbers: WANumberInfo[]
+): boolean {
+  if (!numberInfo) return true;
   const ch = channelOf(m);
-  if (ch === channelId) return true;
-  if (!ch && isPrimary) return true;
-  return false;
+  const clean = (s?: string | null) => (s || "").replace(/[^0-9]/g, "");
+
+  const chDigits = clean(ch);
+  const targetIdDigits = clean(numberInfo.id);
+  const targetDisplayDigits = clean(numberInfo.displayNumber);
+  const toDigits = clean(m.to);
+  const fromDigits = clean(m.from);
+
+  // 1. Direct ID match or digit match on ID
+  if (ch === numberInfo.id || (chDigits && targetIdDigits && chDigits === targetIdDigits)) return true;
+
+  // 2. Display number match (e.g. +92 318 8105813 or 923188105813)
+  if (targetDisplayDigits && chDigits && chDigits === targetDisplayDigits) return true;
+
+  // 3. For inbound messages, m.to could be the receiving phone number or phone_number_id
+  if (m.direction === "inbound") {
+    if (toDigits && targetIdDigits && toDigits === targetIdDigits) return true;
+    if (toDigits && targetDisplayDigits && toDigits === targetDisplayDigits) return true;
+  }
+
+  // 4. For outbound messages, m.from could be the sending phone number or phone_number_id
+  if (m.direction === "outbound") {
+    if (fromDigits && targetIdDigits && fromDigits === targetIdDigits) return true;
+    if (fromDigits && targetDisplayDigits && fromDigits === targetDisplayDigits) return true;
+  }
+
+  // 5. If this message matches ANY OTHER configured line, it does not belong here
+  const matchesAnotherLine = allNumbers.some((other) => {
+    if (other.id === numberInfo.id) return false;
+    const otherIdDigits = clean(other.id);
+    const otherDisplayDigits = clean(other.displayNumber);
+    if (ch === other.id || (chDigits && otherIdDigits && chDigits === otherIdDigits)) return true;
+    if (otherDisplayDigits && chDigits && chDigits === otherDisplayDigits) return true;
+    if (m.direction === "inbound" && toDigits) {
+      if (otherIdDigits && toDigits === otherIdDigits) return true;
+      if (otherDisplayDigits && toDigits === otherDisplayDigits) return true;
+    }
+    if (m.direction === "outbound" && fromDigits) {
+      if (otherIdDigits && fromDigits === otherIdDigits) return true;
+      if (otherDisplayDigits && fromDigits === otherDisplayDigits) return true;
+    }
+    return false;
+  });
+
+  if (matchesAnotherLine) return false;
+
+  // 6. If it didn't match any specific other line, attribute legacy messages to primary line
+  return !!numberInfo.primary;
 }
 
 /** Group messages into conversations, newest activity first. */
@@ -572,7 +622,7 @@ function InboxTab({
   // Pre-calculate conversation and unread counts for EACH separate line
   const lineStats: Record<string, { count: number; unread: number }> = {};
   for (const n of numbers) {
-    const lineMsgs = allMessages.filter((m) => messageBelongsToChannel(m, n.id, n.primary));
+    const lineMsgs = allMessages.filter((m) => messageBelongsToChannel(m, n, numbers));
     const lineConvs = groupConversations(lineMsgs);
     const unreads = lineConvs.reduce((acc, c) => acc + (unreadCount(c, metaMap[c.number]) > 0 ? 1 : 0), 0);
     lineStats[n.id] = { count: lineConvs.length, unread: unreads };
@@ -583,7 +633,7 @@ function InboxTab({
   const filteredMessages =
     activeChannel === "all" || !activeLine
       ? allMessages
-      : allMessages.filter((m) => messageBelongsToChannel(m, activeChannel, activeLine.primary));
+      : allMessages.filter((m) => messageBelongsToChannel(m, activeLine, numbers));
 
   const conversations = groupConversations(filteredMessages);
 
@@ -628,7 +678,13 @@ function InboxTab({
    */
   const channelTag = (conv: Conversation): string | undefined => {
     if (numbers.length < 2 || !conv.channel) return undefined;
-    const n = numbers.find((x) => x.id === conv.channel);
+    const clean = (s?: string | null) => (s || "").replace(/[^0-9]/g, "");
+    const chDigits = clean(conv.channel);
+    const n = numbers.find(
+      (x) =>
+        x.id === conv.channel ||
+        (chDigits && (chDigits === clean(x.id) || chDigits === clean(x.displayNumber)))
+    );
     return n ? n.label || n.displayNumber || undefined : undefined;
   };
 
