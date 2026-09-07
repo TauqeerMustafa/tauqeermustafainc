@@ -1,0 +1,12 @@
+# next.js
+/.next/
+/out/
+
+# vercel
+.vercel
+
+# env files
+.env*
+
+# typescript
+*.tsbuildinfo

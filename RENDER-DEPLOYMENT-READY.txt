@@ -1,0 +1,116 @@
+╔══════════════════════════════════════════════════════════════════╗
+║     🚀 RENDER DEPLOYMENT - READY TO DEPLOY                       ║
+╚══════════════════════════════════════════════════════════════════╝
+
+📝 ENVIRONMENT VARIABLES FOR RENDER
+
+Copy these exact values when deploying WA Service to Render:
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+WHATSAPP_TOKEN=EAA5D14LMyusBSDAmu7r0LvZCG9iKJzLE8dnZATzsz6EN0QhtnN0wZB8ZC2ovfsP854fk9MixVgQZANWLTpnqdRaU8hqVuXXH32MfBglGat4rBXYXFryzOnyC8zSk8bP7HOkNVWFuC9HxFw2zZBvfaQBijUa9xU45Fg6qh96SETp8TCmDb00gD81I0UXbHj3mmPOQZDZD
+
+WEBHOOK_VERIFY_TOKEN=tmi_webhook_2026
+
+PHONE_NUMBER_ID=1150558061484722
+
+PORT=3001
+
+NODE_ENV=production
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🚀 DEPLOYMENT STEPS
+
+Step 1: Deploy WA Service
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1. Go to: https://dashboard.render.com
+2. Click "New +" → "Web Service"
+3. Connect repository: whatsapp-webhook
+4. Configure:
+   Name: tmi-whatsapp-service
+   Branch: main
+   Build Command: npm install
+   Start Command: npm start
+
+5. Add Environment Variables (copy from above):
+   Click "Add Environment Variable" 5 times
+   Paste each variable name and value
+
+6. Click "Create Web Service"
+7. Wait 2-3 minutes
+8. Copy your URL: https://tmi-whatsapp-service.onrender.com
+
+Step 2: Update Frontend on Render
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1. Render dashboard → Your frontend service
+2. Click "Environment" tab
+3. Add these two variables:
+
+   WA_SERVICE_URL=https://tmi-whatsapp-service.onrender.com
+   WEBHOOK_VERIFY_TOKEN=tmi_webhook_2026
+
+4. Click "Save Changes"
+5. Frontend will auto-redeploy (2-3 minutes)
+
+Step 3: Configure Meta Webhook
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1. Go to: https://business.facebook.com
+2. WhatsApp → Configuration → Webhook
+3. Click "Edit"
+4. Enter:
+   Callback URL: https://tmi-whatsapp-service.onrender.com/webhook
+   Verify Token: tmi_webhook_2026
+
+5. Click "Verify and Save"
+6. Subscribe to: messages, message_status
+
+Step 4: Test
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1. Visit: https://your-frontend.onrender.com/admin/whatsapp
+2. Go to "Send Message" tab
+3. Send test to: 923001234567
+4. Check inbox for sent message
+5. Send WhatsApp to your business number
+6. Should appear in admin inbox
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+✅ VERIFICATION CHECKLIST
+
+After deployment, verify:
+□ WA service health: https://tmi-whatsapp-service.onrender.com/health
+□ Returns: {"status":"ok","service":"tmi-whatsapp-bot",...}
+□ Admin panel accessible: /admin/whatsapp
+□ Can send test message
+□ Message appears in inbox
+□ Webhook verified in Meta
+□ Can receive messages
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📞 YOUR WHATSAPP DETAILS
+
+Phone Number ID: 1150558061484722
+Verify Token: tmi_webhook_2026
+
+Use these in Meta Business Manager configuration.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🎯 WHAT YOU'LL GET
+
+✅ Send messages from admin panel
+✅ View all received messages
+✅ Real-time auto-refresh
+✅ Complete REST API
+✅ Message history
+✅ Statistics dashboard
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Ready! Start with Step 1: Deploy WA Service to Render 🚀

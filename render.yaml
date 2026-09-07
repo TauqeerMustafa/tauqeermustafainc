@@ -1,0 +1,65 @@
+# Render Blueprint for the FastAPI backend.
+# Docs: https://render.com/docs/blueprint-spec
+#
+# Deploy: Render Dashboard -> New -> Blueprint -> connect this repo.
+# Render reads this file, provisions the service, and prompts for any secret
+# (sync: false) values. The database is external (Supabase / managed Postgres),
+# so it is NOT declared here - only DATABASE_URL is wired in as a secret.
+#
+# See DEPLOYMENT.md at the repo root for the full runbook.
+
+services:
+  - type: web
+    name: tauqeer-inc-backend
+    runtime: docker
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    # start.sh (baked into the image) runs: alembic upgrade head && exec uvicorn
+    # No dockerCommand override needed - Dockerfile CMD ["./start.sh"] handles it.
+    plan: free
+    region: oregon
+    branch: master
+    autoDeploy: true
+    healthCheckPath: /health
+    envVars:
+      - key: ENVIRONMENT
+        value: production
+      - key: APP_DEBUG
+        value: "false"
+      - key: LOG_LEVEL
+        value: INFO
+      - key: ACCESS_TOKEN_EXPIRE_MINUTES
+        value: "10080"  # 7 days (60 * 24 * 7)
+      # Render generates a strong random value on first deploy and keeps it.
+      - key: SECRET_KEY
+        generateValue: true
+      # Set in the dashboard when prompted. Use the psycopg driver scheme:
+      #   postgresql+psycopg://<user>:<password>@<host>:5432/<db>
+      # (Supabase gives postgresql://... - change the scheme to +psycopg.)
+      - key: DATABASE_URL
+        sync: false
+      # Comma-separated, exact scheme+host, no trailing slash, no spaces.
+      - key: CORS_ORIGINS
+        value: https://tauqeermustafa.tech,https://www.tauqeermustafa.tech,https://tauqeermustafainc.vercel.app,https://community.tauqeermustafa.tech,https://portals.tauqeermustafa.tech
+      - key: CLIENT_PORTAL_URL
+        value: https://portals.tauqeermustafa.tech
+      - key: VERIFICATION_CODE_TTL_MINUTES
+        value: "10"
+      - key: SMTP_HOST
+        sync: false
+      - key: SMTP_PORT
+        value: "587"
+      - key: SMTP_USERNAME
+        sync: false
+      - key: SMTP_PASSWORD
+        sync: false
+      - key: SMTP_FROM_EMAIL
+        sync: false
+      - key: SMTP_USE_TLS
+        value: "true"
+      - key: GOOGLE_CLIENT_ID
+        sync: false
+      - key: GOOGLE_CLIENT_SECRET
+        sync: false
+      - key: GOOGLE_REDIRECT_URI
+        value: https://api.tauqeermustafa.tech/auth/client/google/callback

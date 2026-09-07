@@ -1,0 +1,70 @@
+export const API_ENDPOINTS = {
+  auth: {
+    login: "/auth/login",
+    me: "/auth/me",
+  },
+  admin: {
+    tasks: "/tasks",
+    client: "/client",
+    users: "/admin/users",
+    roles: "/admin/roles",
+    permissions: "/admin/permissions",
+    teams: "/admin/teams",
+    metrics: "/admin/metrics",
+  },
+  // HR routers return bare arrays/objects, not the ApiResponse envelope.
+  employees: {
+    list: "/employees/",
+    detail: (id: string) => `/employees/${id}`,
+    status: (id: string) => `/employees/${id}/status`,
+  },
+  attendance: {
+    checkIn: "/attendance/check-in",
+    checkOut: "/attendance/check-out",
+    me: "/attendance/me",
+    roster: "/attendance/admin",
+  },
+  leave: {
+    request: "/leave/request",
+    me: "/leave/me",
+    queue: "/leave/admin",
+    status: (id: string) => `/leave/admin/${id}/status`,
+  },
+  documents: {
+    upload: "/documents/upload",
+    file: "/documents/file",
+    me: "/documents/me",
+    all: "/documents/admin",
+    detail: (id: string) => `/documents/${id}`,
+    download: (id: string) => `/documents/${id}/file`,
+  },
+  dashboard: {
+    employee: "/dashboard/employee",
+    admin: "/dashboard/admin",
+    management: "/dashboard/management",
+    projects: "/dashboard/projects",
+    // Unprivileged view of the same shape: only the caller's own projects, so
+    // the staff Projects page does not need the manager-gated route above.
+    myProjects: "/dashboard/projects/me",
+  },
+  leads: {
+    root: "/leads",
+    pipeline: "/leads/pipeline",
+    byId: (id: string) => `/leads/${id}`,
+    activities: (id: string) => `/leads/${id}/activities`,
+  },
+  // Staff side of the client portal's "Direct line". Manager-gated: without
+  // these two routes a client's messages went into a table no portal read, and
+  // nothing could write a reply.
+  clients: {
+    threads: "/clients/threads",
+    reply: (clientId: string) => `/clients/${clientId}/messages`,
+  },
+  services: "/services",
+  blogs: "/blog",
+  portfolio: "/portfolio",
+  careers: "/careers",
+  contact: "/contact",
+  announcements: "/announcements",
+} as const;
+
