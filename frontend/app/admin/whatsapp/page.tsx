@@ -79,15 +79,17 @@ import { BUTTON_TEMPLATES } from "@/lib/button-templates";
 import { countVariables } from "@/lib/meta-templates";
 
 type MessageType = "text" | "media" | "buttons" | "template";
-type TabKey = "inbox" | "pipeline" | "send" | "templates" | "rules" | "stats";
+type TabKey = "inbox" | "pipeline" | "send" | "templates" | "rules" | "stats" | "numbers";
 type DealStatus = "new" | "contacted" | "negotiating" | "won" | "lost";
 
 const TABS: { key: TabKey; label: string; icon: React.ReactNode }[] = [
   { key: "inbox", label: "Inbox", icon: <MessageSquare size={16} /> },
+  { key: "pipeline", label: "Pipeline", icon: <BarChart3 size={16} /> },
   { key: "send", label: "Send Message", icon: <Send size={16} /> },
   { key: "templates", label: "Start Chat", icon: <Sparkles size={16} /> },
   { key: "rules", label: "Auto-Reply", icon: <Bot size={16} /> },
   { key: "stats", label: "Stats", icon: <BarChart3 size={16} /> },
+  { key: "numbers", label: "Phone Lines", icon: <Phone size={16} /> },
 ];
 
 const DEAL_STATUSES: { value: DealStatus; label: string; color: string; bgColor: string }[] = [
@@ -207,9 +209,18 @@ function SenderPicker({
 export default function AdminWhatsAppPage() {
   const [activeTab, setActiveTab] = useState<TabKey>("inbox");
   const [prefillRecipient, setPrefillRecipient] = useState<string | null>(null);
+  const [prefillSender, setPrefillSender] = useState<string | null>(null);
+
+  const { data: numbersData } = useWhatsAppNumbers();
+  const numbers = numbersData?.data ?? [];
 
   const goReply = (number: string) => {
     setPrefillRecipient(number);
+    setActiveTab("send");
+  };
+
+  const goSendFrom = (senderId: string) => {
+    setPrefillSender(senderId);
     setActiveTab("send");
   };
 
@@ -219,6 +230,42 @@ export default function AdminWhatsAppPage() {
         title="WhatsApp Business Manager"
         description="Manage customer conversations, send messages, and track deals"
       />
+
+      {/* Connected Phone Lines Status Header */}
+      {numbers.length > 0 && (
+        <div className="mb-4 flex flex-wrap items-center gap-2">
+          <span className="text-xs font-semibold uppercase tracking-wider text-gray-500">
+            Lines:
+          </span>
+          {numbers.map((n, i) => {
+            const isSendable = n.canSend !== false;
+            return (
+              <button
+                key={n.id}
+                type="button"
+                onClick={() => setActiveTab("numbers")}
+                className="inline-flex items-center gap-1.5 rounded-full border bg-white px-3 py-1 text-xs font-medium shadow-sm transition hover:bg-gray-50"
+                style={{ borderColor: isSendable ? "var(--adm-border)" : "var(--adm-red)" }}
+                title={`Click to view line details (${n.id})`}
+              >
+                <span
+                  className="h-2 w-2 rounded-full"
+                  style={{ background: isSendable ? "#22C55E" : "#EF4444" }}
+                />
+                <span className="font-semibold text-gray-800">
+                  {n.displayNumber || n.label || `Line ${i + 1}`}
+                </span>
+                {n.primary && (
+                  <span className="text-[10px] font-bold text-blue-600">(Primary)</span>
+                )}
+                {!isSendable && (
+                  <span className="text-[10px] font-bold text-red-600">(Error)</span>
+                )}
+              </button>
+            );
+          })}
+        </div>
+      )}
 
       {/* Tabs */}
       <div
@@ -244,16 +291,22 @@ export default function AdminWhatsAppPage() {
       </div>
 
       {activeTab === "inbox" && <InboxTab onReply={goReply} />}
+      {activeTab === "pipeline" && <PipelineTab onOpenChat={goReply} />}
       {activeTab === "send" && (
         <SendTab
-          key={prefillRecipient ?? "blank"}
+          key={`${prefillRecipient ?? "blank"}_${prefillSender ?? "default"}`}
           defaultRecipient={prefillRecipient ?? ""}
-          onSent={() => setPrefillRecipient(null)}
+          defaultSender={prefillSender ?? undefined}
+          onSent={() => {
+            setPrefillRecipient(null);
+            setPrefillSender(null);
+          }}
         />
       )}
       {activeTab === "templates" && <MetaTemplatesTab defaultRecipient={prefillRecipient ?? ""} />}
       {activeTab === "rules" && <RulesTab />}
       {activeTab === "stats" && <StatsTab />}
+      {activeTab === "numbers" && <NumbersTab onSendFrom={goSendFrom} />}
     </div>
   );
 }
@@ -1567,9 +1620,11 @@ function MessageBubble({
 
 function SendTab({
   defaultRecipient,
+  defaultSender,
   onSent,
 }: {
   defaultRecipient: string;
+  defaultSender?: string;
   onSent: () => void;
 }) {
   const [messageType, setMessageType] = useState<MessageType>("text");
@@ -1600,10 +1655,10 @@ function SendTab({
 
   const { data: numbersData } = useWhatsAppNumbers();
   const numbers = numbersData?.data ?? [];
-  const [senderChoice, setSenderChoice] = useState("");
+  const [senderChoice, setSenderChoice] = useState(defaultSender || "");
   // Derived rather than seeded in an effect: the list arrives after first render,
   // and an untouched picker should follow the primary.
-  const sender = senderChoice || numbers.find((n) => n.primary)?.id || "";
+  const sender = senderChoice || defaultSender || numbers.find((n) => n.primary)?.id || "";
 
   const resetMedia = () => {
     setMediaLink("");
@@ -2840,6 +2895,151 @@ function StatCard({
 }
 
 
+
+// ─── Phone Numbers / Lines ──────────────────────────────────────────────
+
+function NumbersTab({ onSendFrom }: { onSendFrom?: (numberId: string) => void }) {
+  const { data: numbersData, isLoading, isError, refetch } = useWhatsAppNumbers();
+  const numbers = numbersData?.data ?? [];
+
+  return (
+    <div className="mx-auto max-w-4xl space-y-6">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <h3 className="text-lg font-bold" style={{ color: "var(--adm-text)" }}>
+            WhatsApp Phone Lines
+          </h3>
+          <p className="text-sm" style={{ color: "var(--adm-text-3)" }}>
+            Active phone numbers connected to your Meta WhatsApp Business integration
+          </p>
+        </div>
+        <button
+          type="button"
+          onClick={() => refetch()}
+          className="flex items-center gap-2 border px-3 py-1.5 text-xs font-semibold rounded transition hover:bg-black/5"
+          style={{ borderColor: "var(--adm-border)", color: "var(--adm-text-2)" }}
+        >
+          <RefreshCw size={14} /> Refresh Lines
+        </button>
+      </div>
+
+      {isLoading ? (
+        <AdminLoadingState label="Detecting phone lines from Meta..." />
+      ) : isError ? (
+        <AdminErrorState message="Could not load phone numbers from Meta API." />
+      ) : numbers.length === 0 ? (
+        <div className="border border-dashed p-8 text-center" style={{ borderColor: "var(--adm-border)" }}>
+          <AlertCircle size={32} className="mx-auto mb-2 text-amber-500" />
+          <p className="font-semibold text-gray-800">No phone lines detected</p>
+          <p className="mt-1 text-xs text-gray-500">
+            Check that WHATSAPP_TOKEN and WHATSAPP_BUSINESS_ACCOUNT_ID or WHATSAPP_PHONE_NUMBER_ID are configured in Vercel.
+          </p>
+        </div>
+      ) : (
+        <div className="grid gap-4 sm:grid-cols-2">
+          {numbers.map((n, idx) => {
+            const isSendable = n.canSend !== false;
+            return (
+              <div
+                key={n.id}
+                className="flex flex-col justify-between rounded-lg border bg-white p-5 shadow-sm transition hover:shadow"
+                style={{ borderColor: isSendable ? "var(--adm-border)" : "var(--adm-red)" }}
+              >
+                <div>
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="flex items-center gap-3">
+                      <div
+                        className="flex h-10 w-10 items-center justify-center rounded-full text-white font-bold"
+                        style={{ background: isSendable ? WA.green : "var(--adm-red)" }}
+                      >
+                        <Phone size={19} />
+                      </div>
+                      <div>
+                        <h4 className="font-bold text-gray-900 text-base">
+                          {n.displayNumber || n.label || `Line ${idx + 1}`}
+                        </h4>
+                        {n.verifiedName && (
+                          <p className="text-xs font-medium text-gray-500">{n.verifiedName}</p>
+                        )}
+                      </div>
+                    </div>
+                    <div className="flex flex-col items-end gap-1">
+                      {n.primary && (
+                        <span className="rounded-full bg-blue-100 px-2.5 py-0.5 text-[10px] font-bold text-blue-700 uppercase tracking-wide">
+                          Primary Line
+                        </span>
+                      )}
+                      <span
+                        className="flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold"
+                        style={{
+                          background: isSendable ? "#DCFCE7" : "#FEE2E2",
+                          color: isSendable ? "#15803D" : "#B91C1C",
+                        }}
+                      >
+                        <Circle size={6} fill="currentColor" />
+                        {isSendable ? "Active / Can Send" : "Sending Error"}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="mt-4 space-y-2 text-xs border-t pt-3" style={{ borderColor: "var(--adm-border)" }}>
+                    <div className="flex items-center justify-between text-gray-600">
+                      <span>Phone Number ID:</span>
+                      <code className="rounded bg-gray-100 px-1.5 py-0.5 font-mono text-[11px] text-gray-800 select-all">
+                        {n.id}
+                      </code>
+                    </div>
+                    {n.quality && (
+                      <div className="flex items-center justify-between text-gray-600">
+                        <span>Quality Rating:</span>
+                        <span className="font-semibold capitalize" style={{ color: n.quality === "GREEN" ? "#16A34A" : "#D97706" }}>
+                          {n.quality.toLowerCase()}
+                        </span>
+                      </div>
+                    )}
+                    <div className="flex items-center justify-between text-gray-600">
+                      <span>Credential Slot:</span>
+                      <span className="font-semibold text-gray-700">Slot {n.slot ?? 1}</span>
+                    </div>
+                  </div>
+
+                  {n.error && (
+                    <div className="mt-3 rounded border p-2.5 text-xs text-red-700 bg-red-50 border-red-200">
+                      <AlertCircle size={13} className="inline mr-1 mb-0.5" />
+                      {n.error}
+                    </div>
+                  )}
+                </div>
+
+                {isSendable && onSendFrom && (
+                  <div className="mt-4 border-t pt-3 flex justify-end" style={{ borderColor: "var(--adm-border)" }}>
+                    <button
+                      type="button"
+                      onClick={() => onSendFrom(n.id)}
+                      className="inline-flex items-center gap-1.5 rounded px-3 py-1.5 text-xs font-semibold text-white transition hover:opacity-90"
+                      style={{ background: "var(--adm-blue)" }}
+                    >
+                      <Send size={13} /> Send from this line
+                    </button>
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      {/* Meta WhatsApp Integration Info Card */}
+      <div className="rounded-lg border p-4 text-xs" style={{ borderColor: "var(--adm-border)", background: "var(--adm-surface)" }}>
+        <p className="font-semibold text-gray-800 text-sm mb-1">About Multi-Number WhatsApp</p>
+        <p className="text-gray-600 leading-relaxed">
+          Both incoming messages and outgoing replies are automatically routed through the corresponding WhatsApp number.
+          When a customer contacts your primary or secondary line, their replies and 24-hour customer service window remain on that exact line.
+        </p>
+      </div>
+    </div>
+  );
+}
 
 // ─── Pipeline (Kanban) ──────────────────────────────────────────────────
 

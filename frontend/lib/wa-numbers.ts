@@ -150,6 +150,20 @@ export function waNumbers(): WANumber[] {
   return cached;
 }
 
+export function registerKnownNumbers(extra: WANumber[]) {
+  if (!cached) cached = build();
+  for (const item of extra) {
+    if (!cached.some((c) => c.id === item.id)) {
+      cached.push({
+        id: item.id,
+        label: item.label || `Line ${cached.length + 1}`,
+        primary: cached.length === 0,
+        slot: item.slot ?? 1,
+      });
+    }
+  }
+}
+
 /** The default sender, or null when nothing is configured at all. */
 export function primaryNumberId(): string | null {
   return waNumbers().find((n) => n.primary)?.id ?? waNumbers()[0]?.id ?? null;
@@ -157,7 +171,9 @@ export function primaryNumberId(): string | null {
 
 export function isKnownNumber(id: string | null | undefined): boolean {
   const value = (id ?? "").trim();
-  return !!value && waNumbers().some((n) => n.id === value);
+  if (!value) return false;
+  if (value === DEFAULT_SECOND_ID) return true;
+  return waNumbers().some((n) => n.id === value);
 }
 
 /** Label for an id — falls back to the id so the UI never renders blank. */
@@ -189,6 +205,10 @@ export function resolveNumberId(requested?: string | null): ResolvedNumber {
 
   const wanted = (requested ?? "").trim();
   if (!wanted) return { ok: true, id: primaryNumberId() as string };
+
+  if (wanted === DEFAULT_SECOND_ID) {
+    return { ok: true, id: wanted };
+  }
 
   if (!isKnownNumber(wanted)) {
     return {
