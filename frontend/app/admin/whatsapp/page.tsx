@@ -79,7 +79,7 @@ import { BUTTON_TEMPLATES } from "@/lib/button-templates";
 import { countVariables } from "@/lib/meta-templates";
 
 type MessageType = "text" | "media" | "buttons" | "template";
-type TabKey = "inbox" | "send" | "templates" | "rules" | "stats";
+type TabKey = "inbox" | "pipeline" | "send" | "templates" | "rules" | "stats";
 type DealStatus = "new" | "contacted" | "negotiating" | "won" | "lost";
 
 const TABS: { key: TabKey; label: string; icon: React.ReactNode }[] = [
@@ -804,6 +804,10 @@ function ChatView({
   const [showDetails, setShowDetails] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [showEmoji, setShowEmoji] = useState(false);
+  const [isNoteMode, setIsNoteMode] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [isSearching, setIsSearching] = useState(false);
+  const [showOnlyBookmarked, setShowOnlyBookmarked] = useState(false);
   /** The message the next send will quote, set by a bubble's Reply action. */
   const [replyTo, setReplyTo] = useState<WAMessage | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
@@ -950,7 +954,14 @@ function ChatView({
     reactionsByTarget.set(m.reactionTo, emoji ? [...current, emoji] : current);
   }
   const byId = new Map(conv.messages.map((m) => [m.id, m]));
-  const visible = conv.messages.filter((m) => m.type !== "reaction");
+  const visible = conv.messages.filter((m) => {
+    if (m.type === "reaction") return false;
+    if (showOnlyBookmarked && !meta?.bookmarkedMessages?.includes(m.id)) return false;
+    if (searchQuery) {
+      return (m.body || "").toLowerCase().includes(searchQuery.toLowerCase());
+    }
+    return true;
+  });
 
   const canSend = !!reply.trim();
 
@@ -1037,6 +1048,27 @@ function ChatView({
           </div>
         </div>
       </div>
+
+      {/* In-chat search bar */}
+      {isSearching && (
+        <div className="flex items-center gap-2 border-b px-4 py-2" style={{ background: "#fff", borderColor: WA.divider }}>
+          <Search size={15} style={{ color: WA.sub }} />
+          <input
+            autoFocus
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Search in this chat..."
+            className="flex-1 border-none bg-transparent text-sm outline-none"
+            style={{ color: WA.text }}
+          />
+          {searchQuery && (
+            <button type="button" onClick={() => setSearchQuery("")} style={{ color: WA.sub }}>
+              <X size={15} />
+            </button>
+          )}
+        </div>
+      )}
 
       {/* CRM / contact details */}
       {showDetails && (
@@ -2809,3 +2841,99 @@ function StatCard({
 
 
 
+// ─── Pipeline (Kanban) ──────────────────────────────────────────────────
+
+function PipelineTab({ onOpenChat }: { onOpenChat: (number: string) => void }) {
+  const { data, isLoading } = useWhatsAppMessages();
+  const { data: metaData } = useConversationMeta();
+  const updateMeta = useUpdateConversationMeta();
+
+  const [draggedConv, setDraggedConv] = useState<string | null>(null);
+
+  if (isLoading) return <AdminLoadingState label="Loading pipeline..." />;
+
+  const messages = data?.data ?? [];
+  const metaMap = metaData?.data ?? {};
+  const conversations = groupConversations(messages);
+
+  const pipeline = DEAL_STATUSES.map((status) => {
+    return {
+      status,
+      items: conversations
+        .filter((c) => {
+          const m = metaMap[c.number];
+          const st = m?.dealStatus || "new";
+          return st === status.value && !m?.archived;
+        })
+        .map((c) => ({ conv: c, meta: metaMap[c.number] })),
+    };
+  });
+
+  const handleDrop = (e: React.DragEvent, statusValue: string) => {
+    e.preventDefault();
+    if (!draggedConv) return;
+    const meta = metaMap[draggedConv];
+    if (meta?.dealStatus !== statusValue) {
+      updateMeta.mutate({ key: draggedConv, patch: { dealStatus: statusValue } });
+    }
+    setDraggedConv(null);
+  };
+
+  return (
+    <div className="flex h-full gap-4 overflow-x-auto p-4" style={{ background: "#F3F4F6", minHeight: "calc(100vh - 200px)" }}>
+      {pipeline.map((col) => (
+        <div
+          key={col.status.value}
+          className="flex w-72 shrink-0 flex-col rounded-lg bg-gray-200/60 p-2"
+          onDragOver={(e) => e.preventDefault()}
+          onDrop={(e) => handleDrop(e, col.status.value)}
+        >
+          <div className="mb-3 px-2 py-1 flex items-center justify-between">
+            <h3 className="font-semibold text-gray-700 uppercase tracking-wide text-xs">{col.status.label}</h3>
+            <span className="rounded-full bg-white px-2 py-0.5 text-xs font-medium text-gray-500 shadow-sm">{col.items.length}</span>
+          </div>
+
+          <div className="flex flex-1 flex-col gap-2 overflow-y-auto min-h-[50px]">
+            {col.items.map((item) => {
+              const name = item.meta?.name || (item.conv.name !== item.conv.number ? item.conv.name : `+${item.conv.number}`);
+              const hasUnread = unreadCount(item.conv, item.meta) > 0;
+              return (
+                <div
+                  key={item.conv.number}
+                  draggable
+                  onDragStart={() => setDraggedConv(item.conv.number)}
+                  onDragEnd={() => setDraggedConv(null)}
+                  className="group cursor-grab rounded bg-white p-3 shadow-sm transition hover:shadow active:cursor-grabbing border-l-4"
+                  style={{ borderLeftColor: hasUnread ? WA.green : "transparent" }}
+                  onClick={() => onOpenChat(item.conv.number)}
+                >
+                  <div className="flex items-center justify-between">
+                    <p className="font-medium text-sm text-gray-800 truncate" title={name}>{name}</p>
+                  </div>
+                  <div className="mt-2 flex items-center justify-between text-xs text-gray-500">
+                    <p className="truncate w-3/4">{lastPreview(item.conv)}</p>
+                    {item.meta?.assignedTo && (
+                      <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-blue-100 font-bold text-blue-700" title={`Assigned to ${item.meta.assignedTo}`}>
+                        {item.meta.assignedTo.charAt(0).toUpperCase()}
+                      </span>
+                    )}
+                  </div>
+                  {item.meta?.tags && item.meta.tags.length > 0 && (
+                    <div className="mt-2 flex flex-wrap gap-1">
+                      {item.meta.tags.slice(0, 3).map((tag) => (
+                        <span key={tag} className="rounded-full bg-gray-100 px-1.5 py-0.5 text-[10px] text-gray-600">
+                          {tag}
+                        </span>
+                      ))}
+                      {item.meta.tags.length > 3 && <span className="text-[10px] text-gray-400">+{item.meta.tags.length - 3}</span>}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}

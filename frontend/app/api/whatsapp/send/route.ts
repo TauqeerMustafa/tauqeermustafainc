@@ -132,6 +132,26 @@ export async function POST(request: Request) {
     let flowTranscript = "";
 
     switch (type) {
+
+      case "note": {
+        if (!message) {
+          return NextResponse.json({ success: false, error: "message is required" }, { status: 400 });
+        }
+        const noteId = `note_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
+        const m: WAMessage = {
+          id: noteId,
+          from: phoneNumberId,
+          to: recipient,
+          type: "note",
+          body: message,
+          timestamp: new Date().toISOString(),
+          direction: "outbound",
+          status: "read",
+        };
+        await appendMessage(m);
+        return NextResponse.json({ success: true, id: noteId });
+      }
+
       case "text": {
         if (!message) {
           return NextResponse.json({ success: false, error: "message is required" }, { status: 400 });

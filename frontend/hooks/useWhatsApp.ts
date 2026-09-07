@@ -96,7 +96,7 @@ export function useWhatsAppMessages() {
 }
 
 type SendMessagePayload = {
-  type: "text" | "media" | "buttons" | "template" | "meta_template" | "reaction";
+  type: "text" | "media" | "buttons" | "template" | "meta_template" | "reaction" | "note";
   to: string;
   /**
    * Which of the business's numbers to send as (a Meta Phone Number ID). Omit for
@@ -380,6 +380,9 @@ export type ConvMeta = {
   lastReadAt?: string;
   name?: string;
   tags?: string[];
+  assignedTo?: string;
+  snoozedUntil?: string;
+  bookmarkedMessages?: string[];
 };
 
 export function useConversationMeta() {
