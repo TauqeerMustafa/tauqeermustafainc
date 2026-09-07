@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { Check, ChevronDown, Clock3, ListChecks, Loader2, Mail, MailPlus, MailWarning, MoreHorizontal, PauseCircle, Search, ShieldCheck, Trash2, UserRound, X } from "lucide-react";
+import { Check, Clock3, ListChecks, Loader2, Mail, MailPlus, MailWarning, MoreHorizontal, PauseCircle, Search, ShieldCheck, Trash2, UserRound, X } from "lucide-react";
 
 import {
   AdminConfirmDialog,
@@ -15,19 +15,12 @@ import {
   adminInputClass,
   adminInputStyle,
 } from "@/components/admin/AdminUI";
+import { Tabs } from "@/components/portal/PortalUI";
 import { useAdminMetrics, useAdminRoles, useAdminTeams, useAdminUsers, useCreateAdminUser, useDeleteAdminUser, useProvisionAllMailboxes, useProvisionMailbox, useUpdateAdminUser } from "@/hooks/useAdmin";
 import { generatePassword } from "@/lib/credentials";
 import { readOnboardPrefill, suggestCompanyEmail, type OnboardPrefill } from "@/lib/onboarding-link";
 import type { AdminUser, UserStatus } from "@/types";
 import type { CreateAdminUserPayload } from "@/services/admin.service";
-
-const statusOptions: Array<{ value: UserStatus | "all"; label: string }> = [
-  { value: "all", label: "All statuses" },
-  { value: "pending", label: "Pending approval" },
-  { value: "approved", label: "Approved" },
-  { value: "suspended", label: "Suspended" },
-  { value: "rejected", label: "Rejected" },
-];
 
 const emptyForm: CreateAdminUserPayload = {
   name: "",
@@ -302,18 +295,24 @@ export default function AdminUsersPage() {
         })}
       </div>
 
+      <div className="mb-4">
+        <Tabs
+          value={status}
+          onChange={(val) => setStatus(val as UserStatus | "all")}
+          tabs={[
+            { id: "all", label: "All Users", count: metrics?.total },
+            { id: "pending", label: "Pending Approval", count: metrics?.pending, countTone: "amber" },
+            { id: "approved", label: "Approved", count: metrics?.approved, countTone: "green" },
+            { id: "suspended", label: "Suspended", count: metrics?.suspended, countTone: "red" },
+          ]}
+        />
+      </div>
+
       <div className="mb-4 flex flex-col gap-3 border p-3 sm:flex-row" style={{ borderColor: "var(--adm-border)", background: "var(--adm-surface-2)" }}>
         <label className="relative flex-1">
           <span className="sr-only">Search users</span>
           <Search size={16} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2" style={{ color: "var(--adm-text-3)" }} />
           <input className={`${adminInputClass} pl-9`} style={adminInputStyle} placeholder="Search by name or email" value={search} onChange={(event) => setSearch(event.target.value)} />
-        </label>
-        <label className="relative sm:w-52">
-          <span className="sr-only">Filter by status</span>
-          <select className={`${adminInputClass} appearance-none pr-9`} style={adminInputStyle} value={status} onChange={(event) => setStatus(event.target.value as UserStatus | "all")}>
-            {statusOptions.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
-          </select>
-          <ChevronDown size={15} className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2" style={{ color: "var(--adm-text-3)" }} />
         </label>
       </div>
 

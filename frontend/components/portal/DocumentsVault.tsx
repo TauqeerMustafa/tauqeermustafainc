@@ -11,6 +11,7 @@ import {
   adminInputClass,
   adminInputStyle,
 } from "@/components/admin/AdminUI";
+import { Tabs } from "@/components/portal/PortalUI";
 import { useEmployees } from "@/hooks/useEmployees";
 import {
   useAllDocuments,
@@ -76,16 +77,42 @@ export default function DocumentsVault({ isAdmin = false }) {
   const uploadFile = useUploadDocumentFile();
   const deleteDocument = useDeleteDocument();
 
+  const [category, setCategory] = useState<string>("all");
+
+  const categoryCounts = useMemo(() => {
+    const counts: Record<string, number> = { all: documents.length };
+    for (const doc of documents) {
+      const docTypeKey = doc.documentType ?? "other";
+      counts[docTypeKey] = (counts[docTypeKey] ?? 0) + 1;
+    }
+    return counts;
+  }, [documents]);
+
+  const documentTabs = useMemo(
+    () => [
+      { id: "all", label: t("All Documents"), count: categoryCounts.all },
+      { id: "policy", label: t("Policies"), count: categoryCounts.policy ?? 0 },
+      { id: "contract", label: t("Contracts"), count: categoryCounts.contract ?? 0 },
+      { id: "payslip", label: t("Payslips"), count: categoryCounts.payslip ?? 0 },
+      { id: "certificate", label: t("Certificates"), count: categoryCounts.certificate ?? 0 },
+      { id: "other", label: t("Other"), count: categoryCounts.other ?? 0 },
+    ],
+    [categoryCounts, t],
+  );
+
   const filtered = useMemo(() => {
     const needle = term.trim().toLowerCase();
-    if (!needle) return documents;
-    return documents.filter(
-      (doc) =>
+    return documents.filter((doc) => {
+      const matchesCategory = category === "all" || (doc.documentType ?? "other") === category;
+      if (!matchesCategory) return false;
+      if (!needle) return true;
+      return (
         doc.title.toLowerCase().includes(needle) ||
         (doc.documentType ?? "").toLowerCase().includes(needle) ||
-        (doc.fileName ?? "").toLowerCase().includes(needle),
-    );
-  }, [documents, term]);
+        (doc.fileName ?? "").toLowerCase().includes(needle)
+      );
+    });
+  }, [documents, category, term]);
 
   function resetForm() {
     setFile(null);
@@ -186,6 +213,8 @@ export default function DocumentsVault({ isAdmin = false }) {
           </button>
         )}
       </div>
+
+      <Tabs tabs={documentTabs} value={category} onChange={setCategory} />
 
       <div className="flex flex-1 flex-col overflow-hidden border border-adm-border bg-adm-surface">
         <div className="flex items-center justify-between border-b border-adm-border bg-adm-surface-2 p-6">

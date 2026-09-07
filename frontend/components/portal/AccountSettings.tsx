@@ -9,6 +9,7 @@ import {
   LoadingBlock,
   Panel,
   PortalButton,
+  Tabs,
   inputClass,
 } from "@/components/portal/PortalUI";
 import { useCurrentUser, useLogout, useUpdateProfile } from "@/hooks/useAuth";
@@ -28,6 +29,8 @@ export default function AccountSettings() {
   const updateProfile = useUpdateProfile();
   const logout = useLogout();
 
+  type SettingsTab = "profile" | "password" | "access" | "session";
+  const [activeTab, setActiveTab] = useState<SettingsTab>("profile");
   const [name, setName] = useState("");
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
@@ -49,6 +52,13 @@ export default function AccountSettings() {
       />
     );
   }
+
+  const settingsTabs = [
+    { id: "profile" as const, label: "Profile" },
+    { id: "password" as const, label: "Password & Security" },
+    { id: "access" as const, label: "Role & Permissions" },
+    { id: "session" as const, label: "Session" },
+  ];
 
   async function saveName() {
     setNotice(null);
@@ -104,107 +114,117 @@ export default function AccountSettings() {
       ) : null}
       {localError ? <ErrorBlock message={localError} /> : null}
 
-      <Panel title="Profile" icon={UserRound}>
-        <div className="flex flex-col gap-5">
-          <Field label="Full name" htmlFor="account-name">
-            <input
-              id="account-name"
-              value={name}
-              onChange={(event) => setName(event.target.value)}
-              className={inputClass}
-            />
-          </Field>
-          <Field label="Email" htmlFor="account-email" hint="Contact an administrator to change this.">
-            <input id="account-email" value={user.email} readOnly disabled className={inputClass} />
-          </Field>
-          <div>
-            <PortalButton onClick={saveName} disabled={busy}>
-              Save profile
-            </PortalButton>
-          </div>
-        </div>
-      </Panel>
+      <Tabs tabs={settingsTabs} value={activeTab} onChange={setActiveTab} />
 
-      <Panel title="Password" icon={KeyRound}>
-        <div className="flex flex-col gap-5">
-          <Field label="Current password" htmlFor="account-current">
-            <input
-              id="account-current"
-              type="password"
-              autoComplete="current-password"
-              value={currentPassword}
-              onChange={(event) => setCurrentPassword(event.target.value)}
-              className={inputClass}
-            />
-          </Field>
-          <div className="grid gap-5 sm:grid-cols-2">
-            <Field label="New password" htmlFor="account-new">
+      {activeTab === "profile" && (
+        <Panel title="Profile" icon={UserRound}>
+          <div className="flex flex-col gap-5">
+            <Field label="Full name" htmlFor="account-name">
               <input
-                id="account-new"
-                type="password"
-                autoComplete="new-password"
-                value={newPassword}
-                onChange={(event) => setNewPassword(event.target.value)}
+                id="account-name"
+                value={name}
+                onChange={(event) => setName(event.target.value)}
                 className={inputClass}
               />
             </Field>
-            <Field label="Confirm new password" htmlFor="account-confirm">
+            <Field label="Email" htmlFor="account-email" hint="Contact an administrator to change this.">
+              <input id="account-email" value={user.email} readOnly disabled className={inputClass} />
+            </Field>
+            <div>
+              <PortalButton onClick={saveName} disabled={busy}>
+                Save profile
+              </PortalButton>
+            </div>
+          </div>
+        </Panel>
+      )}
+
+      {activeTab === "password" && (
+        <Panel title="Password" icon={KeyRound}>
+          <div className="flex flex-col gap-5">
+            <Field label="Current password" htmlFor="account-current">
               <input
-                id="account-confirm"
+                id="account-current"
                 type="password"
-                autoComplete="new-password"
-                value={confirmPassword}
-                onChange={(event) => setConfirmPassword(event.target.value)}
+                autoComplete="current-password"
+                value={currentPassword}
+                onChange={(event) => setCurrentPassword(event.target.value)}
                 className={inputClass}
               />
             </Field>
+            <div className="grid gap-5 sm:grid-cols-2">
+              <Field label="New password" htmlFor="account-new">
+                <input
+                  id="account-new"
+                  type="password"
+                  autoComplete="new-password"
+                  value={newPassword}
+                  onChange={(event) => setNewPassword(event.target.value)}
+                  className={inputClass}
+                />
+              </Field>
+              <Field label="Confirm new password" htmlFor="account-confirm">
+                <input
+                  id="account-confirm"
+                  type="password"
+                  autoComplete="new-password"
+                  value={confirmPassword}
+                  onChange={(event) => setConfirmPassword(event.target.value)}
+                  className={inputClass}
+                />
+              </Field>
+            </div>
+            <div>
+              <PortalButton onClick={savePassword} disabled={busy}>
+                Change password
+              </PortalButton>
+            </div>
           </div>
-          <div>
-            <PortalButton onClick={savePassword} disabled={busy}>
-              Change password
-            </PortalButton>
-          </div>
-        </div>
-      </Panel>
+        </Panel>
+      )}
 
-      <Panel title="Access" icon={ShieldCheck}>
-        <div className="flex flex-col gap-4">
-          <div className="flex items-center justify-between gap-4 text-sm">
-            <span className="text-adm-text-2">Role</span>
-            <span className="font-bold text-adm-text">{roleLabel(user.role)}</span>
-          </div>
-          <div>
-            <p className="mb-2 text-[11px] font-bold uppercase tracking-[0.14em] text-adm-text-2">
-              Permissions
-            </p>
-            {permissions.length === 0 ? (
-              <p className="text-sm text-adm-text-3">
-                No explicit permissions — access follows your role.
+      {activeTab === "access" && (
+        <Panel title="Access" icon={ShieldCheck}>
+          <div className="flex flex-col gap-4">
+            <div className="flex items-center justify-between gap-4 text-sm">
+              <span className="text-adm-text-2">Role</span>
+              <span className="font-bold text-adm-text">{roleLabel(user.role)}</span>
+            </div>
+            <div>
+              <p className="mb-2 text-[11px] font-bold uppercase tracking-[0.14em] text-adm-text-2">
+                Permissions
               </p>
-            ) : (
-              <div className="flex flex-wrap gap-2">
-                {permissions.map((permission) => (
-                  <span
-                    key={permission}
-                    className="border border-adm-border bg-adm-surface-2 px-2.5 py-1 text-xs text-adm-text-2"
-                  >
-                    {permission}
-                  </span>
-                ))}
-              </div>
-            )}
+              {permissions.length === 0 ? (
+                <p className="text-sm text-adm-text-3">
+                  No explicit permissions — access follows your role.
+                </p>
+              ) : (
+                <div className="flex flex-wrap gap-2">
+                  {permissions.map((permission) => (
+                    <span
+                      key={permission}
+                      className="border border-adm-border bg-adm-surface-2 px-2.5 py-1 text-xs text-adm-text-2"
+                    >
+                      {permission}
+                    </span>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
-        </div>
-      </Panel>
+        </Panel>
+      )}
 
-      <Panel title="Session" icon={LogOut}>
-        <div className="flex items-center justify-between gap-4">
-          <p className="text-sm text-adm-text-2">Sign out of this device.</p>
-          <PortalButton variant="danger" icon={LogOut} onClick={logout}>
-            Sign out
-          </PortalButton>
-        </div>
-      </Panel>
+      {activeTab === "session" && (
+        <Panel title="Session" icon={LogOut}>
+          <div className="flex items-center justify-between gap-4">
+            <p className="text-sm text-adm-text-2">Sign out of this device.</p>
+            <PortalButton variant="danger" icon={LogOut} onClick={logout}>
+              Sign out
+            </PortalButton>
+          </div>
+        </Panel>
+      )}
     </div>
   );
 }

@@ -13,6 +13,7 @@ import {
   PortalDialog,
   PortalPageHeader,
   StatusPill,
+  Tabs,
   inputClass,
 } from "@/components/portal/PortalUI";
 import { useDecideLeave, useLeaveQueue } from "@/hooks/useLeave";
@@ -67,27 +68,21 @@ export default function AdminLeavePage() {
         description="Review time-off requests and record the reasoning behind each decision."
       />
 
-      <div className="flex flex-wrap gap-2" role="tablist" aria-label="Filter by status">
-        {FILTERS.map((option) => {
-          const active = filter === option.value;
-          return (
-            <button
-              key={option.label}
-              type="button"
-              role="tab"
-              aria-selected={active}
-              onClick={() => setFilter(option.value)}
-              className={`border px-4 py-2 text-[11px] font-bold uppercase tracking-[0.14em] transition ${
-                active
-                  ? "border-adm-blue bg-adm-blue-light text-adm-blue"
-                  : "border-adm-border text-adm-text-3 hover:bg-adm-surface-2 hover:text-adm-text"
-              }`}
-            >
-              {option.label}
-            </button>
-          );
-        })}
-      </div>
+      <Tabs
+        tabs={[
+          {
+            id: "pending",
+            label: "Pending Approval",
+            count: filter === "pending" ? requests.length : undefined,
+            countTone: "amber",
+          },
+          { id: "approved", label: "Approved" },
+          { id: "rejected", label: "Rejected" },
+          { id: "", label: "All Requests" },
+        ]}
+        value={filter}
+        onChange={setFilter}
+      />
 
       {isLoading ? (
         <LoadingBlock label="Loading requests…" />
