@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useState } from "react";
 import Link from "next/link";
@@ -69,7 +69,7 @@ export default function AdminPeoplePage() {
   const employees = employeesQuery.data ?? [];
   const activeEmployees = employees.filter((e) => e.status === "active").length;
   const documents = documentsQuery.data ?? [];
-  const announcements = announcementsQuery.data?.items ?? [];
+  const announcements = announcementsQuery.data?.data?.items ?? [];
 
   const functionTabs = [
     { id: "all", label: t("All Functions") },
@@ -103,7 +103,7 @@ export default function AdminPeoplePage() {
             padded={false}
             action={
               <div className="flex items-center gap-2">
-                <PortalButton href="/admin/employees/create" size="sm" icon={Plus}>
+                <PortalButton href="/admin/employees/create" icon={Plus}>
                   {t("Add")}
                 </PortalButton>
                 <Link
@@ -145,11 +145,11 @@ export default function AdminPeoplePage() {
                   >
                     <div className="flex min-w-0 items-center gap-3">
                       <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-adm-blue-light text-xs font-bold text-adm-blue">
-                        {employee.name.charAt(0).toUpperCase()}
+                        {(employee.name || employee.email || "?").charAt(0).toUpperCase()}
                       </span>
                       <div className="min-w-0">
                         <p className="truncate text-sm font-semibold text-adm-text">
-                          {employee.name}
+                          {employee.name || employee.email || t("Employee")}
                         </p>
                         <p className="truncate text-xs text-adm-text-3">
                           {employee.jobTitle || employee.email}
@@ -215,7 +215,7 @@ export default function AdminPeoplePage() {
             <Panel
               title={t("Leave Approvals")}
               icon={CalendarDays}
-              tone={pendingLeave.length > 0 ? "amber" : "default"}
+              tone={pendingLeave.length > 0 ? "amber" : "neutral"}
               padded={false}
               action={
                 <Link
@@ -289,7 +289,7 @@ export default function AdminPeoplePage() {
                     <p className="text-xs font-medium text-adm-text-3">{t("Stored Documents")}</p>
                     <p className="mt-1 text-2xl font-bold text-adm-text">{documents.length}</p>
                   </div>
-                  <PortalButton href="/admin/documents" size="sm" icon={Plus}>
+                  <PortalButton href="/admin/documents" icon={Plus}>
                     {t("Upload")}
                   </PortalButton>
                 </div>
@@ -364,14 +364,14 @@ export default function AdminPeoplePage() {
                       {item.isPublished ? t("Published") : t("Draft")}
                     </span>
                     <span className="text-xs text-adm-text-3">
-                      {formatDate(item.publishedAt || item.createdAt)}
+                      {formatDate(item.createdAt)}
                     </span>
                   </div>
                   <h4 className="mt-2 text-base font-semibold text-adm-text line-clamp-1">
                     {item.title}
                   </h4>
                   <p className="mt-1 text-xs font-normal text-adm-text-3 line-clamp-2">
-                    {item.content}
+                    {item.body}
                   </p>
                 </div>
               ))}
