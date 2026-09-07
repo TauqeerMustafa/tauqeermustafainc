@@ -5,7 +5,6 @@ import Link from "next/link";
 import {
   Activity,
   AlertCircle,
-  ArrowRight,
   Bell,
   Briefcase,
   CalendarDays,
@@ -18,12 +17,12 @@ import {
   GraduationCap,
   ImageIcon,
   LayoutDashboard,
+  LayoutGrid,
   Mail,
   MessageCircle,
   MessagesSquare,
   Newspaper,
   Shield,
-  Sparkles,
   Users,
   Wrench,
   type LucideIcon,
@@ -71,6 +70,72 @@ interface TagDefinition {
   count?: number;
   countTone?: "blue" | "green" | "amber" | "red";
   icon: LucideIcon;
+}
+
+interface DepartmentCardProps {
+  href: string;
+  icon: LucideIcon;
+  title: string;
+  description: string;
+  actionLabel: string;
+  badgeText?: string;
+  badgeTone?: "blue" | "green" | "amber" | "neutral";
+  highlight?: boolean;
+}
+
+function DepartmentCard({
+  href,
+  icon: Icon,
+  title,
+  description,
+  actionLabel,
+  badgeText,
+  badgeTone = "neutral",
+  highlight = false,
+}: DepartmentCardProps) {
+  return (
+    <Link
+      href={href}
+      className={`group flex flex-col justify-between rounded-[18px] border p-5 transition-all active:scale-[0.98] ${
+        highlight
+          ? "border-adm-blue/40 bg-adm-surface hover:border-adm-blue"
+          : "border-adm-border bg-adm-surface hover:border-adm-border-2 hover:bg-adm-surface-2/40"
+      }`}
+    >
+      <div className="flex items-start justify-between gap-2">
+        <div className="flex h-9 w-9 items-center justify-center rounded-full border border-adm-border bg-adm-surface-2 text-adm-text transition-colors group-hover:border-adm-blue/40 group-hover:text-adm-blue">
+          <Icon size={16} strokeWidth={1.75} />
+        </div>
+        {badgeText && (
+          <span
+            className={`rounded-full border px-2.5 py-0.5 text-[11px] font-medium tabular-nums ${
+              badgeTone === "amber"
+                ? "border-adm-amber/30 bg-adm-amber-light text-adm-amber"
+                : badgeTone === "green"
+                  ? "border-adm-green/30 bg-adm-green-light text-adm-green"
+                  : badgeTone === "blue"
+                    ? "border-adm-blue/30 bg-adm-blue-light text-adm-blue"
+                    : "border-adm-border bg-adm-surface-2 text-adm-text-3"
+            }`}
+          >
+            {badgeText}
+          </span>
+        )}
+      </div>
+      <div className="mt-4">
+        <h3 className="text-sm font-semibold tracking-tight text-adm-text group-hover:text-adm-blue">
+          {title}
+        </h3>
+        <p className="mt-1 text-xs font-normal leading-relaxed text-adm-text-3">
+          {description}
+        </p>
+      </div>
+      <div className="mt-4 flex items-center gap-1 text-xs font-medium text-adm-blue group-hover:underline">
+        <span>{actionLabel}</span>
+        <ChevronRight size={13} className="transition-transform group-hover:translate-x-0.5" />
+      </div>
+    </Link>
+  );
 }
 
 export default function AdminDashboardPage() {
@@ -166,27 +231,23 @@ export default function AdminDashboardPage() {
     description: string,
     subOptions: Array<{ label: string; href: string; icon: LucideIcon; count?: number; countTone?: "amber" | "blue" }>,
   ) => (
-    <div className="relative overflow-hidden rounded-2xl border border-adm-border bg-adm-surface p-5 sm:p-6 shadow-sm">
-      <div
-        className="pointer-events-none absolute -right-16 -top-16 h-64 w-64 rounded-full bg-adm-blue/10 blur-3xl"
-        aria-hidden="true"
-      />
-      <div className="relative z-10 flex flex-col gap-5">
+    <div className="relative overflow-hidden rounded-[18px] border border-adm-border bg-adm-surface p-5 sm:p-6">
+      <div className="flex flex-col gap-5">
         <div>
-          <div className="inline-flex items-center gap-1.5 rounded-full border border-adm-blue/20 bg-adm-blue-light px-3 py-0.5 text-[10px] font-bold uppercase tracking-wider text-adm-blue">
-            <Sparkles size={11} className="shrink-0" />
+          <div className="inline-flex items-center gap-1.5 rounded-full border border-adm-border bg-adm-surface-2 px-3 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-adm-text-3">
+            <span className="h-1.5 w-1.5 rounded-full bg-adm-blue shrink-0" />
             <span>{badge}</span>
           </div>
-          <h2 className="mt-2 text-xl font-bold tracking-tight text-adm-text sm:text-2xl">
+          <h2 className="mt-2 text-xl font-semibold tracking-tight text-adm-text sm:text-2xl">
             {title}
           </h2>
-          <p className="mt-1 max-w-2xl text-xs leading-relaxed text-adm-text-3 sm:text-sm">
+          <p className="mt-1 max-w-2xl text-xs font-normal leading-relaxed text-adm-text-3 sm:text-sm">
             {description}
           </p>
         </div>
 
         <div className="border-t border-adm-border pt-4">
-          <p className="mb-2 text-[10px] font-bold uppercase tracking-wider text-adm-text-3">
+          <p className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-adm-text-3">
             {t("Related Options & Tools")}
           </p>
           <div className="flex flex-wrap items-center gap-2">
@@ -196,24 +257,24 @@ export default function AdminDashboardPage() {
                 <Link
                   key={opt.href}
                   href={opt.href}
-                  className="group inline-flex items-center gap-2 rounded-xl border border-adm-border bg-adm-surface-2 px-3 py-1.5 text-xs font-semibold text-adm-text-2 transition hover:border-adm-blue hover:bg-adm-surface hover:text-adm-blue"
+                  className="group inline-flex items-center gap-2 rounded-full border border-adm-border bg-adm-surface px-3.5 py-1.5 text-xs font-medium text-adm-text-2 transition hover:border-adm-border-2 hover:bg-adm-surface-2 hover:text-adm-text active:scale-95"
                 >
-                  <Icon size={14} className="text-adm-blue shrink-0" />
+                  <Icon size={14} className="text-adm-text-3 transition-colors group-hover:text-adm-blue shrink-0" />
                   <span>{opt.label}</span>
                   {typeof opt.count === "number" && opt.count > 0 && (
                     <span
-                      className={`inline-flex h-4 min-w-4 items-center justify-center rounded-full px-1 text-[10px] font-bold tabular-nums ${
+                      className={`inline-flex h-4 min-w-4 items-center justify-center rounded-full px-1 text-[10px] font-medium tabular-nums ${
                         opt.countTone === "amber"
-                          ? "bg-adm-amber-light text-adm-amber border border-adm-amber/30"
-                          : "bg-adm-blue-light text-adm-blue border border-adm-blue/30"
+                          ? "border border-adm-amber/30 bg-adm-amber-light text-adm-amber"
+                          : "border border-adm-border bg-adm-surface-2 text-adm-text-3"
                       }`}
                     >
                       {opt.count}
                     </span>
                   )}
                   <ChevronRight
-                    size={13}
-                    className="opacity-40 transition-transform group-hover:translate-x-0.5 group-hover:opacity-100"
+                    size={12}
+                    className="text-adm-text-3 opacity-60 transition-transform group-hover:translate-x-0.5 group-hover:text-adm-blue group-hover:opacity-100"
                   />
                 </Link>
               );
@@ -428,22 +489,22 @@ export default function AdminDashboardPage() {
               key={tag.id}
               type="button"
               onClick={() => setMainTag(tag.id)}
-              className={`inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-xs font-semibold transition-all ${
+              className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-xs font-medium transition-all active:scale-95 ${
                 isActive
-                  ? "bg-adm-blue text-white shadow-sm font-bold scale-[1.02]"
+                  ? "bg-adm-blue text-white font-semibold"
                   : "border border-adm-border bg-adm-surface text-adm-text-2 hover:border-adm-border-2 hover:bg-adm-surface-2 hover:text-adm-text"
               }`}
             >
-              <Icon size={15} className={`shrink-0 ${isActive ? "text-white" : "text-adm-blue"}`} />
+              <Icon size={14} className={`shrink-0 ${isActive ? "text-white" : "text-adm-text-3"}`} />
               <span>{tag.label}</span>
               {typeof tag.count === "number" && tag.count > 0 && (
                 <span
-                  className={`inline-flex h-4 min-w-4 items-center justify-center rounded-full px-1 text-[10px] font-bold tabular-nums ${
+                  className={`inline-flex h-4 min-w-4 items-center justify-center rounded-full px-1 text-[10px] font-medium tabular-nums ${
                     isActive
-                      ? "bg-white/25 text-white"
+                      ? "bg-white/20 text-white"
                       : tag.countTone === "amber"
-                        ? "bg-adm-amber-light text-adm-amber border border-adm-amber/30"
-                        : "bg-adm-blue-light text-adm-blue border border-adm-blue/30"
+                        ? "border border-adm-amber/30 bg-adm-amber-light text-adm-amber"
+                        : "border border-adm-border bg-adm-surface-2 text-adm-text-3"
                   }`}
                 >
                   {tag.count}
@@ -497,160 +558,67 @@ export default function AdminDashboardPage() {
               { label: "Leave Requests", href: "/admin/leave", icon: CalendarDays, count: pendingLeave.length, countTone: "amber" },
               { label: "Documents Vault", href: "/admin/documents", icon: FileText, count: documents.length },
               { label: "Announcements", href: "/admin/announcements", icon: Bell, count: announcements.length },
-              { label: "People Hub", href: "/admin/people", icon: Sparkles },
+              { label: "People Hub", href: "/admin/people", icon: LayoutGrid },
             ],
           )}
 
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            <Link
+            <DepartmentCard
               href="/admin/employees"
-              className="group flex flex-col justify-between rounded-2xl border border-adm-border bg-adm-surface p-5 shadow-sm transition hover:border-adm-blue hover:shadow"
-            >
-              <div className="flex items-start justify-between">
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-adm-blue-light text-adm-blue">
-                  <Users size={20} />
-                </div>
-                <span className="rounded-full bg-adm-surface-2 px-2.5 py-1 text-xs font-bold text-adm-text tabular-nums">
-                  {overview.totalEmployees} staff
-                </span>
-              </div>
-              <div className="mt-4">
-                <h3 className="text-base font-bold text-adm-text group-hover:text-adm-blue">Employees Roster</h3>
-                <p className="mt-1 text-xs text-adm-text-3 leading-relaxed">
-                  Manage active personnel, departments, job titles, and member onboarding.
-                </p>
-              </div>
-              <div className="mt-4 flex items-center gap-1 text-xs font-semibold text-adm-blue">
-                <span>Open Directory</span>
-                <ArrowRight size={13} className="transition-transform group-hover:translate-x-1" />
-              </div>
-            </Link>
+              icon={Users}
+              title="Employees Roster"
+              description="Manage active personnel, departments, job titles, and member onboarding."
+              actionLabel="Open Directory"
+              badgeText={`${overview.totalEmployees} staff`}
+            />
 
-            <Link
+            <DepartmentCard
               href="/admin/attendance"
-              className="group flex flex-col justify-between rounded-2xl border border-adm-border bg-adm-surface p-5 shadow-sm transition hover:border-adm-blue hover:shadow"
-            >
-              <div className="flex items-start justify-between">
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-adm-green-light text-adm-green">
-                  <Clock size={20} />
-                </div>
-                <span className="rounded-full bg-adm-green-light px-2.5 py-1 text-xs font-bold text-adm-green tabular-nums">
-                  {overview.present} present
-                </span>
-              </div>
-              <div className="mt-4">
-                <h3 className="text-base font-bold text-adm-text group-hover:text-adm-blue">Daily Attendance</h3>
-                <p className="mt-1 text-xs text-adm-text-3 leading-relaxed">
-                  Live daily check-in signals, late arrivals, absences, and log audits.
-                </p>
-              </div>
-              <div className="mt-4 flex items-center gap-1 text-xs font-semibold text-adm-blue">
-                <span>View Attendance</span>
-                <ArrowRight size={13} className="transition-transform group-hover:translate-x-1" />
-              </div>
-            </Link>
+              icon={Clock}
+              title="Daily Attendance"
+              description="Live daily check-in signals, late arrivals, absences, and log audits."
+              actionLabel="View Attendance"
+              badgeText={`${overview.present} present`}
+              badgeTone="green"
+            />
 
-            <Link
+            <DepartmentCard
               href="/admin/leave"
-              className="group flex flex-col justify-between rounded-2xl border border-adm-border bg-adm-surface p-5 shadow-sm transition hover:border-adm-blue hover:shadow"
-            >
-              <div className="flex items-start justify-between">
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-adm-amber-light text-adm-amber">
-                  <CalendarDays size={20} />
-                </div>
-                {pendingLeave.length > 0 ? (
-                  <span className="rounded-full bg-adm-amber-light px-2.5 py-1 text-xs font-bold text-adm-amber tabular-nums">
-                    {pendingLeave.length} pending
-                  </span>
-                ) : (
-                  <span className="rounded-full bg-adm-surface-2 px-2.5 py-1 text-xs font-medium text-adm-text-3">
-                    Inbox zero
-                  </span>
-                )}
-              </div>
-              <div className="mt-4">
-                <h3 className="text-base font-bold text-adm-text group-hover:text-adm-blue">Leave Approvals</h3>
-                <p className="mt-1 text-xs text-adm-text-3 leading-relaxed">
-                  Review time-off requests, approve medical/annual leaves, and record decisions.
-                </p>
-              </div>
-              <div className="mt-4 flex items-center gap-1 text-xs font-semibold text-adm-blue">
-                <span>Review Queue</span>
-                <ArrowRight size={13} className="transition-transform group-hover:translate-x-1" />
-              </div>
-            </Link>
+              icon={CalendarDays}
+              title="Leave Approvals"
+              description="Review time-off requests, approve medical/annual leaves, and record decisions."
+              actionLabel="Review Queue"
+              badgeText={pendingLeave.length > 0 ? `${pendingLeave.length} pending` : "Inbox zero"}
+              badgeTone={pendingLeave.length > 0 ? "amber" : "neutral"}
+            />
 
-            <Link
+            <DepartmentCard
               href="/admin/documents"
-              className="group flex flex-col justify-between rounded-2xl border border-adm-border bg-adm-surface p-5 shadow-sm transition hover:border-adm-blue hover:shadow"
-            >
-              <div className="flex items-start justify-between">
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-purple-100 text-purple-600">
-                  <FileText size={20} />
-                </div>
-                <span className="rounded-full bg-adm-surface-2 px-2.5 py-1 text-xs font-bold text-adm-text tabular-nums">
-                  {documents.length} files
-                </span>
-              </div>
-              <div className="mt-4">
-                <h3 className="text-base font-bold text-adm-text group-hover:text-adm-blue">Documents Vault</h3>
-                <p className="mt-1 text-xs text-adm-text-3 leading-relaxed">
-                  Secure company policies, employee contracts, certifications, and payslips.
-                </p>
-              </div>
-              <div className="mt-4 flex items-center gap-1 text-xs font-semibold text-adm-blue">
-                <span>Browse Vault</span>
-                <ArrowRight size={13} className="transition-transform group-hover:translate-x-1" />
-              </div>
-            </Link>
+              icon={FileText}
+              title="Documents Vault"
+              description="Secure company policies, employee contracts, certifications, and payslips."
+              actionLabel="Browse Vault"
+              badgeText={`${documents.length} files`}
+            />
 
-            <Link
+            <DepartmentCard
               href="/admin/announcements"
-              className="group flex flex-col justify-between rounded-2xl border border-adm-border bg-adm-surface p-5 shadow-sm transition hover:border-adm-blue hover:shadow"
-            >
-              <div className="flex items-start justify-between">
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-adm-blue-light text-adm-blue">
-                  <Bell size={20} />
-                </div>
-                <span className="rounded-full bg-adm-surface-2 px-2.5 py-1 text-xs font-bold text-adm-text tabular-nums">
-                  {announcements.length} posts
-                </span>
-              </div>
-              <div className="mt-4">
-                <h3 className="text-base font-bold text-adm-text group-hover:text-adm-blue">Announcements</h3>
-                <p className="mt-1 text-xs text-adm-text-3 leading-relaxed">
-                  Broadcast company news, leadership updates, and official communications.
-                </p>
-              </div>
-              <div className="mt-4 flex items-center gap-1 text-xs font-semibold text-adm-blue">
-                <span>View Bulletins</span>
-                <ArrowRight size={13} className="transition-transform group-hover:translate-x-1" />
-              </div>
-            </Link>
+              icon={Bell}
+              title="Announcements"
+              description="Broadcast company news, leadership updates, and official communications."
+              actionLabel="View Bulletins"
+              badgeText={`${announcements.length} posts`}
+            />
 
-            <Link
+            <DepartmentCard
               href="/admin/people"
-              className="group flex flex-col justify-between rounded-2xl border border-adm-blue bg-adm-blue-light/40 p-5 shadow-sm transition hover:bg-adm-blue-light"
-            >
-              <div className="flex items-start justify-between">
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-adm-blue text-white">
-                  <Sparkles size={20} />
-                </div>
-                <span className="rounded-full bg-adm-blue px-2.5 py-1 text-xs font-bold text-white">
-                  Unified Hub
-                </span>
-              </div>
-              <div className="mt-4">
-                <h3 className="text-base font-bold text-adm-text group-hover:text-adm-blue">Open People Hub</h3>
-                <p className="mt-1 text-xs text-adm-text-3 leading-relaxed">
-                  View the dedicated full-screen People Operations command center with banner.
-                </p>
-              </div>
-              <div className="mt-4 flex items-center gap-1 text-xs font-semibold text-adm-blue">
-                <span>Launch Hub</span>
-                <ArrowRight size={13} className="transition-transform group-hover:translate-x-1" />
-              </div>
-            </Link>
+              icon={LayoutGrid}
+              title="Open People Hub"
+              description="View the dedicated full-screen People Operations command center with banner."
+              actionLabel="Launch Hub"
+              badgeText="Unified Hub"
+              highlight
+            />
           </div>
 
           <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
@@ -674,53 +642,24 @@ export default function AdminDashboardPage() {
           )}
 
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <Link
+            <DepartmentCard
               href="/admin/projects"
-              className="group flex flex-col justify-between rounded-2xl border border-adm-border bg-adm-surface p-5 shadow-sm transition hover:border-adm-blue hover:shadow"
-            >
-              <div className="flex items-start justify-between">
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-adm-blue-light text-adm-blue">
-                  <FolderKanban size={20} />
-                </div>
-                <span className="rounded-full bg-adm-surface-2 px-2.5 py-1 text-xs font-bold text-adm-text tabular-nums">
-                  {projects.length} active
-                </span>
-              </div>
-              <div className="mt-4">
-                <h3 className="text-base font-bold text-adm-text group-hover:text-adm-blue">Projects Delivery Hub</h3>
-                <p className="mt-1 text-xs text-adm-text-3 leading-relaxed">
-                  Track client engagement status (Discovery, Build, Review, Live), milestones, and progress.
-                </p>
-              </div>
-              <div className="mt-4 flex items-center gap-1 text-xs font-semibold text-adm-blue">
-                <span>Open Projects</span>
-                <ArrowRight size={13} className="transition-transform group-hover:translate-x-1" />
-              </div>
-            </Link>
+              icon={FolderKanban}
+              title="Projects Delivery Hub"
+              description="Track client engagement status (Discovery, Build, Review, Live), milestones, and progress."
+              actionLabel="Open Projects"
+              badgeText={`${projects.length} active`}
+            />
 
-            <Link
+            <DepartmentCard
               href="/admin/tasks"
-              className="group flex flex-col justify-between rounded-2xl border border-adm-border bg-adm-surface p-5 shadow-sm transition hover:border-adm-blue hover:shadow"
-            >
-              <div className="flex items-start justify-between">
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-adm-blue-light text-adm-blue">
-                  <CheckSquare size={20} />
-                </div>
-                <span className="rounded-full bg-adm-blue-light px-2.5 py-1 text-xs font-bold text-adm-blue tabular-nums">
-                  {openTaskCount} open tasks
-                </span>
-              </div>
-              <div className="mt-4">
-                <h3 className="text-base font-bold text-adm-text group-hover:text-adm-blue">Task Board & Kanban</h3>
-                <p className="mt-1 text-xs text-adm-text-3 leading-relaxed">
-                  4-column drag-and-drop workflow: To Do, In Progress, Review, and Done. Assign trial playbooks.
-                </p>
-              </div>
-              <div className="mt-4 flex items-center gap-1 text-xs font-semibold text-adm-blue">
-                <span>Launch Kanban</span>
-                <ArrowRight size={13} className="transition-transform group-hover:translate-x-1" />
-              </div>
-            </Link>
+              icon={CheckSquare}
+              title="Task Board & Kanban"
+              description="4-column drag-and-drop workflow: To Do, In Progress, Review, and Done. Assign trial playbooks."
+              actionLabel="Launch Kanban"
+              badgeText={`${openTaskCount} open tasks`}
+              badgeTone="blue"
+            />
           </div>
 
           <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
@@ -744,53 +683,24 @@ export default function AdminDashboardPage() {
           )}
 
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <Link
+            <DepartmentCard
               href="/admin/client"
-              className="group flex flex-col justify-between rounded-2xl border border-adm-border bg-adm-surface p-5 shadow-sm transition hover:border-adm-blue hover:shadow"
-            >
-              <div className="flex items-start justify-between">
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-adm-blue-light text-adm-blue">
-                  <Briefcase size={20} />
-                </div>
-                <span className="rounded-full bg-adm-surface-2 px-2.5 py-1 text-xs font-bold text-adm-text">
-                  CRM
-                </span>
-              </div>
-              <div className="mt-4">
-                <h3 className="text-base font-bold text-adm-text group-hover:text-adm-blue">Lead Workbench & CRM</h3>
-                <p className="mt-1 text-xs text-adm-text-3 leading-relaxed">
-                  Qualify inbound prospects, log calls & meetings, track follow-ups, and move deals through stages.
-                </p>
-              </div>
-              <div className="mt-4 flex items-center gap-1 text-xs font-semibold text-adm-blue">
-                <span>Open Workbench</span>
-                <ArrowRight size={13} className="transition-transform group-hover:translate-x-1" />
-              </div>
-            </Link>
+              icon={Briefcase}
+              title="Lead Workbench & CRM"
+              description="Qualify inbound prospects, log calls & meetings, track follow-ups, and move deals through stages."
+              actionLabel="Open Workbench"
+              badgeText="CRM"
+            />
 
-            <Link
+            <DepartmentCard
               href="/admin/whatsapp"
-              className="group flex flex-col justify-between rounded-2xl border border-adm-border bg-adm-surface p-5 shadow-sm transition hover:border-adm-blue hover:shadow"
-            >
-              <div className="flex items-start justify-between">
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-adm-green-light text-adm-green">
-                  <MessageCircle size={20} />
-                </div>
-                <span className="rounded-full bg-adm-green-light px-2.5 py-1 text-xs font-bold text-adm-green">
-                  Live Chat
-                </span>
-              </div>
-              <div className="mt-4">
-                <h3 className="text-base font-bold text-adm-text group-hover:text-adm-blue">WhatsApp Business</h3>
-                <p className="mt-1 text-xs text-adm-text-3 leading-relaxed">
-                  Real-time WhatsApp Cloud API lines, automated lead reply bots, template approvals, and multi-line inbox.
-                </p>
-              </div>
-              <div className="mt-4 flex items-center gap-1 text-xs font-semibold text-adm-blue">
-                <span>Open WhatsApp</span>
-                <ArrowRight size={13} className="transition-transform group-hover:translate-x-1" />
-              </div>
-            </Link>
+              icon={MessageCircle}
+              title="WhatsApp Business"
+              description="Real-time WhatsApp Cloud API lines, automated lead reply bots, template approvals, and multi-line inbox."
+              actionLabel="Open WhatsApp"
+              badgeText="Live Chat"
+              badgeTone="green"
+            />
           </div>
         </div>
       )}
@@ -811,81 +721,39 @@ export default function AdminDashboardPage() {
           )}
 
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            <Link
+            <DepartmentCard
               href="/admin/whatsapp"
-              className="group flex flex-col justify-between rounded-2xl border border-adm-border bg-adm-surface p-5 shadow-sm transition hover:border-adm-blue hover:shadow"
-            >
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-adm-green-light text-adm-green">
-                <MessageCircle size={20} />
-              </div>
-              <div className="mt-4">
-                <h3 className="text-sm font-bold text-adm-text group-hover:text-adm-blue">WhatsApp</h3>
-                <p className="mt-1 text-xs text-adm-text-3 leading-relaxed">
-                  WhatsApp Cloud API inbox with bot flows and Meta templates.
-                </p>
-              </div>
-              <div className="mt-4 flex items-center gap-1 text-xs font-semibold text-adm-blue">
-                <span>Open Chat</span>
-                <ArrowRight size={13} className="transition-transform group-hover:translate-x-1" />
-              </div>
-            </Link>
+              icon={MessageCircle}
+              title="WhatsApp"
+              description="WhatsApp Cloud API inbox with bot flows and Meta templates."
+              actionLabel="Open Chat"
+            />
 
-            <Link
+            <DepartmentCard
               href="/admin/mail"
-              className="group flex flex-col justify-between rounded-2xl border border-adm-border bg-adm-surface p-5 shadow-sm transition hover:border-adm-blue hover:shadow"
-            >
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-adm-blue-light text-adm-blue">
-                <Mail size={20} />
-              </div>
-              <div className="mt-4">
-                <h3 className="text-sm font-bold text-adm-text group-hover:text-adm-blue">Webmail</h3>
-                <p className="mt-1 text-xs text-adm-text-3 leading-relaxed">
-                  Company mailbox email client powered by Open.email.
-                </p>
-              </div>
-              <div className="mt-4 flex items-center gap-1 text-xs font-semibold text-adm-blue">
-                <span>Open Mail</span>
-                <ArrowRight size={13} className="transition-transform group-hover:translate-x-1" />
-              </div>
-            </Link>
+              icon={Mail}
+              title="Webmail"
+              description="Company mailbox email client powered by Open.email."
+              actionLabel="Open Mail"
+            />
 
-            <Link
+            <DepartmentCard
               href="/admin/client-messages"
-              className="group flex flex-col justify-between rounded-2xl border border-adm-border bg-adm-surface p-5 shadow-sm transition hover:border-adm-blue hover:shadow"
-            >
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-adm-blue-light text-adm-blue">
-                <MessagesSquare size={20} />
-              </div>
-              <div className="mt-4">
-                <h3 className="text-sm font-bold text-adm-text group-hover:text-adm-blue">Client Portal</h3>
-                <p className="mt-1 text-xs text-adm-text-3 leading-relaxed">
-                  Direct conversation threads between clients and staff leads.
-                </p>
-              </div>
-              <div className="mt-4 flex items-center gap-1 text-xs font-semibold text-adm-blue">
-                <span>View Threads</span>
-                <ArrowRight size={13} className="transition-transform group-hover:translate-x-1" />
-              </div>
-            </Link>
+              icon={MessagesSquare}
+              title="Client Portal"
+              description="Direct conversation threads between clients and staff leads."
+              actionLabel="View Threads"
+            />
 
-            <Link
+            <DepartmentCard
               href="/admin/messages"
-              className="group flex flex-col justify-between rounded-2xl border border-adm-border bg-adm-surface p-5 shadow-sm transition hover:border-adm-blue hover:shadow"
-            >
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-adm-amber-light text-adm-amber">
-                <Mail size={20} />
-              </div>
-              <div className="mt-4">
-                <h3 className="text-sm font-bold text-adm-text group-hover:text-adm-blue">Website Inquiries</h3>
-                <p className="mt-1 text-xs text-adm-text-3 leading-relaxed">
-                  Contact forms, service requests, and career applicant inquiries.
-                </p>
-              </div>
-              <div className="mt-4 flex items-center gap-1 text-xs font-semibold text-adm-blue">
-                <span>Review ({unreadInquiries})</span>
-                <ArrowRight size={13} className="transition-transform group-hover:translate-x-1" />
-              </div>
-            </Link>
+              icon={Mail}
+              title="Website Inquiries"
+              description="Contact forms, service requests, and career applicant inquiries."
+              actionLabel={unreadInquiries > 0 ? `Review (${unreadInquiries})` : "View Inquiries"}
+              badgeText={unreadInquiries > 0 ? `${unreadInquiries} unread` : undefined}
+              badgeTone="amber"
+            />
           </div>
         </div>
       )}
@@ -907,100 +775,45 @@ export default function AdminDashboardPage() {
           )}
 
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            <Link
+            <DepartmentCard
               href="/admin/blog"
-              className="group flex flex-col justify-between rounded-2xl border border-adm-border bg-adm-surface p-5 shadow-sm transition hover:border-adm-blue hover:shadow"
-            >
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-adm-blue-light text-adm-blue">
-                <Newspaper size={20} />
-              </div>
-              <div className="mt-4">
-                <h3 className="text-base font-bold text-adm-text group-hover:text-adm-blue">Blog & Insights</h3>
-                <p className="mt-1 text-xs text-adm-text-3 leading-relaxed">
-                  Write, edit, and publish engineering and design articles to your public site.
-                </p>
-              </div>
-              <div className="mt-4 flex items-center gap-1 text-xs font-semibold text-adm-blue">
-                <span>Manage Posts</span>
-                <ArrowRight size={13} className="transition-transform group-hover:translate-x-1" />
-              </div>
-            </Link>
+              icon={Newspaper}
+              title="Blog & Insights"
+              description="Write, edit, and publish engineering and design articles to your public site."
+              actionLabel="Manage Posts"
+            />
 
-            <Link
+            <DepartmentCard
               href="/admin/portfolio"
-              className="group flex flex-col justify-between rounded-2xl border border-adm-border bg-adm-surface p-5 shadow-sm transition hover:border-adm-blue hover:shadow"
-            >
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-adm-blue-light text-adm-blue">
-                <ImageIcon size={20} />
-              </div>
-              <div className="mt-4">
-                <h3 className="text-base font-bold text-adm-text group-hover:text-adm-blue">Portfolio Case Studies</h3>
-                <p className="mt-1 text-xs text-adm-text-3 leading-relaxed">
-                  Showcase enterprise client deliveries, deliverables, tech stacks, and results.
-                </p>
-              </div>
-              <div className="mt-4 flex items-center gap-1 text-xs font-semibold text-adm-blue">
-                <span>Manage Portfolio</span>
-                <ArrowRight size={13} className="transition-transform group-hover:translate-x-1" />
-              </div>
-            </Link>
+              icon={ImageIcon}
+              title="Portfolio Case Studies"
+              description="Showcase enterprise client deliveries, deliverables, tech stacks, and results."
+              actionLabel="Manage Portfolio"
+            />
 
-            <Link
+            <DepartmentCard
               href="/admin/services"
-              className="group flex flex-col justify-between rounded-2xl border border-adm-border bg-adm-surface p-5 shadow-sm transition hover:border-adm-blue hover:shadow"
-            >
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-adm-blue-light text-adm-blue">
-                <Wrench size={20} />
-              </div>
-              <div className="mt-4">
-                <h3 className="text-base font-bold text-adm-text group-hover:text-adm-blue">Services & Capabilities</h3>
-                <p className="mt-1 text-xs text-adm-text-3 leading-relaxed">
-                  Configure high-impact service catalog, delivery outcomes, and deliverables.
-                </p>
-              </div>
-              <div className="mt-4 flex items-center gap-1 text-xs font-semibold text-adm-blue">
-                <span>Manage Services</span>
-                <ArrowRight size={13} className="transition-transform group-hover:translate-x-1" />
-              </div>
-            </Link>
+              icon={Wrench}
+              title="Services & Capabilities"
+              description="Configure high-impact service catalog, delivery outcomes, and deliverables."
+              actionLabel="Manage Services"
+            />
 
-            <Link
+            <DepartmentCard
               href="/admin/careers"
-              className="group flex flex-col justify-between rounded-2xl border border-adm-border bg-adm-surface p-5 shadow-sm transition hover:border-adm-blue hover:shadow"
-            >
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-adm-blue-light text-adm-blue">
-                <GraduationCap size={20} />
-              </div>
-              <div className="mt-4">
-                <h3 className="text-base font-bold text-adm-text group-hover:text-adm-blue">Careers & Job Openings</h3>
-                <p className="mt-1 text-xs text-adm-text-3 leading-relaxed">
-                  Publish open positions and review job applicant resumes with 1-click onboarding.
-                </p>
-              </div>
-              <div className="mt-4 flex items-center gap-1 text-xs font-semibold text-adm-blue">
-                <span>Manage Careers</span>
-                <ArrowRight size={13} className="transition-transform group-hover:translate-x-1" />
-              </div>
-            </Link>
+              icon={GraduationCap}
+              title="Careers & Job Openings"
+              description="Publish open positions and review job applicant resumes with 1-click onboarding."
+              actionLabel="Manage Careers"
+            />
 
-            <Link
+            <DepartmentCard
               href="/admin/community"
-              className="group flex flex-col justify-between rounded-2xl border border-adm-border bg-adm-surface p-5 shadow-sm transition hover:border-adm-blue hover:shadow"
-            >
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-adm-blue-light text-adm-blue">
-                <Globe size={20} />
-              </div>
-              <div className="mt-4">
-                <h3 className="text-base font-bold text-adm-text group-hover:text-adm-blue">Community Network</h3>
-                <p className="mt-1 text-xs text-adm-text-3 leading-relaxed">
-                  Review applicant profiles for the creator and engineer community circle.
-                </p>
-              </div>
-              <div className="mt-4 flex items-center gap-1 text-xs font-semibold text-adm-blue">
-                <span>Open Community</span>
-                <ArrowRight size={13} className="transition-transform group-hover:translate-x-1" />
-              </div>
-            </Link>
+              icon={Globe}
+              title="Community Network"
+              description="Review applicant profiles for the creator and engineer community circle."
+              actionLabel="Open Community"
+            />
           </div>
         </div>
       )}
@@ -1020,83 +833,33 @@ export default function AdminDashboardPage() {
           )}
 
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-            <Link
+            <DepartmentCard
               href="/admin/users"
-              className="group flex flex-col justify-between rounded-2xl border border-adm-border bg-adm-surface p-5 shadow-sm transition hover:border-adm-blue hover:shadow"
-            >
-              <div className="flex items-start justify-between">
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-adm-blue-light text-adm-blue">
-                  <Users size={20} />
-                </div>
-                {metrics?.pending && metrics.pending > 0 ? (
-                  <span className="rounded-full bg-adm-amber-light px-2.5 py-1 text-xs font-bold text-adm-amber tabular-nums">
-                    {metrics.pending} pending
-                  </span>
-                ) : (
-                  <span className="rounded-full bg-adm-green-light px-2.5 py-1 text-xs font-bold text-adm-green tabular-nums">
-                    {metrics?.approved ?? 0} active
-                  </span>
-                )}
-              </div>
-              <div className="mt-4">
-                <h3 className="text-base font-bold text-adm-text group-hover:text-adm-blue">User Accounts</h3>
-                <p className="mt-1 text-xs text-adm-text-3 leading-relaxed">
-                  Manage staff logins, account statuses, Open.email mailboxes, and onboarding.
-                </p>
-              </div>
-              <div className="mt-4 flex items-center gap-1 text-xs font-semibold text-adm-blue">
-                <span>Manage Users</span>
-                <ArrowRight size={13} className="transition-transform group-hover:translate-x-1" />
-              </div>
-            </Link>
+              icon={Users}
+              title="User Accounts"
+              description="Manage staff logins, account statuses, Open.email mailboxes, and onboarding."
+              actionLabel="Manage Users"
+              badgeText={metrics?.pending && metrics.pending > 0 ? `${metrics.pending} pending` : `${metrics?.approved ?? 0} active`}
+              badgeTone={metrics?.pending && metrics.pending > 0 ? "amber" : "green"}
+            />
 
-            <Link
+            <DepartmentCard
               href="/admin/roles"
-              className="group flex flex-col justify-between rounded-2xl border border-adm-border bg-adm-surface p-5 shadow-sm transition hover:border-adm-blue hover:shadow"
-            >
-              <div className="flex items-start justify-between">
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-adm-blue-light text-adm-blue">
-                  <Shield size={20} />
-                </div>
-                <span className="rounded-full bg-adm-surface-2 px-2.5 py-1 text-xs font-bold text-adm-text">
-                  RBAC Matrix
-                </span>
-              </div>
-              <div className="mt-4">
-                <h3 className="text-base font-bold text-adm-text group-hover:text-adm-blue">Roles & Permissions</h3>
-                <p className="mt-1 text-xs text-adm-text-3 leading-relaxed">
-                  Configure hierarchy levels, create custom roles, and assign fine-grained permissions.
-                </p>
-              </div>
-              <div className="mt-4 flex items-center gap-1 text-xs font-semibold text-adm-blue">
-                <span>Configure Roles</span>
-                <ArrowRight size={13} className="transition-transform group-hover:translate-x-1" />
-              </div>
-            </Link>
+              icon={Shield}
+              title="Roles & Permissions"
+              description="Configure hierarchy levels, create custom roles, and assign fine-grained permissions."
+              actionLabel="Configure Roles"
+              badgeText="RBAC Matrix"
+            />
 
-            <Link
+            <DepartmentCard
               href="/admin/settings"
-              className="group flex flex-col justify-between rounded-2xl border border-adm-border bg-adm-surface p-5 shadow-sm transition hover:border-adm-blue hover:shadow"
-            >
-              <div className="flex items-start justify-between">
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-adm-surface-2 text-adm-text-2">
-                  <Activity size={20} />
-                </div>
-                <span className="rounded-full bg-adm-surface-2 px-2.5 py-1 text-xs font-medium text-adm-text-3">
-                  Account
-                </span>
-              </div>
-              <div className="mt-4">
-                <h3 className="text-base font-bold text-adm-text group-hover:text-adm-blue">Account Settings</h3>
-                <p className="mt-1 text-xs text-adm-text-3 leading-relaxed">
-                  Update your administrator profile, change password, and manage active sessions.
-                </p>
-              </div>
-              <div className="mt-4 flex items-center gap-1 text-xs font-semibold text-adm-blue">
-                <span>Open Settings</span>
-                <ArrowRight size={13} className="transition-transform group-hover:translate-x-1" />
-              </div>
-            </Link>
+              icon={Activity}
+              title="Account Settings"
+              description="Update your administrator profile, change password, and manage active sessions."
+              actionLabel="Open Settings"
+              badgeText="Account"
+            />
           </div>
         </div>
       )}

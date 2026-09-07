@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import Link from "next/link";
 import {
@@ -104,22 +104,16 @@ export default function PeopleBanner({ active = "overview", compact = false }: P
   };
 
   return (
-    <div className="relative overflow-hidden rounded-2xl border border-adm-border bg-adm-surface p-5 sm:p-6 shadow-sm">
-      {/* Apple ambient glow */}
-      <div
-        className="pointer-events-none absolute -right-16 -top-16 h-64 w-64 rounded-full bg-adm-blue/10 blur-3xl"
-        aria-hidden="true"
-      />
-
-      <div className="relative z-10 flex flex-col gap-5">
+    <div className="relative overflow-hidden rounded-[18px] border border-adm-border bg-adm-surface p-5 sm:p-6">
+      <div className="flex flex-col gap-5">
         {/* Top title & summary section */}
         <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
           <div>
-            <div className="inline-flex items-center gap-2 rounded-full border border-adm-blue/20 bg-adm-blue-light px-3 py-0.5 text-[11px] font-semibold uppercase tracking-wider text-adm-blue">
-              <Users size={12} className="shrink-0" />
+            <div className="inline-flex items-center gap-1.5 rounded-full border border-adm-border bg-adm-surface-2 px-3 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-adm-text-3">
+              <span className="h-1.5 w-1.5 rounded-full bg-adm-blue shrink-0" />
               <span>{t("People Operations")}</span>
             </div>
-            <h2 className="mt-2 text-xl font-bold tracking-tight text-adm-text sm:text-2xl">
+            <h2 className="mt-2 text-xl font-semibold tracking-tight text-adm-text sm:text-2xl">
               {t("People & Workforce Hub")}
             </h2>
             {!compact && (
@@ -132,25 +126,25 @@ export default function PeopleBanner({ active = "overview", compact = false }: P
           </div>
 
           {/* Real-time pulse stats */}
-          <div className="flex flex-wrap items-center gap-2.5 sm:gap-3">
-            <div className="flex items-center gap-2 rounded-xl border border-adm-border bg-adm-surface-2 px-3 py-1.5 text-xs">
-              <span className="h-2 w-2 rounded-full bg-adm-green animate-pulse" />
+          <div className="flex flex-wrap items-center gap-2 sm:gap-2.5">
+            <div className="flex items-center gap-2 rounded-full border border-adm-border bg-adm-surface-2 px-3 py-1 text-xs">
+              <span className="h-1.5 w-1.5 rounded-full bg-adm-green" />
               <span className="text-adm-text-3">{t("Present:")}</span>
-              <span className="font-bold text-adm-text tabular-nums">
+              <span className="font-semibold text-adm-text tabular-nums">
                 {overview?.present ?? "—"}
               </span>
             </div>
             {pendingLeave.length > 0 && (
-              <div className="flex items-center gap-2 rounded-xl border border-adm-amber/30 bg-adm-amber-light px-3 py-1.5 text-xs">
-                <span className="h-2 w-2 rounded-full bg-adm-amber" />
+              <div className="flex items-center gap-2 rounded-full border border-adm-amber/30 bg-adm-amber-light px-3 py-1 text-xs">
+                <span className="h-1.5 w-1.5 rounded-full bg-adm-amber" />
                 <span className="font-semibold text-adm-amber">
                   {pendingLeave.length} {t("leave awaiting review")}
                 </span>
               </div>
             )}
-            <div className="flex items-center gap-2 rounded-xl border border-adm-border bg-adm-surface-2 px-3 py-1.5 text-xs">
+            <div className="flex items-center gap-2 rounded-full border border-adm-border bg-adm-surface-2 px-3 py-1 text-xs">
               <span className="text-adm-text-3">{t("Staff:")}</span>
-              <span className="font-bold text-adm-text tabular-nums">
+              <span className="font-semibold text-adm-text tabular-nums">
                 {overview?.totalEmployees ?? "—"}
               </span>
             </div>
@@ -159,7 +153,7 @@ export default function PeopleBanner({ active = "overview", compact = false }: P
 
         {/* Function navigation capsules — all functions present */}
         <div className="border-t border-adm-border pt-4">
-          <p className="mb-2 text-[10px] font-bold uppercase tracking-wider text-adm-text-3">
+          <p className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-adm-text-3">
             {t("People Functions")}
           </p>
           <nav
@@ -175,25 +169,25 @@ export default function PeopleBanner({ active = "overview", compact = false }: P
                 <Link
                   key={item.id}
                   href={item.href}
-                  className={`inline-flex items-center gap-2 rounded-xl px-3.5 py-2 text-xs font-medium transition-all ${
+                  className={`inline-flex items-center gap-2 rounded-full px-3.5 py-1.5 text-xs font-medium transition-all active:scale-95 ${
                     isActive
-                      ? "bg-adm-blue text-white shadow-sm font-semibold"
-                      : "border border-adm-border bg-adm-surface-2 text-adm-text-2 hover:border-adm-border-2 hover:bg-adm-surface hover:text-adm-text"
+                      ? "bg-adm-blue text-white font-semibold"
+                      : "border border-adm-border bg-adm-surface text-adm-text-2 hover:border-adm-border-2 hover:bg-adm-surface-2 hover:text-adm-text"
                   }`}
                 >
                   <Icon
                     size={14}
-                    className={`shrink-0 ${isActive ? "text-white" : "text-adm-blue"}`}
+                    className={`shrink-0 ${isActive ? "text-white" : "text-adm-text-3"}`}
                   />
                   <span>{t(item.shortLabel)}</span>
                   {typeof count === "number" && count > 0 && (
                     <span
-                      className={`inline-flex h-4 min-w-4 items-center justify-center rounded-full px-1 text-[10px] font-bold tabular-nums ${
+                      className={`inline-flex h-4 min-w-4 items-center justify-center rounded-full px-1 text-[10px] font-medium tabular-nums ${
                         isActive
-                          ? "bg-white/25 text-white"
+                          ? "bg-white/20 text-white"
                           : item.id === "leave"
-                            ? "bg-adm-amber-light text-adm-amber border border-adm-amber/30"
-                            : "bg-adm-surface text-adm-text-3 border border-adm-border"
+                            ? "border border-adm-amber/30 bg-adm-amber-light text-adm-amber"
+                            : "border border-adm-border bg-adm-surface-2 text-adm-text-3"
                       }`}
                     >
                       {count}
