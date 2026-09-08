@@ -86,6 +86,21 @@ export async function proxy(request: NextRequest) {
       }
     }
 
+    if (hostname.includes("docs.tauqeermustafa.tech")) {
+      if (pathname === "/") {
+        url.pathname = "/docs";
+        return NextResponse.rewrite(url);
+      }
+      if (pathname.startsWith("/legal/")) {
+        url.pathname = pathname.replace(/^\/legal/, "/docs");
+        return NextResponse.rewrite(url);
+      }
+      if (!pathname.startsWith("/docs")) {
+        url.pathname = `/docs${pathname}`;
+        return NextResponse.rewrite(url);
+      }
+    }
+
     if (hostname.includes("portals.tauqeermustafa.tech")) {
       if (pathname === "/") {
         url.pathname = "/portals";
