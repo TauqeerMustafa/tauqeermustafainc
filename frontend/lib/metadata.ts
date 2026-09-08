@@ -41,5 +41,9 @@ export function buildMetadata({
       description,
       images: [image],
     },
+    icons: {
+      icon: "/logo.png",
+      apple: "/logo.png",
+    },
   };
 }

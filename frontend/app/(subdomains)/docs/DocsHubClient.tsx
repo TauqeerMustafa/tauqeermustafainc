@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { Search, ArrowRight, Clock, FileText, CheckCircle2, Shield } from "lucide-react";
 
@@ -24,7 +25,10 @@ export default function DocsHubClient() {
       {/* Precision Editorial Hero Section - Generous & Non-Compact */}
       <div className="relative border border-line bg-surface p-10 sm:p-14 lg:p-16 overflow-hidden">
         <MStripe />
-        <div className="mt-8 flex items-center gap-2 font-mono text-[11px] font-bold uppercase tracking-[0.16em] text-m-red">
+        <div className="mt-8 flex items-center gap-3 font-mono text-[11px] font-bold uppercase tracking-[0.16em] text-m-red">
+          <span className="relative flex h-6 w-6 shrink-0 items-center justify-center overflow-hidden border border-line bg-card">
+            <Image src="/logo.png" alt="Tauqeer Mustafa Inc." fill sizes="24px" className="object-cover" priority />
+          </span>
           <span className="h-1.5 w-1.5 bg-m-red" />
           <span>Institutional Knowledge Base // Regulatory & Legal</span>
         </div>

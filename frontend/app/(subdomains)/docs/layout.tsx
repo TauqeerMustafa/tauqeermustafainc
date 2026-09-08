@@ -8,6 +8,10 @@ export const metadata: Metadata = {
   },
   description:
     'Official corporate documentation, legal agreements, compliance standards, and operating playbooks.',
+  icons: {
+    icon: '/logo.png',
+    apple: '/logo.png',
+  },
 };
 
 export default function DocsLayout({

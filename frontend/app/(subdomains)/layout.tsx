@@ -1,5 +1,8 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import ThemeToggle from "@/components/layout/ThemeToggle";
 
 export default function SubdomainsLayout({
@@ -7,6 +10,16 @@ export default function SubdomainsLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const pathname = usePathname();
+  const hasDedicatedLayout =
+    pathname?.startsWith("/billing") ||
+    pathname?.startsWith("/docs") ||
+    pathname?.startsWith("/support");
+
+  if (hasDedicatedLayout) {
+    return <>{children}</>;
+  }
+
   return (
     <div className="min-h-screen flex flex-col bg-canvas text-ink">
       {/* Centered Minimal Header */}

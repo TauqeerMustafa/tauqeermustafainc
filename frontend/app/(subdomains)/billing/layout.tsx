@@ -11,6 +11,10 @@ export const metadata: Metadata = {
   },
   description:
     "Official corporate billing, client payments, contractor payouts, and financial settlement policies.",
+  icons: {
+    icon: "/logo.png",
+    apple: "/logo.png",
+  },
 };
 
 const NAV_ITEMS = [

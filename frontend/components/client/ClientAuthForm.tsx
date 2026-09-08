@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { FormEvent, useState } from "react";
@@ -51,6 +52,9 @@ export default function ClientAuthForm({ mode }: Props) {
       <div className="mx-auto grid max-w-[1200px] gap-14 px-5 py-12 sm:px-8 sm:py-20 lg:grid-cols-[minmax(0,1fr)_430px] lg:items-center lg:px-12">
         <div>
           <div className="flex items-center gap-3 font-mono text-[10px] font-bold uppercase tracking-[0.16em] text-action">
+            <span className="relative flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden border border-ink/15 bg-ink/[0.06]">
+              <Image src="/logo.png" alt="Tauqeer Mustafa Inc." fill sizes="32px" className="object-cover" priority />
+            </span>
             <span className="h-px w-8 bg-action" /> Client portal
           </div>
           <h1 className="mt-6 text-[clamp(3rem,7vw,5.5rem)] font-bold uppercase leading-[0.94] tracking-[-0.04em]">

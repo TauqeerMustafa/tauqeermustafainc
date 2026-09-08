@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useId } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import {
   LifeBuoy,
@@ -302,7 +303,10 @@ export default function SupportHubClient({ initialTab = "overview" }: { initialT
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-14">
       {/* ── Top Hero: Title & Search ── */}
       <div className="text-center max-w-3xl mx-auto mb-10">
-        <div className="inline-flex items-center gap-2 px-3 py-1 bg-action/10 border border-action/20 text-action font-mono text-[11px] font-bold uppercase tracking-[0.16em] mb-4">
+        <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-action/10 border border-action/20 text-action font-mono text-[11px] font-bold uppercase tracking-[0.16em] mb-4">
+          <span className="relative flex h-5 w-5 shrink-0 items-center justify-center overflow-hidden border border-action/30 bg-surface">
+            <Image src="/logo.png" alt="TMI" fill sizes="20px" className="object-cover" priority />
+          </span>
           <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
           <span>Tauqeer Mustafa Inc. &bull; Enterprise Helpdesk</span>
         </div>

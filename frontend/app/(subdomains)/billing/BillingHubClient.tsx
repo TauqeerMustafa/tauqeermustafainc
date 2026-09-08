@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import {
   CreditCard,
@@ -31,9 +32,12 @@ export default function BillingHubClient({ initialTab = "pay" }: { initialTab?: 
       {/* Precision Hero Header */}
       <div className="relative border border-line bg-surface p-8 sm:p-12 overflow-hidden">
         <MStripe />
-        <p className="mt-6 font-mono text-[11px] font-semibold uppercase tracking-[0.14em] text-action">
-          Treasury Operations // Global Settlements
-        </p>
+        <div className="mt-6 flex items-center gap-3 font-mono text-[11px] font-semibold uppercase tracking-[0.14em] text-action">
+          <span className="relative flex h-7 w-7 shrink-0 items-center justify-center overflow-hidden border border-ink/15 bg-ink/[0.06]">
+            <Image src="/logo.png" alt="Tauqeer Mustafa Inc." fill sizes="28px" className="object-cover" priority />
+          </span>
+          <span>Treasury Operations // Global Settlements</span>
+        </div>
         <h1 className="mt-4 text-[32px] sm:text-[42px] lg:text-[48px] font-bold uppercase leading-[1.08] tracking-[-0.02em] text-ink">
           Billing, Payouts & Settlement Hub
         </h1>

@@ -40,6 +40,22 @@ export async function proxy(request: NextRequest) {
   const url = request.nextUrl.clone();
   const hostname = request.headers.get("host") || "";
 
+  // 0. Static assets, logos, icons, fonts, and public files must never be rewritten by subdomain routing
+  if (
+    pathname.startsWith("/_next") ||
+    pathname === "/favicon.ico" ||
+    pathname === "/icon.png" ||
+    pathname === "/logo.png" ||
+    pathname === "/apple-touch-icon.png" ||
+    pathname === "/robots.txt" ||
+    pathname === "/sitemap.xml" ||
+    /\.(?:png|jpg|jpeg|svg|gif|webp|avif|ico|woff|woff2|ttf|eot|css|js|map|webmanifest)$/i.test(pathname)
+  ) {
+    if (!pathname.startsWith("/api/whatsapp")) {
+      return NextResponse.next();
+    }
+  }
+
   // 1. Handle subdomain routing and cross-domain redirects (ignoring API/admin routes)
   if (!pathname.startsWith("/api") && !pathname.startsWith("/admin")) {
     // Redirect main domain paths to subdomains
@@ -245,6 +261,6 @@ export async function proxy(request: NextRequest) {
 
 export const config = {
   matcher: [
-    "/((?!_next/static|_next/image|favicon.ico|sitemap.xml|robots.txt).*)",
+    "/((?!_next/static|_next/image|favicon.ico|icon.png|logo.png|apple-touch-icon.png|sitemap.xml|robots.txt|.*\\.(?:svg|png|jpg|jpeg|gif|webp|avif|ico|bmp|tiff|woff|woff2|ttf|eot|css|js|webmanifest)).*)",
   ],
 };

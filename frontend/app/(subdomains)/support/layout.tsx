@@ -20,6 +20,10 @@ export const metadata: Metadata = {
   },
   description:
     "Official customer support, technical helpdesk, incident escalation, knowledge base, and live system status for Tauqeer Mustafa Inc.",
+  icons: {
+    icon: "/logo.png",
+    apple: "/logo.png",
+  },
 };
 
 const NAV_ITEMS = [

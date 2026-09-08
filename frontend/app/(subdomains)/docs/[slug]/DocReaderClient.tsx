@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import {
   ArrowLeft,
@@ -84,7 +85,10 @@ export default function DocReaderClient({
       {/* Header Banner - Spacious PageHero Style with Red Touch */}
       <div className="border border-line bg-surface p-10 sm:p-14 relative overflow-hidden">
         <MStripe />
-        <div className="mt-6 flex items-center gap-2 font-mono text-[11px] font-bold uppercase tracking-[0.16em] text-m-red">
+        <div className="mt-6 flex items-center gap-3 font-mono text-[11px] font-bold uppercase tracking-[0.16em] text-m-red">
+          <span className="relative flex h-6 w-6 shrink-0 items-center justify-center overflow-hidden border border-line bg-card">
+            <Image src="/logo.png" alt="Tauqeer Mustafa Inc." fill sizes="24px" className="object-cover" priority />
+          </span>
           <span className="h-1.5 w-1.5 bg-m-red" />
           <span>Documentation // {categoryMeta.name}</span>
         </div>

@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, BarChart3, Briefcase, ShieldCheck, Users, type LucideIcon } from "lucide-react";
 
@@ -28,8 +29,13 @@ export default function PortalsPage() {
   return (
     <div className="mx-auto flex w-full max-w-5xl flex-1 flex-col px-5 py-16 sm:px-8 sm:py-24">
       <div className="max-w-2xl">
-        <div className="m-stripe w-16" aria-hidden="true" />
-        <h1 className="mt-6 text-4xl font-bold uppercase tracking-tight text-ink sm:text-5xl">
+        <div className="flex items-center gap-4 mb-6">
+          <span className="relative flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden border border-ink/15 bg-ink/[0.06]">
+            <Image src="/logo.png" alt="Tauqeer Mustafa Inc." fill sizes="48px" className="object-cover" priority />
+          </span>
+          <div className="m-stripe w-16" aria-hidden="true" />
+        </div>
+        <h1 className="text-4xl font-bold uppercase tracking-tight text-ink sm:text-5xl">
           TMI Portals
         </h1>
         <p className="mt-4 text-base leading-7 text-ink-muted">
