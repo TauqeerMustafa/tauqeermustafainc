@@ -44,6 +44,16 @@ export async function proxy(request: NextRequest) {
   if (!pathname.startsWith("/api") && !pathname.startsWith("/admin")) {
     // Redirect main domain paths to subdomains
     if (hostname === "tauqeermustafa.tech" || hostname === "www.tauqeermustafa.tech") {
+      if (pathname === "/billing" || pathname.startsWith("/billing/")) {
+        const newPath = pathname.replace(/^\/billing/, "");
+        return NextResponse.redirect(`https://billing.tauqeermustafa.tech${newPath || "/"}`);
+      }
+      if (pathname === "/pay" || pathname.startsWith("/pay/") || pathname === "/payment" || pathname === "/payments") {
+        return NextResponse.redirect(`https://billing.tauqeermustafa.tech/pay`);
+      }
+      if (pathname === "/payouts" || pathname.startsWith("/payouts/") || pathname === "/payout") {
+        return NextResponse.redirect(`https://billing.tauqeermustafa.tech/payouts`);
+      }
       if (pathname === "/client" || pathname.startsWith("/client/")) {
         const newPath = pathname.replace(/^\/client/, "");
         return NextResponse.redirect(`https://portals.tauqeermustafa.tech${newPath || "/"}`);
@@ -54,6 +64,28 @@ export async function proxy(request: NextRequest) {
       }
     }
 
+    if (hostname.includes("billing.tauqeermustafa.tech")) {
+      if (pathname === "/") {
+        url.pathname = "/billing";
+        return NextResponse.rewrite(url);
+      }
+      if (pathname === "/pay") {
+        url.pathname = "/billing/pay";
+        return NextResponse.rewrite(url);
+      }
+      if (pathname === "/payouts" || pathname === "/payout") {
+        url.pathname = "/billing/payouts";
+        return NextResponse.rewrite(url);
+      }
+      if (pathname === "/policies" || pathname === "/payment-policy" || pathname === "/refund-policy") {
+        url.pathname = "/billing/policies";
+        return NextResponse.rewrite(url);
+      }
+      if (!pathname.startsWith("/billing")) {
+        url.pathname = `/billing${pathname}`;
+        return NextResponse.rewrite(url);
+      }
+    }
 
     if (hostname.includes("portals.tauqeermustafa.tech")) {
       if (pathname === "/") {
