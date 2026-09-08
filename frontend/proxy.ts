@@ -44,15 +44,14 @@ export async function proxy(request: NextRequest) {
   if (!pathname.startsWith("/api") && !pathname.startsWith("/admin")) {
     // Redirect main domain paths to subdomains
     if (hostname === "tauqeermustafa.tech" || hostname === "www.tauqeermustafa.tech") {
-      if (pathname === "/billing" || pathname.startsWith("/billing/")) {
-        const newPath = pathname.replace(/^\/billing/, "");
-        return NextResponse.redirect(`https://billing.tauqeermustafa.tech${newPath || "/"}`);
+      // On main domain, route /pay and /payouts to the billing suite
+      if (pathname === "/pay" || pathname === "/payment" || pathname === "/payments") {
+        url.pathname = "/billing/pay";
+        return NextResponse.rewrite(url);
       }
-      if (pathname === "/pay" || pathname.startsWith("/pay/") || pathname === "/payment" || pathname === "/payments") {
-        return NextResponse.redirect(`https://billing.tauqeermustafa.tech/pay`);
-      }
-      if (pathname === "/payouts" || pathname.startsWith("/payouts/") || pathname === "/payout") {
-        return NextResponse.redirect(`https://billing.tauqeermustafa.tech/payouts`);
+      if (pathname === "/payouts" || pathname === "/payout") {
+        url.pathname = "/billing/payouts";
+        return NextResponse.rewrite(url);
       }
       if (pathname === "/client" || pathname.startsWith("/client/")) {
         const newPath = pathname.replace(/^\/client/, "");
