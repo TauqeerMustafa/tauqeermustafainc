@@ -231,56 +231,46 @@ export default function AdminDashboardPage() {
     description: string,
     subOptions: Array<{ label: string; href: string; icon: LucideIcon; count?: number; countTone?: "amber" | "blue" }>,
   ) => (
-    <div className="relative overflow-hidden rounded-[18px] border border-adm-border bg-adm-surface p-5 sm:p-6">
-      <div className="flex flex-col gap-5">
-        <div>
-          <div className="inline-flex items-center gap-1.5 rounded-full border border-adm-border bg-adm-surface-2 px-3 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-adm-text-3">
-            <span className="h-1.5 w-1.5 rounded-full bg-adm-blue shrink-0" />
-            <span>{badge}</span>
-          </div>
-          <h2 className="mt-2 text-xl font-semibold tracking-tight text-adm-text sm:text-2xl">
-            {title}
-          </h2>
-          <p className="mt-1 max-w-2xl text-xs font-normal leading-relaxed text-adm-text-3 sm:text-sm">
-            {description}
-          </p>
+    <div className="flex flex-col gap-3 border-b border-adm-border pb-5">
+      <div className="flex flex-col gap-1">
+        <div className="inline-flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wider text-adm-blue">
+          <span className="h-1.5 w-1.5 rounded-full bg-adm-blue shrink-0" />
+          <span>{badge}</span>
         </div>
+        <h2 className="text-xl font-semibold tracking-tight text-adm-text sm:text-2xl">
+          {title}
+        </h2>
+        <p className="max-w-2xl text-xs text-adm-text-3 sm:text-sm">
+          {description}
+        </p>
+      </div>
 
-        <div className="border-t border-adm-border pt-4">
-          <p className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-adm-text-3">
-            {t("Related Options & Tools")}
-          </p>
-          <div className="flex flex-wrap items-center gap-2">
-            {subOptions.map((opt) => {
-              const Icon = opt.icon;
-              return (
-                <Link
-                  key={opt.href}
-                  href={opt.href}
-                  className="group inline-flex items-center gap-2 rounded-full border border-adm-border bg-adm-surface px-3.5 py-1.5 text-xs font-medium text-adm-text-2 transition hover:border-adm-border-2 hover:bg-adm-surface-2 hover:text-adm-text active:scale-95"
+      <div className="flex flex-wrap items-center gap-2 pt-1">
+        {subOptions.map((opt) => {
+          const Icon = opt.icon;
+          return (
+            <Link
+              key={opt.href}
+              href={opt.href}
+              className="inline-flex items-center gap-1.5 rounded-full border border-adm-border bg-adm-surface px-3 py-1.5 text-xs font-medium text-adm-text-2 transition hover:border-adm-border-2 hover:bg-adm-surface-2 hover:text-adm-text active:scale-95"
+            >
+              <Icon size={13} className="text-adm-text-3" />
+              <span>{opt.label}</span>
+              {typeof opt.count === "number" && opt.count > 0 && (
+                <span
+                  className={`inline-flex h-4 min-w-4 items-center justify-center rounded-full px-1 text-[10px] font-medium tabular-nums ${
+                    opt.countTone === "amber"
+                      ? "border border-adm-amber/30 bg-adm-amber-light text-adm-amber"
+                      : "border border-adm-border bg-adm-surface-2 text-adm-text-3"
+                  }`}
                 >
-                  <Icon size={14} className="text-adm-text-3 transition-colors group-hover:text-adm-blue shrink-0" />
-                  <span>{opt.label}</span>
-                  {typeof opt.count === "number" && opt.count > 0 && (
-                    <span
-                      className={`inline-flex h-4 min-w-4 items-center justify-center rounded-full px-1 text-[10px] font-medium tabular-nums ${
-                        opt.countTone === "amber"
-                          ? "border border-adm-amber/30 bg-adm-amber-light text-adm-amber"
-                          : "border border-adm-border bg-adm-surface-2 text-adm-text-3"
-                      }`}
-                    >
-                      {opt.count}
-                    </span>
-                  )}
-                  <ChevronRight
-                    size={12}
-                    className="text-adm-text-3 opacity-60 transition-transform group-hover:translate-x-0.5 group-hover:text-adm-blue group-hover:opacity-100"
-                  />
-                </Link>
-              );
-            })}
-          </div>
-        </div>
+                  {opt.count}
+                </span>
+              )}
+              <ChevronRight size={12} className="text-adm-text-3 opacity-60" />
+            </Link>
+          );
+        })}
       </div>
     </div>
   );
