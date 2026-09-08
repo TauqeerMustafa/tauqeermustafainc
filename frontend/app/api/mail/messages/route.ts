@@ -10,6 +10,9 @@ export async function GET(request: Request) {
     const mailbox = searchParams.get("mailbox");
     const state = searchParams.get("state");
     const cursor = searchParams.get("cursor") || undefined;
+    const limitParam = searchParams.get("limit");
+    const limit = limitParam ? Math.min(Math.max(parseInt(limitParam, 10) || 100, 1), 500) : 100;
+    const order = searchParams.get("order") || undefined;
 
     if (!mailbox) {
       return NextResponse.json({ error: "Missing mailbox id" }, { status: 400 });
@@ -21,11 +24,24 @@ export async function GET(request: Request) {
     const data = await fetchOpenEmailMessages(mailbox, {
       state: state === "expunged" ? "expunged" : undefined,
       cursor,
+      limit,
+      order,
     });
 
+    const rawList = Array.isArray(data)
+      ? data
+      : Array.isArray(data?.messages)
+      ? data.messages
+      : Array.isArray(data?.data)
+      ? data.data
+      : Array.isArray(data?.items)
+      ? data.items
+      : [];
+    const nextCursor = data?.nextCursor ?? data?.cursor ?? data?.next_cursor ?? null;
+
     return NextResponse.json({
-      messages: data.messages || [],
-      nextCursor: data.nextCursor ?? null,
+      messages: rawList,
+      nextCursor,
     });
   } catch (error: any) {
     return NextResponse.json(
