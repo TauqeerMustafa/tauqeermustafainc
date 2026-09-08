@@ -188,7 +188,7 @@ export default function SupportSubdomainLayout({
                 SLA Matrix & FAQ
               </Link>
               <span className="text-ink/20">|</span>
-              <a href="https://docs.tauqeermustafa.tech/legal/sla" className="hover:text-action transition">
+              <a href="https://docs.tauqeermustafa.tech/sla" className="hover:text-action transition">
                 Corporate SLA Policy
               </a>
             </div>

@@ -66,14 +66,20 @@ export async function proxy(request: NextRequest) {
         return NextResponse.redirect(`https://docs.tauqeermustafa.tech${docPath || "/"}`);
       }
 
-      // On main domain, route /pay and /payouts to the billing suite
+      // On main domain, redirect billing, payments, and payouts directly to billing subdomain
       if (pathname === "/pay" || pathname === "/payment" || pathname === "/payments") {
-        url.pathname = "/billing/pay";
-        return NextResponse.rewrite(url);
+        return NextResponse.redirect("https://billing.tauqeermustafa.tech/pay");
       }
       if (pathname === "/payouts" || pathname === "/payout") {
-        url.pathname = "/billing/payouts";
-        return NextResponse.rewrite(url);
+        return NextResponse.redirect("https://billing.tauqeermustafa.tech/payouts");
+      }
+      if (pathname === "/billing" || pathname.startsWith("/billing/")) {
+        const billingPath = pathname.replace(/^\/billing/, "");
+        return NextResponse.redirect(`https://billing.tauqeermustafa.tech${billingPath || "/"}`);
+      }
+      if (pathname === "/support" || pathname.startsWith("/support/")) {
+        const supportPath = pathname.replace(/^\/support/, "");
+        return NextResponse.redirect(`https://support.tauqeermustafa.tech${supportPath || "/"}`);
       }
       if (pathname === "/client" || pathname.startsWith("/client/")) {
         const newPath = pathname.replace(/^\/client/, "");
@@ -85,8 +91,7 @@ export async function proxy(request: NextRequest) {
       }
       if (pathname === "/help" || pathname.startsWith("/help/")) {
         const newPath = pathname.replace(/^\/help/, "");
-        url.pathname = `/support${newPath || ""}`;
-        return NextResponse.rewrite(url);
+        return NextResponse.redirect(`https://support.tauqeermustafa.tech${newPath || "/"}`);
       }
     }
 
@@ -110,6 +115,19 @@ export async function proxy(request: NextRequest) {
     if (pathname.startsWith("/legal/")) {
       const docSlug = pathname.replace(/^\/legal\//, "");
       url.pathname = `/docs/${docSlug}`;
+      return NextResponse.rewrite(url);
+    }
+    if (pathname === "/pay" || pathname === "/payment" || pathname === "/payments") {
+      url.pathname = "/billing/pay";
+      return NextResponse.rewrite(url);
+    }
+    if (pathname === "/payouts" || pathname === "/payout") {
+      url.pathname = "/billing/payouts";
+      return NextResponse.rewrite(url);
+    }
+    if (pathname === "/help" || pathname.startsWith("/help/")) {
+      const newPath = pathname.replace(/^\/help/, "");
+      url.pathname = `/support${newPath || ""}`;
       return NextResponse.rewrite(url);
     }
 

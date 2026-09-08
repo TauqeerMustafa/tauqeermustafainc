@@ -42,9 +42,9 @@ export default function CookieConsent() {
         <p className="text-sm leading-6 text-ink">
           We use essential cookies to run this site and optional cookies to understand how it&apos;s used.
           Read our{" "}
-          <Link href="/cookies" className="font-semibold text-ink underline underline-offset-2">
+          <a href="https://docs.tauqeermustafa.tech/cookies" className="font-semibold text-ink underline underline-offset-2">
             Cookie Policy
-          </Link>{" "}
+          </a>{" "}
           to learn more.
         </p>
         <div className="flex w-full shrink-0 gap-3 sm:w-auto">

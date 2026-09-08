@@ -49,12 +49,12 @@ export default function SubdomainsLayout({
           <div className="flex items-center gap-4">
             <span>&copy; {new Date().getFullYear()} Tauqeer Mustafa Inc.</span>
             <span className="text-ink/20">|</span>
-            <Link 
-              href="/support" 
+            <a 
+              href="https://support.tauqeermustafa.tech" 
               className="hover:text-ink transition-colors font-mono text-xs"
             >
               Support & Helpdesk
-            </Link>
+            </a>
           </div>
         </div>
         <div className="m-stripe" aria-hidden="true" />

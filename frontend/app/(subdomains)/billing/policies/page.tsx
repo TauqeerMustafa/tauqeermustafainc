@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowLeft, ShieldCheck } from "lucide-react";
+import { ArrowLeft, ArrowRight, ShieldCheck } from "lucide-react";
 import BankDetailsCard from "@/components/payment/BankDetailsCard";
 
 export const metadata: Metadata = {
@@ -120,6 +120,19 @@ export default function SubdomainPoliciesPage() {
           <p className="mt-2 text-xs sm:text-sm text-ink-muted leading-relaxed">
             All legitimate invoices originate solely from our verified domain <code className="font-mono font-bold text-action">@tauqeermustafa.tech</code>. Corporate bank accounts are exclusively registered under <strong>Tauqeer Mustafa Inc.</strong> or <strong>Tauqeer Mustafa</strong>. Our employees will never request wire transfers to unlisted personal accounts or mobile wallets over chat apps.
           </p>
+        </div>
+
+        <div className="border-t border-line pt-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <p className="text-xs font-mono text-ink-muted">
+            Looking for complete institutional legal agreements & SLAs?
+          </p>
+          <a
+            href="https://docs.tauqeermustafa.tech/payment-policy"
+            className="inline-flex items-center gap-1.5 font-mono text-xs font-bold uppercase tracking-wider text-action hover:underline"
+          >
+            <span>Master Payment Policy in Docs</span>
+            <ArrowRight size={13} />
+          </a>
         </div>
       </article>
 

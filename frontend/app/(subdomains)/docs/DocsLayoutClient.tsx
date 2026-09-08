@@ -102,12 +102,12 @@ export default function DocsLayoutClient({ children }: { children: React.ReactNo
               <Search size={15} />
             </button>
 
-            <Link
-              href="/billing"
+            <a
+              href="https://billing.tauqeermustafa.tech"
               className="hidden sm:inline-flex items-center gap-1 font-mono text-[11px] font-semibold uppercase tracking-[0.1em] text-ink/60 hover:text-ink transition px-3 py-1.5 border border-line bg-surface"
             >
               Billing
-            </Link>
+            </a>
 
             <a
               href="https://tauqeermustafa.tech"

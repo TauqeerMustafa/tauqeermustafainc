@@ -64,12 +64,12 @@ export default function BillingSubdomainLayout({
           </div>
 
           <div className="flex items-center gap-3">
-            <Link
-              href="/docs"
+            <a
+              href="https://docs.tauqeermustafa.tech"
               className="hidden sm:inline-flex items-center gap-1 font-mono text-[11px] font-semibold uppercase tracking-[0.1em] text-ink/60 hover:text-ink transition px-3 py-1.5 border border-line bg-surface"
             >
               Docs
-            </Link>
+            </a>
 
             <a
               href="https://tauqeermustafa.tech"
@@ -112,12 +112,12 @@ export default function BillingSubdomainLayout({
           </div>
 
           <div className="flex items-center gap-6">
-            <Link href="/docs/payment-policy" className="hover:text-action uppercase">
+            <a href="https://docs.tauqeermustafa.tech/payment-policy" className="hover:text-action uppercase">
               Payment Policy
-            </Link>
-            <Link href="/docs/refund-policy" className="hover:text-action uppercase">
+            </a>
+            <a href="https://docs.tauqeermustafa.tech/refund-policy" className="hover:text-action uppercase">
               Refund Terms
-            </Link>
+            </a>
             <a href="mailto:billing@tauqeermustafa.tech" className="hover:text-action uppercase">
               billing@tauqeermustafa.tech
             </a>

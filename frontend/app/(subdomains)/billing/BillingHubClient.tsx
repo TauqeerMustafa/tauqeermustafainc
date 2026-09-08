@@ -278,13 +278,13 @@ export default function BillingHubClient({ initialTab = "pay" }: { initialTab?: 
               <p className="text-xs font-mono text-ink-muted">
                 Need the complete legal agreement?
               </p>
-              <Link
-                href="/docs/payment-policy"
+              <a
+                href="https://docs.tauqeermustafa.tech/payment-policy"
                 className="inline-flex items-center gap-1.5 font-mono text-xs font-bold uppercase tracking-wider text-action hover:underline"
               >
                 <span>Read Full Payment Policy in Docs</span>
                 <ArrowRight size={13} />
-              </Link>
+              </a>
             </div>
           </div>
 

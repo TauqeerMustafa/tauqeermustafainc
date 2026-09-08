@@ -1,11 +1,12 @@
 export const navigation = [
   { name: "Home", href: "/" },
+  { name: "About", href: "/about" },
   { name: "Services", href: "/services" },
   { name: "Portfolio", href: "/portfolio" },
-  { name: "About", href: "/about" },
-  { name: "Blog", href: "/blog" },
   { name: "Careers", href: "/careers" },
-  { name: "Support", href: "/support" },
+  { name: "Blog", href: "/blog" },
+  { name: "Community", href: "https://community.tauqeermustafa.tech" },
+  { name: "Portals", href: "https://portals.tauqeermustafa.tech" },
   { name: "Contact", href: "/contact" },
 ];
 
@@ -26,8 +27,8 @@ export const footerLinks = {
     { name: "Portfolio", href: "/portfolio" },
     { name: "Blog", href: "/blog" },
     { name: "Careers", href: "/careers" },
-    { name: "Billing & Treasury", href: "/billing" },
-    { name: "Support & Helpdesk", href: "/support" },
+    { name: "Billing & Treasury", href: "https://billing.tauqeermustafa.tech" },
+    { name: "Support & Helpdesk", href: "https://support.tauqeermustafa.tech" },
     { name: "Contact", href: "/contact" },
   ],
   legal: [
@@ -46,7 +47,7 @@ export const footerLinks = {
     { name: "Refund Policy", href: "https://docs.tauqeermustafa.tech/refund-policy" },
     { name: "Return Policy", href: "https://docs.tauqeermustafa.tech/return-policy" },
     { name: "Product Policy", href: "https://docs.tauqeermustafa.tech/product-policy" },
-    { name: "Accessibility", href: "https://docs.tauqeermustafa.tech/accessibility" },
+    { name: "Service Level Agreement (SLA)", href: "https://docs.tauqeermustafa.tech/sla" },
   ],
 };
 
