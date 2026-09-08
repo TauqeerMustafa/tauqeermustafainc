@@ -9,7 +9,6 @@ import {
   Building2,
   Lock,
   ArrowRight,
-  Zap,
   HelpCircle,
   FileCheck,
   CheckCircle2,
@@ -20,6 +19,7 @@ import BankDetailsCard from "@/components/payment/BankDetailsCard";
 import PayoutTracker from "@/components/payouts/PayoutTracker";
 import PayoutCalculator from "@/components/payouts/PayoutCalculator";
 import PayoutRequestForm from "@/components/payouts/PayoutRequestForm";
+import { Badge, BadgeMuted, MStripe } from "@/components/home/ui";
 
 type ActiveTab = "pay" | "payouts" | "policies";
 
@@ -27,47 +27,59 @@ export default function BillingHubClient({ initialTab = "pay" }: { initialTab?: 
   const [tab, setTab] = useState<ActiveTab>(initialTab);
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-14">
-      {/* Eyebrow & Headline */}
-      <div className="text-center max-w-3xl mx-auto mb-10">
-        <span className="font-mono text-[11px] font-bold uppercase tracking-[0.16em] text-action">
-          Tauqeer Mustafa Inc. � Treasury Operations
-        </span>
-        <h1 className="mt-2 text-3xl sm:text-4xl font-bold uppercase tracking-tight text-ink">
+    <div className="mx-auto max-w-[1200px] px-5 sm:px-6 py-10 sm:py-14 space-y-12">
+      {/* Precision Hero Header */}
+      <div className="relative border border-line bg-surface p-8 sm:p-12 overflow-hidden">
+        <MStripe />
+        <p className="mt-6 font-mono text-[11px] font-semibold uppercase tracking-[0.14em] text-action">
+          Treasury Operations // Global Settlements
+        </p>
+        <h1 className="mt-4 text-[32px] sm:text-[42px] lg:text-[48px] font-bold uppercase leading-[1.08] tracking-[-0.02em] text-ink">
           Billing, Payouts & Settlement Hub
         </h1>
-        <p className="mt-3 text-sm text-ink-muted">
-          Decoupled corporate financial operations: settle invoices, track contractor disbursements, or review institutional payment terms.
+        <p className="mt-4 max-w-2xl text-[16px] sm:text-[17px] font-light leading-[1.6] text-ink-muted">
+          Decoupled corporate financial operations: settle invoices, track contractor disbursements, or review institutional commercial policies.
         </p>
+        <div className="mt-6 flex flex-wrap gap-2">
+          <Badge>256-Bit Encrypted</Badge>
+          <BadgeMuted>Meezan Bank & Raast Supported</BadgeMuted>
+          <BadgeMuted>Multi-Currency Settlement</BadgeMuted>
+        </div>
       </div>
 
-      {/* 3 Primary Navigation Cards / Tabs */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-10">
+      {/* 3 Primary Navigation Cards / Tabs - Precision BMW M Plates */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {/* Tab 1: Pay */}
         <button
           type="button"
           onClick={() => setTab("pay")}
-          className={`flex flex-col p-6 text-left transition border ${
+          className={`group relative p-6 text-left transition border cursor-pointer ${
             tab === "pay"
-              ? "border-action bg-surface ring-2 ring-action"
-              : "border-line-2 bg-card hover:border-line hover:bg-surface"
+              ? "border-action bg-surface"
+              : "border-line bg-card hover:border-action/50 hover:bg-surface"
           }`}
         >
+          <span
+            className={`absolute left-0 top-0 h-0.5 w-full origin-left bg-action transition-transform duration-500 ${
+              tab === "pay" ? "scale-x-100" : "scale-x-0 group-hover:scale-x-100"
+            }`}
+            aria-hidden
+          />
           <div className="flex items-center justify-between w-full">
-            <div className="flex h-10 w-10 items-center justify-center bg-action/10 text-action border border-action/30">
-              <CreditCard size={20} />
+            <div className="flex h-9 w-9 items-center justify-center border border-line bg-surface text-action">
+              <CreditCard size={18} />
             </div>
             <span className="font-mono text-[10px] font-bold uppercase tracking-wider text-action">
-              01 � Invoicing
+              01 // Invoicing
             </span>
           </div>
-          <h2 className="mt-4 text-base font-bold uppercase text-ink">Make a Payment</h2>
-          <p className="mt-1 text-xs text-ink-muted leading-relaxed">
-            Pay by invoice number or deposit custom milestones via Card, Meezan Bank, or Raast.
+          <h2 className="mt-4 text-[16px] font-bold uppercase text-ink">Make a Payment</h2>
+          <p className="mt-2 text-[13px] font-light leading-[1.6] text-ink-muted">
+            Pay by invoice number or deposit custom milestones via Card, Meezan Bank, Raast, or Wise.
           </p>
-          <div className="mt-4 flex items-center gap-1 font-mono text-xs font-bold text-action uppercase">
+          <div className="mt-5 flex items-center gap-1 font-mono text-[11px] font-bold text-action uppercase tracking-wider">
             <span>{tab === "pay" ? "Active View" : "Open Terminal"}</span>
-            <ArrowRight size={13} />
+            <ArrowRight size={12} className="transition-transform group-hover:translate-x-0.5" />
           </div>
         </button>
 
@@ -75,27 +87,33 @@ export default function BillingHubClient({ initialTab = "pay" }: { initialTab?: 
         <button
           type="button"
           onClick={() => setTab("payouts")}
-          className={`flex flex-col p-6 text-left transition border ${
+          className={`group relative p-6 text-left transition border cursor-pointer ${
             tab === "payouts"
-              ? "border-action bg-surface ring-2 ring-action"
-              : "border-line-2 bg-card hover:border-line hover:bg-surface"
+              ? "border-action bg-surface"
+              : "border-line bg-card hover:border-action/50 hover:bg-surface"
           }`}
         >
+          <span
+            className={`absolute left-0 top-0 h-0.5 w-full origin-left bg-action transition-transform duration-500 ${
+              tab === "payouts" ? "scale-x-100" : "scale-x-0 group-hover:scale-x-100"
+            }`}
+            aria-hidden
+          />
           <div className="flex items-center justify-between w-full">
-            <div className="flex h-10 w-10 items-center justify-center bg-action/10 text-action border border-action/30">
-              <Banknote size={20} />
+            <div className="flex h-9 w-9 items-center justify-center border border-line bg-surface text-action">
+              <Banknote size={18} />
             </div>
             <span className="font-mono text-[10px] font-bold uppercase tracking-wider text-action">
-              02 � Disbursements
+              02 // Disbursements
             </span>
           </div>
-          <h2 className="mt-4 text-base font-bold uppercase text-ink">Payouts & Tracking</h2>
-          <p className="mt-1 text-xs text-ink-muted leading-relaxed">
+          <h2 className="mt-4 text-[16px] font-bold uppercase text-ink">Payouts & Tracking</h2>
+          <p className="mt-2 text-[13px] font-light leading-[1.6] text-ink-muted">
             Track live bank clearance, model net proceeds, and submit contractor payout requests.
           </p>
-          <div className="mt-4 flex items-center gap-1 font-mono text-xs font-bold text-action uppercase">
+          <div className="mt-5 flex items-center gap-1 font-mono text-[11px] font-bold text-action uppercase tracking-wider">
             <span>{tab === "payouts" ? "Active View" : "Open Payouts"}</span>
-            <ArrowRight size={13} />
+            <ArrowRight size={12} className="transition-transform group-hover:translate-x-0.5" />
           </div>
         </button>
 
@@ -103,175 +121,176 @@ export default function BillingHubClient({ initialTab = "pay" }: { initialTab?: 
         <button
           type="button"
           onClick={() => setTab("policies")}
-          className={`flex flex-col p-6 text-left transition border ${
+          className={`group relative p-6 text-left transition border cursor-pointer ${
             tab === "policies"
-              ? "border-action bg-surface ring-2 ring-action"
-              : "border-line-2 bg-card hover:border-line hover:bg-surface"
+              ? "border-action bg-surface"
+              : "border-line bg-card hover:border-action/50 hover:bg-surface"
           }`}
         >
+          <span
+            className={`absolute left-0 top-0 h-0.5 w-full origin-left bg-action transition-transform duration-500 ${
+              tab === "policies" ? "scale-x-100" : "scale-x-0 group-hover:scale-x-100"
+            }`}
+            aria-hidden
+          />
           <div className="flex items-center justify-between w-full">
-            <div className="flex h-10 w-10 items-center justify-center bg-action/10 text-action border border-action/30">
-              <ShieldCheck size={20} />
+            <div className="flex h-9 w-9 items-center justify-center border border-line bg-surface text-action">
+              <ShieldCheck size={18} />
             </div>
             <span className="font-mono text-[10px] font-bold uppercase tracking-wider text-action">
-              03 � Governance
+              03 // Commercial Terms
             </span>
           </div>
-          <h2 className="mt-4 text-base font-bold uppercase text-ink">Payment Policies</h2>
-          <p className="mt-1 text-xs text-ink-muted leading-relaxed">
-            Transparent milestones, 7-day net terms, refund criteria, and verified bank credentials.
+          <h2 className="mt-4 text-[16px] font-bold uppercase text-ink">Payment Policies</h2>
+          <p className="mt-2 text-[13px] font-light leading-[1.6] text-ink-muted">
+            Review official milestone schedules, refund terms, wire clearance rails, and corporate credentials.
           </p>
-          <div className="mt-4 flex items-center gap-1 font-mono text-xs font-bold text-action uppercase">
-            <span>{tab === "policies" ? "Active View" : "View Policies"}</span>
-            <ArrowRight size={13} />
+          <div className="mt-5 flex items-center gap-1 font-mono text-[11px] font-bold text-action uppercase tracking-wider">
+            <span>{tab === "policies" ? "Active View" : "Review Terms"}</span>
+            <ArrowRight size={12} className="transition-transform group-hover:translate-x-0.5" />
           </div>
         </button>
       </div>
 
-      {/* Dynamic Tab Body */}
-      <div className="transition-all duration-200">
-        {/* TAB 1: Make a Payment */}
-        {tab === "pay" && (
-          <div className="max-w-3xl mx-auto space-y-6">
-            <div className="border border-line-2 bg-surface p-1">
+      {/* Tab 1: Payment Terminal View */}
+      {tab === "pay" && (
+        <div className="space-y-10 animate-in fade-in duration-200">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+            <div className="lg:col-span-8">
               <PaymentCheckout />
             </div>
 
-            <div className="text-center text-xs text-ink-muted font-mono pt-4">
-              <span>Direct URL: </span>
-              <Link href="/billing/pay" className="text-action hover:underline font-bold">
-                billing.tauqeermustafa.tech/pay
-              </Link>
+            <div className="lg:col-span-4 space-y-6">
+              <BankDetailsCard />
+
+              <div className="border border-line bg-surface p-6 font-mono text-xs space-y-4">
+                <div className="flex items-center gap-2 text-action font-bold uppercase">
+                  <Lock size={14} />
+                  <span>Institutional Assurance</span>
+                </div>
+                <ul className="space-y-2 text-ink-muted font-light leading-relaxed">
+                  <li>// Direct bank reconciliation on all PKR Raast transfers.</li>
+                  <li>// Zero currency markup on USD wire settlements.</li>
+                  <li>// Automated tax invoices generated instantly upon clearance.</li>
+                </ul>
+                <div className="pt-3 border-t border-line">
+                  <a
+                    href="mailto:billing@tauqeermustafa.tech"
+                    className="text-action hover:underline font-bold"
+                  >
+                    Contact Treasury Desk &rarr;
+                  </a>
+                </div>
+              </div>
             </div>
           </div>
-        )}
+        </div>
+      )}
 
-        {/* TAB 2: Payouts & Disbursements */}
-        {tab === "payouts" && (
-          <div className="space-y-12 max-w-5xl mx-auto">
-            {/* Live Payout Tracker */}
-            <div className="border border-line-2 bg-surface p-6 sm:p-8">
-              <div className="mb-6 border-b border-line pb-4">
-                <span className="font-mono text-[11px] font-semibold uppercase tracking-[0.14em] text-action">
-                  Real-Time Verification
-                </span>
-                <h3 className="text-xl font-bold uppercase text-ink mt-1">
-                  Live Disbursement Status
-                </h3>
-                <p className="text-xs text-ink-muted">
-                  Look up your payout ID or invoice reference to inspect bank RRN and clearance status.
-                </p>
-              </div>
-              <PayoutTracker />
+      {/* Tab 2: Payouts & Disbursements View */}
+      {tab === "payouts" && (
+        <div className="space-y-10 animate-in fade-in duration-200">
+          <div className="border border-line bg-surface p-6 sm:p-8">
+            <div className="mb-6 border-b border-line pb-4">
+              <span className="font-mono text-[11px] font-semibold uppercase tracking-[0.14em] text-action">
+                Real-Time Verification
+              </span>
+              <h3 className="text-xl font-bold uppercase text-ink mt-1">
+                Disbursement Status Inspection
+              </h3>
+              <p className="text-xs text-ink-muted font-light mt-1">
+                Look up your payout ID or invoice reference to inspect bank RRN and clearance status.
+              </p>
             </div>
+            <PayoutTracker />
+          </div>
 
-            {/* Payout Calculator */}
-            <div className="border border-line-2 bg-surface p-6 sm:p-8">
-              <div className="mb-6 border-b border-line pb-4">
-                <span className="font-mono text-[11px] font-semibold uppercase tracking-[0.14em] text-action">
-                  Transparent Calculations
-                </span>
-                <h3 className="text-xl font-bold uppercase text-ink mt-1">
-                  Net Settlement Calculator
-                </h3>
-                <p className="text-xs text-ink-muted">
-                  Calculate net proceeds across local Raast/1LINK (0% fee) and international Wise rails.
-                </p>
-              </div>
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+            <div className="lg:col-span-6">
               <PayoutCalculator />
             </div>
-
-            {/* Payout Request Form */}
-            <div className="border border-line-2 bg-surface p-6 sm:p-8">
-              <div className="mb-6 border-b border-line pb-4">
-                <span className="font-mono text-[11px] font-semibold uppercase tracking-[0.14em] text-action">
-                  Invoice Submission
-                </span>
-                <h3 className="text-xl font-bold uppercase text-ink mt-1">
-                  Submit Disbursement Request
-                </h3>
-                <p className="text-xs text-ink-muted">
-                  Contract deliverables approved? Submit your milestone invoice to the treasury queue.
-                </p>
-              </div>
+            <div className="lg:col-span-6">
               <PayoutRequestForm />
             </div>
-
-            <div className="text-center text-xs text-ink-muted font-mono pt-2">
-              <span>Direct URL: </span>
-              <Link href="/billing/payouts" className="text-action hover:underline font-bold">
-                billing.tauqeermustafa.tech/payouts
-              </Link>
-            </div>
           </div>
-        )}
+        </div>
+      )}
 
-        {/* TAB 3: Payment Policies & Terms */}
-        {tab === "policies" && (
-          <div className="max-w-4xl mx-auto space-y-8">
-            {/* Policy Summary Card */}
-            <div className="border border-line-2 bg-surface p-6 sm:p-8">
+      {/* Tab 3: Payment Policies & Legal Breakdown */}
+      {tab === "policies" && (
+        <div className="space-y-10 animate-in fade-in duration-200">
+          <div className="border border-line bg-canvas p-8 sm:p-12">
+            <div className="max-w-3xl">
               <span className="font-mono text-[11px] font-semibold uppercase tracking-[0.14em] text-action">
-                Official Commercial Terms
+                Official Policy Registry
               </span>
-              <h3 className="text-2xl font-bold uppercase text-ink mt-1">
-                Tauqeer Mustafa Inc. Payment Policy
+              <h3 className="text-2xl sm:text-3xl font-bold uppercase text-ink mt-2">
+                Corporate Payment & Settlement Terms
               </h3>
-              <p className="mt-2 text-xs font-mono text-ink-muted">
-                Last updated: August 2026 � Applies to all client engagements and engineering retainers
+              <p className="text-sm text-ink-muted font-light mt-2 leading-relaxed">
+                Summary of our commercial terms. For the full legal text, visit the documentation portal.
               </p>
+            </div>
 
-              <div className="mt-8 space-y-6 text-sm text-ink leading-relaxed">
-                <div className="border-t border-line pt-4">
-                  <h4 className="font-bold uppercase text-ink text-base">
-                    1. Invoicing & Milestone Schedules
-                  </h4>
-                  <p className="mt-2 text-ink-muted text-xs sm:text-sm">
-                    Fixed-scope projects require an advance deposit (typically 30�50%) to reserve delivery capacity, followed by milestone settlements upon deliverable demonstration. Retainers and support agreements are billed in advance on the 1st of each service month. Standard payment terms are <strong>7 calendar days</strong> from invoice issue.
-                  </p>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
+              <div className="border border-line bg-surface p-6 space-y-3">
+                <div className="flex items-center gap-2 font-mono text-xs font-bold uppercase text-action">
+                  <FileCheck size={16} />
+                  <span>Standard Milestone Terms</span>
                 </div>
+                <p className="text-xs text-ink-muted font-light leading-relaxed">
+                  Project deliverables operate on structured milestone tranches (typically 50% deposit, 25% integration, 25% final sign-off). Invoices are payable within 7 business days.
+                </p>
+              </div>
 
-                <div className="border-t border-line pt-4">
-                  <h4 className="font-bold uppercase text-ink text-base">
-                    2. Accepted Settlement Rails
-                  </h4>
-                  <p className="mt-2 text-ink-muted text-xs sm:text-sm">
-                    We accept electronic credit/debit card payments (Visa, Mastercard, Amex) tokenized via Level 1 PCI-DSS gateways, direct domestic bank transfers via Meezan Bank and 1LINK, instant Raast transfers, and cross-border Wise/SWIFT multi-currency wires. Cash and cryptocurrency are not accepted.
-                  </p>
+              <div className="border border-line bg-surface p-6 space-y-3">
+                <div className="flex items-center gap-2 font-mono text-xs font-bold uppercase text-action">
+                  <Building2 size={16} />
+                  <span>Accepted Settlement Rails</span>
                 </div>
+                <p className="text-xs text-ink-muted font-light leading-relaxed">
+                  We accept domestic bank transfers via Meezan Bank IBAN & Raast, international USD wire transfers, major credit cards via Stripe, and Wise multi-currency routing.
+                </p>
+              </div>
 
-                <div className="border-t border-line pt-4">
-                  <h4 className="font-bold uppercase text-ink text-base">
-                    3. Refund Policy & Project Pauses
-                  </h4>
-                  <p className="mt-2 text-ink-muted text-xs sm:text-sm">
-                    Work performed up to an approved milestone signoff is non-refundable. If an engagement is cancelled prior to work commencement, advance payments are refunded minus payment gateway transmission costs. In the event of scope disputes, our billing team reviews timesheets and staging artifacts within 5 business days.
-                  </p>
+              <div className="border border-line bg-surface p-6 space-y-3">
+                <div className="flex items-center gap-2 font-mono text-xs font-bold uppercase text-action">
+                  <CheckCircle2 size={16} />
+                  <span>Refund & Dispute Protocol</span>
                 </div>
+                <p className="text-xs text-ink-muted font-light leading-relaxed">
+                  Advance deposits are refundable prior to architecture kick-off. Delivered milestones are subject to formal sign-off. Workmanship warranties cover bug fixes for 30 days post-launch.
+                </p>
+              </div>
 
-                <div className="border-t border-line pt-4">
-                  <h4 className="font-bold uppercase text-ink text-base">
-                    4. Taxes, Withholding & CPR Certificates
-                  </h4>
-                  <p className="mt-2 text-ink-muted text-xs sm:text-sm">
-                    Where corporate withholding tax is deducted under applicable domestic regulations, clients agree to furnish official withholding tax certificates (CPR) within 15 calendar days. Wires must settle net of intermediate banking deductions.
-                  </p>
+              <div className="border border-line bg-surface p-6 space-y-3">
+                <div className="flex items-center gap-2 font-mono text-xs font-bold uppercase text-action">
+                  <HelpCircle size={16} />
+                  <span>Tax Compliance & Invoicing</span>
                 </div>
+                <p className="text-xs text-ink-muted font-light leading-relaxed">
+                  All transactions include electronic sales tax/NTN receipts compliant with FBR regulations. International B2B clients receive standard cross-border commercial invoices.
+                </p>
               </div>
             </div>
 
-            {/* Official Banking Credentials Card */}
-            <BankDetailsCard />
-
-            <div className="text-center text-xs text-ink-muted font-mono pt-2">
-              <span>Direct URL: </span>
-              <Link href="/billing/policies" className="text-action hover:underline font-bold">
-                billing.tauqeermustafa.tech/policies
+            <div className="mt-10 pt-6 border-t border-line flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+              <p className="text-xs font-mono text-ink-muted">
+                Need the complete legal agreement?
+              </p>
+              <Link
+                href="/docs/payment-policy"
+                className="inline-flex items-center gap-1.5 font-mono text-xs font-bold uppercase tracking-wider text-action hover:underline"
+              >
+                <span>Read Full Payment Policy in Docs</span>
+                <ArrowRight size={13} />
               </Link>
             </div>
           </div>
-        )}
-      </div>
+
+          <BankDetailsCard />
+        </div>
+      )}
     </div>
   );
 }

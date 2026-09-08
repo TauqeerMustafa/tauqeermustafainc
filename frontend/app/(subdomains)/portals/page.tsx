@@ -83,6 +83,24 @@ export default function PortalsPage() {
           <ArrowRight className="h-3.5 w-3.5" />
         </a>
       </div>
+
+      {/* Support & Helpdesk Link */}
+      <div className="mt-4 border border-ink/10 bg-surface p-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <span className="font-mono text-[10px] font-bold uppercase tracking-wider text-action block">
+            24/7 Technical Dispatch & Support
+          </span>
+          <p className="text-sm font-bold text-ink mt-0.5">Having trouble signing in or need emergency assistance?</p>
+          <p className="text-xs text-ink-muted mt-1">Open an enterprise ticket, check system uptime, or call the 24/7 hotline.</p>
+        </div>
+        <a
+          href="https://support.tauqeermustafa.tech"
+          className="inline-flex items-center gap-1.5 border border-line-2 bg-card px-5 py-2.5 font-mono text-xs font-bold uppercase tracking-wider text-ink transition hover:border-action hover:text-action shrink-0"
+        >
+          <span>Support & Helpdesk</span>
+          <ArrowRight className="h-3.5 w-3.5" />
+        </a>
+      </div>
     </div>
   );
 }

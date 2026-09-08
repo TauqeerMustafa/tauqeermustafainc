@@ -19,6 +19,7 @@ const navLinks = [
   { name: "Blog", href: "/blog" },
   { name: "Billing", href: "/billing" },
   { name: "Docs", href: "/docs" },
+  { name: "Support", href: "/support" },
   { name: "Community", href: "https://community.tauqeermustafa.tech" },
   { name: "Portals", href: "https://portals.tauqeermustafa.tech" },
   { name: "Contact", href: "/contact" },

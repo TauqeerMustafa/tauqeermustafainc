@@ -50,10 +50,10 @@ export default function SubdomainsLayout({
             <span>&copy; {new Date().getFullYear()} Tauqeer Mustafa Inc.</span>
             <span className="text-ink/20">|</span>
             <Link 
-              href="https://www.tauqeermustafa.tech/support" 
-              className="hover:text-ink transition-colors"
+              href="/support" 
+              className="hover:text-ink transition-colors font-mono text-xs"
             >
-              Support
+              Support & Helpdesk
             </Link>
           </div>
         </div>

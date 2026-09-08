@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
-import { CreditCard, Banknote, ShieldCheck, ExternalLink } from "lucide-react";
+import { ExternalLink } from "lucide-react";
 import ThemeToggle from "@/components/layout/ThemeToggle";
 
 export const metadata: Metadata = {
@@ -13,10 +14,10 @@ export const metadata: Metadata = {
 };
 
 const NAV_ITEMS = [
-  { label: "Overview", href: "/billing", icon: null },
-  { label: "Make a Payment", href: "/billing/pay", icon: CreditCard },
-  { label: "Payouts & Disbursements", href: "/billing/payouts", icon: Banknote },
-  { label: "Payment Policies", href: "/billing/policies", icon: ShieldCheck },
+  { label: "Overview", href: "/billing" },
+  { label: "Make a Payment", href: "/billing/pay" },
+  { label: "Payouts & Disbursements", href: "/billing/payouts" },
+  { label: "Payment Policies", href: "/billing/policies" },
 ];
 
 export default function BillingSubdomainLayout({
@@ -26,96 +27,98 @@ export default function BillingSubdomainLayout({
 }>) {
   return (
     <div className="min-h-screen flex flex-col bg-canvas text-ink">
-      {/* Subdomain Header */}
-      <header className="sticky top-0 z-40 border-b border-line-2 bg-canvas/80 backdrop-blur-md">
+      {/* Precision Editorial Header - Identical to Main Navbar */}
+      <header className="sticky top-0 z-40 border-b border-ink/10 bg-canvas/95 supports-[backdrop-filter]:bg-canvas/85 supports-[backdrop-filter]:backdrop-blur-xl">
         <div className="m-stripe" aria-hidden="true" />
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
+        <div className="mx-auto flex min-h-[4.5rem] max-w-[1200px] items-center justify-between gap-4 px-5 py-3 sm:px-6">
           <div className="flex items-center gap-6">
             <Link
               href="/billing"
-              className="flex items-center gap-3 transition hover:opacity-80"
+              className="inline-flex min-h-10 shrink-0 items-center gap-2.5 text-[15px] font-bold uppercase tracking-[0.01em] text-ink transition-opacity hover:opacity-80"
             >
-              <div className="flex h-8 w-8 items-center justify-center bg-action text-on-action font-mono text-xs font-bold">
-                TM
-              </div>
-              <div className="flex flex-col">
-                <span className="font-mono text-[13px] font-bold tracking-tight text-ink uppercase">
+              <span className="relative flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden border border-ink/15 bg-ink/[0.06]">
+                <Image src="/logo-mark.svg" alt="" fill sizes="36px" className="object-cover" />
+              </span>
+              <div className="flex flex-col leading-none">
+                <span className="font-bold tracking-tight text-ink uppercase text-[14px]">
                   Tauqeer Mustafa Inc.
                 </span>
-                <span className="font-mono text-[10px] tracking-wider text-action font-semibold uppercase">
-                  Billing & Treasury
+                <span className="font-mono text-[9px] font-semibold uppercase tracking-[0.14em] text-action mt-0.5">
+                  // Billing & Treasury
                 </span>
               </div>
             </Link>
 
             {/* Desktop Nav */}
-            <nav className="hidden md:flex items-center gap-1 pl-4 border-l border-line">
+            <nav className="hidden lg:flex items-center gap-1 pl-4 border-l border-line">
               {NAV_ITEMS.map((item) => (
                 <Link
                   key={item.href}
                   href={item.href}
-                  className="flex items-center gap-1.5 px-3 py-1.5 font-mono text-xs font-bold uppercase tracking-wider text-ink-muted hover:text-action hover:bg-surface transition"
+                  className="px-3 py-1.5 font-mono text-[11px] font-semibold uppercase tracking-[0.1em] text-ink/60 hover:text-ink hover:bg-surface transition"
                 >
-                  {item.icon && <item.icon size={13} className="text-action" />}
-                  <span>{item.label}</span>
+                  {item.label}
                 </Link>
               ))}
             </nav>
           </div>
 
           <div className="flex items-center gap-3">
+            <Link
+              href="/docs"
+              className="hidden sm:inline-flex items-center gap-1 font-mono text-[11px] font-semibold uppercase tracking-[0.1em] text-ink/60 hover:text-ink transition px-3 py-1.5 border border-line bg-surface"
+            >
+              Docs
+            </Link>
+
             <a
               href="https://tauqeermustafa.tech"
-              className="hidden sm:inline-flex items-center gap-1.5 font-mono text-xs text-ink-muted hover:text-ink transition border border-line-2 bg-surface px-3 py-1.5"
+              className="hidden sm:inline-flex items-center gap-1 font-mono text-[11px] font-semibold uppercase tracking-[0.1em] text-ink/60 hover:text-ink transition px-3 py-1.5 border border-line bg-surface"
             >
               <span>Main Site</span>
-              <ExternalLink size={12} />
+              <ExternalLink size={11} />
             </a>
+
             <ThemeToggle />
           </div>
         </div>
 
-        {/* Mobile Nav Bar */}
-        <div className="md:hidden border-t border-line-2 bg-surface px-4 py-2 flex items-center justify-around text-xs font-mono">
-          <Link href="/billing/pay" className="font-semibold text-action uppercase py-1">
+        {/* Mobile Navigation Row */}
+        <div className="lg:hidden border-t border-line bg-surface px-4 py-2 flex items-center justify-around font-mono text-[11px] uppercase tracking-wider">
+          <Link href="/billing/pay" className="font-semibold text-action py-1">
             Pay
           </Link>
-          <span className="text-ink/20">�</span>
-          <Link href="/billing/payouts" className="font-semibold text-ink-muted hover:text-ink uppercase py-1">
+          <span className="text-ink/30">//</span>
+          <Link href="/billing/payouts" className="font-semibold text-ink-muted hover:text-ink py-1">
             Payouts
           </Link>
-          <span className="text-ink/20">�</span>
-          <Link href="/billing/policies" className="font-semibold text-ink-muted hover:text-ink uppercase py-1">
+          <span className="text-ink/30">//</span>
+          <Link href="/billing/policies" className="font-semibold text-ink-muted hover:text-ink py-1">
             Policies
           </Link>
         </div>
       </header>
 
-      {/* Main Page Content */}
+      {/* Main Content Area */}
       <main className="flex-1">{children}</main>
 
-      {/* Subdomain Footer */}
-      <footer className="border-t border-line-2 bg-surface py-8 text-xs text-ink-muted font-mono">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+      {/* Corporate Treasury Footer */}
+      <footer className="border-t border-line bg-surface py-8 text-xs text-ink-muted font-mono">
+        <div className="mx-auto max-w-[1200px] px-5 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2">
-            <span>&copy; {new Date().getFullYear()} Tauqeer Mustafa Inc.</span>
-            <span className="text-ink/20">�</span>
-            <span>Corporate Billing & Treasury</span>
+            <span className="font-bold text-ink uppercase">Tauqeer Mustafa Inc. Treasury</span>
+            <span>//</span>
+            <span>Global Settlement Operations</span>
           </div>
 
-          <div className="flex items-center gap-4">
-            <Link href="/billing/policies" className="hover:text-action transition">
+          <div className="flex items-center gap-6">
+            <Link href="/docs/payment-policy" className="hover:text-action uppercase">
               Payment Policy
             </Link>
-            <span className="text-ink/20">�</span>
-            <Link href="/billing/policies" className="hover:text-action transition">
+            <Link href="/docs/refund-policy" className="hover:text-action uppercase">
               Refund Terms
             </Link>
-            <span className="text-ink/20">�</span>
-            <a
-              href="mailto:billing@tauqeermustafa.tech"
-              className="text-action hover:underline font-bold"
-            >
+            <a href="mailto:billing@tauqeermustafa.tech" className="hover:text-action uppercase">
               billing@tauqeermustafa.tech
             </a>
           </div>

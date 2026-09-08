@@ -5,6 +5,7 @@ export const navigation = [
   { name: "About", href: "/about" },
   { name: "Blog", href: "/blog" },
   { name: "Careers", href: "/careers" },
+  { name: "Support", href: "/support" },
   { name: "Contact", href: "/contact" },
 ];
 
@@ -26,6 +27,7 @@ export const footerLinks = {
     { name: "Blog", href: "/blog" },
     { name: "Careers", href: "/careers" },
     { name: "Billing & Treasury", href: "/billing" },
+    { name: "Support & Helpdesk", href: "/support" },
     { name: "Contact", href: "/contact" },
   ],
   legal: [

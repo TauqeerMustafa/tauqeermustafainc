@@ -61,6 +61,38 @@ export async function proxy(request: NextRequest) {
         const newPath = pathname.replace(/^\/community/, "");
         return NextResponse.redirect(`https://community.tauqeermustafa.tech${newPath || "/"}`);
       }
+      if (pathname === "/help" || pathname.startsWith("/help/")) {
+        const newPath = pathname.replace(/^\/help/, "");
+        url.pathname = `/support${newPath || ""}`;
+        return NextResponse.rewrite(url);
+      }
+    }
+
+    if (hostname.includes("support.tauqeermustafa.tech") || hostname.includes("help.tauqeermustafa.tech")) {
+      if (pathname === "/") {
+        url.pathname = "/support";
+        return NextResponse.rewrite(url);
+      }
+      if (pathname === "/ticket" || pathname === "/tickets") {
+        url.pathname = "/support/ticket";
+        return NextResponse.rewrite(url);
+      }
+      if (pathname === "/status") {
+        url.pathname = "/support/status";
+        return NextResponse.rewrite(url);
+      }
+      if (pathname === "/faq" || pathname === "/faqs") {
+        url.pathname = "/support/faq";
+        return NextResponse.rewrite(url);
+      }
+      if (pathname === "/contact") {
+        url.pathname = "/support/contact";
+        return NextResponse.rewrite(url);
+      }
+      if (!pathname.startsWith("/support")) {
+        url.pathname = `/support${pathname}`;
+        return NextResponse.rewrite(url);
+      }
     }
 
     if (hostname.includes("billing.tauqeermustafa.tech")) {
