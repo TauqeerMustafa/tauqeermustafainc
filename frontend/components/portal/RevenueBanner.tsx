@@ -42,7 +42,7 @@ const REVENUE_FUNCTIONS: FunctionItem[] = [
     id: "management",
     label: "Management Reporting",
     shortLabel: "Reporting",
-    href: "/admin/management",
+    href: "/management/dashboard",
     icon: TrendingUp,
   },
 ];

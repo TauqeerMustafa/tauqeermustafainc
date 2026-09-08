@@ -5,8 +5,8 @@ export const dynamic = "force-dynamic";
 
 export default function EmployeeMessagesPage() {
   return (
-    <div className="space-y-6">
-      <AdminPageHeader title="Messages" description="Read and reply to your communications." />
+    <div className="space-y-4">
+      <AdminPageHeader title="Webmail" description="Your secure company inbox. Read and send messages." />
       <Webmail />
     </div>
   );

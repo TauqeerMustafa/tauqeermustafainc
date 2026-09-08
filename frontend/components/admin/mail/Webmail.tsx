@@ -350,7 +350,12 @@ function isInboxMsg(msg: Message, currentEmail: string): boolean {
   if (isTrashMsg(msg)) return false;
   if (isSpamMsg(msg)) return false;
   if (isArchiveMsg(msg)) return false;
-  if (isSentMsg(msg, currentEmail)) return false;
+  if (isSentMsg(msg, currentEmail)) {
+    // If sent to oneself (test emails, reminders), also show in Inbox
+    const recipientList = addrList(msg.to).map((t) => t.toLowerCase());
+    const toSelf = recipientList.some((r) => r.includes(currentEmail.toLowerCase()));
+    if (!toSelf) return false;
+  }
   return true;
 }
 
@@ -1094,7 +1099,7 @@ export default function Webmail({
         return;
       }
       if (selected) {
-        if (e.key === "u") {
+        if (e.key === "u" || e.key === "Escape") {
           e.preventDefault();
           setSelected(null);
         } else if (e.key === "r") {
@@ -1192,7 +1197,7 @@ export default function Webmail({
 
   return (
     <div
-      className="relative flex h-[calc(100vh-190px)] min-h-[620px] max-h-[920px] overflow-hidden rounded-2xl border shadow-sm"
+      className="relative flex h-[calc(100vh-175px)] min-h-[480px] lg:min-h-[540px] max-h-[960px] overflow-hidden rounded-2xl border shadow-sm"
       style={{ borderColor: "var(--adm-border)", background: "var(--adm-surface)" }}
     >
       {/* ── LEFT SIDEBAR (Gmail style) ─────────────────────────────────── */}
@@ -1462,6 +1467,17 @@ export default function Webmail({
               style={{ borderColor: "var(--adm-border)", background: "var(--adm-surface)" }}
             >
               <div className="flex items-center gap-1.5">
+                <button
+                  type="button"
+                  onClick={() => setSelected(null)}
+                  title="Back to inbox (u / Esc)"
+                  className="btn-press mr-1 flex h-8 items-center gap-1.5 rounded-full border px-3 text-xs font-semibold shadow-xs transition hover:bg-adm-surface-2"
+                  style={{ borderColor: "var(--adm-border)", color: "var(--adm-text)" }}
+                >
+                  <ArrowLeft size={14} />
+                  <span>Back</span>
+                </button>
+                <div className="mr-1 h-4 w-px" style={{ background: "var(--adm-border)" }} />
                 <button
                   type="button"
                   onClick={() => {

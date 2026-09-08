@@ -143,9 +143,6 @@
   --paper:            #ffffff;
   --line-soft2:       #efefef;
 
-  /* ── Portal panel tokens · LIGHT ─────────────────────────────────
-     The four portals (admin, management, employees, client) share one
-     surface system. In light mode it is Mastercard: canvas cream floor,
   /* ── Portal panel tokens · LIGHT (Apple Design System) ───────────────
      Canvas parchment (#f5f5f7), pure white surface plates (#ffffff),
      hairlines (#e5e5ea), Action Blue (#0066cc), and SF Pro ink text (#1d1d1f). */

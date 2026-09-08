@@ -52,7 +52,7 @@ function GuardLink({ href, label }: { href: string; label: string }) {
   return (
     <Link
       href={href}
-      className="rounded-none px-5 py-2.5 text-sm font-bold uppercase tracking-wide text-white transition hover:opacity-90"
+      className="rounded-full px-6 py-2.5 text-sm font-semibold tracking-wide text-white transition hover:opacity-90 active:scale-95"
       style={{ background: "var(--adm-blue)" }}
     >
       {label}

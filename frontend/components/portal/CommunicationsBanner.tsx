@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import {
+  Building2,
   Mail,
   MessageCircle,
   MessagesSquare,
@@ -47,14 +48,14 @@ const COMMUNICATIONS_FUNCTIONS: FunctionItem[] = [
     label: "Client Portal Messages",
     shortLabel: "Client Portal",
     href: "/admin/client-messages",
-    icon: MessagesSquare,
+    icon: Building2,
   },
   {
     id: "messages",
     label: "Website Inquiries",
     shortLabel: "Inquiries",
     href: "/admin/messages",
-    icon: Mail,
+    icon: MessagesSquare,
     countKey: "inquiries",
   },
 ];
