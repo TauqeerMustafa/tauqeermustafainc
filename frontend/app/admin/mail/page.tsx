@@ -1,4 +1,5 @@
 import { AdminPageHeader } from "@/components/admin/AdminUI";
+import CommunicationsBanner from "@/components/portal/CommunicationsBanner";
 import Webmail from "@/components/admin/mail/Webmail";
 
 export const dynamic = "force-dynamic";
@@ -12,6 +13,7 @@ export default async function AdminMailPage({
   const sp = await searchParams;
   return (
     <div className="space-y-6">
+      <CommunicationsBanner active="mail" />
       <AdminPageHeader
         title="Webmail"
         description="Read, reply to, and manage every mailbox in one place."

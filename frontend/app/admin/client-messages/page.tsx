@@ -26,6 +26,7 @@ import {
   adminInputStyle,
 } from "@/components/admin/AdminUI";
 import { useClientThreads, useReplyToClient } from "@/hooks/useClientMessages";
+import CommunicationsBanner from "@/components/portal/CommunicationsBanner";
 import type { ClientThread } from "@/types/client";
 
 function formatWhen(value: string | null | undefined) {
@@ -71,6 +72,7 @@ export default function AdminClientMessagesPage() {
 
   return (
     <div className="space-y-6">
+      <CommunicationsBanner active="client-messages" />
       <AdminPageHeader
         title="Client Portal Messages"
         description={

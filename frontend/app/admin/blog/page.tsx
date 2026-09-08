@@ -14,6 +14,8 @@ import {
   AdminPageHeader,
   adminInputClass,
 } from "@/components/admin/AdminUI";
+import CmsBanner from "@/components/portal/CmsBanner";
+import { Tabs } from "@/components/portal/PortalUI";
 import { useBlogs, useCreateBlog, useDeleteBlog, useUpdateBlog } from "@/hooks/useBlogs";
 import type { Blog } from "@/types";
 import type { BlogPayload } from "@/services/blog.service";
@@ -27,18 +29,29 @@ const emptyForm: BlogPayload = {
   isPublished: true,
 };
 
+type BlogTab = "all" | "published" | "draft";
+
 export default function AdminBlogPage() {
   const { data, isLoading, isError } = useBlogs({ publishedOnly: false, pageSize: 100 });
   const createBlog = useCreateBlog();
   const updateBlog = useUpdateBlog();
   const deleteBlog = useDeleteBlog();
 
+  const [activeTab, setActiveTab] = useState<BlogTab>("all");
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [editing, setEditing] = useState<Blog | null>(null);
   const [form, setForm] = useState<BlogPayload>(emptyForm);
   const [pendingDelete, setPendingDelete] = useState<Blog | null>(null);
 
   const posts = data?.data.items ?? [];
+  const publishedCount = posts.filter((p) => p.isPublished).length;
+  const draftCount = posts.filter((p) => !p.isPublished).length;
+
+  const filteredPosts = posts.filter((p) => {
+    if (activeTab === "published") return p.isPublished;
+    if (activeTab === "draft") return !p.isPublished;
+    return true;
+  });
 
   function openCreate() {
     setEditing(null);
@@ -78,7 +91,9 @@ export default function AdminBlogPage() {
   const isSaving = createBlog.isPending || updateBlog.isPending;
 
   return (
-    <div>
+    <div className="flex flex-col gap-6">
+      <CmsBanner active="blog" />
+
       <AdminPageHeader
         title="Blog"
         description="Manage articles published to the site."
@@ -86,17 +101,34 @@ export default function AdminBlogPage() {
         onAction={openCreate}
       />
 
+      <Tabs<BlogTab>
+        tabs={[
+          { id: "all", label: "All Posts", count: posts.length },
+          { id: "published", label: "Published", count: publishedCount, countTone: "green" },
+          { id: "draft", label: "Drafts", count: draftCount, countTone: "neutral" },
+        ]}
+        value={activeTab}
+        onChange={setActiveTab}
+      />
+
       {isLoading ? <AdminLoadingState label="Loading posts..." /> : null}
       {isError ? (
         <AdminErrorState message="Could not load blog posts. Confirm the backend is running and reachable." />
       ) : null}
 
-      {!isLoading && !isError && posts.length === 0 ? (
-        <AdminEmptyState title="No blog posts yet" description="Create your first post to get started." />
+      {!isLoading && !isError && filteredPosts.length === 0 ? (
+        <AdminEmptyState
+          title={activeTab === "all" ? "No blog posts yet" : `No ${activeTab} posts`}
+          description={
+            activeTab === "all"
+              ? "Create your first post to get started."
+              : "No posts match this status filter."
+          }
+        />
       ) : null}
 
-      {!isLoading && !isError && posts.length > 0 ? (
-        <div className="overflow-x-auto border border-adm-border">
+      {!isLoading && !isError && filteredPosts.length > 0 ? (
+        <div className="overflow-x-auto border border-adm-border rounded-[14px]">
           <table className="w-full min-w-[640px] text-left text-sm">
             <thead className="border-b border-adm-border bg-adm-surface-2 text-xs uppercase tracking-wide text-adm-text-3">
               <tr>
@@ -107,7 +139,7 @@ export default function AdminBlogPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-adm-border">
-              {posts.map((post) => (
+              {filteredPosts.map((post) => (
                 <tr key={post.id} className="text-adm-text-2">
                   <td className="px-4 py-3">
                     <p className="font-semibold text-adm-text">{post.title}</p>

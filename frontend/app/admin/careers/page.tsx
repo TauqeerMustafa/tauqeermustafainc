@@ -17,6 +17,7 @@ import {
 import { useCareers, useCreateCareer, useDeleteCareer, useUpdateCareer } from "@/hooks/useCareers";
 import { useMessages, useMarkMessageRead, useDeleteMessage } from "@/hooks/useMessages";
 import { Tabs } from "@/components/portal/PortalUI";
+import CmsBanner from "@/components/portal/CmsBanner";
 import { MESSAGE_KIND, isMessageKind } from "@/lib/message-kind";
 import type { Career, ContactMessage } from "@/types";
 import type { CareerPayload } from "@/services/career.service";
@@ -102,8 +103,9 @@ export default function AdminCareersPage() {
   const unreadApplications = applications.filter((a: ContactMessage) => !a.isRead).length;
 
   return (
-    <div>
-      <div className="mb-6 flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
+    <div className="flex flex-col gap-6">
+      <CmsBanner active="careers" />
+      <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
         <div>
           <h1 className="text-2xl font-bold uppercase tracking-tight text-adm-text">Careers & Applicants</h1>
           <p className="mt-1 text-sm text-adm-text-3">Manage open roles and review job applications.</p>

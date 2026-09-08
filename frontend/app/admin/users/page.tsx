@@ -16,6 +16,7 @@ import {
   adminInputStyle,
 } from "@/components/admin/AdminUI";
 import { Tabs } from "@/components/portal/PortalUI";
+import AccessControlBanner from "@/components/portal/AccessControlBanner";
 import { useAdminMetrics, useAdminRoles, useAdminTeams, useAdminUsers, useCreateAdminUser, useDeleteAdminUser, useProvisionAllMailboxes, useProvisionMailbox, useUpdateAdminUser } from "@/hooks/useAdmin";
 import { generatePassword } from "@/lib/credentials";
 import { readOnboardPrefill, suggestCompanyEmail, type OnboardPrefill } from "@/lib/onboarding-link";
@@ -208,7 +209,8 @@ export default function AdminUsersPage() {
   const isError = usersQuery.isError || rolesQuery.isError || teamsQuery.isError;
 
   return (
-    <div onClick={() => menuId && setMenuId(null)}>
+    <div onClick={() => menuId && setMenuId(null)} className="flex flex-col gap-6">
+      <AccessControlBanner active="users" />
       <AdminPageHeader
         title="Users"
         description="Manage account access, approvals, roles, and team assignments."

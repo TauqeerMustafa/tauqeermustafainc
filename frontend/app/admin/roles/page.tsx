@@ -16,6 +16,7 @@ import {
   StatCard,
   inputClass,
 } from "@/components/portal/PortalUI";
+import AccessControlBanner from "@/components/portal/AccessControlBanner";
 import {
   useAdminPermissions,
   useAdminRoles,
@@ -133,6 +134,7 @@ export default function RolesManagementPage() {
 
   return (
     <div className="flex flex-col gap-8">
+      <AccessControlBanner active="roles" />
       <PortalPageHeader
         title="Roles & Permissions"
         description="Access levels are defined here; every portal and API route gates on the permission slugs below."

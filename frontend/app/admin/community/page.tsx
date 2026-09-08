@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Mail, MailOpen, Trash2 } from "lucide-react";
 
 import { AdminPageHeader, AdminEmptyState, AdminLoadingState, AdminErrorState } from "@/components/admin/AdminUI";
+import CmsBanner from "@/components/portal/CmsBanner";
 import { useMessages, useMarkMessageRead, useDeleteMessage } from "@/hooks/useMessages";
 import { MESSAGE_KIND, isMessageKind } from "@/lib/message-kind";
 import type { ContactMessage } from "@/types";
@@ -23,7 +24,8 @@ export default function AdminCommunityPage() {
   );
 
   return (
-    <div>
+    <div className="flex flex-col gap-6">
+      <CmsBanner active="community" />
       <AdminPageHeader title="Community" description="Manage community members, posts, and applications." />
       
       <div className="mb-6 flex border-b border-adm-border">

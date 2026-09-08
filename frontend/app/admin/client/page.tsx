@@ -10,12 +10,16 @@
  */
 
 import LeadWorkbench from "@/components/portal/LeadWorkbench";
+import RevenueBanner from "@/components/portal/RevenueBanner";
 
 export default function AdminClientPage() {
   return (
-    <LeadWorkbench
-      title="Client CRM"
-      description="Every lead, who owns it, and what happens next."
-    />
+    <div className="flex flex-col gap-8">
+      <RevenueBanner active="client" />
+      <LeadWorkbench
+        title="Client CRM"
+        description="Every lead, who owns it, and what happens next."
+      />
+    </div>
   );
 }

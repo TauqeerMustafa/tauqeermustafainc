@@ -17,6 +17,7 @@ import {
 } from "@/components/portal/PortalUI";
 import { useDeleteMessage, useMarkMessageRead, useMessages } from "@/hooks/useMessages";
 import { MESSAGE_KIND_LABEL, classifyMessage, type MessageKind } from "@/lib/message-kind";
+import CommunicationsBanner from "@/components/portal/CommunicationsBanner";
 import { onboardHref } from "@/lib/onboarding-link";
 import type { ContactMessage } from "@/types";
 
@@ -75,6 +76,7 @@ export default function AdminMessagesPage() {
 
   return (
     <div className="grid gap-6">
+      <CommunicationsBanner active="messages" />
       <PortalPageHeader
         title="Messages"
         description="Every submission from the public forms — contact, service enquiries, job and community applications."

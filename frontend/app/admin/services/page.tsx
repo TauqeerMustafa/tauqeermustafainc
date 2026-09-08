@@ -14,6 +14,7 @@ import {
   AdminPageHeader,
   adminInputClass,
 } from "@/components/admin/AdminUI";
+import CmsBanner from "@/components/portal/CmsBanner";
 import { useCreateService, useDeleteService, useServices, useUpdateService } from "@/hooks/useServices";
 import type { Service } from "@/types";
 import type { ServicePayload } from "@/services/service.service";
@@ -85,7 +86,8 @@ export default function AdminServicesPage() {
   const isSaving = createService.isPending || updateService.isPending;
 
   return (
-    <div>
+    <div className="flex flex-col gap-6">
+      <CmsBanner active="services" />
       <AdminPageHeader
         title="Services"
         description="Manage the service lines shown across the site."

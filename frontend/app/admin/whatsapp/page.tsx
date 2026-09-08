@@ -46,6 +46,7 @@ import {
   adminInputClass,
   adminInputStyle,
 } from "@/components/admin/AdminUI";
+import CommunicationsBanner from "@/components/portal/CommunicationsBanner";
 import {
   useWhatsAppMessages,
   useSendWhatsAppMessage,
@@ -294,7 +295,8 @@ export default function AdminWhatsAppPage() {
   };
 
   return (
-    <div>
+    <div className="flex flex-col gap-6">
+      <CommunicationsBanner active="whatsapp" />
       <AdminPageHeader
         title="WhatsApp Business Manager"
         description="Manage customer conversations, send messages, and track deals"

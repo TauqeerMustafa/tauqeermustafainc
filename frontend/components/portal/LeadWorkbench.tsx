@@ -40,6 +40,7 @@ import {
   adminInputClass,
   adminInputStyle,
 } from "@/components/admin/AdminUI";
+import { Tabs } from "@/components/portal/PortalUI";
 import { useAdminUsers } from "@/hooks/useAdmin";
 import { useCurrentUser } from "@/hooks/useAuth";
 import {
@@ -232,6 +233,13 @@ export default function LeadWorkbench({
   }, [rows, term]);
 
   const totals = pipeline.data;
+  const stageCounts = useMemo(() => {
+    const map: Record<string, number> = {};
+    for (const stage of totals?.stages ?? []) {
+      map[stage.status] = stage.count;
+    }
+    return map;
+  }, [totals]);
   const scopeNote = totals
     ? { own: "your own leads", team: "your team's leads", all: "all company leads" }[totals.scope] ??
       "the leads you can access"
@@ -361,7 +369,49 @@ export default function LeadWorkbench({
         </div>
       )}
 
-      <div className="border" style={{ borderColor: "var(--adm-border)", background: "var(--adm-surface)" }}>
+      <div className="mb-2">
+        <Tabs
+          value={status || "all"}
+          onChange={(val) => setStatus(val === "all" ? "" : val)}
+          tabs={[
+            { id: "all", label: t("All Leads"), count: totals?.totalLeads },
+            { id: "new", label: t("New"), count: stageCounts.new },
+            { id: "contacted", label: t("Contacted"), count: stageCounts.contacted },
+            {
+              id: "follow_up",
+              label: t("Follow Up"),
+              count: stageCounts.follow_up,
+              countTone: stageCounts.follow_up ? "amber" : undefined,
+            },
+            {
+              id: "qualified",
+              label: t("Qualified"),
+              count: stageCounts.qualified,
+              countTone: "blue",
+            },
+            {
+              id: "proposal_sent",
+              label: t("Proposal Sent"),
+              count: stageCounts.proposal_sent,
+              countTone: "amber",
+            },
+            {
+              id: "won",
+              label: t("Won"),
+              count: stageCounts.won,
+              countTone: "green",
+            },
+            {
+              id: "lost",
+              label: t("Lost"),
+              count: stageCounts.lost,
+              countTone: "neutral",
+            },
+          ]}
+        />
+      </div>
+
+      <div className="border rounded-[14px] overflow-hidden" style={{ borderColor: "var(--adm-border)", background: "var(--adm-surface)" }}>
         <div
           className="flex flex-col gap-3 border-b px-5 py-4 sm:flex-row sm:items-center sm:justify-between"
           style={{ borderColor: "var(--adm-border)", background: "var(--adm-surface-2)" }}
@@ -370,20 +420,6 @@ export default function LeadWorkbench({
             {t("Leads")} ({filtered.length})
           </h3>
           <div className="flex items-center gap-2">
-            <select
-              value={status}
-              onChange={(event) => setStatus(event.target.value)}
-              aria-label={t("Filter leads by status")}
-              className={`${adminInputClass} w-40`}
-              style={adminInputStyle}
-            >
-              <option value="">{t("All statuses")}</option>
-              {LEAD_STATUSES.map((value) => (
-                <option key={value} value={value}>
-                  {t(STATUS_LABEL[value])}
-                </option>
-              ))}
-            </select>
             <div className="relative">
               <Search
                 size={14}
@@ -394,7 +430,7 @@ export default function LeadWorkbench({
                 onChange={(event) => setTerm(event.target.value)}
                 placeholder={t("Search leads…")}
                 aria-label={t("Search leads…")}
-                className={`${adminInputClass} w-52 ps-9`}
+                className={`${adminInputClass} w-64 ps-9`}
                 style={adminInputStyle}
               />
             </div>

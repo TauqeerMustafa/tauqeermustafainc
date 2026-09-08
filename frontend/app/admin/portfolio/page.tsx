@@ -14,6 +14,7 @@ import {
   AdminPageHeader,
   adminInputClass,
 } from "@/components/admin/AdminUI";
+import CmsBanner from "@/components/portal/CmsBanner";
 import {
   useCreatePortfolioProject,
   useDeletePortfolioProject,
@@ -92,7 +93,8 @@ export default function AdminPortfolioPage() {
   const isSaving = createProject.isPending || updateProject.isPending;
 
   return (
-    <div>
+    <div className="flex flex-col gap-6">
+      <CmsBanner active="portfolio" />
       <AdminPageHeader
         title="Portfolio"
         description="Manage case studies shown on the portfolio page."
