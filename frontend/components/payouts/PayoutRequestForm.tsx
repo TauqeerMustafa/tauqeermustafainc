@@ -12,18 +12,18 @@ import {
   User,
   Mail,
   Phone,
-  ShieldCheck,
+  ArrowRight,
 } from "lucide-react";
 
 export default function PayoutRequestForm() {
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
-  const [department, setDepartment] = useState("web_dev");
+  const [department, setDepartment] = useState("Enterprise Web Development");
   const [invoiceRef, setInvoiceRef] = useState("");
   const [amount, setAmount] = useState("");
   const [currency, setCurrency] = useState("PKR");
-  const [method, setMethod] = useState("raast");
+  const [method, setMethod] = useState("Raast Instant Transfer");
   const [accountTitle, setAccountTitle] = useState("");
   const [bankName, setBankName] = useState("");
   const [accountIban, setAccountIban] = useState("");
@@ -35,7 +35,7 @@ export default function PayoutRequestForm() {
   const [copied, setCopied] = useState(false);
   const [error, setError] = useState("");
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
 
@@ -51,12 +51,43 @@ export default function PayoutRequestForm() {
 
     setLoading(true);
 
-    setTimeout(() => {
-      const randomSuffix = Math.floor(100 + Math.random() * 900);
-      const generatedRef = `TMI-PO-2026-${randomSuffix}`;
-      setSubmittedRef(generatedRef);
+    try {
+      const res = await fetch("/api/billing/payouts", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          fullName: fullName.trim(),
+          email: email.trim(),
+          phone: phone.trim() || undefined,
+          department,
+          invoiceRef: invoiceRef.trim() || undefined,
+          amount: parseFloat(amount) || amount,
+          currency,
+          method,
+          accountTitle: accountTitle.trim(),
+          bankName: bankName.trim() || undefined,
+          accountIban: accountIban.trim(),
+          deliverableNotes: deliverableNotes.trim() || undefined,
+        }),
+      });
+
+      const data = await res.json();
+      if (res.ok && data.payout) {
+        setSubmittedRef(data.payout.reference);
+        try {
+          const existing = JSON.parse(localStorage.getItem("tmi_payout_requests") || "[]");
+          localStorage.setItem("tmi_payout_requests", JSON.stringify([data.payout, ...existing]));
+        } catch {
+          // Ignore
+        }
+      } else {
+        setError(data.message || "Could not log payout request. Please try again.");
+      }
+    } catch {
+      setError("Network error connecting to disbursement queue. Please try again.");
+    } finally {
       setLoading(false);
-    }, 800);
+    }
   };
 
   const handleCopy = (text: string) => {
@@ -71,311 +102,234 @@ export default function PayoutRequestForm() {
     setAmount("");
     setDeliverableNotes("");
     setConfirmNameMatch(false);
+    setError("");
   };
 
   return (
-    <div className="w-full border border-line-2 bg-surface p-6 sm:p-8">
-      <div className="flex flex-col gap-2">
+    <div className="w-full border border-line bg-surface p-6 sm:p-8">
+      <div className="flex flex-col gap-1 border-b border-line pb-4 mb-6">
         <span className="font-mono text-[11px] font-semibold uppercase tracking-[0.14em] text-action">
-          Disbursement Dispatch
+          Disbursement Queue
         </span>
-        <h3 className="text-xl font-bold uppercase tracking-tight text-ink sm:text-2xl">
-          Submit Payout / Invoice Request
+        <h3 className="text-xl font-bold uppercase tracking-tight text-ink">
+          Submit Contractor Payout Request
         </h3>
-        <p className="text-sm font-light leading-relaxed text-ink-muted">
-          For contractors, consultants, and milestone owners. Submissions are reviewed and verified
-          against signed milestones within our 48-hour treasury SLA.
+        <p className="text-xs text-ink-muted font-light">
+          Requests are reviewed against delivered milestones within our 48-hour treasury SLA.
         </p>
       </div>
 
       {submittedRef ? (
-        <div className="mt-8 border border-emerald-500/40 bg-emerald-50/20 dark:bg-emerald-950/20 p-6 sm:p-8 animate-in fade-in duration-300">
+        <div className="border border-line bg-canvas p-6 sm:p-8 space-y-6 animate-in fade-in duration-200">
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-emerald-600 text-white">
-              <CheckCircle2 size={22} />
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center border border-line bg-surface text-action font-mono">
+              <CheckCircle2 size={20} />
             </div>
             <div>
-              <h4 className="text-lg font-bold text-ink">Payout Request Successfully Logged</h4>
-              <p className="text-xs text-ink-muted">
-                Your request has been routed to the TMI Treasury & Project Verification Queue.
+              <h4 className="text-base font-bold uppercase text-ink">
+                Payout Request Logged Successfully
+              </h4>
+              <p className="font-mono text-xs text-ink-muted">
+                Reference ID: <span className="font-bold text-action">{submittedRef}</span>
               </p>
             </div>
           </div>
 
-          <div className="mt-6 border border-line bg-card p-4 sm:p-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <div>
-              <span className="font-mono text-[10px] font-bold uppercase tracking-wider text-ink/40">
-                Tracking Reference Number
-              </span>
-              <div className="mt-1 flex items-center gap-2 font-mono text-xl font-bold text-action">
-                <span>{submittedRef}</span>
-                <button
-                  type="button"
-                  onClick={() => handleCopy(submittedRef)}
-                  className="rounded border border-line-2 p-1 text-ink/50 transition hover:text-action hover:border-action"
-                  title="Copy Reference"
-                >
-                  {copied ? <Check size={16} className="text-emerald-600" /> : <Copy size={16} />}
-                </button>
-              </div>
-            </div>
-
-            <div className="text-left sm:text-right">
-              <span className="font-mono text-[10px] font-bold uppercase tracking-wider text-ink/40">
-                Estimated Settlement SLA
-              </span>
-              <p className="mt-1 font-semibold text-sm text-ink">Within 24 to 48 Hours</p>
-            </div>
-          </div>
-
-          <div className="mt-6 flex flex-wrap items-center justify-between gap-4 pt-4 border-t border-line/60 text-xs text-ink-muted">
-            <p>
-              A confirmation receipt and status alerts will be sent to <strong>{email}</strong>.
-            </p>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => handleCopy(submittedRef)}
+              className="inline-flex items-center gap-1.5 border border-line bg-surface px-3.5 py-1.5 font-mono text-[11px] uppercase tracking-wider text-ink hover:border-action transition cursor-pointer"
+            >
+              {copied ? <Check size={12} className="text-emerald-500" /> : <Copy size={12} />}
+              <span>{copied ? "Copied" : "Copy Reference ID"}</span>
+            </button>
             <button
               type="button"
               onClick={handleReset}
-              className="font-mono text-xs font-bold uppercase tracking-wider text-action hover:underline"
+              className="inline-flex items-center gap-1.5 border border-line bg-surface px-3.5 py-1.5 font-mono text-[11px] uppercase tracking-wider text-action hover:bg-action hover:text-on-action transition cursor-pointer"
             >
-              Submit Another Request &rarr;
+              <span>Submit Another Request</span>
             </button>
           </div>
         </div>
       ) : (
-        <form onSubmit={handleSubmit} className="mt-8 space-y-6">
-          {error && (
-            <div className="flex items-center gap-2 border border-red-300 bg-red-50 dark:bg-red-950/40 p-4 text-xs font-semibold text-red-700 dark:text-red-300">
-              <AlertCircle size={16} className="shrink-0" />
-              <span>{error}</span>
-            </div>
-          )}
-
-          {/* Section 1: Contributor Identification */}
-          <div>
-            <h4 className="font-mono text-[11px] font-bold uppercase tracking-[0.12em] text-ink/70 mb-3 border-b border-line pb-1.5 flex items-center gap-2">
-              <User size={13} className="text-action" />
-              <span>1. Contributor Identification</span>
-            </h4>
-            <div className="grid gap-4 sm:grid-cols-3">
-              <div>
-                <label className="block text-xs font-semibold text-ink mb-1.5">
-                  Full Legal Name *
-                </label>
-                <input
-                  type="text"
-                  required
-                  value={fullName}
-                  onChange={(e) => setFullName(e.target.value)}
-                  placeholder="As on Bank Account / ID"
-                  className="w-full border border-line-2 bg-card px-3.5 py-2.5 text-sm text-ink outline-none transition focus:border-action focus:ring-1 focus:ring-action"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold text-ink mb-1.5">
-                  Contract / Work Email *
-                </label>
-                <input
-                  type="email"
-                  required
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="name@tauqeermustafa.tech or personal"
-                  className="w-full border border-line-2 bg-card px-3.5 py-2.5 text-sm text-ink outline-none transition focus:border-action focus:ring-1 focus:ring-action"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold text-ink mb-1.5">
-                  WhatsApp / Phone (for SMS receipt)
-                </label>
-                <input
-                  type="tel"
-                  value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
-                  placeholder="+92 300 1234567"
-                  className="w-full border border-line-2 bg-card px-3.5 py-2.5 text-sm text-ink outline-none transition focus:border-action focus:ring-1 focus:ring-action"
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* Section 2: Engagement & Milestone Scope */}
-          <div>
-            <h4 className="font-mono text-[11px] font-bold uppercase tracking-[0.12em] text-ink/70 mb-3 border-b border-line pb-1.5 flex items-center gap-2">
-              <FileText size={13} className="text-action" />
-              <span>2. Engagement & Deliverable Scope</span>
-            </h4>
-            <div className="grid gap-4 sm:grid-cols-3">
-              <div>
-                <label className="block text-xs font-semibold text-ink mb-1.5">
-                  Department / Function
-                </label>
-                <select
-                  value={department}
-                  onChange={(e) => setDepartment(e.target.value)}
-                  className="w-full border border-line-2 bg-card px-3.5 py-2.5 text-sm text-ink outline-none transition focus:border-action"
-                >
-                  <option value="web_dev">Enterprise Web & Fullstack</option>
-                  <option value="ai_ml">AI, ML & Data Engineering</option>
-                  <option value="cybersecurity">Cybersecurity & Cloud Systems</option>
-                  <option value="lead_gen">Sales & Lead Gen Commission</option>
-                  <option value="design">UI/UX & Product Design</option>
-                  <option value="operations">Corporate Operations & Management</option>
-                  <option value="trial">Trial Period Settlement</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold text-ink mb-1.5">
-                  Invoice or Project Reference #
-                </label>
-                <input
-                  type="text"
-                  value={invoiceRef}
-                  onChange={(e) => setInvoiceRef(e.target.value)}
-                  placeholder="e.g. INV-2026-042 or Milestone 2"
-                  className="w-full border border-line-2 bg-card px-3.5 py-2.5 text-sm text-ink outline-none transition focus:border-action"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold text-ink mb-1.5">
-                  Requested Amount & Currency *
-                </label>
-                <div className="flex gap-2">
-                  <select
-                    value={currency}
-                    onChange={(e) => setCurrency(e.target.value)}
-                    className="w-24 border border-line-2 bg-card px-2.5 py-2.5 text-sm font-bold text-ink outline-none"
-                  >
-                    <option value="PKR">PKR</option>
-                    <option value="USD">USD</option>
-                    <option value="EUR">EUR</option>
-                    <option value="GBP">GBP</option>
-                  </select>
-                  <input
-                    type="number"
-                    required
-                    min="1"
-                    step="any"
-                    value={amount}
-                    onChange={(e) => setAmount(e.target.value)}
-                    placeholder="e.g. 150000"
-                    className="flex-1 border border-line-2 bg-card px-3.5 py-2.5 text-sm font-bold text-ink outline-none transition focus:border-action"
-                  />
-                </div>
-              </div>
-            </div>
-
-            <div className="mt-3">
-              <label className="block text-xs font-semibold text-ink mb-1.5">
-                Deliverable Link or Verification Notes
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="font-mono text-[10px] uppercase text-ink-muted block mb-1">
+                Full Legal Name <span className="text-red-500">*</span>
               </label>
-              <textarea
-                rows={2}
-                value={deliverableNotes}
-                onChange={(e) => setDeliverableNotes(e.target.value)}
-                placeholder="Brief description, link to merged GitHub PR, staging deliverable, or signed milestone agreement…"
-                className="w-full border border-line-2 bg-card px-3.5 py-2 text-sm text-ink outline-none transition focus:border-action"
+              <input
+                type="text"
+                required
+                value={fullName}
+                onChange={(e) => setFullName(e.target.value)}
+                placeholder="Contractor full legal name"
+                className="w-full border border-line bg-canvas px-3.5 py-2 text-xs font-mono text-ink outline-none focus:border-action"
               />
             </div>
-          </div>
+            <div>
+              <label className="font-mono text-[10px] uppercase text-ink-muted block mb-1">
+                Corporate Email <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="email"
+                required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="contractor@email.com"
+                className="w-full border border-line bg-canvas px-3.5 py-2 text-xs font-mono text-ink outline-none focus:border-action"
+              />
+            </div>
 
-          {/* Section 3: Payout Rail & Banking Destination */}
-          <div>
-            <h4 className="font-mono text-[11px] font-bold uppercase tracking-[0.12em] text-ink/70 mb-3 border-b border-line pb-1.5 flex items-center gap-2">
-              <Building2 size={13} className="text-action" />
-              <span>3. Payout Destination & Banking Details</span>
-            </h4>
-            <div className="grid gap-4 sm:grid-cols-2">
-              <div>
-                <label className="block text-xs font-semibold text-ink mb-1.5">
-                  Preferred Payout Rail *
-                </label>
+            <div>
+              <label className="font-mono text-[10px] uppercase text-ink-muted block mb-1">
+                Department / Capability
+              </label>
+              <select
+                value={department}
+                onChange={(e) => setDepartment(e.target.value)}
+                className="w-full border border-line bg-canvas px-3.5 py-2 text-xs font-mono text-ink outline-none focus:border-action"
+              >
+                <option value="Enterprise Web Development">Enterprise Web Development</option>
+                <option value="Cybersecurity & Audit">Cybersecurity & Audit</option>
+                <option value="AI & Machine Learning">AI & Machine Learning</option>
+                <option value="Cloud Architecture">Cloud Architecture</option>
+                <option value="Product Design / UX">Product Design / UX</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="font-mono text-[10px] uppercase text-ink-muted block mb-1">
+                Milestone or SOW Reference
+              </label>
+              <input
+                type="text"
+                value={invoiceRef}
+                onChange={(e) => setInvoiceRef(e.target.value)}
+                placeholder="e.g. SOW-04 Milestone 2"
+                className="w-full border border-line bg-canvas px-3.5 py-2 text-xs font-mono text-ink outline-none focus:border-action uppercase"
+              />
+            </div>
+
+            <div>
+              <label className="font-mono text-[10px] uppercase text-ink-muted block mb-1">
+                Amount <span className="text-red-500">*</span>
+              </label>
+              <div className="flex gap-2">
                 <select
-                  value={method}
-                  onChange={(e) => setMethod(e.target.value)}
-                  className="w-full border border-line-2 bg-card px-3.5 py-2.5 text-sm text-ink outline-none transition focus:border-action"
+                  value={currency}
+                  onChange={(e) => setCurrency(e.target.value)}
+                  className="border border-line bg-canvas px-2.5 py-2 text-xs font-mono text-ink outline-none focus:border-action"
                 >
-                  <option value="raast">Raast Instant Transfer (Pakistan / 0% Fee)</option>
-                  <option value="local_bank">Direct Commercial Bank (1LINK IBAN)</option>
-                  <option value="wise">Wise Multi-Currency (Global)</option>
-                  <option value="swift">International Wire / SWIFT</option>
-                  <option value="payoneer">Payoneer Direct Balance</option>
+                  <option value="PKR">PKR</option>
+                  <option value="USD">USD</option>
+                  <option value="GBP">GBP</option>
+                  <option value="EUR">EUR</option>
                 </select>
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold text-ink mb-1.5">
-                  Bank / Financial Institution Name *
-                </label>
                 <input
-                  type="text"
+                  type="number"
                   required
-                  value={bankName}
-                  onChange={(e) => setBankName(e.target.value)}
-                  placeholder="e.g. Meezan Bank, HBL, Wise, Standard Chartered"
-                  className="w-full border border-line-2 bg-card px-3.5 py-2.5 text-sm text-ink outline-none transition focus:border-action"
+                  min="1"
+                  value={amount}
+                  onChange={(e) => setAmount(e.target.value)}
+                  placeholder="Amount"
+                  className="w-full border border-line bg-canvas px-3.5 py-2 text-xs font-mono text-ink outline-none focus:border-action"
                 />
               </div>
+            </div>
 
+            <div>
+              <label className="font-mono text-[10px] uppercase text-ink-muted block mb-1">
+                Disbursement Rail
+              </label>
+              <select
+                value={method}
+                onChange={(e) => setMethod(e.target.value)}
+                className="w-full border border-line bg-canvas px-3.5 py-2 text-xs font-mono text-ink outline-none focus:border-action"
+              >
+                <option value="Raast Instant Transfer">Raast Instant Transfer (0% Fee)</option>
+                <option value="1LINK Commercial Bank Wire">1LINK Local Commercial Wire</option>
+                <option value="Wise Multi-Currency Wire">Wise Multi-Currency Wire</option>
+                <option value="Payoneer Direct Transfer">Payoneer Direct Transfer</option>
+              </select>
+            </div>
+          </div>
+
+          {/* Account Details */}
+          <div className="border border-line bg-canvas p-4 space-y-3">
+            <span className="font-mono text-[11px] font-bold uppercase text-ink block">
+              Destination Account Coordinates
+            </span>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
-                <label className="block text-xs font-semibold text-ink mb-1.5">
-                  Exact Account Title *
+                <label className="font-mono text-[10px] uppercase text-ink-muted block mb-1">
+                  Account Title <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
                   required
                   value={accountTitle}
                   onChange={(e) => setAccountTitle(e.target.value)}
-                  placeholder="Must match your legal name exactly"
-                  className="w-full border border-line-2 bg-card px-3.5 py-2.5 text-sm text-ink outline-none transition focus:border-action"
+                  placeholder="Exact title on bank account"
+                  className="w-full border border-line bg-surface px-3.5 py-2 text-xs font-mono text-ink outline-none focus:border-action"
                 />
               </div>
-
               <div>
-                <label className="block text-xs font-semibold text-ink mb-1.5">
-                  IBAN / Account Number / Wise Tag *
+                <label className="font-mono text-[10px] uppercase text-ink-muted block mb-1">
+                  Bank / Platform Name
                 </label>
                 <input
                   type="text"
-                  required
-                  value={accountIban}
-                  onChange={(e) => setAccountIban(e.target.value)}
-                  placeholder="PK... / Global IBAN / Payoneer Email"
-                  className="w-full border border-line-2 bg-card px-3.5 py-2.5 font-mono text-sm text-ink outline-none transition focus:border-action"
+                  value={bankName}
+                  onChange={(e) => setBankName(e.target.value)}
+                  placeholder="e.g. Meezan Bank, HBL, Wise"
+                  className="w-full border border-line bg-surface px-3.5 py-2 text-xs font-mono text-ink outline-none focus:border-action"
                 />
               </div>
             </div>
+            <div>
+              <label className="font-mono text-[10px] uppercase text-ink-muted block mb-1">
+                IBAN or Account Number <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="text"
+                required
+                value={accountIban}
+                onChange={(e) => setAccountIban(e.target.value)}
+                placeholder="PK... or International Account Number"
+                className="w-full border border-line bg-surface px-3.5 py-2 text-xs font-mono text-ink outline-none focus:border-action uppercase"
+              />
+            </div>
           </div>
 
-          {/* Compliance Checkbox */}
-          <div className="border border-line bg-card/60 p-4">
-            <label className="flex items-start gap-3 cursor-pointer text-xs leading-relaxed text-ink">
-              <input
-                type="checkbox"
-                required
-                checked={confirmNameMatch}
-                onChange={(e) => setConfirmNameMatch(e.target.checked)}
-                className="mt-0.5 h-4 w-4 rounded-none accent-action border-line-2"
-              />
-              <span>
-                <strong>Compliance Declaration:</strong> I certify that the bank account details
-                provided belong to me and match the legal contractor agreement on file with Tauqeer
-                Mustafa Inc. I understand that third-party payouts are prohibited under corporate
-                anti-fraud and anti-money laundering policies.
-              </span>
-            </label>
-          </div>
+          {/* Confirmation Checkbox */}
+          <label className="flex items-start gap-2.5 cursor-pointer font-mono text-xs text-ink/80">
+            <input
+              type="checkbox"
+              checked={confirmNameMatch}
+              onChange={(e) => setConfirmNameMatch(e.target.checked)}
+              className="mt-0.5 accent-action"
+            />
+            <span>
+              I certify that the destination account title matches my legal name and corresponding contract.
+            </span>
+          </label>
+
+          {error && (
+            <div className="flex items-start gap-2 p-3 border border-red-500/30 bg-red-500/5 text-xs text-red-600 dark:text-red-400 font-mono">
+              <AlertCircle size={14} className="shrink-0 mt-0.5" />
+              <span>{error}</span>
+            </div>
+          )}
 
           <button
             type="submit"
             disabled={loading}
-            className="inline-flex min-h-12 w-full sm:w-auto items-center justify-center gap-2 bg-action px-8 font-mono text-[11px] font-bold uppercase tracking-[0.14em] text-on-action transition hover:bg-action-strong active:scale-[0.98] disabled:opacity-50"
+            className="w-full py-3.5 bg-action text-on-action font-mono text-xs font-bold uppercase tracking-wider hover:bg-action-strong transition cursor-pointer disabled:opacity-50"
           >
-            <Send size={15} />
-            <span>{loading ? "Registering in Ledger…" : "Submit Payout Request"}</span>
+            {loading ? "Submitting Request..." : "Submit Payout Request"}
           </button>
         </form>
       )}

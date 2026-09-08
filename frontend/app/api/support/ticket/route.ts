@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { appConfig } from "@/config/app";
+import { getKV } from "@/lib/kv";
 
 const API_BASE_URL = appConfig.apiBaseUrl;
 
@@ -42,40 +43,49 @@ export async function POST(request: Request) {
     );
   }
 
-  // Generate or sanitize reference ID
   const refId = ticketId || `TMI-SUP-${Math.floor(10000 + Math.random() * 90000)}`;
+  const createdAt = new Date().toISOString();
 
-  const supportMessageLines = [
-    `[SUPPORT TICKET: ${refId}]`,
-    `Department: ${department}`,
-    `Severity: ${severity}`,
-    clientId ? `Client/Org ID: ${clientId}` : null,
-    `Subject: ${subject}`,
-    "",
-    "Issue Details:",
-    message,
-  ].filter(Boolean).join("\n");
-
-  const contactPayload = {
-    name: fullName,
+  const ticketData = {
+    ticketId: refId,
+    fullName,
     email,
-    company: clientId || "Support Request",
-    message: supportMessageLines,
+    clientId: clientId || undefined,
+    department,
+    severity,
+    subject,
+    message,
+    status: "OPEN",
+    createdAt,
   };
 
-  // Attempt forwarding to corporate backend contact service
+  // 1. Save to KV
+  try {
+    const kv = getKV();
+    if (kv) {
+      await kv.set(`ticket:${refId}`, JSON.stringify(ticketData), { ex: 60 * 60 * 24 * 180 });
+    }
+  } catch (err) {
+    console.error("KV ticket error:", err);
+  }
+
+  // 2. Forward to corporate backend contact
   let forwarded = false;
   try {
     const res = await fetch(`${API_BASE_URL}/contact`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(contactPayload),
+      body: JSON.stringify({
+        name: fullName,
+        email,
+        company: clientId || "Support Request",
+        message: `[SUPPORT TICKET: ${refId}]\nDepartment: ${department}\nSeverity: ${severity}\nSubject: ${subject}\n\n${message}`,
+      }),
     });
     if (res.ok) {
       forwarded = true;
     }
   } catch {
-    // Backend offline or unreachable in local/isolated test environment
     forwarded = false;
   }
 
@@ -86,10 +96,37 @@ export async function POST(request: Request) {
       status: "OPEN",
       department,
       severity,
-      createdAt: new Date().toISOString(),
+      createdAt,
       forwarded,
       message: `Support ticket ${refId} created successfully. Our engineering triage team has been notified.`,
     },
     { status: 201 }
+  );
+}
+
+export async function GET(request: Request) {
+  const { searchParams } = new URL(request.url);
+  const id = searchParams.get("id")?.trim().toUpperCase();
+
+  if (!id) {
+    return NextResponse.json({ success: false, message: "Ticket ID is required." }, { status: 400 });
+  }
+
+  const kv = getKV();
+  if (kv) {
+    try {
+      const data = await kv.get(`ticket:${id}`);
+      if (data) {
+        const ticket = typeof data === "string" ? JSON.parse(data) : data;
+        return NextResponse.json({ success: true, ticket });
+      }
+    } catch {
+      // Fall through
+    }
+  }
+
+  return NextResponse.json(
+    { success: false, message: `Ticket "${id}" not found in live registry.` },
+    { status: 404 }
   );
 }

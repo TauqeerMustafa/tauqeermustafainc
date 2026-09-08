@@ -77,7 +77,7 @@ export default function ContactForm() {
   return (
     <form
       onSubmit={handleSubmit(onSubmit)}
-      className="rounded-[24px] bg-surface px-8 py-10 sm:px-10 sm:py-12"
+      className="rounded-none border border-line bg-surface px-8 py-10 sm:px-10 sm:py-12"
     >
       {/* ── Section: You ── */}
       <p className="font-mono text-[10px] font-semibold uppercase tracking-[0.12em] text-action">
@@ -87,7 +87,7 @@ export default function ContactForm() {
       <div className="mt-7 grid gap-x-8 gap-y-8 md:grid-cols-2">
         <div className={fieldWrap}>
           <label className={labelClass}>Full Name <span className="text-red-500">*</span></label>
-          <input {...register("fullName")} className={inputClass} placeholder="Jane Doe" autoComplete="name" />
+          <input {...register("fullName")} className={inputClass} placeholder="Your full legal name" autoComplete="name" />
           {errors.fullName && <p className={errorClass}>{errors.fullName.message}</p>}
         </div>
 
@@ -98,7 +98,7 @@ export default function ContactForm() {
 
         <div className={fieldWrap}>
           <label className={labelClass}>Email <span className="text-red-500">*</span></label>
-          <input type="email" {...register("email")} className={inputClass} placeholder="jane@company.com" autoComplete="email" />
+          <input type="email" {...register("email")} className={inputClass} placeholder="name@company.com" autoComplete="email" />
           {errors.email && <p className={errorClass}>{errors.email.message}</p>}
         </div>
 
@@ -120,7 +120,7 @@ export default function ContactForm() {
       <div className="mt-7 grid gap-x-8 gap-y-8 md:grid-cols-2">
         <div className={fieldWrap}>
           <label className={labelClass}>Company / Organisation</label>
-          <input {...register("company")} className={inputClass} placeholder="Acme Corp" autoComplete="organization" />
+          <input {...register("company")} className={inputClass} placeholder="Company or Organisation name" autoComplete="organization" />
         </div>
 
         <div className={fieldWrap}>

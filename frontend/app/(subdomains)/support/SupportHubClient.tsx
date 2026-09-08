@@ -277,22 +277,19 @@ export default function SupportHubClient({ initialTab = "overview" }: { initialT
       // Ignore storage error
     }
 
-    // If not found in local store, simulate live backend lookup
-    if (cleanId.startsWith("TMI-SUP-") || cleanId.length >= 7) {
-      setLookupResult({
-        ticketId: cleanId,
-        fullName: "Corporate Client Account",
-        email: "verified-client@account.tauqeermustafa.tech",
-        department: "Technical Engineering",
-        severity: "P2 - High Urgency",
-        subject: "Enterprise System Operations",
-        message: "Active request logged in central dispatch queue.",
-        status: "TRIAGED",
-        createdAt: new Date(Date.now() - 3600000 * 2).toISOString(),
+    // Query live API for ticket
+    fetch(`/api/support/ticket?id=${encodeURIComponent(cleanId)}`)
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success && data.ticket) {
+          setLookupResult(data.ticket);
+        } else {
+          setLookupError(`Ticket reference "${cleanId}" not found in our records. Please verify your Ticket ID or submit a new ticket.`);
+        }
+      })
+      .catch(() => {
+        setLookupError(`Ticket reference "${cleanId}" not found. Please check the ID provided upon ticket creation.`);
       });
-    } else {
-      setLookupError("Ticket reference not found. Please double-check the ID (format: TMI-SUP-XXXXX).");
-    }
   };
 
   const copyTicketId = (id: string) => {
