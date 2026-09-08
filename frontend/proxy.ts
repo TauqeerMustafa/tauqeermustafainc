@@ -44,6 +44,28 @@ export async function proxy(request: NextRequest) {
   if (!pathname.startsWith("/api") && !pathname.startsWith("/admin")) {
     // Redirect main domain paths to subdomains
     if (hostname === "tauqeermustafa.tech" || hostname === "www.tauqeermustafa.tech") {
+      // Policy and legal redirects directly to docs subdomain
+      if (pathname === "/privacy") {
+        return NextResponse.redirect("https://docs.tauqeermustafa.tech/privacy");
+      }
+      if (pathname === "/terms") {
+        return NextResponse.redirect("https://docs.tauqeermustafa.tech/terms");
+      }
+      if (pathname === "/cookies") {
+        return NextResponse.redirect("https://docs.tauqeermustafa.tech/cookies");
+      }
+      if (pathname === "/accessibility") {
+        return NextResponse.redirect("https://docs.tauqeermustafa.tech/accessibility");
+      }
+      if (pathname.startsWith("/legal/")) {
+        const docSlug = pathname.replace(/^\/legal\//, "");
+        return NextResponse.redirect(`https://docs.tauqeermustafa.tech/${docSlug}`);
+      }
+      if (pathname === "/docs" || pathname.startsWith("/docs/")) {
+        const docPath = pathname.replace(/^\/docs/, "");
+        return NextResponse.redirect(`https://docs.tauqeermustafa.tech${docPath || "/"}`);
+      }
+
       // On main domain, route /pay and /payouts to the billing suite
       if (pathname === "/pay" || pathname === "/payment" || pathname === "/payments") {
         url.pathname = "/billing/pay";
@@ -66,6 +88,29 @@ export async function proxy(request: NextRequest) {
         url.pathname = `/support${newPath || ""}`;
         return NextResponse.rewrite(url);
       }
+    }
+
+    // Local dev fallbacks for removed legacy paths when not on main domain
+    if (pathname === "/privacy") {
+      url.pathname = "/docs/privacy";
+      return NextResponse.rewrite(url);
+    }
+    if (pathname === "/terms") {
+      url.pathname = "/docs/terms";
+      return NextResponse.rewrite(url);
+    }
+    if (pathname === "/cookies") {
+      url.pathname = "/docs/cookies";
+      return NextResponse.rewrite(url);
+    }
+    if (pathname === "/accessibility") {
+      url.pathname = "/docs/accessibility";
+      return NextResponse.rewrite(url);
+    }
+    if (pathname.startsWith("/legal/")) {
+      const docSlug = pathname.replace(/^\/legal\//, "");
+      url.pathname = `/docs/${docSlug}`;
+      return NextResponse.rewrite(url);
     }
 
     if (hostname.includes("support.tauqeermustafa.tech") || hostname.includes("help.tauqeermustafa.tech")) {

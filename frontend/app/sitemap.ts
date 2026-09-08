@@ -14,10 +14,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: "/blog", changeFrequency: "weekly", priority: 0.7 },
     { url: "/careers", changeFrequency: "weekly", priority: 0.6 },
     { url: "/contact", changeFrequency: "yearly", priority: 0.7 },
-    { url: "/privacy", changeFrequency: "yearly", priority: 0.3 },
-    { url: "/terms", changeFrequency: "yearly", priority: 0.3 },
-    { url: "/cookies", changeFrequency: "yearly", priority: 0.3 },
-    { url: "/accessibility", changeFrequency: "yearly", priority: 0.3 },
     { url: "/pay", changeFrequency: "monthly", priority: 0.8 },
     { url: "/billing", changeFrequency: "monthly", priority: 0.8 },
     { url: "/billing/pay", changeFrequency: "monthly", priority: 0.8 },
@@ -30,10 +26,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: "/support/faq", changeFrequency: "weekly", priority: 0.7 },
     { url: "/support/contact", changeFrequency: "monthly", priority: 0.7 },
     { url: "/payouts", changeFrequency: "monthly", priority: 0.6 },
-    { url: "/legal/payment-policy", changeFrequency: "yearly", priority: 0.3 },
-    { url: "/legal/refund-policy", changeFrequency: "yearly", priority: 0.3 },
-    { url: "/legal/return-policy", changeFrequency: "yearly", priority: 0.3 },
-    { url: "/legal/product-policy", changeFrequency: "yearly", priority: 0.3 },
   ] as const;
 
   const staticSitemapRoutes: MetadataRoute.Sitemap = staticRoutes.map((route) => ({
