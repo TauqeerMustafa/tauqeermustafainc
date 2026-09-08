@@ -10,6 +10,7 @@ import LatestBlogs from "@/components/home/LatestBlogs";
 import OperatingModel from "@/components/home/OperatingModel";
 import Technology from "@/components/home/Technology";
 import WhyChooseUs from "@/components/home/WhyChooseUs";
+import WhatsAppChat from "@/components/whatsapp/WhatsAppChat";
 import { buildMetadata } from "@/lib/metadata";
 
 export const metadata: Metadata = buildMetadata({
@@ -32,6 +33,7 @@ export default function Home() {
       <FAQ />
       <LatestBlogs />
       <CTA />
+      <WhatsAppChat />
     </main>
   );
 }

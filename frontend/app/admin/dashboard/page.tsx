@@ -96,7 +96,7 @@ function DepartmentCard({
   return (
     <Link
       href={href}
-      className={`group flex flex-col justify-between rounded-[18px] border p-5 transition-all active:scale-[0.98] ${
+      className={`group flex flex-col justify-between rounded-none border p-5 transition-all active:scale-[0.98] ${
         highlight
           ? "border-adm-blue/40 bg-adm-surface hover:border-adm-blue"
           : "border-adm-border bg-adm-surface hover:border-adm-border-2 hover:bg-adm-surface-2/40"

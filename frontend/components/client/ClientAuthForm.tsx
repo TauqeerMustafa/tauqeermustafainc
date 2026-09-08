@@ -75,7 +75,7 @@ export default function ClientAuthForm({ mode }: Props) {
           </div>
         </div>
 
-        <div className="border border-line-2 bg-surface p-6 shadow-[0_20px_60px_rgba(20,20,19,0.06)] sm:p-8">
+        <div className="border border-line-2 bg-surface p-6 sm:p-8">
           <div className="flex items-center justify-between gap-4">
             <h2 className="text-2xl font-bold uppercase tracking-[-0.02em]">
               {isRegister ? "Create account" : "Client sign in"}

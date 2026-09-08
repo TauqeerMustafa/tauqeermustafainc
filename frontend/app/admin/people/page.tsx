@@ -195,7 +195,7 @@ export default function AdminPeoplePage() {
                   ["Leave", attendanceToday.onLeave, "text-adm-blue"],
                 ] as const
               ).map(([label, value, colour]) => (
-                <div key={label} className="rounded-xl border border-adm-border bg-adm-surface-2 p-3">
+                <div key={label} className="rounded-none border border-adm-border bg-adm-surface-2 p-3">
                   <dd className={`text-xl font-bold tabular-nums ${colour}`}>{value}</dd>
                   <dt className="mt-1 text-[11px] font-semibold text-adm-text-3">
                     {t(label)}

@@ -85,7 +85,7 @@ export default function RevenueBanner({
               <Link
                 key={item.id}
                 href={item.href}
-                className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium transition active:scale-95 ${
+                className={`inline-flex items-center gap-1.5 rounded-none px-3 py-1 text-xs font-medium transition active:scale-95 ${
                   isActive
                     ? "bg-adm-blue text-white font-semibold"
                     : "border border-adm-border bg-adm-surface text-adm-text-2 hover:border-adm-border-2 hover:bg-adm-surface-2 hover:text-adm-text"

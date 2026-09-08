@@ -66,10 +66,20 @@ export default function Footer() {
                   {company.phone}
                 </a>
               </li>
-              <li className="flex items-start gap-2.5 text-[14px] font-light tracking-[-0.01em] text-ink/60">
-                <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-action" aria-hidden="true" />
-                {company.city}
-              </li>
+              {company.offices.map((office) => (
+                <li
+                  key={office.label}
+                  className="flex items-start gap-2.5 text-[14px] font-light tracking-[-0.01em] text-ink/60"
+                >
+                  <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-action" aria-hidden="true" />
+                  <span>
+                    <span className="block font-mono text-[10px] font-semibold uppercase tracking-[0.1em] text-ink/40">
+                      {office.label}
+                    </span>
+                    {office.address}
+                  </span>
+                </li>
+              ))}
             </ul>
 
             <div className="mt-7 flex gap-2.5">

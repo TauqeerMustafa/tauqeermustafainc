@@ -35,8 +35,7 @@ export function AdminPageHeader({
         <button
           type="button"
           onClick={onAction}
-          className="inline-flex items-center justify-center gap-2 rounded-full px-5 py-2.5 text-sm font-medium text-white shadow-sm transition hover:opacity-90 active:scale-[0.98]"
-          style={{ background: "var(--adm-blue)" }}
+          className="inline-flex items-center justify-center gap-2 rounded-none bg-adm-blue px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-adm-blue-mid active:scale-[0.98]"
         >
           <Plus size={16} />
           {actionLabel}
@@ -49,7 +48,7 @@ export function AdminPageHeader({
 export function AdminLoadingState({ label = "Loading…" }: { label?: string }) {
   return (
     <div
-      className="flex items-center justify-center gap-3 rounded-2xl border py-16 shadow-sm"
+      className="flex items-center justify-center gap-3 rounded-none border py-16"
       style={{ borderColor: "var(--adm-border)", background: "var(--adm-surface)", color: "var(--adm-text-3)" }}
     >
       <Loader2 size={18} className="animate-spin" style={{ color: "var(--adm-blue)" }} />
@@ -61,7 +60,7 @@ export function AdminLoadingState({ label = "Loading…" }: { label?: string }) 
 export function AdminErrorState({ message = "Something went wrong loading this data." }: { message?: string }) {
   return (
     <div
-      className="flex flex-col items-center gap-3 rounded-2xl border py-14 text-center shadow-sm"
+      className="flex flex-col items-center gap-3 rounded-none border py-14 text-center"
       style={{ borderColor: "var(--adm-red)", background: "var(--adm-red-light)", color: "var(--adm-red)" }}
     >
       <AlertTriangle size={22} />
@@ -79,7 +78,7 @@ export function AdminEmptyState({
 }) {
   return (
     <div
-      className="flex flex-col items-center gap-3 rounded-2xl border py-16 text-center shadow-sm"
+      className="flex flex-col items-center gap-3 rounded-none border py-16 text-center"
       style={{ borderColor: "var(--adm-border)", background: "var(--adm-surface)" }}
     >
       <Inbox size={24} style={{ color: "var(--adm-text-3)" }} />
@@ -117,8 +116,8 @@ export function AdminConfirmDialog({
   return (
     <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/40 p-4 backdrop-blur-md">
       <div
-        className="adm-dialog w-full max-w-sm rounded-2xl border p-6 shadow-2xl"
-        style={{ background: "var(--adm-surface)", borderColor: "var(--adm-border)" }}
+        className="adm-dialog w-full max-w-sm rounded-none border p-6"
+        style={{ background: "var(--adm-surface)", borderColor: "var(--adm-border-2)" }}
       >
         <h3 className="text-lg font-semibold tracking-tight" style={{ color: "var(--adm-text)" }}>
           {title}
@@ -132,7 +131,7 @@ export function AdminConfirmDialog({
           <button
             type="button"
             onClick={onCancel}
-            className="rounded-full border px-4 py-2 text-xs font-medium transition hover:bg-black/5"
+            className="rounded-none border px-4 py-2 text-xs font-semibold transition hover:bg-black/5"
             style={{ borderColor: "var(--adm-border-2)", color: "var(--adm-text-2)" }}
           >
             {t("Cancel")}
@@ -141,7 +140,7 @@ export function AdminConfirmDialog({
             type="button"
             onClick={onConfirm}
             disabled={isPending}
-            className="rounded-full px-4 py-2 text-xs font-medium text-white shadow-sm transition hover:opacity-90 active:scale-[0.98] disabled:opacity-50"
+            className="rounded-none px-4 py-2 text-xs font-semibold text-white transition hover:opacity-90 active:scale-[0.98] disabled:opacity-50"
             style={{ background: "var(--adm-red)" }}
           >
             {isPending ? t("Deleting…") : confirmLabel}
@@ -170,8 +169,8 @@ export function AdminDrawer({
   return (
     <div className="fixed inset-0 z-[60] flex justify-end bg-black/40 backdrop-blur-md">
       <div
-        className={`adm-drawer w-full ${width === "wide" ? "max-w-2xl" : "max-w-lg"} overflow-y-auto border-s p-6 shadow-2xl sm:p-8`}
-        style={{ background: "var(--adm-surface)", borderColor: "var(--adm-border)" }}
+        className={`adm-drawer w-full ${width === "wide" ? "max-w-2xl" : "max-w-lg"} overflow-y-auto border-s p-6 sm:p-8`}
+        style={{ background: "var(--adm-surface)", borderColor: "var(--adm-border-2)" }}
         role="dialog"
         aria-modal="true"
         aria-label={title}
@@ -223,7 +222,7 @@ export function AdminField({
 }
 
 export const adminInputClass =
-  "w-full rounded-xl border px-3.5 py-2.5 text-[15px] outline-none transition focus:border-adm-blue focus:ring-2 focus:ring-adm-blue/20";
+  "w-full rounded-none border px-3.5 py-2.5 text-[15px] outline-none transition focus:border-adm-blue focus:ring-2 focus:ring-adm-blue/15";
 
 export const adminInputStyle = {
   borderColor: "var(--adm-border-2)",
@@ -250,7 +249,7 @@ export function AdminFormActions({
       <button
         type="button"
         onClick={onCancel}
-        className="rounded-full border px-4 py-2 text-xs font-medium transition hover:bg-black/5"
+        className="rounded-none border px-4 py-2 text-xs font-semibold transition hover:bg-black/5"
         style={{ borderColor: "var(--adm-border-2)", color: "var(--adm-text-2)" }}
       >
         {t("Cancel")}
@@ -258,8 +257,7 @@ export function AdminFormActions({
       <button
         type="submit"
         disabled={isPending}
-        className="rounded-full px-5 py-2 text-xs font-medium text-white shadow-sm transition hover:opacity-90 active:scale-[0.98] disabled:opacity-50"
-        style={{ background: "var(--adm-blue)" }}
+        className="rounded-none bg-adm-blue px-5 py-2 text-xs font-semibold text-white transition-colors hover:bg-adm-blue-mid active:scale-[0.98] disabled:opacity-50"
       >
         {isPending ? t("Saving…") : submitLabel}
       </button>

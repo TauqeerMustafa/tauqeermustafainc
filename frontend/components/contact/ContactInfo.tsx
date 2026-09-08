@@ -1,10 +1,20 @@
+import type { ComponentType } from "react";
 import { Mail, Phone, MapPin, Clock, ArrowUpRight } from "lucide-react";
+import { FaWhatsapp } from "react-icons/fa6";
 
 import { company } from "@/data/company";
 
 /* ── Hybrid design: BMW M dark card + Apple blue links ── */
 
-const items = [
+type ContactItem = {
+  label: string;
+  value: string;
+  icon: ComponentType<{ className?: string; "aria-hidden"?: boolean }>;
+  href?: string;
+  external?: boolean;
+};
+
+const items: ContactItem[] = [
   {
     label: "Email",
     value: company.email,
@@ -18,10 +28,11 @@ const items = [
     href: `tel:${company.phone.replace(/\s+/g, "")}`,
   },
   {
-    label: "Location",
-    value: company.city,
-    icon: MapPin,
-    href: undefined,
+    label: "WhatsApp",
+    value: "Chat with us",
+    icon: FaWhatsapp,
+    href: company.whatsapp,
+    external: true,
   },
   {
     label: "Working Hours",
@@ -65,6 +76,8 @@ export default function ContactInfo() {
                 {item.href ? (
                   <a
                     href={item.href}
+                    target={item.external ? "_blank" : undefined}
+                    rel={item.external ? "noopener noreferrer" : undefined}
                     className="mt-1 flex items-center gap-1 text-[15px] font-[400] leading-[1.4] tracking-[-0.2px] text-ink transition hover:text-action"
                   >
                     {item.value}
@@ -79,6 +92,23 @@ export default function ContactInfo() {
             </li>
           );
         })}
+
+        {/* Locations — head office first */}
+        {company.offices.map((office) => (
+          <li key={office.label} className="flex items-start gap-4">
+            <span className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-ink/[0.04]">
+              <MapPin className="h-4 w-4 text-action" aria-hidden />
+            </span>
+            <div className="min-w-0">
+              <p className="font-mono text-[10px] font-semibold uppercase tracking-[0.1em] text-ink-muted">
+                {office.label}
+              </p>
+              <p className="mt-1 text-[15px] font-[400] leading-[1.4] tracking-[-0.2px] text-ink-lighter">
+                {office.address}
+              </p>
+            </div>
+          </li>
+        ))}
       </ul>
 
       {/* Social row */}

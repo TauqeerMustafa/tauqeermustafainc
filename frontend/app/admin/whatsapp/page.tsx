@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import {
   Send,
   Check,
@@ -100,11 +100,11 @@ const TABS: { key: TabKey; label: string; icon: React.ReactNode }[] = [
 ];
 
 const DEAL_STATUSES: { value: DealStatus; label: string; color: string; bgColor: string }[] = [
-  { value: "new", label: "New Lead", color: "#3B82F6", bgColor: "#DBEAFE" },
-  { value: "contacted", label: "Contacted", color: "#8B5CF6", bgColor: "#EDE9FE" },
-  { value: "negotiating", label: "Negotiating", color: "#F59E0B", bgColor: "#FEF3C7" },
-  { value: "won", label: "Deal Won", color: "#10B981", bgColor: "#D1FAE5" },
-  { value: "lost", label: "Lost", color: "#EF4444", bgColor: "#FEE2E2" },
+  { value: "new", label: "New Lead", color: "var(--adm-blue)", bgColor: "var(--adm-blue-light)" },
+  { value: "contacted", label: "Contacted", color: "var(--adm-text-2)", bgColor: "var(--adm-surface-2)" },
+  { value: "negotiating", label: "Negotiating", color: "var(--adm-amber)", bgColor: "var(--adm-amber-light)" },
+  { value: "won", label: "Deal Won", color: "var(--adm-green)", bgColor: "var(--adm-green-light)" },
+  { value: "lost", label: "Lost", color: "var(--adm-red)", bgColor: "var(--adm-red-light)" },
 ];
 
 // ─── Helpers ────────────────────────────────────────────────────────────
@@ -138,65 +138,115 @@ function channelOf(m: WAMessage): string {
   return (m.channel || (m.direction === "inbound" ? m.to : m.from) || "").trim();
 }
 
+function cleanDigits(s?: string | null): string {
+  return (s || "").replace(/[^0-9]/g, "");
+}
+
+/**
+ * Does this message belong to `numberInfo` because it names it exactly?
+ *
+ * The webhook stamps every message with the Meta Phone Number ID it arrived on
+ * (`m.channel`), and the numbers route lists those same ids. A Phone Number ID
+ * is exact — so this is an equality test on the id (tolerant only of "+" and
+ * spaces, via digit-cleaning) plus the human display number, and nothing
+ * heuristic. Fuzzy suffix matching is exactly what used to bleed Line-2 traffic
+ * onto Line 1, so there is intentionally none of it here.
+ */
+function messageDirectlyMatchesNumber(m: WAMessage, numberInfo: WANumberInfo): boolean {
+  const ch = channelOf(m);
+  if (!ch) return false;
+  if (ch === numberInfo.id) return true;
+
+  const chDigits = cleanDigits(ch);
+  const idDigits = cleanDigits(numberInfo.id);
+  if (chDigits && idDigits && chDigits === idDigits) return true;
+
+  const displayDigits = cleanDigits(numberInfo.displayNumber);
+  if (chDigits && displayDigits && chDigits === displayDigits) return true;
+  if (numberInfo.displayNumber && ch === numberInfo.displayNumber) return true;
+
+  return false;
+}
+
 function messageBelongsToChannel(
   m: WAMessage,
   numberInfo: WANumberInfo | undefined,
   allNumbers: WANumberInfo[]
 ): boolean {
   if (!numberInfo) return true;
-  const ch = channelOf(m);
-  const clean = (s?: string | null) => (s || "").replace(/[^0-9]/g, "");
 
-  const chDigits = clean(ch);
-  const targetIdDigits = clean(numberInfo.id);
-  const targetDisplayDigits = clean(numberInfo.displayNumber);
-  const toDigits = clean(m.to);
-  const fromDigits = clean(m.from);
+  // 1. Check if directly matches target line
+  if (messageDirectlyMatchesNumber(m, numberInfo)) return true;
 
-  // 1. Direct ID match or digit match on ID
-  if (ch === numberInfo.id || (chDigits && targetIdDigits && chDigits === targetIdDigits)) return true;
-
-  // 2. Display number match (e.g. +92 318 8105813 or 923188105813)
-  if (targetDisplayDigits && chDigits && chDigits === targetDisplayDigits) return true;
-
-  // 3. For inbound messages, m.to could be the receiving phone number or phone_number_id
-  if (m.direction === "inbound") {
-    if (toDigits && targetIdDigits && toDigits === targetIdDigits) return true;
-    if (toDigits && targetDisplayDigits && toDigits === targetDisplayDigits) return true;
-  }
-
-  // 4. For outbound messages, m.from could be the sending phone number or phone_number_id
-  if (m.direction === "outbound") {
-    if (fromDigits && targetIdDigits && fromDigits === targetIdDigits) return true;
-    if (fromDigits && targetDisplayDigits && fromDigits === targetDisplayDigits) return true;
-  }
-
-  // 5. If this message matches ANY OTHER configured line, it does not belong here
+  // 2. If it directly matches ANY OTHER configured line, it does not belong here
   const matchesAnotherLine = allNumbers.some((other) => {
     if (other.id === numberInfo.id) return false;
-    const otherIdDigits = clean(other.id);
-    const otherDisplayDigits = clean(other.displayNumber);
-    if (ch === other.id || (chDigits && otherIdDigits && chDigits === otherIdDigits)) return true;
-    if (otherDisplayDigits && chDigits && chDigits === otherDisplayDigits) return true;
-    if (m.direction === "inbound" && toDigits) {
-      if (otherIdDigits && toDigits === otherIdDigits) return true;
-      if (otherDisplayDigits && toDigits === otherDisplayDigits) return true;
-    }
-    if (m.direction === "outbound" && fromDigits) {
-      if (otherIdDigits && fromDigits === otherIdDigits) return true;
-      if (otherDisplayDigits && fromDigits === otherDisplayDigits) return true;
-    }
-    return false;
+    return messageDirectlyMatchesNumber(m, other);
   });
 
   if (matchesAnotherLine) return false;
 
-  // 6. If it didn't match any specific other line, attribute legacy messages to primary line
+  // 3. Fallback: unlabelled or legacy messages belong to the primary line
   return !!numberInfo.primary;
 }
 
+/** Get the canonical sender number ID for a message or conversation */
+function getLineForMessage(m: WAMessage, allNumbers: WANumberInfo[]): WANumberInfo | undefined {
+  for (const n of allNumbers) {
+    if (messageBelongsToChannel(m, n, allNumbers)) return n;
+  }
+  return allNumbers.find((n) => n.primary) || allNumbers[0];
+}
+
+/**
+ * The lines to show in the inbox: the ones Meta confirmed (from the numbers
+ * route) plus any Phone Number ID that appears on a stored message but is
+ * missing from that list.
+ *
+ * The second half is the safety net for the bug this screen kept fighting: if
+ * discovery ever misses a number — a stale token, a number on a WABA we don't
+ * enumerate, a wrong id hard-coded as the fallback — its RECEIVED messages used
+ * to vanish or leak onto Line 1. Now the id they actually arrived on becomes a
+ * line of its own, so nothing an inbound message carries can be hidden. When
+ * Meta later confirms that id, the two collapse into one (same id) and the
+ * synthesized entry disappears.
+ */
+function withSeenChannels(
+  apiNumbers: WANumberInfo[],
+  messages: WAMessage[]
+): WANumberInfo[] {
+  const covers = (ch: string) => {
+    const chDigits = cleanDigits(ch);
+    return apiNumbers.some(
+      (n) =>
+        n.id === ch ||
+        (chDigits && cleanDigits(n.id) === chDigits) ||
+        (n.displayNumber ? cleanDigits(n.displayNumber) === chDigits : false)
+    );
+  };
+
+  const extras: WANumberInfo[] = [];
+  for (const m of messages) {
+    // Only the explicit channel stamp is trustworthy as OUR line — the
+    // to/from fallback is the customer's number on legacy rows.
+    const ch = (m.channel || "").trim();
+    if (!ch || covers(ch)) continue;
+    if (extras.some((e) => e.id === ch || cleanDigits(e.id) === cleanDigits(ch))) continue;
+    extras.push({
+      id: ch,
+      label: `Line ${apiNumbers.length + extras.length + 1}`,
+      primary: false,
+      slot: 1,
+      canSend: false,
+      displayNumber: null,
+      error: "Received messages arrived on this number, but Meta has not confirmed it — replies may not send until it is configured.",
+    });
+  }
+  return extras.length ? [...apiNumbers, ...extras] : apiNumbers;
+}
+
 /** Group messages into conversations, newest activity first. */
-function groupConversations(messages: WAMessage[]): Conversation[] {
+function groupConversations(messages: WAMessage[], allNumbers: WANumberInfo[] = []): Conversation[] {
   const byNumber = new Map<string, Conversation>();
   for (const m of messages) {
     const number = numberOf(m);
@@ -211,7 +261,10 @@ function groupConversations(messages: WAMessage[]): Conversation[] {
   const convos = [...byNumber.values()];
   for (const c of convos) {
     c.messages.sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
-    c.channel = channelOf(c.messages.at(-1)!) || undefined;
+    // Assign canonical channel ID from the last message or conversation history
+    const last = c.messages.at(-1);
+    const line = last ? getLineForMessage(last, allNumbers) : undefined;
+    c.channel = line?.id || channelOf(c.messages.at(-1)!) || undefined;
   }
   convos.sort((a, b) => {
     const at = a.messages.at(-1) ? new Date(a.messages.at(-1)!.timestamp).getTime() : 0;
@@ -274,7 +327,8 @@ export default function AdminWhatsAppPage() {
   const [activeTab, setActiveTab] = useState<TabKey>("inbox");
   const [prefillRecipient, setPrefillRecipient] = useState<string | null>(null);
   const [prefillSender, setPrefillSender] = useState<string | null>(null);
-  const [inboxChannel, setInboxChannel] = useState<string | undefined>(undefined);
+  const [inboxChannel, setInboxChannel] = useState<string | undefined>("all");
+  const [selectedChatRecipient, setSelectedChatRecipient] = useState<string | null>(null);
 
   const { data: numbersData } = useWhatsAppNumbers();
   const numbers = numbersData?.data ?? [];
@@ -294,6 +348,12 @@ export default function AdminWhatsAppPage() {
     setActiveTab("inbox");
   };
 
+  const openChatInInbox = (recipient: string, channelId?: string) => {
+    if (channelId) setInboxChannel(channelId);
+    setSelectedChatRecipient(recipient);
+    setActiveTab("inbox");
+  };
+
   return (
     <div className="flex flex-col gap-6">
       <CommunicationsBanner active="whatsapp" />
@@ -305,42 +365,53 @@ export default function AdminWhatsAppPage() {
       {/* Connected Phone Lines Header & Direct Inbox Switcher */}
       {numbers.length > 0 && (
         <div className="mb-4 flex flex-wrap items-center gap-2">
-          <span className="text-xs font-semibold uppercase tracking-wider text-gray-500">
-            Switch Inbox:
+          <span className="text-xs font-semibold uppercase tracking-wider text-adm-text-3">
+            Inbox:
           </span>
+          <button
+            type="button"
+            onClick={() => openLineInbox("all")}
+            className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-medium transition ${
+              activeTab === "inbox" && (inboxChannel === "all" || !inboxChannel)
+                ? "bg-adm-blue-light border-adm-blue ring-2 ring-adm-blue/20 text-adm-blue font-bold"
+                : "bg-adm-surface hover:bg-adm-surface-2 text-adm-text-2"
+            }`}
+            style={{ borderColor: activeTab === "inbox" && (inboxChannel === "all" || !inboxChannel) ? "var(--adm-blue)" : "var(--adm-border)" }}
+            title="Open combined inbox showing all conversations from both lines"
+          >
+            <span>All Inboxes (Combined)</span>
+          </button>
           {numbers.map((n, i) => {
             const isSendable = n.canSend !== false;
-            const isCurrent =
-              activeTab === "inbox" &&
-              (inboxChannel === n.id || (!inboxChannel && (n.primary || i === 0)));
+            const isCurrent = activeTab === "inbox" && inboxChannel === n.id;
             return (
               <button
                 key={n.id}
                 type="button"
                 onClick={() => openLineInbox(n.id)}
-                className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-medium shadow-sm transition ${
+                className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-medium transition ${
                   isCurrent
-                    ? "bg-emerald-50 border-emerald-600 ring-2 ring-emerald-500/20 text-emerald-950 font-bold"
-                    : "bg-white hover:bg-gray-50 text-gray-800"
+                    ? "bg-adm-blue-light border-adm-blue ring-2 ring-adm-blue/20 text-adm-blue font-bold"
+                    : "bg-adm-surface hover:bg-adm-surface-2 text-adm-text-2"
                 }`}
-                style={{ borderColor: isCurrent ? "#059669" : isSendable ? "var(--adm-border)" : "var(--adm-red)" }}
+                style={{ borderColor: isCurrent ? "var(--adm-blue)" : isSendable ? "var(--adm-border)" : "var(--adm-red)" }}
                 title={`Open separated inbox for ${n.displayNumber || n.label || n.id}`}
               >
                 <span
                   className="h-2 w-2 rounded-full"
-                  style={{ background: isSendable ? "#22C55E" : "#EF4444" }}
+                  style={{ background: isSendable ? "var(--adm-green)" : "var(--adm-red)" }}
                 />
                 <span>
                   {n.displayNumber || n.label || `Line ${i + 1}`}
                 </span>
                 {n.primary && (
-                  <span className="text-[10px] font-bold text-blue-600">(Line 1)</span>
+                  <span className="text-[10px] font-bold text-adm-blue">(Line 1)</span>
                 )}
                 {!n.primary && (
-                  <span className="text-[10px] font-bold text-purple-600">(Line 2)</span>
+                  <span className="text-[10px] font-bold text-adm-text-2">(Line 2)</span>
                 )}
                 {!isSendable && (
-                  <span className="text-[10px] font-bold text-red-600">(Error)</span>
+                  <span className="text-[10px] font-bold text-adm-red">(Error)</span>
                 )}
               </button>
             );
@@ -376,17 +447,22 @@ export default function AdminWhatsAppPage() {
           onReply={goReply}
           selectedChannel={inboxChannel}
           onSelectChannel={setInboxChannel}
+          selectedRecipient={selectedChatRecipient}
+          onClearSelectedRecipient={() => setSelectedChatRecipient(null)}
         />
       )}
-      {activeTab === "pipeline" && <PipelineTab onOpenChat={goReply} />}
+      {activeTab === "pipeline" && <PipelineTab onOpenChat={openChatInInbox} />}
       {activeTab === "send" && (
         <SendTab
           key={`${prefillRecipient ?? "blank"}_${prefillSender ?? "default"}`}
           defaultRecipient={prefillRecipient ?? ""}
           defaultSender={prefillSender ?? undefined}
-          onSent={() => {
+          onSent={(recipient, senderId) => {
             setPrefillRecipient(null);
             setPrefillSender(null);
+            if (recipient) {
+              openChatInInbox(recipient, senderId);
+            }
           }}
         />
       )}
@@ -401,28 +477,29 @@ export default function AdminWhatsAppPage() {
 
 // ─── Inbox ──────────────────────────────────────────────────────────────
 
-// WhatsApp Web (light) palette — matched to the real client.
+// Inbox palette — reskinned onto the admin BMW token system (blue accent,
+// square structure, hairline depth). No WhatsApp green; themes via --adm-*.
 const WA = {
-  panel: "#f0f2f5", // header bars, composer, app chrome
-  panelBorder: "#d1d7db",
-  listBg: "#ffffff", // chat-list background
-  chatBg: "#efeae2", // conversation wallpaper base
-  out: "#d9fdd3", // outgoing bubble
-  outTail: "#d9fdd3",
-  in: "#ffffff", // incoming bubble
-  green: "#00a884", // primary accent / send
-  headerGreen: "#008069",
-  badge: "#25d366", // unread count badge
-  tick: "#53bdeb", // read ✓✓ (blue)
-  tickGrey: "#8696a0", // sent/delivered ✓
-  text: "#111b21", // primary text
-  sub: "#667781", // secondary text / timestamps
-  icon: "#54656f", // header icons
-  divider: "#e9edef",
-  datePill: "#ffffff",
-  dateText: "#54656f",
-  e2e: "#fdf6cb", // encryption notice pill
-  e2eText: "#54656f",
+  panel: "var(--adm-surface-2)", // header bars, composer, app chrome
+  panelBorder: "var(--adm-border)",
+  listBg: "var(--adm-surface)", // chat-list background
+  chatBg: "var(--adm-bg)", // conversation canvas (flat, no wallpaper)
+  out: "var(--adm-blue-light)", // outgoing bubble
+  outTail: "var(--adm-blue-light)",
+  in: "var(--adm-surface)", // incoming bubble
+  green: "var(--adm-blue)", // primary accent / send
+  headerGreen: "var(--adm-blue-mid)",
+  badge: "var(--adm-blue)", // unread count badge
+  tick: "var(--adm-blue)", // read ✓✓
+  tickGrey: "var(--adm-text-3)", // sent/delivered ✓
+  text: "var(--adm-text)", // primary text
+  sub: "var(--adm-text-3)", // secondary text / timestamps
+  icon: "var(--adm-text-2)", // header icons
+  divider: "var(--adm-border)",
+  datePill: "var(--adm-surface-2)",
+  dateText: "var(--adm-text-3)",
+  e2e: "var(--adm-amber-light)", // encryption notice pill
+  e2eText: "var(--adm-text-3)",
 };
 // Faithful WhatsApp wallpaper doodle tile (subtle, low-opacity marks on #efeae2).
 const DOODLE =
@@ -569,7 +646,7 @@ function SelectWithCustom({
               setCustom(false);
               onChange(options[0]?.value ?? "");
             }}
-            className="shrink-0 rounded p-2"
+            className="shrink-0 rounded-nonep-2"
             style={{ color: "var(--adm-text-3)" }}
             aria-label="Use a preset instead"
             title="Back to list"
@@ -586,10 +663,14 @@ function InboxTab({
   onReply,
   selectedChannel: controlledChannel,
   onSelectChannel: setControlledChannel,
+  selectedRecipient,
+  onClearSelectedRecipient,
 }: {
   onReply: (number: string) => void;
   selectedChannel?: string;
   onSelectChannel?: (channelId: string) => void;
+  selectedRecipient?: string | null;
+  onClearSelectedRecipient?: () => void;
 }) {
   const { data, isLoading, isError, refetch } = useWhatsAppMessages();
   const { data: metaData } = useConversationMeta();
@@ -598,11 +679,11 @@ function InboxTab({
   const deleteConv = useDeleteConversation();
 
   const metaMap = metaData?.data ?? {};
-  const numbers = numbersData?.data ?? [];
+  const apiNumbers = numbersData?.data ?? [];
 
-  // Each inbox starts in its own dedicated, separated view (Line 1 by default)
-  const [internalChannel, setInternalChannel] = useState<string>("");
-  const activeChannel = controlledChannel !== undefined ? controlledChannel : internalChannel || numbers[0]?.id || "all";
+  // Default to "all" (Combined Inboxes) so no messages are hidden
+  const [internalChannel, setInternalChannel] = useState<string>("all");
+  const activeChannel = controlledChannel !== undefined ? controlledChannel : internalChannel || "all";
 
   const handleSelectChannel = (ch: string) => {
     if (setControlledChannel) setControlledChannel(ch);
@@ -613,7 +694,14 @@ function InboxTab({
   const [searchQuery, setSearchQuery] = useState("");
   const [filter, setFilter] = useState<"all" | "unread">("all");
   const [showArchived, setShowArchived] = useState(false);
-  const [selected, setSelected] = useState<string | null>(null); // customer number
+  const [selected, setSelected] = useState<string | null>(selectedRecipient || null);
+
+  useEffect(() => {
+    if (selectedRecipient) {
+      setSelected(selectedRecipient);
+      if (onClearSelectedRecipient) onClearSelectedRecipient();
+    }
+  }, [selectedRecipient, onClearSelectedRecipient]);
 
   if (isLoading) return <AdminLoadingState label="Loading conversations…" />;
   if (isError)
@@ -621,23 +709,31 @@ function InboxTab({
 
   const allMessages = data?.data ?? [];
 
-  // Pre-calculate conversation and unread counts for EACH separate line
+  // Meta's confirmed lines, plus a synthesized line for any Phone Number ID
+  // that shows up on a stored message but isn't in that list — so a received
+  // message can never be filtered into nowhere. See withSeenChannels.
+  const numbers = withSeenChannels(apiNumbers, allMessages);
+
+  // Pre-calculate conversation and unread counts for EACH separate line and Combined
+  const allConvs = groupConversations(allMessages, numbers);
+  const totalCombinedUnreads = allConvs.reduce((acc, c) => acc + (unreadCount(c, metaMap[c.number]) > 0 ? 1 : 0), 0);
+
   const lineStats: Record<string, { count: number; unread: number }> = {};
   for (const n of numbers) {
     const lineMsgs = allMessages.filter((m) => messageBelongsToChannel(m, n, numbers));
-    const lineConvs = groupConversations(lineMsgs);
+    const lineConvs = groupConversations(lineMsgs, numbers);
     const unreads = lineConvs.reduce((acc, c) => acc + (unreadCount(c, metaMap[c.number]) > 0 ? 1 : 0), 0);
     lineStats[n.id] = { count: lineConvs.length, unread: unreads };
   }
 
-  // Filter messages strictly for the active line so inboxes are 100% separated
+  // Filter messages strictly for the active line so inboxes are separated when chosen, or combined
   const activeLine = numbers.find((n) => n.id === activeChannel);
   const filteredMessages =
     activeChannel === "all" || !activeLine
       ? allMessages
       : allMessages.filter((m) => messageBelongsToChannel(m, activeLine, numbers));
 
-  const conversations = groupConversations(filteredMessages);
+  const conversations = groupConversations(filteredMessages, numbers);
 
   const withMeta = conversations.map((conv) => {
     const meta = metaMap[conv.number];
@@ -661,7 +757,20 @@ function InboxTab({
     .sort((a, b) => Number(!!b.meta?.pinned) - Number(!!a.meta?.pinned));
   const list = showArchived ? archivedList : activeList;
 
-  const selectedConv = selected ? withMeta.find((x) => x.conv.number === selected) : null;
+  // If a recipient is selected but not in the currently filtered line, find it in allConvs
+  const selectedConv = selected
+    ? withMeta.find((x) => x.conv.number === selected) ||
+      (() => {
+        const found = allConvs.find((c) => c.number === selected);
+        return found
+          ? {
+              conv: found,
+              meta: metaMap[found.number],
+              unread: unreadCount(found, metaMap[found.number]),
+            }
+          : null;
+      })()
+    : null;
 
   const patch = (number: string, p: Partial<ConvMeta>) =>
     updateMeta.mutate({ key: number, patch: p });
@@ -675,24 +784,47 @@ function InboxTab({
   const totalUnread = activeList.reduce((n, x) => n + (x.unread > 0 ? 1 : 0), 0);
 
   /**
-   * Which of our numbers a thread came in on — shown in the list only when there
-   * is more than one, otherwise every row would carry the same redundant tag.
+   * A stable, unambiguous name for a line. Primary is always "Line 1"; every
+   * other line is numbered by its order in the list, so a synthesized third
+   * line reads "Line 3" instead of a second, confusing "Line 2".
    */
-  const channelTag = (conv: Conversation): string | undefined => {
-    if (numbers.length < 2 || !conv.channel) return undefined;
-    const clean = (s?: string | null) => (s || "").replace(/[^0-9]/g, "");
-    const chDigits = clean(conv.channel);
-    const n = numbers.find(
-      (x) =>
-        x.id === conv.channel ||
-        (chDigits && (chDigits === clean(x.id) || chDigits === clean(x.displayNumber)))
-    );
-    return n ? n.label || n.displayNumber || undefined : undefined;
+  const lineName = (n: WANumberInfo): string => {
+    if (n.primary) return "Line 1";
+    const idx = numbers.filter((x) => !x.primary).findIndex((x) => x.id === n.id);
+    return `Line ${idx >= 0 ? idx + 2 : numbers.length}`;
+  };
+
+  /**
+   * Which of our numbers a thread came in on — shown in the list with clear badges.
+   */
+  type ChannelTagInfo = { label: string; isPrimary: boolean; displayNumber?: string };
+  const channelTag = (conv: Conversation): ChannelTagInfo | undefined => {
+    if (numbers.length < 2) return undefined;
+    const n = numbers.find((x) => x.id === conv.channel);
+    if (n) {
+      return {
+        label: lineName(n),
+        isPrimary: !!n.primary,
+        displayNumber: n.displayNumber || undefined,
+      };
+    }
+    for (let i = conv.messages.length - 1; i >= 0; i--) {
+      for (const num of numbers) {
+        if (messageBelongsToChannel(conv.messages[i], num, numbers)) {
+          return {
+            label: lineName(num),
+            isPrimary: !!num.primary,
+            displayNumber: num.displayNumber || undefined,
+          };
+        }
+      }
+    }
+    return undefined;
   };
 
   return (
     <div
-      className="flex overflow-hidden rounded-lg border"
+      className="flex overflow-hidden rounded-none border"
       style={{ borderColor: WA.panelBorder, height: "calc(100vh - 230px)", minHeight: 520 }}
     >
       {/* LEFT: chat list */}
@@ -723,24 +855,35 @@ function InboxTab({
 
         {/* Dedicated Separate Inboxes Switcher */}
         {numbers.length > 1 && (
-          <div className="border-b bg-gray-50/90 p-2.5" style={{ borderColor: WA.divider }}>
-            <div className="mb-1.5 flex items-center justify-between">
-              <span className="text-[11px] font-bold uppercase tracking-wider text-gray-500">
-                Select WhatsApp Inbox:
+          <div className="border-b bg-adm-surface-2 p-2" style={{ borderColor: WA.divider }}>
+            <div className="mb-1.5 flex items-center justify-between px-1">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-adm-text-3">
+                Filter by Line:
               </span>
+            </div>
+            <div className="grid grid-cols-3 gap-1">
+              {/* Option 1: All Inboxes */}
               <button
                 type="button"
                 onClick={() => handleSelectChannel("all")}
-                className={`text-[11px] px-2 py-0.5 rounded font-semibold transition ${
+                className={`flex flex-col items-center justify-center rounded-none border p-1.5 text-center transition ${
                   activeChannel === "all"
-                    ? "bg-gray-800 text-white"
-                    : "text-gray-500 hover:text-gray-800"
+                    ? "border-adm-blue bg-adm-surface ring-2 ring-adm-blue/20 font-bold"
+                    : "border-adm-border bg-adm-surface hover:bg-adm-surface text-adm-text-2"
                 }`}
               >
-                Combined
+                <div className="flex items-center gap-1">
+                  <span className="text-[11px] truncate">All Inboxes</span>
+                  {totalCombinedUnreads > 0 && (
+                    <span className="rounded-full bg-adm-blue px-1 py-0.2 text-[9px] font-bold text-white shrink-0">
+                      {totalCombinedUnreads}
+                    </span>
+                  )}
+                </div>
+                <span className="text-[10px] text-adm-text-3">{allConvs.length} chats</span>
               </button>
-            </div>
-            <div className="grid grid-cols-2 gap-1.5">
+
+              {/* Individual Lines */}
               {numbers.map((n, idx) => {
                 const isActive = activeChannel === n.id;
                 const stats = lineStats[n.id] || { count: 0, unread: 0 };
@@ -750,32 +893,29 @@ function InboxTab({
                     key={n.id}
                     type="button"
                     onClick={() => handleSelectChannel(n.id)}
-                    className={`flex flex-col rounded-lg border p-2 text-left transition ${
+                    className={`flex flex-col items-center justify-center rounded-none border p-1.5 text-center transition ${
                       isActive
-                        ? "border-emerald-600 bg-white shadow-sm ring-2 ring-emerald-500/20"
-                        : "border-gray-200 bg-white/70 hover:bg-white"
+                        ? "border-adm-blue bg-adm-surface ring-2 ring-adm-blue/20 font-bold"
+                        : "border-adm-border bg-adm-surface hover:bg-adm-surface text-adm-text-2"
                     }`}
                   >
-                    <div className="flex items-center justify-between gap-1">
-                      <span className="flex items-center gap-1.5 text-xs font-bold text-gray-900 truncate">
-                        <span
-                          className="h-2 w-2 rounded-full shrink-0"
-                          style={{ background: n.canSend !== false ? "#16a34a" : "#dc2626" }}
-                        />
-                        <span className="truncate">{display}</span>
+                    <div className="flex items-center gap-1 truncate max-w-full">
+                      <span
+                        className="h-1.5 w-1.5 rounded-full shrink-0"
+                        style={{ background: n.canSend !== false ? "var(--adm-green)" : "var(--adm-red)" }}
+                      />
+                      <span className="text-[11px] truncate">
+                        {lineName(n)}
                       </span>
                       {stats.unread > 0 && (
-                        <span className="rounded-full bg-emerald-600 px-1.5 py-0.2 text-[10px] font-bold text-white shrink-0">
+                        <span className="rounded-full bg-adm-blue px-1 py-0.2 text-[9px] font-bold text-white shrink-0">
                           {stats.unread}
                         </span>
                       )}
                     </div>
-                    <div className="mt-1 flex items-center justify-between text-[10px] text-gray-500">
-                      <span className="font-medium text-emerald-800/80">
-                        {n.primary ? "Line 1" : "Line 2"}
-                      </span>
-                      <span>{stats.count} chats</span>
-                    </div>
+                    <span className="text-[10px] text-adm-text-3 truncate" title={display}>
+                      {stats.count} chats
+                    </span>
                   </button>
                 );
               })}
@@ -792,7 +932,7 @@ function InboxTab({
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search or start a new chat"
-              className="w-full rounded-lg border-0 py-[7px] pl-12 pr-3 text-[14px] outline-none"
+              className="w-full rounded-none border-0 py-[7px] pl-12 pr-3 text-[14px] outline-none"
               style={{ background: WA.panel, color: WA.text }}
             />
           </div>
@@ -809,8 +949,8 @@ function InboxTab({
                   }}
                   className="rounded-full px-3 py-1 text-[13px] font-medium capitalize transition"
                   style={{
-                    background: on ? "#d9fdd3" : WA.panel,
-                    color: on ? "#008069" : WA.sub,
+                    background: on ? "var(--adm-blue-light)" : WA.panel,
+                    color: on ? "var(--adm-blue-mid)" : WA.sub,
                   }}
                 >
                   {f}
@@ -904,10 +1044,10 @@ function EmptyChatState() {
       className="hidden flex-1 flex-col items-center justify-center gap-5 border-b-[6px] md:flex"
       style={{ background: WA.panel, borderBottomColor: WA.green }}
     >
-      <div className="flex h-[220px] w-[220px] items-center justify-center rounded-full" style={{ background: "#daf1e8" }}>
-        <MessageSquare size={96} strokeWidth={1} style={{ color: "#a7c5bd" }} />
+      <div className="flex h-[220px] w-[220px] items-center justify-center rounded-full" style={{ background: "var(--adm-surface-2)" }}>
+        <MessageSquare size={96} strokeWidth={1} style={{ color: "var(--adm-text-3)" }} />
       </div>
-      <p className="text-[32px] font-light" style={{ color: "#41525d" }}>
+      <p className="text-[32px] font-light" style={{ color: "var(--adm-text-2)" }}>
         WhatsApp Business
       </p>
       <p className="max-w-md text-center text-[14px]" style={{ color: WA.sub }}>
@@ -932,7 +1072,7 @@ function ChatListItem({
   meta?: ConvMeta;
   unread: number;
   /** Label of the number this thread is on; only set when the business has two. */
-  channel?: string;
+  channel?: { label: string; isPrimary: boolean; displayNumber?: string } | string;
   active: boolean;
   onClick: () => void;
 }) {
@@ -946,11 +1086,11 @@ function ChatListItem({
       type="button"
       onClick={onClick}
       className="flex w-full items-center gap-3 pl-3 pr-4 text-left transition hover:bg-black/[0.03]"
-      style={{ background: active ? "#f0f2f5" : "transparent" }}
+      style={{ background: active ? "var(--adm-surface-2)" : "transparent" }}
     >
       <div
         className="flex h-[49px] w-[49px] shrink-0 items-center justify-center self-center rounded-full text-[17px] font-medium text-white"
-        style={{ background: "#6b7c85" }}
+        style={{ background: "var(--adm-blue)" }}
       >
         {initials(name)}
       </div>
@@ -982,11 +1122,20 @@ function ChatListItem({
           <span className="flex shrink-0 items-center gap-1.5">
             {channel && (
               <span
-                className="max-w-[92px] truncate px-1.5 py-px text-[10px] font-semibold uppercase tracking-wide"
-                style={{ background: WA.listBg, color: WA.sub, border: `1px solid ${WA.divider}` }}
-                title={`Received on ${channel}`}
+                className={`rounded-nonepx-1.5 py-0.5 text-[10px] font-bold tracking-wide uppercase ${
+                  typeof channel === "object" && channel.isPrimary
+                    ? "bg-adm-blue-light text-adm-blue border border-adm-blue"
+                    : typeof channel === "object"
+                    ? "bg-adm-surface-2 text-adm-text-2 border border-adm-border-2"
+                    : "bg-adm-surface-2 text-adm-text-2 border border-adm-border"
+                }`}
+                title={
+                  typeof channel === "object"
+                    ? `WhatsApp ${channel.label}${channel.displayNumber ? ` (${channel.displayNumber})` : ""}`
+                    : `Received on ${channel}`
+                }
               >
-                {channel}
+                {typeof channel === "object" ? channel.label : channel}
               </span>
             )}
             {dealCfg && (
@@ -1042,7 +1191,30 @@ function ChatView({
   const sendMessage = useSendWhatsAppMessage();
   const { data: numbersData } = useWhatsAppNumbers();
   const numbers = numbersData?.data ?? [];
-  const sender = channelId || (numbers.some((n) => n.id === conv.channel) ? conv.channel : undefined);
+
+  // Determine default sender line ID:
+  // 1. Explicit channelId if provided and valid
+  // 2. Conversation channel if valid
+  // 3. Line determined from conversation messages
+  // 4. Fallback to primary line or first line
+  const defaultSenderId = useMemo(() => {
+    if (channelId && numbers.some((n) => n.id === channelId)) return channelId;
+    if (conv.channel && numbers.some((n) => n.id === conv.channel)) return conv.channel;
+    const lastMsg = conv.messages.at(-1);
+    if (lastMsg) {
+      const line = getLineForMessage(lastMsg, numbers);
+      if (line) return line.id;
+    }
+    return numbers.find((n) => n.primary)?.id || numbers[0]?.id || "";
+  }, [channelId, conv.channel, conv.messages, numbers]);
+
+  const [activeSenderId, setActiveSenderId] = useState<string>(defaultSenderId);
+
+  useEffect(() => {
+    setActiveSenderId(defaultSenderId);
+  }, [defaultSenderId]);
+
+  const sender = activeSenderId || defaultSenderId;
   const senderInfo = numbers.find((n) => n.id === sender);
   const [reply, setReply] = useState("");
   const [error, setError] = useState("");
@@ -1228,7 +1400,7 @@ function ChatView({
         >
           <div
             className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-sm font-medium text-white"
-            style={{ background: "#6b7c85" }}
+            style={{ background: "var(--adm-blue)" }}
           >
             {initials(name)}
           </div>
@@ -1238,10 +1410,18 @@ function ChatView({
             </p>
             <p className="truncate text-[13px]" style={{ color: WA.sub }}>
               {senderInfo ? (
-                <span className="inline-flex items-center gap-1 font-semibold text-emerald-700">
-                  <span className="h-1.5 w-1.5 rounded-full bg-emerald-600 inline-block" />
-                  {senderInfo.primary ? "Line 1" : "Line 2"}
-                  {senderInfo.displayNumber ? ` (${senderInfo.displayNumber})` : ""}
+                <span
+                  className={`inline-flex items-center gap-1 font-semibold ${
+                    senderInfo.primary ? "text-adm-blue" : "text-adm-text-2"
+                  }`}
+                >
+                  <span
+                    className={`h-1.5 w-1.5 rounded-full inline-block ${
+                      senderInfo.primary ? "bg-adm-blue" : "bg-adm-text-3"
+                    }`}
+                  />
+                  {senderInfo.primary ? "Line 1 (Primary)" : "Line 2 (Secondary)"}
+                  {senderInfo.displayNumber ? ` • ${senderInfo.displayNumber}` : ""}
                 </span>
               ) : (
                 "Contact info"
@@ -1272,8 +1452,7 @@ function ChatView({
               <>
                 <div className="fixed inset-0 z-10" onClick={() => setMenuOpen(false)} />
                 <div
-                  className="absolute right-0 z-20 mt-1 w-60 overflow-hidden rounded-md bg-white py-2 shadow-lg"
-                  style={{ boxShadow: "0 2px 10px rgba(11,20,26,0.16)" }}
+                  className="absolute right-0 z-20 mt-1 w-60 overflow-hidden rounded-none border border-adm-border bg-adm-surface py-2"
                 >
                   <MenuItem icon={<User size={15} />} label="Contact info & deal" onClick={() => { setShowDetails(true); setMenuOpen(false); }} />
                   <MenuItem
@@ -1363,11 +1542,11 @@ function ChatView({
       )}
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto px-[5%] py-3 lg:px-[8%]" style={{ backgroundImage: DOODLE }}>
+      <div className="flex-1 overflow-y-auto px-[5%] py-3 lg:px-[8%]">
         {/* End-to-end encryption notice */}
         <div className="mb-3 flex justify-center">
           <span
-            className="flex max-w-lg items-center gap-1.5 rounded-md px-3 py-1.5 text-center text-[12.5px] leading-[18px] shadow-sm"
+            className="flex max-w-lg items-center gap-1.5 rounded-none px-3 py-1.5 text-center text-[12.5px] leading-[18px]"
             style={{ background: WA.e2e, color: WA.e2eText }}
           >
             <Lock size={12} className="shrink-0" />
@@ -1381,12 +1560,13 @@ function ChatView({
           // A "tail" (bubble beak) shows only on the first message of a run from
           // the same side, exactly like WhatsApp.
           const tail = showDate || !prev || prev.direction !== msg.direction;
+          const msgLine = numbers.length > 1 ? getLineForMessage(msg, numbers) : undefined;
           return (
             <div key={msg.id}>
               {showDate && (
                 <div className="my-3 flex justify-center">
                   <span
-                    className="rounded-md px-3 py-1 text-[12.5px] font-medium uppercase shadow-sm"
+                    className="rounded-none px-3 py-1 text-[12.5px] font-medium uppercase"
                     style={{ background: WA.datePill, color: WA.dateText }}
                   >
                     {formatDateDivider(msg.timestamp)}
@@ -1400,6 +1580,8 @@ function ChatView({
                 reactions={reactionsByTarget.get(msg.id)}
                 onReply={setReplyTo}
                 onReact={handleReact}
+                lineBadge={msgLine ? (msgLine.primary ? "Line 1" : "Line 2") : undefined}
+                isPrimaryLine={msgLine?.primary}
               />
             </div>
           );
@@ -1435,6 +1617,51 @@ function ChatView({
         </div>
       )}
 
+      {/* Line Switcher / Active Line indicator */}
+      {numbers.length > 1 && (
+        <div
+          className="flex items-center justify-between border-t px-4 py-1.5 text-xs"
+          style={{ background: WA.panel, borderColor: WA.divider }}
+        >
+          <div className="flex items-center gap-2">
+            <span className="text-adm-text-3 font-medium">Replying as:</span>
+            <span
+              className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-bold ${
+                senderInfo?.primary
+                  ? "bg-adm-blue-light text-adm-blue"
+                  : "bg-adm-surface-2 text-adm-text-2"
+              }`}
+            >
+              <span
+                className={`h-1.5 w-1.5 rounded-full ${
+                  senderInfo?.primary ? "bg-adm-blue" : "bg-adm-text-3"
+                }`}
+              />
+              {senderInfo?.primary ? "Line 1" : "Line 2"}
+              {senderInfo?.displayNumber ? ` (${senderInfo.displayNumber})` : ""}
+            </span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <label htmlFor="chatLineSelect" className="text-adm-text-3 text-[11px]">
+              Switch Line:
+            </label>
+            <select
+              id="chatLineSelect"
+              value={activeSenderId}
+              onChange={(e) => setActiveSenderId(e.target.value)}
+              className="rounded-noneborder bg-adm-surface px-2 py-0.5 text-xs font-semibold text-adm-text-2 outline-none focus:border-adm-blue"
+              style={{ borderColor: WA.divider }}
+            >
+              {numbers.map((n) => (
+                <option key={n.id} value={n.id}>
+                  {n.primary ? "Line 1" : "Line 2"}: {n.displayNumber || n.label || n.id}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+      )}
+
       {/* Composer */}
       <div className="flex items-end gap-2 px-4 py-2.5" style={{ background: WA.panel }}>
         <input
@@ -1454,14 +1681,14 @@ function ChatView({
               type="button"
               onClick={voice.cancel}
               className="mb-1 flex h-8 w-8 shrink-0 items-center justify-center rounded-full transition hover:bg-black/5"
-              style={{ color: "#f15c6d" }}
+              style={{ color: "var(--adm-red)" }}
               aria-label="Discard recording"
               title="Discard recording"
             >
               <Trash2 size={20} />
             </button>
-            <div className="mb-1 flex h-10 flex-1 items-center gap-3 rounded-lg px-3" style={{ background: "#fff" }}>
-              <span className="h-2.5 w-2.5 shrink-0 animate-pulse rounded-full" style={{ background: "#f15c6d" }} />
+            <div className="mb-1 flex h-10 flex-1 items-center gap-3 rounded-none px-3" style={{ background: "#fff" }}>
+              <span className="h-2.5 w-2.5 shrink-0 animate-pulse rounded-full" style={{ background: "var(--adm-red)" }} />
               <span className="text-[15px] tabular-nums" style={{ color: WA.text }}>
                 {formatDuration(voice.seconds)}
               </span>
@@ -1533,7 +1760,7 @@ function ChatView({
               }}
               rows={1}
               placeholder={uploading ? "Uploading…" : replyTo ? "Reply…" : "Type a message"}
-              className="max-h-28 flex-1 resize-none rounded-lg border-0 px-4 py-2.5 text-[15px] outline-none"
+              className="max-h-28 flex-1 resize-none rounded-none border-0 px-4 py-2.5 text-[15px] outline-none"
               style={{ background: "#fff", color: WA.text }}
             />
             <button
@@ -1569,7 +1796,7 @@ function MenuItem({
     <button
       type="button"
       onClick={onClick}
-      className="flex w-full items-center gap-3 px-4 py-2.5 text-left text-sm transition hover:bg-gray-50"
+      className="flex w-full items-center gap-3 px-4 py-2.5 text-left text-sm transition hover:bg-adm-surface-2"
       style={{ color: danger ? "var(--adm-red)" : "var(--adm-text)" }}
     >
       {icon}
@@ -1583,7 +1810,7 @@ function MenuItem({
 function Ticks({ status, small }: { status?: string; small?: boolean }) {
   const s = (status || "").toLowerCase();
   const sz = small ? 14 : 16;
-  if (s === "failed") return <AlertCircle size={small ? 12 : 13} style={{ color: "#f15c6d" }} />;
+  if (s === "failed") return <AlertCircle size={small ? 12 : 13} style={{ color: "var(--adm-red)" }} />;
   if (s === "read") return <CheckCheck size={sz} style={{ color: WA.tick }} />;
   if (s === "delivered") return <CheckCheck size={sz} style={{ color: WA.tickGrey }} />;
   if (s === "sent") return <Check size={sz} style={{ color: WA.tickGrey }} />;
@@ -1593,12 +1820,12 @@ function Ticks({ status, small }: { status?: string; small?: boolean }) {
 /** The quoted original shown above a reply, WhatsApp-style. */
 function QuotedPreview({ quoted, outbound }: { quoted: WAMessage; outbound: boolean }) {
   const label = quoted.direction === "outbound" ? "You" : quoted.name || `+${numberOf(quoted)}`;
-  const accent = quoted.direction === "outbound" ? WA.green : "#53bdeb";
+  const accent = quoted.direction === "outbound" ? WA.green : "var(--adm-blue)";
   return (
     <div
-      className="mb-1 overflow-hidden rounded-[4px] px-2 py-1"
+      className="mb-1 overflow-hidden rounded-none px-2 py-1"
       style={{
-        background: outbound ? "rgba(6,95,70,0.10)" : "rgba(11,20,26,0.05)",
+        background: outbound ? "var(--adm-blue-light)" : "var(--adm-surface-2)",
         borderLeft: `4px solid ${accent}`,
       }}
     >
@@ -1635,7 +1862,7 @@ function BubbleActions({
         <button
           type="button"
           onClick={() => onReply(message)}
-          className="flex h-7 w-7 items-center justify-center rounded-full bg-white/80 shadow-sm transition hover:bg-white"
+          className="flex h-7 w-7 items-center justify-center rounded-full bg-adm-surface-2 transition hover:bg-adm-surface"
           aria-label="Reply to this message"
           title="Reply"
         >
@@ -1647,7 +1874,7 @@ function BubbleActions({
           <button
             type="button"
             onClick={() => setOpen(!open)}
-            className="flex h-7 w-7 items-center justify-center rounded-full bg-white/80 shadow-sm transition hover:bg-white"
+            className="flex h-7 w-7 items-center justify-center rounded-full bg-adm-surface-2 transition hover:bg-adm-surface"
             aria-label="React to this message"
             title="React"
           >
@@ -1657,7 +1884,7 @@ function BubbleActions({
             <>
               <span className="fixed inset-0 z-30" onClick={() => setOpen(false)} />
               <span
-                className={`absolute bottom-full z-40 mb-1 flex gap-0.5 rounded-full bg-white px-1.5 py-1 shadow-lg ${align === "right" ? "right-0" : "left-0"}`}
+                className={`absolute bottom-full z-40 mb-1 flex gap-0.5 rounded-full bg-adm-surface px-1.5 py-1 ${align === "right" ? "right-0" : "left-0"}`}
               >
                 {QUICK_REACTIONS.map((emoji) => (
                   <button
@@ -1688,6 +1915,8 @@ function MessageBubble({
   reactions,
   onReply,
   onReact,
+  lineBadge,
+  isPrimaryLine,
 }: {
   message: WAMessage;
   tail?: boolean;
@@ -1697,18 +1926,22 @@ function MessageBubble({
   reactions?: string[];
   onReply?: (m: WAMessage) => void;
   onReact?: (m: WAMessage, emoji: string) => void;
+  lineBadge?: string;
+  isPrimaryLine?: boolean;
 }) {
   const isOutbound = message.direction === "outbound";
   const text = describeMessage(message);
   const mediaKind = mediaKindOf(message);
   const isSticker = mediaKind === "sticker";
   const framed = mediaKind === "image" || mediaKind === "video";
-  // Stored media bodies read "[image] caption" \u2014 strip the label to get the caption.
+  // Stored media bodies read "[image] caption" — strip the label to get the caption.
   const captionText = (message.body || "").trim().replace(/^\[[a-z]+\]\s*/i, "");
   const hasCaption = !!mediaKind && !!captionText && captionText !== MEDIA_LABELS[message.type];
   const isPlaceholder = !mediaKind && !(message.body || "").trim() && !MEDIA_LABELS[message.type];
   const time = new Date(message.timestamp).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
-  const spacer = isOutbound ? "\u00A0".repeat(11) : "\u00A0".repeat(7);
+  const baseSpacerLen = isOutbound ? 11 : 7;
+  const spacerLen = lineBadge ? baseSpacerLen + 8 : baseSpacerLen;
+  const spacer = "\u00A0".repeat(spacerLen);
   // Photos and videos float the timestamp over the media when there's no caption.
   const overMedia = framed && !hasCaption;
   
@@ -1776,9 +2009,23 @@ function MessageBubble({
         {/* Floated inline timestamp + ticks */}
         {!isSticker && (
           <span
-            className={`pointer-events-none absolute bottom-[3px] right-[7px] flex items-center gap-1 ${overMedia ? "rounded-full bg-black/35 px-1.5 text-white" : ""}`}
+            className={`pointer-events-none absolute bottom-[3px] right-[7px] flex items-center gap-1 ${overMedia ? "rounded-full bg-black/40 px-1.5 py-0.5 text-white" : ""}`}
             style={{ height: 15, bottom: overMedia ? 7 : 3, right: overMedia ? 9 : 7 }}
           >
+            {lineBadge && (
+              <span
+                className={`rounded-nonepx-1 text-[9px] font-extrabold uppercase leading-tight tracking-wider ${
+                  overMedia
+                    ? "bg-adm-surface/20 text-white"
+                    : isPrimaryLine
+                    ? "bg-adm-blue-light text-adm-blue"
+                    : "bg-adm-surface-2 text-adm-text-2"
+                }`}
+                title={isPrimaryLine ? "Line 1 (Primary)" : "Line 2 (Secondary)"}
+              >
+                {lineBadge === "Line 1" ? "L1" : lineBadge === "Line 2" ? "L2" : lineBadge}
+              </span>
+            )}
             <span
               className="text-[11px] leading-none"
               style={overMedia ? { color: "white" } : { color: WA.sub }}
@@ -1792,7 +2039,7 @@ function MessageBubble({
         {/* Reactions ride the bubble's lower edge, as in WhatsApp. */}
         {!!reactions?.length && (
           <span
-            className="absolute -bottom-3 flex items-center gap-0.5 rounded-full bg-white px-1.5 py-0.5 text-[12px] shadow-sm"
+            className="absolute -bottom-3 flex items-center gap-0.5 rounded-full bg-adm-surface px-1.5 py-0.5 text-[12px]"
             style={{ [isOutbound ? "right" : "left"]: 6 } as React.CSSProperties}
           >
             {[...new Set(reactions)].slice(0, 3).map((emoji) => (
@@ -1820,7 +2067,7 @@ function SendTab({
 }: {
   defaultRecipient: string;
   defaultSender?: string;
-  onSent: () => void;
+  onSent?: (recipient?: string, senderId?: string) => void;
 }) {
   const [messageType, setMessageType] = useState<MessageType>("text");
   const [recipient, setRecipient] = useState(defaultRecipient);
@@ -1833,6 +2080,7 @@ function SendTab({
   const [templateName, setTemplateName] = useState("");
   const [sendError, setSendError] = useState("");
   const [sendSuccess, setSendSuccess] = useState(false);
+  const [lastSentInfo, setLastSentInfo] = useState<{ to: string; sender: string } | null>(null);
 
   // Media (task 3)
   const [mediaKind, setMediaKind] = useState<MediaKind>("image");
@@ -1941,7 +2189,10 @@ function SendTab({
 
       await sendMessage.mutateAsync(payload as any);
       setSendSuccess(true);
-      onSent();
+      setLastSentInfo({ to, sender });
+      if (onSent) {
+        onSent(to, sender);
+      }
 
       setTimeout(() => {
         setMessageText("");
@@ -1953,7 +2204,7 @@ function SendTab({
         setTemplateName("");
         resetMedia();
         setSendSuccess(false);
-      }, 2000);
+      }, 3000);
     } catch (error: any) {
       setSendError(error.message || "Failed to send message");
     }
@@ -2182,7 +2433,7 @@ function SendTab({
             {/* Button inputs */}
             <div>
               <label className="mb-2 block text-sm font-semibold" style={{ color: "var(--adm-text)" }}>
-                Interactive Buttons <span className="text-xs font-normal text-gray-400">(max 3)</span>
+                Interactive Buttons <span className="text-xs font-normal text-adm-text-3">(max 3)</span>
               </label>
               <div className="space-y-2">
                 {buttons.map((btn, index) => (
@@ -2254,11 +2505,23 @@ function SendTab({
         )}
         {sendSuccess && (
           <div
-            className="flex items-center gap-2 border p-4 text-sm"
+            className="flex flex-wrap items-center justify-between gap-3 border p-4 text-sm"
             style={{ borderColor: "var(--adm-green)", background: "var(--adm-green-light)", color: "var(--adm-green)" }}
           >
-            <CheckCheck size={16} className="shrink-0" />
-            Message sent successfully!
+            <div className="flex items-center gap-2">
+              <CheckCheck size={16} className="shrink-0" />
+              <span>Message sent successfully!</span>
+            </div>
+            {lastSentInfo && onSent && (
+              <button
+                type="button"
+                onClick={() => onSent(lastSentInfo.to, lastSentInfo.sender)}
+                className="inline-flex items-center gap-1.5 rounded-nonepx-3 py-1 text-xs font-semibold text-white transition hover:opacity-90"
+                style={{ background: WA.green }}
+              >
+                View Chat in Inbox &rarr;
+              </button>
+            )}
           </div>
         )}
 
@@ -2315,15 +2578,15 @@ function ButtonPreview({
         }}
       >
         {!hasContent ? (
-          <p className="py-6 text-center text-xs" style={{ color: "#667781" }}>
+          <p className="py-6 text-center text-xs" style={{ color: "var(--adm-text-3)" }}>
             Fill in the fields above to preview your message
           </p>
         ) : (
           <div className="mx-auto max-w-xs">
             {/* Message bubble */}
             <div
-              className="relative rounded-lg rounded-tl-none bg-white px-3 py-2 shadow-sm"
-              style={{ color: "#111b21" }}
+              className="relative rounded-none rounded-tl-none bg-adm-surface px-3 py-2"
+              style={{ color: "var(--adm-text)" }}
             >
               {header.trim() && (
                 <p className="mb-1 text-[15px] font-bold leading-snug">{header}</p>
@@ -2335,15 +2598,15 @@ function ButtonPreview({
                 />
               )}
               {footer.trim() && (
-                <p className="mt-1.5 text-[12px]" style={{ color: "#667781" }}>
+                <p className="mt-1.5 text-[12px]" style={{ color: "var(--adm-text-3)" }}>
                   {footer}
                 </p>
               )}
               <div className="mt-1 flex items-center justify-end gap-1">
-                <span className="text-[11px]" style={{ color: "#667781" }}>
+                <span className="text-[11px]" style={{ color: "var(--adm-text-3)" }}>
                   12:00 PM
                 </span>
-                <CheckCheck size={13} style={{ color: "#53bdeb" }} />
+                <CheckCheck size={13} style={{ color: "var(--adm-blue)" }} />
               </div>
             </div>
 
@@ -2353,8 +2616,8 @@ function ButtonPreview({
                 {buttons.slice(0, 3).map((btn, i) => (
                   <div
                     key={i}
-                    className="flex items-center justify-center gap-1.5 rounded-lg bg-white px-3 py-2.5 text-[14px] font-medium shadow-sm"
-                    style={{ color: "#00a5f4" }}
+                    className="flex items-center justify-center gap-1.5 rounded-none bg-adm-surface px-3 py-2.5 text-[14px] font-medium"
+                    style={{ color: "var(--adm-blue)" }}
                   >
                     {btn}
                   </div>
@@ -2611,7 +2874,7 @@ function MetaTemplateCard({
                 <span
                   key={b}
                   className="border px-2 py-1 text-xs font-medium"
-                  style={{ borderColor: "var(--adm-border)", color: "#00a5f4" }}
+                  style={{ borderColor: "var(--adm-border)", color: "var(--adm-blue)" }}
                 >
                   {b}
                 </span>
@@ -2910,14 +3173,14 @@ function FlowTab() {
             <span
               className={`rounded-full px-2.5 py-0.5 text-xs font-semibold ${
                 data?.isCustom
-                  ? "bg-purple-100 text-purple-800"
-                  : "bg-gray-100 text-gray-700"
+                  ? "bg-adm-surface-2 text-adm-text-2"
+                  : "bg-adm-surface-2 text-adm-text-2"
               }`}
             >
               {data?.isCustom ? "Customized" : "Built-in Defaults"}
             </span>
           </div>
-          <p className="text-xs text-gray-500 mt-0.5">
+          <p className="text-xs text-adm-text-3 mt-0.5">
             Automated messages sent to new contacts and interactive option selections.
           </p>
         </div>
@@ -2927,7 +3190,7 @@ function FlowTab() {
             type="button"
             onClick={handleReset}
             disabled={resetting || resetFlow.isPending}
-            className="border px-3 py-2 text-xs font-semibold rounded hover:bg-gray-50 transition text-gray-600 disabled:opacity-50"
+            className="border px-3 py-2 text-xs font-semibold rounded-nonehover:bg-adm-surface-2 transition text-adm-text-2 disabled:opacity-50"
             style={{ borderColor: "var(--adm-border)" }}
           >
             Reset Defaults
@@ -2936,8 +3199,8 @@ function FlowTab() {
             type="button"
             onClick={handleSave}
             disabled={saveFlow.isPending}
-            className="flex items-center gap-1.5 px-4 py-2 text-xs font-semibold text-white rounded shadow-sm transition hover:opacity-90 disabled:opacity-50"
-            style={{ background: "#059669" }}
+            className="flex items-center gap-1.5 px-4 py-2 text-xs font-semibold text-white rounded-nonetransition hover:opacity-90 disabled:opacity-50"
+            style={{ background: "var(--adm-blue)" }}
           >
             <Check size={14} />
             {saveFlow.isPending ? "Saving..." : saveSuccess ? "Saved!" : "Save Changes"}
@@ -2946,8 +3209,8 @@ function FlowTab() {
       </div>
 
       {saveSuccess && (
-        <div className="flex items-center gap-2 rounded border border-emerald-300 bg-emerald-50 p-3 text-xs font-medium text-emerald-800">
-          <CheckCheck size={16} className="shrink-0 text-emerald-600" />
+        <div className="flex items-center gap-2 rounded-noneborder border-adm-blue bg-adm-blue-light p-3 text-xs font-medium text-adm-blue">
+          <CheckCheck size={16} className="shrink-0 text-adm-blue" />
           Programmatic messages saved successfully. All new WhatsApp interactions will use these texts.
         </div>
       )}
@@ -2962,10 +3225,10 @@ function FlowTab() {
               key={s.id}
               type="button"
               onClick={() => setSelectedStepId(s.id)}
-              className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium transition ${
+              className={`flex items-center gap-1.5 rounded-none px-3 py-1.5 text-xs font-medium transition ${
                 isSelected
-                  ? "bg-gray-900 text-white shadow-sm"
-                  : "border border-gray-200 bg-white text-gray-700 hover:bg-gray-50"
+                  ? "bg-adm-blue text-white"
+                  : "border border-adm-border bg-adm-surface text-adm-text-2 hover:bg-adm-surface-2"
               }`}
             >
               <span>{meta.icon}</span>
@@ -2981,10 +3244,10 @@ function FlowTab() {
           {/* Editor Form */}
           <div className="space-y-4 lg:col-span-7">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-bold uppercase tracking-wide text-gray-500">
-                Step: <span className="text-gray-900 font-mono">{currentStep.id}</span>
+              <span className="text-xs font-bold uppercase tracking-wide text-adm-text-3">
+                Step: <span className="text-adm-text font-mono">{currentStep.id}</span>
               </span>
-              <span className="rounded bg-gray-100 px-2 py-0.5 text-[11px] font-semibold text-gray-700">
+              <span className="rounded-nonebg-adm-surface-2 px-2 py-0.5 text-[11px] font-semibold text-adm-text-2">
                 {currentStep.kind === "list"
                   ? "Interactive List"
                   : currentStep.kind === "buttons"
@@ -3006,7 +3269,7 @@ function FlowTab() {
                   style={adminInputStyle}
                   placeholder="e.g. Tauqeer Mustafa Inc"
                 />
-                <p className="mt-1 text-right text-[11px] text-gray-400">
+                <p className="mt-1 text-right text-[11px] text-adm-text-3">
                   {(currentStep.header || "").length}/60 chars
                 </p>
               </AdminField>
@@ -3024,7 +3287,7 @@ function FlowTab() {
                 style={adminInputStyle}
                 placeholder="Message text sent to customer..."
               />
-              <div className="mt-1 flex items-center justify-between text-[11px] text-gray-400">
+              <div className="mt-1 flex items-center justify-between text-[11px] text-adm-text-3">
                 <span>Supports WhatsApp *bold*, _italic_</span>
                 <span>
                   {currentStep.body.length}/{currentStep.kind === "text" ? 4096 : 1024} chars
@@ -3045,7 +3308,7 @@ function FlowTab() {
                   style={adminInputStyle}
                   placeholder="e.g. Mon to Sat, 09:00 to 18:00"
                 />
-                <p className="mt-1 text-right text-[11px] text-gray-400">
+                <p className="mt-1 text-right text-[11px] text-adm-text-3">
                   {(currentStep.footer || "").length}/60 chars
                 </p>
               </AdminField>
@@ -3053,7 +3316,7 @@ function FlowTab() {
 
             {/* List specific button and rows */}
             {currentStep.kind === "list" && (
-              <div className="space-y-4 rounded-lg border bg-gray-50/50 p-4" style={{ borderColor: "var(--adm-border)" }}>
+              <div className="space-y-4 rounded-none border bg-adm-surface-2 p-4" style={{ borderColor: "var(--adm-border)" }}>
                 <AdminField label="List Menu Button Label" htmlFor="flowListBtn">
                   <input
                     id="flowListBtn"
@@ -3065,20 +3328,20 @@ function FlowTab() {
                     style={adminInputStyle}
                     placeholder="Choose an option"
                   />
-                  <p className="mt-1 text-right text-[11px] text-gray-400">
+                  <p className="mt-1 text-right text-[11px] text-adm-text-3">
                     {currentStep.button.length}/20 chars
                   </p>
                 </AdminField>
 
                 <div className="space-y-3">
-                  <span className="block text-xs font-semibold text-gray-700">List Options & Rows:</span>
+                  <span className="block text-xs font-semibold text-adm-text-2">List Options & Rows:</span>
                   {currentStep.sections.map((sec: any, secIdx: number) => (
                     <div key={sec.title || secIdx} className="space-y-2 border-t pt-2" style={{ borderColor: "var(--adm-border)" }}>
-                      <span className="text-[11px] font-bold uppercase text-gray-500">{sec.title}</span>
+                      <span className="text-[11px] font-bold uppercase text-adm-text-3">{sec.title}</span>
                       {sec.rows.map((row: any, rowIdx: number) => (
-                        <div key={row.id} className="grid grid-cols-1 sm:grid-cols-2 gap-2 bg-white p-2.5 rounded border" style={{ borderColor: "var(--adm-border)" }}>
+                        <div key={row.id} className="grid grid-cols-1 sm:grid-cols-2 gap-2 bg-adm-surface p-2.5 rounded-noneborder" style={{ borderColor: "var(--adm-border)" }}>
                           <div>
-                            <label className="text-[10px] font-medium text-gray-500 block">Title (max 24 chars)</label>
+                            <label className="text-[10px] font-medium text-adm-text-3 block">Title (max 24 chars)</label>
                             <input
                               type="text"
                               value={row.title}
@@ -3089,7 +3352,7 @@ function FlowTab() {
                             />
                           </div>
                           <div>
-                            <label className="text-[10px] font-medium text-gray-500 block">Description (max 72 chars)</label>
+                            <label className="text-[10px] font-medium text-adm-text-3 block">Description (max 72 chars)</label>
                             <input
                               type="text"
                               value={row.description || ""}
@@ -3109,11 +3372,11 @@ function FlowTab() {
 
             {/* Buttons specific options */}
             {currentStep.kind === "buttons" && (
-              <div className="space-y-3 rounded-lg border bg-gray-50/50 p-4" style={{ borderColor: "var(--adm-border)" }}>
-                <span className="block text-xs font-semibold text-gray-700">Interactive Buttons (max 20 chars each):</span>
+              <div className="space-y-3 rounded-none border bg-adm-surface-2 p-4" style={{ borderColor: "var(--adm-border)" }}>
+                <span className="block text-xs font-semibold text-adm-text-2">Interactive Buttons (max 20 chars each):</span>
                 {currentStep.buttons.map((btn: any, btnIdx: number) => (
-                  <div key={btn.id} className="flex items-center gap-2 bg-white p-2 rounded border" style={{ borderColor: "var(--adm-border)" }}>
-                    <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-[11px] font-bold text-emerald-800">
+                  <div key={btn.id} className="flex items-center gap-2 bg-adm-surface p-2 rounded-noneborder" style={{ borderColor: "var(--adm-border)" }}>
+                    <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-adm-blue-light text-[11px] font-bold text-adm-blue">
                       {btnIdx + 1}
                     </span>
                     <input
@@ -3124,7 +3387,7 @@ function FlowTab() {
                       className={adminInputClass}
                       style={{ ...adminInputStyle, fontSize: "13px", padding: "6px 10px" }}
                     />
-                    <span className="text-[10px] text-gray-400 shrink-0 font-mono">
+                    <span className="text-[10px] text-adm-text-3 shrink-0 font-mono">
                       {btn.title.length}/20
                     </span>
                   </div>
@@ -3136,40 +3399,40 @@ function FlowTab() {
           {/* Live WhatsApp Simulation Bubble */}
           <div className="lg:col-span-5">
             <div className="sticky top-6">
-              <span className="mb-2 block text-xs font-bold uppercase tracking-wider text-gray-500">
+              <span className="mb-2 block text-xs font-bold uppercase tracking-wider text-adm-text-3">
                 Live Preview
               </span>
               <div
-                className="rounded-xl p-4 shadow-inner"
+                className="rounded-none p-4"
                 style={{
                   backgroundColor: "#E5DDD5",
                   backgroundImage: DOODLE,
                   minHeight: "260px",
                 }}
               >
-                <div className="max-w-[90%] rounded-lg bg-white p-3 shadow text-[13px] text-gray-900 space-y-1.5">
+                <div className="max-w-[90%] rounded-none bg-adm-surface p-3 shadow text-[13px] text-adm-text space-y-1.5">
                   {currentStep.kind !== "text" && currentStep.header && (
-                    <p className="font-bold text-gray-900 border-b pb-1 text-sm border-gray-100">
+                    <p className="font-bold text-adm-text border-b pb-1 text-sm border-adm-border">
                       {currentStep.header}
                     </p>
                   )}
-                  <p className="whitespace-pre-wrap leading-relaxed text-gray-800">
+                  <p className="whitespace-pre-wrap leading-relaxed text-adm-text-2">
                     {currentStep.body}
                   </p>
                   {currentStep.kind !== "text" && currentStep.footer && (
-                    <p className="text-[11px] text-gray-500 pt-1">
+                    <p className="text-[11px] text-adm-text-3 pt-1">
                       {currentStep.footer}
                     </p>
                   )}
                   <div className="flex justify-end pt-1">
-                    <span className="text-[10px] text-gray-400">12:00 PM</span>
+                    <span className="text-[10px] text-adm-text-3">12:00 PM</span>
                   </div>
                 </div>
 
                 {/* List action button below bubble */}
                 {currentStep.kind === "list" && (
                   <div className="mt-1.5 max-w-[90%]">
-                    <div className="flex items-center justify-center rounded-lg bg-white py-2 text-xs font-semibold text-emerald-700 shadow border border-gray-100">
+                    <div className="flex items-center justify-center rounded-none bg-adm-surface py-2 text-xs font-semibold text-adm-blue shadow border border-adm-border">
                       ?? {currentStep.button || "Choose an option"}
                     </div>
                   </div>
@@ -3181,7 +3444,7 @@ function FlowTab() {
                     {currentStep.buttons.map((b: any) => (
                       <div
                         key={b.id}
-                        className="flex items-center justify-center rounded-lg bg-white py-2 text-xs font-semibold text-emerald-700 shadow border border-gray-100"
+                        className="flex items-center justify-center rounded-none bg-adm-surface py-2 text-xs font-semibold text-adm-blue shadow border border-adm-border"
                       >
                         {b.title || "Button"}
                       </div>
@@ -3497,7 +3760,7 @@ function NumbersTab({ onSendFrom }: { onSendFrom?: (numberId: string) => void })
         <button
           type="button"
           onClick={() => refetch()}
-          className="flex items-center gap-2 border px-3 py-1.5 text-xs font-semibold rounded transition hover:bg-black/5"
+          className="flex items-center gap-2 border px-3 py-1.5 text-xs font-semibold rounded-nonetransition hover:bg-black/5"
           style={{ borderColor: "var(--adm-border)", color: "var(--adm-text-2)" }}
         >
           <RefreshCw size={14} /> Refresh Lines
@@ -3510,9 +3773,9 @@ function NumbersTab({ onSendFrom }: { onSendFrom?: (numberId: string) => void })
         <AdminErrorState message="Could not load phone numbers from Meta API." />
       ) : numbers.length === 0 ? (
         <div className="border border-dashed p-8 text-center" style={{ borderColor: "var(--adm-border)" }}>
-          <AlertCircle size={32} className="mx-auto mb-2 text-amber-500" />
-          <p className="font-semibold text-gray-800">No phone lines detected</p>
-          <p className="mt-1 text-xs text-gray-500">
+          <AlertCircle size={32} className="mx-auto mb-2 text-adm-amber" />
+          <p className="font-semibold text-adm-text-2">No phone lines detected</p>
+          <p className="mt-1 text-xs text-adm-text-3">
             Check that WHATSAPP_TOKEN and WHATSAPP_BUSINESS_ACCOUNT_ID or WHATSAPP_PHONE_NUMBER_ID are configured in Vercel.
           </p>
         </div>
@@ -3523,7 +3786,7 @@ function NumbersTab({ onSendFrom }: { onSendFrom?: (numberId: string) => void })
             return (
               <div
                 key={n.id}
-                className="flex flex-col justify-between rounded-lg border bg-white p-5 shadow-sm transition hover:shadow"
+                className="flex flex-col justify-between rounded-none border bg-adm-surface p-5"
                 style={{ borderColor: isSendable ? "var(--adm-border)" : "var(--adm-red)" }}
               >
                 <div>
@@ -3536,25 +3799,25 @@ function NumbersTab({ onSendFrom }: { onSendFrom?: (numberId: string) => void })
                         <Phone size={19} />
                       </div>
                       <div>
-                        <h4 className="font-bold text-gray-900 text-base">
+                        <h4 className="font-bold text-adm-text text-base">
                           {n.displayNumber || n.label || `Line ${idx + 1}`}
                         </h4>
                         {n.verifiedName && (
-                          <p className="text-xs font-medium text-gray-500">{n.verifiedName}</p>
+                          <p className="text-xs font-medium text-adm-text-3">{n.verifiedName}</p>
                         )}
                       </div>
                     </div>
                     <div className="flex flex-col items-end gap-1">
                       {n.primary && (
-                        <span className="rounded-full bg-blue-100 px-2.5 py-0.5 text-[10px] font-bold text-blue-700 uppercase tracking-wide">
+                        <span className="rounded-full bg-adm-blue-light px-2.5 py-0.5 text-[10px] font-bold text-adm-blue uppercase tracking-wide">
                           Primary Line
                         </span>
                       )}
                       <span
                         className="flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold"
                         style={{
-                          background: isSendable ? "#DCFCE7" : "#FEE2E2",
-                          color: isSendable ? "#15803D" : "#B91C1C",
+                          background: isSendable ? "var(--adm-green-light)" : "var(--adm-red-light)",
+                          color: isSendable ? "var(--adm-green)" : "var(--adm-red)",
                         }}
                       >
                         <Circle size={6} fill="currentColor" />
@@ -3564,28 +3827,28 @@ function NumbersTab({ onSendFrom }: { onSendFrom?: (numberId: string) => void })
                   </div>
 
                   <div className="mt-4 space-y-2 text-xs border-t pt-3" style={{ borderColor: "var(--adm-border)" }}>
-                    <div className="flex items-center justify-between text-gray-600">
+                    <div className="flex items-center justify-between text-adm-text-2">
                       <span>Phone Number ID:</span>
-                      <code className="rounded bg-gray-100 px-1.5 py-0.5 font-mono text-[11px] text-gray-800 select-all">
+                      <code className="rounded-nonebg-adm-surface-2 px-1.5 py-0.5 font-mono text-[11px] text-adm-text-2 select-all">
                         {n.id}
                       </code>
                     </div>
                     {n.quality && (
-                      <div className="flex items-center justify-between text-gray-600">
+                      <div className="flex items-center justify-between text-adm-text-2">
                         <span>Quality Rating:</span>
-                        <span className="font-semibold capitalize" style={{ color: n.quality === "GREEN" ? "#16A34A" : "#D97706" }}>
+                        <span className="font-semibold capitalize" style={{ color: n.quality === "GREEN" ? "var(--adm-green)" : "var(--adm-amber)" }}>
                           {n.quality.toLowerCase()}
                         </span>
                       </div>
                     )}
-                    <div className="flex items-center justify-between text-gray-600">
+                    <div className="flex items-center justify-between text-adm-text-2">
                       <span>Credential Slot:</span>
-                      <span className="font-semibold text-gray-700">Slot {n.slot ?? 1}</span>
+                      <span className="font-semibold text-adm-text-2">Slot {n.slot ?? 1}</span>
                     </div>
                   </div>
 
                   {n.error && (
-                    <div className="mt-3 rounded border p-2.5 text-xs text-red-700 bg-red-50 border-red-200">
+                    <div className="mt-3 rounded-noneborder p-2.5 text-xs text-adm-red bg-adm-red-light border-adm-red">
                       <AlertCircle size={13} className="inline mr-1 mb-0.5" />
                       {n.error}
                     </div>
@@ -3597,7 +3860,7 @@ function NumbersTab({ onSendFrom }: { onSendFrom?: (numberId: string) => void })
                     <button
                       type="button"
                       onClick={() => onSendFrom(n.id)}
-                      className="inline-flex items-center gap-1.5 rounded px-3 py-1.5 text-xs font-semibold text-white transition hover:opacity-90"
+                      className="inline-flex items-center gap-1.5 rounded-nonepx-3 py-1.5 text-xs font-semibold text-white transition hover:opacity-90"
                       style={{ background: "var(--adm-blue)" }}
                     >
                       <Send size={13} /> Send from this line
@@ -3654,17 +3917,17 @@ function PipelineTab({ onOpenChat }: { onOpenChat: (number: string) => void }) {
   };
 
   return (
-    <div className="flex h-full gap-4 overflow-x-auto p-4" style={{ background: "#F3F4F6", minHeight: "calc(100vh - 200px)" }}>
+    <div className="flex h-full gap-4 overflow-x-auto p-4" style={{ background: "var(--adm-bg)", minHeight: "calc(100vh - 200px)" }}>
       {pipeline.map((col) => (
         <div
           key={col.status.value}
-          className="flex w-72 shrink-0 flex-col rounded-lg bg-gray-200/60 p-2"
+          className="flex w-72 shrink-0 flex-col rounded-none bg-adm-surface-2 p-2"
           onDragOver={(e) => e.preventDefault()}
           onDrop={(e) => handleDrop(e, col.status.value)}
         >
           <div className="mb-3 px-2 py-1 flex items-center justify-between">
-            <h3 className="font-semibold text-gray-700 uppercase tracking-wide text-xs">{col.status.label}</h3>
-            <span className="rounded-full bg-white px-2 py-0.5 text-xs font-medium text-gray-500 shadow-sm">{col.items.length}</span>
+            <h3 className="font-semibold text-adm-text-2 uppercase tracking-wide text-xs">{col.status.label}</h3>
+            <span className="rounded-full bg-adm-surface px-2 py-0.5 text-xs font-medium text-adm-text-3">{col.items.length}</span>
           </div>
 
           <div className="flex flex-1 flex-col gap-2 overflow-y-auto min-h-[50px]">
@@ -3677,17 +3940,17 @@ function PipelineTab({ onOpenChat }: { onOpenChat: (number: string) => void }) {
                   draggable
                   onDragStart={() => setDraggedConv(item.conv.number)}
                   onDragEnd={() => setDraggedConv(null)}
-                  className="group cursor-grab rounded bg-white p-3 shadow-sm transition hover:shadow active:cursor-grabbing border-l-4"
+                  className="group cursor-grab rounded-nonebg-adm-surface p-3 transition active:cursor-grabbing border-l-4"
                   style={{ borderLeftColor: hasUnread ? WA.green : "transparent" }}
                   onClick={() => onOpenChat(item.conv.number)}
                 >
                   <div className="flex items-center justify-between">
-                    <p className="font-medium text-sm text-gray-800 truncate" title={name}>{name}</p>
+                    <p className="font-medium text-sm text-adm-text-2 truncate" title={name}>{name}</p>
                   </div>
-                  <div className="mt-2 flex items-center justify-between text-xs text-gray-500">
+                  <div className="mt-2 flex items-center justify-between text-xs text-adm-text-3">
                     <p className="truncate w-3/4">{lastPreview(item.conv)}</p>
                     {item.meta?.assignedTo && (
-                      <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-blue-100 font-bold text-blue-700" title={`Assigned to ${item.meta.assignedTo}`}>
+                      <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-adm-blue-light font-bold text-adm-blue" title={`Assigned to ${item.meta.assignedTo}`}>
                         {item.meta.assignedTo.charAt(0).toUpperCase()}
                       </span>
                     )}
@@ -3695,11 +3958,11 @@ function PipelineTab({ onOpenChat }: { onOpenChat: (number: string) => void }) {
                   {item.meta?.tags && item.meta.tags.length > 0 && (
                     <div className="mt-2 flex flex-wrap gap-1">
                       {item.meta.tags.slice(0, 3).map((tag) => (
-                        <span key={tag} className="rounded-full bg-gray-100 px-1.5 py-0.5 text-[10px] text-gray-600">
+                        <span key={tag} className="rounded-full bg-adm-surface-2 px-1.5 py-0.5 text-[10px] text-adm-text-2">
                           {tag}
                         </span>
                       ))}
-                      {item.meta.tags.length > 3 && <span className="text-[10px] text-gray-400">+{item.meta.tags.length - 3}</span>}
+                      {item.meta.tags.length > 3 && <span className="text-[10px] text-adm-text-3">+{item.meta.tags.length - 3}</span>}
                     </div>
                   )}
                 </div>

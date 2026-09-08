@@ -60,7 +60,7 @@ export default function PortalHeader({ portal, onMenuClick }: Props) {
             type="search"
             placeholder={t("Search anything…")}
             aria-label={t("Search anything…")}
-            className="w-56 rounded-full border border-adm-border bg-adm-surface-2 py-1.5 pl-9 pr-4 text-sm text-adm-text outline-none transition placeholder:text-adm-text-3 focus:border-adm-blue focus:bg-adm-surface focus:ring-2 focus:ring-adm-blue/20 lg:w-72"
+            className="w-56 rounded-none border border-adm-border bg-adm-surface-2 py-1.5 pl-9 pr-4 text-sm text-adm-text outline-none transition placeholder:text-adm-text-3 focus:border-adm-blue focus:bg-adm-surface focus:ring-2 focus:ring-adm-blue/15 lg:w-72"
           />
         </div>
       </div>
@@ -77,8 +77,8 @@ export default function PortalHeader({ portal, onMenuClick }: Props) {
           />
         </button>
 
-        {/* Identity pill */}
-        <div className="hidden items-center gap-2.5 rounded-full border border-adm-border bg-adm-surface-2/60 px-3 py-1 sm:flex">
+        {/* Identity plate */}
+        <div className="hidden items-center gap-2.5 rounded-none border border-adm-border bg-adm-surface-2/60 px-3 py-1 sm:flex">
           <Avatar name={user?.name} size={26} />
           <div className="min-w-0">
             <p className="truncate text-xs font-semibold leading-tight text-adm-text">

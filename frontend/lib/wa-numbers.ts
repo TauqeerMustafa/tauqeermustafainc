@@ -43,9 +43,16 @@ export type WANumber = {
 };
 
 /**
- * Second number on the account. Given as a "Phone profile ID" in WhatsApp
- * Manager; if Meta turns out to disagree that it can send,
- * `GET /api/whatsapp/diagnose` names the reason per number.
+ * Fallback id for the second number, used ONLY until the numbers route
+ * discovers the real Phone Number IDs from Meta's WABA and registers them.
+ *
+ * This value came from WhatsApp Manager as a "Phone profile ID", which is very
+ * likely NOT the Phone Number ID that `POST /{id}/messages` and inbound
+ * `metadata.phone_number_id` actually use — so it exists purely so the second
+ * line is not dead on a cold start. The live list from
+ * `GET /api/whatsapp/numbers` (Meta's `{waba}/phone_numbers`) is the source of
+ * truth and overrides this the moment it loads; `GET /api/whatsapp/diagnose`
+ * prints the real ids next to what is stored if they ever disagree.
  */
 const DEFAULT_SECOND_ID = "1318810581311680";
 
@@ -173,6 +180,10 @@ export function isKnownNumber(id: string | null | undefined): boolean {
   const value = (id ?? "").trim();
   if (!value) return false;
   if (value === DEFAULT_SECOND_ID) return true;
+  // Exact match against the configured list, which also holds every id the
+  // numbers route discovered from Meta and fed through registerKnownNumbers().
+  // A Phone Number ID is exact — there is no "close enough", so no digit
+  // heuristics here: an id either is one we serve or it isn't.
   return waNumbers().some((n) => n.id === value);
 }
 

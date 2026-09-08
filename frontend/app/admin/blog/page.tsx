@@ -128,7 +128,7 @@ export default function AdminBlogPage() {
       ) : null}
 
       {!isLoading && !isError && filteredPosts.length > 0 ? (
-        <div className="overflow-x-auto border border-adm-border rounded-[14px]">
+        <div className="overflow-x-auto border border-adm-border rounded-none">
           <table className="w-full min-w-[640px] text-left text-sm">
             <thead className="border-b border-adm-border bg-adm-surface-2 text-xs uppercase tracking-wide text-adm-text-3">
               <tr>

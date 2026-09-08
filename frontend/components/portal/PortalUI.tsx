@@ -1,21 +1,23 @@
 "use client";
 
 /**
- * Shared portal design primitives — Apple Design System.
+ * Shared portal design primitives — BMW · clean.
  *
  * Every portal page (admin, employees, management, client) composes its UI from
  * these primitives. The `--adm-*` tokens are registered in `@theme inline`, so
  * these use real Tailwind utilities (`bg-adm-surface`, `text-adm-text-3`) rather
  * than inline styles — which is also what lets the whole portal flip light↔dark for free.
  *
- * Apple Design System specifications (DESIGN.md):
- *   · STRUCTURE IS CLEAN & ROUNDED — cards, panels, dialogs all `rounded-2xl`
- *     with soft hairlines (`#e5e5ea`) and subtle shadows.
- *   · CONTROLS ARE SLEEK — pill buttons (`rounded-full`), inputs (`rounded-xl`),
- *     chips and badges (`rounded-full`).
- *   · TYPOGRAPHY — SF Pro display/text with natural casing and tight letter-spacing.
- *   · ONE ACTION BLUE — Apple Action Blue (`#0066cc` light / `#2997ff` dark).
- *   · CANVAS — Apple canvas parchment (`#f5f5f7` light / `#000000` dark).
+ * THE HOUSE RULE (globals.css) — applied here without exception:
+ *   · STRUCTURE IS SQUARE — cards, panels, dialogs, tables, inputs and BUTTONS
+ *     are radius 0. Depth is a hairline (`border-adm-border`), never a drop
+ *     shadow; hover firms the hairline (`border-adm-border-2`) rather than
+ *     lifting the plate. In dark, `--adm-shadow` is `none` outright.
+ *   · CONTROLS ARE ROUND — chips, badges, status pills, avatars, progress bars
+ *     and icon buttons keep the full pill (`rounded-full`).
+ *   · ONE ACTION BLUE — the single BMW action blue (`--adm-blue`, #1c69d4 light
+ *     / #2f7de0 dark), M-red for destructive.
+ *   · CANVAS — warm-neutral #f1efec light / BMW-M pure-black #000 dark.
  */
 
 import Link from "next/link";
@@ -51,9 +53,9 @@ const SOLID: Record<Tone, string> = {
   neutral: "bg-adm-text-3",
 };
 
-/** Shared input skin — Apple 12px rounded, surface fill, Action Blue focus ring. */
+/** Shared input skin — square plate, surface fill, action-blue focus border. */
 export const inputClass =
-  "w-full rounded-xl border border-adm-border bg-adm-surface px-3.5 py-2.5 text-[15px] text-adm-text outline-none transition placeholder:text-adm-text-3 focus:border-adm-blue focus:ring-2 focus:ring-adm-blue/20";
+  "w-full rounded-none border border-adm-border bg-adm-surface px-3.5 py-2.5 text-[15px] text-adm-text outline-none transition focus:border-adm-blue focus:ring-2 focus:ring-adm-blue/15 placeholder:text-adm-text-3";
 
 export function Field({
   label,
@@ -96,7 +98,7 @@ export function PortalDialog({
   return (
     <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/40 p-4 backdrop-blur-md">
       <div
-        className="adm-dialog w-full max-w-lg overflow-hidden rounded-2xl border border-adm-border bg-adm-surface shadow-2xl"
+        className="adm-dialog w-full max-w-lg overflow-hidden rounded-none border border-adm-border-2 bg-adm-surface"
         role="dialog"
         aria-modal="true"
         aria-label={title}
@@ -170,13 +172,13 @@ export function PortalButton({
   href?: string;
 }) {
   const base =
-    "inline-flex items-center justify-center gap-2 rounded-full px-5 py-2 text-sm font-medium shadow-sm transition active:scale-[0.98] disabled:opacity-40";
+    "inline-flex items-center justify-center gap-2 rounded-none px-5 py-2 text-sm font-semibold transition-colors active:scale-[0.98] disabled:opacity-40";
   const skin =
     variant === "primary"
-      ? "bg-adm-blue text-white hover:opacity-90"
+      ? "bg-adm-blue text-white hover:bg-adm-blue-mid"
       : variant === "danger"
         ? "bg-adm-red text-white hover:opacity-90"
-        : "border border-adm-border-2 bg-adm-surface text-adm-text hover:bg-adm-surface-2";
+        : "border border-adm-border-2 bg-adm-surface-2 text-adm-text hover:border-adm-text-3";
 
   const body = (
     <>
@@ -199,7 +201,7 @@ export function PortalButton({
   );
 }
 
-/** An Apple-style card panel with clean hairlines and subtle elevation. */
+/** A structural card panel — square plate, hairline border, no shadow. */
 export function Panel({
   title,
   icon: Icon,
@@ -216,9 +218,9 @@ export function Panel({
   tone?: Tone;
 }) {
   return (
-    <section className="flex min-w-0 flex-col overflow-hidden rounded-2xl border border-adm-border bg-adm-surface shadow-sm">
+    <section className="flex min-w-0 flex-col overflow-hidden rounded-none border border-adm-border bg-adm-surface">
       {title && (
-        <div className="flex items-center justify-between gap-3 border-b border-adm-border/80 bg-adm-surface px-5 py-3.5">
+        <div className="flex items-center justify-between gap-3 border-b border-adm-border bg-adm-surface px-5 py-3.5">
           <h2 className="flex items-center gap-2 text-sm font-semibold tracking-tight text-adm-text">
             {Icon && <Icon size={16} className={TONE[tone].fg} />}
             {title}
@@ -231,7 +233,7 @@ export function Panel({
   );
 }
 
-/** Apple-style big-number KPI tile. */
+/** Big-number KPI tile — square plate with a small square accent icon. */
 export function StatCard({
   label,
   value,
@@ -252,7 +254,7 @@ export function StatCard({
       <div className="mb-3 flex items-center gap-3">
         {Icon && (
           <span
-            className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-xl ${TONE[tone].bg} ${TONE[tone].fg}`}
+            className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-none ${TONE[tone].bg} ${TONE[tone].fg}`}
           >
             <Icon size={16} />
           </span>
@@ -265,7 +267,7 @@ export function StatCard({
   );
 
   const shell =
-    "block min-w-0 rounded-2xl border border-adm-border bg-adm-surface p-5 shadow-sm transition hover:shadow-md hover:border-adm-border-2";
+    "block min-w-0 rounded-none border border-adm-border bg-adm-surface p-5 transition-colors hover:border-adm-border-2";
 
   return href ? (
     <Link href={href} className={shell}>
@@ -301,7 +303,7 @@ export function StatusPill({ status }: { status: string | null | undefined }) {
 
 export function LoadingBlock({ label = "Loading…" }: { label?: string }) {
   return (
-    <div className="flex items-center justify-center gap-3 rounded-2xl border border-adm-border bg-adm-surface py-16 text-sm font-medium text-adm-text-3 shadow-sm">
+    <div className="flex items-center justify-center gap-3 rounded-none border border-adm-border bg-adm-surface py-16 text-sm font-medium text-adm-text-3">
       <Loader2 size={18} className="animate-spin text-adm-blue" />
       {label}
     </div>
@@ -316,7 +318,7 @@ export function ErrorBlock({
   onRetry?: () => void;
 }) {
   return (
-    <div className="flex flex-col items-center gap-3 rounded-2xl border border-adm-red/20 bg-adm-red-light/50 py-14 text-center shadow-sm">
+    <div className="flex flex-col items-center gap-3 rounded-none border border-adm-red/25 bg-adm-red-light/50 py-14 text-center">
       <AlertTriangle size={22} className="text-adm-red" />
       <p className="max-w-sm px-6 text-sm text-adm-text-2">{message}</p>
       {onRetry && (
@@ -338,7 +340,7 @@ export function EmptyBlock({
   children?: ReactNode;
 }) {
   return (
-    <div className="flex flex-col items-center gap-3 rounded-2xl border border-dashed border-adm-border bg-adm-surface py-14 text-center shadow-sm">
+    <div className="flex flex-col items-center gap-3 rounded-none border border-dashed border-adm-border bg-adm-surface py-14 text-center">
       <Inbox size={22} className="text-adm-text-3" />
       <p className="text-sm font-semibold tracking-tight text-adm-text">{title}</p>
       {description && <p className="max-w-sm px-6 text-sm text-adm-text-3">{description}</p>}
@@ -347,7 +349,7 @@ export function EmptyBlock({
   );
 }
 
-/** Horizontal-scrolling table scaffold — Apple styled with rounded corners and clean hairlines. */
+/** Horizontal-scrolling table scaffold — square plate, hairline grid. */
 export function DataTable({
   head,
   children,
@@ -356,7 +358,7 @@ export function DataTable({
   children: ReactNode;
 }) {
   return (
-    <div className="overflow-hidden rounded-2xl border border-adm-border bg-adm-surface shadow-sm">
+    <div className="overflow-hidden rounded-none border border-adm-border bg-adm-surface">
       <div className="overflow-x-auto">
         <table className="w-full min-w-[560px] border-collapse text-left text-sm">
           <thead>
@@ -544,7 +546,7 @@ export function InfoBox({
   note?: string;
 }) {
   return (
-    <div className="flex min-w-0 items-stretch overflow-hidden rounded-2xl border border-adm-border bg-adm-surface shadow-sm">
+    <div className="flex min-w-0 items-stretch overflow-hidden rounded-none border border-adm-border bg-adm-surface">
       <span
         className={`flex w-14 shrink-0 items-center justify-center ${TONE[tone].bg} ${TONE[tone].fg}`}
       >
@@ -586,7 +588,7 @@ export function SmallBox({
   linkLabel?: string;
 }) {
   return (
-    <div className={`relative min-w-0 overflow-hidden rounded-2xl text-white shadow-sm ${SOLID[tone]}`}>
+    <div className={`relative min-w-0 overflow-hidden rounded-none text-white ${SOLID[tone]}`}>
       <Icon
         size={104}
         className="pointer-events-none absolute -right-4 -top-4 opacity-15"
@@ -620,7 +622,7 @@ const RAIL: Record<Tone, string> = {
   neutral: "var(--adm-border-2)",
 };
 
-/** An Apple-styled inline advisory callout. */
+/** An inline advisory callout — square plate with a tone rail on the leading edge. */
 export function Callout({
   title,
   tone = "blue",
@@ -634,7 +636,7 @@ export function Callout({
 }) {
   return (
     <div
-      className="adm-callout overflow-hidden rounded-2xl border border-adm-border bg-adm-surface px-5 py-4 shadow-sm"
+      className="adm-callout overflow-hidden rounded-none px-5 py-4"
       style={{ "--callout": RAIL[tone] } as CSSProperties}
       role="note"
     >
@@ -759,7 +761,7 @@ export function Breadcrumb({ items }: { items: readonly Crumb[] }) {
 }
 
 /**
- * Apple category tabs: smooth font-medium text with Action Blue active state.
+ * Category tabs: font-medium text underlined by an action-blue blade when active.
  */
 export function Tabs<T extends string>({
   tabs,

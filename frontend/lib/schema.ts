@@ -15,12 +15,21 @@ export function organizationSchema() {
     logo: `${appConfig.siteUrl}/logo-mark.svg`,
     email: company.email,
     telephone: company.phone,
-    address: {
-      "@type": "PostalAddress",
-      addressLocality: "Islamabad",
-      addressRegion: "Islamabad Capital Territory",
-      addressCountry: "PK",
-    },
+    address: [
+      {
+        "@type": "PostalAddress",
+        streetAddress: "TMHQ, 6 Milton Rd",
+        addressLocality: "Harrow",
+        postalCode: "HA1 1XX",
+        addressCountry: "GB",
+      },
+      {
+        "@type": "PostalAddress",
+        addressLocality: "Islamabad",
+        addressRegion: "Islamabad Capital Territory",
+        addressCountry: "PK",
+      },
+    ],
     sameAs: [company.social.github, company.social.linkedin].filter(Boolean),
   };
 }
@@ -37,17 +46,22 @@ export function localBusinessSchema() {
     email: company.email,
     address: {
       "@type": "PostalAddress",
-      addressLocality: "Islamabad",
-      addressRegion: "ICT",
-      addressCountry: "PK",
+      streetAddress: "TMHQ, 6 Milton Rd",
+      addressLocality: "Harrow",
+      postalCode: "HA1 1XX",
+      addressCountry: "GB",
     },
     geo: {
       "@type": "GeoCoordinates",
-      latitude: 33.6844,
-      longitude: 73.0479,
+      latitude: 51.590127,
+      longitude: -0.33609,
     },
     priceRange: "$$",
     areaServed: [
+      {
+        "@type": "Country",
+        name: "United Kingdom",
+      },
       {
         "@type": "Country",
         name: "Pakistan",

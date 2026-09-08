@@ -124,7 +124,7 @@ export default function TermsOfServicePage() {
             <a href={`mailto:${company.emails.legal}`} className="font-medium text-ink-2 underline underline-offset-2">
               {company.emails.legal}
             </a>{" "}
-            or by mail at {company.city}.
+            or by mail at {company.hq}.
           </p>
         </article>
       </Section>

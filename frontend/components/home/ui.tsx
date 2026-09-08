@@ -89,10 +89,10 @@ export function MStripe({ className, width = "w-20" }: { className?: string; wid
 
 /* ── Section — full-bleed tile ───────────────────────────────── */
 export function Section({
-  children, className, labelledBy, containerClassName,
-}: { children: ReactNode; className?: string; labelledBy?: string; containerClassName?: string }) {
+  children, className, labelledBy, containerClassName, id,
+}: { children: ReactNode; className?: string; labelledBy?: string; containerClassName?: string; id?: string }) {
   return (
-    <section aria-labelledby={labelledBy} className={cx("px-5 py-20 sm:px-6 sm:py-24 lg:py-28", className)}>
+    <section id={id} aria-labelledby={labelledBy} className={cx("px-5 py-20 sm:px-6 sm:py-24 lg:py-28", className)}>
       <div className={cx("mx-auto max-w-[1200px]", containerClassName)}>{children}</div>
     </section>
   );

@@ -37,6 +37,7 @@ export const footerLinks = {
     { name: "Company Rules", href: "/legal/company-rules" },
     { name: "Misconduct Rules", href: "/legal/misconduct" },
     { name: "Payment Policy", href: "/legal/payment-policy" },
+    { name: "Payouts & Disbursements", href: "/payouts" },
     { name: "Refund Policy", href: "/legal/refund-policy" },
     { name: "Return Policy", href: "/legal/return-policy" },
     { name: "Product Policy", href: "/legal/product-policy" },

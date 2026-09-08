@@ -70,7 +70,7 @@ export default function PortalSidebar({ portal, isOpen, onClose }: Props) {
             className="group inline-flex min-w-0 items-center gap-2.5"
             onClick={onClose}
           >
-            <span className="relative flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-adm-border transition group-hover:border-adm-border-2">
+            <span className="relative flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-none border border-adm-border transition group-hover:border-adm-border-2">
               <Image src="/logo-mark.svg" alt="" fill sizes="32px" className="object-cover" />
             </span>
             <span className="min-w-0">
@@ -126,7 +126,7 @@ export default function PortalSidebar({ portal, isOpen, onClose }: Props) {
                     href={item.href}
                     onClick={onClose}
                     aria-current={active ? "page" : undefined}
-                    className={`adm-nav-link mb-1 flex items-center gap-3 rounded-xl px-3.5 py-2 text-[14px] font-medium transition-all ${
+                    className={`adm-nav-link mb-1 flex items-center gap-3 rounded-none px-3.5 py-2 text-[14px] font-medium transition-all ${
                       active
                         ? "active bg-adm-blue-light text-adm-blue font-semibold"
                         : "text-adm-text-2 hover:bg-adm-surface-2 hover:text-adm-text"
@@ -156,7 +156,7 @@ export default function PortalSidebar({ portal, isOpen, onClose }: Props) {
                   key={target}
                   href={PORTAL_HOME_PATH[target]}
                   onClick={onClose}
-                  className="flex items-center gap-2 rounded-lg px-2 py-1.5 text-[13px] font-medium text-adm-text-2 transition hover:bg-adm-surface-2 hover:text-adm-blue"
+                  className="flex items-center gap-2 rounded-none px-2 py-1.5 text-[13px] font-medium text-adm-text-2 transition hover:bg-adm-surface-2 hover:text-adm-blue"
                 >
                   <ExternalLink size={13} className="shrink-0" />
                   <span className="truncate">{t(PORTAL_LABEL[target])}</span>
