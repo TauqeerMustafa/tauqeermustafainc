@@ -27,6 +27,8 @@ import {
   Maximize2,
   Minimize2,
   Minus,
+  PanelLeftClose,
+  PanelLeftOpen,
   Paperclip,
   RefreshCw,
   Reply,
@@ -366,6 +368,7 @@ export default function Webmail({
   const [mailboxes, setMailboxes] = useState<Mailbox[]>([]);
   const [activeId, setActiveId] = useState<string>("");
   const [mbOpen, setMbOpen] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
   const [messages, setMessages] = useState<Message[]>([]);
   const [trash, setTrash] = useState<Message[]>([]);
@@ -463,14 +466,33 @@ export default function Webmail({
     if (silent) setRefreshing(true);
     setError(null);
     try {
-      const [live, expunged] = await Promise.all([
-        authFetch(`/api/mail/messages?mailbox=${mailboxId}&limit=150`).then((r) => r.json()),
-        authFetch(`/api/mail/messages?mailbox=${mailboxId}&state=expunged&limit=100`).then((r) => r.json()),
-      ]);
-      if (live.error) throw new Error(live.error);
-      setMessages(live.messages || []);
-      setCursor(live.nextCursor ?? null);
+      let allLive: Message[] = [];
+      let nextCur: string | null = null;
+      let pageCount = 0;
+
+      while (pageCount < 10) {
+        pageCount++;
+        const fetchUrl: string = `/api/mail/messages?mailbox=${mailboxId}&limit=100${
+          nextCur ? `&cursor=${encodeURIComponent(nextCur)}` : ""
+        }`;
+        const fetchRes = await authFetch(fetchUrl);
+        const json = await fetchRes.json();
+        if (json.error) throw new Error(json.error);
+        const batch: Message[] = json.messages || [];
+        allLive = [...allLive, ...batch];
+        if (!json.nextCursor || batch.length === 0) break;
+        nextCur = json.nextCursor;
+      }
+
+      const expunged = await authFetch(
+        `/api/mail/messages?mailbox=${mailboxId}&state=expunged&limit=100`,
+      )
+        .then((r) => r.json())
+        .catch(() => ({ messages: [] }));
+
+      setMessages(allLive);
       setTrash(expunged.error ? [] : expunged.messages || []);
+      setCursor(nextCur);
     } catch (e: any) {
       setError(e.message);
     } finally {
@@ -1170,12 +1192,14 @@ export default function Webmail({
 
   return (
     <div
-      className="relative flex h-[760px] overflow-hidden rounded-2xl border shadow-sm"
+      className="relative flex h-[calc(100vh-190px)] min-h-[620px] max-h-[920px] overflow-hidden rounded-2xl border shadow-sm"
       style={{ borderColor: "var(--adm-border)", background: "var(--adm-surface)" }}
     >
       {/* ── LEFT SIDEBAR (Gmail style) ─────────────────────────────────── */}
       <aside
-        className="flex w-60 shrink-0 flex-col border-r"
+        className={`${
+          sidebarCollapsed ? "hidden" : "flex"
+        } w-56 lg:w-60 shrink-0 flex-col border-r transition-all`}
         style={{ borderColor: "var(--adm-border)", background: "var(--adm-surface-2)" }}
       >
         {/* Mailbox Switcher Header */}
@@ -1303,8 +1327,18 @@ export default function Webmail({
           className="flex h-14 shrink-0 items-center justify-between gap-4 border-b px-4"
           style={{ borderColor: "var(--adm-border)", background: "var(--adm-surface)" }}
         >
-          {/* Left: Back button if message selected, or folder title */}
+          {/* Left: Sidebar Toggle + Title / Back */}
           <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => setSidebarCollapsed((v) => !v)}
+              className="flex h-8 w-8 items-center justify-center rounded-lg border transition hover:bg-adm-surface-2"
+              style={{ borderColor: "var(--adm-border)", color: "var(--adm-text-3)" }}
+              title={sidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+            >
+              {sidebarCollapsed ? <PanelLeftOpen size={15} /> : <PanelLeftClose size={15} />}
+            </button>
+
             {selected ? (
               <button
                 type="button"
@@ -1313,7 +1347,7 @@ export default function Webmail({
                 style={{ borderColor: "var(--adm-border)", color: "var(--adm-text-2)" }}
                 title="Back to list (u)"
               >
-                <ArrowLeft size={14} /> Back
+                <ArrowLeft size={14} /> Back to {FOLDERS.find((f) => f.key === folder)?.label}
               </button>
             ) : (
               <h2 className="text-sm font-bold tracking-tight" style={{ color: "var(--adm-text)" }}>
@@ -1422,9 +1456,9 @@ export default function Webmail({
         {/* ── SUB-VIEW: SELECTED MESSAGE READING PANE ─────────────────── */}
         {selected ? (
           <div className="flex flex-1 flex-col overflow-y-auto">
-            {/* Action Bar Above Message */}
+            {/* Sticky Action Bar Above Message */}
             <div
-              className="flex items-center justify-between border-b px-5 py-2.5"
+              className="sticky top-0 z-20 flex items-center justify-between border-b px-5 py-2.5 shadow-xs"
               style={{ borderColor: "var(--adm-border)", background: "var(--adm-surface)" }}
             >
               <div className="flex items-center gap-1.5">
@@ -1576,21 +1610,44 @@ export default function Webmail({
               </div>
             </div>
 
-            {/* Email Body Content */}
-            <div className="flex-1 p-6">
+            {/* Email Body Content - with auto overflow and responsive table wrapping */}
+            <div className="flex-1 min-w-0 max-w-full overflow-x-auto p-6">
               {loadingContent ? (
                 <div className="flex h-40 items-center justify-center">
                   <Loader2 className="h-6 w-6 animate-spin" style={{ color: "var(--adm-blue)" }} />
                 </div>
               ) : content?.html ? (
-                <div
-                  className="prose prose-sm max-w-none text-sm leading-relaxed"
-                  style={{ color: "var(--adm-text)" }}
-                  dangerouslySetInnerHTML={{ __html: content.body }}
-                />
+                <div className="min-w-0 max-w-full">
+                  <style>{`
+                    .webmail-html-body table {
+                      max-width: 100% !important;
+                      width: auto !important;
+                      display: block !important;
+                      overflow-x: auto !important;
+                    }
+                    .webmail-html-body img {
+                      max-width: 100% !important;
+                      height: auto !important;
+                    }
+                    .webmail-html-body pre {
+                      white-space: pre-wrap !important;
+                      word-break: break-word !important;
+                      overflow-wrap: break-word !important;
+                    }
+                    .webmail-html-body {
+                      word-break: break-word;
+                      overflow-wrap: break-word;
+                    }
+                  `}</style>
+                  <div
+                    className="webmail-html-body prose prose-sm max-w-none text-sm leading-relaxed"
+                    style={{ color: "var(--adm-text)" }}
+                    dangerouslySetInnerHTML={{ __html: content.body }}
+                  />
+                </div>
               ) : (
                 <pre
-                  className="whitespace-pre-wrap break-words font-sans text-sm leading-relaxed"
+                  className="min-w-0 max-w-full overflow-x-auto whitespace-pre-wrap break-words font-sans text-sm leading-relaxed"
                   style={{ color: "var(--adm-text)" }}
                 >
                   {content?.body || "(Empty message)"}

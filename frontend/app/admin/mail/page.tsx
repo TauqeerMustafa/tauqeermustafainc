@@ -12,12 +12,8 @@ export default async function AdminMailPage({
 }) {
   const sp = await searchParams;
   return (
-    <div className="space-y-6">
-      <CommunicationsBanner active="mail" />
-      <AdminPageHeader
-        title="Webmail"
-        description="Read, reply to, and manage every mailbox in one place."
-      />
+    <div className="space-y-4">
+      <CommunicationsBanner active="mail" compact />
       <Webmail
         initialTo={sp.to ?? ""}
         initialSubject={sp.subject ?? ""}
