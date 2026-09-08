@@ -46,9 +46,9 @@ export default function SupportSubdomainLayout({
               href="/support"
               className="flex items-center gap-3 transition hover:opacity-85"
             >
-              <div className="flex h-8 w-8 items-center justify-center bg-action text-on-action font-mono text-xs font-bold">
-                TM
-              </div>
+              <span className="relative flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden border border-line bg-surface">
+                <Image src="/logo.png" alt="Tauqeer Mustafa Inc." fill sizes="32px" className="object-cover" priority />
+              </span>
               <div className="flex flex-col">
                 <span className="font-mono text-[13px] font-bold tracking-tight text-ink uppercase">
                   Tauqeer Mustafa Inc.
@@ -133,7 +133,9 @@ export default function SupportSubdomainLayout({
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
             <div className="space-y-3">
               <div className="flex items-center gap-2">
-                <div className="h-6 w-6 flex items-center justify-center bg-action text-on-action text-[10px] font-bold">TM</div>
+                <span className="relative flex h-6 w-6 shrink-0 items-center justify-center overflow-hidden border border-line bg-surface">
+                  <Image src="/logo.png" alt="TMI" fill sizes="24px" className="object-cover" />
+                </span>
                 <span className="font-bold text-ink text-sm">Tauqeer Mustafa Inc.</span>
               </div>
               <p className="text-ink-lighter text-[11px] leading-relaxed">

@@ -37,7 +37,7 @@ export default function BillingSubdomainLayout({
               className="inline-flex min-h-10 shrink-0 items-center gap-2.5 text-[15px] font-bold uppercase tracking-[0.01em] text-ink transition-opacity hover:opacity-80"
             >
               <span className="relative flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden border border-ink/15 bg-ink/[0.06]">
-                <Image src="/logo-mark.svg" alt="" fill sizes="36px" className="object-cover" />
+                <Image src="/logo.png" alt="Tauqeer Mustafa Inc." fill sizes="36px" className="object-cover" priority />
               </span>
               <div className="flex flex-col leading-none">
                 <span className="font-bold tracking-tight text-ink uppercase text-[14px]">

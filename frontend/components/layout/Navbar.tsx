@@ -47,7 +47,7 @@ export default function Navbar() {
           className="inline-flex min-h-10 shrink-0 items-center gap-2.5 text-[15px] font-bold uppercase tracking-[0.01em] text-ink transition-opacity hover:opacity-80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-action"
         >
           <span className="relative flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden border border-ink/15 bg-ink/[0.06]">
-            <Image src="/logo-mark.svg" alt="" fill sizes="36px" className="object-cover" />
+            <Image src="/logo.png" alt="Tauqeer Mustafa Inc." fill sizes="36px" className="object-cover" priority />
           </span>
           <span className="hidden sm:inline">Tauqeer Mustafa Inc.</span>
           <span className="sm:hidden">TMI</span>

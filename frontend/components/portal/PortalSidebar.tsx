@@ -71,7 +71,7 @@ export default function PortalSidebar({ portal, isOpen, onClose }: Props) {
             onClick={onClose}
           >
             <span className="relative flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-none border border-adm-border transition group-hover:border-adm-border-2">
-              <Image src="/logo-mark.svg" alt="" fill sizes="32px" className="object-cover" />
+              <Image src="/logo.png" alt="" fill sizes="32px" className="object-cover" />
             </span>
             <span className="min-w-0">
               <span className="block text-sm font-semibold leading-tight tracking-tight text-adm-text">

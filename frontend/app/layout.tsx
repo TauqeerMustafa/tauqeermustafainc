@@ -31,8 +31,8 @@ export const metadata: Metadata = {
   publisher: company.name,
   applicationName: company.name,
   icons: {
-    icon: "/logo-mark.svg",
-    apple: "/logo-mark.svg",
+    icon: "/logo.png",
+    apple: "/logo.png",
   },
   openGraph: {
     type: "website",

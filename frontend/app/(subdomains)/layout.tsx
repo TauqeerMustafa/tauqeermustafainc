@@ -20,13 +20,15 @@ export default function SubdomainsLayout({
             href="https://www.tauqeermustafa.tech/"
             className="flex items-center gap-3 transition-opacity hover:opacity-80"
           >
-            <Image 
-              src="/logo-mark.svg" 
-              alt="TMI Logo" 
-              width={32} 
-              height={32} 
-              className="h-8 w-auto dark:invert"
-            />
+            <span className="relative flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden border border-ink/15 bg-ink/[0.06]">
+              <Image 
+                src="/logo.png" 
+                alt="TMI Logo" 
+                fill
+                sizes="32px"
+                className="object-cover"
+              />
+            </span>
             <span className="text-[15px] font-bold tracking-tight text-ink hidden sm:block">
               Tauqeer Mustafa Inc
             </span>

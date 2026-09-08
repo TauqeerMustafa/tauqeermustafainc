@@ -12,7 +12,7 @@ export function organizationSchema() {
     "@id": `${appConfig.siteUrl}/#organization`,
     name: company.name,
     url: appConfig.siteUrl,
-    logo: `${appConfig.siteUrl}/logo-mark.svg`,
+    logo: `${appConfig.siteUrl}/logo.png`,
     email: company.email,
     telephone: company.phone,
     address: [
@@ -40,7 +40,7 @@ export function localBusinessSchema() {
     "@type": "ProfessionalService",
     "@id": `${appConfig.siteUrl}/#localbusiness`,
     name: company.name,
-    image: `${appConfig.siteUrl}/logo-mark.svg`,
+    image: `${appConfig.siteUrl}/logo.png`,
     url: appConfig.siteUrl,
     telephone: company.phone,
     email: company.email,
@@ -149,7 +149,7 @@ export function articleSchema(article: {
     "@id": `${appConfig.siteUrl}/blog/${article.slug}#article`,
     headline: article.title,
     description: article.description,
-    image: article.image || `${appConfig.siteUrl}/logo-mark.svg`,
+    image: article.image || `${appConfig.siteUrl}/logo.png`,
     datePublished: article.publishedAt,
     dateModified: article.updatedAt || article.publishedAt,
     author: {

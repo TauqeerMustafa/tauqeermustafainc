@@ -60,7 +60,7 @@ export default function DocsLayoutClient({ children }: { children: React.ReactNo
             >
               <span className="relative flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden border border-line bg-surface">
                 <Image
-                  src="/tmi-logo-primary.jpg"
+                  src="/logo.png"
                   alt="Tauqeer Mustafa Inc."
                   fill
                   sizes="40px"
