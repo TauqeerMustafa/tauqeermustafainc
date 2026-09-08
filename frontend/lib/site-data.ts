@@ -25,7 +25,7 @@ export const footerLinks = {
     { name: "Portfolio", href: "/portfolio" },
     { name: "Blog", href: "/blog" },
     { name: "Careers", href: "/careers" },
-    { name: "Billing & Pay", href: "/pay" },
+    { name: "Billing & Treasury", href: "https://billing.tauqeermustafa.tech" },
     { name: "Contact", href: "/contact" },
   ],
   legal: [
@@ -35,11 +35,11 @@ export const footerLinks = {
   ],
   documentation: [
     { name: "Accessibility", href: "/accessibility" },
-    { name: "Make a Payment", href: "/pay" },
+    { name: "Make a Payment", href: "https://billing.tauqeermustafa.tech/pay" },
     { name: "Company Rules", href: "/legal/company-rules" },
     { name: "Misconduct Rules", href: "/legal/misconduct" },
-    { name: "Payment Policy", href: "/legal/payment-policy" },
-    { name: "Payouts & Disbursements", href: "/payouts" },
+    { name: "Payment Policy", href: "https://billing.tauqeermustafa.tech/policies" },
+    { name: "Payouts & Disbursements", href: "https://billing.tauqeermustafa.tech/payouts" },
     { name: "Refund Policy", href: "/legal/refund-policy" },
     { name: "Return Policy", href: "/legal/return-policy" },
     { name: "Product Policy", href: "/legal/product-policy" },

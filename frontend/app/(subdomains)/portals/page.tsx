@@ -65,6 +65,24 @@ export default function PortalsPage() {
           );
         })}
       </div>
+
+      {/* Public Billing & Treasury Link */}
+      <div className="mt-10 border border-ink/10 bg-surface p-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <span className="font-mono text-[10px] font-bold uppercase tracking-wider text-action block">
+            Public Treasury & Finance
+          </span>
+          <p className="text-sm font-bold text-ink mt-0.5">Looking to pay a client invoice or track contractor payouts?</p>
+          <p className="text-xs text-ink-muted mt-1">Settle milestone invoices or access the live disbursement queue.</p>
+        </div>
+        <a
+          href="https://billing.tauqeermustafa.tech"
+          className="inline-flex items-center gap-1.5 bg-action px-5 py-2.5 font-mono text-xs font-bold uppercase tracking-wider text-on-action transition hover:bg-action-strong shrink-0"
+        >
+          <span>Open Billing Portal</span>
+          <ArrowRight className="h-3.5 w-3.5" />
+        </a>
+      </div>
     </div>
   );
 }
