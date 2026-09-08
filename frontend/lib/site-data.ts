@@ -25,7 +25,7 @@ export const footerLinks = {
     { name: "Portfolio", href: "/portfolio" },
     { name: "Blog", href: "/blog" },
     { name: "Careers", href: "/careers" },
-    { name: "Pay Online", href: "/pay" },
+    { name: "Billing & Pay", href: "/pay" },
     { name: "Contact", href: "/contact" },
   ],
   legal: [

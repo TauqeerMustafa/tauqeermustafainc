@@ -109,6 +109,15 @@ export default function PaymentCheckout() {
   const [processing, setProcessing] = useState(false);
   const [receipt, setReceipt] = useState<Receipt | null>(null);
   const [emailSent, setEmailSent] = useState(false);
+  const [copiedIban, setCopiedIban] = useState(false);
+  const [copiedRaast, setCopiedRaast] = useState(false);
+  const [copiedWise, setCopiedWise] = useState(false);
+
+  const handleCopyText = (text: string, setter: (val: boolean) => void) => {
+    navigator.clipboard.writeText(text);
+    setter(true);
+    setTimeout(() => setter(false), 2000);
+  };
 
   // Lookup invoice
   const handleLookup = (codeToLookup?: string) => {
@@ -668,15 +677,60 @@ export default function PaymentCheckout() {
               <div className="border border-line bg-card p-5 space-y-4 animate-in fade-in duration-200">
                 <div className="border-b border-line pb-3">
                   <span className="font-mono text-xs font-bold uppercase text-ink block">
-                    Step 2: Confirm Bank Wire / Transfer
+                    Direct Bank Wire & Raast Coordinates
                   </span>
                   <p className="text-xs text-ink-muted mt-1">
-                    Transfer to our official Meezan Bank account shown below, then enter your
-                    reference to immediately attach proof to your invoice.
+                    Transfer directly to our corporate bank account from any Pakistani bank or mobile app (Meezan, HBL, UBL, Alfalah, Nayapay, Sadapay), then enter your transaction reference below.
                   </p>
                 </div>
 
-                <div className="grid gap-3 sm:grid-cols-2">
+                {/* Bank Account Coordinates Box */}
+                <div className="border border-line-2 bg-surface p-4 space-y-2.5 text-xs font-mono">
+                  <div className="flex items-center justify-between pb-2 border-b border-line">
+                    <span className="text-ink-muted uppercase">Bank:</span>
+                    <span className="font-bold text-ink">Meezan Bank Limited</span>
+                  </div>
+                  <div className="flex items-center justify-between pb-2 border-b border-line">
+                    <span className="text-ink-muted uppercase">Account Title:</span>
+                    <span className="font-bold text-ink">Tauqeer Mustafa Inc.</span>
+                  </div>
+                  <div className="flex items-center justify-between pb-2 border-b border-line">
+                    <span className="text-ink-muted uppercase">IBAN Number:</span>
+                    <div className="flex items-center gap-1.5">
+                      <span className="font-bold text-action select-all">PK64MEZN0001090108421092</span>
+                      <button
+                        type="button"
+                        onClick={() => handleCopyText("PK64MEZN0001090108421092", setCopiedIban)}
+                        className="p-1 text-ink/50 hover:text-action transition"
+                        title="Copy IBAN"
+                        aria-label="Copy IBAN"
+                      >
+                        {copiedIban ? <Check size={13} className="text-emerald-600" /> : <Copy size={13} />}
+                      </button>
+                    </div>
+                  </div>
+                  <div className="flex items-center justify-between pb-2 border-b border-line">
+                    <span className="text-ink-muted uppercase">Account Number:</span>
+                    <span className="font-bold text-ink">01090108421092 (Branch 0109)</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-ink-muted uppercase">Raast ID:</span>
+                    <div className="flex items-center gap-1.5">
+                      <span className="font-bold text-emerald-600 select-all">+923356701199</span>
+                      <button
+                        type="button"
+                        onClick={() => handleCopyText("+923356701199", setCopiedRaast)}
+                        className="p-1 text-ink/50 hover:text-action transition"
+                        title="Copy Raast ID"
+                        aria-label="Copy Raast ID"
+                      >
+                        {copiedRaast ? <Check size={13} className="text-emerald-600" /> : <Copy size={13} />}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="grid gap-3 sm:grid-cols-2 pt-2">
                   <div>
                     <label className="block text-xs font-semibold text-ink mb-1">
                       Bank Transaction ID / RRN *
@@ -700,7 +754,7 @@ export default function PaymentCheckout() {
                       required
                       value={senderBank}
                       onChange={(e) => setSenderBank(e.target.value)}
-                      placeholder="e.g. HBL, Meezan, Standard Chartered"
+                      placeholder="e.g. Meezan, HBL, Nayapay, Sadapay"
                       className="w-full border border-line-2 bg-surface px-3.5 py-2 text-sm text-ink outline-none focus:border-action"
                     />
                   </div>
@@ -726,15 +780,45 @@ export default function PaymentCheckout() {
               <div className="border border-line bg-card p-5 space-y-4 animate-in fade-in duration-200">
                 <div className="border-b border-line pb-3">
                   <span className="font-mono text-xs font-bold uppercase text-ink block">
-                    Cross-Border Transfer Confirmation
+                    Wise & Cross-Border Remittance
                   </span>
                   <p className="text-xs text-ink-muted mt-1">
-                    Dispatched via Wise or SWIFT wire to our UK / Barclays account. Enter your
-                    transfer confirmation # below.
+                    Send funds via Wise tag or SWIFT wire to our multi-currency account, then enter your confirmation reference below.
                   </p>
                 </div>
 
-                <div>
+                {/* Wise Coordinates Box */}
+                <div className="border border-line-2 bg-surface p-4 space-y-2.5 text-xs font-mono">
+                  <div className="flex items-center justify-between pb-2 border-b border-line">
+                    <span className="text-ink-muted uppercase">Beneficiary:</span>
+                    <span className="font-bold text-ink">Tauqeer Mustafa Inc.</span>
+                  </div>
+                  <div className="flex items-center justify-between pb-2 border-b border-line">
+                    <span className="text-ink-muted uppercase">Wise Tag:</span>
+                    <div className="flex items-center gap-1.5">
+                      <span className="font-bold text-action select-all">@tauqeermustafa-inc</span>
+                      <button
+                        type="button"
+                        onClick={() => handleCopyText("tauqeermustafa-inc", setCopiedWise)}
+                        className="p-1 text-ink/50 hover:text-action transition"
+                        title="Copy Wise Tag"
+                        aria-label="Copy Wise Tag"
+                      >
+                        {copiedWise ? <Check size={13} className="text-emerald-600" /> : <Copy size={13} />}
+                      </button>
+                    </div>
+                  </div>
+                  <div className="flex items-center justify-between pb-2 border-b border-line">
+                    <span className="text-ink-muted uppercase">UK IBAN:</span>
+                    <span className="font-bold text-ink select-all">GB29BARC20000083921045</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-ink-muted uppercase">SWIFT / BIC:</span>
+                    <span className="font-bold text-ink">BARCGB22</span>
+                  </div>
+                </div>
+
+                <div className="pt-2">
                   <label className="block text-xs font-semibold text-ink mb-1">
                     Wise Transfer ID / SWIFT Reference # *
                   </label>

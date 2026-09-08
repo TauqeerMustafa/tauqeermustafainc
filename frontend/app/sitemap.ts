@@ -19,6 +19,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: "/cookies", changeFrequency: "yearly", priority: 0.3 },
     { url: "/accessibility", changeFrequency: "yearly", priority: 0.3 },
     { url: "/pay", changeFrequency: "monthly", priority: 0.8 },
+    { url: "/billing", changeFrequency: "monthly", priority: 0.8 },
     { url: "/payouts", changeFrequency: "monthly", priority: 0.6 },
     { url: "/legal/payment-policy", changeFrequency: "yearly", priority: 0.3 },
     { url: "/legal/refund-policy", changeFrequency: "yearly", priority: 0.3 },
