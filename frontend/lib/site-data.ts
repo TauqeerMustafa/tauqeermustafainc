@@ -25,6 +25,7 @@ export const footerLinks = {
     { name: "Portfolio", href: "/portfolio" },
     { name: "Blog", href: "/blog" },
     { name: "Careers", href: "/careers" },
+    { name: "Pay Online", href: "/pay" },
     { name: "Contact", href: "/contact" },
   ],
   legal: [
@@ -34,6 +35,7 @@ export const footerLinks = {
   ],
   documentation: [
     { name: "Accessibility", href: "/accessibility" },
+    { name: "Make a Payment", href: "/pay" },
     { name: "Company Rules", href: "/legal/company-rules" },
     { name: "Misconduct Rules", href: "/legal/misconduct" },
     { name: "Payment Policy", href: "/legal/payment-policy" },
