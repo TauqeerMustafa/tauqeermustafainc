@@ -149,6 +149,20 @@ export async function GET(request: Request) {
     resultList[0].primary = true;
   }
 
+  for (const n of resultList) {
+    if (n.primary) {
+      n.department = "general";
+      if (!n.label || n.label === "Primary number" || n.label === "Line 1") {
+        n.label = "General Inquiries & Sales";
+      }
+    } else {
+      n.department = "support";
+      if (!n.label || n.label === "Second number" || n.label === "Line 2") {
+        n.label = "Technical & Client Support";
+      }
+    }
+  }
+
   // Register all discovered numbers so resolveNumberId accepts them
   registerKnownNumbers(resultList);
 

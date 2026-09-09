@@ -2,16 +2,15 @@
 
 import { useEffect, useRef, useState } from "react";
 import { FaWhatsapp } from "react-icons/fa6";
-import { X } from "lucide-react";
+import { X, Briefcase, LifeBuoy, ArrowRight } from "lucide-react";
 
 import { company } from "@/data/company";
 
 const WA_GREEN = "#25D366";
 
 /**
- * Floating WhatsApp chat widget — a bottom-right FAB that expands into a small
- * greeting card with a single CTA that opens WhatsApp (company.whatsapp).
- * Client component: manages open/close, closes on Escape and outside click.
+ * Floating WhatsApp chat widget — provides completely separate direct access
+ * to General Inquiries & Sales and Client & Technical Support.
  */
 export default function WhatsAppChat() {
   const [open, setOpen] = useState(false);
@@ -47,7 +46,7 @@ export default function WhatsAppChat() {
         <div
           role="dialog"
           aria-label="Chat with us on WhatsApp"
-          className="w-[min(20rem,calc(100vw-2.5rem))] origin-bottom-right overflow-hidden rounded-2xl border border-line bg-surface shadow-[0_18px_48px_rgba(17,24,39,0.18)] motion-safe:animate-in motion-safe:fade-in motion-safe:zoom-in-95 motion-safe:duration-150"
+          className="w-[min(22rem,calc(100vw-2.5rem))] origin-bottom-right overflow-hidden rounded-2xl border border-line bg-surface shadow-[0_18px_48px_rgba(17,24,39,0.18)] motion-safe:animate-in motion-safe:fade-in motion-safe:zoom-in-95 motion-safe:duration-150"
         >
           {/* Header */}
           <div className="flex items-center gap-3 px-4 py-3.5" style={{ backgroundColor: WA_GREEN }}>
@@ -55,8 +54,8 @@ export default function WhatsAppChat() {
               <FaWhatsapp className="h-6 w-6 text-white" aria-hidden />
             </span>
             <div className="min-w-0 flex-1">
-              <p className="text-[14px] font-semibold leading-tight text-white">{company.shortName} Team</p>
-              <p className="text-[12px] leading-tight text-white/85">Typically replies within minutes</p>
+              <p className="text-[14px] font-semibold leading-tight text-white">{company.shortName} WhatsApp Hub</p>
+              <p className="text-[12px] leading-tight text-white/85">Select department to continue</p>
             </div>
             <button
               type="button"
@@ -68,24 +67,64 @@ export default function WhatsAppChat() {
             </button>
           </div>
 
-          {/* Body */}
-          <div className="px-4 py-4">
-            <div className="max-w-[85%] rounded-2xl rounded-tl-sm bg-canvas px-3.5 py-2.5">
-              <p className="text-[14px] leading-[1.5] text-ink">
-                Hi there! 👋 How can we help you today?
-              </p>
-            </div>
-
+          {/* Body: Two completely separate channels */}
+          <div className="p-4 space-y-2.5">
+            {/* General Inquiries & Sales */}
             <a
-              href={company.whatsapp}
+              href={company.whatsappChannels.general.url}
               target="_blank"
               rel="noopener noreferrer"
               onClick={() => setOpen(false)}
-              className="mt-4 flex w-full items-center justify-center gap-2 rounded-full px-4 py-3 text-[14px] font-semibold text-white transition hover:opacity-90"
-              style={{ backgroundColor: WA_GREEN }}
+              className="group block rounded-xl border border-line bg-surface p-3 transition hover:border-[#0066b1] hover:bg-surface-2"
             >
-              <FaWhatsapp className="h-5 w-5" aria-hidden />
-              Start chat
+              <div className="flex items-start justify-between gap-2">
+                <div className="flex items-center gap-2">
+                  <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#0066b1]/10 text-[#0066b1]">
+                    <Briefcase className="h-3.5 w-3.5" />
+                  </div>
+                  <div>
+                    <span className="text-[13px] font-bold text-ink group-hover:text-[#0066b1] transition">
+                      General & Sales
+                    </span>
+                    <span className="ml-1.5 rounded-full bg-[#0066b1]/10 px-1.5 py-0.2 font-mono text-[9px] font-semibold text-[#0066b1]">
+                      Info Line
+                    </span>
+                  </div>
+                </div>
+                <ArrowRight className="h-4 w-4 text-ink-light transition group-hover:translate-x-0.5 group-hover:text-[#0066b1]" />
+              </div>
+              <p className="mt-1 text-[11px] leading-relaxed text-ink-light pl-9">
+                Quotes, services, partnerships & general business questions
+              </p>
+            </a>
+
+            {/* Technical & Client Support */}
+            <a
+              href={company.whatsappChannels.support.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={() => setOpen(false)}
+              className="group block rounded-xl border border-line bg-surface p-3 transition hover:border-[#059669] hover:bg-surface-2"
+            >
+              <div className="flex items-start justify-between gap-2">
+                <div className="flex items-center gap-2">
+                  <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#059669]/10 text-[#059669]">
+                    <LifeBuoy className="h-3.5 w-3.5" />
+                  </div>
+                  <div>
+                    <span className="text-[13px] font-bold text-ink group-hover:text-[#059669] transition">
+                      Client Support
+                    </span>
+                    <span className="ml-1.5 rounded-full bg-[#059669]/10 px-1.5 py-0.2 font-mono text-[9px] font-semibold text-[#059669]">
+                      24/7 Desk
+                    </span>
+                  </div>
+                </div>
+                <ArrowRight className="h-4 w-4 text-ink-light transition group-hover:translate-x-0.5 group-hover:text-[#059669]" />
+              </div>
+              <p className="mt-1 text-[11px] leading-relaxed text-ink-light pl-9">
+                Active client helpdesk, bug reports & SLA escalation
+              </p>
             </a>
           </div>
         </div>

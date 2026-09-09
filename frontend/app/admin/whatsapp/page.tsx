@@ -35,6 +35,8 @@ import {
   CornerUpLeft,
   Mic,
   X,
+  Briefcase,
+  LifeBuoy,
 } from "lucide-react";
 
 import {
@@ -99,7 +101,7 @@ const TABS: { key: TabKey; label: string; icon: React.ReactNode }[] = [
   { key: "numbers", label: "Phone Lines", icon: <Phone size={16} /> },
 ];
 
-const DEAL_STATUSES: { value: DealStatus; label: string; color: string; bgColor: string }[] = [
+const GENERAL_DEAL_STATUSES: { value: DealStatus; label: string; color: string; bgColor: string }[] = [
   { value: "new", label: "New Lead", color: "var(--adm-blue)", bgColor: "var(--adm-blue-light)" },
   { value: "contacted", label: "Contacted", color: "var(--adm-text-2)", bgColor: "var(--adm-surface-2)" },
   { value: "negotiating", label: "Negotiating", color: "var(--adm-amber)", bgColor: "var(--adm-amber-light)" },
@@ -107,21 +109,25 @@ const DEAL_STATUSES: { value: DealStatus; label: string; color: string; bgColor:
   { value: "lost", label: "Lost", color: "var(--adm-red)", bgColor: "var(--adm-red-light)" },
 ];
 
+const SUPPORT_TICKET_STATUSES: { value: DealStatus; label: string; color: string; bgColor: string }[] = [
+  { value: "new", label: "New Ticket", color: "#059669", bgColor: "rgba(5, 150, 105, 0.12)" },
+  { value: "contacted", label: "Investigating", color: "var(--adm-blue)", bgColor: "var(--adm-blue-light)" },
+  { value: "negotiating", label: "In Progress", color: "var(--adm-amber)", bgColor: "var(--adm-amber-light)" },
+  { value: "won", label: "Resolved", color: "var(--adm-green)", bgColor: "var(--adm-green-light)" },
+  { value: "lost", label: "Closed", color: "var(--adm-text-3)", bgColor: "var(--adm-surface-2)" },
+];
+
+const DEAL_STATUSES = GENERAL_DEAL_STATUSES;
+
 // ─── Helpers ────────────────────────────────────────────────────────────
 
 type Conversation = {
+  key: string;
   number: string;
   name: string;
   messages: WAMessage[];
-  /**
-   * Which of our numbers this thread runs on, taken from the newest message.
-   *
-   * Threads are keyed by the customer's number alone — conversation metadata,
-   * archiving and delete all use that key — so someone who writes to both of our
-   * numbers appears once. Answering on the newest message's number is what keeps
-   * a reply landing where the customer last spoke to us.
-   */
   channel?: string;
+  department: "general" | "support";
   dealStatus?: DealStatus;
   notes?: string;
   tags?: string[];
@@ -232,39 +238,79 @@ function withSeenChannels(
     const ch = (m.channel || "").trim();
     if (!ch || covers(ch)) continue;
     if (extras.some((e) => e.id === ch || cleanDigits(e.id) === cleanDigits(ch))) continue;
+    const isSupport =
+      ch.toLowerCase().includes("support") ||
+      cleanDigits(ch).endsWith("3281313982") ||
+      ch === "1318810581311680";
     extras.push({
       id: ch,
-      label: `Line ${apiNumbers.length + extras.length + 1}`,
+      label: isSupport ? "Technical & Client Support" : `Line ${apiNumbers.length + extras.length + 1}`,
       primary: false,
       slot: 1,
       canSend: false,
-      displayNumber: null,
+      department: isSupport ? "support" : "general",
+      displayNumber: isSupport ? "+92 328 1313982" : null,
       error: "Received messages arrived on this number, but Meta has not confirmed it — replies may not send until it is configured.",
     });
   }
   return extras.length ? [...apiNumbers, ...extras] : apiNumbers;
 }
 
-/** Group messages into conversations, newest activity first. */
-function groupConversations(messages: WAMessage[], allNumbers: WANumberInfo[] = []): Conversation[] {
-  const byNumber = new Map<string, Conversation>();
+/** Determine which department a message belongs to: "general" (Inquiries/Sales) or "support" (Client Support Desk) */
+function getMessageDepartment(m: WAMessage, allNumbers: WANumberInfo[] = []): "general" | "support" {
+  const line = getLineForMessage(m, allNumbers);
+  if (line?.department) return line.department;
+  if (line && (!line.primary || line.label.toLowerCase().includes("support"))) return "support";
+  const ch = channelOf(m);
+  if (
+    ch.toLowerCase().includes("support") ||
+    cleanDigits(ch).endsWith("3281313982") ||
+    ch === "1318810581311680"
+  ) {
+    return "support";
+  }
+  return "general";
+}
+
+/**
+ * Group messages into conversations, newest activity first.
+ * Conversations are strictly partitioned by department (${dept}_${number}),
+ * ensuring General Inquiries and Client Support never bleed messages, notes, or deal stages.
+ */
+function groupConversations(
+  messages: WAMessage[],
+  allNumbers: WANumberInfo[] = [],
+  filterDepartment?: "general" | "support"
+): Conversation[] {
+  const byKey = new Map<string, Conversation>();
   for (const m of messages) {
+    const dept = getMessageDepartment(m, allNumbers);
+    if (filterDepartment && dept !== filterDepartment) continue;
     const number = numberOf(m);
-    let conv = byNumber.get(number);
+    const key = `${dept}_${number}`;
+    let conv = byKey.get(key);
     if (!conv) {
-      conv = { number, name: number, messages: [], dealStatus: "new", notes: "", tags: [] };
-      byNumber.set(number, conv);
+      conv = {
+        key,
+        number,
+        name: number,
+        messages: [],
+        department: dept,
+        dealStatus: "new",
+        notes: "",
+        tags: [],
+      };
+      byKey.set(key, conv);
     }
     if (m.direction === "inbound" && m.name && m.name !== number) conv.name = m.name;
     conv.messages.push(m);
   }
-  const convos = [...byNumber.values()];
+  const convos = [...byKey.values()];
   for (const c of convos) {
     c.messages.sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
-    // Assign canonical channel ID from the last message or conversation history
     const last = c.messages.at(-1);
     const line = last ? getLineForMessage(last, allNumbers) : undefined;
-    c.channel = line?.id || channelOf(c.messages.at(-1)!) || undefined;
+    c.channel = line?.id || channelOf(last!) || undefined;
   }
   convos.sort((a, b) => {
     const at = a.messages.at(-1) ? new Date(a.messages.at(-1)!.timestamp).getTime() : 0;
@@ -325,31 +371,54 @@ function SenderPicker({
 
 export default function AdminWhatsAppPage() {
   const [activeTab, setActiveTab] = useState<TabKey>("inbox");
+  const [department, setDepartment] = useState<"general" | "support">("general");
   const [prefillRecipient, setPrefillRecipient] = useState<string | null>(null);
   const [prefillSender, setPrefillSender] = useState<string | null>(null);
-  const [inboxChannel, setInboxChannel] = useState<string | undefined>("all");
   const [selectedChatRecipient, setSelectedChatRecipient] = useState<string | null>(null);
 
   const { data: numbersData } = useWhatsAppNumbers();
-  const numbers = numbersData?.data ?? [];
+  const { data: messagesData } = useWhatsAppMessages();
+  const { data: metaData } = useConversationMeta();
+
+  const apiNumbers = numbersData?.data ?? [];
+  const allMessages = messagesData?.data ?? [];
+  const metaMap = metaData?.data ?? {};
+
+  const numbers = withSeenChannels(apiNumbers, allMessages);
+
+  const generalLine = numbers.find((n) => n.department === "general" || n.primary) || numbers[0];
+  const supportLine = numbers.find((n) => n.department === "support" || (!n.primary && numbers.length > 1));
+
+  const activeLine = department === "general" ? generalLine : (supportLine || generalLine);
+
+  const generalConvs = groupConversations(allMessages, numbers, "general");
+  const supportConvs = groupConversations(allMessages, numbers, "support");
+
+  const generalUnreads = generalConvs.reduce((acc, c) => acc + (unreadCount(c, metaMap[c.key] || metaMap[c.number]) > 0 ? 1 : 0), 0);
+  const supportUnreads = supportConvs.reduce((acc, c) => acc + (unreadCount(c, metaMap[c.key] || metaMap[c.number]) > 0 ? 1 : 0), 0);
 
   const goReply = (number: string) => {
     setPrefillRecipient(number);
+    setPrefillSender(activeLine?.id);
     setActiveTab("send");
   };
 
   const goSendFrom = (senderId: string) => {
+    const matchedNumber = numbers.find((n) => n.id === senderId);
+    if (matchedNumber?.department) {
+      setDepartment(matchedNumber.department);
+    }
     setPrefillSender(senderId);
     setActiveTab("send");
   };
 
-  const openLineInbox = (channelId: string) => {
-    setInboxChannel(channelId);
-    setActiveTab("inbox");
-  };
-
   const openChatInInbox = (recipient: string, channelId?: string) => {
-    if (channelId) setInboxChannel(channelId);
+    if (channelId) {
+      const line = numbers.find((n) => n.id === channelId);
+      if (line?.department) {
+        setDepartment(line.department);
+      }
+    }
     setSelectedChatRecipient(recipient);
     setActiveTab("inbox");
   };
@@ -359,65 +428,121 @@ export default function AdminWhatsAppPage() {
       <CommunicationsBanner active="whatsapp" />
       <AdminPageHeader
         title="WhatsApp Business Manager"
-        description="Manage customer conversations, send messages, and track deals"
+        description="Isolated multi-channel operations: General Inquiries & Corporate Sales vs Technical Support Desk"
       />
 
-      {/* Connected Phone Lines Header & Direct Inbox Switcher */}
-      {numbers.length > 0 && (
-        <div className="mb-4 flex flex-wrap items-center gap-2">
-          <span className="text-xs font-semibold uppercase tracking-wider text-adm-text-3">
-            Inbox:
-          </span>
-          <button
-            type="button"
-            onClick={() => openLineInbox("all")}
-            className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-medium transition ${
-              activeTab === "inbox" && (inboxChannel === "all" || !inboxChannel)
-                ? "bg-adm-blue-light border-adm-blue ring-2 ring-adm-blue/20 text-adm-blue font-bold"
-                : "bg-adm-surface hover:bg-adm-surface-2 text-adm-text-2"
-            }`}
-            style={{ borderColor: activeTab === "inbox" && (inboxChannel === "all" || !inboxChannel) ? "var(--adm-blue)" : "var(--adm-border)" }}
-            title="Open combined inbox showing all conversations from both lines"
-          >
-            <span>All Inboxes (Combined)</span>
-          </button>
-          {numbers.map((n, i) => {
-            const isSendable = n.canSend !== false;
-            const isCurrent = activeTab === "inbox" && inboxChannel === n.id;
-            return (
-              <button
-                key={n.id}
-                type="button"
-                onClick={() => openLineInbox(n.id)}
-                className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-medium transition ${
-                  isCurrent
-                    ? "bg-adm-blue-light border-adm-blue ring-2 ring-adm-blue/20 text-adm-blue font-bold"
-                    : "bg-adm-surface hover:bg-adm-surface-2 text-adm-text-2"
-                }`}
-                style={{ borderColor: isCurrent ? "var(--adm-blue)" : isSendable ? "var(--adm-border)" : "var(--adm-red)" }}
-                title={`Open separated inbox for ${n.displayNumber || n.label || n.id}`}
-              >
-                <span
-                  className="h-2 w-2 rounded-full"
-                  style={{ background: isSendable ? "var(--adm-green)" : "var(--adm-red)" }}
-                />
-                <span>
-                  {n.displayNumber || n.label || `Line ${i + 1}`}
+      {/* Department Isolation Switcher */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-2">
+        {/* General Inquiries & Sales */}
+        <button
+          type="button"
+          onClick={() => {
+            setDepartment("general");
+            setSelectedChatRecipient(null);
+          }}
+          className={`relative p-4 rounded-none border text-left transition flex items-start justify-between ${
+            department === "general"
+              ? "bg-adm-surface border-adm-blue ring-2 ring-adm-blue/30 shadow-sm"
+              : "bg-adm-surface-2 border-adm-border hover:border-adm-text-3 opacity-75 hover:opacity-100"
+          }`}
+        >
+          <div className="flex items-start gap-3.5">
+            <div
+              className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-none font-bold ${
+                department === "general"
+                  ? "bg-adm-blue text-white"
+                  : "bg-adm-surface text-adm-text-2 border border-adm-border"
+              }`}
+            >
+              <Briefcase size={22} />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <h3 className="font-bold text-base text-adm-text">General Inquiries & Sales</h3>
+                <span className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold bg-adm-blue-light text-adm-blue">
+                  <span className="h-1.5 w-1.5 rounded-full bg-adm-blue" />
+                  Line 1
                 </span>
-                {n.primary && (
-                  <span className="text-[10px] font-bold text-adm-blue">(Line 1)</span>
-                )}
-                {!n.primary && (
-                  <span className="text-[10px] font-bold text-adm-text-2">(Line 2)</span>
-                )}
-                {!isSendable && (
-                  <span className="text-[10px] font-bold text-adm-red">(Error)</span>
-                )}
-              </button>
-            );
-          })}
-        </div>
-      )}
+              </div>
+              <p className="text-xs font-mono font-medium text-adm-text-2 mt-0.5">
+                {generalLine?.displayNumber || "+92 335 6701199"}
+              </p>
+              <p className="text-xs text-adm-text-3 mt-1">
+                Corporate inquiries, sales proposals, partnerships & business quotes
+              </p>
+            </div>
+          </div>
+          <div className="flex flex-col items-end gap-1.5">
+            <span
+              className={`text-[11px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-none ${
+                department === "general"
+                  ? "bg-adm-blue text-white"
+                  : "text-adm-text-3"
+              }`}
+            >
+              {department === "general" ? "Active Department" : "Switch to General"}
+            </span>
+            <span className="text-xs text-adm-text-3">
+              {generalConvs.length} conversations {generalUnreads > 0 && `• ${generalUnreads} unread`}
+            </span>
+          </div>
+        </button>
+
+        {/* Technical & Client Support */}
+        <button
+          type="button"
+          onClick={() => {
+            setDepartment("support");
+            setSelectedChatRecipient(null);
+          }}
+          className={`relative p-4 rounded-none border text-left transition flex items-start justify-between ${
+            department === "support"
+              ? "bg-adm-surface border-emerald-600 ring-2 ring-emerald-600/30 shadow-sm"
+              : "bg-adm-surface-2 border-adm-border hover:border-adm-text-3 opacity-75 hover:opacity-100"
+          }`}
+        >
+          <div className="flex items-start gap-3.5">
+            <div
+              className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-none font-bold ${
+                department === "support"
+                  ? "bg-emerald-600 text-white"
+                  : "bg-adm-surface text-adm-text-2 border border-adm-border"
+              }`}
+            >
+              <LifeBuoy size={22} />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <h3 className="font-bold text-base text-adm-text">Technical & Client Support</h3>
+                <span className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold bg-emerald-50 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-300">
+                  <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+                  Line 2
+                </span>
+              </div>
+              <p className="text-xs font-mono font-medium text-adm-text-2 mt-0.5">
+                {supportLine?.displayNumber || "+92 328 1313982"}
+              </p>
+              <p className="text-xs text-adm-text-3 mt-1">
+                24/7 client helpdesk, SLA incident handling & technical issue reports
+              </p>
+            </div>
+          </div>
+          <div className="flex flex-col items-end gap-1.5">
+            <span
+              className={`text-[11px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-none ${
+                department === "support"
+                  ? "bg-emerald-600 text-white"
+                  : "text-adm-text-3"
+              }`}
+            >
+              {department === "support" ? "Active Department" : "Switch to Support"}
+            </span>
+            <span className="text-xs text-adm-text-3">
+              {supportConvs.length} conversations {supportUnreads > 0 && `• ${supportUnreads} unread`}
+            </span>
+          </div>
+        </button>
+      </div>
 
       {/* Tabs */}
       <div
@@ -431,8 +556,8 @@ export default function AdminWhatsAppPage() {
             onClick={() => setActiveTab(tab.key)}
             className="flex items-center gap-2 whitespace-nowrap border-b-2 px-4 py-3 text-sm font-semibold transition"
             style={{
-              borderColor: activeTab === tab.key ? "var(--adm-blue)" : "transparent",
-              color: activeTab === tab.key ? "var(--adm-blue)" : "var(--adm-text-2)",
+              borderColor: activeTab === tab.key ? (department === "support" ? "#059669" : "var(--adm-blue)") : "transparent",
+              color: activeTab === tab.key ? (department === "support" ? "#059669" : "var(--adm-blue)") : "var(--adm-text-2)",
               marginBottom: "-1px",
             }}
           >
@@ -444,19 +569,25 @@ export default function AdminWhatsAppPage() {
 
       {activeTab === "inbox" && (
         <InboxTab
+          department={department}
+          activeLine={activeLine}
           onReply={goReply}
-          selectedChannel={inboxChannel}
-          onSelectChannel={setInboxChannel}
           selectedRecipient={selectedChatRecipient}
           onClearSelectedRecipient={() => setSelectedChatRecipient(null)}
         />
       )}
-      {activeTab === "pipeline" && <PipelineTab onOpenChat={openChatInInbox} />}
+      {activeTab === "pipeline" && (
+        <PipelineTab
+          department={department}
+          onOpenChat={openChatInInbox}
+        />
+      )}
       {activeTab === "send" && (
         <SendTab
-          key={`${prefillRecipient ?? "blank"}_${prefillSender ?? "default"}`}
+          key={`${department}_${prefillRecipient ?? "blank"}_${prefillSender ?? "default"}`}
+          department={department}
           defaultRecipient={prefillRecipient ?? ""}
-          defaultSender={prefillSender ?? undefined}
+          defaultSender={prefillSender ?? activeLine?.id}
           onSent={(recipient, senderId) => {
             setPrefillRecipient(null);
             setPrefillSender(null);
@@ -469,8 +600,8 @@ export default function AdminWhatsAppPage() {
       {activeTab === "templates" && <MetaTemplatesTab defaultRecipient={prefillRecipient ?? ""} />}
       {activeTab === "rules" && <RulesTab />}
       {activeTab === "flow" && <FlowTab />}
-      {activeTab === "stats" && <StatsTab />}
-      {activeTab === "numbers" && <NumbersTab onSendFrom={goSendFrom} />}
+      {activeTab === "stats" && <StatsTab department={department} />}
+      {activeTab === "numbers" && <NumbersTab department={department} onSendFrom={goSendFrom} />}
     </div>
   );
 }
@@ -660,15 +791,15 @@ function SelectWithCustom({
 }
 
 function InboxTab({
+  department = "general",
+  activeLine,
   onReply,
-  selectedChannel: controlledChannel,
-  onSelectChannel: setControlledChannel,
   selectedRecipient,
   onClearSelectedRecipient,
 }: {
+  department?: "general" | "support";
+  activeLine?: WANumberInfo;
   onReply: (number: string) => void;
-  selectedChannel?: string;
-  onSelectChannel?: (channelId: string) => void;
   selectedRecipient?: string | null;
   onClearSelectedRecipient?: () => void;
 }) {
@@ -680,16 +811,6 @@ function InboxTab({
 
   const metaMap = metaData?.data ?? {};
   const apiNumbers = numbersData?.data ?? [];
-
-  // Default to "all" (Combined Inboxes) so no messages are hidden
-  const [internalChannel, setInternalChannel] = useState<string>("all");
-  const activeChannel = controlledChannel !== undefined ? controlledChannel : internalChannel || "all";
-
-  const handleSelectChannel = (ch: string) => {
-    if (setControlledChannel) setControlledChannel(ch);
-    setInternalChannel(ch);
-    setSelected(null);
-  };
 
   const [searchQuery, setSearchQuery] = useState("");
   const [filter, setFilter] = useState<"all" | "unread">("all");
@@ -708,35 +829,13 @@ function InboxTab({
     return <AdminErrorState message="Could not load messages. Check your WhatsApp configuration." />;
 
   const allMessages = data?.data ?? [];
-
-  // Meta's confirmed lines, plus a synthesized line for any Phone Number ID
-  // that shows up on a stored message but isn't in that list — so a received
-  // message can never be filtered into nowhere. See withSeenChannels.
   const numbers = withSeenChannels(apiNumbers, allMessages);
 
-  // Pre-calculate conversation and unread counts for EACH separate line and Combined
-  const allConvs = groupConversations(allMessages, numbers);
-  const totalCombinedUnreads = allConvs.reduce((acc, c) => acc + (unreadCount(c, metaMap[c.number]) > 0 ? 1 : 0), 0);
-
-  const lineStats: Record<string, { count: number; unread: number }> = {};
-  for (const n of numbers) {
-    const lineMsgs = allMessages.filter((m) => messageBelongsToChannel(m, n, numbers));
-    const lineConvs = groupConversations(lineMsgs, numbers);
-    const unreads = lineConvs.reduce((acc, c) => acc + (unreadCount(c, metaMap[c.number]) > 0 ? 1 : 0), 0);
-    lineStats[n.id] = { count: lineConvs.length, unread: unreads };
-  }
-
-  // Filter messages strictly for the active line so inboxes are separated when chosen, or combined
-  const activeLine = numbers.find((n) => n.id === activeChannel);
-  const filteredMessages =
-    activeChannel === "all" || !activeLine
-      ? allMessages
-      : allMessages.filter((m) => messageBelongsToChannel(m, activeLine, numbers));
-
-  const conversations = groupConversations(filteredMessages, numbers);
+  // Group and strictly isolate conversations by department
+  const conversations = groupConversations(allMessages, numbers, department);
 
   const withMeta = conversations.map((conv) => {
-    const meta = metaMap[conv.number];
+    const meta = metaMap[conv.key] || (conv.department === "general" ? metaMap[conv.number] : undefined);
     return { conv, meta, unread: unreadCount(conv, meta) };
   });
 
@@ -757,69 +856,40 @@ function InboxTab({
     .sort((a, b) => Number(!!b.meta?.pinned) - Number(!!a.meta?.pinned));
   const list = showArchived ? archivedList : activeList;
 
-  // If a recipient is selected but not in the currently filtered line, find it in allConvs
   const selectedConv = selected
-    ? withMeta.find((x) => x.conv.number === selected) ||
-      (() => {
-        const found = allConvs.find((c) => c.number === selected);
-        return found
-          ? {
-              conv: found,
-              meta: metaMap[found.number],
-              unread: unreadCount(found, metaMap[found.number]),
-            }
-          : null;
-      })()
+    ? withMeta.find((x) => x.conv.key === selected || x.conv.number === selected) || null
     : null;
 
-  const patch = (number: string, p: Partial<ConvMeta>) =>
-    updateMeta.mutate({ key: number, patch: p });
+  const patch = (key: string, p: Partial<ConvMeta>) =>
+    updateMeta.mutate({ key, patch: p });
 
-  const handleDelete = (number: string) => {
+  const handleDelete = (number: string, key: string) => {
     if (!confirm("Delete this entire conversation? This removes its messages from your inbox.")) return;
-    deleteConv.mutate({ number, key: number });
-    if (selected === number) setSelected(null);
+    deleteConv.mutate({ number, key });
+    if (selected === key || selected === number) setSelected(null);
   };
 
   const totalUnread = activeList.reduce((n, x) => n + (x.unread > 0 ? 1 : 0), 0);
 
-  /**
-   * A stable, unambiguous name for a line. Primary is always "Line 1"; every
-   * other line is numbered by its order in the list, so a synthesized third
-   * line reads "Line 3" instead of a second, confusing "Line 2".
-   */
   const lineName = (n: WANumberInfo): string => {
-    if (n.primary) return "Line 1";
-    const idx = numbers.filter((x) => !x.primary).findIndex((x) => x.id === n.id);
-    return `Line ${idx >= 0 ? idx + 2 : numbers.length}`;
+    if (n.primary) return "Line 1 (General)";
+    return "Line 2 (Support)";
   };
 
-  /**
-   * Which of our numbers a thread came in on — shown in the list with clear badges.
-   */
   type ChannelTagInfo = { label: string; isPrimary: boolean; displayNumber?: string };
   const channelTag = (conv: Conversation): ChannelTagInfo | undefined => {
-    if (numbers.length < 2) return undefined;
-    const n = numbers.find((x) => x.id === conv.channel);
-    if (n) {
+    if (conv.department === "support") {
       return {
-        label: lineName(n),
-        isPrimary: !!n.primary,
-        displayNumber: n.displayNumber || undefined,
+        label: "Line 2 (Support)",
+        isPrimary: false,
+        displayNumber: "+92 328 1313982",
       };
     }
-    for (let i = conv.messages.length - 1; i >= 0; i--) {
-      for (const num of numbers) {
-        if (messageBelongsToChannel(conv.messages[i], num, numbers)) {
-          return {
-            label: lineName(num),
-            isPrimary: !!num.primary,
-            displayNumber: num.displayNumber || undefined,
-          };
-        }
-      }
-    }
-    return undefined;
+    return {
+      label: "Line 1 (General)",
+      isPrimary: true,
+      displayNumber: "+92 335 6701199",
+    };
   };
 
   return (
@@ -837,9 +907,20 @@ function InboxTab({
           className="flex items-center justify-between px-4 py-2.5"
           style={{ background: WA.panel, height: 59 }}
         >
-          <span className="text-[17px] font-semibold" style={{ color: WA.text }}>
-            Chats
-          </span>
+          <div className="flex items-center gap-2 min-w-0">
+            <span className="text-[15px] font-bold truncate" style={{ color: WA.text }}>
+              {department === "general" ? "General Inquiries" : "Client Support Desk"}
+            </span>
+            <span
+              className={`rounded-full px-2 py-0.5 text-[10px] font-bold shrink-0 ${
+                department === "general"
+                  ? "bg-adm-blue-light text-adm-blue"
+                  : "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-300"
+              }`}
+            >
+              {department === "general" ? "+92 335 6701199" : "+92 328 1313982"}
+            </span>
+          </div>
           <div className="flex items-center gap-1" style={{ color: WA.icon }}>
             <button
               type="button"
@@ -853,76 +934,6 @@ function InboxTab({
           </div>
         </div>
 
-        {/* Dedicated Separate Inboxes Switcher */}
-        {numbers.length > 1 && (
-          <div className="border-b bg-adm-surface-2 p-2" style={{ borderColor: WA.divider }}>
-            <div className="mb-1.5 flex items-center justify-between px-1">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-adm-text-3">
-                Filter by Line:
-              </span>
-            </div>
-            <div className="grid grid-cols-3 gap-1">
-              {/* Option 1: All Inboxes */}
-              <button
-                type="button"
-                onClick={() => handleSelectChannel("all")}
-                className={`flex flex-col items-center justify-center rounded-none border p-1.5 text-center transition ${
-                  activeChannel === "all"
-                    ? "border-adm-blue bg-adm-surface ring-2 ring-adm-blue/20 font-bold"
-                    : "border-adm-border bg-adm-surface hover:bg-adm-surface text-adm-text-2"
-                }`}
-              >
-                <div className="flex items-center gap-1">
-                  <span className="text-[11px] truncate">All Inboxes</span>
-                  {totalCombinedUnreads > 0 && (
-                    <span className="rounded-full bg-adm-blue px-1 py-0.2 text-[9px] font-bold text-white shrink-0">
-                      {totalCombinedUnreads}
-                    </span>
-                  )}
-                </div>
-                <span className="text-[10px] text-adm-text-3">{allConvs.length} chats</span>
-              </button>
-
-              {/* Individual Lines */}
-              {numbers.map((n, idx) => {
-                const isActive = activeChannel === n.id;
-                const stats = lineStats[n.id] || { count: 0, unread: 0 };
-                const display = n.displayNumber || n.label || `Line ${idx + 1}`;
-                return (
-                  <button
-                    key={n.id}
-                    type="button"
-                    onClick={() => handleSelectChannel(n.id)}
-                    className={`flex flex-col items-center justify-center rounded-none border p-1.5 text-center transition ${
-                      isActive
-                        ? "border-adm-blue bg-adm-surface ring-2 ring-adm-blue/20 font-bold"
-                        : "border-adm-border bg-adm-surface hover:bg-adm-surface text-adm-text-2"
-                    }`}
-                  >
-                    <div className="flex items-center gap-1 truncate max-w-full">
-                      <span
-                        className="h-1.5 w-1.5 rounded-full shrink-0"
-                        style={{ background: n.canSend !== false ? "var(--adm-green)" : "var(--adm-red)" }}
-                      />
-                      <span className="text-[11px] truncate">
-                        {lineName(n)}
-                      </span>
-                      {stats.unread > 0 && (
-                        <span className="rounded-full bg-adm-blue px-1 py-0.2 text-[9px] font-bold text-white shrink-0">
-                          {stats.unread}
-                        </span>
-                      )}
-                    </div>
-                    <span className="text-[10px] text-adm-text-3 truncate" title={display}>
-                      {stats.count} chats
-                    </span>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-        )}
-
         {/* Search + filter chips */}
         <div className="px-3 pb-1.5 pt-1.5" style={{ background: WA.listBg }}>
           <div className="relative">
@@ -931,7 +942,7 @@ function InboxTab({
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search or start a new chat"
+              placeholder="Search conversations..."
               className="w-full rounded-none border-0 py-[7px] pl-12 pr-3 text-[14px] outline-none"
               style={{ background: WA.panel, color: WA.text }}
             />
@@ -949,8 +960,8 @@ function InboxTab({
                   }}
                   className="rounded-full px-3 py-1 text-[13px] font-medium capitalize transition"
                   style={{
-                    background: on ? "var(--adm-blue-light)" : WA.panel,
-                    color: on ? "var(--adm-blue-mid)" : WA.sub,
+                    background: on ? (department === "support" ? "rgba(5, 150, 105, 0.15)" : "var(--adm-blue-light)") : WA.panel,
+                    color: on ? (department === "support" ? "#059669" : "var(--adm-blue-mid)") : WA.sub,
                   }}
                 >
                   {f}
@@ -968,10 +979,10 @@ function InboxTab({
           className="flex items-center gap-6 px-5 py-3 text-[14px] transition hover:bg-black/[0.03]"
           style={{ borderBottom: `1px solid ${WA.divider}`, color: WA.text }}
         >
-          <Archive size={18} style={{ color: WA.green }} />
+          <Archive size={18} style={{ color: department === "support" ? "#059669" : WA.green }} />
           <span className="font-normal">{showArchived ? "Back to chats" : "Archived"}</span>
           {!showArchived && archivedList.length > 0 && (
-            <span className="ml-auto text-[13px] font-medium" style={{ color: WA.green }}>
+            <span className="ml-auto text-[13px] font-medium" style={{ color: department === "support" ? "#059669" : WA.green }}>
               {archivedList.length}
             </span>
           )}
@@ -987,18 +998,20 @@ function InboxTab({
                   ? "No unread chats."
                   : searchQuery
                     ? "No chats found."
-                    : "No conversations yet. When customers message you, they appear here."}
+                    : department === "general"
+                      ? "No General Inquiries yet. When customers message the corporate number, they appear here."
+                      : "No Support Tickets yet. When clients reach out to the support desk, they appear here."}
             </div>
           ) : (
             list.map(({ conv, meta, unread }) => (
               <ChatListItem
-                key={conv.number}
+                key={conv.key}
                 conv={conv}
                 meta={meta}
                 unread={unread}
                 channel={channelTag(conv)}
-                active={selected === conv.number}
-                onClick={() => setSelected(conv.number)}
+                active={selected === conv.key || selected === conv.number}
+                onClick={() => setSelected(conv.key)}
               />
             ))
           )}
@@ -1009,23 +1022,24 @@ function InboxTab({
       <section className={`${selected ? "flex" : "hidden md:flex"} flex-1 flex-col`}>
         {selectedConv ? (
           <ChatView
-            key={`${selectedConv.conv.number}_${activeChannel}`}
+            key={`${selectedConv.conv.key}_${department}`}
             conv={selectedConv.conv}
             meta={selectedConv.meta}
-            channelId={activeChannel !== "all" ? activeChannel : undefined}
+            department={department}
+            channelId={activeLine?.id}
             onBack={() => setSelected(null)}
-            onMarkRead={() => patch(selectedConv.conv.number, { lastReadAt: new Date().toISOString() })}
+            onMarkRead={() => patch(selectedConv.conv.key, { lastReadAt: new Date().toISOString() })}
             onMarkUnread={() => {
-              patch(selectedConv.conv.number, { lastReadAt: new Date(0).toISOString() });
+              patch(selectedConv.conv.key, { lastReadAt: new Date(0).toISOString() });
               setSelected(null);
             }}
-            onTogglePin={() => patch(selectedConv.conv.number, { pinned: !selectedConv.meta?.pinned })}
+            onTogglePin={() => patch(selectedConv.conv.key, { pinned: !selectedConv.meta?.pinned })}
             onToggleArchive={() => {
-              patch(selectedConv.conv.number, { archived: !selectedConv.meta?.archived });
+              patch(selectedConv.conv.key, { archived: !selectedConv.meta?.archived });
               setSelected(null);
             }}
-            onDelete={() => handleDelete(selectedConv.conv.number)}
-            onSaveMeta={(p) => patch(selectedConv.conv.number, p)}
+            onDelete={() => handleDelete(selectedConv.conv.number, selectedConv.conv.key)}
+            onSaveMeta={(p) => patch(selectedConv.conv.key, p)}
             onTemplate={() => onReply(selectedConv.conv.number)}
             onRefresh={() => refetch()}
           />
@@ -1078,7 +1092,8 @@ function ChatListItem({
 }) {
   const name = meta?.name || (conv.name !== conv.number ? conv.name : `+${conv.number}`);
   const last = conv.messages.at(-1);
-  const dealCfg = DEAL_STATUSES.find((s) => s.value === meta?.dealStatus);
+  const statuses = conv.department === "support" ? SUPPORT_TICKET_STATUSES : GENERAL_DEAL_STATUSES;
+  const dealCfg = statuses.find((s) => s.value === meta?.dealStatus);
   const preview = lastPreview(conv);
   const outbound = last?.direction === "outbound";
   return (
@@ -1090,7 +1105,7 @@ function ChatListItem({
     >
       <div
         className="flex h-[49px] w-[49px] shrink-0 items-center justify-center self-center rounded-full text-[17px] font-medium text-white"
-        style={{ background: "var(--adm-blue)" }}
+        style={{ background: conv.department === "support" ? "#059669" : "var(--adm-blue)" }}
       >
         {initials(name)}
       </div>
@@ -1165,6 +1180,7 @@ function ChatView({
   conv,
   meta,
   channelId,
+  department = "general",
   onBack,
   onMarkRead,
   onMarkUnread,
@@ -1178,6 +1194,7 @@ function ChatView({
   conv: Conversation;
   meta?: ConvMeta;
   channelId?: string;
+  department?: "general" | "support";
   onBack: () => void;
   onMarkRead: () => void;
   onMarkUnread: () => void;
@@ -1192,21 +1209,18 @@ function ChatView({
   const { data: numbersData } = useWhatsAppNumbers();
   const numbers = numbersData?.data ?? [];
 
-  // Determine default sender line ID:
-  // 1. Explicit channelId if provided and valid
-  // 2. Conversation channel if valid
-  // 3. Line determined from conversation messages
-  // 4. Fallback to primary line or first line
+  // Determine sender line ID strictly scoped to this conversation's department
   const defaultSenderId = useMemo(() => {
     if (channelId && numbers.some((n) => n.id === channelId)) return channelId;
-    if (conv.channel && numbers.some((n) => n.id === conv.channel)) return conv.channel;
-    const lastMsg = conv.messages.at(-1);
-    if (lastMsg) {
-      const line = getLineForMessage(lastMsg, numbers);
-      if (line) return line.id;
+    const currentDept = conv.department || department;
+    const deptLine = numbers.find((n) => n.department === currentDept);
+    if (deptLine) return deptLine.id;
+    if (currentDept === "support") {
+      const s = numbers.find((n) => !n.primary) || numbers[0];
+      return s?.id || "";
     }
     return numbers.find((n) => n.primary)?.id || numbers[0]?.id || "";
-  }, [channelId, conv.channel, conv.messages, numbers]);
+  }, [channelId, conv.department, department, numbers]);
 
   const [activeSenderId, setActiveSenderId] = useState<string>(defaultSenderId);
 
@@ -1400,7 +1414,7 @@ function ChatView({
         >
           <div
             className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-sm font-medium text-white"
-            style={{ background: "var(--adm-blue)" }}
+            style={{ background: (conv.department || department) === "support" ? "#059669" : "var(--adm-blue)" }}
           >
             {initials(name)}
           </div>
@@ -1409,22 +1423,16 @@ function ChatView({
               {name}
             </p>
             <p className="truncate text-[13px]" style={{ color: WA.sub }}>
-              {senderInfo ? (
-                <span
-                  className={`inline-flex items-center gap-1 font-semibold ${
-                    senderInfo.primary ? "text-adm-blue" : "text-adm-text-2"
-                  }`}
-                >
-                  <span
-                    className={`h-1.5 w-1.5 rounded-full inline-block ${
-                      senderInfo.primary ? "bg-adm-blue" : "bg-adm-text-3"
-                    }`}
-                  />
-                  {senderInfo.primary ? "Line 1 (Primary)" : "Line 2 (Secondary)"}
-                  {senderInfo.displayNumber ? ` • ${senderInfo.displayNumber}` : ""}
+              {(conv.department || department) === "support" ? (
+                <span className="inline-flex items-center gap-1 font-semibold text-emerald-600 dark:text-emerald-400">
+                  <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 inline-block" />
+                  Technical Support Line • +92 328 1313982
                 </span>
               ) : (
-                "Contact info"
+                <span className="inline-flex items-center gap-1 font-semibold text-adm-blue">
+                  <span className="h-1.5 w-1.5 rounded-full bg-adm-blue inline-block" />
+                  General Inquiries Line • +92 335 6701199
+                </span>
               )}
             </p>
           </div>
@@ -1519,11 +1527,16 @@ function ChatView({
               />
             </div>
             <div>
-              <label className="mb-1 block text-xs font-semibold" style={{ color: "var(--adm-text-2)" }}>Deal status</label>
+              <label className="mb-1 block text-xs font-semibold" style={{ color: "var(--adm-text-2)" }}>
+                {(conv.department || department) === "support" ? "Support Ticket Status" : "Deal / Lead Status"}
+              </label>
               <SelectWithCustom
                 value={meta?.dealStatus || "new"}
                 onChange={(v) => onSaveMeta({ dealStatus: v })}
-                options={DEAL_STATUSES.map((s) => ({ value: s.value, label: s.label }))}
+                options={((conv.department || department) === "support" ? SUPPORT_TICKET_STATUSES : GENERAL_DEAL_STATUSES).map((s) => ({
+                  value: s.value,
+                  label: s.label,
+                }))}
               />
             </div>
           </div>
@@ -1617,50 +1630,31 @@ function ChatView({
         </div>
       )}
 
-      {/* Line Switcher / Active Line indicator */}
-      {numbers.length > 1 && (
-        <div
-          className="flex items-center justify-between border-t px-4 py-1.5 text-xs"
-          style={{ background: WA.panel, borderColor: WA.divider }}
-        >
-          <div className="flex items-center gap-2">
-            <span className="text-adm-text-3 font-medium">Replying as:</span>
+      {/* Active Department Sending Line Indicator */}
+      <div
+        className="flex items-center justify-between border-t px-4 py-1.5 text-xs"
+        style={{ background: WA.panel, borderColor: WA.divider }}
+      >
+        <div className="flex items-center gap-2">
+          <span className="text-adm-text-3 font-medium">Replying via:</span>
+          <span
+            className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-bold ${
+              (conv.department || department) === "support"
+                ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-300"
+                : "bg-adm-blue-light text-adm-blue"
+            }`}
+          >
             <span
-              className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-bold ${
-                senderInfo?.primary
-                  ? "bg-adm-blue-light text-adm-blue"
-                  : "bg-adm-surface-2 text-adm-text-2"
+              className={`h-1.5 w-1.5 rounded-full ${
+                (conv.department || department) === "support" ? "bg-emerald-500" : "bg-adm-blue"
               }`}
-            >
-              <span
-                className={`h-1.5 w-1.5 rounded-full ${
-                  senderInfo?.primary ? "bg-adm-blue" : "bg-adm-text-3"
-                }`}
-              />
-              {senderInfo?.primary ? "Line 1" : "Line 2"}
-              {senderInfo?.displayNumber ? ` (${senderInfo.displayNumber})` : ""}
-            </span>
-          </div>
-          <div className="flex items-center gap-1.5">
-            <label htmlFor="chatLineSelect" className="text-adm-text-3 text-[11px]">
-              Switch Line:
-            </label>
-            <select
-              id="chatLineSelect"
-              value={activeSenderId}
-              onChange={(e) => setActiveSenderId(e.target.value)}
-              className="rounded-noneborder bg-adm-surface px-2 py-0.5 text-xs font-semibold text-adm-text-2 outline-none focus:border-adm-blue"
-              style={{ borderColor: WA.divider }}
-            >
-              {numbers.map((n) => (
-                <option key={n.id} value={n.id}>
-                  {n.primary ? "Line 1" : "Line 2"}: {n.displayNumber || n.label || n.id}
-                </option>
-              ))}
-            </select>
-          </div>
+            />
+            {(conv.department || department) === "support"
+              ? "Support Desk (+92 328 1313982)"
+              : "General Inquiries (+92 335 6701199)"}
+          </span>
         </div>
-      )}
+      </div>
 
       {/* Composer */}
       <div className="flex items-end gap-2 px-4 py-2.5" style={{ background: WA.panel }}>
@@ -2061,10 +2055,12 @@ function MessageBubble({
 // ─── Send ───────────────────────────────────────────────────────────────
 
 function SendTab({
+  department = "general",
   defaultRecipient,
   defaultSender,
   onSent,
 }: {
+  department?: "general" | "support";
   defaultRecipient: string;
   defaultSender?: string;
   onSent?: (recipient?: string, senderId?: string) => void;
@@ -2099,9 +2095,10 @@ function SendTab({
   const { data: numbersData } = useWhatsAppNumbers();
   const numbers = numbersData?.data ?? [];
   const [senderChoice, setSenderChoice] = useState(defaultSender || "");
-  // Derived rather than seeded in an effect: the list arrives after first render,
-  // and an untouched picker should follow the primary.
-  const sender = senderChoice || defaultSender || numbers.find((n) => n.primary)?.id || "";
+  
+  const deptLine = numbers.find((n) => n.department === department);
+  const fallbackSender = deptLine?.id || (department === "support" ? numbers.find((n) => !n.primary)?.id : numbers.find((n) => n.primary)?.id) || numbers[0]?.id || "";
+  const sender = senderChoice || defaultSender || fallbackSender;
 
   const resetMedia = () => {
     setMediaLink("");
@@ -2213,6 +2210,38 @@ function SendTab({
   return (
     <div className="mx-auto max-w-3xl">
       <div className="space-y-6 border p-6" style={{ borderColor: "var(--adm-border)", background: "var(--adm-surface)" }}>
+        {/* Department Banner */}
+        <div
+          className={`flex items-center justify-between rounded-none p-3.5 border text-xs ${
+            department === "support"
+              ? "bg-emerald-50 dark:bg-emerald-950/30 border-emerald-500/30 text-emerald-800 dark:text-emerald-200"
+              : "bg-adm-blue-light border-adm-blue/30 text-adm-blue"
+          }`}
+        >
+          <div className="flex items-center gap-2.5">
+            {department === "support" ? <LifeBuoy size={18} className="text-emerald-600" /> : <Briefcase size={18} className="text-adm-blue" />}
+            <div>
+              <p className="font-bold text-[13px]">
+                {department === "support" ? "Technical & Client Support Desk" : "General Inquiries & Sales Line"}
+              </p>
+              <p className="text-[11px] opacity-80">
+                {department === "support"
+                  ? "Outbound messages will send from client support line +92 328 1313982"
+                  : "Outbound messages will send from corporate general line +92 335 6701199"}
+              </p>
+            </div>
+          </div>
+          <span
+            className={`rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider ${
+              department === "support"
+                ? "bg-emerald-600 text-white"
+                : "bg-adm-blue text-white"
+            }`}
+          >
+            {department === "support" ? "Line 2" : "Line 1"}
+          </span>
+        </div>
+
         {/* Message Type */}
         <div>
           <label className="mb-3 block text-sm font-semibold" style={{ color: "var(--adm-text)" }}>
@@ -3686,23 +3715,54 @@ function RuleEditor({
 
 // ─── Stats ──────────────────────────────────────────────────────────────
 
-function StatsTab() {
-  const stats = useWhatsAppStats();
+function StatsTab({ department = "general" }: { department?: "general" | "support" }) {
+  const { data: messagesData } = useWhatsAppMessages();
+  const { data: numbersData } = useWhatsAppNumbers();
+  const allMessages = messagesData?.data ?? [];
+  const numbers = numbersData?.data ?? [];
+
+  const deptMessages = allMessages.filter(
+    (m) => getMessageDepartment(m, numbers) === department
+  );
+  const conversations = groupConversations(allMessages, numbers, department);
+
+  const stats = {
+    total: deptMessages.length,
+    inbound: deptMessages.filter((m) => m.direction === "inbound").length,
+    outbound: deptMessages.filter((m) => m.direction === "outbound").length,
+    today: deptMessages.filter((m) => new Date(m.timestamp).toDateString() === new Date().toDateString()).length,
+    conversations: conversations.length,
+  };
+
   return (
     <div className="mx-auto max-w-4xl">
-      <div className="mb-6">
-        <h3 className="text-lg font-bold" style={{ color: "var(--adm-text)" }}>
-          Message Statistics
-        </h3>
-        <p className="text-sm" style={{ color: "var(--adm-text-3)" }}>
-          Overview of your WhatsApp Business activity
-        </p>
+      <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <h3 className="text-lg font-bold" style={{ color: "var(--adm-text)" }}>
+            {department === "general" ? "General Inquiries & Sales Analytics" : "Technical & Client Support Analytics"}
+          </h3>
+          <p className="text-sm" style={{ color: "var(--adm-text-3)" }}>
+            {department === "general"
+              ? "Message volume and traffic for Corporate Line (+92 335 6701199)"
+              : "Message volume and traffic for Support Desk Line (+92 328 1313982)"}
+          </p>
+        </div>
+        <span
+          className={`rounded-full px-3 py-1 text-xs font-bold ${
+            department === "general"
+              ? "bg-adm-blue-light text-adm-blue"
+              : "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-300"
+          }`}
+        >
+          {department === "general" ? "Line 1 Active" : "Line 2 Active"}
+        </span>
       </div>
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
         <StatCard title="Total Messages" value={stats.total} iconBg="var(--adm-blue-light)" iconColor="var(--adm-blue)" icon={<MessageSquare size={22} />} />
         <StatCard title="Received" value={stats.inbound} iconBg="var(--adm-blue-light)" iconColor="var(--adm-blue)" icon={<MessageSquare size={22} />} />
         <StatCard title="Sent" value={stats.outbound} iconBg="var(--adm-green-light)" iconColor="var(--adm-green)" icon={<Send size={20} />} />
         <StatCard title="Today" value={stats.today} iconBg="var(--adm-blue-light)" iconColor="var(--adm-blue)" icon={<BarChart3 size={22} />} />
+        <StatCard title="Active Chats" value={stats.conversations} iconBg={department === "support" ? "rgba(5, 150, 105, 0.15)" : "var(--adm-blue-light)"} iconColor={department === "support" ? "#059669" : "var(--adm-blue)"} icon={department === "support" ? <LifeBuoy size={22} /> : <Briefcase size={22} />} />
       </div>
     </div>
   );
@@ -3742,7 +3802,13 @@ function StatCard({
 
 // ─── Phone Numbers / Lines ──────────────────────────────────────────────
 
-function NumbersTab({ onSendFrom }: { onSendFrom?: (numberId: string) => void }) {
+function NumbersTab({
+  department = "general",
+  onSendFrom,
+}: {
+  department?: "general" | "support";
+  onSendFrom?: (numberId: string) => void;
+}) {
   const { data: numbersData, isLoading, isError, refetch } = useWhatsAppNumbers();
   const numbers = numbersData?.data ?? [];
 
@@ -3751,16 +3817,16 @@ function NumbersTab({ onSendFrom }: { onSendFrom?: (numberId: string) => void })
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h3 className="text-lg font-bold" style={{ color: "var(--adm-text)" }}>
-            WhatsApp Phone Lines
+            WhatsApp Departmental Phone Lines
           </h3>
           <p className="text-sm" style={{ color: "var(--adm-text-3)" }}>
-            Active phone numbers connected to your Meta WhatsApp Business integration
+            Independent, separated phone numbers connected to Meta WhatsApp Business API
           </p>
         </div>
         <button
           type="button"
           onClick={() => refetch()}
-          className="flex items-center gap-2 border px-3 py-1.5 text-xs font-semibold rounded-nonetransition hover:bg-black/5"
+          className="flex items-center gap-2 border px-3 py-1.5 text-xs font-semibold rounded-none transition hover:bg-black/5"
           style={{ borderColor: "var(--adm-border)", color: "var(--adm-text-2)" }}
         >
           <RefreshCw size={14} /> Refresh Lines
@@ -3783,34 +3849,55 @@ function NumbersTab({ onSendFrom }: { onSendFrom?: (numberId: string) => void })
         <div className="grid gap-4 sm:grid-cols-2">
           {numbers.map((n, idx) => {
             const isSendable = n.canSend !== false;
+            const isSupportLine = n.department === "support" || (!n.primary && idx > 0);
+            const isCurrentDept = (isSupportLine ? "support" : "general") === department;
             return (
               <div
                 key={n.id}
-                className="flex flex-col justify-between rounded-none border bg-adm-surface p-5"
-                style={{ borderColor: isSendable ? "var(--adm-border)" : "var(--adm-red)" }}
+                className={`flex flex-col justify-between rounded-none border bg-adm-surface p-5 transition ${
+                  isCurrentDept ? "ring-2 ring-adm-blue/20" : ""
+                }`}
+                style={{
+                  borderColor: isCurrentDept
+                    ? isSupportLine ? "#059669" : "var(--adm-blue)"
+                    : isSendable ? "var(--adm-border)" : "var(--adm-red)"
+                }}
               >
                 <div>
                   <div className="flex items-start justify-between gap-2">
                     <div className="flex items-center gap-3">
                       <div
                         className="flex h-10 w-10 items-center justify-center rounded-full text-white font-bold"
-                        style={{ background: isSendable ? WA.green : "var(--adm-red)" }}
+                        style={{
+                          background: isSupportLine ? "#059669" : "var(--adm-blue)"
+                        }}
                       >
-                        <Phone size={19} />
+                        {isSupportLine ? <LifeBuoy size={19} /> : <Briefcase size={19} />}
                       </div>
                       <div>
-                        <h4 className="font-bold text-adm-text text-base">
-                          {n.displayNumber || n.label || `Line ${idx + 1}`}
-                        </h4>
+                        <div className="flex items-center gap-2">
+                          <h4 className="font-bold text-adm-text text-base">
+                            {n.displayNumber || n.label || `Line ${idx + 1}`}
+                          </h4>
+                        </div>
+                        <p className="text-xs font-semibold text-adm-text-2 mt-0.5">
+                          {isSupportLine ? "Technical & Client Support Line" : "General Inquiries & Sales Line"}
+                        </p>
                         {n.verifiedName && (
                           <p className="text-xs font-medium text-adm-text-3">{n.verifiedName}</p>
                         )}
                       </div>
                     </div>
                     <div className="flex flex-col items-end gap-1">
-                      {n.primary && (
-                        <span className="rounded-full bg-adm-blue-light px-2.5 py-0.5 text-[10px] font-bold text-adm-blue uppercase tracking-wide">
-                          Primary Line
+                      {isCurrentDept && (
+                        <span
+                          className={`rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wide ${
+                            isSupportLine
+                              ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-300"
+                              : "bg-adm-blue-light text-adm-blue"
+                          }`}
+                        >
+                          Active Department
                         </span>
                       )}
                       <span
@@ -3821,7 +3908,7 @@ function NumbersTab({ onSendFrom }: { onSendFrom?: (numberId: string) => void })
                         }}
                       >
                         <Circle size={6} fill="currentColor" />
-                        {isSendable ? "Active / Can Send" : "Sending Error"}
+                        {isSendable ? "Active / Ready" : "Sending Error"}
                       </span>
                     </div>
                   </div>
@@ -3880,9 +3967,16 @@ function NumbersTab({ onSendFrom }: { onSendFrom?: (numberId: string) => void })
 
 // ─── Pipeline (Kanban) ──────────────────────────────────────────────────
 
-function PipelineTab({ onOpenChat }: { onOpenChat: (number: string) => void }) {
+function PipelineTab({
+  department = "general",
+  onOpenChat,
+}: {
+  department?: "general" | "support";
+  onOpenChat: (recipient: string, channelId?: string) => void;
+}) {
   const { data, isLoading } = useWhatsAppMessages();
   const { data: metaData } = useConversationMeta();
+  const { data: numbersData } = useWhatsAppNumbers();
   const updateMeta = useUpdateConversationMeta();
 
   const [draggedConv, setDraggedConv] = useState<string | null>(null);
@@ -3891,18 +3985,21 @@ function PipelineTab({ onOpenChat }: { onOpenChat: (number: string) => void }) {
 
   const messages = data?.data ?? [];
   const metaMap = metaData?.data ?? {};
-  const conversations = groupConversations(messages);
+  const numbers = numbersData?.data ?? [];
+  const conversations = groupConversations(messages, numbers, department);
 
-  const pipeline = DEAL_STATUSES.map((status) => {
+  const statuses = department === "support" ? SUPPORT_TICKET_STATUSES : GENERAL_DEAL_STATUSES;
+
+  const pipeline = statuses.map((status) => {
     return {
       status,
       items: conversations
         .filter((c) => {
-          const m = metaMap[c.number];
+          const m = metaMap[c.key] || (c.department === "general" ? metaMap[c.number] : undefined);
           const st = m?.dealStatus || "new";
           return st === status.value && !m?.archived;
         })
-        .map((c) => ({ conv: c, meta: metaMap[c.number] })),
+        .map((c) => ({ conv: c, meta: metaMap[c.key] || (c.department === "general" ? metaMap[c.number] : undefined) })),
     };
   });
 
@@ -3917,60 +4014,88 @@ function PipelineTab({ onOpenChat }: { onOpenChat: (number: string) => void }) {
   };
 
   return (
-    <div className="flex h-full gap-4 overflow-x-auto p-4" style={{ background: "var(--adm-bg)", minHeight: "calc(100vh - 200px)" }}>
-      {pipeline.map((col) => (
-        <div
-          key={col.status.value}
-          className="flex w-72 shrink-0 flex-col rounded-none bg-adm-surface-2 p-2"
-          onDragOver={(e) => e.preventDefault()}
-          onDrop={(e) => handleDrop(e, col.status.value)}
+    <div className="flex flex-col gap-4">
+      <div className="flex flex-wrap items-center justify-between gap-2 px-1">
+        <div>
+          <h3 className="font-bold text-base text-adm-text">
+            {department === "general" ? "General Sales & Inquiries Pipeline" : "Technical & Client Support Pipeline"}
+          </h3>
+          <p className="text-xs text-adm-text-3">
+            {department === "general"
+              ? "Track inbound corporate quotes, leads, proposals, and deal stages"
+              : "Track client tickets, incident reports, SLA progress, and issue resolutions"}
+          </p>
+        </div>
+        <span
+          className={`rounded-full px-2.5 py-0.5 text-xs font-bold ${
+            department === "general"
+              ? "bg-adm-blue-light text-adm-blue"
+              : "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-300"
+          }`}
         >
-          <div className="mb-3 px-2 py-1 flex items-center justify-between">
-            <h3 className="font-semibold text-adm-text-2 uppercase tracking-wide text-xs">{col.status.label}</h3>
-            <span className="rounded-full bg-adm-surface px-2 py-0.5 text-xs font-medium text-adm-text-3">{col.items.length}</span>
-          </div>
+          {department === "general" ? "Line 1: +92 335 6701199" : "Line 2: +92 328 1313982"}
+        </span>
+      </div>
 
-          <div className="flex flex-1 flex-col gap-2 overflow-y-auto min-h-[50px]">
-            {col.items.map((item) => {
-              const name = item.meta?.name || (item.conv.name !== item.conv.number ? item.conv.name : `+${item.conv.number}`);
-              const hasUnread = unreadCount(item.conv, item.meta) > 0;
-              return (
-                <div
-                  key={item.conv.number}
-                  draggable
-                  onDragStart={() => setDraggedConv(item.conv.number)}
-                  onDragEnd={() => setDraggedConv(null)}
-                  className="group cursor-grab rounded-nonebg-adm-surface p-3 transition active:cursor-grabbing border-l-4"
-                  style={{ borderLeftColor: hasUnread ? WA.green : "transparent" }}
-                  onClick={() => onOpenChat(item.conv.number)}
-                >
-                  <div className="flex items-center justify-between">
-                    <p className="font-medium text-sm text-adm-text-2 truncate" title={name}>{name}</p>
-                  </div>
-                  <div className="mt-2 flex items-center justify-between text-xs text-adm-text-3">
-                    <p className="truncate w-3/4">{lastPreview(item.conv)}</p>
-                    {item.meta?.assignedTo && (
-                      <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-adm-blue-light font-bold text-adm-blue" title={`Assigned to ${item.meta.assignedTo}`}>
-                        {item.meta.assignedTo.charAt(0).toUpperCase()}
-                      </span>
+      <div className="flex h-full gap-4 overflow-x-auto p-4 border rounded-none" style={{ background: "var(--adm-bg)", borderColor: "var(--adm-border)", minHeight: "calc(100vh - 240px)" }}>
+        {pipeline.map((col) => (
+          <div
+            key={col.status.value}
+            className="flex w-72 shrink-0 flex-col rounded-none bg-adm-surface-2 p-2 border"
+            style={{ borderColor: "var(--adm-border)" }}
+            onDragOver={(e) => e.preventDefault()}
+            onDrop={(e) => handleDrop(e, col.status.value)}
+          >
+            <div className="mb-3 px-2 py-1 flex items-center justify-between">
+              <h3 className="font-semibold text-adm-text-2 uppercase tracking-wide text-xs">{col.status.label}</h3>
+              <span className="rounded-full bg-adm-surface px-2 py-0.5 text-xs font-medium text-adm-text-3">{col.items.length}</span>
+            </div>
+
+            <div className="flex flex-1 flex-col gap-2 overflow-y-auto min-h-[50px]">
+              {col.items.map((item) => {
+                const name = item.meta?.name || (item.conv.name !== item.conv.number ? item.conv.name : `+${item.conv.number}`);
+                const hasUnread = unreadCount(item.conv, item.meta) > 0;
+                return (
+                  <div
+                    key={item.conv.key}
+                    draggable
+                    onDragStart={() => setDraggedConv(item.conv.key)}
+                    onDragEnd={() => setDraggedConv(null)}
+                    className="group cursor-grab rounded-none bg-adm-surface p-3 transition active:cursor-grabbing border-l-4 border"
+                    style={{
+                      borderColor: "var(--adm-border)",
+                      borderLeftColor: hasUnread ? (department === "support" ? "#059669" : WA.green) : "transparent",
+                    }}
+                    onClick={() => onOpenChat(item.conv.number, item.conv.channel)}
+                  >
+                    <div className="flex items-center justify-between">
+                      <p className="font-medium text-sm text-adm-text-2 truncate" title={name}>{name}</p>
+                    </div>
+                    <div className="mt-2 flex items-center justify-between text-xs text-adm-text-3">
+                      <p className="truncate w-3/4">{lastPreview(item.conv)}</p>
+                      {item.meta?.assignedTo && (
+                        <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-adm-blue-light font-bold text-adm-blue" title={`Assigned to ${item.meta.assignedTo}`}>
+                          {item.meta.assignedTo.charAt(0).toUpperCase()}
+                        </span>
+                      )}
+                    </div>
+                    {item.meta?.tags && item.meta.tags.length > 0 && (
+                      <div className="mt-2 flex flex-wrap gap-1">
+                        {item.meta.tags.slice(0, 3).map((tag) => (
+                          <span key={tag} className="rounded-full bg-adm-surface-2 px-1.5 py-0.5 text-[10px] text-adm-text-2">
+                            {tag}
+                          </span>
+                        ))}
+                        {item.meta.tags.length > 3 && <span className="text-[10px] text-adm-text-3">+{item.meta.tags.length - 3}</span>}
+                      </div>
                     )}
                   </div>
-                  {item.meta?.tags && item.meta.tags.length > 0 && (
-                    <div className="mt-2 flex flex-wrap gap-1">
-                      {item.meta.tags.slice(0, 3).map((tag) => (
-                        <span key={tag} className="rounded-full bg-adm-surface-2 px-1.5 py-0.5 text-[10px] text-adm-text-2">
-                          {tag}
-                        </span>
-                      ))}
-                      {item.meta.tags.length > 3 && <span className="text-[10px] text-adm-text-3">+{item.meta.tags.length - 3}</span>}
-                    </div>
-                  )}
-                </div>
-              );
-            })}
+                );
+              })}
+            </div>
           </div>
-        </div>
-      ))}
+        ))}
+      </div>
     </div>
   );
 }

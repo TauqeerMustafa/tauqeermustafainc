@@ -61,6 +61,27 @@ export const company = {
 
   whatsapp: "https://wa.me/message/NMUGLZ5AW7TVC1",
 
+  whatsappChannels: {
+    general: {
+      name: "General Inquiries & Sales",
+      number: "+92 335 6701199",
+      url: "https://wa.me/message/NMUGLZ5AW7TVC1",
+      displayNumber: "+92 335 6701199",
+      description: "Business inquiries, service proposals, partnerships, and general questions",
+      action: "Chat with Sales & Info",
+      badge: "General & Sales",
+    },
+    support: {
+      name: "Technical & Client Support",
+      number: "+92 328 1313982",
+      url: "https://wa.me/923281313982?text=Hello%20TMI%20Support%2C%20I%20am%20reaching%20out%20for%20assistance%20with...",
+      displayNumber: "+92 328 1313982",
+      description: "24/7 client helpdesk, SLA ticket escalation, and live technical support",
+      action: "Contact Support Desk",
+      badge: "24/7 Client Support",
+    },
+  },
+
   website: "https://tauqeermustafa.tech",
 
   workingHours: "Monday - Friday | 9:00 AM - 6:00 PM",

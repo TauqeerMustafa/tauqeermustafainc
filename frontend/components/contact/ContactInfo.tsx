@@ -28,10 +28,17 @@ const items: ContactItem[] = [
     href: `tel:${company.phone.replace(/\s+/g, "")}`,
   },
   {
-    label: "WhatsApp",
-    value: "Chat with us",
+    label: "WhatsApp (General & Sales)",
+    value: company.whatsappChannels.general.number,
     icon: FaWhatsapp,
-    href: company.whatsapp,
+    href: company.whatsappChannels.general.url,
+    external: true,
+  },
+  {
+    label: "WhatsApp (Support Desk)",
+    value: company.whatsappChannels.support.number,
+    icon: FaWhatsapp,
+    href: company.whatsappChannels.support.url,
     external: true,
   },
   {

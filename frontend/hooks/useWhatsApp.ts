@@ -192,6 +192,7 @@ export type WANumberInfo = {
   label: string;
   primary: boolean;
   slot?: number;
+  department?: "general" | "support";
   displayNumber?: string | null;
   verifiedName?: string | null;
   quality?: string | null;

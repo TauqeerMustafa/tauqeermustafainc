@@ -31,6 +31,8 @@
  * goes live without waiting on an environment change, and env still wins.
  */
 
+export type WADepartment = "general" | "support";
+
 export type WANumber = {
   /** Meta Phone Number ID — what `POST /{id}/messages` addresses. */
   id: string;
@@ -40,6 +42,10 @@ export type WANumber = {
   primary: boolean;
   /** Which Meta app credential slot this number uses (1-4). */
   slot: number;
+  /** Dedicated department: general info & sales or technical support. */
+  department?: WADepartment;
+  /** Optional human display phone number e.g. +92 335 6701199 */
+  displayNumber?: string | null;
 };
 
 /**
@@ -114,19 +120,23 @@ function build(): WANumber[] {
   if (primaryId && !isDisabled(primaryId)) {
     numbers.push({
       id: primaryId,
-      label: clean(process.env.WHATSAPP_PHONE_LABEL) || "Primary number",
+      label: clean(process.env.WHATSAPP_PHONE_LABEL) || "General Inquiries & Sales",
       primary: true,
       slot: 1,
+      department: "general",
+      displayNumber: "+92 335 6701199",
     });
   }
   if (secondId) {
     numbers.push({
       id: secondId,
-      label: clean(process.env.WHATSAPP_PHONE_LABEL_2) || "Second number",
+      label: clean(process.env.WHATSAPP_PHONE_LABEL_2) || "Technical & Client Support",
       // With no primary configured, the second number has to carry the traffic
       // rather than leaving the integration dead.
       primary: numbers.length === 0,
       slot: 1,
+      department: "support",
+      displayNumber: "+92 328 1313982",
     });
   }
   return dedupe(numbers);
@@ -230,4 +240,30 @@ export function resolveNumberId(requested?: string | null): ResolvedNumber {
     };
   }
   return { ok: true, id: wanted };
+}
+
+/**
+ * Return whether a line or message belongs to "general" or "support".
+ */
+export function getChannelDepartment(
+  idOrNumber?: string | null,
+  allNumbers?: WANumber[]
+): WADepartment {
+  if (!idOrNumber) return "general";
+  const nums = allNumbers || waNumbers();
+  const num = nums.find(
+    (n) =>
+      n.id === idOrNumber ||
+      (n.displayNumber && n.displayNumber.replace(/[^0-9]/g, "") === idOrNumber.replace(/[^0-9]/g, ""))
+  );
+  if (num) {
+    if (num.department) return num.department;
+    if (num.label.toLowerCase().includes("support") || num.id === DEFAULT_SECOND_ID) return "support";
+    return "general";
+  }
+  const clean = idOrNumber.replace(/[^0-9]/g, "");
+  if (idOrNumber.toLowerCase().includes("support") || idOrNumber === DEFAULT_SECOND_ID || clean.endsWith("3281313982")) {
+    return "support";
+  }
+  return "general";
 }
