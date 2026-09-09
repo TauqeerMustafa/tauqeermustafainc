@@ -33,6 +33,7 @@ import {
   useTeams,
   useUpdateTeam,
 } from "@/hooks/useTeams";
+import UserCategoryPicker from "@/components/admin/UserCategoryPicker";
 import type { AdminTeam, AdminTeamMember } from "@/types/domain";
 
 interface TeamDraft {
@@ -63,7 +64,6 @@ export function TeamsManagement() {
   const [draft, setDraft] = useState<TeamDraft>(EMPTY_DRAFT);
   const [confirmDelete, setConfirmDelete] = useState<AdminTeam | null>(null);
   const [bulkConfirmOpen, setBulkConfirmOpen] = useState(false);
-  const [memberSearch, setMemberSearch] = useState("");
 
   const teams = teamsQuery.data ?? [];
   const users = usersQuery.data?.data?.items ?? [];
@@ -116,7 +116,6 @@ export function TeamsManagement() {
   function openCreate() {
     setEditingTeam(null);
     setDraft(EMPTY_DRAFT);
-    setMemberSearch("");
     setEditorOpen(true);
   }
 
@@ -127,7 +126,6 @@ export function TeamsManagement() {
       teamLeadId: team.teamLeadId ?? "",
       memberIds: team.members ? team.members.map((m) => m.id) : [],
     });
-    setMemberSearch("");
     setEditorOpen(true);
   }
 
@@ -141,6 +139,20 @@ export function TeamsManagement() {
           : [...prev.memberIds, userId],
       };
     });
+  }
+
+  function handleSelectMultipleMembers(userIds: string[]) {
+    setDraft((prev) => ({
+      ...prev,
+      memberIds: Array.from(new Set([...prev.memberIds, ...userIds])),
+    }));
+  }
+
+  function handleDeselectMultipleMembers(userIds: string[]) {
+    setDraft((prev) => ({
+      ...prev,
+      memberIds: prev.memberIds.filter((id) => !userIds.includes(id)),
+    }));
   }
 
   async function handleSaveTeam(e: React.FormEvent) {
@@ -179,18 +191,6 @@ export function TeamsManagement() {
     setSelectedIds([]);
     setBulkConfirmOpen(false);
   }
-
-  // Filtered users for member assignment in modal
-  const filteredUsersForDraft = useMemo(() => {
-    if (!memberSearch.trim()) return users;
-    const term = memberSearch.toLowerCase();
-    return users.filter(
-      (u) =>
-        u.name.toLowerCase().includes(term) ||
-        u.email.toLowerCase().includes(term) ||
-        (u.roleName && u.roleName.toLowerCase().includes(term)),
-    );
-  }, [users, memberSearch]);
 
   if (teamsQuery.isLoading) return <LoadingBlock label="Loading team lists..." />;
   if (teamsQuery.isError) {
@@ -445,62 +445,16 @@ export function TeamsManagement() {
           </Field>
 
           {/* Member Assignment Section */}
-          <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <label className="text-[11px] font-bold uppercase tracking-[0.14em] text-adm-text-2">
-                Team Members ({draft.memberIds.length} selected)
-              </label>
-            </div>
-            <input
-              type="text"
-              value={memberSearch}
-              onChange={(e) => setMemberSearch(e.target.value)}
-              placeholder="Filter staff to assign..."
-              className={`${inputClass} text-xs py-1.5`}
-            />
-            <div className="max-h-52 overflow-y-auto border border-adm-border p-2 space-y-1 bg-adm-surface">
-              {filteredUsersForDraft.map((user) => {
-                const isChecked = draft.memberIds.includes(user.id);
-                return (
-                  <label
-                    key={user.id}
-                    onClick={() => toggleMemberDraft(user.id)}
-                    className={`flex items-center justify-between p-2 cursor-pointer transition text-xs ${
-                      isChecked
-                        ? "bg-adm-blue/10 border border-adm-blue/40 text-adm-text"
-                        : "hover:bg-adm-surface-2 text-adm-text-2 border border-transparent"
-                    }`}
-                  >
-                    <div className="flex items-center gap-2 truncate">
-                      <div
-                        className={`flex h-4 w-4 items-center justify-center border ${
-                          isChecked
-                            ? "bg-adm-blue border-adm-blue text-white"
-                            : "border-adm-border"
-                        }`}
-                      >
-                        {isChecked && <Check className="h-3 w-3" />}
-                      </div>
-                      <span className="font-medium truncate">{user.name}</span>
-                      <span className="text-adm-text-3 truncate font-mono text-[11px]">
-                        {user.email}
-                      </span>
-                    </div>
-                    {user.teamName && (
-                      <span className="text-[10px] font-mono text-adm-text-3 px-1.5 py-0.5 bg-adm-surface-2">
-                        {user.teamName}
-                      </span>
-                    )}
-                  </label>
-                );
-              })}
-              {filteredUsersForDraft.length === 0 && (
-                <p className="text-xs text-adm-text-3 p-2 text-center">
-                  No staff members match the filter.
-                </p>
-              )}
-            </div>
-          </div>
+          <UserCategoryPicker
+            users={users}
+            selectedIds={draft.memberIds}
+            onToggle={toggleMemberDraft}
+            onSelectMultiple={handleSelectMultipleMembers}
+            onDeselectMultiple={handleDeselectMultipleMembers}
+            label="Team Members"
+            hint="Assemble roster from employees, admins, executives, or clients"
+            maxListHeight="max-h-52"
+          />
 
           <div className="flex items-center justify-end gap-3 pt-4 border-t border-adm-border">
             <PortalButton variant="ghost" type="button" onClick={() => setEditorOpen(false)}>

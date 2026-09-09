@@ -23,6 +23,10 @@ class DashboardTask(CamelModel):
     id: str
     title: str
     status: str
+    priority: Optional[str] = None
+    due_date: Optional[str] = None
+    assigned_to_name: Optional[str] = None
+    assignee_count: int = 0
 
 
 class DashboardLeave(CamelModel):

@@ -55,6 +55,24 @@ def _employee_display_name(record: LeaveRequest) -> str:
     return f"{user.first_name} {user.last_name}".strip() or user.email
 
 
+def _dashboard_task(t: ProjectTask) -> DashboardTask:
+    names = []
+    if t.assignees:
+        names = [f"{a.first_name} {a.last_name}".strip() or a.email for a in t.assignees]
+    elif t.assigned_to:
+        names = [f"{t.assigned_to.first_name} {t.assigned_to.last_name}".strip() or t.assigned_to.email]
+
+    return DashboardTask(
+        id=str(t.id),
+        title=t.title,
+        status=t.status,
+        priority=t.priority,
+        due_date=str(t.due_date) if t.due_date else None,
+        assigned_to_name=", ".join(names) if names else None,
+        assignee_count=len(names),
+    )
+
+
 @router.get("/employee", response_model=EmployeeDashboardResponse)
 def get_employee_dashboard(db: DatabaseSession, current_user: CurrentUser):
     employee = get_current_employee(db, current_user.id)
@@ -109,9 +127,7 @@ def get_employee_dashboard(db: DatabaseSession, current_user: CurrentUser):
             check_in_time=attendance_record.check_in_time if attendance_record else None,
             check_out_time=attendance_record.check_out_time if attendance_record else None,
         ),
-        tasks=[
-            DashboardTask(id=str(t.id), title=t.title, status=t.status) for t in tasks
-        ],
+        tasks=[_dashboard_task(t) for t in tasks],
         leave=DashboardLeave(pending_count=pending_leave_count),
         projects=[
             DashboardProject(id=str(p.id), name=p.name, status=p.status) for p in projects
@@ -165,7 +181,9 @@ def get_admin_dashboard(db: DatabaseSession, current_admin: CurrentAdmin):
     )
     open_tasks = (
         db.scalar(
-            select(func.count()).select_from(ProjectTask).where(ProjectTask.status != "done")
+            select(func.count(func.distinct(ProjectTask.id)))
+            .select_from(ProjectTask)
+            .where(ProjectTask.status != "done")
         )
         or 0
     )
@@ -232,7 +250,7 @@ def get_admin_dashboard(db: DatabaseSession, current_admin: CurrentAdmin):
             )
             for a in activities
         ],
-        tasks=[DashboardTask(id=str(t.id), title=t.title, status=t.status) for t in tasks],
+        tasks=[_dashboard_task(t) for t in tasks],
         projects=[
             DashboardProject(id=str(p.id), name=p.name, status=p.status) for p in projects
         ],
@@ -292,7 +310,9 @@ def get_management_dashboard(db: DatabaseSession, current_manager: CurrentManage
     )
     open_tasks = (
         db.scalar(
-            select(func.count()).select_from(ProjectTask).where(ProjectTask.status != "done")
+            select(func.count(func.distinct(ProjectTask.id)))
+            .select_from(ProjectTask)
+            .where(ProjectTask.status != "done")
         )
         or 0
     )
@@ -300,7 +320,7 @@ def get_management_dashboard(db: DatabaseSession, current_manager: CurrentManage
     # explicitly — SQL comparisons against NULL are unknown, not false.
     overdue_tasks = (
         db.scalar(
-            select(func.count())
+            select(func.count(func.distinct(ProjectTask.id)))
             .select_from(ProjectTask)
             .where(
                 ProjectTask.status != "done",
@@ -405,7 +425,7 @@ def get_management_dashboard(db: DatabaseSession, current_manager: CurrentManage
             )
             for record in pending_leave
         ],
-        tasks=[DashboardTask(id=str(t.id), title=t.title, status=t.status) for t in tasks],
+        tasks=[_dashboard_task(t) for t in tasks],
         projects=[
             ManagementProject(
                 id=str(p.id),

@@ -147,6 +147,10 @@ export interface DashboardTask {
   id: string;
   title: string;
   status: string;
+  priority?: string | null;
+  dueDate?: string | null;
+  assignedToName?: string | null;
+  assigneeCount?: number;
 }
 
 export interface DashboardProject {

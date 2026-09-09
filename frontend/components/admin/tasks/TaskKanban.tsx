@@ -23,6 +23,7 @@ import {
   adminInputStyle,
 } from "@/components/admin/AdminUI";
 import PlaybookDrawer from "@/components/admin/tasks/PlaybookDrawer";
+import UserCategoryPicker from "@/components/admin/UserCategoryPicker";
 import { useAdminUsers } from "@/hooks/useAdmin";
 import { useManagementProjects } from "@/hooks/useDashboard";
 import {
@@ -178,6 +179,28 @@ export default function TaskKanban({ isAdmin = false }) {
       const updated = exists
         ? prev.assignedToIds.filter((id) => id !== userId)
         : [...prev.assignedToIds, userId];
+      return {
+        ...prev,
+        assignedToIds: updated,
+        assignedToId: updated[0] || "",
+      };
+    });
+  }
+
+  function handleSelectMultipleAssignees(userIds: string[]) {
+    setForm((prev) => {
+      const updated = Array.from(new Set([...prev.assignedToIds, ...userIds]));
+      return {
+        ...prev,
+        assignedToIds: updated,
+        assignedToId: updated[0] || "",
+      };
+    });
+  }
+
+  function handleDeselectMultipleAssignees(userIds: string[]) {
+    setForm((prev) => {
+      const updated = prev.assignedToIds.filter((id) => !userIds.includes(id));
       return {
         ...prev,
         assignedToIds: updated,
@@ -544,6 +567,9 @@ export default function TaskKanban({ isAdmin = false }) {
                             <span className="truncate">{task.projectName ?? ""}</span>
                             {task.assignees && task.assignees.length > 0 ? (
                               <div className="flex flex-wrap items-center gap-1">
+                                <span className="font-semibold text-adm-text-3 text-[10px] mr-0.5">
+                                  Assigned to{task.assignees.length > 1 ? ` (${task.assignees.length})` : ""}:
+                                </span>
                                 {task.assignees.map((assignee) => (
                                   <span
                                     key={assignee.id}
@@ -561,7 +587,10 @@ export default function TaskKanban({ isAdmin = false }) {
                                 ))}
                               </div>
                             ) : task.assignedToName ? (
-                              <span className="shrink-0 font-semibold">{task.assignedToName}</span>
+                              <div className="flex items-center gap-1">
+                                <span className="font-semibold text-adm-text-3 text-[10px]">Assigned to:</span>
+                                <span className="shrink-0 font-semibold">{task.assignedToName}</span>
+                              </div>
                             ) : null}
                           </div>
                         )}
@@ -680,132 +709,16 @@ export default function TaskKanban({ isAdmin = false }) {
             </div>
 
             <div>
-              <label
-                className="mb-2 block text-xs font-bold uppercase tracking-wider"
-                style={{ color: "var(--adm-text-2)" }}
-              >
-                {t("Assignees")} ({form.assignedToIds.length} {t("selected")})
-              </label>
-
-              {/* Selected chips */}
-              {form.assignedToIds.length > 0 && (
-                <div
-                  className="mb-2 flex flex-wrap gap-1.5 border p-2"
-                  style={{
-                    borderColor: "var(--adm-border)",
-                    background: "var(--adm-surface-2)",
-                  }}
-                >
-                  {form.assignedToIds.map((uid) => {
-                    const u = users.find((x) => x.id === uid);
-                    return (
-                      <span
-                        key={uid}
-                        className="inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-medium"
-                        style={{
-                          background: "var(--adm-surface)",
-                          border: "1px solid var(--adm-border)",
-                          color: "var(--adm-text)",
-                        }}
-                      >
-                        <span
-                          className="h-1.5 w-1.5 rounded-full"
-                          style={{ background: "var(--adm-blue)" }}
-                        />
-                        <span>{u ? u.name : uid}</span>
-                        <button
-                          type="button"
-                          onClick={() => toggleAssignee(uid)}
-                          className="ml-1 hover:opacity-75"
-                          style={{ color: "var(--adm-text-3)" }}
-                        >
-                          <X size={12} />
-                        </button>
-                      </span>
-                    );
-                  })}
-                </div>
-              )}
-
-              {/* Filter and user checklist */}
-              <input
-                type="text"
-                value={assigneeSearch}
-                onChange={(e) => setAssigneeSearch(e.target.value)}
-                placeholder={t("Filter staff to assign...")}
-                className={`${adminInputClass} mb-1.5 text-xs py-1.5`}
-                style={adminInputStyle}
+              <UserCategoryPicker
+                users={users}
+                selectedIds={form.assignedToIds}
+                onToggle={toggleAssignee}
+                onSelectMultiple={handleSelectMultipleAssignees}
+                onDeselectMultiple={handleDeselectMultipleAssignees}
+                label={t("Assignees")}
+                hint={t("Assign tasks to multiple employees, admins, executives, or clients")}
+                maxListHeight="max-h-48"
               />
-              <div
-                className="max-h-44 space-y-0.5 overflow-y-auto border p-1"
-                style={{
-                  borderColor: "var(--adm-border)",
-                  background: "var(--adm-surface)",
-                }}
-              >
-                {users
-                  .filter((u) => {
-                    if (!assigneeSearch.trim()) return true;
-                    const q = assigneeSearch.toLowerCase();
-                    return (
-                      u.name.toLowerCase().includes(q) ||
-                      u.email.toLowerCase().includes(q)
-                    );
-                  })
-                  .map((user) => {
-                    const isChecked = form.assignedToIds.includes(user.id);
-                    return (
-                      <label
-                        key={user.id}
-                        onClick={() => toggleAssignee(user.id)}
-                        className="flex cursor-pointer items-center justify-between p-2 text-xs transition hover:bg-adm-surface-2"
-                        style={{
-                          background: isChecked
-                            ? "var(--adm-blue-light)"
-                            : "transparent",
-                          color: "var(--adm-text)",
-                        }}
-                      >
-                        <div className="flex items-center gap-2 truncate">
-                          <div
-                            className="flex h-4 w-4 items-center justify-center border"
-                            style={{
-                              borderColor: isChecked
-                                ? "var(--adm-blue)"
-                                : "var(--adm-border)",
-                              background: isChecked
-                                ? "var(--adm-blue)"
-                                : "transparent",
-                              color: "white",
-                            }}
-                          >
-                            {isChecked && <Check size={12} />}
-                          </div>
-                          <span className="truncate font-medium">
-                            {user.name}
-                          </span>
-                          <span
-                            className="font-mono text-[10px]"
-                            style={{ color: "var(--adm-text-3)" }}
-                          >
-                            {user.email}
-                          </span>
-                        </div>
-                        {user.teamName && (
-                          <span
-                            className="px-1.5 py-0.5 font-mono text-[10px]"
-                            style={{
-                              background: "var(--adm-surface-2)",
-                              color: "var(--adm-text-3)",
-                            }}
-                          >
-                            {user.teamName}
-                          </span>
-                        )}
-                      </label>
-                    );
-                  })}
-              </div>
             </div>
 
             {formError && (

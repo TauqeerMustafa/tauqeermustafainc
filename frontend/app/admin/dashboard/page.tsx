@@ -361,10 +361,22 @@ export default function AdminDashboardPage() {
           <EmptyBlock title="No tasks" description="Nothing has been assigned yet." />
         </div>
       ) : (
-        <DataTable head={["Task", "Status"]}>
+        <DataTable head={["Task", "Assigned to", "Status"]}>
           {tasks.slice(0, 6).map((task) => (
             <tr key={task.id} className="transition hover:bg-adm-surface-2">
               <Td strong>{task.title}</Td>
+              <Td>
+                {task.assignedToName ? (
+                  <span className="inline-flex items-center gap-1.5 text-xs text-adm-text font-medium">
+                    <span className="h-1.5 w-1.5 rounded-full bg-adm-blue shrink-0" />
+                    <span className="truncate max-w-[180px]" title={task.assignedToName}>
+                      {task.assignedToName}
+                    </span>
+                  </span>
+                ) : (
+                  <span className="text-xs text-adm-text-3 italic">Unassigned</span>
+                )}
+              </Td>
               <Td>
                 <StatusPill status={task.status} />
               </Td>

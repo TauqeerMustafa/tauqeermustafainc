@@ -58,6 +58,14 @@ def _to_read(task: ProjectTask) -> ProjectTaskResponse:
             )
         )
 
+    # Flatten all assignee names so assigned_to_name displays all assignees
+    if assignees_list:
+        assigned_to_name = ", ".join(a.name for a in assignees_list if a.name) or None
+    elif assignee:
+        assigned_to_name = f"{assignee.first_name} {assignee.last_name}".strip() or None
+    else:
+        assigned_to_name = None
+
     return ProjectTaskResponse(
         id=task.id,
         title=task.title,
@@ -71,9 +79,7 @@ def _to_read(task: ProjectTask) -> ProjectTaskResponse:
         created_at=task.created_at,
         updated_at=task.updated_at,
         project_name=task.project.name if task.project else None,
-        assigned_to_name=(
-            f"{assignee.first_name} {assignee.last_name}".strip() if assignee else None
-        ),
+        assigned_to_name=assigned_to_name,
         assigned_to_ids=assignee_ids,
         assignees=assignees_list,
     )
@@ -107,8 +113,8 @@ def list_tasks(
             ProjectTask.due_date < date.today(),
         )
 
-    total = db.scalar(select(func.count()).select_from(stmt.subquery())) or 0
-    rows = db.scalars(stmt.offset((page - 1) * page_size).limit(page_size)).all()
+    total = db.scalar(select(func.count(func.distinct(ProjectTask.id))).select_from(stmt.subquery())) or 0
+    rows = db.scalars(stmt.offset((page - 1) * page_size).limit(page_size)).unique().all()
 
     return ApiResponse(
         data=PaginatedResult(
