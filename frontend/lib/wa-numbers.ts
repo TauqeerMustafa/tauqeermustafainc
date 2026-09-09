@@ -128,13 +128,18 @@ function build(): WANumber[] {
     });
   }
   if (secondId) {
+    const slot2Configured = Boolean(
+      clean(process.env.WHATSAPP_TOKEN_2) ||
+      clean(process.env.WHATSAPP_BUSINESS_ACCOUNT_ID_2) ||
+      clean(process.env.WHATSAPP_PHONE_NUMBER_ID_2)
+    );
     numbers.push({
       id: secondId,
       label: clean(process.env.WHATSAPP_PHONE_LABEL_2) || "Technical & Client Support",
       // With no primary configured, the second number has to carry the traffic
       // rather than leaving the integration dead.
       primary: numbers.length === 0,
-      slot: 1,
+      slot: slot2Configured ? 2 : 1,
       department: "support",
       displayNumber: clean(process.env.WHATSAPP_DISPLAY_NUMBER_2) || "Support Desk",
     });

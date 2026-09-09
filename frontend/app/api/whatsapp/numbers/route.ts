@@ -81,7 +81,15 @@ export async function GET(request: Request) {
   // 1. Fetch phone numbers directly from all configured WABAs in Meta
   for (const account of accounts) {
     if (!account.token || !account.wabaId) continue;
-    try {
+      // Ensure Meta delivers webhooks for this WABA to our app
+      try {
+        const subUrl = new URL(`${GRAPH_URL}/${account.wabaId}/subscribed_apps`);
+        subUrl.searchParams.set("access_token", account.token);
+        await fetch(subUrl, { method: "POST", cache: "no-store" });
+      } catch (e) {
+        console.warn(`[numbers] Could not subscribe app to WABA for slot ${account.slot}:`, e);
+      }
+
       const url = new URL(`${GRAPH_URL}/${account.wabaId}/phone_numbers`);
       url.searchParams.set("fields", "id,display_phone_number,verified_name,quality_rating,code_verification_status");
       url.searchParams.set("access_token", account.token);

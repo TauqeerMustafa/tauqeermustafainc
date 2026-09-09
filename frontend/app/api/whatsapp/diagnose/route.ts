@@ -1,4 +1,4 @@
-﻿/**
+/**
  * GET /api/whatsapp/diagnose?key=<WA_DIAGNOSE_KEY>
  *
  * Asks Meta what THIS deployment can actually see, including a KV message
@@ -128,6 +128,7 @@ export async function GET(request: Request) {
 
   let wabaError: string | null = null;
   let wabaNumbers: Array<Record<string, unknown>> = [];
+  let subscribedApps: Array<Record<string, unknown>> = [];
   if (wabaId) {
     const res = await graphGet(
       `${wabaId}/phone_numbers`,
@@ -136,6 +137,9 @@ export async function GET(request: Request) {
     );
     if (res.ok) wabaNumbers = res.json?.data ?? [];
     else wabaError = explain(res.json?.error, "", [], wabaId);
+
+    const subRes = await graphGet(`${wabaId}/subscribed_apps`, token);
+    if (subRes.ok) subscribedApps = subRes.json?.data ?? [];
   } else {
     wabaError = "WHATSAPP_BUSINESS_ACCOUNT_ID is not set.";
   }
@@ -190,7 +194,7 @@ export async function GET(request: Request) {
     success: sendable.length > 0 && !tokenInfo.expired,
     verdict,
     token: tokenInfo,
-    waba: { id: wabaId ?? null, error: wabaError, numbers: wabaNumbers },
+    waba: { id: wabaId ?? null, error: wabaError, numbers: wabaNumbers, subscribedApps },
     configured,
     checks,
     check,
