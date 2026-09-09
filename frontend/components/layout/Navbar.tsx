@@ -7,12 +7,12 @@ import { usePathname } from "next/navigation";
 import {
   ArrowRight,
   ArrowUpRight,
-  BookOpen,
-  Briefcase,
   ChevronDown,
+  CreditCard,
   FileText,
-  LayoutGrid,
+  LifeBuoy,
   Menu,
+  ShieldCheck,
   Users,
   X,
 } from "lucide-react";
@@ -21,47 +21,51 @@ import ThemeToggle from "@/components/layout/ThemeToggle";
 
 /* ── BMW / BMW M navbar — theme-flipping chrome, M-stripe rail, uppercase utility nav ── */
 
+/** Main domain pages (no subdomains) */
 const primaryNav = [
   { name: "About", href: "/about" },
   { name: "Services", href: "/services" },
   { name: "Portfolio", href: "/portfolio" },
+  { name: "Careers", href: "/careers" },
+  { name: "Blog", href: "/blog" },
 ];
 
-const dropdownNav = [
+/** Official company subdomains only (*.tauqeermustafa.tech) */
+const companySubdomains = [
   {
-    name: "Careers",
-    href: "/careers",
-    description: "Join our engineering & design team",
-    icon: Briefcase,
-    external: false,
-  },
-  {
-    name: "Blog",
-    href: "/blog",
-    description: "Engineering insights, architecture & updates",
-    icon: BookOpen,
-    external: false,
+    name: "Portals",
+    host: "portals.tauqeermustafa.tech",
+    href: "https://portals.tauqeermustafa.tech",
+    description: "Secure client, employee & management workspaces",
+    icon: ShieldCheck,
   },
   {
     name: "Community",
+    host: "community.tauqeermustafa.tech",
     href: "https://community.tauqeermustafa.tech",
-    description: "Developer discussions, forums & tech hub",
+    description: "Developer hub, open forum & technical discussions",
     icon: Users,
-    external: true,
-  },
-  {
-    name: "Portals",
-    href: "https://portals.tauqeermustafa.tech",
-    description: "Client, employee & executive workspaces",
-    icon: LayoutGrid,
-    external: true,
   },
   {
     name: "Documentation",
-    href: "/docs",
-    description: "Policies, standards, SLAs & specifications",
+    host: "docs.tauqeermustafa.tech",
+    href: "https://docs.tauqeermustafa.tech",
+    description: "Official guidelines, company policies, specs & SLAs",
     icon: FileText,
-    external: false,
+  },
+  {
+    name: "Support",
+    host: "support.tauqeermustafa.tech",
+    href: "https://support.tauqeermustafa.tech",
+    description: "24/7 client helpdesk, ticketing & incident status",
+    icon: LifeBuoy,
+  },
+  {
+    name: "Billing",
+    host: "billing.tauqeermustafa.tech",
+    href: "https://billing.tauqeermustafa.tech",
+    description: "Treasury management, invoices & payment processing",
+    icon: CreditCard,
   },
 ];
 
@@ -76,11 +80,6 @@ export default function Navbar() {
   const detailsRef = useRef<HTMLDetailsElement>(null);
   const dropdownRef = useRef<HTMLLIElement>(null);
   const closeTimerRef = useRef<NodeJS.Timeout | null>(null);
-
-  // Check if current route matches any item inside the dropdown
-  const isDropdownActive = dropdownNav.some(
-    (item) => !item.external && (pathname === item.href || pathname.startsWith(item.href + "/"))
-  );
 
   function handleMouseEnter() {
     if (closeTimerRef.current) {
@@ -151,8 +150,8 @@ export default function Navbar() {
           <span className="sm:hidden">TMI</span>
         </Link>
 
-        {/* Nav options — centred with plenty of breathing room */}
-        <ul className="hidden flex-1 items-center justify-center gap-1 lg:flex">
+        {/* Nav options — centred with balanced spacing */}
+        <ul className="hidden flex-1 items-center justify-center gap-0.5 lg:flex">
           {primaryNav.map((link) => {
             const isActive = pathname === link.href;
             return (
@@ -174,7 +173,7 @@ export default function Navbar() {
             );
           })}
 
-          {/* More Dropdown (Careers, Blog, Community, Portals, Documentation) */}
+          {/* Company Subdomains Dropdown */}
           <li
             ref={dropdownRef}
             className="relative"
@@ -187,106 +186,90 @@ export default function Navbar() {
               aria-expanded={isDropdownOpen}
               aria-haspopup="true"
               className={`${linkClass} cursor-pointer gap-1.5 ${
-                isDropdownActive || isDropdownOpen ? "text-ink" : ""
+                isDropdownOpen ? "text-ink" : ""
               }`}
             >
-              <span>More</span>
+              <span>Company</span>
               <ChevronDown
                 className={`h-3 w-3 text-ink/50 transition-transform duration-200 ${
                   isDropdownOpen ? "rotate-180 text-action" : ""
                 }`}
                 aria-hidden="true"
               />
-              <span
-                className={`absolute inset-x-3 -bottom-[7px] h-[2px] bg-action transition-transform duration-300 ${
-                  isDropdownActive ? "scale-x-100" : "scale-x-0"
-                }`}
-                aria-hidden
-              />
             </button>
 
-            {/* Precision Dropdown Menu */}
+            {/* Precision Subdomains Flyout Panel */}
             {isDropdownOpen && (
               <div
                 role="menu"
-                className="absolute right-0 top-full mt-1.5 w-80 border border-ink/15 bg-canvas/95 backdrop-blur-xl p-2 shadow-[0_20px_50px_rgba(0,0,0,0.35)] z-50 animate-in fade-in-0 zoom-in-95 duration-150"
+                className="absolute right-0 top-full mt-1.5 w-[22rem] sm:w-[24rem] border border-ink/15 bg-canvas/95 backdrop-blur-xl p-2 shadow-[0_24px_60px_rgba(0,0,0,0.4)] z-50 animate-in fade-in-0 zoom-in-95 duration-150"
               >
-                {/* Subtle M-stripe top accent */}
-                <div className="flex h-[2px] w-full mb-1.5" aria-hidden="true">
+                {/* Subtle M-stripe top accent rail */}
+                <div className="flex h-[2px] w-full mb-1" aria-hidden="true">
                   <span className="flex-1 bg-m-blue" />
                   <span className="flex-1 bg-m-blue-mid" />
                   <span className="flex-1 bg-m-red" />
                 </div>
 
-                <div className="grid gap-0.5">
-                  {dropdownNav.map((item) => {
-                    const Icon = item.icon;
-                    const isActive =
-                      !item.external &&
-                      (pathname === item.href || pathname.startsWith(item.href + "/"));
+                {/* Header telemetry badge */}
+                <div className="flex items-center justify-between border-b border-ink/10 px-2.5 py-1.5 mb-1">
+                  <span className="font-mono text-[10px] font-bold uppercase tracking-[0.14em] text-ink/45">
+                    Company Subdomains
+                  </span>
+                  <span className="inline-flex items-center gap-1.5 font-mono text-[9px] uppercase tracking-[0.1em] text-action">
+                    <span className="h-1.5 w-1.5 rounded-full bg-action animate-pulse" />
+                    Verified Network
+                  </span>
+                </div>
 
-                    const content = (
-                      <div className="flex items-start gap-3 p-2.5 transition-colors hover:bg-ink/[0.05] group/item text-left">
-                        <span
-                          className={`flex h-8 w-8 shrink-0 items-center justify-center border transition-colors ${
-                            isActive
-                              ? "border-action/50 bg-action/10 text-action"
-                              : "border-ink/10 bg-ink/[0.03] text-ink/60 group-hover/item:border-action/40 group-hover/item:bg-action/[0.08] group-hover/item:text-action"
-                          }`}
-                        >
+                {/* Subdomain gateway cards */}
+                <div className="grid gap-0.5">
+                  {companySubdomains.map((item) => {
+                    const Icon = item.icon;
+                    return (
+                      <a
+                        key={item.name}
+                        href={item.href}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        onClick={() => setIsDropdownOpen(false)}
+                        className="group/item flex items-start gap-3 border-l-2 border-transparent p-2.5 transition-all hover:border-action hover:bg-ink/[0.04] focus-visible:outline focus-visible:outline-2 focus-visible:outline-action"
+                        role="menuitem"
+                      >
+                        <span className="flex h-8 w-8 shrink-0 items-center justify-center border border-ink/10 bg-ink/[0.03] text-ink/60 transition-colors group-hover/item:border-action/40 group-hover/item:bg-action/[0.08] group-hover/item:text-action">
                           <Icon className="h-4 w-4" aria-hidden="true" />
                         </span>
                         <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-1.5">
-                            <span
-                              className={`font-mono text-[11px] font-bold uppercase tracking-[0.08em] ${
-                                isActive ? "text-action" : "text-ink group-hover/item:text-ink"
-                              }`}
-                            >
+                          <div className="flex items-center justify-between gap-2">
+                            <span className="font-mono text-[11px] font-bold uppercase tracking-[0.08em] text-ink group-hover/item:text-action transition-colors flex items-center gap-1">
                               {item.name}
-                            </span>
-                            {item.external && (
                               <ArrowUpRight
-                                className="h-3 w-3 text-ink/40 group-hover/item:text-action transition-colors"
+                                className="h-3 w-3 text-ink/30 group-hover/item:text-action transition-colors"
                                 aria-hidden="true"
                               />
-                            )}
+                            </span>
+                            <span className="font-mono text-[9px] tracking-tight text-ink/45 bg-ink/[0.04] border border-ink/10 px-1.5 py-0.5 shrink-0 group-hover/item:border-ink/25 transition-colors">
+                              {item.host}
+                            </span>
                           </div>
                           <p className="mt-0.5 text-[11px] font-light leading-snug text-ink/55 group-hover/item:text-ink/80 transition-colors">
                             {item.description}
                           </p>
                         </div>
-                      </div>
-                    );
-
-                    if (item.external) {
-                      return (
-                        <a
-                          key={item.name}
-                          href={item.href}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          onClick={() => setIsDropdownOpen(false)}
-                          className="block focus-visible:outline focus-visible:outline-2 focus-visible:outline-action"
-                          role="menuitem"
-                        >
-                          {content}
-                        </a>
-                      );
-                    }
-
-                    return (
-                      <Link
-                        key={item.name}
-                        href={item.href}
-                        onClick={() => setIsDropdownOpen(false)}
-                        className="block focus-visible:outline focus-visible:outline-2 focus-visible:outline-action"
-                        role="menuitem"
-                      >
-                        {content}
-                      </Link>
+                      </a>
                     );
                   })}
+                </div>
+
+                {/* Operational status footer rail */}
+                <div className="mt-1 flex items-center justify-between border-t border-ink/10 px-2.5 pt-2 pb-0.5">
+                  <span className="font-mono text-[9px] uppercase tracking-[0.08em] text-ink/40">
+                    tauqeermustafa.tech
+                  </span>
+                  <span className="inline-flex items-center gap-1.5 font-mono text-[9px] uppercase tracking-[0.1em] text-emerald-500">
+                    <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+                    All Systems Operational
+                  </span>
                 </div>
               </div>
             )}
@@ -329,7 +312,7 @@ export default function Navbar() {
                       href={link.href}
                       onClick={() => setIsOpen(false)}
                       aria-current={pathname === link.href ? "page" : undefined}
-                      className={`block border-l-2 px-4 py-3 font-mono text-[11px] font-semibold uppercase tracking-[0.1em] transition hover:bg-ink/[0.06] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-action ${
+                      className={`block border-l-2 px-4 py-2.5 font-mono text-[11px] font-semibold uppercase tracking-[0.1em] transition hover:bg-ink/[0.06] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-action ${
                         pathname === link.href
                           ? "border-action bg-ink/[0.06] text-ink"
                           : "border-transparent text-ink/60"
@@ -342,58 +325,36 @@ export default function Navbar() {
               </ul>
 
               {/* Group divider */}
-              <div className="my-2 border-t border-ink/10 pt-2 px-4 font-mono text-[10px] font-bold uppercase tracking-[0.14em] text-ink/40">
-                More & Ecosystem
+              <div className="my-2 border-t border-ink/10 pt-2 px-4 flex items-center justify-between">
+                <span className="font-mono text-[10px] font-bold uppercase tracking-[0.14em] text-ink/40">
+                  Company Subdomains
+                </span>
+                <span className="h-1.5 w-1.5 rounded-full bg-action animate-pulse" />
               </div>
 
-              {/* Dropdown / Ecosystem links */}
+              {/* Subdomain links */}
               <ul className="grid gap-0.5">
-                {dropdownNav.map((link) => {
-                  const isActive =
-                    !link.external &&
-                    (pathname === link.href || pathname.startsWith(link.href + "/"));
-                  const content = (
-                    <div className="flex items-center justify-between">
-                      <span>{link.name}</span>
-                      {link.external && (
-                        <ArrowUpRight className="h-3 w-3 text-ink/40" aria-hidden="true" />
-                      )}
-                    </div>
-                  );
-
-                  if (link.external) {
-                    return (
-                      <li key={link.name}>
-                        <a
-                          href={link.href}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          onClick={() => setIsOpen(false)}
-                          className="block border-l-2 border-transparent px-4 py-2.5 font-mono text-[11px] font-semibold uppercase tracking-[0.1em] text-ink/60 transition hover:bg-ink/[0.06] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-action"
-                        >
-                          {content}
-                        </a>
-                      </li>
-                    );
-                  }
-
-                  return (
-                    <li key={link.name}>
-                      <Link
-                        href={link.href}
-                        onClick={() => setIsOpen(false)}
-                        aria-current={isActive ? "page" : undefined}
-                        className={`block border-l-2 px-4 py-2.5 font-mono text-[11px] font-semibold uppercase tracking-[0.1em] transition hover:bg-ink/[0.06] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-action ${
-                          isActive
-                            ? "border-action bg-ink/[0.06] text-ink"
-                            : "border-transparent text-ink/60"
-                        }`}
-                      >
-                        {content}
-                      </Link>
-                    </li>
-                  );
-                })}
+                {companySubdomains.map((link) => (
+                  <li key={link.name}>
+                    <a
+                      href={link.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      onClick={() => setIsOpen(false)}
+                      className="block border-l-2 border-transparent px-4 py-2.5 font-mono text-[11px] font-semibold uppercase tracking-[0.1em] text-ink/60 transition hover:border-action hover:bg-ink/[0.06] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-action"
+                    >
+                      <div className="flex items-center justify-between">
+                        <span className="flex items-center gap-1.5">
+                          {link.name}
+                          <ArrowUpRight className="h-3 w-3 text-ink/40" aria-hidden="true" />
+                        </span>
+                        <span className="font-mono text-[9px] text-ink/40">
+                          {link.host.split(".")[0]}
+                        </span>
+                      </div>
+                    </a>
+                  </li>
+                ))}
               </ul>
 
               <Link
