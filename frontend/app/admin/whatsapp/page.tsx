@@ -238,7 +238,15 @@ function withSeenChannels(
     const ch = (m.channel || "").trim();
     if (!ch || covers(ch)) continue;
     if (extras.some((e) => e.id === ch || cleanDigits(e.id) === cleanDigits(ch))) continue;
+    // An explicit channel stamp that Meta's discovered list does not include is
+    // one of OUR lines that discovery missed — most often the second number,
+    // whose real Phone Number ID differs from any hard-coded fallback. General
+    // is the primary line alone, so any line that is not the primary is Support.
+    // (We reach here only because `ch` matched no api number, primary included.)
+    // Fall back to the old id/label heuristic only when no primary is known yet.
+    const primaryKnown = apiNumbers.some((n) => n.primary);
     const isSupport =
+      primaryKnown ||
       ch.toLowerCase().includes("support") ||
       ch === "1318810581311680";
     extras.push({
@@ -3719,7 +3727,9 @@ function StatsTab({ department = "general" }: { department?: "general" | "suppor
   const { data: messagesData } = useWhatsAppMessages();
   const { data: numbersData } = useWhatsAppNumbers();
   const allMessages = messagesData?.data ?? [];
-  const numbers = numbersData?.data ?? [];
+  // Same line list the inbox classifies against, so a second number discovery
+  // missed is counted under Support here too — not silently under General.
+  const numbers = withSeenChannels(numbersData?.data ?? [], allMessages);
 
   const deptMessages = allMessages.filter(
     (m) => getMessageDepartment(m, numbers) === department
@@ -3985,7 +3995,9 @@ function PipelineTab({
 
   const messages = data?.data ?? [];
   const metaMap = metaData?.data ?? {};
-  const numbers = numbersData?.data ?? [];
+  // Match the inbox's line list so a second number discovery missed lands in the
+  // Support pipeline rather than silently under General.
+  const numbers = withSeenChannels(numbersData?.data ?? [], messages);
   const conversations = groupConversations(messages, numbers, department);
 
   const statuses = department === "support" ? SUPPORT_TICKET_STATUSES : GENERAL_DEAL_STATUSES;
