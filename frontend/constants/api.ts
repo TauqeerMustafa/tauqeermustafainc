@@ -7,9 +7,15 @@ export const API_ENDPOINTS = {
     tasks: "/tasks",
     client: "/client",
     users: "/admin/users",
+    usersBulkDelete: "/admin/users/bulk-delete",
     roles: "/admin/roles",
     permissions: "/admin/permissions",
     teams: "/admin/teams",
+    teamsBulkDelete: "/admin/teams/bulk-delete",
+    projects: "/admin/projects",
+    projectsBulk: "/admin/projects/bulk",
+    projectsBulkDelete: "/admin/projects/bulk-delete",
+    projectsBulkUpdate: "/admin/projects/bulk-update",
     metrics: "/admin/metrics",
   },
   // HR routers return bare arrays/objects, not the ApiResponse envelope.
@@ -66,5 +72,12 @@ export const API_ENDPOINTS = {
   careers: "/careers",
   contact: "/contact",
   announcements: "/announcements",
+  announcementsBulkDelete: "/announcements/bulk-delete",
+  tasks: {
+    root: "/tasks",
+    my: "/tasks/my",
+    bulkDelete: "/tasks/bulk-delete",
+    bulkUpdate: "/tasks/bulk-update",
+  },
 } as const;
 

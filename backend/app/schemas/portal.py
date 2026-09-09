@@ -61,6 +61,8 @@ class ClientLoginResponse(CamelModel):
 
 class ClientProjectRead(CamelModel):
     id: uuid.UUID
+    client_id: uuid.UUID | None = None
+    client_name: str | None = None
     name: str
     status: str
     summary: str | None = None
@@ -68,6 +70,39 @@ class ClientProjectRead(CamelModel):
     progress: int
     created_at: datetime
     updated_at: datetime
+
+
+class ClientProjectCreate(CamelModel):
+    client_id: uuid.UUID
+    name: str = Field(..., min_length=1, max_length=200)
+    status: str = "discovery"
+    summary: str | None = None
+    next_milestone: str | None = None
+    progress: int = Field(default=0, ge=0, le=100)
+
+
+class ClientProjectUpdate(CamelModel):
+    client_id: uuid.UUID | None = None
+    name: str | None = Field(default=None, max_length=200)
+    status: str | None = None
+    summary: str | None = None
+    next_milestone: str | None = None
+    progress: int | None = Field(default=None, ge=0, le=100)
+
+
+class ClientProjectBulkCreate(CamelModel):
+    projects: list[ClientProjectCreate] = Field(..., min_length=1)
+
+
+class ProjectBulkDeletePayload(CamelModel):
+    ids: list[uuid.UUID] = Field(..., min_length=1)
+
+
+class ProjectBulkUpdatePayload(CamelModel):
+    ids: list[uuid.UUID] = Field(..., min_length=1)
+    status: str | None = None
+    progress: int | None = Field(default=None, ge=0, le=100)
+
 
 
 class ClientMessageRead(CamelModel):

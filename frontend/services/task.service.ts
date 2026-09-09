@@ -8,10 +8,18 @@ import type { ApiResponse, PaginatedResponse } from "@/types/api";
  * The router now extends `CamelModel`, so the JSON is camelCase like the rest of
  * the API and carries the flattened `projectName` / `assignedToName` labels.
  */
+export interface TaskAssignee {
+  id: string;
+  name: string;
+  email: string;
+}
+
 export interface ProjectTask {
   id: string;
   projectId?: string | null;
   assignedToId?: string | null;
+  assignedToIds?: string[];
+  assignees?: TaskAssignee[];
   createdById?: string | null;
   title: string;
   description?: string | null;
@@ -42,9 +50,21 @@ export interface CreateTaskPayload {
   dueDate?: string | null;
   projectId?: string | null;
   assignedToId?: string | null;
+  assignedToIds?: string[];
 }
 
 export type UpdateTaskPayload = Partial<CreateTaskPayload>;
+
+export interface BulkTaskDeletePayload {
+  ids: string[];
+}
+
+export interface BulkTaskUpdatePayload {
+  ids: string[];
+  status?: string;
+  priority?: string;
+  assignedToIds?: string[];
+}
 
 export const taskService = {
   list: (params: TaskListParams = {}) =>
@@ -66,8 +86,6 @@ export const taskService = {
       method: "POST",
       data: payload,
     }),
-  /** The signed-in user's own assigned tasks — reads `/tasks/me`, which is open
-   *  to any authenticated user, unlike the manager-gated `list`. */
   mine: () =>
     apiRequest<ApiResponse<ProjectTask[]>>({
       url: `${API_ENDPOINTS.admin.tasks}/me`,
@@ -83,6 +101,18 @@ export const taskService = {
     apiRequest<ApiResponse<{ id: string }>>({
       url: `${API_ENDPOINTS.admin.tasks}/${id}`,
       method: "DELETE",
+    }),
+  bulkDelete: (payload: BulkTaskDeletePayload) =>
+    apiRequest<ApiResponse<{ deletedCount: number }>>({
+      url: API_ENDPOINTS.tasks.bulkDelete,
+      method: "POST",
+      data: payload,
+    }),
+  bulkUpdate: (payload: BulkTaskUpdatePayload) =>
+    apiRequest<ApiResponse<{ updatedCount: number }>>({
+      url: API_ENDPOINTS.tasks.bulkUpdate,
+      method: "POST",
+      data: payload,
     }),
   deleteAll: () =>
     apiRequest<ApiResponse<{ deleted: number }>>({

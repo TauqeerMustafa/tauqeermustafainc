@@ -81,14 +81,23 @@ class AssignPermissionsRequest(CamelModel):
 
 
 # ── Teams ───────────────────────────────────────────────────────────────────────
+class TeamMemberSummary(CamelModel):
+    id: uuid.UUID
+    name: str
+    email: str
+    role_slug: str | None = None
+
+
 class TeamCreate(CamelModel):
     name: str = Field(min_length=1, max_length=160)
     team_lead_id: uuid.UUID | None = None
+    member_ids: list[uuid.UUID] = []
 
 
 class TeamUpdate(CamelModel):
     name: str | None = Field(default=None, min_length=1, max_length=160)
     team_lead_id: uuid.UUID | None = None
+    member_ids: list[uuid.UUID] | None = None
 
 
 class TeamRead(CamelModel):
@@ -97,6 +106,7 @@ class TeamRead(CamelModel):
     team_lead_id: uuid.UUID | None = None
     team_lead_name: str | None = None
     member_count: int = 0
+    members: list[TeamMemberSummary] = []
     created_at: datetime
 
 

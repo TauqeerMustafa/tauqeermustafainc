@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { Check, Clock3, ListChecks, Loader2, Mail, MailPlus, MailWarning, MoreHorizontal, PauseCircle, Search, ShieldCheck, Trash2, UserRound, X } from "lucide-react";
+import { Check, CheckSquare, Clock3, ListChecks, Loader2, Mail, MailPlus, MailWarning, MoreHorizontal, PauseCircle, Search, ShieldCheck, Square, Trash2, UserRound, X } from "lucide-react";
 
 import {
   AdminConfirmDialog,
@@ -17,7 +17,7 @@ import {
 } from "@/components/admin/AdminUI";
 import { Tabs } from "@/components/portal/PortalUI";
 import AccessControlBanner from "@/components/portal/AccessControlBanner";
-import { useAdminMetrics, useAdminRoles, useAdminTeams, useAdminUsers, useCreateAdminUser, useDeleteAdminUser, useProvisionAllMailboxes, useProvisionMailbox, useUpdateAdminUser } from "@/hooks/useAdmin";
+import { useAdminMetrics, useAdminRoles, useAdminTeams, useAdminUsers, useBulkDeleteAdminUsers, useCreateAdminUser, useDeleteAdminUser, useProvisionAllMailboxes, useProvisionMailbox, useUpdateAdminUser } from "@/hooks/useAdmin";
 import { generatePassword } from "@/lib/credentials";
 import { readOnboardPrefill, suggestCompanyEmail, type OnboardPrefill } from "@/lib/onboarding-link";
 import type { AdminUser, UserStatus } from "@/types";
@@ -113,13 +113,43 @@ export default function AdminUsersPage() {
   const createUser = useCreateAdminUser();
   const updateUser = useUpdateAdminUser();
   const deleteUser = useDeleteAdminUser();
+  const bulkDeleteUsers = useBulkDeleteAdminUsers();
   const provisionMailbox = useProvisionMailbox();
   const provisionAll = useProvisionAllMailboxes();
+
+  const [selectedUserIds, setSelectedUserIds] = useState<string[]>([]);
+  const [isBulkDeleteOpen, setBulkDeleteOpen] = useState(false);
 
   const users = usersQuery.data?.data.items ?? [];
   const roles = rolesQuery.data?.data ?? [];
   const teams = teamsQuery.data?.data ?? [];
   const missingMailbox = users.filter((user) => !user.hasMailbox);
+
+  function toggleSelectUser(id: string) {
+    setSelectedUserIds((prev) =>
+      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id],
+    );
+  }
+
+  function toggleSelectAllUsers() {
+    if (selectedUserIds.length === users.length) {
+      setSelectedUserIds([]);
+    } else {
+      setSelectedUserIds(users.map((u) => u.id));
+    }
+  }
+
+  async function handleBulkDelete() {
+    if (selectedUserIds.length === 0) return;
+    try {
+      await bulkDeleteUsers.mutateAsync(selectedUserIds);
+      setSelectedUserIds([]);
+      setBulkDeleteOpen(false);
+    } catch (err) {
+      setActionError(err instanceof Error ? err.message : "Could not delete selected users.");
+      setBulkDeleteOpen(false);
+    }
+  }
 
   function openCreate() {
     setForm(emptyForm);
@@ -318,6 +348,48 @@ export default function AdminUsersPage() {
         </label>
       </div>
 
+      {selectedUserIds.length > 0 && (
+        <div
+          className="sticky top-20 z-40 mb-4 flex items-center justify-between border p-3.5 shadow-xl backdrop-blur-md"
+          style={{
+            borderColor: "var(--adm-blue)",
+            background: "var(--adm-surface)",
+          }}
+        >
+          <div className="flex items-center gap-3">
+            <span
+              className="flex h-6 w-6 items-center justify-center text-xs font-mono font-bold text-white"
+              style={{ background: "var(--adm-blue)" }}
+            >
+              {selectedUserIds.length}
+            </span>
+            <span className="text-sm font-semibold" style={{ color: "var(--adm-text)" }}>
+              {selectedUserIds.length} {selectedUserIds.length === 1 ? "user" : "users"} selected
+            </span>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => setBulkDeleteOpen(true)}
+              disabled={bulkDeleteUsers.isPending}
+              className="btn-press flex items-center gap-1.5 px-4 py-2 text-xs font-bold text-white transition hover:opacity-90"
+              style={{ background: "var(--adm-red)" }}
+            >
+              <Trash2 size={14} /> Delete Selected
+            </button>
+            <button
+              type="button"
+              onClick={() => setSelectedUserIds([])}
+              className="btn-press px-3 py-2 text-xs font-semibold hover:opacity-80"
+              style={{ color: "var(--adm-text-3)" }}
+            >
+              Clear
+            </button>
+          </div>
+        </div>
+      )}
+
       {isLoading ? <AdminLoadingState label="Loading users..." /> : null}
       {isError ? <AdminErrorState message="Could not load user management data. Confirm the backend is running and reachable." /> : null}
       {!isLoading && !isError && users.length === 0 ? <AdminEmptyState title="No users found" description="Try changing the search or status filter, or add a new user." /> : null}
@@ -327,14 +399,35 @@ export default function AdminUsersPage() {
           <table className="w-full min-w-[760px] text-left text-sm">
             <thead className="border-b" style={{ borderColor: "var(--adm-border)", background: "var(--adm-surface-2)" }}>
               <tr>
+                <th className="px-4 py-3 w-10">
+                  <input
+                    type="checkbox"
+                    checked={users.length > 0 && selectedUserIds.length === users.length}
+                    onChange={toggleSelectAllUsers}
+                    className="h-4 w-4 rounded-none border-adm-border text-adm-blue cursor-pointer"
+                  />
+                </th>
                 {['User', 'Role', 'Team', 'Mailbox', 'Status', 'Joined', ''].map((heading) => <th key={heading} className="px-4 py-3 text-[10px] font-semibold uppercase tracking-widest" style={{ color: "var(--adm-text-3)" }}>{heading}</th>)}
               </tr>
             </thead>
             <tbody>
               {users.map((user) => {
                 const style = statusStyles[user.status];
+                const isSelected = selectedUserIds.includes(user.id);
                 return (
-                  <tr key={user.id} className="border-b last:border-b-0" style={{ borderColor: "var(--adm-border)" }}>
+                  <tr
+                    key={user.id}
+                    className={`border-b last:border-b-0 transition ${isSelected ? "bg-adm-blue/5" : ""}`}
+                    style={{ borderColor: "var(--adm-border)" }}
+                  >
+                    <td className="px-4 py-4 w-10">
+                      <input
+                        type="checkbox"
+                        checked={isSelected}
+                        onChange={() => toggleSelectUser(user.id)}
+                        className="h-4 w-4 rounded-none border-adm-border text-adm-blue cursor-pointer"
+                      />
+                    </td>
                     <td className="px-4 py-4">
                       <div className="flex items-center gap-3">
                         <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-xs font-bold" style={{ background: "var(--adm-blue-light)", color: "var(--adm-blue)" }}>{initials(user.name)}</span>
@@ -422,6 +515,16 @@ export default function AdminUsersPage() {
         isPending={deleteUser.isPending}
         onConfirm={confirmDelete}
         onCancel={() => setDeleteTarget(null)}
+      />
+
+      <AdminConfirmDialog
+        open={isBulkDeleteOpen}
+        title="Delete selected users?"
+        description={`Permanently delete ${selectedUserIds.length} selected users? This removes the accounts and detaches their leads, tasks, and other records. This cannot be undone.`}
+        confirmLabel="Delete selected"
+        isPending={bulkDeleteUsers.isPending}
+        onConfirm={handleBulkDelete}
+        onCancel={() => setBulkDeleteOpen(false)}
       />
     </div>
   );

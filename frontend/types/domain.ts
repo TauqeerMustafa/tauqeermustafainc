@@ -44,6 +44,7 @@ export interface Announcement {
   id: string;
   title: string;
   body: string;
+  imageUrl?: string | null;
   isPublished: boolean;
   createdAt: string;
   updatedAt: string;
@@ -112,13 +113,78 @@ export interface AdminRole {
   permissions?: AdminPermission[];
 }
 
+export interface AdminTeamMember {
+  id: string;
+  name: string;
+  email: string;
+  roleSlug?: string | null;
+}
+
 export interface AdminTeam {
   id: string;
   name: string;
-  teamLeadId?: string;
-  teamLeadName?: string;
+  teamLeadId?: string | null;
+  teamLeadName?: string | null;
   memberCount: number;
+  members?: AdminTeamMember[];
   createdAt: string;
+}
+
+export interface CreateTeamPayload {
+  name: string;
+  teamLeadId?: string | null;
+  memberIds?: string[];
+}
+
+export interface UpdateTeamPayload {
+  name?: string;
+  teamLeadId?: string | null;
+  memberIds?: string[];
+}
+
+export interface AdminProject {
+  id: string;
+  clientId?: string | null;
+  clientName?: string | null;
+  name: string;
+  status: string;
+  summary?: string | null;
+  nextMilestone?: string | null;
+  progress: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateProjectPayload {
+  clientId: string;
+  name: string;
+  status?: string;
+  summary?: string | null;
+  nextMilestone?: string | null;
+  progress?: number;
+}
+
+export interface UpdateProjectPayload {
+  clientId?: string;
+  name?: string;
+  status?: string;
+  summary?: string | null;
+  nextMilestone?: string | null;
+  progress?: number;
+}
+
+export interface BulkCreateProjectPayload {
+  projects: CreateProjectPayload[];
+}
+
+export interface BulkUpdateProjectPayload {
+  ids: string[];
+  status?: string;
+  progress?: number;
+}
+
+export interface BulkDeletePayload {
+  ids: string[];
 }
 
 export interface AdminMetrics {

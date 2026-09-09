@@ -36,3 +36,11 @@ export function useDeleteAnnouncement() {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: queryKeys.announcements.all }),
   });
 }
+
+export function useBulkDeleteAnnouncements() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (ids: string[]) => announcementService.bulkDelete(ids),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: queryKeys.announcements.all }),
+  });
+}

@@ -15,6 +15,14 @@ from pydantic import Field
 from app.schemas.common import CamelModel
 
 
+class TaskAssigneeRead(CamelModel):
+    id: UUID
+    first_name: str
+    last_name: str
+    email: str
+    name: Optional[str] = None
+
+
 class ProjectTaskBase(CamelModel):
     title: str = Field(..., max_length=200)
     description: Optional[str] = None
@@ -23,6 +31,7 @@ class ProjectTaskBase(CamelModel):
     due_date: Optional[date] = None
     project_id: Optional[UUID] = None
     assigned_to_id: Optional[UUID] = None
+    assigned_to_ids: Optional[list[UUID]] = None
 
 
 class ProjectTaskCreate(ProjectTaskBase):
@@ -37,6 +46,7 @@ class ProjectTaskUpdate(CamelModel):
     due_date: Optional[date] = None
     project_id: Optional[UUID] = None
     assigned_to_id: Optional[UUID] = None
+    assigned_to_ids: Optional[list[UUID]] = None
 
 
 class ProjectTaskResponse(ProjectTaskBase):
@@ -48,3 +58,16 @@ class ProjectTaskResponse(ProjectTaskBase):
     # project and assignee rows separately just to label a card.
     project_name: Optional[str] = None
     assigned_to_name: Optional[str] = None
+    assigned_to_ids: list[UUID] = []
+    assignees: list[TaskAssigneeRead] = []
+
+
+class BulkDeletePayload(CamelModel):
+    ids: list[UUID] = Field(..., min_length=1)
+
+
+class BulkTaskUpdatePayload(CamelModel):
+    ids: list[UUID] = Field(..., min_length=1)
+    status: Optional[str] = None
+    priority: Optional[str] = None
+

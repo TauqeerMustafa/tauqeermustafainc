@@ -4,6 +4,7 @@ export const queryKeys = {
     roles: ["admin", "roles"] as const,
     permissions: ["admin", "permissions"] as const,
     teams: ["admin", "teams"] as const,
+    projects: ["admin", "projects"] as const,
     metrics: ["admin", "metrics"] as const,
   },
   services: {

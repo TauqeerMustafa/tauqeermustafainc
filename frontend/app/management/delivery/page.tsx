@@ -191,7 +191,20 @@ export default function ManagementDeliveryPage() {
               <tr key={task.id} className="transition hover:bg-adm-surface-2">
                 <Td strong>{task.title}</Td>
                 <Td>{task.projectName ?? "—"}</Td>
-                <Td>{task.assignedToName ?? "Unassigned"}</Td>
+                <Td>
+                  {task.assignees && task.assignees.length > 0 ? (
+                    <div className="flex flex-wrap gap-1">
+                      {task.assignees.map((a) => (
+                        <span key={a.id} className="inline-flex items-center gap-1 rounded-full bg-adm-surface-2 px-2 py-0.5 text-[10px] text-adm-text-2 border border-adm-border">
+                          <span className="h-1 w-1 rounded-full bg-adm-blue" />
+                          {a.name}
+                        </span>
+                      ))}
+                    </div>
+                  ) : (
+                    task.assignedToName ?? "Unassigned"
+                  )}
+                </Td>
                 <Td className="text-adm-red">{formatDate(task.dueDate)}</Td>
                 <Td>
                   <StatusPill status={task.status} />

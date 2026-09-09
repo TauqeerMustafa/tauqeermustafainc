@@ -21,6 +21,8 @@ class Announcement(Base):
 
     body: Mapped[str] = mapped_column(Text, nullable=False)
 
+    image_url: Mapped[str | None] = mapped_column(String(500), nullable=True)
+
     is_published: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
 
     created_at: Mapped[DateTime] = mapped_column(

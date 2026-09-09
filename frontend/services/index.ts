@@ -31,8 +31,14 @@ export { serviceService } from "./service.service";
 
 export { taskService } from "./task.service";
 export type {
+  BulkTaskDeletePayload,
+  BulkTaskUpdatePayload,
   CreateTaskPayload,
   ProjectTask,
+  TaskAssignee,
   TaskListParams,
   UpdateTaskPayload,
 } from "./task.service";
+export { teamService } from "./team.service";
+export { projectService } from "./project.service";
+export type { ProjectListParams } from "./project.service";

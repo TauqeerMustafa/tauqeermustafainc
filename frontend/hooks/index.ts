@@ -13,6 +13,7 @@ export {
   useAdminTeams,
   useAdminUsers,
   useAssignRolePermissions,
+  useBulkDeleteAdminUsers,
   useCreateAdminUser,
   useCreateRole,
   useDeleteRole,
@@ -69,9 +70,34 @@ export {
 
 // Delivery (project tasks).
 export {
+  useBulkDeleteTasks,
+  useBulkUpdateTasks,
   useCreateTask,
+  useDeleteAllTasks,
   useDeleteTask,
   useMyTasks,
   useTasks,
   useUpdateTask,
 } from "@/hooks/useTasks";
+
+// Teams management.
+export {
+  useBulkDeleteTeams,
+  useCreateTeam,
+  useDeleteTeam,
+  useTeam,
+  useTeams,
+  useUpdateTeam,
+} from "@/hooks/useTeams";
+
+// Projects management.
+export {
+  useAdminProject,
+  useAdminProjects,
+  useBulkCreateProjects,
+  useBulkDeleteProjects,
+  useBulkUpdateProjects,
+  useCreateProject,
+  useDeleteProject,
+  useUpdateProject,
+} from "@/hooks/useProjects";

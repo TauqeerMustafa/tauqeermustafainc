@@ -17,6 +17,7 @@ import { useI18n } from "@/lib/i18n";
 export type PeopleFunctionId =
   | "overview"
   | "employees"
+  | "teams"
   | "attendance"
   | "leave"
   | "documents"
@@ -51,6 +52,13 @@ const PEOPLE_FUNCTIONS: FunctionItem[] = [
     href: "/admin/employees",
     icon: Users,
     countKey: "employees",
+  },
+  {
+    id: "teams",
+    label: "Department Teams",
+    shortLabel: "Teams",
+    href: "/admin/teams",
+    icon: Users,
   },
   {
     id: "attendance",

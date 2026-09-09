@@ -1,7 +1,18 @@
 "use client";
 
 import { useState } from "react";
-import { Clock, ClipboardList, Pencil, Plus, Trash2 } from "lucide-react";
+import {
+  Check,
+  CheckSquare,
+  Clock,
+  ClipboardList,
+  Pencil,
+  Plus,
+  Square,
+  Trash2,
+  Users,
+  X,
+} from "lucide-react";
 
 import {
   AdminConfirmDialog,
@@ -15,6 +26,8 @@ import PlaybookDrawer from "@/components/admin/tasks/PlaybookDrawer";
 import { useAdminUsers } from "@/hooks/useAdmin";
 import { useManagementProjects } from "@/hooks/useDashboard";
 import {
+  useBulkDeleteTasks,
+  useBulkUpdateTasks,
   useCreateTask,
   useDeleteAllTasks,
   useDeleteTask,
@@ -62,6 +75,7 @@ type FormState = {
   dueDate: string;
   projectId: string;
   assignedToId: string;
+  assignedToIds: string[];
 };
 
 const EMPTY_FORM: FormState = {
@@ -72,6 +86,7 @@ const EMPTY_FORM: FormState = {
   dueDate: "",
   projectId: "",
   assignedToId: "",
+  assignedToIds: [],
 };
 
 export default function TaskKanban({ isAdmin = false }) {
@@ -108,15 +123,32 @@ export default function TaskKanban({ isAdmin = false }) {
   const deleteAllTasks = useDeleteAllTasks();
   const [isClearAllOpen, setClearAllOpen] = useState(false);
 
+  const [selectedTaskIds, setSelectedTaskIds] = useState<string[]>([]);
+  const [isBulkDeleteOpen, setBulkDeleteOpen] = useState(false);
+  const [assigneeSearch, setAssigneeSearch] = useState("");
+
+  const bulkDeleteTasks = useBulkDeleteTasks();
+  const bulkUpdateTasks = useBulkUpdateTasks();
+
   function openCreate(status = "todo") {
     setEditing(null);
     setForm({ ...EMPTY_FORM, status });
+    setAssigneeSearch("");
     setFormError(null);
     setFormOpen(true);
   }
 
   function openEdit(task: ProjectTask) {
     setEditing(task);
+    const initialAssignees =
+      task.assignedToIds && task.assignedToIds.length > 0
+        ? task.assignedToIds
+        : task.assignees && task.assignees.length > 0
+        ? task.assignees.map((a) => a.id)
+        : task.assignedToId
+        ? [task.assignedToId]
+        : [];
+
     setForm({
       title: task.title,
       description: task.description ?? "",
@@ -124,8 +156,10 @@ export default function TaskKanban({ isAdmin = false }) {
       priority: task.priority || "medium",
       dueDate: dateInputValue(task.dueDate),
       projectId: task.projectId ?? "",
-      assignedToId: task.assignedToId ?? "",
+      assignedToId: task.assignedToId ?? initialAssignees[0] ?? "",
+      assignedToIds: initialAssignees,
     });
+    setAssigneeSearch("");
     setFormError(null);
     setFormOpen(true);
   }
@@ -134,7 +168,49 @@ export default function TaskKanban({ isAdmin = false }) {
     setFormOpen(false);
     setEditing(null);
     setForm(EMPTY_FORM);
+    setAssigneeSearch("");
     setFormError(null);
+  }
+
+  function toggleAssignee(userId: string) {
+    setForm((prev) => {
+      const exists = prev.assignedToIds.includes(userId);
+      const updated = exists
+        ? prev.assignedToIds.filter((id) => id !== userId)
+        : [...prev.assignedToIds, userId];
+      return {
+        ...prev,
+        assignedToIds: updated,
+        assignedToId: updated[0] || "",
+      };
+    });
+  }
+
+  function toggleSelectTask(id: string) {
+    setSelectedTaskIds((prev) =>
+      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id],
+    );
+  }
+
+  function toggleSelectAllTasks() {
+    if (selectedTaskIds.length === tasks.length) {
+      setSelectedTaskIds([]);
+    } else {
+      setSelectedTaskIds(tasks.map((t) => t.id));
+    }
+  }
+
+  async function handleBulkStatusChange(newStatus: string) {
+    if (selectedTaskIds.length === 0) return;
+    await bulkUpdateTasks.mutateAsync({ ids: selectedTaskIds, status: newStatus });
+    setSelectedTaskIds([]);
+  }
+
+  async function handleBulkDelete() {
+    if (selectedTaskIds.length === 0) return;
+    await bulkDeleteTasks.mutateAsync({ ids: selectedTaskIds });
+    setSelectedTaskIds([]);
+    setBulkDeleteOpen(false);
   }
 
   function field<K extends keyof FormState>(key: K) {
@@ -151,8 +227,13 @@ export default function TaskKanban({ isAdmin = false }) {
       return;
     }
 
-    // An unpicked select posts "", which is not a UUID — send null instead so
-    // the API reads it as “unassigned” rather than rejecting the whole task.
+    const assignedIds =
+      form.assignedToIds.length > 0
+        ? form.assignedToIds
+        : form.assignedToId
+        ? [form.assignedToId]
+        : [];
+
     const payload: CreateTaskPayload = {
       title,
       description: form.description.trim() || null,
@@ -160,7 +241,8 @@ export default function TaskKanban({ isAdmin = false }) {
       priority: form.priority,
       dueDate: form.dueDate || null,
       projectId: form.projectId || null,
-      assignedToId: form.assignedToId || null,
+      assignedToId: assignedIds[0] || null,
+      assignedToIds: assignedIds,
     };
 
     setFormError(null);
@@ -212,6 +294,28 @@ export default function TaskKanban({ isAdmin = false }) {
                 {t("Delete all tasks")}
               </button>
             )}
+            {tasks.length > 0 && (
+              <button
+                type="button"
+                onClick={toggleSelectAllTasks}
+                className="btn-press flex items-center justify-center gap-2 border px-3 py-2 text-xs font-bold transition hover:opacity-90"
+                style={{
+                  borderColor: "var(--adm-border)",
+                  color: "var(--adm-text-2)",
+                  background: "var(--adm-surface)",
+                }}
+              >
+                {selectedTaskIds.length === tasks.length ? (
+                  <>
+                    <CheckSquare size={14} /> {t("Deselect all")}
+                  </>
+                ) : (
+                  <>
+                    <Square size={14} /> {t("Select all")}
+                  </>
+                )}
+              </button>
+            )}
             <button
               type="button"
               onClick={() => setPlaybookOpen(true)}
@@ -233,6 +337,73 @@ export default function TaskKanban({ isAdmin = false }) {
           </div>
         )}
       </div>
+
+      {isAdmin && selectedTaskIds.length > 0 && (
+        <div
+          className="sticky top-20 z-40 flex flex-wrap items-center justify-between gap-3 border p-3.5 shadow-lg backdrop-blur-md"
+          style={{
+            borderColor: "var(--adm-blue)",
+            background: "var(--adm-surface)",
+          }}
+        >
+          <div className="flex items-center gap-3">
+            <span
+              className="flex h-6 w-6 items-center justify-center text-xs font-mono font-bold text-white"
+              style={{ background: "var(--adm-blue)" }}
+            >
+              {selectedTaskIds.length}
+            </span>
+            <span className="text-sm font-semibold" style={{ color: "var(--adm-text)" }}>
+              {selectedTaskIds.length} {selectedTaskIds.length === 1 ? t("task") : t("tasks")} {t("selected")}
+            </span>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-2">
+            <div className="flex items-center gap-1.5 text-xs" style={{ color: "var(--adm-text-3)" }}>
+              <span>{t("Move to:")}</span>
+              {columns.map((col) => (
+                <button
+                  key={col.id}
+                  type="button"
+                  onClick={() => handleBulkStatusChange(col.id)}
+                  disabled={bulkUpdateTasks.isPending}
+                  className="btn-press border px-2.5 py-1 text-xs font-medium transition hover:border-adm-blue"
+                  style={{
+                    borderColor: "var(--adm-border)",
+                    color: "var(--adm-text-2)",
+                    background: "var(--adm-surface-2)",
+                  }}
+                >
+                  {t(col.title)}
+                </button>
+              ))}
+            </div>
+
+            <button
+              type="button"
+              onClick={() => setBulkDeleteOpen(true)}
+              disabled={bulkDeleteTasks.isPending}
+              className="btn-press flex items-center gap-1.5 border px-3 py-1.5 text-xs font-bold text-white transition hover:opacity-90"
+              style={{
+                borderColor: "var(--adm-red)",
+                background: "var(--adm-red)",
+              }}
+            >
+              <Trash2 size={13} />
+              {t("Delete selected")}
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setSelectedTaskIds([])}
+              className="btn-press px-2.5 py-1.5 text-xs font-semibold hover:opacity-80"
+              style={{ color: "var(--adm-text-3)" }}
+            >
+              {t("Clear")}
+            </button>
+          </div>
+        </div>
+      )}
 
       {query.isLoading ? (
         <div className="py-12 text-center text-sm" style={{ color: "var(--adm-text-3)" }}>
@@ -277,23 +448,36 @@ export default function TaskKanban({ isAdmin = false }) {
 
                   {columnTasks.map((task) => {
                     const due = formatDue(task.dueDate);
+                    const isSelected = selectedTaskIds.includes(task.id);
 
                     return (
                       <article
                         key={task.id}
-                        className="group border p-4"
+                        className={`group border p-4 transition ${
+                          isSelected ? "ring-1 ring-adm-blue" : ""
+                        }`}
                         style={{
-                          borderColor: "var(--adm-border)",
+                          borderColor: isSelected ? "var(--adm-blue)" : "var(--adm-border)",
                           background: "var(--adm-surface-2)",
                         }}
                       >
                         <div className="flex items-start justify-between gap-2">
-                          <h3
-                            className="text-sm font-bold leading-tight"
-                            style={{ color: "var(--adm-text)" }}
-                          >
-                            {task.title}
-                          </h3>
+                          <div className="flex items-start gap-2.5">
+                            {isAdmin && (
+                              <input
+                                type="checkbox"
+                                checked={isSelected}
+                                onChange={() => toggleSelectTask(task.id)}
+                                className="mt-0.5 h-3.5 w-3.5 rounded-none border-adm-border text-adm-blue cursor-pointer"
+                              />
+                            )}
+                            <h3
+                              className="text-sm font-bold leading-tight"
+                              style={{ color: "var(--adm-text)" }}
+                            >
+                              {task.title}
+                            </h3>
+                          </div>
                           {/* Task writes are admin-only, so the employee board
                               stays read-only. */}
                           {isAdmin && (
@@ -349,18 +533,36 @@ export default function TaskKanban({ isAdmin = false }) {
                           )}
                         </div>
 
-                        {(task.projectName || task.assignedToName) && (
+                        {(task.projectName || (task.assignees && task.assignees.length > 0) || task.assignedToName) && (
                           <div
-                            className="mt-3 flex items-center justify-between gap-2 border-t pt-2 text-[11px]"
+                            className="mt-3 flex flex-wrap items-center justify-between gap-2 border-t pt-2 text-[11px]"
                             style={{
                               borderColor: "var(--adm-border)",
                               color: "var(--adm-text-2)",
                             }}
                           >
                             <span className="truncate">{task.projectName ?? ""}</span>
-                            {task.assignedToName && (
+                            {task.assignees && task.assignees.length > 0 ? (
+                              <div className="flex flex-wrap items-center gap-1">
+                                {task.assignees.map((assignee) => (
+                                  <span
+                                    key={assignee.id}
+                                    className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium"
+                                    style={{
+                                      background: "var(--adm-surface)",
+                                      border: "1px solid var(--adm-border)",
+                                      color: "var(--adm-text-2)",
+                                    }}
+                                    title={assignee.email}
+                                  >
+                                    <span className="h-1.5 w-1.5 rounded-full" style={{ background: "var(--adm-blue)" }} />
+                                    {assignee.name}
+                                  </span>
+                                ))}
+                              </div>
+                            ) : task.assignedToName ? (
                               <span className="shrink-0 font-semibold">{task.assignedToName}</span>
-                            )}
+                            ) : null}
                           </div>
                         )}
                       </article>
@@ -477,22 +679,134 @@ export default function TaskKanban({ isAdmin = false }) {
               </AdminField>
             </div>
 
-            <AdminField label={t("Assign to")} htmlFor="task-assignee">
-              <select
-                id="task-assignee"
-                value={form.assignedToId}
-                onChange={field("assignedToId")}
-                className={adminInputClass}
-                style={adminInputStyle}
+            <div>
+              <label
+                className="mb-2 block text-xs font-bold uppercase tracking-wider"
+                style={{ color: "var(--adm-text-2)" }}
               >
-                <option value="">{t("Unassigned")}</option>
-                {users.map((user) => (
-                  <option key={user.id} value={user.id}>
-                    {user.name || user.email}
-                  </option>
-                ))}
-              </select>
-            </AdminField>
+                {t("Assignees")} ({form.assignedToIds.length} {t("selected")})
+              </label>
+
+              {/* Selected chips */}
+              {form.assignedToIds.length > 0 && (
+                <div
+                  className="mb-2 flex flex-wrap gap-1.5 border p-2"
+                  style={{
+                    borderColor: "var(--adm-border)",
+                    background: "var(--adm-surface-2)",
+                  }}
+                >
+                  {form.assignedToIds.map((uid) => {
+                    const u = users.find((x) => x.id === uid);
+                    return (
+                      <span
+                        key={uid}
+                        className="inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-medium"
+                        style={{
+                          background: "var(--adm-surface)",
+                          border: "1px solid var(--adm-border)",
+                          color: "var(--adm-text)",
+                        }}
+                      >
+                        <span
+                          className="h-1.5 w-1.5 rounded-full"
+                          style={{ background: "var(--adm-blue)" }}
+                        />
+                        <span>{u ? u.name : uid}</span>
+                        <button
+                          type="button"
+                          onClick={() => toggleAssignee(uid)}
+                          className="ml-1 hover:opacity-75"
+                          style={{ color: "var(--adm-text-3)" }}
+                        >
+                          <X size={12} />
+                        </button>
+                      </span>
+                    );
+                  })}
+                </div>
+              )}
+
+              {/* Filter and user checklist */}
+              <input
+                type="text"
+                value={assigneeSearch}
+                onChange={(e) => setAssigneeSearch(e.target.value)}
+                placeholder={t("Filter staff to assign...")}
+                className={`${adminInputClass} mb-1.5 text-xs py-1.5`}
+                style={adminInputStyle}
+              />
+              <div
+                className="max-h-44 space-y-0.5 overflow-y-auto border p-1"
+                style={{
+                  borderColor: "var(--adm-border)",
+                  background: "var(--adm-surface)",
+                }}
+              >
+                {users
+                  .filter((u) => {
+                    if (!assigneeSearch.trim()) return true;
+                    const q = assigneeSearch.toLowerCase();
+                    return (
+                      u.name.toLowerCase().includes(q) ||
+                      u.email.toLowerCase().includes(q)
+                    );
+                  })
+                  .map((user) => {
+                    const isChecked = form.assignedToIds.includes(user.id);
+                    return (
+                      <label
+                        key={user.id}
+                        onClick={() => toggleAssignee(user.id)}
+                        className="flex cursor-pointer items-center justify-between p-2 text-xs transition hover:bg-adm-surface-2"
+                        style={{
+                          background: isChecked
+                            ? "var(--adm-blue-light)"
+                            : "transparent",
+                          color: "var(--adm-text)",
+                        }}
+                      >
+                        <div className="flex items-center gap-2 truncate">
+                          <div
+                            className="flex h-4 w-4 items-center justify-center border"
+                            style={{
+                              borderColor: isChecked
+                                ? "var(--adm-blue)"
+                                : "var(--adm-border)",
+                              background: isChecked
+                                ? "var(--adm-blue)"
+                                : "transparent",
+                              color: "white",
+                            }}
+                          >
+                            {isChecked && <Check size={12} />}
+                          </div>
+                          <span className="truncate font-medium">
+                            {user.name}
+                          </span>
+                          <span
+                            className="font-mono text-[10px]"
+                            style={{ color: "var(--adm-text-3)" }}
+                          >
+                            {user.email}
+                          </span>
+                        </div>
+                        {user.teamName && (
+                          <span
+                            className="px-1.5 py-0.5 font-mono text-[10px]"
+                            style={{
+                              background: "var(--adm-surface-2)",
+                              color: "var(--adm-text-3)",
+                            }}
+                          >
+                            {user.teamName}
+                          </span>
+                        )}
+                      </label>
+                    );
+                  })}
+              </div>
+            </div>
 
             {formError && (
               <p className="text-sm" style={{ color: "var(--adm-red)" }}>
@@ -526,6 +840,21 @@ export default function TaskKanban({ isAdmin = false }) {
         onConfirm={handleDelete}
         onCancel={() => setPendingDelete(null)}
       />
+
+      {isAdmin && (
+        <AdminConfirmDialog
+          open={isBulkDeleteOpen}
+          title={t("Delete selected tasks")}
+          description={t(
+            "Are you sure you want to permanently delete {count} selected tasks? This cannot be undone.",
+            { count: selectedTaskIds.length },
+          )}
+          confirmLabel={t("Delete selected")}
+          isPending={bulkDeleteTasks.isPending}
+          onConfirm={handleBulkDelete}
+          onCancel={() => setBulkDeleteOpen(false)}
+        />
+      )}
 
       {isAdmin && (
         <AdminConfirmDialog

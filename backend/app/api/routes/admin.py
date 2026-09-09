@@ -7,6 +7,7 @@ from sqlalchemy.orm import selectinload
 
 from app.api.deps import CurrentAdmin, DatabaseSession
 from app.core.security import hash_password
+from app.models.portal import ClientProject
 from app.models.role import Permission, Role, RolePermission
 from app.models.team import Team
 from app.models.user import User
@@ -20,9 +21,21 @@ from app.schemas.crm import (
     RoleCreate,
     RoleRead,
     RoleUpdate,
+    TeamCreate,
+    TeamMemberSummary,
     TeamRead,
+    TeamUpdate,
     UpdateUserRequest,
 )
+from app.schemas.portal import (
+    ClientProjectBulkCreate,
+    ClientProjectCreate,
+    ClientProjectRead,
+    ClientProjectUpdate,
+    ProjectBulkDeletePayload,
+    ProjectBulkUpdatePayload,
+)
+from app.schemas.task import BulkDeletePayload
 
 router = APIRouter(prefix="/admin", tags=["admin"])
 
@@ -85,6 +98,52 @@ def _to_role_read(role: Role) -> RoleRead:
         permissions=[
             PermissionRead(id=p.id, slug=p.slug, description=p.description) for p in role.permissions
         ],
+    )
+
+
+def _to_team_read(team: Team, db: DatabaseSession) -> TeamRead:
+    users = db.scalars(
+        select(User).options(selectinload(User.role)).where(User.team_id == team.id).order_by(User.first_name.asc())
+    ).all()
+    members = [
+        TeamMemberSummary(
+            id=u.id,
+            name=f"{u.first_name} {u.last_name}".strip() or u.email,
+            email=u.email,
+            role_slug=u.role.slug if u.role else None,
+        )
+        for u in users
+    ]
+    lead_name = None
+    if team.team_lead:
+        lead_name = f"{team.team_lead.first_name} {team.team_lead.last_name}".strip() or team.team_lead.email
+
+    return TeamRead(
+        id=team.id,
+        name=team.name,
+        team_lead_id=team.team_lead_id,
+        team_lead_name=lead_name,
+        member_count=len(members),
+        members=members,
+        created_at=team.created_at,
+    )
+
+
+def _to_project_read(project: ClientProject) -> ClientProjectRead:
+    client_name = None
+    if project.client:
+        client_name = f"{project.client.first_name} {project.client.last_name}".strip() or project.client.email
+    return ClientProjectRead(
+        id=project.id,
+        client_id=project.client_id,
+        client_name=client_name,
+        name=project.name,
+        status=project.status,
+        summary=project.summary,
+        next_milestone=project.next_milestone,
+        progress=project.progress,
+        created_at=project.created_at,
+        updated_at=project.updated_at,
     )
 
 
@@ -358,6 +417,40 @@ def delete_user(
     return ApiResponse(data={"deleted": True}, message="User deleted successfully")
 
 
+@router.post("/users/bulk-delete", response_model=ApiResponse[dict])
+def bulk_delete_users(
+    payload: BulkDeletePayload,
+    db: DatabaseSession,
+    admin: CurrentAdmin,
+) -> ApiResponse[dict]:
+    """Bulk delete users, preventing self-deletion or deletion of the last admin."""
+    target_ids = [uid for uid in payload.ids if uid != admin.id]
+    if not target_ids:
+        return ApiResponse(data={"deleted_count": 0}, message="No valid users to delete")
+
+    target_superusers = db.scalars(
+        select(User.id).where(User.id.in_(target_ids), User.is_superuser.is_(True))
+    ).all()
+    if target_superusers:
+        remaining_admins = db.scalar(
+            select(func.count())
+            .select_from(User)
+            .where(User.is_superuser.is_(True), ~User.id.in_(target_ids))
+        ) or 0
+        if remaining_admins == 0:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Cannot delete all remaining administrator accounts",
+            )
+
+    result = db.execute(delete(User).where(User.id.in_(target_ids)))
+    db.commit()
+    return ApiResponse(
+        data={"deleted_count": result.rowcount},
+        message=f"Successfully deleted {result.rowcount} user(s)",
+    )
+
+
 @router.get("/roles", response_model=ApiResponse[list[RoleRead]])
 def list_roles(db: DatabaseSession, _admin: CurrentAdmin) -> ApiResponse[list[RoleRead]]:
     roles = db.scalars(
@@ -371,22 +464,253 @@ def list_roles(db: DatabaseSession, _admin: CurrentAdmin) -> ApiResponse[list[Ro
 @router.get("/teams", response_model=ApiResponse[list[TeamRead]])
 def list_teams(db: DatabaseSession, _admin: CurrentAdmin) -> ApiResponse[list[TeamRead]]:
     teams = db.scalars(select(Team).order_by(Team.name.asc())).all()
+    return ApiResponse(data=[_to_team_read(team, db) for team in teams])
+
+
+@router.post("/teams", response_model=ApiResponse[TeamRead], status_code=status.HTTP_201_CREATED)
+def create_team(payload: TeamCreate, db: DatabaseSession, _admin: CurrentAdmin) -> ApiResponse[TeamRead]:
+    existing = db.scalar(select(Team).where(Team.name == payload.name))
+    if existing:
+        raise HTTPException(status_code=400, detail="A team with this name already exists")
+
+    if payload.team_lead_id:
+        lead = db.get(User, payload.team_lead_id)
+        if not lead:
+            raise HTTPException(status_code=400, detail="Team lead not found")
+
+    team = Team(name=payload.name, team_lead_id=payload.team_lead_id)
+    db.add(team)
+    db.flush()
+
+    if payload.member_ids:
+        for uid in payload.member_ids:
+            u = db.get(User, uid)
+            if u:
+                u.team_id = team.id
+
+    db.commit()
+    db.refresh(team)
+    return ApiResponse(data=_to_team_read(team, db), message="Team created successfully")
+
+
+@router.get("/teams/{team_id}", response_model=ApiResponse[TeamRead])
+def get_team(team_id: uuid.UUID, db: DatabaseSession, _admin: CurrentAdmin) -> ApiResponse[TeamRead]:
+    team = db.get(Team, team_id)
+    if not team:
+        raise HTTPException(status_code=404, detail="Team not found")
+    return ApiResponse(data=_to_team_read(team, db))
+
+
+@router.put("/teams/{team_id}", response_model=ApiResponse[TeamRead])
+def update_team(team_id: uuid.UUID, payload: TeamUpdate, db: DatabaseSession, _admin: CurrentAdmin) -> ApiResponse[TeamRead]:
+    team = db.get(Team, team_id)
+    if not team:
+        raise HTTPException(status_code=404, detail="Team not found")
+
+    if payload.name is not None:
+        team.name = payload.name
+    if "team_lead_id" in payload.model_fields_set:
+        if payload.team_lead_id is not None:
+            lead = db.get(User, payload.team_lead_id)
+            if not lead:
+                raise HTTPException(status_code=400, detail="Team lead not found")
+        team.team_lead_id = payload.team_lead_id
+
+    if payload.member_ids is not None:
+        current_members = db.scalars(select(User).where(User.team_id == team.id)).all()
+        wanted_ids = set(payload.member_ids)
+        for u in current_members:
+            if u.id not in wanted_ids:
+                u.team_id = None
+        for uid in wanted_ids:
+            u = db.get(User, uid)
+            if u:
+                u.team_id = team.id
+
+    db.commit()
+    db.refresh(team)
+    return ApiResponse(data=_to_team_read(team, db), message="Team updated successfully")
+
+
+@router.delete("/teams/{team_id}", response_model=ApiResponse[dict])
+def delete_team(team_id: uuid.UUID, db: DatabaseSession, _admin: CurrentAdmin) -> ApiResponse[dict]:
+    team = db.get(Team, team_id)
+    if not team:
+        raise HTTPException(status_code=404, detail="Team not found")
+
+    users = db.scalars(select(User).where(User.team_id == team_id)).all()
+    for u in users:
+        u.team_id = None
+
+    db.delete(team)
+    db.commit()
+    return ApiResponse(data={"deleted": True}, message="Team deleted successfully")
+
+
+@router.post("/teams/bulk-delete", response_model=ApiResponse[dict])
+def bulk_delete_teams(payload: BulkDeletePayload, db: DatabaseSession, _admin: CurrentAdmin) -> ApiResponse[dict]:
+    if not payload.ids:
+        return ApiResponse(data={"deleted_count": 0}, message="No teams selected")
+
+    users = db.scalars(select(User).where(User.team_id.in_(payload.ids))).all()
+    for u in users:
+        u.team_id = None
+
+    result = db.execute(delete(Team).where(Team.id.in_(payload.ids)))
+    db.commit()
     return ApiResponse(
-        data=[
-            TeamRead(
-                id=team.id,
-                name=team.name,
-                team_lead_id=team.team_lead_id,
-                team_lead_name=(
-                    f"{team.team_lead.first_name} {team.team_lead.last_name}".strip()
-                    if team.team_lead
-                    else None
-                ),
-                member_count=db.scalar(select(func.count()).select_from(User).where(User.team_id == team.id)) or 0,
-                created_at=team.created_at,
-            )
-            for team in teams
-        ]
+        data={"deleted_count": result.rowcount},
+        message=f"Successfully deleted {result.rowcount} team(s)",
+    )
+
+
+# ── Projects Management ──────────────────────────────────────────────────────────
+@router.get("/projects", response_model=ApiResponse[list[ClientProjectRead]])
+def list_admin_projects(
+    db: DatabaseSession,
+    _admin: CurrentAdmin,
+    client_id: uuid.UUID | None = Query(default=None),
+    status_filter: str | None = Query(default=None, alias="status"),
+    search: str | None = Query(default=None),
+) -> ApiResponse[list[ClientProjectRead]]:
+    query = select(ClientProject).options(selectinload(ClientProject.client))
+    if client_id:
+        query = query.where(ClientProject.client_id == client_id)
+    if status_filter:
+        query = query.where(ClientProject.status == status_filter)
+    if search:
+        term = f"%{search.strip()}%"
+        query = query.where(ClientProject.name.ilike(term))
+
+    projects = db.scalars(query.order_by(ClientProject.created_at.desc())).all()
+    return ApiResponse(data=[_to_project_read(p) for p in projects])
+
+
+@router.post("/projects", response_model=ApiResponse[ClientProjectRead], status_code=status.HTTP_201_CREATED)
+def create_project(payload: ClientProjectCreate, db: DatabaseSession, _admin: CurrentAdmin) -> ApiResponse[ClientProjectRead]:
+    client = db.get(User, payload.client_id)
+    if not client:
+        raise HTTPException(status_code=400, detail="Client user not found")
+
+    project = ClientProject(
+        client_id=payload.client_id,
+        name=payload.name,
+        status=payload.status,
+        summary=payload.summary,
+        next_milestone=payload.next_milestone,
+        progress=payload.progress,
+    )
+    db.add(project)
+    db.commit()
+    db.refresh(project)
+    return ApiResponse(data=_to_project_read(project), message="Project created successfully")
+
+
+@router.post("/projects/bulk", response_model=ApiResponse[list[ClientProjectRead]], status_code=status.HTTP_201_CREATED)
+def bulk_create_projects(payload: ClientProjectBulkCreate, db: DatabaseSession, _admin: CurrentAdmin) -> ApiResponse[list[ClientProjectRead]]:
+    created = []
+    for item in payload.projects:
+        client = db.get(User, item.client_id)
+        if not client:
+            continue
+        proj = ClientProject(
+            client_id=item.client_id,
+            name=item.name,
+            status=item.status,
+            summary=item.summary,
+            next_milestone=item.next_milestone,
+            progress=item.progress,
+        )
+        db.add(proj)
+        created.append(proj)
+
+    db.commit()
+    for proj in created:
+        db.refresh(proj)
+
+    return ApiResponse(
+        data=[_to_project_read(p) for p in created],
+        message=f"Successfully created {len(created)} project(s)",
+    )
+
+
+@router.get("/projects/{project_id}", response_model=ApiResponse[ClientProjectRead])
+def get_project(project_id: uuid.UUID, db: DatabaseSession, _admin: CurrentAdmin) -> ApiResponse[ClientProjectRead]:
+    project = db.get(ClientProject, project_id)
+    if not project:
+        raise HTTPException(status_code=404, detail="Project not found")
+    return ApiResponse(data=_to_project_read(project))
+
+
+@router.put("/projects/{project_id}", response_model=ApiResponse[ClientProjectRead])
+def update_project(project_id: uuid.UUID, payload: ClientProjectUpdate, db: DatabaseSession, _admin: CurrentAdmin) -> ApiResponse[ClientProjectRead]:
+    project = db.get(ClientProject, project_id)
+    if not project:
+        raise HTTPException(status_code=404, detail="Project not found")
+
+    if payload.client_id is not None:
+        client = db.get(User, payload.client_id)
+        if not client:
+            raise HTTPException(status_code=400, detail="Client user not found")
+        project.client_id = payload.client_id
+    if payload.name is not None:
+        project.name = payload.name
+    if payload.status is not None:
+        project.status = payload.status
+    if payload.summary is not None:
+        project.summary = payload.summary
+    if payload.next_milestone is not None:
+        project.next_milestone = payload.next_milestone
+    if payload.progress is not None:
+        project.progress = payload.progress
+
+    db.commit()
+    db.refresh(project)
+    return ApiResponse(data=_to_project_read(project), message="Project updated successfully")
+
+
+@router.delete("/projects/{project_id}", response_model=ApiResponse[dict])
+def delete_project(project_id: uuid.UUID, db: DatabaseSession, _admin: CurrentAdmin) -> ApiResponse[dict]:
+    project = db.get(ClientProject, project_id)
+    if not project:
+        raise HTTPException(status_code=404, detail="Project not found")
+
+    db.delete(project)
+    db.commit()
+    return ApiResponse(data={"deleted": True}, message="Project deleted successfully")
+
+
+@router.post("/projects/bulk-delete", response_model=ApiResponse[dict])
+def bulk_delete_projects(payload: ProjectBulkDeletePayload, db: DatabaseSession, _admin: CurrentAdmin) -> ApiResponse[dict]:
+    if not payload.ids:
+        return ApiResponse(data={"deleted_count": 0}, message="No projects selected")
+
+    result = db.execute(delete(ClientProject).where(ClientProject.id.in_(payload.ids)))
+    db.commit()
+    return ApiResponse(
+        data={"deleted_count": result.rowcount},
+        message=f"Successfully deleted {result.rowcount} project(s)",
+    )
+
+
+@router.post("/projects/bulk-update", response_model=ApiResponse[dict])
+def bulk_update_projects(payload: ProjectBulkUpdatePayload, db: DatabaseSession, _admin: CurrentAdmin) -> ApiResponse[dict]:
+    if not payload.ids:
+        return ApiResponse(data={"updated_count": 0}, message="No projects selected")
+
+    projects = db.scalars(select(ClientProject).where(ClientProject.id.in_(payload.ids))).all()
+    count = 0
+    for proj in projects:
+        if payload.status is not None:
+            proj.status = payload.status
+        if payload.progress is not None:
+            proj.progress = payload.progress
+        count += 1
+
+    db.commit()
+    return ApiResponse(
+        data={"updated_count": count},
+        message=f"Successfully updated {count} project(s)",
     )
 
 

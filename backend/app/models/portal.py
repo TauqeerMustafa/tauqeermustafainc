@@ -37,6 +37,8 @@ class ClientProject(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), nullable=False)
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False)
 
+    client = relationship("User", foreign_keys=[client_id], lazy="joined")
+
 
 class ClientMessage(Base):
     __tablename__ = "client_messages"

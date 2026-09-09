@@ -92,6 +92,18 @@ export function useDeleteAdminUser() {
   });
 }
 
+export function useBulkDeleteAdminUsers() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (ids: string[]) => adminService.bulkDeleteUsers(ids),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.admin.users });
+      queryClient.invalidateQueries({ queryKey: queryKeys.admin.metrics });
+      queryClient.invalidateQueries({ queryKey: queryKeys.admin.teams });
+    },
+  });
+}
+
 /** Provision (or link) an open.email mailbox for one user. */
 export function useProvisionMailbox() {
   const queryClient = useQueryClient();

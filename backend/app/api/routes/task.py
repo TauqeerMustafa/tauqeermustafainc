@@ -10,23 +10,54 @@ import uuid
 from datetime import date
 
 from fastapi import APIRouter, HTTPException, Query, status
-from sqlalchemy import delete, func, or_, select
+from sqlalchemy import delete, func, or_, select, update
 
 from app.api.deps import CurrentAdmin, CurrentManager, CurrentUser, DatabaseSession
 from app.models.task import ProjectTask
-from app.schemas.task import ProjectTaskCreate, ProjectTaskUpdate, ProjectTaskResponse
+from app.models.user import User
+from app.schemas.task import (
+    BulkDeletePayload,
+    BulkTaskUpdatePayload,
+    ProjectTaskCreate,
+    ProjectTaskResponse,
+    ProjectTaskUpdate,
+    TaskAssigneeRead,
+)
 from app.schemas.common import ApiResponse, PaginatedResult, Pagination
 
 router = APIRouter(prefix="/tasks", tags=["tasks"])
 
 
 def _to_read(task: ProjectTask) -> ProjectTaskResponse:
-    """Serialize one task, flattening the joined project and assignee names.
-
-    Both relationships are ``lazy="joined"`` on the model, so this costs no extra
-    query — but the names have to be lifted explicitly because the schema is flat.
-    """
+    """Serialize one task, flattening the joined project and assignee names."""
     assignee = task.assigned_to
+
+    assignees_list: list[TaskAssigneeRead] = []
+    assignee_ids: list[uuid.UUID] = []
+    if task.assignees:
+        for a in task.assignees:
+            assignee_ids.append(a.id)
+            assignees_list.append(
+                TaskAssigneeRead(
+                    id=a.id,
+                    first_name=a.first_name,
+                    last_name=a.last_name,
+                    email=a.email,
+                    name=f"{a.first_name} {a.last_name}".strip(),
+                )
+            )
+    elif assignee:
+        assignee_ids.append(assignee.id)
+        assignees_list.append(
+            TaskAssigneeRead(
+                id=assignee.id,
+                first_name=assignee.first_name,
+                last_name=assignee.last_name,
+                email=assignee.email,
+                name=f"{assignee.first_name} {assignee.last_name}".strip(),
+            )
+        )
+
     return ProjectTaskResponse(
         id=task.id,
         title=task.title,
@@ -43,6 +74,8 @@ def _to_read(task: ProjectTask) -> ProjectTaskResponse:
         assigned_to_name=(
             f"{assignee.first_name} {assignee.last_name}".strip() if assignee else None
         ),
+        assigned_to_ids=assignee_ids,
+        assignees=assignees_list,
     )
 
 
@@ -95,19 +128,61 @@ def list_my_tasks(
     db: DatabaseSession,
     current_user: CurrentUser,
 ) -> ApiResponse[list[ProjectTaskResponse]]:
-    """The signed-in user's own assigned tasks.
-
-    ``GET /tasks`` is ``CurrentManager``, so a regular member's task board cannot
-    read it. This returns only the caller's tasks and is open to any
-    authenticated user — the employee portal board reads from here. Declared
-    before the ``/{task_id}`` write routes so ``/me`` is never parsed as an id.
-    """
-    rows = db.scalars(
+    """The signed-in user's own assigned tasks (as primary assignee or multi-assignee)."""
+    stmt = (
         select(ProjectTask)
-        .where(ProjectTask.assigned_to_id == current_user.id)
+        .outerjoin(ProjectTask.assignees)
+        .where(
+            or_(
+                ProjectTask.assigned_to_id == current_user.id,
+                User.id == current_user.id,
+            )
+        )
+        .distinct()
         .order_by(ProjectTask.created_at.desc())
-    ).all()
+    )
+    rows = db.scalars(stmt).all()
     return ApiResponse(data=[_to_read(row) for row in rows])
+
+
+@router.post("/bulk-delete", response_model=ApiResponse[dict])
+def bulk_delete_tasks(
+    payload: BulkDeletePayload, db: DatabaseSession, _: CurrentAdmin
+) -> ApiResponse[dict]:
+    """Delete multiple tasks by their IDs."""
+    result = db.execute(delete(ProjectTask).where(ProjectTask.id.in_(payload.ids)))
+    db.commit()
+    return ApiResponse(
+        data={"deleted": result.rowcount, "ids": [str(i) for i in payload.ids]},
+        message=f"{result.rowcount} tasks deleted successfully",
+    )
+
+
+@router.post("/bulk-update", response_model=ApiResponse[dict])
+def bulk_update_tasks(
+    payload: BulkTaskUpdatePayload, db: DatabaseSession, _: CurrentAdmin
+) -> ApiResponse[dict]:
+    """Update status or priority across multiple tasks."""
+    updates = {}
+    if payload.status is not None:
+        updates["status"] = payload.status
+    if payload.priority is not None:
+        updates["priority"] = payload.priority
+
+    if not updates:
+        raise HTTPException(status_code=400, detail="No fields to update")
+
+    stmt = (
+        update(ProjectTask)
+        .where(ProjectTask.id.in_(payload.ids))
+        .values(**updates)
+    )
+    result = db.execute(stmt)
+    db.commit()
+    return ApiResponse(
+        data={"updated": result.rowcount},
+        message=f"{result.rowcount} tasks updated successfully",
+    )
 
 
 @router.post("", response_model=ApiResponse[ProjectTaskResponse], status_code=status.HTTP_201_CREATED)
@@ -115,8 +190,21 @@ def create_task(
     payload: ProjectTaskCreate, db: DatabaseSession, current_admin: CurrentAdmin
 ) -> ApiResponse[ProjectTaskResponse]:
     data = payload.model_dump()
+    assigned_to_ids = data.pop("assigned_to_ids", None)
     data["created_by_id"] = current_admin.id
+
+    if assigned_to_ids and not data.get("assigned_to_id"):
+        data["assigned_to_id"] = assigned_to_ids[0]
+
     task = ProjectTask(**data)
+    if assigned_to_ids:
+        users = list(db.scalars(select(User).where(User.id.in_(assigned_to_ids))).all())
+        task.assignees = users
+    elif task.assigned_to_id:
+        user = db.get(User, task.assigned_to_id)
+        if user:
+            task.assignees = [user]
+
     db.add(task)
     db.commit()
     db.refresh(task)
@@ -134,8 +222,24 @@ def update_task(
     if not task:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Task not found")
 
-    for field, value in payload.model_dump(exclude_unset=True).items():
+    dump = payload.model_dump(exclude_unset=True)
+    assigned_to_ids = dump.pop("assigned_to_ids", None)
+
+    for field, value in dump.items():
         setattr(task, field, value)
+
+    if assigned_to_ids is not None:
+        if assigned_to_ids:
+            users = list(db.scalars(select(User).where(User.id.in_(assigned_to_ids))).all())
+            task.assignees = users
+            task.assigned_to_id = assigned_to_ids[0]
+        else:
+            task.assignees = []
+            task.assigned_to_id = None
+    elif "assigned_to_id" in dump and dump["assigned_to_id"]:
+        user = db.get(User, dump["assigned_to_id"])
+        if user:
+            task.assignees = [user]
 
     db.commit()
     db.refresh(task)
@@ -161,3 +265,4 @@ def delete_task(
     db.delete(task)
     db.commit()
     return ApiResponse(data={"id": str(task_id)}, message="Task deleted successfully")
+

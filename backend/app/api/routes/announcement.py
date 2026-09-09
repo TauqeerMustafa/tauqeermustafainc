@@ -2,11 +2,16 @@ import math
 import uuid
 
 from fastapi import APIRouter, HTTPException, Query, status
-from sqlalchemy import func, select
+from sqlalchemy import delete, func, select
 
 from app.api.deps import CurrentAdmin, DatabaseSession
 from app.models.announcement import Announcement
-from app.schemas.announcement import AnnouncementCreate, AnnouncementRead, AnnouncementUpdate
+from app.schemas.announcement import (
+    AnnouncementCreate,
+    AnnouncementRead,
+    AnnouncementUpdate,
+    BulkDeletePayload,
+)
 from app.schemas.common import ApiResponse, PaginatedResult, Pagination
 
 router = APIRouter(prefix="/announcements", tags=["announcements"])
@@ -69,6 +74,19 @@ def update_announcement(
     return ApiResponse(data=AnnouncementRead.model_validate(announcement), message="Announcement updated")
 
 
+@router.post("/bulk-delete", response_model=ApiResponse[dict])
+def bulk_delete_announcements(
+    payload: BulkDeletePayload, db: DatabaseSession, _: CurrentAdmin
+) -> ApiResponse[dict]:
+    """Delete multiple announcements by IDs."""
+    result = db.execute(delete(Announcement).where(Announcement.id.in_(payload.ids)))
+    db.commit()
+    return ApiResponse(
+        data={"deleted": result.rowcount, "ids": [str(i) for i in payload.ids]},
+        message=f"{result.rowcount} announcements deleted successfully",
+    )
+
+
 @router.delete("/{announcement_id}", response_model=ApiResponse[dict])
 def delete_announcement(
     announcement_id: uuid.UUID, db: DatabaseSession, _: CurrentAdmin
@@ -80,3 +98,4 @@ def delete_announcement(
     db.delete(announcement)
     db.commit()
     return ApiResponse(data={"id": str(announcement_id)}, message="Announcement deleted")
+

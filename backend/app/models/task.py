@@ -1,12 +1,20 @@
 import uuid
 from datetime import datetime, date
 
-from sqlalchemy import DateTime, Date, ForeignKey, String, Text
+from sqlalchemy import Column, DateTime, Date, ForeignKey, String, Table, Text
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.sql import func
 
 from app.db.base import Base
+
+task_assignees = Table(
+    "task_assignees",
+    Base.metadata,
+    Column("task_id", UUID(as_uuid=True), ForeignKey("project_tasks.id", ondelete="CASCADE"), primary_key=True),
+    Column("user_id", UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), primary_key=True),
+)
+
 
 class ProjectTask(Base):
     __tablename__ = "project_tasks"
@@ -40,3 +48,4 @@ class ProjectTask(Base):
     project = relationship("ClientProject", lazy="joined")
     assigned_to = relationship("User", foreign_keys=[assigned_to_id], lazy="joined")
     created_by = relationship("User", foreign_keys=[created_by_id])
+    assignees = relationship("User", secondary=task_assignees, lazy="selectin")

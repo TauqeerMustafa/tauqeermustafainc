@@ -5,6 +5,8 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { queryKeys } from "@/constants/query-keys";
 import {
   taskService,
+  type BulkTaskDeletePayload,
+  type BulkTaskUpdatePayload,
   type CreateTaskPayload,
   type TaskListParams,
   type UpdateTaskPayload,
@@ -149,5 +151,21 @@ export function useDeleteAllTasks() {
       }
     },
     onSettled: () => invalidateTasks(queryClient),
+  });
+}
+
+export function useBulkDeleteTasks() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (payload: BulkTaskDeletePayload) => taskService.bulkDelete(payload),
+    onSuccess: () => invalidateTasks(queryClient),
+  });
+}
+
+export function useBulkUpdateTasks() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (payload: BulkTaskUpdatePayload) => taskService.bulkUpdate(payload),
+    onSuccess: () => invalidateTasks(queryClient),
   });
 }

@@ -82,6 +82,12 @@ export const adminService = {
       url: `${API_ENDPOINTS.admin.users}/${id}`,
       method: "DELETE",
     }),
+  bulkDeleteUsers: (ids: string[]) =>
+    apiRequest<ApiResponse<{ deletedCount: number }>>({
+      url: API_ENDPOINTS.admin.usersBulkDelete,
+      method: "POST",
+      data: { ids },
+    }),
   /** Create (or link an existing) open.email mailbox for one user. */
   provisionMailbox: (id: string) =>
     apiRequest<ApiResponse<AdminUser>>({
