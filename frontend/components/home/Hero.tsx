@@ -3,7 +3,7 @@
 import { motion } from "framer-motion";
 import Link from "next/link";
 import Image from "next/image";
-import { ArrowRight, Circle } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 
 import { imageLibrary } from "@/data/media";
 
@@ -21,25 +21,12 @@ export default function Hero() {
         {/* ── Centre stack ── */}
         <div className="flex flex-col items-center text-center">
 
-          {/* Eyebrow badge — BMW subtle transparency */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-            className="inline-flex items-center gap-2 rounded-full border border-ink/10 bg-ink/5 px-5 py-2.5 backdrop-blur-sm"
-          >
-            <Circle className="h-2 w-2 fill-action text-action" aria-hidden />
-            <span className="font-mono text-[11px] font-semibold uppercase tracking-[0.12em] text-ink/80">
-              Islamabad-based · Globally focused
-            </span>
-          </motion.div>
-
           {/* Display headline — BMW 700 weight, UPPERCASE, tight tracking */}
           <motion.h1
             initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
-            className="mt-8 max-w-5xl text-[48px] font-bold uppercase leading-[1.08] tracking-[-0.02em] text-ink sm:text-[64px] lg:text-[80px]"
+            className="max-w-5xl text-[48px] font-bold uppercase leading-[1.08] tracking-[-0.02em] text-ink sm:text-[64px] lg:text-[80px]"
           >
             Systems that scale.
             <br />
