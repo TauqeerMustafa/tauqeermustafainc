@@ -4,7 +4,11 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { queryKeys } from "@/constants/query-keys";
 import { documentService } from "@/services";
-import type { UploadDocumentFilePayload, UploadDocumentPayload } from "@/types";
+import type {
+  SubmitDocumentResponsePayload,
+  UploadDocumentFilePayload,
+  UploadDocumentPayload,
+} from "@/types";
 
 /** Every list and dashboard that shows a document count or card. */
 function invalidateDocuments(queryClient: ReturnType<typeof useQueryClient>) {
@@ -45,6 +49,28 @@ export function useUploadDocumentFile() {
   return useMutation({
     mutationFn: (payload: UploadDocumentFilePayload) => documentService.uploadFile(payload),
     onSuccess: () => invalidateDocuments(queryClient),
+  });
+}
+
+export function useSubmitDocumentResponse() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      documentId,
+      payload,
+    }: {
+      documentId: string;
+      payload: SubmitDocumentResponsePayload;
+    }) => documentService.submitResponse(documentId, payload),
+    onSuccess: () => invalidateDocuments(queryClient),
+  });
+}
+
+export function useDocumentResponses(documentId: string | null, enabled = true) {
+  return useQuery({
+    queryKey: ["documents", "responses", documentId],
+    queryFn: () => (documentId ? documentService.getResponses(documentId) : Promise.resolve([])),
+    enabled: Boolean(documentId && enabled),
   });
 }
 

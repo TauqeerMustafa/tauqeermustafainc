@@ -29,9 +29,15 @@ from app.api.deps import (
 from app.core.rbac import ROLE_EXEC, ROLE_TEAM_LEAD
 from app.models.document import Document
 from app.models.document_file import DocumentFile
+from app.models.document_response import DocumentResponse
 from app.models.employee import Employee
 from app.models.user import User
-from app.schemas.document import DocumentCreate, DocumentRead
+from app.schemas.document import (
+    DocumentCreate,
+    DocumentRead,
+    DocumentResponseCreate,
+    DocumentResponseRead,
+)
 
 router = APIRouter(tags=["documents"])
 
@@ -62,13 +68,62 @@ def _file_meta(db: DatabaseSession, doc_ids: List[uuid.UUID]) -> FileMeta:
     return {row[0]: (row[1], row[2], row[3]) for row in rows}
 
 
-def _to_read(doc: Document, meta: FileMeta, *, with_names: bool = False) -> DocumentRead:
+def _to_response_read(r: DocumentResponse) -> DocumentResponseRead:
+    user_name = f"{r.user.first_name} {r.user.last_name}".strip() if r.user else None
+    return DocumentResponseRead(
+        id=r.id,
+        document_id=r.document_id,
+        user_id=r.user_id,
+        user_name=user_name or (r.user.email if r.user else None),
+        user_email=r.user.email if r.user else None,
+        status=r.status,
+        note=r.note,
+        created_at=r.created_at,
+        updated_at=r.updated_at,
+    )
+
+
+def _to_read(
+    doc: Document,
+    meta: FileMeta,
+    *,
+    with_names: bool = False,
+    for_user_id: Optional[uuid.UUID] = None,
+    with_responses: bool = False,
+) -> DocumentRead:
     file_meta = meta.get(doc.id)
+
+    my_response: Optional[DocumentResponseRead] = None
+    response_counts: Optional[dict[str, int]] = None
+    responses_list: Optional[list[DocumentResponseRead]] = None
+
+    if doc.requires_action and doc.responses is not None:
+        counts = {"agreed": 0, "disagreed": 0, "review_requested": 0, "total": 0}
+        for r in doc.responses:
+            if r.status in counts:
+                counts[r.status] += 1
+            counts["total"] += 1
+            if for_user_id and r.user_id == for_user_id:
+                my_response = _to_response_read(r)
+        response_counts = counts
+        if with_responses:
+            responses_list = [
+                _to_response_read(r)
+                for r in sorted(doc.responses, key=lambda x: x.created_at, reverse=True)
+            ]
+    elif for_user_id and doc.responses is not None:
+        for r in doc.responses:
+            if r.user_id == for_user_id:
+                my_response = _to_response_read(r)
+                break
+
     return DocumentRead(
         id=doc.id,
         title=doc.title,
         file_url=doc.file_url,
         document_type=doc.document_type,
+        requires_action=doc.requires_action,
+        action_note=doc.action_note,
         uploaded_by_id=doc.uploaded_by_id,
         employee_id=doc.employee_id,
         created_at=doc.created_at,
@@ -85,6 +140,9 @@ def _to_read(doc: Document, meta: FileMeta, *, with_names: bool = False) -> Docu
         file_name=file_meta[0] if file_meta else None,
         mime_type=file_meta[1] if file_meta else None,
         size_bytes=file_meta[2] if file_meta else None,
+        my_response=my_response,
+        response_counts=response_counts,
+        responses=responses_list,
     )
 
 
@@ -108,6 +166,8 @@ def upload_document(
         title=payload.title,
         file_url=payload.file_url,
         document_type=payload.document_type,
+        requires_action=payload.requires_action,
+        action_note=payload.action_note,
         uploaded_by_id=current_admin.id,
         employee_id=payload.employee_id,
     )
@@ -125,6 +185,8 @@ async def upload_document_file(
     title: str = Form(""),
     document_type: str = Form("other", alias="documentType"),
     employee_id: Optional[str] = Form(None, alias="employeeId"),
+    requires_action: bool = Form(False, alias="requiresAction"),
+    action_note: Optional[str] = Form(None, alias="actionNote"),
 ) -> DocumentRead:
     """Store a real file in the vault.
 
@@ -161,6 +223,8 @@ async def upload_document_file(
         title=title.strip() or (file.filename or "Untitled document"),
         file_url="",
         document_type=document_type or "other",
+        requires_action=requires_action,
+        action_note=action_note.strip() if action_note and action_note.strip() else None,
         uploaded_by_id=current_admin.id,
         employee_id=assigned_to,
     )
@@ -185,7 +249,7 @@ async def upload_document_file(
 def get_all_documents(db: DatabaseSession, current_manager: CurrentManager) -> List[DocumentRead]:
     records = db.scalars(select(Document).order_by(Document.created_at.desc())).all()
     meta = _file_meta(db, [r.id for r in records])
-    return [_to_read(r, meta, with_names=True) for r in records]
+    return [_to_read(r, meta, with_names=True, with_responses=True) for r in records]
 
 
 @router.get("/me", response_model=List[DocumentRead])
@@ -204,7 +268,72 @@ def get_my_documents(db: DatabaseSession, current_user: CurrentUser) -> List[Doc
         select(Document).where(condition).order_by(Document.created_at.desc())
     ).all()
     meta = _file_meta(db, [r.id for r in records])
-    return [_to_read(r, meta, with_names=True) for r in records]
+    return [_to_read(r, meta, with_names=True, for_user_id=current_user.id) for r in records]
+
+
+@router.post("/{document_id}/response", response_model=DocumentResponseRead)
+def respond_to_document(
+    document_id: uuid.UUID,
+    payload: DocumentResponseCreate,
+    db: DatabaseSession,
+    current_user: CurrentUser,
+) -> DocumentResponseRead:
+    """Submit agreement, disagreement, or a review request on a vault document."""
+    doc = db.get(Document, document_id)
+    if doc is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Document not found")
+    if not _may_read(db, current_user, doc):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You do not have access to this document",
+        )
+    valid_statuses = {"agreed", "disagreed", "review_requested"}
+    if payload.status not in valid_statuses:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Status must be one of: {', '.join(valid_statuses)}",
+        )
+
+    existing = db.scalar(
+        select(DocumentResponse).where(
+            DocumentResponse.document_id == document_id,
+            DocumentResponse.user_id == current_user.id,
+        )
+    )
+    if existing:
+        existing.status = payload.status
+        existing.note = payload.note.strip() if payload.note and payload.note.strip() else None
+        record = existing
+    else:
+        record = DocumentResponse(
+            document_id=document_id,
+            user_id=current_user.id,
+            status=payload.status,
+            note=payload.note.strip() if payload.note and payload.note.strip() else None,
+        )
+        db.add(record)
+
+    db.commit()
+    db.refresh(record)
+    return _to_response_read(record)
+
+
+@router.get("/{document_id}/responses", response_model=List[DocumentResponseRead])
+def get_document_responses(
+    document_id: uuid.UUID,
+    db: DatabaseSession,
+    current_manager: CurrentManager,
+) -> List[DocumentResponseRead]:
+    """Retrieve all employee responses and feedback notes for a vault document."""
+    doc = db.get(Document, document_id)
+    if doc is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Document not found")
+    records = db.scalars(
+        select(DocumentResponse)
+        .where(DocumentResponse.document_id == document_id)
+        .order_by(DocumentResponse.created_at.desc())
+    ).all()
+    return [_to_response_read(r) for r in records]
 
 
 @router.get("/{document_id}/file")

@@ -52,6 +52,20 @@ export interface UpdateLeaveStatusPayload {
   managerNotes?: string;
 }
 
+export type DocumentResponseStatus = "agreed" | "disagreed" | "review_requested";
+
+export interface DocumentResponse {
+  id: string;
+  documentId: string;
+  userId: string;
+  userName?: string | null;
+  userEmail?: string | null;
+  status: DocumentResponseStatus | string;
+  note?: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface HrDocument {
   id: string;
   title: string;
@@ -69,6 +83,16 @@ export interface HrDocument {
   fileName?: string | null;
   mimeType?: string | null;
   sizeBytes?: number | null;
+  requiresAction?: boolean;
+  actionNote?: string | null;
+  myResponse?: DocumentResponse | null;
+  responseCounts?: {
+    agreed?: number;
+    disagreed?: number;
+    review_requested?: number;
+    total?: number;
+  } | null;
+  responses?: DocumentResponse[] | null;
 }
 
 export interface UploadDocumentPayload {
@@ -76,6 +100,8 @@ export interface UploadDocumentPayload {
   fileUrl: string;
   documentType?: string;
   employeeId?: string | null;
+  requiresAction?: boolean;
+  actionNote?: string | null;
 }
 
 /** Multipart upload — the browser sends the bytes, not a URL. */
@@ -84,6 +110,13 @@ export interface UploadDocumentFilePayload {
   title: string;
   documentType?: string;
   employeeId?: string | null;
+  requiresAction?: boolean;
+  actionNote?: string | null;
+}
+
+export interface SubmitDocumentResponsePayload {
+  status: DocumentResponseStatus | string;
+  note?: string;
 }
 
 export interface EmployeeRecord {

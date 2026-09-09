@@ -5,12 +5,14 @@ import type {
   AttendanceRecord,
   CreateEmployeePayload,
   CreateLeaveRequestPayload,
+  DocumentResponse,
   EmployeeDashboard,
   EmployeeRecord,
   HrDocument,
   LeaveRequest,
   ManagementDashboard,
   ManagementProjectRow,
+  SubmitDocumentResponsePayload,
   UpdateEmployeePayload,
   UpdateLeaveStatusPayload,
   UploadDocumentFilePayload,
@@ -109,13 +111,22 @@ export const documentService = {
    * Upload the actual file. The API stores the bytes and hands back a document
    * whose `fileUrl` points at its own download route.
    */
-  uploadFile: ({ file, title, documentType, employeeId }: UploadDocumentFilePayload) => {
+  uploadFile: ({
+    file,
+    title,
+    documentType,
+    employeeId,
+    requiresAction,
+    actionNote,
+  }: UploadDocumentFilePayload) => {
     const form = new FormData();
     form.append("file", file);
     form.append("title", title);
     if (documentType) form.append("documentType", documentType);
     // Left out entirely when unset — a blank string is not a UUID.
     if (employeeId) form.append("employeeId", employeeId);
+    if (requiresAction !== undefined) form.append("requiresAction", String(requiresAction));
+    if (actionNote) form.append("actionNote", actionNote);
 
     return apiRequest<HrDocument>({
       url: API_ENDPOINTS.documents.file,
@@ -123,6 +134,17 @@ export const documentService = {
       data: form,
     });
   },
+  submitResponse: (documentId: string, payload: SubmitDocumentResponsePayload) =>
+    apiRequest<DocumentResponse>({
+      url: API_ENDPOINTS.documents.response(documentId),
+      method: "POST",
+      data: payload,
+    }),
+  getResponses: (documentId: string) =>
+    apiRequest<DocumentResponse[]>({
+      url: API_ENDPOINTS.documents.responses(documentId),
+      method: "GET",
+    }),
   remove: (id: string) =>
     apiRequest<{ id: string }>({
       url: API_ENDPOINTS.documents.detail(id),

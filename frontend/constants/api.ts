@@ -43,6 +43,8 @@ export const API_ENDPOINTS = {
     all: "/documents/admin",
     detail: (id: string) => `/documents/${id}`,
     download: (id: string) => `/documents/${id}/file`,
+    response: (id: string) => `/documents/${id}/response`,
+    responses: (id: string) => `/documents/${id}/responses`,
   },
   dashboard: {
     employee: "/dashboard/employee",

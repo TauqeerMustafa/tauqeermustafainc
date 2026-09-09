@@ -1,6 +1,6 @@
 import uuid
 from datetime import datetime
-from sqlalchemy import DateTime, ForeignKey, String, Text
+from sqlalchemy import Boolean, DateTime, ForeignKey, String, Text
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.sql import func
@@ -18,6 +18,9 @@ class Document(Base):
     # "policy", "contract", "payslip", "other"
     document_type: Mapped[str] = mapped_column(String(40), nullable=False, default="other")
     
+    requires_action: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+    action_note: Mapped[str | None] = mapped_column(Text, nullable=True)
+
     uploaded_by_id: Mapped[uuid.UUID | None] = mapped_column(
         UUID(as_uuid=True), ForeignKey("users.id", ondelete="SET NULL"), nullable=True
     )
@@ -36,3 +39,4 @@ class Document(Base):
 
     uploaded_by = relationship("User", lazy="joined")
     employee = relationship("Employee", lazy="joined")
+    responses = relationship("DocumentResponse", back_populates="document", cascade="all, delete-orphan", lazy="selectin")
