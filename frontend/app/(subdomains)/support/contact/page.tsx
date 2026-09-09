@@ -109,7 +109,7 @@ export default function ContactDirectoryPage() {
             </p>
           </div>
           <a
-            href="https://wa.me/923281313982?text=Hello%20TMI%20Support%2C%20I%20am%20reaching%20out%20for%20assistance..."
+            href="https://wa.me/message/TJILSTIMLJHVK1"
             target="_blank"
             rel="noopener noreferrer"
             className="mt-6 inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-emerald-600 text-white font-mono text-xs font-bold uppercase hover:bg-emerald-700 transition"

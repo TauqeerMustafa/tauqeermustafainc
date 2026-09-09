@@ -27,11 +27,20 @@ def check_in(payload: AttendanceCheckIn, db: DatabaseSession, current_user: Curr
     if existing:
         raise HTTPException(status_code=400, detail="Already checked in today")
         
+    now = datetime.now(timezone.utc)
+    # Automated late detection: check notes or if past expected shift arrival
+    status = "present"
+    if payload.notes and "late" in payload.notes.lower():
+        status = "late"
+    elif now.hour > 4 or (now.hour == 4 and now.minute > 15):
+        # 04:15 UTC corresponds to 09:15 AM PKT (standard morning shift + 15m grace)
+        status = "late"
+
     attendance = Attendance(
         employee_id=employee.id,
         date=today,
-        check_in_time=datetime.now(timezone.utc),
-        status="present",
+        check_in_time=now,
+        status=status,
         notes=payload.notes
     )
     db.add(attendance)

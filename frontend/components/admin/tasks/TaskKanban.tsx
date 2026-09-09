@@ -6,6 +6,7 @@ import {
   CheckSquare,
   Clock,
   ClipboardList,
+  Paperclip,
   Pencil,
   Plus,
   Square,
@@ -594,6 +595,31 @@ export default function TaskKanban({ isAdmin = false }) {
                             ) : null}
                           </div>
                         )}
+
+                        {!isAdmin && (
+                          <div className="mt-2.5 flex items-center justify-end border-t pt-2" style={{ borderColor: "var(--adm-border)" }}>
+                            <label className="inline-flex items-center gap-1 text-[10px] font-mono font-bold uppercase tracking-wider text-adm-blue hover:opacity-80 cursor-pointer">
+                              <Paperclip size={11} />
+                              <span>{t("Attach Deliverable")}</span>
+                              <input
+                                type="file"
+                                className="hidden"
+                                onChange={(e) => {
+                                  const file = e.target.files?.[0];
+                                  if (file) {
+                                    const deliverableTag = ` [Staff Deliverable: ${file.name} (${(file.size / 1024).toFixed(0)}KB)]`;
+                                    updateTask.mutate({
+                                      id: task.id,
+                                      payload: {
+                                        description: task.description ? `${task.description}\n${deliverableTag}` : deliverableTag,
+                                      },
+                                    });
+                                  }
+                                }}
+                              />
+                            </label>
+                          </div>
+                        )}
                       </article>
                     );
                   })}
@@ -644,6 +670,30 @@ export default function TaskKanban({ isAdmin = false }) {
                 className={adminInputClass}
                 style={adminInputStyle}
               />
+            </AdminField>
+
+            <AdminField label={t("Attach Specification / Deliverable File")} htmlFor="task-attachment">
+              <input
+                id="task-attachment"
+                type="file"
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file) {
+                    const tag = ` [Deliverable: ${file.name} (${(file.size / 1024).toFixed(0)}KB)]`;
+                    if (!form.description.includes(file.name)) {
+                      setForm((prev) => ({
+                        ...prev,
+                        description: prev.description ? `${prev.description}\n${tag}` : tag,
+                      }));
+                    }
+                  }
+                }}
+                className={adminInputClass}
+                style={adminInputStyle}
+              />
+              <p className="mt-1 text-[11px] font-mono" style={{ color: "var(--adm-text-3)" }}>
+                {t("Attach specs, design diagrams, or work deliverables (PDF, ZIP, DOCX, images).")}
+              </p>
             </AdminField>
 
             <div className="grid gap-5 sm:grid-cols-2">

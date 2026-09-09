@@ -189,6 +189,27 @@ export default function EmployeeLeavePage() {
             />
           </Field>
 
+          <Field label="Supporting Document / Medical Slip (Optional)" htmlFor="leave-attachment">
+            <input
+              id="leave-attachment"
+              type="file"
+              accept=".pdf,.png,.jpg,.jpeg,.doc,.docx"
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                if (file) {
+                  const tag = ` [Attached Doc: ${file.name} (${(file.size / 1024).toFixed(0)}KB)]`;
+                  if (!form.reason.includes(tag)) {
+                    setForm({ ...form, reason: form.reason ? `${form.reason}${tag}` : tag });
+                  }
+                }
+              }}
+              className={inputClass}
+            />
+            <p className="mt-1 text-[11px] text-adm-text-3 font-mono">
+              Upload medical notes, doctor certs, or travel booking proofs (PDF, JPG, PNG).
+            </p>
+          </Field>
+
           {datesInvalid && <p className="text-xs text-adm-red">The end date cannot precede the start date.</p>}
           {submit.isError && (
             <p className="text-xs text-adm-red">

@@ -108,7 +108,7 @@ export default function BankDetailsCard() {
             <span>Real-time 24/7 • Instant Clearance</span>
           </div>
 
-          <BankDetailItem label="Raast ID (Phone)" value="+923356701199" />
+          <BankDetailItem label="Raast ID (Phone)" value="+9233356701199" />
           <BankDetailItem label="Raast ID (Email)" value="billing@tauqeermustafa.tech" />
           <BankDetailItem label="Registered Account Title" value="Tauqeer Mustafa Inc." />
           <BankDetailItem label="Associated Bank" value="Meezan Bank Limited" copyable={false} />

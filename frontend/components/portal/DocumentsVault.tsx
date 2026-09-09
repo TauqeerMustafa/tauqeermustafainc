@@ -205,16 +205,14 @@ export default function DocumentsVault({ isAdmin = false }) {
               : t("Access your secure documents and company policies.")}
           </p>
         </div>
-        {isAdmin && (
-          <button
-            type="button"
-            onClick={() => setUploadOpen(true)}
-            className="btn-press flex items-center justify-center gap-2 bg-adm-blue px-6 py-2.5 text-sm font-bold text-white transition hover:opacity-90"
-          >
-            <Plus size={16} />
-            {t("Upload Document")}
-          </button>
-        )}
+        <button
+          type="button"
+          onClick={() => setUploadOpen(true)}
+          className="btn-press flex items-center justify-center gap-2 bg-adm-blue px-6 py-2.5 text-sm font-bold text-white transition hover:opacity-90"
+        >
+          <Plus size={16} />
+          {t("Upload Document")}
+        </button>
       </div>
 
       <Tabs tabs={documentTabs} value={category} onChange={setCategory} />
@@ -335,62 +333,66 @@ export default function DocumentsVault({ isAdmin = false }) {
         </div>
       </div>
 
-      {isAdmin && (
-        <AdminDrawer open={isUploadOpen} title={t("Upload Document")} onClose={closeUpload}>
-          <form onSubmit={handleUpload} className="grid gap-5">
-            <AdminField label={t("File")} htmlFor="doc-file">
-              <input
-                id="doc-file"
-                ref={fileInputRef}
-                type="file"
-                required
-                onChange={(event) => {
-                  const picked = event.target.files?.[0] ?? null;
-                  setFile(picked);
-                  // Pre-fill the title from the filename so the common case is
-                  // pick-and-save.
-                  if (picked && !title.trim()) {
-                    setTitle(picked.name.replace(/\.[^.]+$/, ""));
-                  }
-                }}
-                className={adminInputClass}
-                style={adminInputStyle}
-              />
-            </AdminField>
-            {file && (
-              <p className="-mt-3 text-xs" style={{ color: "var(--adm-text-3)" }}>
-                {file.name} · {formatBytes(file.size)}
-              </p>
-            )}
+      <AdminDrawer
+        open={isUploadOpen}
+        title={isAdmin ? t("Upload Document") : t("Upload My Document")}
+        onClose={closeUpload}
+      >
+        <form onSubmit={handleUpload} className="grid gap-5">
+          <AdminField label={t("File")} htmlFor="doc-file">
+            <input
+              id="doc-file"
+              ref={fileInputRef}
+              type="file"
+              required
+              onChange={(event) => {
+                const picked = event.target.files?.[0] ?? null;
+                setFile(picked);
+                // Pre-fill the title from the filename so the common case is
+                // pick-and-save.
+                if (picked && !title.trim()) {
+                  setTitle(picked.name.replace(/\.[^.]+$/, ""));
+                }
+              }}
+              className={adminInputClass}
+              style={adminInputStyle}
+            />
+          </AdminField>
+          {file && (
+            <p className="-mt-3 text-xs" style={{ color: "var(--adm-text-3)" }}>
+              {file.name} · {formatBytes(file.size)}
+            </p>
+          )}
 
-            <AdminField label={t("Title")} htmlFor="doc-title">
-              <input
-                id="doc-title"
-                type="text"
-                value={title}
-                onChange={(event) => setTitle(event.target.value)}
-                placeholder={file?.name ?? ""}
-                className={adminInputClass}
-                style={adminInputStyle}
-              />
-            </AdminField>
+          <AdminField label={t("Title")} htmlFor="doc-title">
+            <input
+              id="doc-title"
+              type="text"
+              value={title}
+              onChange={(event) => setTitle(event.target.value)}
+              placeholder={file?.name ?? ""}
+              className={adminInputClass}
+              style={adminInputStyle}
+            />
+          </AdminField>
 
-            <AdminField label={t("Type")} htmlFor="doc-type">
-              <select
-                id="doc-type"
-                value={docType}
-                onChange={(event) => setDocType(event.target.value)}
-                className={adminInputClass}
-                style={adminInputStyle}
-              >
-                {DOCUMENT_TYPES.map((value) => (
-                  <option key={value} value={value}>
-                    {t(value)}
-                  </option>
-                ))}
-              </select>
-            </AdminField>
+          <AdminField label={t("Type")} htmlFor="doc-type">
+            <select
+              id="doc-type"
+              value={docType}
+              onChange={(event) => setDocType(event.target.value)}
+              className={adminInputClass}
+              style={adminInputStyle}
+            >
+              {DOCUMENT_TYPES.map((value) => (
+                <option key={value} value={value}>
+                  {t(value)}
+                </option>
+              ))}
+            </select>
+          </AdminField>
 
+          {isAdmin ? (
             <AdminField label={t("Assign to")} htmlFor="doc-employee">
               <select
                 id="doc-employee"
@@ -399,8 +401,7 @@ export default function DocumentsVault({ isAdmin = false }) {
                 className={adminInputClass}
                 style={adminInputStyle}
               >
-                {/* No employee = visible to everyone, which is how policies are
-                    published. */}
+                {/* No employee = visible to everyone, which is how policies are published. */}
                 <option value="">{t("Company-wide")}</option>
                 {(employeesQuery.data ?? []).map((employee) => (
                   <option key={employee.id} value={employee.id}>
@@ -409,21 +410,25 @@ export default function DocumentsVault({ isAdmin = false }) {
                 ))}
               </select>
             </AdminField>
+          ) : (
+            <p className="text-xs text-adm-text-3 font-mono">
+              {t("This document will be saved securely to your personal vault records.")}
+            </p>
+          )}
 
-            {formError && (
-              <p className="text-sm" style={{ color: "var(--adm-red)" }}>
-                {formError}
-              </p>
-            )}
+          {formError && (
+            <p className="text-sm" style={{ color: "var(--adm-red)" }}>
+              {formError}
+            </p>
+          )}
 
-            <AdminFormActions
-              onCancel={closeUpload}
-              isPending={uploadFile.isPending}
-              submitLabel={t("Upload")}
-            />
-          </form>
-        </AdminDrawer>
-      )}
+          <AdminFormActions
+            onCancel={closeUpload}
+            isPending={uploadFile.isPending}
+            submitLabel={t("Upload")}
+          />
+        </form>
+      </AdminDrawer>
 
       <AdminConfirmDialog
         open={Boolean(pendingDelete)}

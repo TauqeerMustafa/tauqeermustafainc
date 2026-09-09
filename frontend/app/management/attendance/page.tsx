@@ -19,6 +19,7 @@ import {
 } from "@/components/portal/PortalUI";
 import { useAttendanceRoster } from "@/hooks/useAttendance";
 import { useDecideLeave, useLeaveQueue } from "@/hooks/useLeave";
+import { getEmployeeShift, formatShiftDisplay } from "@/lib/attendance-shifts";
 
 function today() {
   return new Date().toISOString().slice(0, 10);
@@ -141,18 +142,27 @@ export default function ManagementAttendancePage() {
                 ]}
               />
             </div>
-            <DataTable head={["Employee", "Status", "Check in", "Check out", "Notes"]}>
-              {rows.map((row) => (
-                <tr key={row.id} className="transition hover:bg-adm-surface-2">
-                  <Td strong>{row.employeeName ?? "—"}</Td>
-                  <Td>
-                    <StatusPill status={row.status} />
-                  </Td>
-                  <Td>{formatTime(row.checkInTime)}</Td>
-                  <Td>{formatTime(row.checkOutTime)}</Td>
-                  <Td className="max-w-xs truncate">{row.notes || "—"}</Td>
-                </tr>
-              ))}
+            <DataTable head={["Employee", "Assigned Shift", "Status", "Check in", "Check out", "Notes"]}>
+              {rows.map((row) => {
+                const shift = getEmployeeShift(row.employeeId || row.id);
+                const shiftDisplay = formatShiftDisplay(shift.expectedTime);
+                return (
+                  <tr key={row.id} className="transition hover:bg-adm-surface-2">
+                    <Td strong>{row.employeeName ?? "—"}</Td>
+                    <Td>
+                      <span className="font-mono text-[11px] font-medium text-adm-text-2">
+                        {shiftDisplay} ({shift.graceMinutes}m grace)
+                      </span>
+                    </Td>
+                    <Td>
+                      <StatusPill status={row.status} />
+                    </Td>
+                    <Td>{formatTime(row.checkInTime)}</Td>
+                    <Td>{formatTime(row.checkOutTime)}</Td>
+                    <Td className="max-w-xs truncate">{row.notes || "—"}</Td>
+                  </tr>
+                );
+              })}
             </DataTable>
           </>
         )}

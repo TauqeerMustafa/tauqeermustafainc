@@ -57,16 +57,16 @@ export const company = {
   mapEmbedUrl:
     "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2478.805554438541!2d-0.33609!3d51.590126999999995!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x487613a792782131%3A0xfe349ec1a1b858c!2sTauqeer%20Mustafa%20Inc.!5e0!3m2!1sen!2s!4v1788868991513!5m2!1sen!2s",
 
-  phone: "+92 335 6701199",
+  phone: "+92 333 56701199",
 
   whatsapp: "https://wa.me/message/NMUGLZ5AW7TVC1",
 
   whatsappChannels: {
     general: {
       name: "General Inquiries & Sales",
-      number: "+92 335 6701199",
+      number: "+92 333 56701199",
       url: "https://wa.me/message/NMUGLZ5AW7TVC1",
-      displayNumber: "+92 335 6701199",
+      displayNumber: "+92 333 56701199",
       description: "Business inquiries, service proposals, partnerships, and general questions",
       action: "Chat with Sales & Info",
       badge: "General & Sales",
@@ -74,7 +74,7 @@ export const company = {
     support: {
       name: "Technical & Client Support",
       number: "+92 328 1313982",
-      url: "https://wa.me/923281313982?text=Hello%20TMI%20Support%2C%20I%20am%20reaching%20out%20for%20assistance%20with...",
+      url: "https://wa.me/message/TJILSTIMLJHVK1",
       displayNumber: "+92 328 1313982",
       description: "24/7 client helpdesk, SLA ticket escalation, and live technical support",
       action: "Contact Support Desk",

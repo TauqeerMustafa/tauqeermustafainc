@@ -371,7 +371,7 @@ export default function SupportHubClient({ initialTab = "overview" }: { initialT
 
         {/* Card 2: WhatsApp Concierge */}
         <a
-          href="https://wa.me/923281313982?text=Hello%20TMI%20Support%2C%20I%20am%20reaching%20out%20for%20assistance%20with..."
+          href="https://wa.me/message/TJILSTIMLJHVK1"
           target="_blank"
           rel="noopener noreferrer"
           className="flex flex-col p-5 bg-surface border border-line-2 hover:border-emerald-500 transition text-left group shadow-sm"

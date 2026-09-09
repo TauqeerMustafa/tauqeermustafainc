@@ -152,7 +152,7 @@ export default function SupportSubdomainLayout({
               <ul className="space-y-2 text-[11px]">
                 <li>Hotline: <a href="tel:+923281313982" className="text-action hover:underline font-bold">+92 328 1313982</a></li>
                 <li>Priority SLA: <span className="text-ink font-semibold">15-60 min response (P1)</span></li>
-                <li>WhatsApp: <a href="https://wa.me/923281313982" target="_blank" rel="noopener noreferrer" className="text-action hover:underline font-bold">Instant Concierge</a></li>
+                <li>WhatsApp: <a href="https://wa.me/message/TJILSTIMLJHVK1" target="_blank" rel="noopener noreferrer" className="text-action hover:underline font-bold">Instant Concierge</a></li>
               </ul>
             </div>
 

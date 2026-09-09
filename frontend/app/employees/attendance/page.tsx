@@ -14,7 +14,9 @@ import {
   StatusPill,
   Td,
 } from "@/components/portal/PortalUI";
+import { useCurrentUser } from "@/hooks/useAuth";
 import { useCheckIn, useCheckOut, useMyAttendance } from "@/hooks/useAttendance";
+import { evaluateCheckIn, getEmployeeShift, formatShiftDisplay } from "@/lib/attendance-shifts";
 
 const DASH = "--:--";
 
@@ -42,6 +44,8 @@ function todayKey() {
 }
 
 export default function EmployeeAttendancePage() {
+  const { data: userData } = useCurrentUser();
+  const user = userData?.data;
   const { data: history, isLoading, isError, error, refetch } = useMyAttendance(60);
   const checkIn = useCheckIn();
   const checkOut = useCheckOut();
@@ -53,12 +57,41 @@ export default function EmployeeAttendancePage() {
   const mutating = checkIn.isPending || checkOut.isPending;
   const mutationError = (checkIn.error ?? checkOut.error) as Error | undefined;
 
+  const assignedShift = getEmployeeShift(user?.id || user?.email);
+  const shiftDisplay = formatShiftDisplay(assignedShift.expectedTime);
+
+  function handleCheckIn() {
+    const evaluation = evaluateCheckIn(new Date(), user?.id || user?.email);
+    checkIn.mutate(evaluation.note);
+  }
+
   return (
     <div className="flex flex-col gap-8">
       <PortalPageHeader
         title="My Attendance"
         description="Log your working hours and review the last 60 days."
       />
+
+      {/* Shift Schedule Alert */}
+      <div className="border border-adm-blue/30 bg-adm-blue/5 p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div className="flex items-center gap-3">
+          <div className="p-2 bg-adm-blue/10 text-adm-blue border border-adm-blue/20">
+            <Clock size={18} />
+          </div>
+          <div>
+            <p className="text-xs font-bold text-adm-text">
+              Assigned Shift: {shiftDisplay}
+            </p>
+            <p className="text-[11px] text-adm-text-3">
+              Standard check-in deadline with {assignedShift.graceMinutes}m grace period. Check-in after this window automatically records as Late.
+            </p>
+          </div>
+        </div>
+
+        <span className="font-mono text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 border border-adm-border bg-adm-surface text-adm-text-2 self-start sm:self-auto">
+          Grace Period: {assignedShift.graceMinutes} min
+        </span>
+      </div>
 
       <Panel title="Today" icon={Clock} tone={checkedIn ? "green" : "amber"}>
         <p className="text-sm text-adm-text-2">
@@ -86,16 +119,21 @@ export default function EmployeeAttendancePage() {
           {todayRecord && (
             <div>
               <Label>Status</Label>
-              <p className="mt-2">
+              <div className="mt-2 flex items-center gap-2">
                 <StatusPill status={todayRecord.status} />
-              </p>
+                {todayRecord.notes && (
+                  <span className="text-[11px] text-adm-text-3 font-mono">
+                    {todayRecord.notes}
+                  </span>
+                )}
+              </div>
             </div>
           )}
         </div>
 
         <div className="mt-7 border-t border-adm-border pt-6">
           {!checkedIn ? (
-            <PortalButton icon={CheckCircle2} disabled={mutating} onClick={() => checkIn.mutate(undefined)}>
+            <PortalButton icon={CheckCircle2} disabled={mutating} onClick={handleCheckIn}>
               {checkIn.isPending ? "Checking in…" : "Check in now"}
             </PortalButton>
           ) : !checkedOut ? (

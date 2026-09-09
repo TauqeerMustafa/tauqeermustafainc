@@ -354,7 +354,7 @@ export function DataTable({
   head,
   children,
 }: {
-  head: readonly string[];
+  head: readonly (string | ReactNode)[];
   children: ReactNode;
 }) {
   return (
@@ -363,9 +363,9 @@ export function DataTable({
         <table className="w-full min-w-[560px] border-collapse text-left text-sm">
           <thead>
             <tr className="border-b border-adm-border bg-adm-surface-2/60">
-              {head.map((cell) => (
+              {head.map((cell, idx) => (
                 <th
-                  key={cell}
+                  key={typeof cell === "string" ? cell : `head-${idx}`}
                   className="px-5 py-3 text-[11px] font-medium uppercase tracking-wider text-adm-text-3"
                   scope="col"
                 >

@@ -44,7 +44,7 @@ export type WANumber = {
   slot: number;
   /** Dedicated department: general info & sales or technical support. */
   department?: WADepartment;
-  /** Optional human display phone number e.g. +92 335 6701199 */
+  /** Optional human display phone number e.g. +92 333 56701199 */
   displayNumber?: string | null;
 };
 
@@ -124,7 +124,7 @@ function build(): WANumber[] {
       primary: true,
       slot: 1,
       department: "general",
-      displayNumber: "+92 335 6701199",
+      displayNumber: "+92 333 56701199",
     });
   }
   if (secondId) {

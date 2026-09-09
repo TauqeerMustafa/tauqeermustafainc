@@ -198,22 +198,22 @@ export default function Navbar() {
               />
             </button>
 
-            {/* Precision Subdomains Flyout Panel */}
+            {/* Precision Subdomains Flyout Panel - Solid Opaque Background */}
             {isDropdownOpen && (
               <div
                 role="menu"
-                className="absolute right-0 top-full mt-1.5 w-[22rem] sm:w-[24rem] border border-ink/15 bg-canvas/95 backdrop-blur-xl p-2 shadow-[0_24px_60px_rgba(0,0,0,0.4)] z-50 animate-in fade-in-0 zoom-in-95 duration-150"
+                className="absolute right-0 top-full mt-1.5 w-[21rem] border border-ink/20 dark:border-white/20 bg-surface dark:bg-[#0c111a] p-3 shadow-[0_24px_60px_rgba(0,0,0,0.6)] z-50 animate-in fade-in-0 zoom-in-95 duration-150"
               >
                 {/* Subtle M-stripe top accent rail */}
-                <div className="flex h-[2px] w-full mb-1" aria-hidden="true">
+                <div className="flex h-[2px] w-full mb-2.5" aria-hidden="true">
                   <span className="flex-1 bg-m-blue" />
                   <span className="flex-1 bg-m-blue-mid" />
                   <span className="flex-1 bg-m-red" />
                 </div>
 
                 {/* Header telemetry badge */}
-                <div className="flex items-center justify-between border-b border-ink/10 px-2.5 py-1.5 mb-1">
-                  <span className="font-mono text-[10px] font-bold uppercase tracking-[0.14em] text-ink/45">
+                <div className="flex items-center justify-between border-b border-ink/10 dark:border-white/10 pb-2 mb-2.5 px-0.5">
+                  <span className="font-mono text-[10px] font-bold uppercase tracking-[0.14em] text-ink/50 dark:text-white/55">
                     Company Subdomains
                   </span>
                   <span className="inline-flex items-center gap-1.5 font-mono text-[9px] uppercase tracking-[0.1em] text-action">
@@ -222,8 +222,8 @@ export default function Navbar() {
                   </span>
                 </div>
 
-                {/* Subdomain gateway cards */}
-                <div className="grid gap-0.5">
+                {/* Clean Subdomain Tag Grid */}
+                <div className="grid grid-cols-1 gap-1.5">
                   {companySubdomains.map((item) => {
                     const Icon = item.icon;
                     return (
@@ -233,43 +233,22 @@ export default function Navbar() {
                         target="_blank"
                         rel="noopener noreferrer"
                         onClick={() => setIsDropdownOpen(false)}
-                        className="group/item flex items-start gap-3 border-l-2 border-transparent p-2.5 transition-all hover:border-action hover:bg-ink/[0.04] focus-visible:outline focus-visible:outline-2 focus-visible:outline-action"
+                        className="group/tag flex items-center justify-between border border-ink/15 dark:border-white/15 bg-ink/[0.03] dark:bg-white/[0.04] px-3 py-2 text-ink dark:text-white transition-all hover:border-action hover:bg-action/[0.08] hover:text-action focus-visible:outline focus-visible:outline-2 focus-visible:outline-action"
                         role="menuitem"
                       >
-                        <span className="flex h-8 w-8 shrink-0 items-center justify-center border border-ink/10 bg-ink/[0.03] text-ink/60 transition-colors group-hover/item:border-action/40 group-hover/item:bg-action/[0.08] group-hover/item:text-action">
-                          <Icon className="h-4 w-4" aria-hidden="true" />
+                        <span className="flex items-center gap-2.5">
+                          <Icon className="h-3.5 w-3.5 text-action shrink-0" aria-hidden="true" />
+                          <span className="font-mono text-[11px] font-bold uppercase tracking-[0.08em]">
+                            {item.name}
+                          </span>
                         </span>
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center justify-between gap-2">
-                            <span className="font-mono text-[11px] font-bold uppercase tracking-[0.08em] text-ink group-hover/item:text-action transition-colors flex items-center gap-1">
-                              {item.name}
-                              <ArrowUpRight
-                                className="h-3 w-3 text-ink/30 group-hover/item:text-action transition-colors"
-                                aria-hidden="true"
-                              />
-                            </span>
-                            <span className="font-mono text-[9px] tracking-tight text-ink/45 bg-ink/[0.04] border border-ink/10 px-1.5 py-0.5 shrink-0 group-hover/item:border-ink/25 transition-colors">
-                              {item.host}
-                            </span>
-                          </div>
-                          <p className="mt-0.5 text-[11px] font-light leading-snug text-ink/55 group-hover/item:text-ink/80 transition-colors">
-                            {item.description}
-                          </p>
-                        </div>
+                        <span className="flex items-center gap-1.5 font-mono text-[9px] text-ink/45 dark:text-white/45 group-hover/tag:text-action">
+                          <span>{item.host}</span>
+                          <ArrowUpRight className="h-3 w-3 shrink-0 opacity-60 group-hover/tag:opacity-100" aria-hidden="true" />
+                        </span>
                       </a>
                     );
                   })}
-                </div>
-
-                {/* Operational status footer rail */}
-                <div className="mt-1 flex items-center justify-between border-t border-ink/10 px-2.5 pt-2 pb-0.5">
-                  <span className="font-mono text-[9px] uppercase tracking-[0.08em] text-ink/40">
-                    tauqeermustafa.tech
-                  </span>
-                  <span className="inline-flex items-center gap-1.5 font-mono text-[9px] uppercase tracking-[0.1em] text-emerald-500">
-                    <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
-                    All Systems Operational
-                  </span>
                 </div>
               </div>
             )}

@@ -38,12 +38,12 @@ export function FounderPortrait({
           priority
         />
 
-        {/* Bottom veil — dissolves smoothly into the caption */}
+        {/* Subtle bottom scrim — keeps caption readable without obscuring the photo */}
         <div
-          className="pointer-events-none absolute inset-0"
+          className="pointer-events-none absolute inset-x-0 bottom-0 h-32"
           aria-hidden
           style={{
-            background: `linear-gradient(to top, ${CANVAS} 0%, rgba(26,33,41,0.88) 18%, rgba(26,33,41,0.3) 48%, transparent 68%)`,
+            background: `linear-gradient(to top, rgba(15,20,28,0.92) 0%, rgba(15,20,28,0.5) 45%, transparent 100%)`,
           }}
         />
       </div>

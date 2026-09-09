@@ -168,6 +168,7 @@ export const PORTAL_NAV: Record<PortalId, NavSection[]> = {
           permission: [PERMISSION.LEADS_READ_OWN],
         },
         { label: "Projects", href: "/employees/projects", icon: FolderKanban },
+        { label: "Direct Chat", href: "/employees/chat", icon: MessageCircle },
         { label: "Webmail", href: "/employees/messages", icon: Mail },
       ],
     },
