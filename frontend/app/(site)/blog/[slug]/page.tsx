@@ -199,28 +199,6 @@ export default async function BlogDetailPage({
             ))}
           </div>
         </div>
-
-        {/* Author Bio */}
-        <div className="mx-auto mt-12 max-w-[720px] border border-line bg-surface p-6 flex flex-col sm:flex-row items-start sm:items-center gap-5">
-          <div className="relative h-16 w-16 shrink-0 overflow-hidden border border-line bg-canvas">
-            <Image
-              src="/images/about/founder.jpg"
-              alt="Tauqeer Mustafa"
-              fill
-              sizes="64px"
-              className="object-cover"
-            />
-          </div>
-          <div>
-            <p className="font-mono text-[10px] font-semibold uppercase tracking-[0.14em] text-action">
-              Author // Leadership
-            </p>
-            <p className="mt-1 text-base font-bold uppercase text-ink">Tauqeer Mustafa</p>
-            <p className="text-xs text-ink-muted leading-relaxed">
-              Founder &amp; Chief Architect at Tauqeer Mustafa Inc. Leads every engagement across high-performance web systems, cloud infrastructure, AI automation, and cybersecurity.
-            </p>
-          </div>
-        </div>
       </Section>
 
       {/* Related posts */}
