@@ -59,3 +59,6 @@ export type ImageCategory = keyof typeof imageLibrary;
  * portrait must never be presented as a named person.
  */
 export const founderPortrait = "/images/about/founder.jpg";
+export const founderPortraitExecutive = "/images/about/founder-executive.jpg";
+export const founderPortraitStudio = "/images/about/founder-studio.jpg";
+export const founderPortraitAuthentic = "/images/about/founder-authentic.jpg";
