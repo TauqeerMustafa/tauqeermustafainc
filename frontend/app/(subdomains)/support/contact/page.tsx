@@ -84,11 +84,11 @@ export default function ContactDirectoryPage() {
         </div>
 
         <a
-          href="tel:+923281313982"
+          href="tel:+9233356701199"
           className="px-6 py-3 bg-rose-600 text-white font-mono text-xs font-bold uppercase hover:bg-rose-700 transition flex items-center gap-2 shrink-0"
         >
           <PhoneCall size={14} />
-          <span>Call +92 328 1313982</span>
+          <span>Call +92 333 56701199</span>
         </a>
       </div>
 

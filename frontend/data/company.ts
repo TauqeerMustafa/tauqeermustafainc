@@ -73,9 +73,9 @@ export const company = {
     },
     support: {
       name: "Technical & Client Support",
-      number: "+92 328 1313982",
+      number: "wa.me/message/TJILSTIMLJHVK1",
       url: "https://wa.me/message/TJILSTIMLJHVK1",
-      displayNumber: "+92 328 1313982",
+      displayNumber: "wa.me/message/TJILSTIMLJHVK1",
       description: "24/7 client helpdesk, SLA ticket escalation, and live technical support",
       action: "Contact Support Desk",
       badge: "24/7 Client Support",

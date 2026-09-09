@@ -136,7 +136,7 @@ function build(): WANumber[] {
       primary: numbers.length === 0,
       slot: 1,
       department: "support",
-      displayNumber: "+92 328 1313982",
+      displayNumber: clean(process.env.WHATSAPP_DISPLAY_NUMBER_2) || "Support Desk",
     });
   }
   return dedupe(numbers);
@@ -262,7 +262,7 @@ export function getChannelDepartment(
     return "general";
   }
   const clean = idOrNumber.replace(/[^0-9]/g, "");
-  if (idOrNumber.toLowerCase().includes("support") || idOrNumber === DEFAULT_SECOND_ID || clean.endsWith("3281313982")) {
+  if (idOrNumber.toLowerCase().includes("support") || idOrNumber === DEFAULT_SECOND_ID) {
     return "support";
   }
   return "general";

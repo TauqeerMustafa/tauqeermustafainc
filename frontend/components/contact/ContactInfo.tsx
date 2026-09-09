@@ -36,7 +36,7 @@ const items: ContactItem[] = [
   },
   {
     label: "WhatsApp (Support Desk)",
-    value: company.whatsappChannels.support.number,
+    value: company.whatsappChannels.support.displayNumber,
     icon: FaWhatsapp,
     href: company.whatsappChannels.support.url,
     external: true,

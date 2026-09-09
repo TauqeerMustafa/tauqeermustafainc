@@ -52,7 +52,7 @@ On the main domain:
    - Forwarding to `/api/contact` backend service.
 
 2. **Multichannel Escalation**:
-   - 24/7 Production Hotline: `+92 328 1313982`.
+   - 24/7 Production Hotline: `+92 333 56701199`.
    - Direct corporate WhatsApp concierge with pre-formatted greetings.
    - Departmental emails: `support@tauqeermustafa.tech`, `billing@tauqeermustafa.tech`, `clients@tauqeermustafa.tech`, `legal@tauqeermustafa.tech`.
 

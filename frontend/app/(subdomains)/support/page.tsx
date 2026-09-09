@@ -34,7 +34,7 @@ export default async function SupportPage({
             url: "https://support.tauqeermustafa.tech",
             mainEntity: {
               "@type": "CustomerService",
-              telephone: "+92 328 1313982",
+              telephone: "+92 333 56701199",
               email: "support@tauqeermustafa.tech",
               contactType: "technical support",
               availableLanguage: ["English", "Urdu"],

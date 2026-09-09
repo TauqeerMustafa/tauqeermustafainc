@@ -94,7 +94,7 @@ const KNOWLEDGE_ARTICLES = [
     summary:
       "Immediate triage protocols for mission-critical system downtime, security breaches, or data loss.",
     steps: [
-      "Call the direct 24/7 emergency dispatch desk at +92 328 1313982.",
+      "Call the direct 24/7 emergency dispatch desk at +92 333 56701199.",
       "Submit a support ticket tagged with severity 'P1 - Critical Outage'.",
       "Our incident commander responds within 15 to 60 minutes with a dedicated bridge link.",
       "Live status will be broadcasted on https://support.tauqeermustafa.tech/status.",
@@ -138,7 +138,7 @@ const FAQS = [
   },
   {
     q: "Can I communicate directly with your engineering leads via WhatsApp?",
-    a: "Yes. For clients with active retainers, we provide automated WhatsApp integration and direct concierge channels via our corporate WhatsApp line at +92 328 1313982.",
+    a: "Yes. For clients with active retainers, we provide direct concierge channels via our official WhatsApp Support at https://wa.me/message/TJILSTIMLJHVK1.",
   },
   {
     q: "Where do I track the resolution status of my support ticket?",
@@ -398,7 +398,7 @@ export default function SupportHubClient({ initialTab = "overview" }: { initialT
 
         {/* Card 3: Emergency Hotline */}
         <a
-          href="tel:+923281313982"
+          href="tel:+9233356701199"
           className="flex flex-col p-5 bg-surface border border-line-2 hover:border-rose-500 transition text-left group shadow-sm"
         >
           <div className="flex items-center justify-between w-full mb-3">
@@ -416,7 +416,7 @@ export default function SupportHubClient({ initialTab = "overview" }: { initialT
             Immediate hotline for production system downtime & security incidents.
           </p>
           <div className="mt-4 flex items-center gap-1 font-mono text-xs font-bold text-rose-600 dark:text-rose-400 uppercase">
-            <span>Call +92 328 1313982</span>
+            <span>Call +92 333 56701199</span>
             <PhoneCall size={12} className="group-hover:translate-x-1 transition" />
           </div>
         </a>
@@ -845,7 +845,7 @@ export default function SupportHubClient({ initialTab = "overview" }: { initialT
                     <div className="mt-2 p-3 bg-rose-500/10 border border-rose-500/20 text-xs text-rose-700 dark:text-rose-400 flex items-center gap-2">
                       <AlertTriangle size={16} className="shrink-0" />
                       <span>
-                        P1 triggers automated SMS and phone dispatch to the on-call incident team. For immediate voice bridge, call <strong>+92 328 1313982</strong>.
+                        P1 triggers automated SMS and phone dispatch to the on-call incident team. For immediate voice bridge, call <strong>+92 333 56701199</strong>.
                       </span>
                     </div>
                   )}

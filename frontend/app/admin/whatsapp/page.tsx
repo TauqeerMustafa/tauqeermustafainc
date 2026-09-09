@@ -240,7 +240,6 @@ function withSeenChannels(
     if (extras.some((e) => e.id === ch || cleanDigits(e.id) === cleanDigits(ch))) continue;
     const isSupport =
       ch.toLowerCase().includes("support") ||
-      cleanDigits(ch).endsWith("3281313982") ||
       ch === "1318810581311680";
     extras.push({
       id: ch,
@@ -249,7 +248,7 @@ function withSeenChannels(
       slot: 1,
       canSend: false,
       department: isSupport ? "support" : "general",
-      displayNumber: isSupport ? "+92 328 1313982" : null,
+      displayNumber: null,
       error: "Received messages arrived on this number, but Meta has not confirmed it — replies may not send until it is configured.",
     });
   }
@@ -264,7 +263,6 @@ function getMessageDepartment(m: WAMessage, allNumbers: WANumberInfo[] = []): "g
   const ch = channelOf(m);
   if (
     ch.toLowerCase().includes("support") ||
-    cleanDigits(ch).endsWith("3281313982") ||
     ch === "1318810581311680"
   ) {
     return "support";
@@ -520,7 +518,7 @@ export default function AdminWhatsAppPage() {
                 </span>
               </div>
               <p className="text-xs font-mono font-medium text-adm-text-2 mt-0.5">
-                {supportLine?.displayNumber || "+92 328 1313982"}
+                {supportLine?.displayNumber || "Online Desk"}
               </p>
               <p className="text-xs text-adm-text-3 mt-1">
                 24/7 client helpdesk, SLA incident handling & technical issue reports
@@ -882,7 +880,7 @@ function InboxTab({
       return {
         label: "Line 2 (Support)",
         isPrimary: false,
-        displayNumber: "+92 328 1313982",
+        displayNumber: "Support Desk",
       };
     }
     return {
@@ -918,7 +916,7 @@ function InboxTab({
                   : "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-300"
               }`}
             >
-              {department === "general" ? "+92 333 56701199" : "+92 328 1313982"}
+              {department === "general" ? "+92 333 56701199" : "Support Desk"}
             </span>
           </div>
           <div className="flex items-center gap-1" style={{ color: WA.icon }}>
@@ -1426,7 +1424,7 @@ function ChatView({
               {(conv.department || department) === "support" ? (
                 <span className="inline-flex items-center gap-1 font-semibold text-emerald-600 dark:text-emerald-400">
                   <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 inline-block" />
-                  Technical Support Line • +92 328 1313982
+                  Technical Support Line • Support Desk
                 </span>
               ) : (
                 <span className="inline-flex items-center gap-1 font-semibold text-adm-blue">
@@ -1650,7 +1648,7 @@ function ChatView({
               }`}
             />
             {(conv.department || department) === "support"
-              ? "Support Desk (+92 328 1313982)"
+              ? "Support Desk"
               : "General Inquiries (+92 333 56701199)"}
           </span>
         </div>
@@ -2226,7 +2224,7 @@ function SendTab({
               </p>
               <p className="text-[11px] opacity-80">
                 {department === "support"
-                  ? "Outbound messages will send from client support line +92 328 1313982"
+                  ? "Outbound messages will send from client support line"
                   : "Outbound messages will send from corporate general line +92 333 56701199"}
               </p>
             </div>
@@ -3744,7 +3742,7 @@ function StatsTab({ department = "general" }: { department?: "general" | "suppor
           <p className="text-sm" style={{ color: "var(--adm-text-3)" }}>
             {department === "general"
               ? "Message volume and traffic for Corporate Line (+92 333 56701199)"
-              : "Message volume and traffic for Support Desk Line (+92 328 1313982)"}
+              : "Message volume and traffic for Support Desk Line"}
           </p>
         </div>
         <span
@@ -4033,7 +4031,7 @@ function PipelineTab({
               : "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-300"
           }`}
         >
-          {department === "general" ? "Line 1: +92 333 56701199" : "Line 2: +92 328 1313982"}
+          {department === "general" ? "Line 1: +92 333 56701199" : "Line 2: Support Desk"}
         </span>
       </div>
 
