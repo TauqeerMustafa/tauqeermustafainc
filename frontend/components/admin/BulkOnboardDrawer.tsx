@@ -304,7 +304,7 @@ function BulkOnboardForm({
                   value={row.companyEmail}
                   disabled={running || row.state === "done"}
                   onChange={(event) => patch(row.key, { companyEmail: event.target.value })}
-                  placeholder="name@tauqeermustafa.tech"
+                  placeholder="name@company.com"
                   aria-label={`Company address for ${row.name}`}
                   className="mt-2 w-full border px-2 py-1.5 text-xs outline-none transition focus:border-adm-blue"
                   style={adminInputStyle}

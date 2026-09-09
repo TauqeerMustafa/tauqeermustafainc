@@ -242,11 +242,12 @@ async function handleAutoReply(
   choiceId: string | null
 ) {
   const phoneNumberId = isKnownNumber(channel) ? channel : primaryNumberId();
-    if (!phoneNumberId) return;
-    const numberDef = waNumbers().find((n) => n.id === phoneNumberId);
-    const account = accountAt(numberDef?.slot ?? 1);
-    const token = account.token;
-    if (!token) return;
+  if (!phoneNumberId) return;
+  const numberDef = waNumbers().find((n) => n.id === phoneNumberId);
+  const account = accountAt(numberDef?.slot ?? 1);
+  const token = account.token;
+  if (!token) return;
+
   // A tap carries an id but sometimes no useful text; plain messages are the
   // other way round. Nothing to work with means nothing to answer.
   if (!incomingText && !choiceId) return;
@@ -267,7 +268,10 @@ async function handleAutoReply(
       return;
     }
 
-    if (await isFirstContact(to)) {
+    const cleanText = (incomingText || "").trim().toLowerCase();
+    const isStartCmd = /^(start|menu|hi|hello|hey|services|help|options|bot|0|restart|info)$/i.test(cleanText);
+
+    if (isStartCmd || (await isFirstContact(to))) {
       const entry = await getEffectiveFlowStep(FLOW_ENTRY, dept);
       if (entry) {
         await sendFlowStep(token, phoneNumberId, to, entry, msgId);

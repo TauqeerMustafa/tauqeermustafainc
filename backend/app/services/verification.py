@@ -10,26 +10,63 @@ from app.core.config import settings
 logger = logging.getLogger(__name__)
 
 
-def send_email_code(email: str, code: str) -> None:
-    if not all((settings.smtp_host, settings.smtp_from_email)):
-        if settings.environment == "production":
-            raise RuntimeError("SMTP is not configured")
-        logger.warning("SMTP is not configured; email verification code generated for %s", email)
-        return
-    message = EmailMessage()
-    message["Subject"] = "Your TMI client portal verification code"
-    message["From"] = settings.smtp_from_email
-    message["To"] = email
-    message.set_content(
-        f"Your TMI client portal verification code is {code}. It expires in "
+def send_email_code(email: str, code: str) -> bool:
+    subject = "Your Tauqeer Mustafa Inc. verification code"
+    text = (
+        f"Your Tauqeer Mustafa Inc. client portal verification code is {code}. It expires in "
         f"{settings.verification_code_ttl_minutes} minutes. If you did not request this, ignore this email."
     )
-    with smtplib.SMTP(settings.smtp_host, settings.smtp_port, timeout=20) as server:
-        if settings.smtp_use_tls:
-            server.starttls()
-        if settings.smtp_username and settings.smtp_password:
-            server.login(settings.smtp_username, settings.smtp_password)
-        server.send_message(message)
+
+    # 1. Try sending via open.email if configured
+    if settings.openemail_api_key:
+        try:
+            from app.services import openemail
+            candidates = [m for m in openemail.list_mailboxes() if m.get("primaryAddress")]
+            candidates.sort(key=lambda m: 0 if str(m["primaryAddress"]).startswith("admin@") else 1)
+            mb = next(iter(candidates), None)
+            if mb and mb.get("id") and mb.get("primaryAddress"):
+                openemail.send_message(
+                    mb["id"],
+                    from_email=mb["primaryAddress"],
+                    from_name="Tauqeer Mustafa Inc",
+                    to=[email],
+                    subject=subject,
+                    text=text,
+                    save=False,
+                )
+                logger.info("Sent verification code to %s via open.email", email)
+                return True
+        except Exception as exc:
+            logger.warning("open.email failed to send verification code to %s: %s", email, exc)
+
+    # 2. Try sending via SMTP if configured
+    if all((settings.smtp_host, settings.smtp_from_email)):
+        try:
+            message = EmailMessage()
+            message["Subject"] = subject
+            message["From"] = settings.smtp_from_email
+            message["To"] = email
+            message.set_content(text)
+            if settings.smtp_port == 465:
+                with smtplib.SMTP_SSL(settings.smtp_host, settings.smtp_port, timeout=12) as server:
+                    if settings.smtp_username and settings.smtp_password:
+                        server.login(settings.smtp_username, settings.smtp_password)
+                    server.send_message(message)
+            else:
+                with smtplib.SMTP(settings.smtp_host, settings.smtp_port, timeout=12) as server:
+                    if settings.smtp_use_tls:
+                        server.starttls()
+                    if settings.smtp_username and settings.smtp_password:
+                        server.login(settings.smtp_username, settings.smtp_password)
+                    server.send_message(message)
+            logger.info("Sent verification code to %s via SMTP", email)
+            return True
+        except Exception as exc:
+            logger.warning("SMTP failed to send verification code to %s: %s", email, exc)
+            return False
+
+    logger.warning("No active email provider configured; verification code %s generated for %s", code, email)
+    return False
 
 
 def google_authorization_url(state: str) -> str:

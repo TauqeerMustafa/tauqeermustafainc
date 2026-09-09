@@ -122,7 +122,7 @@ export default function LoginForm({
                   id="login-email"
                   type="email"
                   autoComplete="email"
-                  placeholder="you@tauqeermustafa.tech"
+                  placeholder="you@company.com"
                   className={inputClass}
                   {...register("email")}
                 />

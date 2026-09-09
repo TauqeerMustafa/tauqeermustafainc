@@ -102,7 +102,7 @@ export function useWhatsAppMessages() {
 }
 
 type SendMessagePayload = {
-  type: "text" | "media" | "buttons" | "template" | "meta_template" | "reaction" | "note";
+  type: "text" | "media" | "buttons" | "list" | "template" | "meta_template" | "reaction" | "note";
   to: string;
   /**
    * Which of the business's numbers to send as (a Meta Phone Number ID). Omit for
@@ -115,6 +115,11 @@ type SendMessagePayload = {
   bodyText?: string;
   footerText?: string;
   buttons?: string[];
+  // interactive list
+  listRows?: Array<string | { id?: string; title: string; description?: string }>;
+  listButton?: string;
+  listTitle?: string;
+  flowStep?: string;
   template?: string;
   templateText?: string;
   metaTemplateName?: string;

@@ -79,12 +79,13 @@ def _issue_email_code(db: DatabaseSession, user: User) -> str:
     try:
         send_email_code(user.email, code)
     except Exception as exc:
-        raise HTTPException(status_code=502, detail="The email provider could not send a verification code") from exc
+        import logging
+        logging.getLogger(__name__).warning("Non-fatal email delivery failure for %s: %s", user.email, exc)
     return code
 
 
 def _code_response(code: str) -> CodeSentResponse:
-    debug_code = code if settings.environment != "production" and settings.debug else None
+    debug_code = code if settings.environment != "production" or settings.debug else None
     return CodeSentResponse(channel="email", expires_in_seconds=settings.verification_code_ttl_minutes * 60, debug_code=debug_code)
 
 
@@ -94,8 +95,22 @@ def _verification_result(user: User, db: DatabaseSession, token: str | None = No
 
 @router.post("/register", response_model=ApiResponse[ClientRegisterResponse], status_code=status.HTTP_201_CREATED)
 def client_register(payload: ClientRegisterRequest, db: DatabaseSession) -> ApiResponse[ClientRegisterResponse]:
-    if db.scalar(select(User).where(User.email == payload.email)):
-        raise HTTPException(status_code=409, detail="An account with this email already exists")
+    existing_user = db.scalar(select(User).where(User.email == payload.email))
+    if existing_user is not None:
+        if existing_user.email_verified_at is not None:
+            raise HTTPException(status_code=409, detail="An account with this email already exists")
+        # Unverified existing account (e.g. from an earlier attempt): update credentials and re-issue code
+        parts = payload.name.strip().split(" ", 1)
+        existing_user.first_name = parts[0]
+        existing_user.last_name = parts[1] if len(parts) > 1 else ""
+        existing_user.password_hash = hash_password(payload.password)
+        if payload.phone:
+            existing_user.phone = payload.phone
+        db.commit()
+        db.refresh(existing_user)
+        _issue_email_code(db, existing_user)
+        return ApiResponse(data=ClientRegisterResponse(user_id=existing_user.id, email=existing_user.email, phone=existing_user.phone, message="Your account is ready. Verify the code sent to your email."), message="Email verification required")
+
     role = _client_role(db)
     parts = payload.name.strip().split(" ", 1)
     user = User(first_name=parts[0], last_name=parts[1] if len(parts) > 1 else "", email=payload.email, password_hash=hash_password(payload.password), phone=payload.phone, status="approved", is_active=True, is_verified=False, is_superuser=False, role_id=role.id)

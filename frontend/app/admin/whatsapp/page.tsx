@@ -37,6 +37,9 @@ import {
   X,
   Briefcase,
   LifeBuoy,
+  Plus,
+  List,
+  ArrowRight,
 } from "lucide-react";
 
 import {
@@ -86,7 +89,7 @@ import { MessageMedia, mediaKindOf } from "@/components/admin/whatsapp/MessageMe
 import { BUTTON_TEMPLATES } from "@/lib/button-templates";
 import { countVariables } from "@/lib/meta-templates";
 
-type MessageType = "text" | "media" | "buttons" | "template";
+type MessageType = "text" | "media" | "buttons" | "list" | "template";
 type TabKey = "inbox" | "pipeline" | "send" | "templates" | "rules" | "flow" | "stats" | "numbers";
 type DealStatus = "new" | "contacted" | "negotiating" | "won" | "lost";
 
@@ -3104,20 +3107,40 @@ function TemplateManager({ templates }: { templates: WATemplate[] }) {
 
 // ─── Auto-Reply Rules ─────────────────────────────────────────────────────
 
-// ??? Programmatic Lead Flow Editor ??????????????????????????????????????????
+// ─── Programmatic Lead Flow Editor ──────────────────────────────────────────
 
 const FLOW_STEP_LABELS: Record<string, { label: string; icon: string }> = {
-  start: { label: "1. Initial Greeting & Services", icon: "?" },
-  security: { label: "2. Cybersecurity Follow-up", icon: "???" },
-  compliance: { label: "3. Compliance Follow-up", icon: "??" },
-  seo: { label: "4. SEO & AdSense Follow-up", icon: "??" },
-  client: { label: "5. Existing Client Support", icon: "??" },
-  careers: { label: "6. Careers & Internship", icon: "??" },
-  details: { label: "7. Lead Intake Questions", icon: "??" },
-  urgent: { label: "8. Urgent Incident Alert", icon: "??" },
-  apply: { label: "9. Job Application Instructions", icon: "??" },
-  human: { label: "10. Talk to Human / Hours", icon: "??" },
+  start: { label: "1. Category (List)", icon: "📋" },
+  scope_security: { label: "2a. Cybersecurity Scope (List)", icon: "🛡️" },
+  scope_compliance: { label: "2b. Compliance Scope (List)", icon: "⚖️" },
+  scope_seo: { label: "2c. SEO Scope (List)", icon: "📈" },
+  scope_client: { label: "2d. Client Scope (List)", icon: "💼" },
+  scope_general: { label: "2e. Careers Scope (List)", icon: "👥" },
+  step3_scale: { label: "3. Scale & Timeline (List)", icon: "🏢" },
+  step4_format: { label: "4. Consultation Mode (Buttons)", icon: "🔘" },
+  step5_action: { label: "5. Action Confirmation (Buttons)", icon: "✅" },
+  details: { label: "6a. Lead Intake (Text)", icon: "📝" },
+  briefing: { label: "6b. Briefing Request (Text)", icon: "📄" },
+  human: { label: "6c. Human Advisor (Text)", icon: "👤" },
+  urgent: { label: "6d. Urgent Escalation (Text)", icon: "🚨" },
+  apply: { label: "6e. Job Application (Text)", icon: "💼" },
+  supp_scope: { label: "2. Support Scope (List)", icon: "🔧" },
+  supp_impact: { label: "3. Severity & Impact (List)", icon: "⚠️" },
+  supp_channel: { label: "4. Dispatch Channel (Buttons)", icon: "📡" },
+  supp_confirm: { label: "5. Dispatch Confirmation (Buttons)", icon: "⚡" },
+  supp_ticket_intake: { label: "6. Ticket Registration (Text)", icon: "🎫" },
+  check_ticket: { label: "Ticket Tracker (Text)", icon: "🔍" },
+  speak_lead: { label: "Duty Lead (Text)", icon: "🧑‍💻" },
+  hotline_info: { label: "24/7 Hotline (Text)", icon: "📞" },
+  status_hub: { label: "System Status (Text)", icon: "📊" },
+  sla_info: { label: "SLA Response (Text)", icon: "⏱️" },
 };
+
+function getStepMeta(step: FlowStep, idx: number) {
+  if (FLOW_STEP_LABELS[step.id]) return FLOW_STEP_LABELS[step.id];
+  const icon = step.kind === "list" ? "📋" : step.kind === "buttons" ? "🔘" : "💬";
+  return { label: `${idx + 1}. ${step.id}`, icon };
+}
 
 function FlowTab({ department }: { department?: "general" | "support" }) {
   const { data, isLoading, isError, refetch } = useWhatsAppFlow(department);
@@ -3149,32 +3172,256 @@ function FlowTab({ department }: { department?: "general" | "support" }) {
     );
   };
 
-  const updateListRow = (secIndex: number, rowIndex: number, field: string, value: string) => {
+  const changeStepKind = (newKind: "list" | "buttons" | "text") => {
     setSteps((prev) =>
       prev.map((s) => {
-        if (s.id !== selectedStepId || s.kind !== "list") return s;
-        const newSecs = [...s.sections];
-        const sec = { ...newSecs[secIndex] };
-        const newRows = [...sec.rows];
-        newRows[rowIndex] = { ...newRows[rowIndex], [field]: value };
-        sec.rows = newRows;
-        newSecs[secIndex] = sec;
-        return { ...s, sections: newSecs };
+        if (s.id !== selectedStepId) return s;
+        if (s.kind === newKind) return s;
+        const targetFallback = prev.find((other) => other.id !== s.id)?.id || "details";
+        if (newKind === "list") {
+          return {
+            kind: "list",
+            id: s.id,
+            header: (s as any).header || "Tauqeer Mustafa Inc",
+            body: s.body,
+            footer: (s as any).footer || "Mon to Sat, 09:00 to 18:00 PKT",
+            button: "Choose an option",
+            sections: [
+              {
+                title: "Options",
+                rows: [
+                  {
+                    id: `${s.id}_row1`,
+                    title: "Option 1",
+                    description: "First option description",
+                    next: targetFallback,
+                  },
+                ],
+              },
+            ],
+          };
+        } else if (newKind === "buttons") {
+          return {
+            kind: "buttons",
+            id: s.id,
+            header: (s as any).header || "Tauqeer Mustafa Inc",
+            body: s.body,
+            footer: (s as any).footer || "Select an option below",
+            buttons: [
+              {
+                id: `${s.id}_btn1`,
+                title: "Option 1",
+                next: targetFallback,
+              },
+            ],
+          };
+        } else {
+          return {
+            kind: "text",
+            id: s.id,
+            body: s.body,
+          };
+        }
       })
     );
   };
 
-  const updateButtonTitle = (btnIndex: number, title: string) => {
+  // Buttons helpers
+  const addButton = () => {
+    if (currentStep.kind !== "buttons") return;
+    if (currentStep.buttons.length >= 3) {
+      alert("WhatsApp Cloud API strictly caps interactive reply buttons at 3 per message.");
+      return;
+    }
+    const targetFallback = steps.find((other) => other.id !== currentStep.id)?.id || "details";
+    setSteps((prev) =>
+      prev.map((s) => {
+        if (s.id !== selectedStepId || s.kind !== "buttons") return s;
+        return {
+          ...s,
+          buttons: [
+            ...s.buttons,
+            {
+              id: `${s.id}_btn${Date.now().toString().slice(-4)}`,
+              title: `Button ${s.buttons.length + 1}`,
+              next: targetFallback,
+            },
+          ],
+        };
+      })
+    );
+  };
+
+  const removeButton = (btnIdx: number) => {
+    setSteps((prev) =>
+      prev.map((s) => {
+        if (s.id !== selectedStepId || s.kind !== "buttons") return s;
+        return { ...s, buttons: s.buttons.filter((_, i) => i !== btnIdx) };
+      })
+    );
+  };
+
+  const updateButtonField = (btnIndex: number, field: "title" | "next" | "id", value: string) => {
     setSteps((prev) =>
       prev.map((s) => {
         if (s.id !== selectedStepId || s.kind !== "buttons") return s;
         const newButtons = [...s.buttons];
         if (newButtons[btnIndex]) {
-          newButtons[btnIndex] = { ...newButtons[btnIndex], title };
+          newButtons[btnIndex] = { ...newButtons[btnIndex], [field]: value };
         }
         return { ...s, buttons: newButtons };
       })
     );
+  };
+
+  // List helpers
+  const addListSection = () => {
+    if (currentStep.kind !== "list") return;
+    const targetFallback = steps.find((other) => other.id !== currentStep.id)?.id || "details";
+    setSteps((prev) =>
+      prev.map((s) => {
+        if (s.id !== selectedStepId || s.kind !== "list") return s;
+        return {
+          ...s,
+          sections: [
+            ...s.sections,
+            {
+              title: `Section ${s.sections.length + 1}`,
+              rows: [
+                {
+                  id: `${s.id}_r${Date.now().toString().slice(-4)}`,
+                  title: "New Option",
+                  description: "Option description",
+                  next: targetFallback,
+                },
+              ],
+            },
+          ],
+        };
+      })
+    );
+  };
+
+  const removeListSection = (secIdx: number) => {
+    setSteps((prev) =>
+      prev.map((s) => {
+        if (s.id !== selectedStepId || s.kind !== "list") return s;
+        return { ...s, sections: s.sections.filter((_, i) => i !== secIdx) };
+      })
+    );
+  };
+
+  const updateSectionTitle = (secIdx: number, title: string) => {
+    setSteps((prev) =>
+      prev.map((s) => {
+        if (s.id !== selectedStepId || s.kind !== "list") return s;
+        const newSecs = [...s.sections];
+        newSecs[secIdx] = { ...newSecs[secIdx], title };
+        return { ...s, sections: newSecs };
+      })
+    );
+  };
+
+  const addListRow = (secIdx: number) => {
+    if (currentStep.kind !== "list") return;
+    const totalRows = currentStep.sections.reduce((acc, sec) => acc + sec.rows.length, 0);
+    if (totalRows >= 10) {
+      alert("WhatsApp interactive list messages accept at most 10 items in total.");
+      return;
+    }
+    const targetFallback = steps.find((other) => other.id !== currentStep.id)?.id || "details";
+    setSteps((prev) =>
+      prev.map((s) => {
+        if (s.id !== selectedStepId || s.kind !== "list") return s;
+        const newSecs = [...s.sections];
+        const sec = { ...newSecs[secIdx] };
+        sec.rows = [
+          ...sec.rows,
+          {
+            id: `${s.id}_r${Date.now().toString().slice(-4)}`,
+            title: `Item ${sec.rows.length + 1}`,
+            description: "",
+            next: targetFallback,
+          },
+        ];
+        newSecs[secIdx] = sec;
+        return { ...s, sections: newSecs };
+      })
+    );
+  };
+
+  const removeListRow = (secIdx: number, rowIdx: number) => {
+    setSteps((prev) =>
+      prev.map((s) => {
+        if (s.id !== selectedStepId || s.kind !== "list") return s;
+        const newSecs = [...s.sections];
+        const sec = { ...newSecs[secIdx] };
+        sec.rows = sec.rows.filter((_, i) => i !== rowIdx);
+        newSecs[secIdx] = sec;
+        return { ...s, sections: newSecs };
+      })
+    );
+  };
+
+  const updateListRowField = (secIdx: number, rowIdx: number, field: string, value: string) => {
+    setSteps((prev) =>
+      prev.map((s) => {
+        if (s.id !== selectedStepId || s.kind !== "list") return s;
+        const newSecs = [...s.sections];
+        const sec = { ...newSecs[secIdx] };
+        const newRows = [...sec.rows];
+        newRows[rowIdx] = { ...newRows[rowIdx], [field]: value };
+        sec.rows = newRows;
+        newSecs[secIdx] = sec;
+        return { ...s, sections: newSecs };
+      })
+    );
+  };
+
+  // Add / Delete step
+  const handleAddNewStep = () => {
+    const rawId = prompt("Enter unique step ID (e.g. custom_service_step):");
+    if (!rawId) return;
+    const cleanId = rawId.trim().toLowerCase().replace(/[^a-z0-9_]/g, "_");
+    if (!cleanId) return;
+    if (steps.some((s) => s.id === cleanId)) {
+      alert(`A step with ID '${cleanId}' already exists.`);
+      return;
+    }
+    const newStep: FlowStep = {
+      kind: "list",
+      id: cleanId,
+      header: "Tauqeer Mustafa Inc",
+      body: "Please select an option from the list below:",
+      footer: "Professional Advisory",
+      button: "Select Option",
+      sections: [
+        {
+          title: "Options",
+          rows: [
+            {
+              id: `${cleanId}_r1`,
+              title: "First Choice",
+              description: "Description of first choice",
+              next: "details",
+            },
+          ],
+        },
+      ],
+    };
+    setSteps((prev) => [...prev, newStep]);
+    setSelectedStepId(cleanId);
+  };
+
+  const handleDeleteCurrentStep = () => {
+    if (selectedStepId === "start") {
+      alert("The initial entry step 'start' cannot be deleted.");
+      return;
+    }
+    if (!confirm(`Are you sure you want to delete step '${selectedStepId}'?`)) return;
+    const remaining = steps.filter((s) => s.id !== selectedStepId);
+    setSteps(remaining);
+    setSelectedStepId(remaining[0]?.id || "start");
   };
 
   const handleSave = async () => {
@@ -3205,30 +3452,30 @@ function FlowTab({ department }: { department?: "general" | "support" }) {
         <div>
           <div className="flex items-center gap-2">
             <h2 className="text-lg font-bold" style={{ color: "var(--adm-text)" }}>
-              Programmatic Bot Flow
+              Programmatic Bot Flow Editor
             </h2>
-            <span
-              className={`rounded-full px-2.5 py-0.5 text-xs font-semibold ${
-                data?.isCustom
-                  ? "bg-adm-surface-2 text-adm-text-2"
-                  : "bg-adm-surface-2 text-adm-text-2"
-              }`}
-            >
-              {data?.isCustom ? "Customized" : "Built-in Defaults"}
+            <span className="rounded-full px-2.5 py-0.5 text-xs font-semibold bg-adm-surface-2 text-adm-text-2 border border-adm-border">
+              {data?.isCustom ? "Customized KV Flow" : "Built-in Defaults"}
             </span>
           </div>
           <p className="text-xs text-adm-text-3 mt-0.5">
-            Automated messages sent to new contacts and interactive option selections.
+            Design interactive List & Button sequence logic for WhatsApp automated messaging.
           </p>
         </div>
 
         <div className="flex items-center gap-2">
           <button
             type="button"
+            onClick={handleAddNewStep}
+            className="flex items-center gap-1 border px-3 py-2 text-xs font-semibold rounded-none hover:bg-adm-surface-2 transition text-adm-blue border-adm-blue/40"
+          >
+            <Plus size={14} /> Add Step
+          </button>
+          <button
+            type="button"
             onClick={handleReset}
             disabled={resetting || resetFlow.isPending}
-            className="border px-3 py-2 text-xs font-semibold rounded-nonehover:bg-adm-surface-2 transition text-adm-text-2 disabled:opacity-50"
-            style={{ borderColor: "var(--adm-border)" }}
+            className="border px-3 py-2 text-xs font-semibold rounded-none hover:bg-adm-surface-2 transition text-adm-text-2 disabled:opacity-50 border-adm-border"
           >
             Reset Defaults
           </button>
@@ -3236,27 +3483,27 @@ function FlowTab({ department }: { department?: "general" | "support" }) {
             type="button"
             onClick={handleSave}
             disabled={saveFlow.isPending}
-            className="flex items-center gap-1.5 px-4 py-2 text-xs font-semibold text-white rounded-nonetransition hover:opacity-90 disabled:opacity-50"
+            className="flex items-center gap-1.5 px-4 py-2 text-xs font-semibold text-white rounded-none transition hover:opacity-90 disabled:opacity-50"
             style={{ background: "var(--adm-blue)" }}
           >
             <Check size={14} />
-            {saveFlow.isPending ? "Saving..." : saveSuccess ? "Saved!" : "Save Changes"}
+            {saveFlow.isPending ? "Saving..." : saveSuccess ? "Saved!" : "Save Flow"}
           </button>
         </div>
       </div>
 
       {saveSuccess && (
-        <div className="flex items-center gap-2 rounded-noneborder border-adm-blue bg-adm-blue-light p-3 text-xs font-medium text-adm-blue">
+        <div className="flex items-center gap-2 rounded-none border border-adm-blue bg-adm-blue-light p-3 text-xs font-medium text-adm-blue">
           <CheckCheck size={16} className="shrink-0 text-adm-blue" />
-          Programmatic messages saved successfully. All new WhatsApp interactions will use these texts.
+          Programmatic messages saved successfully. All new WhatsApp interactions will use these dynamic steps.
         </div>
       )}
 
       {/* Step Selector pills */}
       <div className="flex flex-wrap gap-1.5 border-b pb-3" style={{ borderColor: "var(--adm-border)" }}>
-        {steps.map((s) => {
+        {steps.map((s, idx) => {
           const isSelected = s.id === selectedStepId;
-          const meta = FLOW_STEP_LABELS[s.id] || { label: s.id, icon: "??" };
+          const meta = getStepMeta(s, idx);
           return (
             <button
               key={s.id}
@@ -3270,7 +3517,9 @@ function FlowTab({ department }: { department?: "general" | "support" }) {
             >
               <span>{meta.icon}</span>
               <span>{meta.label}</span>
-              <span className="text-[10px] opacity-60 uppercase font-mono">({s.kind})</span>
+              <span className="text-[10px] opacity-75 uppercase font-mono px-1 bg-black/10 rounded">
+                {s.kind}
+              </span>
             </button>
           );
         })}
@@ -3280,22 +3529,71 @@ function FlowTab({ department }: { department?: "general" | "support" }) {
         <div className="grid gap-6 lg:grid-cols-12">
           {/* Editor Form */}
           <div className="space-y-4 lg:col-span-7">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-bold uppercase tracking-wide text-adm-text-3">
-                Step: <span className="text-adm-text font-mono">{currentStep.id}</span>
-              </span>
-              <span className="rounded-nonebg-adm-surface-2 px-2 py-0.5 text-[11px] font-semibold text-adm-text-2">
-                {currentStep.kind === "list"
-                  ? "Interactive List"
-                  : currentStep.kind === "buttons"
-                  ? "Reply Buttons"
-                  : "Plain Text"}
-              </span>
+            {/* Step ID & Type Selector */}
+            <div className="flex flex-wrap items-center justify-between gap-2 border-b pb-3 border-adm-border">
+              <div>
+                <span className="text-xs font-bold uppercase tracking-wide text-adm-text-3 block">
+                  Step ID
+                </span>
+                <span className="text-sm font-mono font-bold text-adm-text">{currentStep.id}</span>
+              </div>
+
+              {/* Kind Picker */}
+              <div>
+                <span className="text-[11px] font-semibold text-adm-text-3 block mb-1">
+                  Message Type Format:
+                </span>
+                <div className="flex items-center gap-1 border border-adm-border p-0.5 bg-adm-surface-2">
+                  <button
+                    type="button"
+                    onClick={() => changeStepKind("list")}
+                    className={`px-2.5 py-1 text-xs font-medium transition ${
+                      currentStep.kind === "list"
+                        ? "bg-adm-blue text-white font-bold"
+                        : "text-adm-text-2 hover:bg-adm-surface"
+                    }`}
+                  >
+                    📋 Interactive List
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => changeStepKind("buttons")}
+                    className={`px-2.5 py-1 text-xs font-medium transition ${
+                      currentStep.kind === "buttons"
+                        ? "bg-adm-blue text-white font-bold"
+                        : "text-adm-text-2 hover:bg-adm-surface"
+                    }`}
+                  >
+                    🔘 Reply Buttons
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => changeStepKind("text")}
+                    className={`px-2.5 py-1 text-xs font-medium transition ${
+                      currentStep.kind === "text"
+                        ? "bg-adm-blue text-white font-bold"
+                        : "text-adm-text-2 hover:bg-adm-surface"
+                    }`}
+                  >
+                    💬 Plain Text
+                  </button>
+                </div>
+              </div>
+
+              {selectedStepId !== "start" && (
+                <button
+                  type="button"
+                  onClick={handleDeleteCurrentStep}
+                  className="text-xs text-red-500 hover:underline flex items-center gap-1"
+                >
+                  <Trash2 size={13} /> Delete Step
+                </button>
+              )}
             </div>
 
             {/* Header if kind != text */}
             {currentStep.kind !== "text" && (
-              <AdminField label="Header (optional)" htmlFor="flowHeader">
+              <AdminField label="Header (optional, max 60 chars)" htmlFor="flowHeader">
                 <input
                   id="flowHeader"
                   type="text"
@@ -3319,7 +3617,7 @@ function FlowTab({ department }: { department?: "general" | "support" }) {
                 value={currentStep.body}
                 onChange={(e) => updateStepField("body", e.target.value)}
                 maxLength={currentStep.kind === "text" ? 4096 : 1024}
-                rows={6}
+                rows={5}
                 className={adminInputClass}
                 style={adminInputStyle}
                 placeholder="Message text sent to customer..."
@@ -3334,7 +3632,7 @@ function FlowTab({ department }: { department?: "general" | "support" }) {
 
             {/* Footer if kind != text */}
             {currentStep.kind !== "text" && (
-              <AdminField label="Footer (optional)" htmlFor="flowFooter">
+              <AdminField label="Footer (optional, max 60 chars)" htmlFor="flowFooter">
                 <input
                   id="flowFooter"
                   type="text"
@@ -3343,7 +3641,7 @@ function FlowTab({ department }: { department?: "general" | "support" }) {
                   maxLength={60}
                   className={adminInputClass}
                   style={adminInputStyle}
-                  placeholder="e.g. Mon to Sat, 09:00 to 18:00"
+                  placeholder="e.g. Mon to Sat, 09:00 to 18:00 PKT"
                 />
                 <p className="mt-1 text-right text-[11px] text-adm-text-3">
                   {(currentStep.footer || "").length}/60 chars
@@ -3351,10 +3649,10 @@ function FlowTab({ department }: { department?: "general" | "support" }) {
               </AdminField>
             )}
 
-            {/* List specific button and rows */}
+            {/* List Configuration */}
             {currentStep.kind === "list" && (
-              <div className="space-y-4 rounded-none border bg-adm-surface-2 p-4" style={{ borderColor: "var(--adm-border)" }}>
-                <AdminField label="List Menu Button Label" htmlFor="flowListBtn">
+              <div className="space-y-4 rounded-none border bg-adm-surface-2 p-4 border-adm-border">
+                <AdminField label="List Menu Button Label (max 20 chars)" htmlFor="flowListBtn">
                   <input
                     id="flowListBtn"
                     type="text"
@@ -3370,65 +3668,208 @@ function FlowTab({ department }: { department?: "general" | "support" }) {
                   </p>
                 </AdminField>
 
-                <div className="space-y-3">
-                  <span className="block text-xs font-semibold text-adm-text-2">List Options & Rows:</span>
-                  {currentStep.sections.map((sec: any, secIdx: number) => (
-                    <div key={sec.title || secIdx} className="space-y-2 border-t pt-2" style={{ borderColor: "var(--adm-border)" }}>
-                      <span className="text-[11px] font-bold uppercase text-adm-text-3">{sec.title}</span>
-                      {sec.rows.map((row: any, rowIdx: number) => (
-                        <div key={row.id} className="grid grid-cols-1 sm:grid-cols-2 gap-2 bg-adm-surface p-2.5 rounded-noneborder" style={{ borderColor: "var(--adm-border)" }}>
-                          <div>
-                            <label className="text-[10px] font-medium text-adm-text-3 block">Title (max 24 chars)</label>
-                            <input
-                              type="text"
-                              value={row.title}
-                              onChange={(e) => updateListRow(secIdx, rowIdx, "title", e.target.value)}
-                              maxLength={24}
-                              className={adminInputClass}
-                              style={{ ...adminInputStyle, fontSize: "12px", padding: "4px 8px" }}
-                            />
-                          </div>
-                          <div>
-                            <label className="text-[10px] font-medium text-adm-text-3 block">Description (max 72 chars)</label>
-                            <input
-                              type="text"
-                              value={row.description || ""}
-                              onChange={(e) => updateListRow(secIdx, rowIdx, "description", e.target.value)}
-                              maxLength={72}
-                              className={adminInputClass}
-                              style={{ ...adminInputStyle, fontSize: "12px", padding: "4px 8px" }}
-                            />
-                          </div>
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-bold text-adm-text-2 uppercase tracking-wide">
+                      List Sections & Rows (Max 10 total items)
+                    </span>
+                    <button
+                      type="button"
+                      onClick={addListSection}
+                      className="text-xs text-adm-blue font-semibold flex items-center gap-1 hover:underline"
+                    >
+                      <Plus size={13} /> Add Section
+                    </button>
+                  </div>
+
+                  {currentStep.sections.map((sec, secIdx) => (
+                    <div
+                      key={secIdx}
+                      className="space-y-3 border p-3 bg-adm-surface border-adm-border rounded-none"
+                    >
+                      <div className="flex items-center justify-between">
+                        <input
+                          type="text"
+                          value={sec.title}
+                          onChange={(e) => updateSectionTitle(secIdx, e.target.value)}
+                          placeholder="Section Title (max 24)"
+                          maxLength={24}
+                          className="font-bold text-xs bg-transparent border-b border-adm-border px-1 py-0.5 text-adm-text"
+                        />
+                        <div className="flex items-center gap-2">
+                          <button
+                            type="button"
+                            onClick={() => addListRow(secIdx)}
+                            className="text-[11px] font-semibold text-adm-blue hover:underline flex items-center gap-1"
+                          >
+                            <Plus size={12} /> Add Item
+                          </button>
+                          {currentStep.sections.length > 1 && (
+                            <button
+                              type="button"
+                              onClick={() => removeListSection(secIdx)}
+                              className="text-adm-text-3 hover:text-red-500 transition"
+                              title="Delete section"
+                            >
+                              <Trash2 size={14} />
+                            </button>
+                          )}
                         </div>
-                      ))}
+                      </div>
+
+                      <div className="space-y-2">
+                        {sec.rows.map((row, rowIdx) => (
+                          <div
+                            key={row.id || rowIdx}
+                            className="border p-2.5 bg-adm-surface-2 border-adm-border space-y-2"
+                          >
+                            <div className="flex items-center justify-between gap-2">
+                              <span className="text-[10px] font-mono text-adm-text-3 uppercase">
+                                ID: {row.id}
+                              </span>
+                              <button
+                                type="button"
+                                onClick={() => removeListRow(secIdx, rowIdx)}
+                                className="text-xs text-adm-text-3 hover:text-red-500 transition"
+                              >
+                                <Trash2 size={13} />
+                              </button>
+                            </div>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                              <div>
+                                <label className="text-[10px] font-semibold text-adm-text-3 block mb-0.5">
+                                  Title (max 24 chars)
+                                </label>
+                                <input
+                                  type="text"
+                                  value={row.title}
+                                  onChange={(e) =>
+                                    updateListRowField(secIdx, rowIdx, "title", e.target.value)
+                                  }
+                                  maxLength={24}
+                                  className={adminInputClass}
+                                  style={{ ...adminInputStyle, fontSize: "12px", padding: "4px 8px" }}
+                                />
+                              </div>
+                              <div>
+                                <label className="text-[10px] font-semibold text-adm-text-3 block mb-0.5">
+                                  Description (max 72 chars)
+                                </label>
+                                <input
+                                  type="text"
+                                  value={row.description || ""}
+                                  onChange={(e) =>
+                                    updateListRowField(secIdx, rowIdx, "description", e.target.value)
+                                  }
+                                  maxLength={72}
+                                  className={adminInputClass}
+                                  style={{ ...adminInputStyle, fontSize: "12px", padding: "4px 8px" }}
+                                />
+                              </div>
+                            </div>
+                            <div>
+                              <label className="text-[10px] font-semibold text-adm-text-3 block mb-0.5">
+                                Target Next Step on Tap:
+                              </label>
+                              <select
+                                value={row.next}
+                                onChange={(e) =>
+                                  updateListRowField(secIdx, rowIdx, "next", e.target.value)
+                                }
+                                className={adminInputClass}
+                                style={{ ...adminInputStyle, fontSize: "11px", padding: "3px 6px" }}
+                              >
+                                {steps.map((st) => (
+                                  <option key={st.id} value={st.id}>
+                                    ➔ {st.id} ({st.kind})
+                                  </option>
+                                ))}
+                              </select>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
                     </div>
                   ))}
                 </div>
               </div>
             )}
 
-            {/* Buttons specific options */}
+            {/* Buttons Configuration */}
             {currentStep.kind === "buttons" && (
-              <div className="space-y-3 rounded-none border bg-adm-surface-2 p-4" style={{ borderColor: "var(--adm-border)" }}>
-                <span className="block text-xs font-semibold text-adm-text-2">Interactive Buttons (max 20 chars each):</span>
-                {currentStep.buttons.map((btn: any, btnIdx: number) => (
-                  <div key={btn.id} className="flex items-center gap-2 bg-adm-surface p-2 rounded-noneborder" style={{ borderColor: "var(--adm-border)" }}>
-                    <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-adm-blue-light text-[11px] font-bold text-adm-blue">
-                      {btnIdx + 1}
-                    </span>
-                    <input
-                      type="text"
-                      value={btn.title}
-                      onChange={(e) => updateButtonTitle(btnIdx, e.target.value)}
-                      maxLength={20}
-                      className={adminInputClass}
-                      style={{ ...adminInputStyle, fontSize: "13px", padding: "6px 10px" }}
-                    />
-                    <span className="text-[10px] text-adm-text-3 shrink-0 font-mono">
-                      {btn.title.length}/20
-                    </span>
-                  </div>
-                ))}
+              <div className="space-y-4 rounded-none border bg-adm-surface-2 p-4 border-adm-border">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold text-adm-text-2 uppercase tracking-wide">
+                    Interactive Reply Buttons (Max 3 by Meta limit)
+                  </span>
+                  {currentStep.buttons.length < 3 && (
+                    <button
+                      type="button"
+                      onClick={addButton}
+                      className="text-xs text-adm-blue font-semibold flex items-center gap-1 hover:underline"
+                    >
+                      <Plus size={13} /> Add Button
+                    </button>
+                  )}
+                </div>
+
+                <div className="space-y-3">
+                  {currentStep.buttons.map((btn, btnIdx) => (
+                    <div
+                      key={btn.id || btnIdx}
+                      className="border p-3 bg-adm-surface border-adm-border space-y-2"
+                    >
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs font-bold text-adm-blue">
+                          Button {btnIdx + 1}
+                        </span>
+                        {currentStep.buttons.length > 1 && (
+                          <button
+                            type="button"
+                            onClick={() => removeButton(btnIdx)}
+                            className="text-xs text-adm-text-3 hover:text-red-500 transition"
+                          >
+                            <Trash2 size={14} />
+                          </button>
+                        )}
+                      </div>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                        <div>
+                          <label className="text-[10px] font-semibold text-adm-text-3 block mb-0.5">
+                            Button Title (max 20 chars)
+                          </label>
+                          <input
+                            type="text"
+                            value={btn.title}
+                            onChange={(e) => updateButtonField(btnIdx, "title", e.target.value)}
+                            maxLength={20}
+                            className={adminInputClass}
+                            style={{ ...adminInputStyle, fontSize: "12px", padding: "5px 8px" }}
+                          />
+                        </div>
+
+                        <div>
+                          <label className="text-[10px] font-semibold text-adm-text-3 block mb-0.5">
+                            Target Next Step on Tap:
+                          </label>
+                          <select
+                            value={btn.next}
+                            onChange={(e) => updateButtonField(btnIdx, "next", e.target.value)}
+                            className={adminInputClass}
+                            style={{ ...adminInputStyle, fontSize: "11px", padding: "5px 8px" }}
+                          >
+                            {steps.map((st) => (
+                              <option key={st.id} value={st.id}>
+                                ➔ {st.id} ({st.kind})
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
             )}
           </div>
@@ -3437,17 +3878,17 @@ function FlowTab({ department }: { department?: "general" | "support" }) {
           <div className="lg:col-span-5">
             <div className="sticky top-6">
               <span className="mb-2 block text-xs font-bold uppercase tracking-wider text-adm-text-3">
-                Live Preview
+                Live Customer WhatsApp Preview
               </span>
               <div
                 className="rounded-none p-4"
                 style={{
                   backgroundColor: "#E5DDD5",
                   backgroundImage: DOODLE,
-                  minHeight: "260px",
+                  minHeight: "320px",
                 }}
               >
-                <div className="max-w-[90%] rounded-none bg-adm-surface p-3 shadow text-[13px] text-adm-text space-y-1.5">
+                <div className="max-w-[95%] rounded-none bg-adm-surface p-3 shadow text-[13px] text-adm-text space-y-1.5 border border-adm-border">
                   {currentStep.kind !== "text" && currentStep.header && (
                     <p className="font-bold text-adm-text border-b pb-1 text-sm border-adm-border">
                       {currentStep.header}
@@ -3457,7 +3898,7 @@ function FlowTab({ department }: { department?: "general" | "support" }) {
                     {currentStep.body}
                   </p>
                   {currentStep.kind !== "text" && currentStep.footer && (
-                    <p className="text-[11px] text-adm-text-3 pt-1">
+                    <p className="text-[11px] text-adm-text-3 pt-1 border-t border-adm-border mt-1">
                       {currentStep.footer}
                     </p>
                   )}
@@ -3468,22 +3909,47 @@ function FlowTab({ department }: { department?: "general" | "support" }) {
 
                 {/* List action button below bubble */}
                 {currentStep.kind === "list" && (
-                  <div className="mt-1.5 max-w-[90%]">
-                    <div className="flex items-center justify-center rounded-none bg-adm-surface py-2 text-xs font-semibold text-adm-blue shadow border border-adm-border">
-                      ?? {currentStep.button || "Choose an option"}
+                  <div className="mt-2 max-w-[95%] space-y-2">
+                    <div className="flex items-center justify-center rounded-none bg-adm-surface py-2 text-xs font-bold text-adm-blue shadow border border-adm-border">
+                      📋 {currentStep.button || "Choose an option"}
+                    </div>
+                    {/* Drawer preview */}
+                    <div className="bg-adm-surface border border-adm-border p-2.5 shadow space-y-2 text-xs">
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-adm-text-3 block">
+                        Interactive List Options Drawer
+                      </span>
+                      {currentStep.sections.map((sec, i) => (
+                        <div key={i} className="space-y-1 border-t first:border-t-0 pt-1 border-adm-border">
+                          <span className="text-[10px] font-bold uppercase text-adm-blue block">
+                            {sec.title}
+                          </span>
+                          {sec.rows.map((r, j) => (
+                            <div key={j} className="flex items-center justify-between py-1 border-b last:border-b-0 border-adm-border">
+                              <div>
+                                <p className="font-bold text-adm-text">{r.title}</p>
+                                {r.description && <p className="text-[11px] text-adm-text-3">{r.description}</p>}
+                              </div>
+                              <span className="text-[10px] font-mono text-adm-blue bg-adm-blue-light px-1.5 py-0.5">
+                                ➔ {r.next}
+                              </span>
+                            </div>
+                          ))}
+                        </div>
+                      ))}
                     </div>
                   </div>
                 )}
 
                 {/* Button actions below bubble */}
                 {currentStep.kind === "buttons" && (
-                  <div className="mt-1.5 max-w-[90%] space-y-1">
-                    {currentStep.buttons.map((b: any) => (
+                  <div className="mt-2 max-w-[95%] space-y-1.5">
+                    {currentStep.buttons.map((b, i) => (
                       <div
-                        key={b.id}
-                        className="flex items-center justify-center rounded-none bg-adm-surface py-2 text-xs font-semibold text-adm-blue shadow border border-adm-border"
+                        key={b.id || i}
+                        className="flex items-center justify-between rounded-none bg-adm-surface px-3 py-2 text-xs font-semibold text-adm-blue shadow border border-adm-border"
                       >
-                        {b.title || "Button"}
+                        <span>{b.title || "Button"}</span>
+                        <span className="text-[10px] font-mono text-adm-text-3">➔ {b.next}</span>
                       </div>
                     ))}
                   </div>
