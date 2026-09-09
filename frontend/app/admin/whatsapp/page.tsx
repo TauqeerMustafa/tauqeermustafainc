@@ -595,9 +595,11 @@ export default function AdminWhatsAppPage() {
           }}
         />
       )}
-      {activeTab === "templates" && <MetaTemplatesTab defaultRecipient={prefillRecipient ?? ""} />}
-      {activeTab === "rules" && <RulesTab />}
-      {activeTab === "flow" && <FlowTab />}
+      {activeTab === "templates" && (
+        <MetaTemplatesTab key={department} department={department} defaultRecipient={prefillRecipient ?? ""} />
+      )}
+      {activeTab === "rules" && <RulesTab key={department} department={department} />}
+      {activeTab === "flow" && <FlowTab key={department} department={department} />}
       {activeTab === "stats" && <StatsTab department={department} />}
       {activeTab === "numbers" && <NumbersTab department={department} onSendFrom={goSendFrom} />}
     </div>
@@ -2667,8 +2669,8 @@ function metaStatusStyle(status: string): { label: string; color: string; bg: st
   return { label: "Pending review", color: "var(--adm-amber)", bg: "var(--adm-amber-light)" };
 }
 
-function MetaTemplatesTab({ defaultRecipient }: { defaultRecipient: string }) {
-  const { data, isLoading, refetch } = useMetaTemplates();
+function MetaTemplatesTab({ defaultRecipient, department }: { defaultRecipient: string; department?: "general" | "support" }) {
+  const { data, isLoading, refetch } = useMetaTemplates(department);
   const submitTemplate = useSubmitMetaTemplate();
   const { data: numbersData } = useWhatsAppNumbers();
   const [banner, setBanner] = useState("");
@@ -3109,10 +3111,10 @@ const FLOW_STEP_LABELS: Record<string, { label: string; icon: string }> = {
   human: { label: "10. Talk to Human / Hours", icon: "??" },
 };
 
-function FlowTab() {
-  const { data, isLoading, isError, refetch } = useWhatsAppFlow();
-  const saveFlow = useSaveWhatsAppFlow();
-  const resetFlow = useResetWhatsAppFlow();
+function FlowTab({ department }: { department?: "general" | "support" }) {
+  const { data, isLoading, isError, refetch } = useWhatsAppFlow(department);
+  const saveFlow = useSaveWhatsAppFlow(department);
+  const resetFlow = useResetWhatsAppFlow(department);
 
   const [steps, setSteps] = useState<FlowStep[]>([]);
   const [selectedStepId, setSelectedStepId] = useState<string>("start");
@@ -3487,9 +3489,9 @@ function FlowTab() {
   );
 }
 
-function RulesTab() {
-  const { data, isLoading, isError } = useAutoReplyRules();
-  const saveRules = useSaveAutoReplyRules();
+function RulesTab({ department }: { department?: "general" | "support" }) {
+  const { data, isLoading, isError } = useAutoReplyRules(department);
+  const saveRules = useSaveAutoReplyRules(department);
   const [localRules, setLocalRules] = useState<AutoReplyRule[]>([]);
   const [isEditing, setIsEditing] = useState(false);
 

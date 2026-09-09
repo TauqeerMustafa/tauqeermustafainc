@@ -12,6 +12,10 @@ export type { FlowStep };
 
 const API_BASE = "/api/whatsapp";
 
+/** Suffix that scopes a request to General (Inquiries/Sales) or Support (Technical Desk). */
+const deptQuery = (department?: "general" | "support") =>
+  department ? `?department=${department}` : "";
+
 /**
  * Every /api/whatsapp/* route is gated by the proxy (see frontend/proxy.ts),
  * so all calls must carry the admin's bearer token. Read it per-request so we
@@ -286,21 +290,21 @@ export function useWhatsAppStats() {
 
 // ── Auto-reply rules ───────────────────────────────────────────────────────
 
-export function useAutoReplyRules() {
+export function useAutoReplyRules(department?: "general" | "support") {
   return useQuery<{ success: boolean; data: AutoReplyRule[] }>({
-    queryKey: ["whatsapp-rules"],
-    queryFn: () => getJSON("/rules"),
+    queryKey: ["whatsapp-rules", department],
+    queryFn: () => getJSON(`/rules${deptQuery(department)}`),
   });
 }
 
-export function useSaveAutoReplyRules() {
+export function useSaveAutoReplyRules(department?: "general" | "support") {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (rules: AutoReplyRule[]) => {
       const res = await fetch(`${API_BASE}/rules`, {
         method: "PUT",
         headers: authHeaders({ "Content-Type": "application/json" }),
-        body: JSON.stringify({ rules }),
+        body: JSON.stringify({ rules, department }),
       });
       if (!res.ok) throw new Error("Failed to save rules");
       return res.json();
@@ -348,10 +352,10 @@ export function useDeleteTemplate() {
 
 // ── Meta-approved templates (business-initiated) ─────────────────────────────
 
-export function useMetaTemplates() {
+export function useMetaTemplates(department?: "general" | "support") {
   return useQuery<{ success: boolean; data: MetaTemplate[]; configured?: boolean; notice?: string }>({
-    queryKey: ["whatsapp-meta-templates"],
-    queryFn: () => getJSON("/meta-templates"),
+    queryKey: ["whatsapp-meta-templates", department],
+    queryFn: () => getJSON(`/meta-templates${deptQuery(department)}`),
     refetchInterval: 30000, // approval status changes over time
     refetchOnWindowFocus: true, // and refresh the moment the admin tabs back in
   });
@@ -450,21 +454,21 @@ export function useDeleteConversation() {
 
 // ?? Programmatic Lead Flow (Bot Messages) ???????????????????????????????????
 
-export function useWhatsAppFlow() {
+export function useWhatsAppFlow(department?: "general" | "support") {
   return useQuery<{ success: boolean; data: FlowStep[]; isCustom: boolean }>({
-    queryKey: ["whatsapp-flow"],
-    queryFn: () => getJSON("/flow"),
+    queryKey: ["whatsapp-flow", department],
+    queryFn: () => getJSON(`/flow${deptQuery(department)}`),
   });
 }
 
-export function useSaveWhatsAppFlow() {
+export function useSaveWhatsAppFlow(department?: "general" | "support") {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (steps: FlowStep[]) => {
       const res = await fetch(`${API_BASE}/flow`, {
         method: "PUT",
         headers: authHeaders({ "Content-Type": "application/json" }),
-        body: JSON.stringify({ steps }),
+        body: JSON.stringify({ steps, department }),
       });
       if (!res.ok) throw new Error("Failed to save flow");
       return res.json();
@@ -473,14 +477,14 @@ export function useSaveWhatsAppFlow() {
   });
 }
 
-export function useResetWhatsAppFlow() {
+export function useResetWhatsAppFlow(department?: "general" | "support") {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async () => {
       const res = await fetch(`${API_BASE}/flow`, {
         method: "POST",
         headers: authHeaders({ "Content-Type": "application/json" }),
-        body: JSON.stringify({ action: "reset" }),
+        body: JSON.stringify({ action: "reset", department }),
       });
       if (!res.ok) throw new Error("Failed to reset flow");
       return res.json();

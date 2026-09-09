@@ -80,10 +80,17 @@ function parseMetaComponents(components: unknown[]): {
 }
 
 export async function GET(request: Request) {
+  const { searchParams } = new URL(request.url);
+  const dept = searchParams.get("department") as "general" | "support" | null;
   const { token, wabaId } = config(request);
 
-  // Always return our predefined library so the UI can render even before setup.
-  const base = META_TEMPLATES.map((t) => ({ ...t, status: "NOT_SUBMITTED" as string, source: "predefined" as string }));
+  // Filter base predefined library if department requested
+  let base = META_TEMPLATES.map((t) => ({ ...t, status: "NOT_SUBMITTED" as string, source: "predefined" as string }));
+  if (dept === "support") {
+    base = base.filter((t) => t.department === "support");
+  } else if (dept === "general") {
+    base = base.filter((t) => t.department === "general" || !t.department);
+  }
 
   if (!token || !wabaId) {
     return NextResponse.json({
@@ -144,7 +151,15 @@ export async function GET(request: Request) {
     const rank = (s: string) => (s === "APPROVED" ? 0 : s === "NOT_SUBMITTED" ? 2 : 1);
     data.sort((a, b) => rank(String(a.status).toUpperCase()) - rank(String(b.status).toUpperCase()));
 
-    return NextResponse.json({ success: true, data, configured: true });
+    let finalData = data;
+    const deptOf = (t: unknown) => (t as { department?: string }).department;
+    if (dept === "support") {
+      finalData = data.filter((t) => deptOf(t) === "support" || String(t.name).toLowerCase().includes("support") || String(t.name).toLowerCase().includes("ticket"));
+    } else if (dept === "general") {
+      finalData = data.filter((t) => deptOf(t) === "general" || (!deptOf(t) && !String(t.name).toLowerCase().includes("support")));
+    }
+
+    return NextResponse.json({ success: true, data: finalData, configured: true });
   } catch (error) {
     return NextResponse.json({
       success: true,

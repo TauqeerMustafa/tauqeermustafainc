@@ -67,6 +67,7 @@ export type AutoReplyRule = {
   mode: "contains" | "equals" | "starts" | "regex" | (string & {});
   reply: string;
   enabled: boolean;
+  department?: "general" | "support";
 };
 
 /** Keep the stored history bounded. */
@@ -169,11 +170,12 @@ const RULES_VERSION = 3;
  * Bold (*asterisks*) renders in WhatsApp, and these replies are long enough that
  * labelling the lines is the difference between skimmed and ignored.
  */
-export const DEFAULT_RULES: AutoReplyRule[] = [
+export const DEFAULT_GENERAL_RULES: AutoReplyRule[] = [
   {
     id: "services",
     keyword: "services, what do you do, what do you offer, service, help with",
     mode: "contains",
+    department: "general",
     reply:
       "We work in three areas:\n\n" +
       "1. *Cybersecurity* — we map how customer and payment data moves through your business, " +
@@ -189,6 +191,7 @@ export const DEFAULT_RULES: AutoReplyRule[] = [
     id: "pricing",
     keyword: "price, pricing, cost, how much, rates, budget, quote, fees",
     mode: "contains",
+    department: "general",
     reply:
       "It depends on scope, so we do not put a number on it before we understand the work.\n\n" +
       "Send these three and you get a written proposal with a fixed price:\n\n" +
@@ -202,6 +205,7 @@ export const DEFAULT_RULES: AutoReplyRule[] = [
     id: "hours",
     keyword: "hours, timing, open, schedule, available, when are you",
     mode: "contains",
+    department: "general",
     reply:
       "*Monday to Saturday, 09:00 to 18:00 Pakistan time.* Closed Sunday.\n\n" +
       "Anything sent outside those hours waits until the next working day.\n\n" +
@@ -212,6 +216,7 @@ export const DEFAULT_RULES: AutoReplyRule[] = [
     id: "contact",
     keyword: "contact, reach, call, email, phone, speak, talk to, human",
     mode: "contains",
+    department: "general",
     reply:
       "You are in the right place. This inbox is read Monday to Saturday, 09:00 to 18:00 Pakistan time.\n\n" +
       "If a call suits you better, send a number and two times that work for you.\n\n" +
@@ -222,6 +227,7 @@ export const DEFAULT_RULES: AutoReplyRule[] = [
     id: "portfolio",
     keyword: "portfolio, work, projects, examples, past work, case study, references",
     mode: "contains",
+    department: "general",
     reply:
       "Our work and written case studies are at tauqeermustafa.tech.\n\n" +
       "Tell me which of the three services you are weighing up and I will send the closest " +
@@ -232,8 +238,7 @@ export const DEFAULT_RULES: AutoReplyRule[] = [
     id: "urgent",
     keyword: "urgent, emergency, asap, immediately, critical, breach, hacked",
     mode: "contains",
-    // Word for word the flow's "urgent" step: typing the word and tapping
-    // "Something happened" are the same request and must not get two answers.
+    department: "general",
     reply:
       "Flagged as urgent.\n\n" +
       "Send what you have, even if it is incomplete:\n\n" +
@@ -248,9 +253,91 @@ export const DEFAULT_RULES: AutoReplyRule[] = [
     id: "thanks",
     keyword: "thank, thanks, shukriya, appreciate, grateful",
     mode: "contains",
+    department: "general",
     reply: "Glad to help. Anything else, send it here.",
     enabled: true,
   },
+];
+
+export const DEFAULT_SUPPORT_RULES: AutoReplyRule[] = [
+  {
+    id: "support_ticket",
+    keyword: "ticket, status, incident, report, issue, bug",
+    mode: "contains",
+    department: "support",
+    reply:
+      "*Tauqeer Mustafa Inc. Technical Support Desk*\n\n" +
+      "To check ticket status or submit diagnostic logs:\n" +
+      "1. Live SLA Tracker: https://support.tauqeermustafa.tech/ticket\n" +
+      "2. Or reply directly with your Ticket Reference ID (e.g. *TMI-SUP-XXXXX*).\n\n" +
+      "An on-call incident engineer evaluates every report.",
+    enabled: true,
+  },
+  {
+    id: "support_outage",
+    keyword: "down, outage, broken, critical, p1, emergency, offline, failure, crash",
+    mode: "contains",
+    department: "support",
+    reply:
+      "*CRITICAL P1 INCIDENT PROTOCOL ACTIVATED*\n\n" +
+      "Emergency voice bridge dispatch is active at *+92 333 56701199*.\n\n" +
+      "Our incident commander responds within 15 to 60 minutes. Please state:\n" +
+      "1. *Affected URL / service endpoint*\n" +
+      "2. *Time outage was detected*\n" +
+      "3. *Current HTTP error codes*",
+    enabled: true,
+  },
+  {
+    id: "support_sla",
+    keyword: "sla, escalation, priority, p2, p3, p4, turnaround",
+    mode: "contains",
+    department: "support",
+    reply:
+      "*SLA Response Benchmarks:*\n" +
+      "• *P1 Critical Outage:* 15-60 min response\n" +
+      "• *P2 High Severity:* < 4 hours response\n" +
+      "• *P3 Standard Issue:* < 24 hours turnaround\n" +
+      "• *P4 General Request:* < 48 hours\n\n" +
+      "Live telemetry: https://support.tauqeermustafa.tech/status",
+    enabled: true,
+  },
+  {
+    id: "support_hotline",
+    keyword: "hotline, phone, call, bridge, voice",
+    mode: "contains",
+    department: "support",
+    reply:
+      "*24/7 Production Hotline:*\n" +
+      "Direct emergency voice bridge: *+92 333 56701199*\n\n" +
+      "Available 24/7/365 for active retainer clients experiencing critical system degradation.",
+    enabled: true,
+  },
+  {
+    id: "support_hours",
+    keyword: "hours, timing, schedule, when, available",
+    mode: "contains",
+    department: "support",
+    reply:
+      "*Support Desk Coverage:*\n" +
+      "• *Critical Incidents (P1):* 24/7/365 continuous coverage\n" +
+      "• *Standard Support (P2-P4):* Monday to Saturday, 08:00 to 22:00 Pakistan time\n\n" +
+      "Email escalation: support@tauqeermustafa.tech",
+    enabled: true,
+  },
+  {
+    id: "support_resolved",
+    keyword: "fixed, resolved, verified, working now, thanks, thank you",
+    mode: "contains",
+    department: "support",
+    reply:
+      "Glad to hear your issue is resolved. The incident log will be archived. If you observe any further anomalies, send them here anytime.",
+    enabled: true,
+  },
+];
+
+export const DEFAULT_RULES: AutoReplyRule[] = [
+  ...DEFAULT_GENERAL_RULES,
+  ...DEFAULT_SUPPORT_RULES,
 ];
 
 /** Ids of the rules this file has ever shipped, for the upgrade check below. */
@@ -329,30 +416,52 @@ async function isUntouchedSeed(kv: KVClient, stored: AutoReplyRule[]): Promise<b
  * the untouched seed — see `isUntouchedSeed`. Anything hand-written is left
  * exactly as the admin left it.
  */
-export async function getRules(): Promise<AutoReplyRule[]> {
+export async function getRules(department?: "general" | "support"): Promise<AutoReplyRule[]> {
   const kv = getKV();
-  if (!kv) return DEFAULT_RULES;
-
-  const stored = await kv.get<AutoReplyRule[]>(KEYS.rules);
-  if (!stored || stored.length === 0) return seedRules(kv);
-
-  const version = Number((await kv.get<number>(KEYS.rulesVersion)) ?? 1);
-  if (version >= RULES_VERSION) return stored;
-
-  if (await isUntouchedSeed(kv, stored)) {
-    console.log("[wa-store] Replaced the unedited default auto-reply rules with the current set.");
-    return seedRules(kv);
+  let allRules: AutoReplyRule[];
+  if (!kv) {
+    allRules = DEFAULT_RULES;
+  } else {
+    const stored = await kv.get<AutoReplyRule[]>(KEYS.rules);
+    if (!stored || stored.length === 0) {
+      allRules = await seedRules(kv);
+    } else {
+      const version = Number((await kv.get<number>(KEYS.rulesVersion)) ?? 1);
+      if (version < RULES_VERSION && (await isUntouchedSeed(kv, stored))) {
+        console.log("[wa-store] Replaced the unedited default auto-reply rules with current set.");
+        allRules = await seedRules(kv);
+      } else {
+        allRules = stored;
+      }
+    }
   }
 
-  // Edited by hand — keep it, and stop re-checking on every read.
-  await kv.set(KEYS.rulesVersion, RULES_VERSION);
-  return stored;
+  if (department === "support") {
+    return allRules.filter((r) => r.department === "support" || r.id.startsWith("support_"));
+  }
+  if (department === "general") {
+    return allRules.filter((r) => r.department === "general" || (!r.department && !r.id.startsWith("support_")));
+  }
+  return allRules;
 }
 
-export async function setRules(rules: AutoReplyRule[]): Promise<boolean> {
+export async function setRules(rules: AutoReplyRule[], department?: "general" | "support"): Promise<boolean> {
   const kv = getKV();
   if (!kv) return false;
-  await kv.set(KEYS.rules, rules);
+
+  if (department) {
+    const existing = (await kv.get<AutoReplyRule[]>(KEYS.rules)) ?? DEFAULT_RULES;
+    const others = existing.filter((r) =>
+      department === "support"
+        ? r.department !== "support" && !r.id.startsWith("support_")
+        : r.department === "support" || r.id.startsWith("support_")
+    );
+    const tagged = rules.map((r) => ({ ...r, department }));
+    await kv.set(KEYS.rules, [...others, ...tagged]);
+  } else {
+    await kv.set(KEYS.rules, rules);
+  }
+
   // The admin's own set is current by definition; never upgrade over it later.
   await kv.set(KEYS.rulesVersion, RULES_VERSION);
   await kv.del(KEYS.rulesSeed);

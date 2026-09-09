@@ -52,6 +52,7 @@ export type MetaTemplateDef = {
   name: string;
   category: "MARKETING" | "UTILITY";
   language: string;
+  department?: "general" | "support";
   header?: string;
   body: string;
   bodyExample?: string[];
@@ -64,6 +65,7 @@ export const META_TEMPLATES: MetaTemplateDef[] = [
     name: "welcome_new_lead",
     category: "MARKETING",
     language: "en_US",
+    department: "general",
     header: "Welcome to Tauqeer Mustafa Inc",
     body:
       "Hi {{1}}, thanks for getting in touch.\n\n" +
@@ -78,6 +80,7 @@ export const META_TEMPLATES: MetaTemplateDef[] = [
     name: "services_overview",
     category: "MARKETING",
     language: "en_US",
+    department: "general",
     header: "What we work on",
     body:
       "Hi {{1}}, here is the short version.\n\n" +
@@ -96,6 +99,7 @@ export const META_TEMPLATES: MetaTemplateDef[] = [
     name: "pricing_info",
     category: "MARKETING",
     language: "en_US",
+    department: "general",
     header: "What it costs",
     body:
       "Fair question, {{1}}. What the work costs depends on scope, so we do not put a number on it " +
@@ -111,6 +115,7 @@ export const META_TEMPLATES: MetaTemplateDef[] = [
     name: "quote_ready",
     category: "MARKETING", // Meta already has this as MARKETING from first submission; correct is UTILITY but can't change category after creation
     language: "en_US",
+    department: "general",
     header: "Your proposal is ready",
     body:
       "Hi {{1}}, the proposal for {{2}} is written and on its way to your email.\n\n" +
@@ -125,6 +130,7 @@ export const META_TEMPLATES: MetaTemplateDef[] = [
     name: "project_kickoff",
     category: "UTILITY",
     language: "en_US",
+    department: "general",
     header: "Project kickoff",
     body:
       "Welcome aboard, {{1}}. Work on {{2}} starts now.\n\n" +
@@ -138,6 +144,7 @@ export const META_TEMPLATES: MetaTemplateDef[] = [
     name: "milestone_update",
     category: "UTILITY",
     language: "en_US",
+    department: "general",
     header: "Milestone complete",
     body:
       "Hi {{1}}, we have finished {{2}} on your project.\n\n" +
@@ -151,10 +158,8 @@ export const META_TEMPLATES: MetaTemplateDef[] = [
     name: "payment_reminder",
     category: "UTILITY",
     language: "en_US",
+    department: "general",
     header: "Invoice reminder",
-    // {{2}} used to be an amount. It is the invoice number now: the figure is on
-    // the invoice already, and a price baked into an approved template cannot be
-    // corrected without another round of Meta review.
     body:
       "Hi {{1}}, invoice {{2}} is due on {{3}}. This is a reminder, not a chase.\n\n" +
       "The amount and the payment details are on the invoice itself.\n\n" +
@@ -167,6 +172,7 @@ export const META_TEMPLATES: MetaTemplateDef[] = [
     name: "meeting_reminder",
     category: "UTILITY",
     language: "en_US",
+    department: "general",
     header: "Meeting reminder",
     body:
       "Hi {{1}}, a reminder about our meeting on {{2}} at {{3}} Pakistan time.\n\n" +
@@ -181,6 +187,7 @@ export const META_TEMPLATES: MetaTemplateDef[] = [
     name: "project_delivered",
     category: "UTILITY",
     language: "en_US",
+    department: "general",
     header: "Work delivered",
     body:
       "Hi {{1}}, the work on {{2}} is finished and handed over.\n\n" +
@@ -195,6 +202,7 @@ export const META_TEMPLATES: MetaTemplateDef[] = [
     name: "follow_up",
     category: "MARKETING",
     language: "en_US",
+    department: "general",
     header: "Following up",
     body:
       "Hi {{1}}, following up on the enquiry you sent us.\n\n" +
@@ -209,6 +217,7 @@ export const META_TEMPLATES: MetaTemplateDef[] = [
     name: "feedback_request",
     category: "UTILITY",
     language: "en_US",
+    department: "general",
     header: "How did we do",
     body:
       "Hi {{1}}, now that {{2}} is finished, we would like to know how it went, including the parts " +
@@ -224,6 +233,7 @@ export const META_TEMPLATES: MetaTemplateDef[] = [
     name: "reengagement",
     category: "MARKETING",
     language: "en_US",
+    department: "general",
     header: "Picking this back up",
     body:
       "Hi {{1}}, it has been a while since we last spoke.\n\n" +
@@ -233,6 +243,91 @@ export const META_TEMPLATES: MetaTemplateDef[] = [
     bodyExample: ["there"],
     footer: "Say the word and we stop writing",
     buttons: ["Pick it back up", "Send a proposal", "Stop writing"],
+  },
+  // ─── Technical & Client Support Templates ────────────────────────────
+  {
+    name: "support_ticket_created",
+    category: "UTILITY",
+    language: "en_US",
+    department: "support",
+    header: "Support ticket opened",
+    body:
+      "Hi {{1}}, your ticket {{2}} is logged with {{3}} SLA priority.\n\n" +
+      "Our incident engineer is reviewing diagnostic logs. Updates will be dispatched here directly.",
+    bodyExample: ["there", "TMI-SUP-88214", "P1 Critical"],
+    footer: "24/7 SLA Technical Desk",
+    buttons: ["Track Ticket Status", "Escalate to Lead", "Add Notes"],
+  },
+  {
+    name: "support_p1_outage_ack",
+    category: "UTILITY",
+    language: "en_US",
+    department: "support",
+    header: "Critical P1 Incident Alert",
+    body:
+      "URGENT ACKNOWLEDGEMENT for {{1}}.\n\n" +
+      "Our incident commander has initiated the emergency triage bridge for outage report {{2}}.\n\n" +
+      "Voice bridge dispatch is standing by at {{3}}.",
+    bodyExample: ["Production Cluster", "TMI-INC-99120", "+92 333 56701199"],
+    footer: "15 to 60 min SLA Response",
+    buttons: ["Join Bridge", "View Incident Status"],
+  },
+  {
+    name: "support_ticket_resolved",
+    category: "UTILITY",
+    language: "en_US",
+    department: "support",
+    header: "Support ticket resolved",
+    body:
+      "Hi {{1}}, ticket {{2}} is resolved.\n\n" +
+      "The fix has been deployed to production: {{3}}.\n\n" +
+      "Please verify that your system is functioning normally.",
+    bodyExample: ["there", "TMI-SUP-88214", "API gateway patch applied"],
+    footer: "Tauqeer Mustafa Inc Support",
+    buttons: ["Confirm Resolution", "Reopen Ticket"],
+  },
+  {
+    name: "support_status_update",
+    category: "UTILITY",
+    language: "en_US",
+    department: "support",
+    header: "Ticket Status Update",
+    body:
+      "Hi {{1}}, an update on ticket {{2}}.\n\n" +
+      "Investigation details: {{3}}.\n\n" +
+      "Our engineering team is monitoring the resolution.",
+    bodyExample: ["there", "TMI-SUP-88214", "Patch testing underway in staging"],
+    footer: "SLA Priority Monitored",
+    buttons: ["Acknowledge", "Speak with Lead"],
+  },
+  {
+    name: "support_sla_escalation",
+    category: "UTILITY",
+    language: "en_US",
+    department: "support",
+    header: "Emergency SLA Escalation",
+    body:
+      "Notice for {{1}} regarding ticket {{2}}.\n\n" +
+      "This incident has been escalated directly to {{3}} for priority triage.\n\n" +
+      "We will update you within the next 30 minutes.",
+    bodyExample: ["there", "TMI-SUP-88214", "Head of Engineering"],
+    footer: "Tauqeer Mustafa Inc Support Desk",
+    buttons: ["View Status", "Call Hotline"],
+  },
+  {
+    name: "support_maintenance_notice",
+    category: "UTILITY",
+    language: "en_US",
+    department: "support",
+    header: "Scheduled Maintenance",
+    body:
+      "Notice for {{1}}.\n\n" +
+      "Scheduled system maintenance is planned for {{2}}.\n\n" +
+      "Expected service impact: {{3}}.\n\n" +
+      "All redundant backup nodes remain active.",
+    bodyExample: ["all systems", "Sunday 02:00 PKT", "under 15 minutes"],
+    footer: "Infrastructure Operations Desk",
+    buttons: ["Maintenance Details", "Contact Ops"],
   },
 ];
 

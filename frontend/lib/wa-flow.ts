@@ -307,58 +307,192 @@ export function isFlowChoice(choiceId?: string | null): boolean {
  * Fetches current flow steps: returns customized steps if saved in KV,
  * or falls back to built-in DEFAULT_STEPS.
  */
-export async function getFlowSteps(): Promise<FlowStep[]> {
+export const DEFAULT_SUPPORT_STEPS: FlowStep[] = [
+  {
+    kind: "list",
+    id: "start",
+    header: "Technical Support Desk",
+    body:
+      "Welcome to the Tauqeer Mustafa Inc. 24/7 Technical Incident & Support Desk.\n\n" +
+      "Select an option below to route your request to our on-call systems team immediately.",
+    footer: "P1 Critical Outage: 15-60 min SLA",
+    button: "Support Options",
+    sections: [
+      {
+        title: "Emergency & Incidents",
+        rows: [
+          {
+            id: "supp_p1",
+            title: "P1 Critical Outage",
+            description: "System offline, security incident, or data loss",
+            next: "p1_incident",
+          },
+          {
+            id: "supp_bug",
+            title: "Report Bug or Issue",
+            description: "Submit unexpected error or service degradation",
+            next: "report_bug",
+          },
+          {
+            id: "supp_ticket",
+            title: "Check Ticket Status",
+            description: "Query resolution progress and technician notes",
+            next: "check_ticket",
+          },
+          {
+            id: "supp_lead",
+            title: "Duty Lead Escalation",
+            description: "Speak directly with on-call duty commander",
+            next: "speak_lead",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    kind: "buttons",
+    id: "p1_incident",
+    header: "P1 Incident Escalation",
+    body:
+      "*CRITICAL P1 PROTOCOL ENGAGED*\n\n" +
+      "For live voice bridge coordination, call the 24/7 hotline at *+92 333 56701199*.\n\n" +
+      "Reply with:\n" +
+      "1. *Affected URL / endpoint*\n" +
+      "2. *Timestamp issue began*\n" +
+      "3. *HTTP status or error codes*\n\n" +
+      "Incident response SLA is 15 to 60 minutes.",
+    footer: "15 to 60 min SLA Hotline",
+    buttons: [
+      { id: "p1_call_btn", title: "Emergency Hotline", next: "hotline_info" },
+      { id: "p1_status_btn", title: "Live Status Board", next: "status_hub" },
+    ],
+  },
+  {
+    kind: "buttons",
+    id: "report_bug",
+    header: "New Support Ticket",
+    body:
+      "To generate a new support ticket reference, send:\n\n" +
+      "1. *Summary* — what broke or unexpected behavior\n" +
+      "2. *Steps to reproduce* — or paste error screenshot\n" +
+      "3. *Impact* — production, staging, or internal\n\n" +
+      "Your ticket ID (TMI-SUP-XXXXX) will be logged into our triage queue.",
+    footer: "Track at support.tauqeermustafa.tech",
+    buttons: [
+      { id: "bug_sla_btn", title: "SLA Response Times", next: "sla_info" },
+      { id: "bug_track_btn", title: "Check Existing", next: "check_ticket" },
+    ],
+  },
+  {
+    kind: "text",
+    id: "check_ticket",
+    body:
+      "*Ticket Status Tracker*\n\n" +
+      "Reply directly with your Ticket Reference ID (e.g. *TMI-SUP-88214*).\n\n" +
+      "You can also monitor live SLA countdown and diagnostic logs on https://support.tauqeermustafa.tech/ticket.",
+  },
+  {
+    kind: "text",
+    id: "speak_lead",
+    body:
+      "*Duty Incident Commander*\n\n" +
+      "Your message has paged the engineering duty lead.\n\n" +
+      "This channel is actively monitored 24/7 for high-severity incidents, and 08:00 to 22:00 PKT for standard requests.\n\n" +
+      "Send your message, logs, or audio note.",
+  },
+  {
+    kind: "text",
+    id: "hotline_info",
+    body:
+      "*24/7 Emergency Dispatch Desk:*\n" +
+      "Phone: *+92 333 56701199*\n" +
+      "Email: support@tauqeermustafa.tech\n\n" +
+      "Available 24/7/365 for active retainer accounts with critical outages.",
+  },
+  {
+    kind: "text",
+    id: "status_hub",
+    body:
+      "*System Status & Telemetry:*\n" +
+      "Real-time uptime, API latency, and operational health metrics are live at:\n" +
+      "https://support.tauqeermustafa.tech/status",
+  },
+  {
+    kind: "text",
+    id: "sla_info",
+    body:
+      "*Guaranteed SLA Response Windows:*\n" +
+      "• *P1 (Critical Outage):* 15-60 min response\n" +
+      "• *P2 (High Severity):* < 4 hours response\n" +
+      "• *P3 (Standard Issue):* < 24 hours turnaround\n" +
+      "• *P4 (General Request):* < 48 hours",
+  },
+];
+
+export function getFlowKey(department?: "general" | "support"): string {
+  return department === "support" ? `${KEYS.flow}:support` : KEYS.flow;
+}
+
+export function getDefaultSteps(department?: "general" | "support"): FlowStep[] {
+  return department === "support" ? DEFAULT_SUPPORT_STEPS : DEFAULT_STEPS;
+}
+
+/** Fetches flow steps honoring department sandbox and KV custom copy. */
+export async function getFlowSteps(department?: "general" | "support"): Promise<FlowStep[]> {
   const kv = getKV();
+  const key = getFlowKey(department);
   if (kv) {
     try {
-      const custom = await kv.get<FlowStep[]>(KEYS.flow);
+      const custom = await kv.get<FlowStep[]>(key);
       if (Array.isArray(custom) && custom.length > 0) {
         return custom;
       }
     } catch (e) {
-      console.error("[wa-flow] Failed to load custom flow from KV:", e);
+      console.error(`[wa-flow] Failed to load custom flow from KV (${key}):`, e);
     }
   }
-  return [...DEFAULT_STEPS];
+  return [...getDefaultSteps(department)];
 }
 
-/** Saves customized flow steps into Upstash KV. */
-export async function saveFlowSteps(steps: FlowStep[]): Promise<boolean> {
+/** Saves customized flow steps into Upstash KV under departmental key. */
+export async function saveFlowSteps(steps: FlowStep[], department?: "general" | "support"): Promise<boolean> {
   const kv = getKV();
   if (!kv) return false;
+  const key = getFlowKey(department);
   try {
-    await kv.set(KEYS.flow, steps);
+    await kv.set(key, steps);
     return true;
   } catch (e) {
-    console.error("[wa-flow] Failed to save custom flow to KV:", e);
+    console.error(`[wa-flow] Failed to save custom flow to KV (${key}):`, e);
     return false;
   }
 }
 
-/** Resets custom flow in Upstash KV back to built-in defaults. */
-export async function resetFlowSteps(): Promise<boolean> {
+/** Resets custom flow in Upstash KV back to departmental built-in defaults. */
+export async function resetFlowSteps(department?: "general" | "support"): Promise<boolean> {
   const kv = getKV();
   if (!kv) return false;
+  const key = getFlowKey(department);
   try {
-    await kv.del(KEYS.flow);
+    await kv.del(key);
     return true;
   } catch (e) {
-    console.error("[wa-flow] Failed to reset flow in KV:", e);
+    console.error(`[wa-flow] Failed to reset flow in KV (${key}):`, e);
     return false;
   }
 }
 
-/** Fetches a single step by ID, honoring custom copy if stored in KV. */
-export async function getEffectiveFlowStep(id?: string | null): Promise<FlowStep | null> {
+/** Fetches a single step by ID, honoring departmental defaults and KV copy. */
+export async function getEffectiveFlowStep(id?: string | null, department?: "general" | "support"): Promise<FlowStep | null> {
   if (!id) return null;
-  const steps = await getFlowSteps();
-  return steps.find((s) => s.id === id) ?? flowStep(id);
+  const steps = await getFlowSteps(department);
+  return steps.find((s) => s.id === id) ?? (department === "support" ? DEFAULT_SUPPORT_STEPS.find((s) => s.id === id) : flowStep(id)) ?? null;
 }
 
-/** Resolves the step a choice tap leads to, honoring custom copy if stored in KV. */
-export async function resolveEffectiveChoice(choiceId?: string | null): Promise<FlowStep | null> {
+/** Resolves the step a choice tap leads to, honoring departmental sandbox. */
+export async function resolveEffectiveChoice(choiceId?: string | null, department?: "general" | "support"): Promise<FlowStep | null> {
   if (!choiceId) return null;
-  const steps = await getFlowSteps();
+  const steps = await getFlowSteps(department);
   for (const step of steps) {
     const choices =
       step.kind === "list"
@@ -368,10 +502,10 @@ export async function resolveEffectiveChoice(choiceId?: string | null): Promise<
         : [];
     const choice = choices.find((c) => c.id === choiceId);
     if (choice) {
-      return steps.find((s) => s.id === choice.next) ?? flowStep(choice.next);
+      return steps.find((s) => s.id === choice.next) ?? (department === "support" ? DEFAULT_SUPPORT_STEPS.find((s) => s.id === choice.next) : flowStep(choice.next)) ?? null;
     }
   }
-  return resolveChoice(choiceId);
+  return department === "support" ? null : resolveChoice(choiceId);
 }
 
 // ─── Rendering ───────────────────────────────────────────────────────────────

@@ -8,17 +8,26 @@
 import { NextResponse } from "next/server";
 import { isStoreReady, getRules, setRules, DEFAULT_RULES, type AutoReplyRule } from "@/lib/wa-store";
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
+    const { searchParams } = new URL(request.url);
+    const dept = searchParams.get("department") as "general" | "support" | null;
+
     if (!isStoreReady()) {
+      let data = DEFAULT_RULES;
+      if (dept === "support") {
+        data = DEFAULT_RULES.filter((r) => r.department === "support" || r.id.startsWith("support_"));
+      } else if (dept === "general") {
+        data = DEFAULT_RULES.filter((r) => r.department === "general" || (!r.department && !r.id.startsWith("support_")));
+      }
       return NextResponse.json({
         success: true,
-        data: DEFAULT_RULES,
+        data,
         notice: "Using default rules — KV not configured",
       });
     }
 
-    const rules = await getRules();
+    const rules = await getRules(dept || undefined);
     return NextResponse.json({ success: true, data: rules });
   } catch (error) {
     console.error("[rules] GET error:", error);
@@ -32,7 +41,7 @@ export async function GET() {
 export async function PUT(request: Request) {
   try {
     const body = await request.json();
-    const { rules } = body as { rules: AutoReplyRule[] };
+    const { rules, department } = body as { rules: AutoReplyRule[]; department?: "general" | "support" };
 
     if (!Array.isArray(rules)) {
       return NextResponse.json({ success: false, error: "Rules must be an array" }, { status: 400 });
@@ -42,7 +51,7 @@ export async function PUT(request: Request) {
       return NextResponse.json({ success: true, notice: "KV not configured — rules not persisted" });
     }
 
-    await setRules(rules);
+    await setRules(rules, department);
     return NextResponse.json({ success: true, message: "Rules saved successfully" });
   } catch (error) {
     console.error("[rules] PUT error:", error);
