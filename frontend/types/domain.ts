@@ -75,6 +75,15 @@ export interface User extends CommonMetadata {
   role?: string;
   phone?: string;
   status?: UserStatus;
+  avatarUrl?: string | null;
+  bio?: string | null;
+  location?: string | null;
+  title?: string | null;
+  department?: string | null;
+  skills?: string | null;
+  githubUrl?: string | null;
+  linkedinUrl?: string | null;
+  emergencyContact?: string | null;
   permissions?: string[];
 }
 

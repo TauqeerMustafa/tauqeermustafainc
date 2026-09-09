@@ -1,4 +1,4 @@
-﻿import { API_ENDPOINTS } from "@/constants/api";
+import { API_ENDPOINTS } from "@/constants/api";
 import { apiRequest } from "@/lib/api-client";
 import type { ApiResponse, LoginCredentials, User } from "@/types";
 
@@ -9,6 +9,15 @@ export interface LoginResponse {
 
 export interface UpdateProfilePayload {
   name?: string;
+  phone?: string;
+  avatarUrl?: string;
+  bio?: string;
+  location?: string;
+  title?: string;
+  skills?: string;
+  githubUrl?: string;
+  linkedinUrl?: string;
+  emergencyContact?: string;
   currentPassword?: string;
   newPassword?: string;
 }
@@ -31,4 +40,14 @@ export const authService = {
       method: "PUT",
       data: payload,
     }),
+  uploadAvatar: (file: File) => {
+    const formData = new FormData();
+    formData.append("file", file);
+    return apiRequest<ApiResponse<User>>({
+      url: `${API_ENDPOINTS.auth.me}/avatar`,
+      method: "POST",
+      data: formData,
+      headers: { "Content-Type": "multipart/form-data" },
+    });
+  },
 };

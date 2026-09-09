@@ -1,4 +1,8 @@
-from fastapi import APIRouter, HTTPException, status
+import os
+import uuid
+from pathlib import Path
+from fastapi import APIRouter, File, HTTPException, UploadFile, status
+from fastapi.responses import FileResponse
 from sqlalchemy import select
 
 from app.api.deps import CurrentUser, DatabaseSession
@@ -11,12 +15,22 @@ from app.schemas.crm import RegisterRequest
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
+AVATARS_DIR = Path("uploads/avatars")
+AVATARS_DIR.mkdir(parents=True, exist_ok=True)
+ALLOWED_AVATAR_TYPES = {"image/jpeg", "image/png", "image/webp", "image/gif", "image/avif"}
+MAX_AVATAR_BYTES = 5 * 1024 * 1024  # 5MB
+
 
 def _to_user_read(user: User, db: DatabaseSession) -> UserRead:
     if user.role is not None:
         role_slug = user.role.slug
     else:
         role_slug = "admin" if user.is_superuser else "member"
+
+    department_name = None
+    if user.employee and user.employee.department:
+        department_name = user.employee.department.name
+
     return UserRead(
         id=user.id,
         name=f"{user.first_name} {user.last_name}".strip(),
@@ -24,6 +38,15 @@ def _to_user_read(user: User, db: DatabaseSession) -> UserRead:
         role=role_slug,
         phone=user.phone,
         status=user.status,
+        avatar_url=user.avatar_url,
+        bio=user.bio,
+        location=user.location or (user.employee.address if user.employee else None),
+        title=user.title or (user.employee.job_title if user.employee else None),
+        department=department_name,
+        skills=user.skills,
+        github_url=user.github_url,
+        linkedin_url=user.linkedin_url,
+        emergency_contact=user.emergency_contact or (user.employee.emergency_contact if user.employee else None),
         permissions=sorted(get_user_permissions(db, user)),
         created_at=user.created_at,
         updated_at=user.updated_at,
@@ -114,8 +137,37 @@ def update_me(
         phone = payload.phone.strip()
         if phone != (current_user.phone or ""):
             current_user.phone = phone or None
-            # A new number has not been proven yet, so drop the old proof.
             current_user.phone_verified_at = None
+
+    if payload.avatar_url is not None:
+        current_user.avatar_url = payload.avatar_url.strip() or None
+
+    if payload.bio is not None:
+        current_user.bio = payload.bio.strip() or None
+
+    if payload.location is not None:
+        current_user.location = payload.location.strip() or None
+        if current_user.employee:
+            current_user.employee.address = current_user.location
+
+    if payload.title is not None:
+        current_user.title = payload.title.strip() or None
+        if current_user.employee:
+            current_user.employee.job_title = current_user.title
+
+    if payload.skills is not None:
+        current_user.skills = payload.skills.strip() or None
+
+    if payload.github_url is not None:
+        current_user.github_url = payload.github_url.strip() or None
+
+    if payload.linkedin_url is not None:
+        current_user.linkedin_url = payload.linkedin_url.strip() or None
+
+    if payload.emergency_contact is not None:
+        current_user.emergency_contact = payload.emergency_contact.strip() or None
+        if current_user.employee:
+            current_user.employee.emergency_contact = current_user.emergency_contact
 
     if payload.new_password:
         if not payload.current_password or not verify_password(
@@ -129,4 +181,54 @@ def update_me(
 
     db.commit()
     db.refresh(current_user)
-    return ApiResponse(data=_to_user_read(current_user, db), message="Profile updated")
+    return ApiResponse(data=_to_user_read(current_user, db), message="Profile updated successfully")
+
+
+@router.post("/me/avatar", response_model=ApiResponse[UserRead])
+async def upload_avatar(
+    current_user: CurrentUser,
+    db: DatabaseSession,
+    file: UploadFile = File(...),
+) -> ApiResponse[UserRead]:
+    """Upload a profile picture for the current user."""
+    if file.content_type not in ALLOWED_AVATAR_TYPES:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Unsupported file type. Allowed types: {', '.join(ALLOWED_AVATAR_TYPES)}",
+        )
+
+    content = await file.read()
+    if not content:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail="Uploaded file is empty."
+        )
+    if len(content) > MAX_AVATAR_BYTES:
+        raise HTTPException(
+            status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
+            detail=f"Image size exceeds the {MAX_AVATAR_BYTES // (1024 * 1024)}MB limit.",
+        )
+
+    ext = Path(file.filename or "avatar.jpg").suffix.lower() or ".jpg"
+    filename = f"{current_user.id}_{uuid.uuid4().hex[:8]}{ext}"
+    dest_path = AVATARS_DIR / filename
+
+    with open(dest_path, "wb") as f:
+        f.write(content)
+
+    current_user.avatar_url = f"/api/v1/auth/avatars/{filename}"
+    db.commit()
+    db.refresh(current_user)
+    return ApiResponse(
+        data=_to_user_read(current_user, db),
+        message="Profile photo updated successfully",
+    )
+
+
+@router.get("/avatars/{filename}")
+def get_avatar(filename: str) -> FileResponse:
+    """Serve uploaded avatar images."""
+    file_path = AVATARS_DIR / filename
+    if not file_path.is_file():
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Avatar not found")
+    return FileResponse(file_path)
+

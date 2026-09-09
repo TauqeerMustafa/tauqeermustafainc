@@ -449,16 +449,34 @@ export function Badge({
   );
 }
 
-/** Initial-circle avatar. Round, per the control rule. */
+/** Initial-circle or image avatar. Round, per the control rule. */
 export function Avatar({
   name,
+  src,
   size = 32,
   tone = "blue",
 }: {
   name?: string | null;
+  src?: string | null;
   size?: number;
   tone?: Tone;
 }) {
+  if (src) {
+    return (
+      <span
+        className="relative inline-flex shrink-0 overflow-hidden rounded-full border border-adm-border bg-adm-surface-2"
+        style={{ width: size, height: size }}
+      >
+        <img
+          src={src}
+          alt={name ?? "Avatar"}
+          className="h-full w-full object-cover"
+          loading="lazy"
+        />
+      </span>
+    );
+  }
+
   return (
     <span
       className={`inline-flex shrink-0 items-center justify-center rounded-full font-bold text-white ${SOLID[tone]}`}

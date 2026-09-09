@@ -79,7 +79,7 @@ export default function PortalHeader({ portal, onMenuClick }: Props) {
 
         {/* Identity plate */}
         <div className="hidden items-center gap-2.5 rounded-none border border-adm-border bg-adm-surface-2/60 px-3 py-1 sm:flex">
-          <Avatar name={user?.name} size={26} />
+          <Avatar name={user?.name} src={user?.avatarUrl} size={26} />
           <div className="min-w-0">
             <p className="truncate text-xs font-semibold leading-tight text-adm-text">
               {user?.name ?? t("User")}

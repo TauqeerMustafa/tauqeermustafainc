@@ -93,6 +93,16 @@ class User(Base):
     openemail_mailbox_id: Mapped[str | None] = mapped_column(String(255), nullable=True)
     openemail_address: Mapped[str | None] = mapped_column(String(255), nullable=True)
 
+    # ── Profile & Personal Information ───────────────────────────────────────
+    avatar_url: Mapped[str | None] = mapped_column(String(1000), nullable=True)
+    bio: Mapped[str | None] = mapped_column(String(1000), nullable=True)
+    location: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    title: Mapped[str | None] = mapped_column(String(100), nullable=True)
+    skills: Mapped[str | None] = mapped_column(String(500), nullable=True)
+    github_url: Mapped[str | None] = mapped_column(String(500), nullable=True)
+    linkedin_url: Mapped[str | None] = mapped_column(String(500), nullable=True)
+    emergency_contact: Mapped[str | None] = mapped_column(String(255), nullable=True)
+
     created_at: Mapped[DateTime] = mapped_column(
         DateTime(timezone=True),
         server_default=func.now(),

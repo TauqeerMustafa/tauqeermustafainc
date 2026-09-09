@@ -49,3 +49,11 @@ export function useUpdateProfile() {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: queryKeys.auth.me }),
   });
 }
+
+export function useUploadAvatar() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (file: File) => authService.uploadAvatar(file),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: queryKeys.auth.me }),
+  });
+}
