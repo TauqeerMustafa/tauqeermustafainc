@@ -276,21 +276,17 @@ export async function proxy(request: NextRequest) {
     }
 
     if (hostname.includes("app.tauqeermustafa.tech")) {
-      if (pathname === "/") {
-        url.pathname = "/app";
-        return NextResponse.rewrite(url);
-      }
-      if (pathname === "/download" || pathname === "/apk") {
+      if (pathname === "/" || pathname === "/download" || pathname === "/apk") {
         url.pathname = "/app";
         return NextResponse.rewrite(url);
       }
       if (PORTAL_PREFIXES.some((prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`))) {
         return NextResponse.next();
       }
-      if (!pathname.startsWith("/app")) {
-        url.pathname = `/app${pathname}`;
-        return NextResponse.rewrite(url);
+      if (pathname.startsWith("/app")) {
+        return NextResponse.next();
       }
+      return NextResponse.redirect(`https://www.tauqeermustafa.tech${pathname}${request.nextUrl.search}`);
     }
   }
 

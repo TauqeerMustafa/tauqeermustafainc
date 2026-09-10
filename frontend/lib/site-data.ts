@@ -27,6 +27,7 @@ export const footerLinks = {
     { name: "Portfolio", href: "/portfolio" },
     { name: "Blog", href: "/blog" },
     { name: "Careers", href: "/careers" },
+    { name: "Portals App", href: "https://app.tauqeermustafa.tech" },
     { name: "Billing & Treasury", href: "https://billing.tauqeermustafa.tech" },
     { name: "Support & Helpdesk", href: "https://support.tauqeermustafa.tech" },
     { name: "Contact", href: "/contact" },

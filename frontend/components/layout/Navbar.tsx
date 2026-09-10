@@ -13,6 +13,7 @@ import {
   LifeBuoy,
   Menu,
   ShieldCheck,
+  Smartphone,
   Users,
   X,
 } from "lucide-react";
@@ -39,6 +40,13 @@ const companySubdomains = [
     href: "https://portals.tauqeermustafa.tech",
     description: "Secure client, employee & management workspaces",
     icon: ShieldCheck,
+  },
+  {
+    name: "Portals App",
+    host: "app.tauqeermustafa.tech",
+    href: "https://app.tauqeermustafa.tech",
+    description: "Android APK & installable mobile portal suite",
+    icon: Smartphone,
   },
   {
     name: "Community",
