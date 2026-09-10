@@ -131,9 +131,17 @@ export function waAccounts(): WAAccount[] {
   return out;
 }
 
-/** One slot by number. Unknown slots come back as an empty slot 1. */
+/** One slot by number. Higher slots fall back to slot 1 credentials if unset. */
 export function accountAt(slot: number): WAAccount {
-  return waAccounts().find((a) => a.slot === slot) ?? waAccounts()[0];
+  const primary = waAccounts()[0];
+  const acc = waAccounts().find((a) => a.slot === slot);
+  if (!acc) return primary;
+  return {
+    ...acc,
+    token: acc.token || primary?.token || null,
+    appSecret: acc.appSecret || primary?.appSecret || null,
+    wabaId: acc.wabaId || primary?.wabaId || null,
+  };
 }
 
 /** Slots that can actually reach Meta. */

@@ -734,10 +734,8 @@ export async function getEffectiveFlowStep(id?: string | null, department?: "gen
   return steps.find((s) => s.id === id) ?? (department === "support" ? DEFAULT_SUPPORT_STEPS.find((s) => s.id === id) : flowStep(id)) ?? null;
 }
 
-/** Resolves the step a choice tap leads to, honoring departmental sandbox. */
-export async function resolveEffectiveChoice(choiceId?: string | null, department?: "general" | "support"): Promise<FlowStep | null> {
-  if (!choiceId) return null;
-  const steps = await getFlowSteps(department);
+/** Helper to locate a choice within an array of flow steps */
+function findChoiceTarget(steps: FlowStep[], choiceId: string): FlowStep | null {
   for (const step of steps) {
     const choices =
       step.kind === "list"
@@ -747,11 +745,41 @@ export async function resolveEffectiveChoice(choiceId?: string | null, departmen
         : [];
     const choice = choices.find((c) => c.id === choiceId);
     if (choice) {
-      return steps.find((s) => s.id === choice.next) ?? (department === "support" ? DEFAULT_SUPPORT_STEPS.find((s) => s.id === choice.next) : flowStep(choice.next)) ?? null;
+      return steps.find((s) => s.id === choice.next) ?? null;
     }
   }
+  return null;
+}
 
-  // Legacy choice ID fallback mapping for backwards compatibility with earlier choices
+/** Resolves the step a choice tap leads to, honoring departmental sandbox with cross-fallback. */
+export async function resolveEffectiveChoice(
+  choiceId?: string | null,
+  department?: "general" | "support"
+): Promise<FlowStep | null> {
+  if (!choiceId) return null;
+
+  const primaryDept = department || "general";
+  const secondaryDept = primaryDept === "support" ? "general" : "support";
+
+  // 1. Check primary department custom / KV steps
+  const primarySteps = await getFlowSteps(primaryDept);
+  let matched = findChoiceTarget(primarySteps, choiceId);
+  if (matched) return matched;
+
+  // 2. Check primary department built-in defaults
+  matched = findChoiceTarget(getDefaultSteps(primaryDept), choiceId);
+  if (matched) return matched;
+
+  // 3. Cross-fallback: check secondary department custom steps
+  const secondarySteps = await getFlowSteps(secondaryDept);
+  matched = findChoiceTarget(secondarySteps, choiceId);
+  if (matched) return matched;
+
+  // 4. Cross-fallback: check secondary department built-in defaults
+  matched = findChoiceTarget(getDefaultSteps(secondaryDept), choiceId);
+  if (matched) return matched;
+
+  // 5. Legacy mappings for backwards compatibility
   const legacyMap: Record<string, string> = {
     svc_security: "scope_security",
     svc_compliance: "scope_compliance",
@@ -779,14 +807,67 @@ export async function resolveEffectiveChoice(choiceId?: string | null, departmen
     job_apply: "apply",
     job_status: "details",
     job_talk: "human",
+    supp_p1: "supp_scope",
+    supp_bug: "supp_scope",
+    supp_ticket: "check_ticket",
+    supp_lead: "supp_scope",
+    comp_prod: "supp_impact",
+    comp_api: "supp_impact",
+    comp_client: "supp_impact",
+    sev_crit: "supp_channel",
+    sev_high: "supp_channel",
+    sev_norm: "supp_channel",
+    p1_call_btn: "supp_confirm",
+    p1_status_btn: "supp_confirm",
+    bug_sla_btn: "supp_confirm",
+    conf_ticket: "supp_ticket_intake",
+    conf_lead: "speak_lead",
+    conf_hotline: "hotline_info",
   };
 
   const fallbackStepId = legacyMap[choiceId];
   if (fallbackStepId) {
-    return steps.find((s) => s.id === fallbackStepId) ?? getEffectiveFlowStep(fallbackStepId, department);
+    return (
+      (await getEffectiveFlowStep(fallbackStepId, primaryDept)) ??
+      (await getEffectiveFlowStep(fallbackStepId, secondaryDept))
+    );
   }
 
-  return department === "support" ? null : resolveChoice(choiceId);
+  return null;
+}
+
+/** Resolves a plain text reply (e.g. typing a choice title) to the matching next step. */
+export async function resolveChoiceFromText(
+  text: string,
+  department?: "general" | "support"
+): Promise<FlowStep | null> {
+  const clean = (text || "").trim().toLowerCase();
+  if (!clean) return null;
+
+  const steps = await getFlowSteps(department);
+  for (const step of steps) {
+    const choices =
+      step.kind === "list"
+        ? step.sections.flatMap((s) => s.rows)
+        : step.kind === "buttons"
+        ? step.buttons
+        : [];
+
+    for (const choice of choices) {
+      const title = choice.title.trim().toLowerCase();
+      if (
+        clean === title ||
+        (clean.length > 3 && title.includes(clean)) ||
+        (title.length > 3 && clean.includes(title))
+      ) {
+        return (
+          steps.find((s) => s.id === choice.next) ??
+          (await getEffectiveFlowStep(choice.next, department))
+        );
+      }
+    }
+  }
+  return null;
 }
 
 // ─── Rendering ───────────────────────────────────────────────────────────────

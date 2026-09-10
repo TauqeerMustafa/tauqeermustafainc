@@ -610,7 +610,7 @@ export default function AdminWhatsAppPage() {
         <MetaTemplatesTab key={department} department={department} defaultRecipient={prefillRecipient ?? ""} />
       )}
       {activeTab === "rules" && <RulesTab key={department} department={department} />}
-      {activeTab === "flow" && <FlowTab key={department} department={department} />}
+      {activeTab === "flow" && <FlowTab key={department} department={department} onDepartmentChange={setDepartment} />}
       {activeTab === "stats" && <StatsTab department={department} />}
       {activeTab === "numbers" && <NumbersTab department={department} onSendFrom={goSendFrom} />}
     </div>
@@ -3142,7 +3142,13 @@ function getStepMeta(step: FlowStep, idx: number) {
   return { label: `${idx + 1}. ${step.id}`, icon };
 }
 
-function FlowTab({ department }: { department?: "general" | "support" }) {
+function FlowTab({
+  department,
+  onDepartmentChange,
+}: {
+  department?: "general" | "support";
+  onDepartmentChange?: (dept: "general" | "support") => void;
+}) {
   const { data, isLoading, isError, refetch } = useWhatsAppFlow(department);
   const saveFlow = useSaveWhatsAppFlow(department);
   const resetFlow = useResetWhatsAppFlow(department);
@@ -3179,41 +3185,67 @@ function FlowTab({ department }: { department?: "general" | "support" }) {
         if (s.kind === newKind) return s;
         const targetFallback = prev.find((other) => other.id !== s.id)?.id || "details";
         if (newKind === "list") {
+          const existingRows =
+            s.kind === "buttons"
+              ? s.buttons.map((b) => ({
+                  id: b.id,
+                  title: b.title || "Option",
+                  description: "",
+                  next: b.next || targetFallback,
+                }))
+              : [];
           return {
             kind: "list",
             id: s.id,
             header: (s as any).header || "Tauqeer Mustafa Inc",
-            body: s.body,
+            body: s.body || "Please select an option below:",
             footer: (s as any).footer || "Mon to Sat, 09:00 to 18:00 PKT",
-            button: "Choose an option",
+            button: (s as any).button || "Choose an option",
             sections: [
               {
                 title: "Options",
-                rows: [
-                  {
-                    id: `${s.id}_row1`,
-                    title: "Option 1",
-                    description: "First option description",
-                    next: targetFallback,
-                  },
-                ],
+                rows:
+                  existingRows.length > 0
+                    ? existingRows
+                    : [
+                        {
+                          id: `${s.id}_r1`,
+                          title: "Option 1",
+                          description: "First option description",
+                          next: targetFallback,
+                        },
+                      ],
               },
             ],
           };
         } else if (newKind === "buttons") {
+          const existingButtons =
+            s.kind === "list"
+              ? s.sections
+                  .flatMap((sec) => sec.rows)
+                  .slice(0, 3)
+                  .map((r) => ({
+                    id: r.id,
+                    title: (r.title || "Option").slice(0, 20),
+                    next: r.next || targetFallback,
+                  }))
+              : [];
           return {
             kind: "buttons",
             id: s.id,
             header: (s as any).header || "Tauqeer Mustafa Inc",
-            body: s.body,
+            body: s.body || "Please select an option below:",
             footer: (s as any).footer || "Select an option below",
-            buttons: [
-              {
-                id: `${s.id}_btn1`,
-                title: "Option 1",
-                next: targetFallback,
-              },
-            ],
+            buttons:
+              existingButtons.length > 0
+                ? existingButtons
+                : [
+                    {
+                      id: `${s.id}_btn1`,
+                      title: "Option 1",
+                      next: targetFallback,
+                    },
+                  ],
           };
         } else {
           return {
@@ -3379,8 +3411,11 @@ function FlowTab({ department }: { department?: "general" | "support" }) {
   };
 
   // Add / Delete step
-  const handleAddNewStep = () => {
-    const rawId = prompt("Enter unique step ID (e.g. custom_service_step):");
+  const createStep = (kind: "list" | "buttons" | "text") => {
+    const rawId = prompt(
+      `Enter unique ID for new ${kind.toUpperCase()} step (e.g. step_${steps.length + 1}_${kind}):`,
+      `step_${steps.length + 1}_${kind}`
+    );
     if (!rawId) return;
     const cleanId = rawId.trim().toLowerCase().replace(/[^a-z0-9_]/g, "_");
     if (!cleanId) return;
@@ -3388,27 +3423,65 @@ function FlowTab({ department }: { department?: "general" | "support" }) {
       alert(`A step with ID '${cleanId}' already exists.`);
       return;
     }
-    const newStep: FlowStep = {
-      kind: "list",
-      id: cleanId,
-      header: "Tauqeer Mustafa Inc",
-      body: "Please select an option from the list below:",
-      footer: "Professional Advisory",
-      button: "Select Option",
-      sections: [
-        {
-          title: "Options",
-          rows: [
-            {
-              id: `${cleanId}_r1`,
-              title: "First Choice",
-              description: "Description of first choice",
-              next: "details",
-            },
-          ],
-        },
-      ],
-    };
+    const targetFallback = steps[0]?.id || "details";
+    let newStep: FlowStep;
+
+    if (kind === "list") {
+      newStep = {
+        kind: "list",
+        id: cleanId,
+        header: "Tauqeer Mustafa Inc",
+        body: "Please select an option from the list below:",
+        footer: "Professional Advisory",
+        button: "Select Option",
+        sections: [
+          {
+            title: "Options",
+            rows: [
+              {
+                id: `${cleanId}_r1`,
+                title: "Option 1",
+                description: "First option description",
+                next: targetFallback,
+              },
+              {
+                id: `${cleanId}_r2`,
+                title: "Option 2",
+                description: "Second option description",
+                next: targetFallback,
+              },
+            ],
+          },
+        ],
+      };
+    } else if (kind === "buttons") {
+      newStep = {
+        kind: "buttons",
+        id: cleanId,
+        header: "Tauqeer Mustafa Inc",
+        body: "Please confirm your selection below:",
+        footer: "Select an option",
+        buttons: [
+          {
+            id: `${cleanId}_btn1`,
+            title: "Confirm Option 1",
+            next: targetFallback,
+          },
+          {
+            id: `${cleanId}_btn2`,
+            title: "Confirm Option 2",
+            next: targetFallback,
+          },
+        ],
+      };
+    } else {
+      newStep = {
+        kind: "text",
+        id: cleanId,
+        body: "Your request has been received. Our team will review your details promptly.",
+      };
+    }
+
     setSteps((prev) => [...prev, newStep]);
     setSelectedStepId(cleanId);
   };
@@ -3435,7 +3508,7 @@ function FlowTab({ department }: { department?: "general" | "support" }) {
   };
 
   const handleReset = async () => {
-    if (!confirm("Reset all programmatic flow messages to built-in defaults?")) return;
+    if (!confirm(`Reset all programmatic flow messages for ${department || "general"} to built-in defaults?`)) return;
     setResetting(true);
     try {
       await resetFlow.mutateAsync();
@@ -3446,36 +3519,96 @@ function FlowTab({ department }: { department?: "general" | "support" }) {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
+      {/* Channel Bot Line Context Switcher Bar */}
+      <div className="flex flex-wrap items-center justify-between gap-3 p-3.5 bg-adm-surface-2 border border-adm-border">
+        <div className="flex flex-wrap items-center gap-2.5">
+          <span className="text-xs font-bold uppercase tracking-wider text-adm-text-3">Channel Bot Line:</span>
+          <div className="flex items-center gap-1 border border-adm-border bg-adm-surface p-0.5">
+            <button
+              type="button"
+              onClick={() => onDepartmentChange?.("general")}
+              className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold transition ${
+                department === "general"
+                  ? "bg-adm-blue text-white shadow-sm font-bold"
+                  : "text-adm-text-2 hover:bg-adm-surface-2"
+              }`}
+            >
+              <Briefcase size={13} />
+              <span>Line 1: General Inquiries & Sales</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => onDepartmentChange?.("support")}
+              className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold transition ${
+                department === "support"
+                  ? "bg-emerald-600 text-white shadow-sm font-bold"
+                  : "text-adm-text-2 hover:bg-adm-surface-2"
+              }`}
+            >
+              <LifeBuoy size={13} />
+              <span>Line 2: Technical Support Desk</span>
+            </button>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-2 text-xs text-adm-text-3">
+          <span className="font-semibold text-adm-text-2">{steps.length} steps in sequence</span>
+          <span>•</span>
+          <span>{steps.filter((s) => s.kind === "list").length} lists</span>
+          <span>•</span>
+          <span>{steps.filter((s) => s.kind === "buttons").length} buttons</span>
+          <span>•</span>
+          <span>{steps.filter((s) => s.kind === "text").length} text</span>
+        </div>
+      </div>
+
       {/* Header */}
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <div className="flex items-center gap-2">
             <h2 className="text-lg font-bold" style={{ color: "var(--adm-text)" }}>
-              Programmatic Bot Flow Editor
+              {department === "support" ? "Support Desk Bot Flow" : "General Inquiries Bot Flow"}
             </h2>
             <span className="rounded-full px-2.5 py-0.5 text-xs font-semibold bg-adm-surface-2 text-adm-text-2 border border-adm-border">
               {data?.isCustom ? "Customized KV Flow" : "Built-in Defaults"}
             </span>
           </div>
           <p className="text-xs text-adm-text-3 mt-0.5">
-            Design interactive List & Button sequence logic for WhatsApp automated messaging.
+            Configure automated WhatsApp ladder: Message 1-3 Lists ➔ Message 4-5 Buttons ➔ Continue text steps.
           </p>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <button
             type="button"
-            onClick={handleAddNewStep}
-            className="flex items-center gap-1 border px-3 py-2 text-xs font-semibold rounded-none hover:bg-adm-surface-2 transition text-adm-blue border-adm-blue/40"
+            onClick={() => createStep("list")}
+            className="flex items-center gap-1 border px-2.5 py-1.5 text-xs font-semibold rounded-none hover:bg-adm-surface-2 transition text-adm-blue border-adm-blue/40"
+            title="Add a new Interactive List message"
           >
-            <Plus size={14} /> Add Step
+            <List size={13} /> + List Step
+          </button>
+          <button
+            type="button"
+            onClick={() => createStep("buttons")}
+            className="flex items-center gap-1 border px-2.5 py-1.5 text-xs font-semibold rounded-none hover:bg-adm-surface-2 transition text-adm-blue border-adm-blue/40"
+            title="Add a new Reply Buttons message"
+          >
+            <Circle size={13} /> + Buttons Step
+          </button>
+          <button
+            type="button"
+            onClick={() => createStep("text")}
+            className="flex items-center gap-1 border px-2.5 py-1.5 text-xs font-semibold rounded-none hover:bg-adm-surface-2 transition text-adm-text-2 border-adm-border"
+            title="Add a new Plain Text message"
+          >
+            <MessageSquare size={13} /> + Text Step
           </button>
           <button
             type="button"
             onClick={handleReset}
             disabled={resetting || resetFlow.isPending}
-            className="border px-3 py-2 text-xs font-semibold rounded-none hover:bg-adm-surface-2 transition text-adm-text-2 disabled:opacity-50 border-adm-border"
+            className="border px-2.5 py-1.5 text-xs font-semibold rounded-none hover:bg-adm-surface-2 transition text-adm-text-2 disabled:opacity-50 border-adm-border"
           >
             Reset Defaults
           </button>
@@ -3483,7 +3616,7 @@ function FlowTab({ department }: { department?: "general" | "support" }) {
             type="button"
             onClick={handleSave}
             disabled={saveFlow.isPending}
-            className="flex items-center gap-1.5 px-4 py-2 text-xs font-semibold text-white rounded-none transition hover:opacity-90 disabled:opacity-50"
+            className="flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-semibold text-white rounded-none transition hover:opacity-90 disabled:opacity-50"
             style={{ background: "var(--adm-blue)" }}
           >
             <Check size={14} />
@@ -3495,7 +3628,7 @@ function FlowTab({ department }: { department?: "general" | "support" }) {
       {saveSuccess && (
         <div className="flex items-center gap-2 rounded-none border border-adm-blue bg-adm-blue-light p-3 text-xs font-medium text-adm-blue">
           <CheckCheck size={16} className="shrink-0 text-adm-blue" />
-          Programmatic messages saved successfully. All new WhatsApp interactions will use these dynamic steps.
+          Programmatic messages for {department === "support" ? "Technical Support" : "General Sales"} saved successfully.
         </div>
       )}
 
@@ -3671,7 +3804,7 @@ function FlowTab({ department }: { department?: "general" | "support" }) {
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-bold text-adm-text-2 uppercase tracking-wide">
-                      List Sections & Rows (Max 10 total items)
+                      List Sections & Rows ({currentStep.sections.reduce((acc, sec) => acc + sec.rows.length, 0)}/10 items by Meta limit)
                     </span>
                     <button
                       type="button"
@@ -3798,17 +3931,25 @@ function FlowTab({ department }: { department?: "general" | "support" }) {
             {/* Buttons Configuration */}
             {currentStep.kind === "buttons" && (
               <div className="space-y-4 rounded-none border bg-adm-surface-2 p-4 border-adm-border">
-                <div className="flex items-center justify-between">
+                <div className="flex flex-wrap items-center justify-between gap-2">
                   <span className="text-xs font-bold text-adm-text-2 uppercase tracking-wide">
-                    Interactive Reply Buttons (Max 3 by Meta limit)
+                    Interactive Reply Buttons ({currentStep.buttons.length}/3 by Meta limit)
                   </span>
-                  {currentStep.buttons.length < 3 && (
+                  {currentStep.buttons.length < 3 ? (
                     <button
                       type="button"
                       onClick={addButton}
                       className="text-xs text-adm-blue font-semibold flex items-center gap-1 hover:underline"
                     >
                       <Plus size={13} /> Add Button
+                    </button>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => changeStepKind("list")}
+                      className="text-[11px] text-adm-blue font-semibold hover:underline"
+                    >
+                      Need more than 3 options? Switch to List (up to 10) ➔
                     </button>
                   )}
                 </div>

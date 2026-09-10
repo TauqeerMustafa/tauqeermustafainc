@@ -33,8 +33,8 @@
 import { NextResponse } from "next/server";
 import { accountAt, appSecrets } from "@/lib/wa-accounts";
 import { createHmac, timingSafeEqual } from "node:crypto";
-import { isKnownNumber, primaryNumberId, waNumbers } from "@/lib/wa-numbers";
-import { FLOW_ENTRY, getEffectiveFlowStep, resolveEffectiveChoice, stepPayload, stepTranscript, type FlowStep } from "@/lib/wa-flow";
+import { getChannelDepartment, isKnownNumber, primaryNumberId, registerKnownNumbers, waNumbers } from "@/lib/wa-numbers";
+import { FLOW_ENTRY, getEffectiveFlowStep, resolveEffectiveChoice, resolveChoiceFromText, stepPayload, stepTranscript, type FlowStep } from "@/lib/wa-flow";
 import {
   appendMessage,
   updateMessageStatus,
@@ -241,12 +241,35 @@ async function handleAutoReply(
   channel: string,
   choiceId: string | null
 ) {
-  const phoneNumberId = isKnownNumber(channel) ? channel : primaryNumberId();
+  // 1. Resolve department: Line 1 -> general, Line 2 -> support
+  const dept: "general" | "support" = getChannelDepartment(channel);
+
+  // 2. Always reply through the channel message arrived on, fallback to primary
+  const phoneNumberId = channel || primaryNumberId();
   if (!phoneNumberId) return;
-  const numberDef = waNumbers().find((n) => n.id === phoneNumberId);
+
+  // 3. Ensure number definition is registered in waNumbers
+  let numberDef = waNumbers().find((n) => n.id === phoneNumberId);
+  if (!numberDef) {
+    const isPrimary = phoneNumberId === primaryNumberId();
+    numberDef = {
+      id: phoneNumberId,
+      label: isPrimary ? "General Inquiries & Sales" : "Technical & Client Support",
+      primary: isPrimary,
+      slot: 1,
+      department: dept,
+      displayNumber: isPrimary ? "+92 333 56701199" : "Support Desk",
+    };
+    registerKnownNumbers([numberDef]);
+  }
+
+  // 4. Resolve access token with fallback to primary account
   const account = accountAt(numberDef?.slot ?? 1);
-  const token = account.token;
-  if (!token) return;
+  const token = account.token || accountAt(1).token;
+  if (!token) {
+    console.error("[webhook] No WhatsApp access token configured — aborting auto-reply");
+    return;
+  }
 
   // A tap carries an id but sometimes no useful text; plain messages are the
   // other way round. Nothing to work with means nothing to answer.
@@ -259,19 +282,40 @@ async function handleAutoReply(
     );
   }
 
-  const dept: "general" | "support" = numberDef?.department ?? "general";
-
   try {
-    const next = await resolveEffectiveChoice(choiceId, dept);
-    if (next) {
-      await sendFlowStep(token, phoneNumberId, to, next, msgId);
-      return;
+    // 5. Interactive tap resolution (works across custom KV and built-in defaults)
+    if (choiceId) {
+      const next = await resolveEffectiveChoice(choiceId, dept);
+      if (next) {
+        await sendFlowStep(token, phoneNumberId, to, next, msgId);
+        return;
+      }
     }
 
-    const cleanText = (incomingText || "").trim().toLowerCase();
-    const isStartCmd = /^(start|menu|hi|hello|hey|services|help|options|bot|0|restart|info)$/i.test(cleanText);
+    // 6. Plain text reply matching a choice title
+    if (!choiceId && incomingText) {
+      const textChoice = await resolveChoiceFromText(incomingText, dept);
+      if (textChoice) {
+        await sendFlowStep(token, phoneNumberId, to, textChoice, msgId);
+        return;
+      }
+    }
 
-    if (isStartCmd || (await isFirstContact(to))) {
+    // 7. Check start command or first contact on THIS channel
+    const cleanText = (incomingText || "").trim().toLowerCase();
+    const isStartCmd =
+      /^(start|menu|hi|hello|hey|services|help|options|bot|0|restart|info|support|ticket|issue|problem|bug|test|down|status|assistance|lead|sales|quote|triage|incident)(\s.*)?$/i.test(
+        cleanText
+      ) ||
+      cleanText === "1" ||
+      cleanText === "2" ||
+      cleanText === "3" ||
+      cleanText === "4" ||
+      cleanText === "5";
+
+    const isFirst = await isFirstContact(to, phoneNumberId);
+
+    if (isStartCmd || isFirst) {
       const entry = await getEffectiveFlowStep(FLOW_ENTRY, dept);
       if (entry) {
         await sendFlowStep(token, phoneNumberId, to, entry, msgId);
@@ -279,6 +323,7 @@ async function handleAutoReply(
       }
     }
 
+    // 8. Keyword rules for active conversation
     const rule = matchRule(await getRules(dept), incomingText);
     if (rule) {
       await sendText(token, phoneNumberId, to, rule.reply, msgId);
@@ -289,17 +334,20 @@ async function handleAutoReply(
 }
 
 /**
- * Has anyone — a person or this webhook — ever sent this number anything?
+ * Has anyone — a person or this webhook — ever sent this number anything on THIS channel?
  *
- * Deliberately "no outbound" rather than "one inbound": Meta retries deliveries
- * and a contact often fires off two or three messages before we answer, so
- * counting their messages would greet them twice. Once something has gone out,
- * the opening list has already been offered.
+ * Deliberately scoped per-channel so contacting Line 1 does not suppress the
+ * opening greeting / triage sequence when the same user later messages Line 2.
  */
-async function isFirstContact(number: string): Promise<boolean> {
+async function isFirstContact(number: string, channelId?: string): Promise<boolean> {
   try {
     const all = await getMessages();
-    return !all.some((m) => m.direction === "outbound" && m.to === number);
+    return !all.some(
+      (m) =>
+        m.direction === "outbound" &&
+        m.to === number &&
+        (!channelId || !m.channel || m.channel === channelId || m.from === channelId)
+    );
   } catch (e) {
     // Better to stay quiet than to greet someone mid-conversation.
     console.error("[webhook] Could not check conversation history:", e);
@@ -307,7 +355,7 @@ async function isFirstContact(number: string): Promise<boolean> {
   }
 }
 
-/** Send one step of the scripted flow and record it in the inbox. */
+/** Send one step of the scripted flow and record it in the inbox (with plain text fallback). */
 async function sendFlowStep(
   token: string,
   phoneNumberId: string,
@@ -327,7 +375,39 @@ async function sendFlowStep(
   const messageId = data?.messages?.[0]?.id;
 
   if (!messageId) {
-    console.error(`[webhook] Flow step "${step.id}" was not sent:`, data?.error?.message ?? data);
+    console.warn(
+      `[webhook] Flow step "${step.id}" failed (${data?.error?.message ?? JSON.stringify(data)}). Falling back to plain text send.`
+    );
+    const fallbackText = stepTranscript(step);
+    const fbRes = await fetch(`${GRAPH_URL}/${phoneNumberId}/messages`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+      body: JSON.stringify({
+        messaging_product: "whatsapp",
+        to,
+        type: "text",
+        text: { body: fallbackText, preview_url: false },
+      }),
+      cache: "no-store",
+    });
+    const fbData = await fbRes.json();
+    const fbId = fbData?.messages?.[0]?.id;
+    if (fbId) {
+      await appendMessage({
+        id: fbId,
+        from: phoneNumberId,
+        to,
+        jid: `${to}@s.whatsapp.net`,
+        channel: phoneNumberId,
+        type: "text",
+        body: fallbackText,
+        timestamp: new Date().toISOString(),
+        direction: "outbound",
+        status: "sent",
+      });
+    } else {
+      console.error(`[webhook] Plain text fallback also failed for step "${step.id}":`, fbData);
+    }
     return;
   }
 

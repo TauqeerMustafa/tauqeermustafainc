@@ -128,18 +128,14 @@ function build(): WANumber[] {
     });
   }
   if (secondId) {
-    const slot2Configured = Boolean(
-      clean(process.env.WHATSAPP_TOKEN_2) ||
-      clean(process.env.WHATSAPP_BUSINESS_ACCOUNT_ID_2) ||
-      clean(process.env.WHATSAPP_PHONE_NUMBER_ID_2)
-    );
+    const hasDedicatedSlot2Token = Boolean(clean(process.env.WHATSAPP_TOKEN_2));
     numbers.push({
       id: secondId,
       label: clean(process.env.WHATSAPP_PHONE_LABEL_2) || "Technical & Client Support",
       // With no primary configured, the second number has to carry the traffic
       // rather than leaving the integration dead.
       primary: numbers.length === 0,
-      slot: slot2Configured ? 2 : 1,
+      slot: hasDedicatedSlot2Token ? 2 : 1,
       department: "support",
       displayNumber: clean(process.env.WHATSAPP_DISPLAY_NUMBER_2) || "Support Desk",
     });
@@ -255,20 +251,32 @@ export function getChannelDepartment(
   allNumbers?: WANumber[]
 ): WADepartment {
   if (!idOrNumber) return "general";
+  const cleanId = idOrNumber.trim();
+  if (!cleanId) return "general";
+
+  const primary = primaryNumberId();
+  if (primary && cleanId === primary) return "general";
+
   const nums = allNumbers || waNumbers();
   const num = nums.find(
     (n) =>
-      n.id === idOrNumber ||
-      (n.displayNumber && n.displayNumber.replace(/[^0-9]/g, "") === idOrNumber.replace(/[^0-9]/g, ""))
+      n.id === cleanId ||
+      (n.displayNumber && n.displayNumber.replace(/[^0-9]/g, "") === cleanId.replace(/[^0-9]/g, ""))
   );
   if (num) {
     if (num.department) return num.department;
-    if (num.label.toLowerCase().includes("support") || num.id === DEFAULT_SECOND_ID) return "support";
-    return "general";
-  }
-  const clean = idOrNumber.replace(/[^0-9]/g, "");
-  if (idOrNumber.toLowerCase().includes("support") || idOrNumber === DEFAULT_SECOND_ID) {
+    if (num.primary) return "general";
     return "support";
   }
+
+  if (cleanId.toLowerCase().includes("support") || cleanId === DEFAULT_SECOND_ID) {
+    return "support";
+  }
+
+  // Any non-primary channel ID is our support line
+  if (primary && cleanId !== primary) {
+    return "support";
+  }
+
   return "general";
 }
