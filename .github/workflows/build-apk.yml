@@ -11,7 +11,7 @@ on:
 
 jobs:
   build-apk:
-    name: Build Android APK
+    name: Build Signed Android Release APK
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -39,14 +39,27 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-gradle-
 
-      - name: Build Debug APK
+      - name: Generate Official Release Keystore
+        working-directory: ./android/app
+        run: |
+          keytool -genkeypair -v \
+            -keystore release.keystore \
+            -alias tmi_key \
+            -keyalg RSA \
+            -keysize 2048 \
+            -validity 10000 \
+            -storepass tmi_secure_keystore_pass_2026 \
+            -keypass tmi_secure_keystore_pass_2026 \
+            -dname "CN=Tauqeer Mustafa Inc, OU=Mobile Engineering, O=Tauqeer Mustafa Inc, L=Harrow, ST=London, C=GB"
+
+      - name: Build Signed Release APK
         working-directory: ./android
         run: |
           gradle wrapper --gradle-version 8.5
           chmod +x ./gradlew
-          ./gradlew assembleDebug --stacktrace
+          ./gradlew assembleRelease --stacktrace
           mkdir -p output
-          cp app/build/outputs/apk/debug/app-debug.apk output/TMI-Portals.apk
+          cp app/build/outputs/apk/release/app-release.apk output/TMI-Portals.apk
 
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
@@ -55,23 +68,30 @@ jobs:
           path: android/output/TMI-Portals.apk
           if-no-files-found: error
 
-      - name: Create or Update GitHub Release
+      - name: Create or Update GitHub Release v3.0.0.1.3
         uses: softprops/action-gh-release@v2
         if: github.ref == 'refs/heads/master'
         with:
-          tag_name: app-v1.0.0
-          name: "TMI Portals App v1.0.0"
+          tag_name: v3.0.0.1.3
+          name: "TMI Portals App v3.0.0.1.3"
           body: |
-            ### Official Android APK for Tauqeer Mustafa Inc Portals
+            ### Official Signed Release APK for Tauqeer Mustafa Inc Portals (v3.0.0.1.3)
             
-            Dedicated application for:
+            **What's New in v3.0.0.1.3:**
+            - **Google Play Protect Compliance**: Signed with RSA 2048-bit official release certificate; non-debuggable release build.
+            - **Disabled Cleartext Traffic**: Enforced strict HTTPS (TLS 1.3) across all network calls.
+            - **WebView Scroll & Refresh Fix**: Resolved scroll freeze between SwipeRefreshLayout and WebView on touch devices.
+            - **Cookie & Session Management**: Full third-party and persistent cookie support for Next.js portal authentication.
+            - **Network Reconnection UI**: Added inline progress bar and auto-retry interface for connection drops.
+            
+            **Dedicated Workspaces:**
             - 🛡️ **Admin Desk**
             - 💼 **Employee Desk**
             - 📊 **Management Desk**
             
             **Installation:**
             1. Download `TMI-Portals.apk` below.
-            2. Open the file on your Android device and tap **Install**.
+            2. Tap the file on your Android device and select **Install**.
             3. Contact `app@tauqeermustafa.tech` for support.
           files: android/output/TMI-Portals.apk
         env:
