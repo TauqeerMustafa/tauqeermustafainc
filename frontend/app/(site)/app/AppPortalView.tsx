@@ -30,6 +30,7 @@ import {
   Fingerprint,
 } from "lucide-react";
 import { MStripe, Reveal, Section, fadeUp, scaleIn, fadeLeft, fadeRight } from "@/components/home/ui";
+import { company } from "@/data/company";
 
 export default function AppPortalView() {
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
@@ -790,9 +791,9 @@ export default function AppPortalView() {
 
                 <div className="flex items-center gap-2 font-mono text-xs">
                   <Phone className="h-4 w-4 text-action" />
-                  <span className="text-ink/60">Helpdesk:</span>
-                  <a href="tel:+923284992928" className="font-bold text-ink hover:text-action transition">
-                    +92 328 4992928
+                  <span className="text-ink/60">Official Phone:</span>
+                  <a href={`tel:${company.phone.replace(/\s+/g, "")}`} className="font-bold text-ink hover:text-action transition">
+                    {company.phone}
                   </a>
                 </div>
               </div>
@@ -808,7 +809,7 @@ export default function AppPortalView() {
               </a>
 
               <a
-                href="https://wa.me/923284992928"
+                href={company.whatsappChannels.support.url}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center justify-center gap-2 border border-ink/20 bg-canvas px-6 py-3.5 font-mono text-xs font-bold uppercase tracking-wider text-ink hover:bg-ink/5 transition"
