@@ -128,7 +128,7 @@ export default function AppPortalView() {
             >
               {/* Primary APK Download */}
               <a
-                href="https://github.com/TauqeerMustafa/tauqeermustafainc/releases/latest/download/TMI-Portals.apk"
+                href="/downloads/TMI-Portals.apk"
                 download="TMI-Portals.apk"
                 className="inline-flex w-full items-center justify-center gap-2.5 bg-action px-8 py-4 font-mono text-[13px] font-bold uppercase tracking-[0.08em] text-on-action shadow-lg shadow-action/20 transition-all hover:bg-action-strong focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-action sm:w-auto"
               >
@@ -530,14 +530,25 @@ export default function AppPortalView() {
                       Native Android APK (v1.0.0)
                     </h3>
                   </div>
-                  <a
-                    href="https://github.com/TauqeerMustafa/tauqeermustafainc/releases/latest/download/TMI-Portals.apk"
-                    download="TMI-Portals.apk"
-                    className="inline-flex items-center justify-center gap-2 bg-action px-6 py-3 font-mono text-xs font-bold uppercase tracking-wider text-on-action hover:bg-action-strong transition"
-                  >
-                    <Download className="h-4 w-4" />
-                    <span>Download TMI-Portals.apk (~4.2 MB)</span>
-                  </a>
+                  <div className="flex flex-wrap items-center gap-3">
+                    <a
+                      href="/downloads/TMI-Portals.apk"
+                      download="TMI-Portals.apk"
+                      className="inline-flex items-center justify-center gap-2 bg-action px-6 py-3 font-mono text-xs font-bold uppercase tracking-wider text-on-action hover:bg-action-strong transition"
+                    >
+                      <Download className="h-4 w-4" />
+                      <span>Download TMI-Portals.apk (Direct)</span>
+                    </a>
+                    <a
+                      href="https://github.com/TauqeerMustafa/tauqeermustafainc/releases/latest/download/TMI-Portals.apk"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center justify-center gap-2 border border-ink/20 bg-canvas px-4 py-3 font-mono text-xs font-bold uppercase tracking-wider text-ink hover:bg-ink/5 transition"
+                    >
+                      <span>GitHub Mirror</span>
+                      <ExternalLink className="h-3.5 w-3.5" />
+                    </a>
+                  </div>
                 </div>
 
                 <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
