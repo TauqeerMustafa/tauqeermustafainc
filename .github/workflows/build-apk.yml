@@ -13,6 +13,8 @@ jobs:
   build-apk:
     name: Build Android APK
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
 
     steps:
       - name: Checkout Code
@@ -35,12 +37,12 @@ jobs:
             ~/.gradle/wrapper
           key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
           restore-keys: |
-            ${runner.os }}-gradle-
+            ${{ runner.os }}-gradle-
 
       - name: Build Debug APK
         working-directory: ./android
         run: |
-          gradle wrapper
+          gradle wrapper --gradle-version 8.5
           chmod +x ./gradlew
           ./gradlew assembleDebug --stacktrace
           mkdir -p output
