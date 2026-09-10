@@ -227,6 +227,24 @@ export async function proxy(request: NextRequest) {
       url.pathname = `/community${pathname === "/" ? "" : pathname}`;
       return NextResponse.rewrite(url);
     }
+
+    if (hostname.includes("app.tauqeermustafa.tech")) {
+      if (pathname === "/") {
+        url.pathname = "/app";
+        return NextResponse.rewrite(url);
+      }
+      if (pathname === "/download" || pathname === "/apk") {
+        url.pathname = "/app";
+        return NextResponse.rewrite(url);
+      }
+      if (PORTAL_PREFIXES.some((prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`))) {
+        return NextResponse.next();
+      }
+      if (!pathname.startsWith("/app")) {
+        url.pathname = `/app${pathname}`;
+        return NextResponse.rewrite(url);
+      }
+    }
   }
 
   // 2. Handle WhatsApp API auth gating

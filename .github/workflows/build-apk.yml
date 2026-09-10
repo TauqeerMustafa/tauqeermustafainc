@@ -1,0 +1,76 @@
+name: Build TMI Portals Android APK
+
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - 'android/**'
+      - '.github/workflows/build-apk.yml'
+  workflow_dispatch:
+
+jobs:
+  build-apk:
+    name: Build Android APK
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Cache Gradle Packages
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${runner.os }}-gradle-
+
+      - name: Build Debug APK
+        working-directory: ./android
+        run: |
+          gradle wrapper
+          chmod +x ./gradlew
+          ./gradlew assembleDebug --stacktrace
+          mkdir -p output
+          cp app/build/outputs/apk/debug/app-debug.apk output/TMI-Portals.apk
+
+      - name: Upload APK Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: TMI-Portals-Android-APK
+          path: android/output/TMI-Portals.apk
+          if-no-files-found: error
+
+      - name: Create or Update GitHub Release
+        uses: softprops/action-gh-release@v2
+        if: github.ref == 'refs/heads/master'
+        with:
+          tag_name: app-v1.0.0
+          name: "TMI Portals App v1.0.0"
+          body: |
+            ### Official Android APK for Tauqeer Mustafa Inc Portals
+            
+            Dedicated application for:
+            - 🛡️ **Admin Desk**
+            - 💼 **Employee Desk**
+            - 📊 **Management Desk**
+            
+            **Installation:**
+            1. Download `TMI-Portals.apk` below.
+            2. Open the file on your Android device and tap **Install**.
+            3. Contact `app@tauqeermustafa.tech` for support.
+          files: android/output/TMI-Portals.apk
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

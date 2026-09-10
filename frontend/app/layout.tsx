@@ -29,7 +29,13 @@ export const metadata: Metadata = {
   authors: [{ name: "Tauqeer Mustafa", url: appConfig.siteUrl }],
   creator: "Tauqeer Mustafa",
   publisher: company.name,
-  applicationName: company.name,
+  applicationName: "TMI Portals",
+  manifest: "/manifest.webmanifest",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: "TMI Portals",
+  },
   icons: {
     icon: "/logo.png",
     apple: "/logo.png",
