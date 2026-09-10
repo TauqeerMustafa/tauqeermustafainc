@@ -12,6 +12,7 @@ export { blogService } from "./blog.service";
 export { careerService } from "./career.service";
 export { clientMessageService } from "./client.service";
 export { contactService } from "./contact.service";
+export { staffMessageService } from "./staff-messages.service";
 export {
   attendanceService,
   dashboardService,

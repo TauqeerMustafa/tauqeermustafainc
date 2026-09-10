@@ -27,6 +27,7 @@ import {
   LayoutDashboard,
   Mail,
   MessageCircle,
+  MessageSquare,
   MessagesSquare,
   Newspaper,
   Settings,
@@ -113,6 +114,7 @@ export const PORTAL_NAV: Record<PortalId, NavSection[]> = {
       items: [
         { label: "Contact Messages", href: "/admin/messages", icon: MessagesSquare },
         { label: "Client Portal", href: "/admin/client-messages", icon: Building2 },
+        { label: "Staff Messages", href: "/admin/staff-messages", icon: MessageSquare },
         { label: "Webmail", href: "/admin/mail", icon: Mail },
         { label: "WhatsApp", href: "/admin/whatsapp", icon: MessageCircle },
       ],

@@ -5,14 +5,21 @@ import {
   Building2,
   Mail,
   MessageCircle,
+  MessageSquare,
   MessagesSquare,
   type LucideIcon,
 } from "lucide-react";
 
 import { useMessages } from "@/hooks/useMessages";
+import { useStaffUnreadCount } from "@/hooks/useStaffMessages";
 import { useI18n } from "@/lib/i18n";
 
-export type CommunicationsFunctionId = "whatsapp" | "mail" | "client-messages" | "messages";
+export type CommunicationsFunctionId =
+  | "whatsapp"
+  | "mail"
+  | "client-messages"
+  | "staff-messages"
+  | "messages";
 
 interface CommunicationsBannerProps {
   active?: CommunicationsFunctionId;
@@ -25,7 +32,7 @@ interface FunctionItem {
   shortLabel: string;
   href: string;
   icon: LucideIcon;
-  countKey?: "inquiries";
+  countKey?: "inquiries" | "staff";
 }
 
 const COMMUNICATIONS_FUNCTIONS: FunctionItem[] = [
@@ -51,6 +58,14 @@ const COMMUNICATIONS_FUNCTIONS: FunctionItem[] = [
     icon: Building2,
   },
   {
+    id: "staff-messages",
+    label: "Staff Direct Messages",
+    shortLabel: "Staff Chat",
+    href: "/admin/staff-messages",
+    icon: MessageSquare,
+    countKey: "staff",
+  },
+  {
     id: "messages",
     label: "Website Inquiries",
     shortLabel: "Inquiries",
@@ -66,8 +81,10 @@ export default function CommunicationsBanner({
 }: CommunicationsBannerProps) {
   const { t } = useI18n();
   const inquiriesQuery = useMessages({ unreadOnly: true });
+  const staffUnreadQuery = useStaffUnreadCount();
 
   const unreadCount = inquiriesQuery.data?.data?.items?.length ?? 0;
+  const staffUnreadCount = staffUnreadQuery.data?.unreadCount ?? 0;
 
   return (
     <div className="flex flex-col gap-3 border-b border-adm-border pb-4">
@@ -78,9 +95,9 @@ export default function CommunicationsBanner({
           <span className="text-xs font-semibold uppercase tracking-wider text-adm-text">
             {t("Communications")}
           </span>
-          {unreadCount > 0 && (
+          {(unreadCount + staffUnreadCount) > 0 && (
             <span className="rounded-full border border-adm-amber/30 bg-adm-amber-light px-2 py-0.5 text-[11px] font-medium text-adm-amber tabular-nums">
-              {unreadCount} {t("unread")}
+              {unreadCount + staffUnreadCount} {t("unread")}
             </span>
           )}
         </div>
@@ -93,7 +110,12 @@ export default function CommunicationsBanner({
           {COMMUNICATIONS_FUNCTIONS.map((item) => {
             const Icon = item.icon;
             const isActive = active === item.id;
-            const count = item.countKey === "inquiries" ? unreadCount : undefined;
+            const count =
+              item.countKey === "inquiries"
+                ? unreadCount
+                : item.countKey === "staff"
+                ? staffUnreadCount
+                : undefined;
 
             return (
               <Link

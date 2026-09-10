@@ -16,6 +16,7 @@ from app.models.portal import ClientMessage, ClientProject, VerificationCode
 from app.models.role import Permission, Role, RolePermission
 from app.models.scheduled_email import ScheduledEmail
 from app.models.service import Service
+from app.models.staff_message import StaffMessage
 from app.models.task import ProjectTask
 from app.models.team import Team
 from app.models.user import User
@@ -44,6 +45,7 @@ __all__ = [
     "RolePermission",
     "ScheduledEmail",
     "Service",
+    "StaffMessage",
     "ProjectTask",
     "Team",
     "User",

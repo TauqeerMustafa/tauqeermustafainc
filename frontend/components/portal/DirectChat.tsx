@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import {
   AlertCircle,
@@ -21,6 +21,7 @@ import {
 
 import { PortalButton } from "@/components/portal/PortalUI";
 import { useCurrentUser } from "@/hooks/useAuth";
+import { useMyStaffThread, useSendStaffMessage } from "@/hooks/useStaffMessages";
 
 export type ChatContact = {
   id: string;
@@ -94,8 +95,6 @@ export type ChatMessage = {
   };
 };
 
-const STORAGE_KEY_PREFIX = "tmi_direct_chat_threads_";
-
 function formatFileSize(bytes: number): string {
   if (bytes < 1024) return `${bytes} B`;
   if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
@@ -107,55 +106,51 @@ export default function DirectChat() {
   const user = data?.data;
 
   const [selectedContact, setSelectedContact] = useState<ChatContact>(DIRECT_CONTACTS[0]);
-  const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [inputVal, setInputVal] = useState("");
   const [isUrgent, setIsUrgent] = useState(false);
   const [attachedFile, setAttachedFile] = useState<{ name: string; size: string; url?: string } | null>(null);
-  const [sending, setSending] = useState(false);
 
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const scrollEndRef = useRef<HTMLDivElement | null>(null);
 
-  // Load thread for selected contact
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    const key = `${STORAGE_KEY_PREFIX}${selectedContact.id}`;
-    const saved = localStorage.getItem(key);
-    if (saved) {
-      try {
-        setMessages(JSON.parse(saved));
-        return;
-      } catch {
-        // ignore parse error
-      }
-    }
+  // Live real-time messages query from server database
+  const threadQuery = useMyStaffThread(selectedContact.id);
+  const sendMutation = useSendStaffMessage();
 
-    // Default starter conversation if empty
-    const initialThread: ChatMessage[] = [
-      {
-        id: `init-${selectedContact.id}`,
-        sender: "head",
-        senderName: selectedContact.name,
-        text: selectedContact.welcomeMessage,
-        timestamp: "Official Channel • Secure & Encrypted",
-      },
-    ];
-    setMessages(initialThread);
-    localStorage.setItem(key, JSON.stringify(initialThread));
-  }, [selectedContact]);
+  const messages: ChatMessage[] = useMemo(() => {
+    const serverRows = threadQuery.data ?? [];
+    if (serverRows.length === 0) {
+      return [
+        {
+          id: `init-${selectedContact.id}`,
+          sender: "head",
+          senderName: selectedContact.name,
+          text: selectedContact.welcomeMessage,
+          timestamp: "Official Channel • Secure & Encrypted",
+        },
+      ];
+    }
+    return serverRows.map((m) => ({
+      id: m.id,
+      sender: m.isFromStaff ? "employee" : "head",
+      senderName: m.authorName,
+      text: m.body,
+      timestamp: new Date(m.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+      urgent: m.isUrgent,
+      file: m.attachmentName
+        ? {
+            name: m.attachmentName,
+            size: m.attachmentSize || "",
+            url: m.attachmentUrl || undefined,
+          }
+        : undefined,
+    }));
+  }, [threadQuery.data, selectedContact]);
 
   // Scroll to bottom when messages update
   useEffect(() => {
     scrollEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
-
-  // Persist messages
-  function saveThread(updated: ChatMessage[]) {
-    setMessages(updated);
-    if (typeof window !== "undefined") {
-      localStorage.setItem(`${STORAGE_KEY_PREFIX}${selectedContact.id}`, JSON.stringify(updated));
-    }
-  }
 
   function handleFileSelected(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -175,56 +170,32 @@ export default function DirectChat() {
     });
   }
 
-  function handleSend(e?: React.FormEvent) {
+  async function handleSend(e?: React.FormEvent) {
     if (e) e.preventDefault();
     const trimmed = inputVal.trim();
     if (!trimmed && !attachedFile) return;
 
-    const newMsg: ChatMessage = {
-      id: `msg-${Date.now()}`,
-      sender: "employee",
-      senderName: user?.name || "Staff Member",
-      text: trimmed,
-      timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
-      urgent: isUrgent,
-      file: attachedFile || undefined,
-    };
+    try {
+      await sendMutation.mutateAsync({
+        channel: selectedContact.id,
+        body: trimmed || (attachedFile ? `Attached: ${attachedFile.name}` : ""),
+        isUrgent,
+        attachmentName: attachedFile?.name,
+        attachmentSize: attachedFile?.size,
+        attachmentUrl: attachedFile?.url,
+      });
 
-    const updated = [...messages, newMsg];
-    saveThread(updated);
-
-    setInputVal("");
-    setAttachedFile(null);
-    setIsUrgent(false);
-    if (fileInputRef.current) fileInputRef.current.value = "";
-
-    // Automated dispatch acknowledgment
-    setSending(true);
-    setTimeout(() => {
-      const ackMsg: ChatMessage = {
-        id: `ack-${Date.now()}`,
-        sender: "head",
-        senderName: selectedContact.name,
-        text: `Thank you for your message${isUrgent ? " (marked URGENT)" : ""}. It has been logged to the ${selectedContact.badge} inbox. We will review and respond shortly.`,
-        timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
-      };
-      saveThread([...updated, ackMsg]);
-      setSending(false);
-    }, 1000);
+      setInputVal("");
+      setAttachedFile(null);
+      setIsUrgent(false);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    } catch (err) {
+      alert(err instanceof Error ? err.message : "Failed to send message.");
+    }
   }
 
   function handleClearThread() {
-    if (!confirm(`Clear all conversation history with ${selectedContact.name}?`)) return;
-    const initialThread: ChatMessage[] = [
-      {
-        id: `init-${selectedContact.id}`,
-        sender: "head",
-        senderName: selectedContact.name,
-        text: selectedContact.welcomeMessage,
-        timestamp: "Official Channel • Secure & Encrypted",
-      },
-    ];
-    saveThread(initialThread);
+    alert("This channel is logged for official auditing. Messages cannot be deleted from staff records.");
   }
 
   function handleQuickPrompt(promptText: string) {
@@ -435,10 +406,10 @@ export default function DirectChat() {
               );
             })}
 
-            {sending && (
+            {sendMutation.isPending && (
               <div className="flex items-center gap-2 text-xs font-mono text-adm-text-3 py-1">
                 <span className="h-1.5 w-1.5 rounded-full bg-adm-blue animate-ping" />
-                <span>{selectedContact.name} is reading…</span>
+                <span>Sending message to {selectedContact.name}…</span>
               </div>
             )}
             <div ref={scrollEndRef} />
@@ -554,10 +525,10 @@ export default function DirectChat() {
               <PortalButton
                 type="submit"
                 variant="primary"
-                disabled={(!inputVal.trim() && !attachedFile) || sending}
+                disabled={(!inputVal.trim() && !attachedFile) || sendMutation.isPending}
               >
                 <Send size={13} className="mr-1.5" />
-                Send Message
+                {sendMutation.isPending ? "Sending…" : "Send Message"}
               </PortalButton>
             </div>
           </form>

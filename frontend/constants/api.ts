@@ -68,6 +68,13 @@ export const API_ENDPOINTS = {
     threads: "/clients/threads",
     reply: (clientId: string) => `/clients/${clientId}/messages`,
   },
+  staffMessages: {
+    myThread: "/staff-messages/my-thread",
+    threads: "/admin/staff-messages/threads",
+    threadDetail: (userId: string) => `/admin/staff-messages/threads/${userId}`,
+    reply: (userId: string) => `/admin/staff-messages/threads/${userId}/reply`,
+    unreadCount: "/admin/staff-messages/unread-count",
+  },
   services: "/services",
   blogs: "/blog",
   portfolio: "/portfolio",
