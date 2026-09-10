@@ -49,7 +49,7 @@ export async function proxy(request: NextRequest) {
     pathname === "/apple-touch-icon.png" ||
     pathname === "/robots.txt" ||
     pathname === "/sitemap.xml" ||
-    /\.(?:png|jpg|jpeg|svg|gif|webp|avif|ico|woff|woff2|ttf|eot|css|js|map|webmanifest)$/i.test(pathname)
+    /\.(?:png|jpg|jpeg|svg|gif|webp|avif|ico|woff|woff2|ttf|eot|css|js|map|webmanifest|apk)$/i.test(pathname)
   ) {
     if (!pathname.startsWith("/api/whatsapp")) {
       return NextResponse.next();
@@ -238,6 +238,10 @@ export async function proxy(request: NextRequest) {
         url.pathname = "/billing/policies";
         return NextResponse.rewrite(url);
       }
+      if (pathname === "/portal" || pathname === "/customer-portal") {
+        url.pathname = "/billing/portal";
+        return NextResponse.rewrite(url);
+      }
       if (!pathname.startsWith("/billing")) {
         url.pathname = `/billing${pathname}`;
         return NextResponse.rewrite(url);
@@ -322,6 +326,6 @@ export async function proxy(request: NextRequest) {
 
 export const config = {
   matcher: [
-    "/((?!_next/static|_next/image|favicon.ico|icon.png|logo.png|apple-touch-icon.png|sitemap.xml|robots.txt|.*\\.(?:svg|png|jpg|jpeg|gif|webp|avif|ico|bmp|tiff|woff|woff2|ttf|eot|css|js|webmanifest)).*)",
+    "/((?!_next/static|_next/image|favicon.ico|icon.png|logo.png|apple-touch-icon.png|sitemap.xml|robots.txt|.*\\.(?:svg|png|jpg|jpeg|gif|webp|avif|ico|bmp|tiff|woff|woff2|ttf|eot|css|js|webmanifest|apk)).*)",
   ],
 };
