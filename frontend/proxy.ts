@@ -56,58 +56,105 @@ export async function proxy(request: NextRequest) {
     }
   }
 
-  // 1. Handle subdomain routing and cross-domain redirects (ignoring API/admin routes)
-  if (!pathname.startsWith("/api") && !pathname.startsWith("/admin")) {
+  // 1. Handle subdomain routing and cross-domain redirects
+  if (!pathname.startsWith("/api")) {
     // Redirect main domain paths to subdomains
     if (hostname === "tauqeermustafa.tech" || hostname === "www.tauqeermustafa.tech") {
+      const search = request.nextUrl.search;
+
       // Policy and legal redirects directly to docs subdomain
       if (pathname === "/privacy") {
-        return NextResponse.redirect("https://docs.tauqeermustafa.tech/privacy");
+        return NextResponse.redirect(`https://docs.tauqeermustafa.tech/privacy${search}`);
       }
       if (pathname === "/terms") {
-        return NextResponse.redirect("https://docs.tauqeermustafa.tech/terms");
+        return NextResponse.redirect(`https://docs.tauqeermustafa.tech/terms${search}`);
       }
       if (pathname === "/cookies") {
-        return NextResponse.redirect("https://docs.tauqeermustafa.tech/cookies");
+        return NextResponse.redirect(`https://docs.tauqeermustafa.tech/cookies${search}`);
       }
       if (pathname === "/accessibility") {
-        return NextResponse.redirect("https://docs.tauqeermustafa.tech/accessibility");
+        return NextResponse.redirect(`https://docs.tauqeermustafa.tech/accessibility${search}`);
       }
       if (pathname.startsWith("/legal/")) {
         const docSlug = pathname.replace(/^\/legal\//, "");
-        return NextResponse.redirect(`https://docs.tauqeermustafa.tech/${docSlug}`);
+        return NextResponse.redirect(`https://docs.tauqeermustafa.tech/${docSlug}${search}`);
       }
       if (pathname === "/docs" || pathname.startsWith("/docs/")) {
         const docPath = pathname.replace(/^\/docs/, "");
-        return NextResponse.redirect(`https://docs.tauqeermustafa.tech${docPath || "/"}`);
+        return NextResponse.redirect(`https://docs.tauqeermustafa.tech${docPath || "/"}${search}`);
       }
 
       // On main domain, redirect billing, payments, and payouts directly to billing subdomain
       if (pathname === "/pay" || pathname === "/payment" || pathname === "/payments") {
-        return NextResponse.redirect("https://billing.tauqeermustafa.tech/pay");
+        return NextResponse.redirect(`https://billing.tauqeermustafa.tech/pay${search}`);
       }
       if (pathname === "/payouts" || pathname === "/payout") {
-        return NextResponse.redirect("https://billing.tauqeermustafa.tech/payouts");
+        return NextResponse.redirect(`https://billing.tauqeermustafa.tech/payouts${search}`);
+      }
+      if (pathname === "/policies" || pathname === "/payment-policy" || pathname === "/refund-policy") {
+        return NextResponse.redirect(`https://billing.tauqeermustafa.tech/policies${search}`);
       }
       if (pathname === "/billing" || pathname.startsWith("/billing/")) {
         const billingPath = pathname.replace(/^\/billing/, "");
-        return NextResponse.redirect(`https://billing.tauqeermustafa.tech${billingPath || "/"}`);
+        return NextResponse.redirect(`https://billing.tauqeermustafa.tech${billingPath || "/"}${search}`);
       }
+
+      // Customer Support & Helpdesk redirects
       if (pathname === "/support" || pathname.startsWith("/support/")) {
         const supportPath = pathname.replace(/^\/support/, "");
-        return NextResponse.redirect(`https://support.tauqeermustafa.tech${supportPath || "/"}`);
-      }
-      if (pathname === "/client" || pathname.startsWith("/client/")) {
-        const newPath = pathname.replace(/^\/client/, "");
-        return NextResponse.redirect(`https://portals.tauqeermustafa.tech${newPath || "/"}`);
-      }
-      if (pathname === "/community" || pathname.startsWith("/community/")) {
-        const newPath = pathname.replace(/^\/community/, "");
-        return NextResponse.redirect(`https://community.tauqeermustafa.tech${newPath || "/"}`);
+        return NextResponse.redirect(`https://support.tauqeermustafa.tech${supportPath || "/"}${search}`);
       }
       if (pathname === "/help" || pathname.startsWith("/help/")) {
         const newPath = pathname.replace(/^\/help/, "");
-        return NextResponse.redirect(`https://support.tauqeermustafa.tech${newPath || "/"}`);
+        return NextResponse.redirect(`https://support.tauqeermustafa.tech${newPath || "/"}${search}`);
+      }
+      if (pathname === "/ticket" || pathname === "/tickets") {
+        return NextResponse.redirect(`https://support.tauqeermustafa.tech/ticket${search}`);
+      }
+      if (pathname === "/status") {
+        return NextResponse.redirect(`https://support.tauqeermustafa.tech/status${search}`);
+      }
+      if (pathname === "/faq" || pathname === "/faqs") {
+        return NextResponse.redirect(`https://support.tauqeermustafa.tech/faq${search}`);
+      }
+
+      // Community Network redirects
+      if (pathname === "/community" || pathname.startsWith("/community/")) {
+        const newPath = pathname.replace(/^\/community/, "");
+        return NextResponse.redirect(`https://community.tauqeermustafa.tech${newPath || "/"}${search}`);
+      }
+
+      // TMI Portals App redirects (app.tauqeermustafa.tech)
+      if (pathname === "/app" || pathname.startsWith("/app/")) {
+        const appPath = pathname.replace(/^\/app/, "");
+        return NextResponse.redirect(`https://app.tauqeermustafa.tech${appPath || "/"}${search}`);
+      }
+      if (pathname === "/download" || pathname === "/apk") {
+        return NextResponse.redirect(`https://app.tauqeermustafa.tech${search}`);
+      }
+
+      // Secure Portals Suite redirects (portals.tauqeermustafa.tech)
+      // Disallow serving admin, employees, management, client or chooser directly on main domain
+      if (pathname === "/admin" || pathname.startsWith("/admin/")) {
+        return NextResponse.redirect(`https://portals.tauqeermustafa.tech${pathname}${search}`);
+      }
+      if (pathname === "/employees" || pathname.startsWith("/employees/")) {
+        return NextResponse.redirect(`https://portals.tauqeermustafa.tech${pathname}${search}`);
+      }
+      if (pathname === "/management" || pathname.startsWith("/management/")) {
+        return NextResponse.redirect(`https://portals.tauqeermustafa.tech${pathname}${search}`);
+      }
+      if (pathname === "/client" || pathname.startsWith("/client/")) {
+        return NextResponse.redirect(`https://portals.tauqeermustafa.tech${pathname}${search}`);
+      }
+      if (pathname === "/portals" || pathname.startsWith("/portals/")) {
+        return NextResponse.redirect(`https://portals.tauqeermustafa.tech${pathname}${search}`);
+      }
+      if (pathname === "/login") {
+        return NextResponse.redirect(`https://portals.tauqeermustafa.tech/portals${search}`);
+      }
+      if (pathname === "/dashboard") {
+        return NextResponse.redirect(`https://portals.tauqeermustafa.tech${search}`);
       }
     }
 
