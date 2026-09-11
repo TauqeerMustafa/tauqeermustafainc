@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight, BarChart3, Briefcase, ShieldCheck, Users, type LucideIcon } from "lucide-react";
+import { ArrowRight, BarChart3, Briefcase, ShieldCheck, Users, type LucideIcon, CreditCard, LifeBuoy } from "lucide-react";
 
 import {
   PORTAL,
@@ -11,13 +11,13 @@ import {
   PORTAL_ROLES_HINT,
   type PortalId,
 } from "@/lib/rbac";
+import { PageHero, Section, Badge, BadgeMuted, MStripe } from "@/components/home/ui";
 
 export const metadata = {
-  title: "Portals | Tauqeer Mustafa Inc.",
-  description: "Choose your secure workspace to sign in.",
+  title: "Portals & Workspaces | Tauqeer Mustafa Inc.",
+  description: "Choose your secure corporate workspace to sign in to your dashboard.",
 };
 
-/** One icon per portal, kept here rather than in rbac so the lib stays UI-free. */
 const PORTAL_ICON: Record<PortalId, LucideIcon> = {
   [PORTAL.ADMIN]: ShieldCheck,
   [PORTAL.MANAGEMENT]: BarChart3,
@@ -27,86 +27,99 @@ const PORTAL_ICON: Record<PortalId, LucideIcon> = {
 
 export default function PortalsPage() {
   return (
-    <div className="mx-auto flex w-full max-w-5xl flex-1 flex-col px-5 py-16 sm:px-8 sm:py-24">
-      <div className="max-w-2xl">
-        <div className="flex items-center gap-4 mb-6">
-          <span className="relative flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden border border-ink/15 bg-ink/[0.06]">
-            <Image src="/logo.png" alt="Tauqeer Mustafa Inc." fill sizes="48px" className="object-cover" priority />
-          </span>
-          <div className="m-stripe w-16" aria-hidden="true" />
-        </div>
-        <h1 className="text-4xl font-bold uppercase tracking-tight text-ink sm:text-5xl">
-          TMI Portals
-        </h1>
-        <p className="mt-4 text-base leading-7 text-ink-muted">
-          Select your secure workspace to sign in and reach your dashboard.
-        </p>
-      </div>
+    <>
+      <PageHero
+        eyebrow="Identity & Access // Secure Workspaces"
+        title="TMI Corporate Portals"
+        description="Select your authorized workspace to authenticate and access your dedicated management, engineering, or client dashboard."
+      >
+        <Badge>256-Bit SSL Encrypted</Badge>
+        <BadgeMuted>Role-Based Access Control</BadgeMuted>
+        <BadgeMuted>Single Sign-On Supported</BadgeMuted>
+      </PageHero>
 
-      <div className="mt-14 grid grid-cols-1 gap-px border border-ink/10 bg-ink/10 sm:grid-cols-2">
-        {PORTAL_CHOOSER.map((portal) => {
-          const Icon = PORTAL_ICON[portal];
-          return (
-            <Link
-              key={portal}
-              href={PORTAL_LOGIN_PATH[portal]}
-              className="group flex flex-col bg-canvas p-8 transition-colors hover:bg-surface"
-            >
-              <div className="flex items-start justify-between">
-                <span className="border border-ink/10 bg-surface p-3 text-ink transition-colors group-hover:border-adm-blue group-hover:text-adm-blue">
-                  <Icon className="h-6 w-6" aria-hidden="true" />
-                </span>
-                <ArrowRight className="h-5 w-5 text-ink-muted opacity-0 transition-opacity group-hover:opacity-100" aria-hidden="true" />
+      <Section className="bg-canvas py-12 sm:py-16">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+          {PORTAL_CHOOSER.map((portal) => {
+            const Icon = PORTAL_ICON[portal];
+            return (
+              <Link
+                key={portal}
+                href={PORTAL_LOGIN_PATH[portal]}
+                className="group relative flex flex-col justify-between border border-line bg-surface p-8 transition-all duration-300 hover:border-action/60 hover:shadow-[0_12px_40px_rgba(28,105,212,0.12)]"
+              >
+                <span
+                  className="absolute left-0 top-0 h-0.5 w-full origin-left scale-x-0 bg-action transition-transform duration-500 group-hover:scale-x-100"
+                  aria-hidden
+                />
+
+                <div>
+                  <div className="flex items-start justify-between">
+                    <span className="flex h-12 w-12 items-center justify-center border border-line bg-card text-ink transition-colors group-hover:border-action group-hover:text-action">
+                      <Icon className="h-6 w-6" aria-hidden="true" />
+                    </span>
+                    <span className="font-mono text-[10px] font-bold uppercase tracking-[0.14em] text-action border border-action/20 bg-action/[0.08] px-2.5 py-1">
+                      {PORTAL_ROLES_HINT[portal]}
+                    </span>
+                  </div>
+
+                  <h2 className="mt-6 text-2xl font-bold uppercase tracking-tight text-ink group-hover:text-action transition-colors">
+                    {PORTAL_LABEL[portal]} Portal
+                  </h2>
+                  <p className="mt-2 text-sm leading-relaxed text-ink-muted font-light">
+                    {PORTAL_DESCRIPTION[portal]}
+                  </p>
+                </div>
+
+                <div className="mt-8 pt-6 border-t border-line flex items-center justify-between font-mono text-xs font-bold uppercase tracking-wider text-action">
+                  <span>Sign In To Workspace</span>
+                  <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+                </div>
+              </Link>
+            );
+          })}
+        </div>
+
+        {/* Treasury & Support Auxiliary Grid */}
+        <div className="mt-12 grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="border border-line bg-card p-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div>
+              <div className="flex items-center gap-2 font-mono text-[10px] font-bold uppercase tracking-wider text-action">
+                <CreditCard size={14} />
+                <span>Public Treasury & Billing</span>
               </div>
-              <p className="mt-6 font-mono text-[10px] font-bold uppercase tracking-[0.16em] text-adm-blue">
-                {PORTAL_ROLES_HINT[portal]}
-              </p>
-              <h2 className="mt-2 text-xl font-bold uppercase tracking-tight text-ink">
-                {PORTAL_LABEL[portal]} Portal
-              </h2>
-              <p className="mt-2 text-sm leading-6 text-ink-muted">
-                {PORTAL_DESCRIPTION[portal]}
-              </p>
-            </Link>
-          );
-        })}
-      </div>
+              <p className="text-sm font-bold text-ink mt-1">Looking to settle an invoice or track payouts?</p>
+              <p className="text-xs text-ink-muted mt-0.5 font-light">Direct Card/Paddle payments & Raast instant settlement.</p>
+            </div>
+            <a
+              href="https://billing.tauqeermustafa.tech"
+              className="inline-flex items-center gap-1.5 bg-action px-5 py-2.5 font-mono text-xs font-bold uppercase tracking-wider text-on-action transition hover:bg-action-strong shrink-0"
+            >
+              <span>Billing Portal</span>
+              <ArrowRight className="h-3.5 w-3.5" />
+            </a>
+          </div>
 
-      {/* Public Billing & Treasury Link */}
-      <div className="mt-10 border border-ink/10 bg-surface p-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <span className="font-mono text-[10px] font-bold uppercase tracking-wider text-action block">
-            Public Treasury & Finance
-          </span>
-          <p className="text-sm font-bold text-ink mt-0.5">Looking to pay a client invoice or track contractor payouts?</p>
-          <p className="text-xs text-ink-muted mt-1">Settle milestone invoices or access the live disbursement queue.</p>
+          <div className="border border-line bg-card p-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div>
+              <div className="flex items-center gap-2 font-mono text-[10px] font-bold uppercase tracking-wider text-action">
+                <LifeBuoy size={14} />
+                <span>24/7 Technical Dispatch</span>
+              </div>
+              <p className="text-sm font-bold text-ink mt-1">Need emergency hotline or account assistance?</p>
+              <p className="text-xs text-ink-muted mt-0.5 font-light">Open an enterprise ticket or check real-time uptime.</p>
+            </div>
+            <a
+              href="https://support.tauqeermustafa.tech"
+              className="inline-flex items-center gap-1.5 border border-line bg-surface px-5 py-2.5 font-mono text-xs font-bold uppercase tracking-wider text-ink transition hover:border-action hover:text-action shrink-0"
+            >
+              <span>Helpdesk</span>
+              <ArrowRight className="h-3.5 w-3.5" />
+            </a>
+          </div>
         </div>
-        <a
-          href="https://billing.tauqeermustafa.tech"
-          className="inline-flex items-center gap-1.5 bg-action px-5 py-2.5 font-mono text-xs font-bold uppercase tracking-wider text-on-action transition hover:bg-action-strong shrink-0"
-        >
-          <span>Open Billing Portal</span>
-          <ArrowRight className="h-3.5 w-3.5" />
-        </a>
-      </div>
-
-      {/* Support & Helpdesk Link */}
-      <div className="mt-4 border border-ink/10 bg-surface p-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <span className="font-mono text-[10px] font-bold uppercase tracking-wider text-action block">
-            24/7 Technical Dispatch & Support
-          </span>
-          <p className="text-sm font-bold text-ink mt-0.5">Having trouble signing in or need emergency assistance?</p>
-          <p className="text-xs text-ink-muted mt-1">Open an enterprise ticket, check system uptime, or call the 24/7 hotline.</p>
-        </div>
-        <a
-          href="https://support.tauqeermustafa.tech"
-          className="inline-flex items-center gap-1.5 border border-line-2 bg-card px-5 py-2.5 font-mono text-xs font-bold uppercase tracking-wider text-ink transition hover:border-action hover:text-action shrink-0"
-        >
-          <span>Support & Helpdesk</span>
-          <ArrowRight className="h-3.5 w-3.5" />
-        </a>
-      </div>
-    </div>
+      </Section>
+    </>
   );
 }
+

@@ -15,10 +15,15 @@ import {
   Printer,
   RotateCcw,
   Zap,
+  Sparkles,
+  Loader2,
+  ExternalLink,
 } from "lucide-react";
+import { usePaddle } from "@/hooks/usePaddle";
+import { paddleConfig, PRESET_MILESTONES } from "@/config/paddle";
 
-type PaymentMethod = "card" | "bank" | "raast" | "wise";
-type Currency = "USD" | "PKR";
+type PaymentMethod = "paddle" | "bank" | "raast" | "wise";
+type Currency = "USD" | "EUR" | "GBP" | "PKR";
 
 interface Receipt {
   transactionId: string;
@@ -45,17 +50,12 @@ export default function PaymentCheckout() {
   const [clientEmail, setClientEmail] = useState("");
   const [service, setService] = useState("Enterprise Web Development Deposit");
   const [projectRef, setProjectRef] = useState("");
-  const [amount, setAmount] = useState("500");
+  const [amount, setAmount] = useState("1500");
   const [currency, setCurrency] = useState<Currency>("USD");
+  const [selectedPreset, setSelectedPreset] = useState<string | null>("discovery-deposit");
 
   // Payment method selection
-  const [method, setMethod] = useState<PaymentMethod>("card");
-
-  // Card form fields
-  const [cardNumber, setCardNumber] = useState("");
-  const [cardExpiry, setCardExpiry] = useState("");
-  const [cardCvc, setCardCvc] = useState("");
-  const [cardHolder, setCardHolder] = useState("");
+  const [method, setMethod] = useState<PaymentMethod>("paddle");
 
   // Bank transfer receipt submission
   const [senderBank, setSenderBank] = useState("Meezan Bank Limited");
@@ -69,6 +69,44 @@ export default function PaymentCheckout() {
   const [copiedIban, setCopiedIban] = useState(false);
   const [copiedRaast, setCopiedRaast] = useState(false);
   const [copiedWise, setCopiedWise] = useState(false);
+
+  // Initialize Paddle checkout SDK hook
+  const { paddle, isConfigured: isPaddleConfigured, isSandbox, openCheckout } = usePaddle({
+    onCheckoutCompleted: (data) => {
+      const txId = data.transaction_id || `TMI-TXN-${Date.now().toString().slice(-6)}`;
+      const timestamp = new Date().toLocaleDateString("en-US", {
+        month: "short",
+        day: "numeric",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+      });
+
+      const customerData = data.customer as { name?: string; email?: string } | undefined;
+      const newReceipt: Receipt = {
+        transactionId: txId,
+        invoiceNumber: projectRef || `DEP-${Date.now().toString().slice(-5)}`,
+        clientName: clientName || customerData?.name || "Client",
+        clientEmail: clientEmail || customerData?.email || "",
+        amount: Number(amount) || 1500,
+        currency,
+        service,
+        method: "Paddle Checkout (Card / Apple Pay / Wire)",
+        status: "VERIFIED_SETTLED",
+        timestamp,
+        referenceNote: `Paddle Transaction ID: ${txId}`,
+      };
+
+      setReceipt(newReceipt);
+      try {
+        localStorage.setItem("tmi_last_receipt", JSON.stringify(newReceipt));
+        const existing = JSON.parse(localStorage.getItem("tmi_receipts") || "[]");
+        localStorage.setItem("tmi_receipts", JSON.stringify([newReceipt, ...existing]));
+      } catch {
+        // Storage failure non-blocking
+      }
+    },
+  });
 
   // Check if there was a saved receipt in session
   useEffect(() => {
@@ -86,6 +124,18 @@ export default function PaymentCheckout() {
     navigator.clipboard.writeText(text);
     setter(true);
     setTimeout(() => setter(false), 2000);
+  };
+
+  const handleSelectPreset = (presetId: string) => {
+    const found = PRESET_MILESTONES.find((p) => p.id === presetId);
+    if (found) {
+      setSelectedPreset(presetId);
+      setAmount(String(found.amount));
+      setCurrency(found.currency as Currency);
+      setService(found.title);
+    } else {
+      setSelectedPreset(null);
+    }
   };
 
   // Lookup invoice via live API
@@ -110,6 +160,7 @@ export default function PaymentCheckout() {
         setProjectRef(code);
         setAmount(String(data.invoice.amount || 1000));
         setCurrency(data.invoice.currency || "USD");
+        setSelectedPreset(null);
         setTab("custom");
       } else {
         setInvoiceError(
@@ -117,7 +168,7 @@ export default function PaymentCheckout() {
         );
       }
     } catch {
-      setInvoiceError("Could not reach invoice verification service. Please try Custom Deposit.");
+      setInvoiceError("Could not reach invoice verification service. Please try Direct Deposit.");
     } finally {
       setSearchingInvoice(false);
     }
@@ -136,18 +187,57 @@ export default function PaymentCheckout() {
       setErrorMessage("Please enter a valid deposit amount greater than zero.");
       return;
     }
-    if (method === "card") {
-      if (!cardNumber.replace(/\s/g, "") || !cardExpiry || !cardCvc || !cardHolder) {
-        setErrorMessage("Please complete all card payment fields.");
-        return;
+
+    setProcessing(true);
+
+    // 1. PADDLE CHECKOUT FLOW
+    if (method === "paddle") {
+      try {
+        const txRes = await fetch("/api/billing/paddle/create-transaction", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            clientName: clientName.trim(),
+            clientEmail: clientEmail.trim(),
+            service,
+            projectRef: projectRef.trim() || undefined,
+            amount: parsedAmount,
+            currency,
+          }),
+        });
+
+        const txData = await txRes.json();
+
+        if (txRes.ok && txData.transactionId) {
+          // Open official Paddle Checkout overlay
+          openCheckout({
+            transactionId: txData.transactionId,
+            customer: {
+              email: clientEmail.trim(),
+            },
+          });
+        } else if (txData.configured === false) {
+          // Guide administrator on missing API key while permitting test flow
+          setErrorMessage(
+            "Paddle API Key (PADDLE_API_KEY) is not yet set in environment. Please add your credentials from vendors.paddle.com to complete real transactions."
+          );
+        } else {
+          setErrorMessage(txData.message || "Failed to initiate Paddle checkout transaction.");
+        }
+      } catch {
+        setErrorMessage("Network error connecting to Paddle gateway. Please try again or use direct wire transfer.");
+      } finally {
+        setProcessing(false);
       }
-    }
-    if (method === "bank" && !bankRef.trim()) {
-      setErrorMessage("Please enter your bank transfer reference or transaction ID (RRN).");
       return;
     }
 
-    setProcessing(true);
+    // 2. DIRECT BANK TRANSFER FLOW
+    if (method === "bank" && !bankRef.trim()) {
+      setErrorMessage("Please enter your bank transfer reference or transaction ID (RRN).");
+      setProcessing(false);
+      return;
+    }
 
     try {
       const res = await fetch("/api/billing/payment", {
@@ -162,9 +252,8 @@ export default function PaymentCheckout() {
           currency,
           method,
           senderBank: method === "bank" ? senderBank : undefined,
-          bankRef: method === "bank" ? bankRef.trim() : undefined,
+          bankRef: bankRef.trim() || undefined,
           bankNotes: bankNotes.trim() || undefined,
-          cardLast4: method === "card" ? cardNumber.replace(/\s/g, "").slice(-4) : undefined,
         }),
       });
 
@@ -175,14 +264,12 @@ export default function PaymentCheckout() {
           localStorage.setItem("tmi_last_receipt", JSON.stringify(data.receipt));
           const existing = JSON.parse(localStorage.getItem("tmi_receipts") || "[]");
           localStorage.setItem("tmi_receipts", JSON.stringify([data.receipt, ...existing]));
-        } catch {
-          // Ignore storage
-        }
+        } catch {}
       } else {
         setErrorMessage(data.message || "Payment submission could not be processed.");
       }
     } catch {
-      setErrorMessage("Network error connecting to payment gateway. Please check your connection or contact billing@tauqeermustafa.tech.");
+      setErrorMessage("Network error connecting to payment gateway.");
     } finally {
       setProcessing(false);
     }
@@ -197,10 +284,6 @@ export default function PaymentCheckout() {
       localStorage.removeItem("tmi_last_receipt");
     } catch {}
     setReceipt(null);
-    setCardNumber("");
-    setCardExpiry("");
-    setCardCvc("");
-    setCardHolder("");
     setBankRef("");
     setBankNotes("");
     setErrorMessage("");
@@ -239,7 +322,7 @@ export default function PaymentCheckout() {
                 <button
                   type="button"
                   onClick={handleReset}
-                  className="inline-flex items-center gap-1.5 border border-line bg-surface px-3 py-1.5 font-mono text-[11px] uppercase tracking-wider text-action hover:bg-action hover:text-on-action transition cursor-pointer"
+                  className="inline-flex items-center gap-1.5 border border-line bg-surface px-3 py-1.5 font-mono text-[11px] uppercase tracking-wider text-action hover:bg-action hover:text-white transition cursor-pointer"
                 >
                   <RotateCcw size={12} />
                   <span>New Payment</span>
@@ -301,9 +384,16 @@ export default function PaymentCheckout() {
           <div className="border-b border-line pb-6 mb-6">
             <div className="flex flex-wrap items-center justify-between gap-4">
               <div>
-                <span className="font-mono text-[10px] font-bold uppercase tracking-[0.14em] text-action">
-                  Treasury // Online Terminal
-                </span>
+                <div className="flex items-center gap-2">
+                  <span className="font-mono text-[10px] font-bold uppercase tracking-[0.14em] text-action">
+                    Treasury // Global Settlement Terminal
+                  </span>
+                  {isSandbox && (
+                    <span className="font-mono text-[9px] font-bold uppercase tracking-wider bg-amber-500/10 text-amber-600 dark:text-amber-400 px-2 py-0.5 border border-amber-500/20">
+                      Sandbox Mode
+                    </span>
+                  )}
+                </div>
                 <h3 className="mt-1 text-2xl font-bold uppercase tracking-tight text-ink">
                   Direct Payment & Invoice Settlement
                 </h3>
@@ -319,7 +409,7 @@ export default function PaymentCheckout() {
                   }}
                   className={`px-3 py-1 font-mono text-[11px] font-semibold uppercase tracking-wider transition ${
                     tab === "custom"
-                      ? "bg-action text-on-action"
+                      ? "bg-action text-white"
                       : "text-ink-muted hover:text-ink"
                   }`}
                 >
@@ -330,7 +420,7 @@ export default function PaymentCheckout() {
                   onClick={() => setTab("invoice")}
                   className={`px-3 py-1 font-mono text-[11px] font-semibold uppercase tracking-wider transition ${
                     tab === "invoice"
-                      ? "bg-action text-on-action"
+                      ? "bg-action text-white"
                       : "text-ink-muted hover:text-ink"
                   }`}
                 >
@@ -358,7 +448,7 @@ export default function PaymentCheckout() {
                   <button
                     type="submit"
                     disabled={searchingInvoice}
-                    className="bg-action px-6 py-2.5 font-mono text-xs font-bold uppercase tracking-wider text-on-action hover:bg-action-strong transition disabled:opacity-50"
+                    className="bg-action px-6 py-2.5 font-mono text-xs font-bold uppercase tracking-wider text-white hover:bg-action-hover transition disabled:opacity-50"
                   >
                     {searchingInvoice ? "Searching..." : "Lookup Invoice"}
                   </button>
@@ -375,48 +465,102 @@ export default function PaymentCheckout() {
 
           {/* Main Payment Checkout Form */}
           <form onSubmit={handlePay} className="space-y-8">
+            {/* Preset Packages Chips */}
+            {tab === "custom" && (
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="font-mono text-[11px] font-bold uppercase tracking-wider text-ink flex items-center gap-1.5">
+                    <Sparkles size={13} className="text-action" />
+                    <span>Preset Engineering Packages</span>
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => setSelectedPreset(null)}
+                    className="font-mono text-[10px] text-action uppercase hover:underline"
+                  >
+                    Custom Milestone &rarr;
+                  </button>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  {PRESET_MILESTONES.map((preset) => {
+                    const isSelected = selectedPreset === preset.id;
+                    return (
+                      <button
+                        key={preset.id}
+                        type="button"
+                        onClick={() => handleSelectPreset(preset.id)}
+                        className={`p-3.5 border text-left transition cursor-pointer flex flex-col justify-between ${
+                          isSelected
+                            ? "border-action bg-surface shadow-xs"
+                            : "border-line bg-canvas hover:border-action/40"
+                        }`}
+                      >
+                        <div>
+                          <span className="font-mono text-[10px] font-bold text-action uppercase">
+                            ${preset.amount.toLocaleString()} USD
+                          </span>
+                          <h4 className="mt-1 font-bold text-xs uppercase text-ink line-clamp-1">
+                            {preset.title}
+                          </h4>
+                          <p className="mt-1 text-[11px] text-ink-muted font-light line-clamp-2">
+                            {preset.description}
+                          </p>
+                        </div>
+                        <span className="mt-3 font-mono text-[9px] uppercase tracking-wider text-ink/40">
+                          {isSelected ? "✓ Selected" : "Select Tier"}
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
             {/* Payer Details */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-1.5">
                 <label className="font-mono text-[11px] uppercase tracking-wider text-ink-muted block">
-                  Full Name / Organization <span className="text-red-500">*</span>
+                  Organization / Client Legal Name <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
                   required
                   value={clientName}
                   onChange={(e) => setClientName(e.target.value)}
-                  placeholder="e.g. Enterprise Client / Organization Name"
+                  placeholder="e.g. Acme Corporation or Jane Doe"
                   className="w-full border border-line bg-canvas px-3.5 py-2 text-xs font-mono text-ink outline-none focus:border-action"
                 />
               </div>
 
               <div className="space-y-1.5">
                 <label className="font-mono text-[11px] uppercase tracking-wider text-ink-muted block">
-                  Corporate Billing Email <span className="text-red-500">*</span>
+                  Billing & Invoice Delivery Email <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="email"
                   required
                   value={clientEmail}
                   onChange={(e) => setClientEmail(e.target.value)}
-                  placeholder="e.g. billing@company.com"
+                  placeholder="e.g. billing@acme.com"
                   className="w-full border border-line bg-canvas px-3.5 py-2 text-xs font-mono text-ink outline-none focus:border-action"
                 />
               </div>
+            </div>
 
+            {/* Scope / Reference */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-1.5">
                 <label className="font-mono text-[11px] uppercase tracking-wider text-ink-muted block">
-                  Service Category
+                  Service Category / Milestone Scope
                 </label>
                 <select
                   value={service}
                   onChange={(e) => setService(e.target.value)}
-                  className="w-full border border-line bg-canvas px-3.5 py-2 text-xs font-mono text-ink outline-none focus:border-action"
+                  className="w-full border border-line bg-canvas px-3.5 py-2 text-xs font-mono text-ink outline-none focus:border-action cursor-pointer"
                 >
                   <option value="Enterprise Web Development Deposit">Enterprise Web Development</option>
-                  <option value="Cybersecurity Consulting & Audit">Cybersecurity Consulting & Audit</option>
-                  <option value="AI Solutions & Automation Pipeline">AI Solutions & Automation</option>
+                  <option value="Dedicated Engineering Sprint Retainer">Dedicated Engineering Retainer</option>
                   <option value="Cloud Architecture & DevOps Retainer">Cloud Engineering & DevOps</option>
                   <option value="Custom Technical SOW Deposit">Custom Technical Statement of Work</option>
                 </select>
@@ -443,30 +587,24 @@ export default function PaymentCheckout() {
                   Deposit Amount
                 </span>
                 <div className="flex border border-line bg-surface p-0.5">
-                  <button
-                    type="button"
-                    onClick={() => setCurrency("USD")}
-                    className={`px-3 py-1 font-mono text-[10px] font-bold uppercase transition ${
-                      currency === "USD" ? "bg-action text-on-action" : "text-ink-muted"
-                    }`}
-                  >
-                    USD ($)
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setCurrency("PKR")}
-                    className={`px-3 py-1 font-mono text-[10px] font-bold uppercase transition ${
-                      currency === "PKR" ? "bg-action text-on-action" : "text-ink-muted"
-                    }`}
-                  >
-                    PKR (Rs)
-                  </button>
+                  {(["USD", "EUR", "GBP", "PKR"] as Currency[]).map((c) => (
+                    <button
+                      key={c}
+                      type="button"
+                      onClick={() => setCurrency(c)}
+                      className={`px-3 py-1 font-mono text-[10px] font-bold uppercase transition ${
+                        currency === c ? "bg-action text-white" : "text-ink-muted"
+                      }`}
+                    >
+                      {c}
+                    </button>
+                  ))}
                 </div>
               </div>
 
               <div className="flex items-center gap-3">
                 <span className="font-mono text-xl font-bold text-action">
-                  {currency === "USD" ? "$" : "PKR"}
+                  {currency === "USD" ? "$" : currency === "EUR" ? "€" : currency === "GBP" ? "£" : "PKR"}
                 </span>
                 <input
                   type="number"
@@ -474,9 +612,12 @@ export default function PaymentCheckout() {
                   step="any"
                   required
                   value={amount}
-                  onChange={(e) => setAmount(e.target.value)}
+                  onChange={(e) => {
+                    setAmount(e.target.value);
+                    setSelectedPreset(null);
+                  }}
                   className="w-full border border-line bg-surface px-4 py-2.5 font-mono text-lg font-bold text-ink outline-none focus:border-action"
-                  placeholder="500"
+                  placeholder="1500"
                 />
               </div>
             </div>
@@ -487,12 +628,33 @@ export default function PaymentCheckout() {
                 Select Settlement Rail
               </span>
 
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
                 {[
-                  { id: "card", label: "Card (Stripe)", icon: CreditCard },
-                  { id: "bank", label: "Meezan Bank Wire", icon: Building2 },
-                  { id: "raast", label: "Raast P2M (PKR)", icon: Zap },
-                  { id: "wise", label: "Wise Wire", icon: Globe },
+                  {
+                    id: "paddle",
+                    label: "Paddle Checkout",
+                    sub: "Cards, Apple Pay, PayPal",
+                    icon: CreditCard,
+                    badge: "Recommended",
+                  },
+                  {
+                    id: "bank",
+                    label: "Meezan Bank Wire",
+                    sub: "Direct IBAN transfer",
+                    icon: Building2,
+                  },
+                  {
+                    id: "raast",
+                    label: "Raast P2M (PKR)",
+                    sub: "0% Fee Instant Settlement",
+                    icon: Zap,
+                  },
+                  {
+                    id: "wise",
+                    label: "Wise Wire",
+                    sub: "Multi-Currency Routing",
+                    icon: Globe,
+                  },
                 ].map((item) => {
                   const Icon = item.icon;
                   const isSelected = method === item.id;
@@ -501,95 +663,77 @@ export default function PaymentCheckout() {
                       key={item.id}
                       type="button"
                       onClick={() => setMethod(item.id as PaymentMethod)}
-                      className={`p-3 border text-left transition flex flex-col justify-between gap-3 cursor-pointer ${
+                      className={`p-3.5 border text-left transition flex flex-col justify-between gap-2 cursor-pointer ${
                         isSelected
-                          ? "border-action bg-surface"
+                          ? "border-action bg-surface ring-1 ring-action/50"
                           : "border-line bg-canvas hover:border-action/40"
                       }`}
                     >
-                      <Icon size={16} className={isSelected ? "text-action" : "text-ink-muted"} />
-                      <span className="font-mono text-[11px] font-bold uppercase text-ink">
-                        {item.label}
-                      </span>
+                      <div className="flex items-center justify-between w-full">
+                        <Icon size={16} className={isSelected ? "text-action" : "text-ink-muted"} />
+                        {item.badge && (
+                          <span className="font-mono text-[8px] font-bold uppercase bg-action text-white px-1.5 py-0.5">
+                            {item.badge}
+                          </span>
+                        )}
+                      </div>
+                      <div>
+                        <span className="font-mono text-[11px] font-bold uppercase text-ink block">
+                          {item.label}
+                        </span>
+                        <span className="font-mono text-[9px] text-ink-muted block mt-0.5">
+                          {item.sub}
+                        </span>
+                      </div>
                     </button>
                   );
                 })}
               </div>
             </div>
 
-            {/* Method-Specific Input Fields */}
-            {method === "card" && (
+            {/* Paddle Details Preview */}
+            {method === "paddle" && (
               <div className="border border-line bg-canvas p-6 space-y-4 animate-in fade-in duration-150">
                 <div className="flex items-center justify-between pb-3 border-b border-line">
-                  <span className="font-mono text-[11px] font-bold uppercase text-ink">
-                    Credit / Debit Card Details
-                  </span>
+                  <div className="flex items-center gap-2">
+                    <ShieldCheck size={16} className="text-action" />
+                    <span className="font-mono text-[11px] font-bold uppercase text-ink">
+                      Paddle Merchant of Record Settlement
+                    </span>
+                  </div>
                   <span className="font-mono text-[10px] text-ink-muted flex items-center gap-1">
                     <Lock size={10} className="text-action" />
                     <span>256-Bit SSL Encrypted</span>
                   </span>
                 </div>
 
-                <div className="space-y-3">
-                  <div>
-                    <label className="font-mono text-[10px] uppercase text-ink-muted block mb-1">
-                      Card Number
-                    </label>
-                    <input
-                      type="text"
-                      maxLength={19}
-                      value={cardNumber}
-                      onChange={(e) => setCardNumber(e.target.value)}
-                      placeholder="•••• •••• •••• ••••"
-                      className="w-full border border-line bg-surface px-3.5 py-2 text-xs font-mono text-ink outline-none focus:border-action tracking-widest"
-                    />
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 font-mono text-xs text-ink-muted">
+                  <div className="border border-line bg-surface p-3 space-y-1">
+                    <span className="text-ink font-bold block uppercase text-[10px]">Payment Methods:</span>
+                    <p className="text-[11px]">Visa, Mastercard, Amex, Apple Pay, Google Pay, PayPal.</p>
                   </div>
-
-                  <div className="grid grid-cols-2 gap-3">
-                    <div>
-                      <label className="font-mono text-[10px] uppercase text-ink-muted block mb-1">
-                        Expiry (MM/YY)
-                      </label>
-                      <input
-                        type="text"
-                        maxLength={5}
-                        value={cardExpiry}
-                        onChange={(e) => setCardExpiry(e.target.value)}
-                        placeholder="MM/YY"
-                        className="w-full border border-line bg-surface px-3.5 py-2 text-xs font-mono text-ink outline-none focus:border-action"
-                      />
-                    </div>
-                    <div>
-                      <label className="font-mono text-[10px] uppercase text-ink-muted block mb-1">
-                        Security Code (CVC)
-                      </label>
-                      <input
-                        type="password"
-                        maxLength={4}
-                        value={cardCvc}
-                        onChange={(e) => setCardCvc(e.target.value)}
-                        placeholder="CVC"
-                        className="w-full border border-line bg-surface px-3.5 py-2 text-xs font-mono text-ink outline-none focus:border-action"
-                      />
-                    </div>
+                  <div className="border border-line bg-surface p-3 space-y-1">
+                    <span className="text-ink font-bold block uppercase text-[10px]">Tax & Compliance:</span>
+                    <p className="text-[11px]">Automated sales tax, VAT, and GST invoices generated by Paddle.</p>
                   </div>
-
-                  <div>
-                    <label className="font-mono text-[10px] uppercase text-ink-muted block mb-1">
-                      Cardholder Legal Name
-                    </label>
-                    <input
-                      type="text"
-                      value={cardHolder}
-                      onChange={(e) => setCardHolder(e.target.value)}
-                      placeholder="Name as printed on card"
-                      className="w-full border border-line bg-surface px-3.5 py-2 text-xs font-mono text-ink outline-none focus:border-action uppercase"
-                    />
+                  <div className="border border-line bg-surface p-3 space-y-1">
+                    <span className="text-ink font-bold block uppercase text-[10px]">Security:</span>
+                    <p className="text-[11px]">PCI-DSS Level 1 compliant hosted checkout rails.</p>
                   </div>
                 </div>
+
+                {!isPaddleConfigured && (
+                  <div className="p-3 border border-amber-500/30 bg-amber-500/10 text-xs font-mono text-amber-700 dark:text-amber-300">
+                    <p className="font-bold uppercase">Setup Note for Administrator:</p>
+                    <p className="mt-1">
+                      Add `NEXT_PUBLIC_PADDLE_CLIENT_TOKEN` and `PADDLE_API_KEY` to your `.env.local` to enable production Paddle checkout.
+                    </p>
+                  </div>
+                )}
               </div>
             )}
 
+            {/* Meezan Bank Details */}
             {method === "bank" && (
               <div className="border border-line bg-canvas p-6 space-y-4 animate-in fade-in duration-150">
                 <div className="border-b border-line pb-3">
@@ -659,6 +803,7 @@ export default function PaymentCheckout() {
               </div>
             )}
 
+            {/* Raast Details */}
             {method === "raast" && (
               <div className="border border-line bg-canvas p-6 space-y-4 animate-in fade-in duration-150">
                 <div className="border-b border-line pb-3">
@@ -705,6 +850,7 @@ export default function PaymentCheckout() {
               </div>
             )}
 
+            {/* Wise Details */}
             {method === "wise" && (
               <div className="border border-line bg-canvas p-6 space-y-4 animate-in fade-in duration-150">
                 <div className="border-b border-line pb-3">
@@ -762,15 +908,21 @@ export default function PaymentCheckout() {
             <button
               type="submit"
               disabled={processing}
-              className="w-full py-4 bg-action text-on-action font-mono text-xs font-bold uppercase tracking-[0.14em] hover:bg-action-strong transition flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+              className="w-full py-4 bg-action text-white font-mono text-xs font-bold uppercase tracking-[0.14em] hover:bg-action-hover transition flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
             >
               {processing ? (
-                <span>Processing Settlement...</span>
+                <>
+                  <Loader2 size={14} className="animate-spin" />
+                  <span>Connecting to Settlement Gateway...</span>
+                </>
+              ) : method === "paddle" ? (
+                <>
+                  <span>Pay with Paddle ({currency} {Number(amount || 0).toLocaleString()})</span>
+                  <ArrowRight size={14} />
+                </>
               ) : (
                 <>
-                  <span>
-                    Submit Payment ({currency} {Number(amount || 0).toLocaleString()})
-                  </span>
+                  <span>Submit Payment Record ({currency} {Number(amount || 0).toLocaleString()})</span>
                   <ArrowRight size={14} />
                 </>
               )}

@@ -15,7 +15,7 @@ export default async function BillingHubPage({
   const params = searchParams ? await searchParams : {};
   const rawTab = params.tab;
   const initialTab =
-    rawTab === "payouts" || rawTab === "policies" ? rawTab : "pay";
+    rawTab === "portal" || rawTab === "payouts" || rawTab === "policies" ? rawTab : "pay";
 
   return <BillingHubClient initialTab={initialTab} />;
 }

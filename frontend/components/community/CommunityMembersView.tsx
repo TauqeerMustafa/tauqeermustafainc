@@ -4,10 +4,181 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 import { ArrowLeft, ArrowRight, MapPin, MessageCircle, Search, Users, X } from "lucide-react";
 import { communityMembers, type CommunityMember } from "@/data/community";
+import { PageHero, Section, Badge, BadgeMuted, MStripe } from "@/components/home/ui";
 
 export default function CommunityMembersView() {
   const [query, setQuery] = useState("");
   const [selected, setSelected] = useState<CommunityMember | null>(null);
-  const filteredMembers = useMemo(() => { const normalized = query.trim().toLowerCase(); if (!normalized) return communityMembers; return communityMembers.filter((member) => [member.name, member.role, member.location, member.specialty, member.bio].join(" ").toLowerCase().includes(normalized)); }, [query]);
-  return <main className="bg-surface text-ink"><section className="bg-canvas text-ink"><div className="mx-auto max-w-[1440px] px-5 pb-16 pt-12 sm:px-8 sm:pb-24 sm:pt-16 lg:px-12"><Link href="/community" className="inline-flex min-h-11 items-center gap-2 font-mono text-[10px] font-bold uppercase tracking-[0.14em] text-ink/65 transition hover:text-ink focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ink"><ArrowLeft className="h-3.5 w-3.5" aria-hidden /> Back to community</Link><div className="mt-12 max-w-5xl"><div className="flex items-center gap-3 font-mono text-[10px] font-bold uppercase tracking-[0.16em] text-action"><span className="h-px w-8 bg-action" /> The people behind the posts</div><h1 className="mt-6 text-[clamp(3rem,8vw,6.5rem)] font-bold uppercase leading-[0.94] tracking-[-0.04em]">Meet the<br /><span className="text-action">community.</span></h1><p className="mt-8 max-w-2xl text-base font-light leading-7 text-ink/65 sm:text-lg">Different disciplines. Different time zones. The same curiosity about making useful things with care.</p></div></div></section><div className="mx-auto max-w-[1440px] px-5 py-16 sm:px-8 sm:py-24 lg:px-12"><div className="grid gap-3 sm:grid-cols-[minmax(0,1fr)_auto]"><label className="flex h-12 items-center gap-3 border border-line-2 bg-canvas px-4 text-ink-muted focus-within:border-action focus-within:ring-2 focus-within:ring-action/10"><Search className="h-4 w-4" aria-hidden /><span className="sr-only">Search members</span><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search by name, role, or specialty" className="min-w-0 flex-1 bg-transparent text-sm text-ink outline-none placeholder:text-ink-muted" /></label><div className="inline-flex min-h-12 items-center justify-center gap-2 border border-line-2 bg-surface px-5 font-mono text-[10px] font-bold uppercase tracking-[0.14em] text-ink-muted"><Users className="h-4 w-4" aria-hidden /> {filteredMembers.length} profiles</div></div><div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">{filteredMembers.map((member) => <article key={member.name} className="border border-line-2 bg-surface p-6 transition hover:border-action hover:bg-canvas sm:p-7"><div className="flex items-start justify-between"><button type="button" onClick={() => setSelected(member)} aria-label={`View ${member.name}'s profile`} className="inline-flex h-14 w-14 items-center justify-center rounded-full font-mono text-sm font-bold text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-action" style={{ background: member.accent }}>{member.initials}</button><span className="flex items-center gap-2 font-mono text-[9px] uppercase tracking-[0.12em] text-[#26733b]"><span className="h-2 w-2 rounded-full bg-[#38a169]" /> Active</span></div><button type="button" onClick={() => setSelected(member)} className="mt-7 text-left focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-action"><h2 className="text-xl font-bold uppercase tracking-[-0.02em] text-ink">{member.name}</h2><p className="mt-2 text-sm font-light text-ink-muted">{member.role}</p><p className="mt-4 text-sm font-light leading-6 text-ink-muted">{member.bio}</p></button><div className="mt-6 space-y-3 border-t border-line pt-5 text-xs font-light text-ink-muted"><p className="flex items-center gap-2"><MapPin className="h-3.5 w-3.5 text-action" aria-hidden />{member.location}</p><p className="flex items-center gap-2"><MessageCircle className="h-3.5 w-3.5 text-action" aria-hidden />{member.specialty}</p></div><div className="mt-6 flex items-center justify-between"><span className="font-mono text-[10px] uppercase tracking-[0.1em] text-ink-muted">{member.contribution}</span><Link href="/community" className="inline-flex min-h-10 items-center gap-1 font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-action transition hover:text-action">View posts <ArrowRight className="h-3 w-3" aria-hidden /></Link></div></article>)}</div>{filteredMembers.length === 0 ? <div className="border border-dashed border-line-2 p-12 text-center"><Search className="mx-auto h-6 w-6 text-ink-muted" aria-hidden /><p className="mt-4 font-semibold">No profiles found</p><p className="mt-2 text-sm font-light text-ink-muted">Try searching by a shorter name, role, or specialty.</p></div> : null}<div className="mt-16 border border-line bg-canvas p-7 text-ink sm:flex sm:items-center sm:justify-between sm:p-10"><div><p className="font-mono text-[10px] font-bold uppercase tracking-[0.15em] text-action">Your perspective belongs here</p><p className="mt-3 max-w-2xl text-2xl font-bold uppercase leading-tight tracking-[-0.03em]">The best communities are shaped by people willing to share the unfinished version.</p></div><Link href="/community" className="mt-7 inline-flex min-h-12 shrink-0 items-center gap-2 border border-ink px-5 font-mono text-[10px] font-bold uppercase tracking-[0.14em] text-ink transition hover:bg-ink hover:text-canvas focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink sm:mt-0">Join the conversation <ArrowRight className="h-3.5 w-3.5" aria-hidden /></Link></div></div>{selected ? <div className="fixed inset-0 z-50 flex items-end justify-center bg-ink/55 p-0 sm:items-center sm:p-6" role="dialog" aria-modal="true" aria-labelledby="member-dialog-title"><div className="w-full max-w-lg border border-line-2 bg-surface p-6 shadow-[0_24px_80px_rgba(0,0,0,0.24)] sm:p-8"><div className="flex items-start justify-between gap-4"><div className="flex items-center gap-4"><span className="inline-flex h-12 w-12 items-center justify-center rounded-full font-mono text-xs font-bold text-white" style={{ background: selected.accent }}>{selected.initials}</span><div><h2 id="member-dialog-title" className="text-xl font-bold uppercase text-ink">{selected.name}</h2><p className="mt-1 text-sm font-light text-ink-muted">{selected.role}</p></div></div><button type="button" onClick={() => setSelected(null)} aria-label="Close profile" className="inline-flex h-11 w-11 items-center justify-center border border-line-2 text-ink-muted transition hover:border-ink hover:text-ink"><X className="h-5 w-5" aria-hidden /></button></div><p className="mt-7 text-sm font-light leading-7 text-ink-muted">{selected.bio}</p><div className="mt-6 space-y-3 border-t border-line pt-5 text-sm font-light text-ink-muted"><p className="flex items-center gap-2"><MapPin className="h-4 w-4 text-action" aria-hidden />{selected.location}</p><p className="flex items-center gap-2"><MessageCircle className="h-4 w-4 text-action" aria-hidden />{selected.specialty}</p><p className="font-mono text-[10px] uppercase tracking-[0.12em] text-ink-muted">{selected.joined} · {selected.contribution}</p></div></div></div> : null}</main>;;
+
+  const filteredMembers = useMemo(() => {
+    const normalized = query.trim().toLowerCase();
+    if (!normalized) return communityMembers;
+    return communityMembers.filter((member) =>
+      [member.name, member.role, member.location, member.specialty, member.bio]
+        .join(" ")
+        .toLowerCase()
+        .includes(normalized)
+    );
+  }, [query]);
+
+  return (
+    <>
+      <PageHero
+        eyebrow="Community Network // Engineers & Founders"
+        title="Meet the Builders"
+        description="Software engineers, security researchers, and system architects collaborating across disciplines and time zones."
+      >
+        <Link
+          href="/community"
+          className="inline-flex items-center gap-2 border border-line bg-surface px-5 py-2.5 font-mono text-xs font-bold uppercase tracking-wider text-ink hover:border-action hover:text-action transition"
+        >
+          <ArrowLeft className="h-3.5 w-3.5" />
+          <span>Back to Discussions</span>
+        </Link>
+      </PageHero>
+
+      <Section className="bg-canvas py-12 sm:py-16">
+        {/* Search & Filter Bar */}
+        <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center justify-between mb-8">
+          <div className="relative flex-1 max-w-lg">
+            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-ink-muted" />
+            <input
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="SEARCH BY NAME, ROLE, SPECIALTY, OR CITY..."
+              className="w-full pl-10 pr-4 py-2.5 bg-surface border border-line font-mono text-xs uppercase tracking-wider text-ink outline-none transition placeholder:text-ink-muted focus:border-action"
+            />
+          </div>
+
+          <div className="inline-flex items-center justify-center gap-2 border border-line bg-surface px-4 py-2.5 font-mono text-xs font-bold uppercase tracking-wider text-ink-muted">
+            <Users className="h-4 w-4 text-action" aria-hidden />
+            <span>{filteredMembers.length} Active Profiles</span>
+          </div>
+        </div>
+
+        {/* Members Grid */}
+        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {filteredMembers.map((member) => (
+            <article
+              key={member.name}
+              className="border border-line bg-surface p-6 sm:p-7 flex flex-col justify-between hover:border-action/50 transition group"
+            >
+              <div>
+                <div className="flex items-start justify-between">
+                  <button
+                    type="button"
+                    onClick={() => setSelected(member)}
+                    aria-label={`View ${member.name}'s profile`}
+                    className="inline-flex h-12 w-12 items-center justify-center font-mono text-xs font-bold text-white cursor-pointer"
+                    style={{ background: member.accent }}
+                  >
+                    {member.initials}
+                  </button>
+
+                  <span className="flex items-center gap-1.5 font-mono text-[9px] font-semibold uppercase tracking-wider text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5">
+                    <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                    Verified
+                  </span>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => setSelected(member)}
+                  className="mt-5 text-left cursor-pointer w-full"
+                >
+                  <h2 className="text-lg font-bold uppercase tracking-tight text-ink group-hover:text-action transition-colors">
+                    {member.name}
+                  </h2>
+                  <p className="mt-1 font-mono text-[11px] uppercase tracking-wider text-action">
+                    {member.role}
+                  </p>
+                  <p className="mt-3 text-xs font-light leading-relaxed text-ink-muted line-clamp-2">
+                    {member.bio}
+                  </p>
+                </button>
+              </div>
+
+              <div className="mt-6 pt-4 border-t border-line space-y-2 text-xs font-mono text-ink-muted">
+                <p className="flex items-center gap-2">
+                  <MapPin className="h-3.5 w-3.5 text-action shrink-0" aria-hidden />
+                  <span className="truncate">{member.location}</span>
+                </p>
+                <p className="flex items-center gap-2">
+                  <MessageCircle className="h-3.5 w-3.5 text-action shrink-0" aria-hidden />
+                  <span className="truncate">{member.specialty}</span>
+                </p>
+              </div>
+            </article>
+          ))}
+        </div>
+
+        {filteredMembers.length === 0 && (
+          <div className="border border-line bg-surface p-12 text-center font-mono text-xs text-ink-muted uppercase">
+            <Search className="mx-auto h-6 w-6 text-ink-muted mb-2" aria-hidden />
+            <p className="font-bold">No member profiles found</p>
+            <p className="mt-1">Try searching with a shorter name or different specialty.</p>
+          </div>
+        )}
+      </Section>
+
+      {/* Member Details Modal */}
+      {selected && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-xs p-4 sm:p-6"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="member-dialog-title"
+        >
+          <div className="w-full max-w-lg border border-line bg-surface p-6 sm:p-8 shadow-2xl">
+            <div className="flex items-start justify-between gap-4">
+              <div className="flex items-center gap-4">
+                <span
+                  className="inline-flex h-12 w-12 items-center justify-center font-mono text-xs font-bold text-white"
+                  style={{ background: selected.accent }}
+                >
+                  {selected.initials}
+                </span>
+                <div>
+                  <h2 id="member-dialog-title" className="text-xl font-bold uppercase text-ink">
+                    {selected.name}
+                  </h2>
+                  <p className="font-mono text-xs text-action uppercase tracking-wider mt-0.5">
+                    {selected.role}
+                  </p>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setSelected(null)}
+                aria-label="Close profile"
+                className="inline-flex h-8 w-8 items-center justify-center border border-line text-ink-muted hover:border-ink hover:text-ink cursor-pointer"
+              >
+                <X className="h-4 w-4" aria-hidden />
+              </button>
+            </div>
+
+            <p className="mt-6 text-sm font-light leading-relaxed text-ink-muted">
+              {selected.bio}
+            </p>
+
+            <div className="mt-6 space-y-2.5 border-t border-line pt-5 text-xs font-mono text-ink-muted">
+              <p className="flex items-center gap-2">
+                <MapPin className="h-3.5 w-3.5 text-action shrink-0" aria-hidden />
+                <span>{selected.location}</span>
+              </p>
+              <p className="flex items-center gap-2">
+                <MessageCircle className="h-3.5 w-3.5 text-action shrink-0" aria-hidden />
+                <span>{selected.specialty}</span>
+              </p>
+              <p className="text-[10px] uppercase tracking-wider text-ink-muted pt-2 border-t border-line">
+                Member since {selected.joined} &bull; {selected.contribution}
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
+  );
 }
+

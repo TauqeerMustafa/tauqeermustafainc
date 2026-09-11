@@ -31,8 +31,10 @@ import {
   Globe,
   Radio,
 } from "lucide-react";
+import { PageHero, Section, Card, Badge, BadgeMuted } from "@/components/home/ui";
 
 export type SupportTab = "overview" | "ticket" | "tracker" | "faq" | "status";
+
 
 interface StoredTicket {
   ticketId: string;
@@ -300,221 +302,214 @@ export default function SupportHubClient({ initialTab = "overview" }: { initialT
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-14">
-      {/* ── Top Hero: Title & Search ── */}
-      <div className="text-center max-w-3xl mx-auto mb-10">
-        <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-action/10 border border-action/20 text-action font-mono text-[11px] font-bold uppercase tracking-[0.16em] mb-4">
-          <span className="relative flex h-5 w-5 shrink-0 items-center justify-center overflow-hidden border border-action/30 bg-surface">
-            <Image src="/logo.png" alt="TMI" fill sizes="20px" className="object-cover" priority />
-          </span>
-          <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
-          <span>Tauqeer Mustafa Inc. &bull; Enterprise Helpdesk</span>
-        </div>
-        <h1 className="text-3xl sm:text-5xl font-bold uppercase tracking-tight text-ink">
-          Support & Help Center
-        </h1>
-        <p className="mt-3 text-sm sm:text-base text-ink-muted leading-relaxed">
-          Access priority technical dispatch, submit enterprise service tickets, consult live system health, or explore self-service documentation.
-        </p>
+    <>
+      {/* Canonical Main Web Hero */}
+      <PageHero
+        eyebrow="Customer Support // 24/7 Priority Helpdesk"
+        title="Support & Help Center"
+        description="Access priority technical dispatch, submit enterprise service tickets, consult live system health, or explore self-service documentation."
+      >
+        <Badge>24/7 Incident Dispatch</Badge>
+        <BadgeMuted>Guaranteed SLAs</BadgeMuted>
+        <BadgeMuted>99.98% System Uptime</BadgeMuted>
+      </PageHero>
 
-        {/* Global Omnisearch input */}
-        <div className="mt-6 relative max-w-xl mx-auto">
+      {/* Main Content Section */}
+      <Section className="bg-canvas py-12 sm:py-16">
+        <div className="space-y-10">
+          {/* Global Omnisearch input */}
           <div className="relative">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-ink-lighter" />
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-ink-muted" />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search help articles, billing questions, APIs, error codes..."
-              className="w-full pl-12 pr-4 py-3.5 bg-surface border border-line-2 focus:border-action focus:ring-1 focus:ring-action text-sm text-ink outline-none transition shadow-sm font-sans"
+              placeholder="SEARCH HELP ARTICLES, BILLING QUESTIONS, APIS, ERROR CODES..."
+              className="w-full pl-11 pr-16 py-3.5 bg-surface border border-line font-mono text-xs uppercase tracking-wider text-ink outline-none transition placeholder:text-ink-muted focus:border-action"
             />
             {searchQuery && (
               <button
                 type="button"
                 onClick={() => setSearchQuery("")}
-                className="absolute right-3.5 top-1/2 -translate-y-1/2 text-xs font-mono text-ink-lighter hover:text-ink px-2 py-1 bg-card border border-line"
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-xs font-mono text-ink-muted hover:text-action px-2 py-1 bg-card border border-line"
               >
                 Clear
               </button>
             )}
           </div>
-        </div>
-      </div>
 
-      {/* ── Multi-Channel Quick Action Grid ── */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
-        {/* Card 1: Submit Ticket */}
-        <button
-          type="button"
-          onClick={() => setActiveTab("ticket")}
-          className="flex flex-col p-5 bg-surface border border-line-2 hover:border-action transition text-left group shadow-sm"
-        >
-          <div className="flex items-center justify-between w-full mb-3">
-            <div className="p-2.5 bg-action/10 text-action border border-action/20">
-              <Ticket size={20} />
-            </div>
-            <span className="font-mono text-[10px] font-bold uppercase tracking-wider text-action">
-              Queue &bull; 01
-            </span>
+          {/* 4 Multi-Channel Quick Action Cards */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {/* Card 1: Submit Ticket */}
+            <button
+              type="button"
+              onClick={() => setActiveTab("ticket")}
+              className={`group relative flex flex-col justify-between p-6 bg-surface border transition text-left cursor-pointer ${
+                activeTab === "ticket"
+                  ? "border-action shadow-xs ring-1 ring-action/50"
+                  : "border-line hover:border-action/50"
+              }`}
+            >
+              <span
+                className={`absolute left-0 top-0 h-0.5 w-full origin-left bg-action transition-transform duration-500 ${
+                  activeTab === "ticket" ? "scale-x-100" : "scale-x-0 group-hover:scale-x-100"
+                }`}
+                aria-hidden
+              />
+              <div>
+                <div className="flex items-center justify-between w-full mb-3">
+                  <div className="flex h-9 w-9 items-center justify-center border border-line bg-canvas text-action">
+                    <Ticket size={18} />
+                  </div>
+                  <span className="font-mono text-[10px] font-bold uppercase tracking-wider text-action">
+                    01 // Ticket
+                  </span>
+                </div>
+                <h3 className="text-[16px] font-bold text-ink uppercase">
+                  Submit Ticket
+                </h3>
+                <p className="mt-1.5 text-xs font-light text-ink-muted leading-relaxed">
+                  Open a tracked engineering ticket with guaranteed SLA commitments.
+                </p>
+              </div>
+              <div className="mt-5 flex items-center gap-1 font-mono text-xs font-bold text-action uppercase">
+                <span>{activeTab === "ticket" ? "Active View" : "Create Request"}</span>
+                <ArrowRight size={12} className="group-hover:translate-x-0.5 transition" />
+              </div>
+            </button>
+
+            {/* Card 2: WhatsApp Concierge */}
+            <a
+              href="https://wa.me/message/TJILSTIMLJHVK1"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group relative flex flex-col justify-between p-6 bg-surface border border-line hover:border-action/50 transition text-left cursor-pointer"
+            >
+              <span
+                className="absolute left-0 top-0 h-0.5 w-full origin-left scale-x-0 bg-action transition-transform duration-500 group-hover:scale-x-100"
+                aria-hidden
+              />
+              <div>
+                <div className="flex items-center justify-between w-full mb-3">
+                  <div className="flex h-9 w-9 items-center justify-center border border-line bg-canvas text-action">
+                    <MessageSquare size={18} />
+                  </div>
+                  <span className="font-mono text-[10px] font-bold uppercase tracking-wider text-action">
+                    02 // Chat
+                  </span>
+                </div>
+                <h3 className="text-[16px] font-bold text-ink uppercase">
+                  WhatsApp Desk
+                </h3>
+                <p className="mt-1.5 text-xs font-light text-ink-muted leading-relaxed">
+                  Direct concierge messaging with enterprise engineering leads.
+                </p>
+              </div>
+              <div className="mt-5 flex items-center gap-1 font-mono text-xs font-bold text-action uppercase">
+                <span>Open Chat</span>
+                <ExternalLink size={12} className="group-hover:translate-x-0.5 transition" />
+              </div>
+            </a>
+
+            {/* Card 3: Emergency Hotline */}
+            <a
+              href="tel:+9233356701199"
+              className="group relative flex flex-col justify-between p-6 bg-surface border border-line hover:border-action/50 transition text-left cursor-pointer"
+            >
+              <span
+                className="absolute left-0 top-0 h-0.5 w-full origin-left scale-x-0 bg-action transition-transform duration-500 group-hover:scale-x-100"
+                aria-hidden
+              />
+              <div>
+                <div className="flex items-center justify-between w-full mb-3">
+                  <div className="flex h-9 w-9 items-center justify-center border border-line bg-canvas text-action">
+                    <PhoneCall size={18} />
+                  </div>
+                  <span className="font-mono text-[10px] font-bold uppercase tracking-wider text-action">
+                    03 // P1 Hotline
+                  </span>
+                </div>
+                <h3 className="text-[16px] font-bold text-ink uppercase">
+                  Emergency Line
+                </h3>
+                <p className="mt-1.5 text-xs font-light text-ink-muted leading-relaxed">
+                  24/7 hotline for mission-critical system downtime & security events.
+                </p>
+              </div>
+              <div className="mt-5 flex items-center gap-1 font-mono text-xs font-bold text-action uppercase">
+                <span>Call +92 333 56701199</span>
+                <PhoneCall size={12} className="group-hover:translate-x-0.5 transition" />
+              </div>
+            </a>
+
+            {/* Card 4: System Status */}
+            <button
+              type="button"
+              onClick={() => setActiveTab("status")}
+              className={`group relative flex flex-col justify-between p-6 bg-surface border transition text-left cursor-pointer ${
+                activeTab === "status"
+                  ? "border-action shadow-xs ring-1 ring-action/50"
+                  : "border-line hover:border-action/50"
+              }`}
+            >
+              <span
+                className={`absolute left-0 top-0 h-0.5 w-full origin-left bg-action transition-transform duration-500 ${
+                  activeTab === "status" ? "scale-x-100" : "scale-x-0 group-hover:scale-x-100"
+                }`}
+                aria-hidden
+              />
+              <div>
+                <div className="flex items-center justify-between w-full mb-3">
+                  <div className="flex h-9 w-9 items-center justify-center border border-line bg-canvas text-action">
+                    <Activity size={18} />
+                  </div>
+                  <span className="font-mono text-[10px] font-bold uppercase tracking-wider text-action">
+                    04 // Telemetry
+                  </span>
+                </div>
+                <h3 className="text-[16px] font-bold text-ink uppercase">
+                  System Health
+                </h3>
+                <p className="mt-1.5 text-xs font-light text-ink-muted leading-relaxed">
+                  Live uptime metrics for APIs, database clusters, and cloud edges.
+                </p>
+              </div>
+              <div className="mt-5 flex items-center gap-1 font-mono text-xs font-bold text-action uppercase">
+                <span>{activeTab === "status" ? "Active View" : "Inspect 99.98%"}</span>
+                <ArrowRight size={12} className="group-hover:translate-x-0.5 transition" />
+              </div>
+            </button>
           </div>
-          <h2 className="text-base font-bold text-ink group-hover:text-action transition uppercase">
-            Submit Ticket
-          </h2>
-          <p className="mt-1 text-xs text-ink-muted leading-relaxed flex-1">
-            Open a tracked engineering ticket with guaranteed SLA commitments.
-          </p>
-          <div className="mt-4 flex items-center gap-1 font-mono text-xs font-bold text-action uppercase">
-            <span>Create Request</span>
-            <ArrowRight size={13} className="group-hover:translate-x-1 transition" />
+
+          {/* Subdomain Navigation Tabs */}
+          <div className="flex border-b border-line gap-1 overflow-x-auto pb-2">
+            {[
+              { id: "overview", label: "Knowledge & Solutions", icon: LifeBuoy },
+              { id: "ticket", label: "Submit Ticket", icon: Ticket },
+              { id: "tracker", label: "Ticket Status Tracker", icon: Clock },
+              { id: "faq", label: "Frequently Asked Questions", icon: HelpCircle },
+              { id: "status", label: "System Status & Uptime", icon: Activity },
+            ].map((t) => {
+              const Icon = t.icon;
+              const isActive = activeTab === t.id;
+              return (
+                <button
+                  key={t.id}
+                  type="button"
+                  onClick={() => setActiveTab(t.id as SupportTab)}
+                  className={`px-3.5 py-2 font-mono text-xs font-semibold uppercase tracking-wider transition border cursor-pointer flex items-center gap-2 whitespace-nowrap ${
+                    isActive
+                      ? "bg-action text-on-action border-action"
+                      : "bg-surface text-ink-muted border-line hover:border-action/40 hover:text-ink"
+                  }`}
+                >
+                  <Icon size={13} />
+                  <span>{t.label}</span>
+                </button>
+              );
+            })}
           </div>
-        </button>
 
-        {/* Card 2: WhatsApp Concierge */}
-        <a
-          href="https://wa.me/message/TJILSTIMLJHVK1"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="flex flex-col p-5 bg-surface border border-line-2 hover:border-emerald-500 transition text-left group shadow-sm"
-        >
-          <div className="flex items-center justify-between w-full mb-3">
-            <div className="p-2.5 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
-              <MessageSquare size={20} />
-            </div>
-            <span className="font-mono text-[10px] font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">
-              Direct &bull; Live
-            </span>
-          </div>
-          <h2 className="text-base font-bold text-ink group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition uppercase">
-            WhatsApp Desk
-          </h2>
-          <p className="mt-1 text-xs text-ink-muted leading-relaxed flex-1">
-            Direct chat with verified enterprise engineering on our corporate channel.
-          </p>
-          <div className="mt-4 flex items-center gap-1 font-mono text-xs font-bold text-emerald-600 dark:text-emerald-400 uppercase">
-            <span>Open Chat</span>
-            <ExternalLink size={12} className="group-hover:translate-x-1 transition" />
-          </div>
-        </a>
-
-        {/* Card 3: Emergency Hotline */}
-        <a
-          href="tel:+9233356701199"
-          className="flex flex-col p-5 bg-surface border border-line-2 hover:border-rose-500 transition text-left group shadow-sm"
-        >
-          <div className="flex items-center justify-between w-full mb-3">
-            <div className="p-2.5 bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20">
-              <PhoneCall size={20} />
-            </div>
-            <span className="font-mono text-[10px] font-bold uppercase tracking-wider text-rose-600 dark:text-rose-400">
-              P1 &bull; 24/7
-            </span>
-          </div>
-          <h2 className="text-base font-bold text-ink group-hover:text-rose-600 dark:group-hover:text-rose-400 transition uppercase">
-            Emergency Line
-          </h2>
-          <p className="mt-1 text-xs text-ink-muted leading-relaxed flex-1">
-            Immediate hotline for production system downtime & security incidents.
-          </p>
-          <div className="mt-4 flex items-center gap-1 font-mono text-xs font-bold text-rose-600 dark:text-rose-400 uppercase">
-            <span>Call +92 333 56701199</span>
-            <PhoneCall size={12} className="group-hover:translate-x-1 transition" />
-          </div>
-        </a>
-
-        {/* Card 4: System Status */}
-        <button
-          type="button"
-          onClick={() => setActiveTab("status")}
-          className="flex flex-col p-5 bg-surface border border-line-2 hover:border-action transition text-left group shadow-sm"
-        >
-          <div className="flex items-center justify-between w-full mb-3">
-            <div className="p-2.5 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
-              <Activity size={20} />
-            </div>
-            <span className="font-mono text-[10px] font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">
-              99.98% &bull; SLA
-            </span>
-          </div>
-          <h2 className="text-base font-bold text-ink group-hover:text-action transition uppercase">
-            System Health
-          </h2>
-          <p className="mt-1 text-xs text-ink-muted leading-relaxed flex-1">
-            Live uptime telemetry for APIs, Client Portals, Database, and Webhooks.
-          </p>
-          <div className="mt-4 flex items-center gap-1 font-mono text-xs font-bold text-action uppercase">
-            <span>Inspect Services</span>
-            <ArrowRight size={13} className="group-hover:translate-x-1 transition" />
-          </div>
-        </button>
-      </div>
-
-      {/* ── Subdomain Navigation Tabs ── */}
-      <div className="flex border-b border-line-2 mb-8 overflow-x-auto">
-        <button
-          type="button"
-          onClick={() => setActiveTab("overview")}
-          className={`flex items-center gap-2 px-5 py-3 font-mono text-xs font-bold uppercase tracking-wider transition border-b-2 whitespace-nowrap ${
-            activeTab === "overview"
-              ? "border-action text-action bg-surface/50"
-              : "border-transparent text-ink-muted hover:text-ink"
-          }`}
-        >
-          <LifeBuoy size={14} />
-          <span>Knowledge & Solutions</span>
-        </button>
-
-        <button
-          type="button"
-          onClick={() => setActiveTab("ticket")}
-          className={`flex items-center gap-2 px-5 py-3 font-mono text-xs font-bold uppercase tracking-wider transition border-b-2 whitespace-nowrap ${
-            activeTab === "ticket"
-              ? "border-action text-action bg-surface/50"
-              : "border-transparent text-ink-muted hover:text-ink"
-          }`}
-        >
-          <Ticket size={14} />
-          <span>Submit Ticket</span>
-        </button>
-
-        <button
-          type="button"
-          onClick={() => setActiveTab("tracker")}
-          className={`flex items-center gap-2 px-5 py-3 font-mono text-xs font-bold uppercase tracking-wider transition border-b-2 whitespace-nowrap ${
-            activeTab === "tracker"
-              ? "border-action text-action bg-surface/50"
-              : "border-transparent text-ink-muted hover:text-ink"
-          }`}
-        >
-          <Clock size={14} />
-          <span>Ticket Status Tracker</span>
-        </button>
-
-        <button
-          type="button"
-          onClick={() => setActiveTab("faq")}
-          className={`flex items-center gap-2 px-5 py-3 font-mono text-xs font-bold uppercase tracking-wider transition border-b-2 whitespace-nowrap ${
-            activeTab === "faq"
-              ? "border-action text-action bg-surface/50"
-              : "border-transparent text-ink-muted hover:text-ink"
-          }`}
-        >
-          <HelpCircle size={14} />
-          <span>Frequently Asked Questions</span>
-        </button>
-
-        <button
-          type="button"
-          onClick={() => setActiveTab("status")}
-          className={`flex items-center gap-2 px-5 py-3 font-mono text-xs font-bold uppercase tracking-wider transition border-b-2 whitespace-nowrap ${
-            activeTab === "status"
-              ? "border-action text-action bg-surface/50"
-              : "border-transparent text-ink-muted hover:text-ink"
-          }`}
-        >
-          <Activity size={14} />
-          <span>System Status & Uptime</span>
-        </button>
-      </div>
 
       {/* ────────────────────────────────────────────────────────── */}
       {/* TAB 1: KNOWLEDGE BASE & OVERVIEW                           */}
@@ -1149,6 +1144,9 @@ export default function SupportHubClient({ initialTab = "overview" }: { initialT
           </div>
         </div>
       )}
-    </div>
+        </div>
+      </Section>
+    </>
   );
 }
+

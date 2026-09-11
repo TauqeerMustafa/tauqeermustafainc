@@ -1,6 +1,7 @@
 export const navigation = [
   { name: "Home", href: "/" },
   { name: "About", href: "/about" },
+  { name: "Profile & Deck", href: "/company-profile" },
   { name: "Services", href: "/services" },
   { name: "Portfolio", href: "/portfolio" },
   { name: "Careers", href: "/careers" },
@@ -24,6 +25,8 @@ export const footerLinks = {
   ],
   company: [
     { name: "About", href: "/about" },
+    { name: "Company Profile & Deck", href: "/company-profile" },
+    { name: "Pricing", href: "/pricing" },
     { name: "Portfolio", href: "/portfolio" },
     { name: "Blog", href: "/blog" },
     { name: "Careers", href: "/careers" },

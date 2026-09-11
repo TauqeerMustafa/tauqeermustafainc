@@ -27,6 +27,7 @@ import {
 
 import ClientGuard from "@/components/client/ClientGuard";
 import ClientShell from "@/components/client/ClientShell";
+import { PageHero } from "@/components/home/ui";
 import { clientFetch } from "@/lib/client-auth";
 import type { ClientMessage, ClientOverview } from "@/types/client";
 
@@ -44,13 +45,13 @@ function formatDate(value: string) {
   return new Intl.DateTimeFormat("en", { month: "short", day: "numeric", year: "numeric" }).format(date);
 }
 
-const CARD = "border border-[#d8d4d1] bg-[#fcfbfa]";
-const LABEL = "font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-[#6a6a6a]";
-const EYEBROW = "font-mono text-[10px] font-bold uppercase tracking-[0.15em] text-[#1c69d4]";
+const CARD = "border border-line bg-surface";
+const LABEL = "font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-ink-muted";
+const EYEBROW = "font-mono text-[10px] font-bold uppercase tracking-[0.15em] text-action";
 const BUTTON =
-  "inline-flex min-h-11 items-center gap-2 bg-[#141413] px-4 font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-white transition hover:bg-[#1c69d4] disabled:opacity-50";
+  "inline-flex min-h-11 items-center gap-2 bg-ink px-4 font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-canvas transition hover:bg-action disabled:opacity-50";
 const INPUT =
-  "mt-2 w-full border border-[#d8d4d1] bg-white px-4 py-3 text-sm font-light leading-6 outline-none focus:border-[#1c69d4] disabled:bg-[#f3f1ef] disabled:text-[#6a6a6a]";
+  "mt-2 w-full border border-line bg-card px-4 py-3 text-sm font-light leading-6 outline-none focus:border-action disabled:bg-line/20 disabled:text-ink-muted";
 
 export default function ClientDashboard() {
   const [overview, setOverview] = useState<ClientOverview | null>(null);
@@ -72,29 +73,25 @@ export default function ClientDashboard() {
     <ClientGuard>
       <ClientShell>
         <main>
-          <section className="bg-[#1a2129] text-white">
-            <div className="mx-auto max-w-[1440px] px-5 py-14 sm:px-8 sm:py-20 lg:px-12">
-              <p className="font-mono text-[10px] font-bold uppercase tracking-[0.16em] text-[#8fc1ff]">
-                Private workspace
-              </p>
-              <h1 className="mt-5 max-w-4xl text-[clamp(2.75rem,7vw,5.5rem)] font-bold uppercase leading-[0.94] tracking-[-0.04em]">
-                Your work,
-                <br />
-                <span className="text-[#8fc1ff]">clearly in view.</span>
-              </h1>
-              <p className="mt-6 max-w-2xl text-base font-light leading-7 text-white/65">
-                {overview
-                  ? `Good to see you, ${firstName}. Here is the latest signal from your TMI projects.`
-                  : "Loading your latest project signal…"}
-              </p>
-            </div>
-          </section>
+          <PageHero
+            eyebrow="Private Workspace // Client Portal"
+            title={
+              <>
+                Your work, <span className="text-action">clearly in view.</span>
+              </>
+            }
+            description={
+              overview
+                ? `Good to see you, ${firstName}. Here is the latest signal from your TMI projects.`
+                : "Loading your latest project signal…"
+            }
+          />
 
           <div className="mx-auto max-w-[1440px] px-5 py-12 sm:px-8 sm:py-20 lg:px-12">
             {loading ? (
-              <div className={`${CARD} p-8 text-sm text-[#6a6a6a]`}>Loading your workspace…</div>
+              <div className={`${CARD} p-8 text-sm text-ink-muted`}>Loading your workspace…</div>
             ) : error && !overview ? (
-              <div className="border border-[#efb8b2] bg-[#fff5f4] p-5 text-sm text-[#a52c21]" role="alert">
+              <div className="border border-rose-500/30 bg-rose-500/10 p-5 text-sm text-rose-600" role="alert">
                 {error}
               </div>
             ) : overview ? (
@@ -119,20 +116,20 @@ function StatRow({ overview }: { overview: ClientOverview }) {
     <div className="grid gap-4 sm:grid-cols-3">
       <div className={`${CARD} p-6`}>
         <p className={LABEL}>Active projects</p>
-        <p className="mt-4 text-3xl font-bold">{overview.projects.length}</p>
+        <p className="mt-4 text-3xl font-bold text-ink">{overview.projects.length}</p>
       </div>
       <div className={`${CARD} p-6`}>
         <p className={LABEL}>Unread replies</p>
         <p
           className="mt-4 text-3xl font-bold"
-          style={{ color: overview.unreadMessages > 0 ? "#1c69d4" : undefined }}
+          style={{ color: overview.unreadMessages > 0 ? "var(--action, #1c69d4)" : "inherit" }}
         >
           {overview.unreadMessages}
         </p>
       </div>
       <div className={`${CARD} p-6`}>
         <p className={LABEL}>Access</p>
-        <p className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-[#26733b]">
+        <p className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-emerald-600">
           <CheckCircle2 className="h-4 w-4" aria-hidden /> Verified
         </p>
       </div>
@@ -143,19 +140,19 @@ function StatRow({ overview }: { overview: ClientOverview }) {
 function ProjectList({ overview }: { overview: ClientOverview }) {
   return (
     <section>
-      <div className="flex items-end justify-between border-b border-[#d8d4d1] pb-5">
+      <div className="flex items-end justify-between border-b border-line pb-5">
         <div>
           <p className={EYEBROW}>Delivery view</p>
-          <h2 className="mt-3 text-3xl font-bold uppercase tracking-[-0.03em]">Your projects</h2>
+          <h2 className="mt-3 text-3xl font-bold uppercase tracking-[-0.03em] text-ink">Your projects</h2>
         </div>
-        <FileText className="h-5 w-5 text-[#6a6a6a]" aria-hidden />
+        <FileText className="h-5 w-5 text-ink-muted" aria-hidden />
       </div>
 
       {overview.projects.length === 0 ? (
-        <div className="mt-6 border border-dashed border-[#d8d4d1] bg-[#fcfbfa] p-10 text-center">
-          <FileText className="mx-auto h-6 w-6 text-[#9a9a96]" aria-hidden />
-          <p className="mt-4 font-semibold uppercase">No projects assigned yet</p>
-          <p className="mt-2 text-sm font-light leading-6 text-[#6a6a6a]">
+        <div className="mt-6 border border-dashed border-line-2 bg-surface p-10 text-center">
+          <FileText className="mx-auto h-6 w-6 text-ink-muted" aria-hidden />
+          <p className="mt-4 font-semibold uppercase text-ink">No projects assigned yet</p>
+          <p className="mt-2 text-sm font-light leading-6 text-ink-muted">
             Your project workspace will appear here as soon as the TMI team sets it up.
           </p>
         </div>
@@ -165,30 +162,30 @@ function ProjectList({ overview }: { overview: ClientOverview }) {
             <article key={project.id} className={`${CARD} p-6`}>
               <div className="flex flex-wrap items-start justify-between gap-4">
                 <div>
-                  <h3 className="text-xl font-bold uppercase">{project.name}</h3>
-                  <p className="mt-2 max-w-xl text-sm font-light leading-6 text-[#6a6a6a]">
+                  <h3 className="text-xl font-bold uppercase text-ink">{project.name}</h3>
+                  <p className="mt-2 max-w-xl text-sm font-light leading-6 text-ink-muted">
                     {project.summary || "Your TMI team will add the next project update here."}
                   </p>
                 </div>
-                <span className="border border-[#bdd4ee] bg-[#f0f6ff] px-3 py-1 font-mono text-[9px] font-bold uppercase tracking-[0.12em] text-[#1c69d4]">
+                <span className="border border-action/20 bg-action/[0.08] px-3 py-1 font-mono text-[9px] font-bold uppercase tracking-[0.12em] text-action">
                   {STATUS_LABEL[project.status] || project.status}
                 </span>
               </div>
               <div className="mt-7">
-                <div className="flex items-center justify-between font-mono text-[10px] uppercase tracking-[0.1em] text-[#6a6a6a]">
+                <div className="flex items-center justify-between font-mono text-[10px] uppercase tracking-[0.1em] text-ink-muted">
                   <span>Progress</span>
                   <span>{project.progress}%</span>
                 </div>
-                <div className="mt-2 h-2 bg-[#e2ded9]">
+                <div className="mt-2 h-2 bg-line-2">
                   <div
-                    className="h-2 bg-[#1c69d4]"
+                    className="h-2 bg-action"
                     style={{ width: `${Math.min(100, Math.max(0, project.progress))}%` }}
                   />
                 </div>
               </div>
-              <div className="mt-6 flex items-center gap-2 text-xs font-light text-[#6a6a6a]">
-                <Clock3 className="h-3.5 w-3.5 text-[#1c69d4]" aria-hidden /> Next milestone:{" "}
-                <span className="font-semibold text-[#141413]">
+              <div className="mt-6 flex items-center gap-2 text-xs font-light text-ink-muted">
+                <Clock3 className="h-3.5 w-3.5 text-action" aria-hidden /> Next milestone:{" "}
+                <span className="font-semibold text-ink">
                   {project.nextMilestone || "To be confirmed"}
                 </span>
               </div>
@@ -256,12 +253,12 @@ function Messages({
 
   return (
     <section id="messages" className="scroll-mt-24">
-      <div className="flex items-end justify-between border-b border-[#d8d4d1] pb-5">
+      <div className="flex items-end justify-between border-b border-line pb-5">
         <div>
           <p className={EYEBROW}>Direct line</p>
-          <h2 className="mt-3 text-3xl font-bold uppercase tracking-[-0.03em]">Messages</h2>
+          <h2 className="mt-3 text-3xl font-bold uppercase tracking-[-0.03em] text-ink">Messages</h2>
         </div>
-        <MessageCircle className="h-5 w-5 text-[#6a6a6a]" aria-hidden />
+        <MessageCircle className="h-5 w-5 text-ink-muted" aria-hidden />
       </div>
 
       <form onSubmit={send} className={`mt-6 ${CARD} p-5`}>
@@ -280,9 +277,9 @@ function Messages({
           {sending ? "Sending..." : "Send message"}
           <Send className="h-3.5 w-3.5" aria-hidden />
         </button>
-        {sent ? <p className="mt-3 text-xs text-[#26733b]">Message sent to your TMI team.</p> : null}
+        {sent ? <p className="mt-3 text-xs text-emerald-600">Message sent to your TMI team.</p> : null}
         {error ? (
-          <p className="mt-3 text-xs text-[#a52c21]" role="alert">
+          <p className="mt-3 text-xs text-rose-600" role="alert">
             {error}
           </p>
         ) : null}
@@ -293,7 +290,7 @@ function Messages({
           type="button"
           onClick={markRead}
           disabled={marking}
-          className="mt-4 inline-flex items-center gap-2 border border-[#bdd4ee] bg-[#f0f6ff] px-3 py-2 font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-[#1c69d4] transition hover:border-[#1c69d4] disabled:opacity-50"
+          className="mt-4 inline-flex items-center gap-2 border border-action/20 bg-action/[0.08] px-3 py-2 font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-action transition hover:border-action disabled:opacity-50"
         >
           <MailOpen className="h-3.5 w-3.5" aria-hidden />
           {marking ? "Marking…" : `Mark ${overview.unreadMessages} as read`}
@@ -302,26 +299,26 @@ function Messages({
 
       <div className="mt-6 space-y-4">
         {overview.messages.length === 0 ? (
-          <p className="border-t border-[#d8d4d1] pt-4 text-sm font-light leading-6 text-[#6a6a6a]">
+          <p className="border-t border-line pt-4 text-sm font-light leading-6 text-ink-muted">
             No messages yet. Send the first note when you are ready.
           </p>
         ) : (
           overview.messages.slice(0, 8).map((item) => (
-            <div key={item.id} className="border-t border-[#d8d4d1] pt-4">
+            <div key={item.id} className="border-t border-line pt-4">
               <div className="flex items-center justify-between gap-3">
-                <span className="text-sm font-semibold">
+                <span className="text-sm font-semibold text-ink">
                   {item.authorName}
                   {item.fromTeam ? (
-                    <span className="ml-2 border border-[#bdd4ee] bg-[#f0f6ff] px-1.5 py-0.5 font-mono text-[9px] font-bold uppercase tracking-[0.1em] text-[#1c69d4]">
+                    <span className="ml-2 border border-action/20 bg-action/[0.08] px-1.5 py-0.5 font-mono text-[9px] font-bold uppercase tracking-[0.1em] text-action">
                       TMI
                     </span>
                   ) : null}
                 </span>
-                <span className="font-mono text-[9px] uppercase tracking-[0.08em] text-[#9a9a96]">
+                <span className="font-mono text-[9px] uppercase tracking-[0.08em] text-ink-muted">
                   {formatDate(item.createdAt)}
                 </span>
               </div>
-              <p className="mt-2 text-sm font-light leading-6 text-[#5a5a5a]">{item.body}</p>
+              <p className="mt-2 text-sm font-light leading-6 text-ink-muted">{item.body}</p>
             </div>
           ))
         )}
@@ -409,20 +406,20 @@ function AccountSection({
   }
 
   return (
-    <section id="settings" className="mt-16 scroll-mt-24 border-t border-[#d8d4d1] pt-10">
-      <div className="flex items-end justify-between border-b border-[#d8d4d1] pb-5">
+    <section id="settings" className="mt-16 scroll-mt-24 border-t border-line pt-10">
+      <div className="flex items-end justify-between border-b border-line pb-5">
         <div>
           <p className={EYEBROW}>Account</p>
-          <h2 className="mt-3 text-3xl font-bold uppercase tracking-[-0.03em]">Profile settings</h2>
+          <h2 className="mt-3 text-3xl font-bold uppercase tracking-[-0.03em] text-ink">Profile settings</h2>
         </div>
-        <UserRound className="h-5 w-5 text-[#6a6a6a]" aria-hidden />
+        <UserRound className="h-5 w-5 text-ink-muted" aria-hidden />
       </div>
 
       {notice ? (
-        <p className="mt-6 border border-[#a8d5b5] bg-[#f2fbf5] px-4 py-3 text-sm text-[#26733b]">{notice}</p>
+        <p className="mt-6 border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-600">{notice}</p>
       ) : null}
       {error ? (
-        <p className="mt-6 border border-[#efb8b2] bg-[#fff5f4] px-4 py-3 text-sm text-[#a52c21]" role="alert">
+        <p className="mt-6 border border-rose-500/30 bg-rose-500/10 px-4 py-3 text-sm text-rose-600" role="alert">
           {error}
         </p>
       ) : null}
@@ -445,7 +442,7 @@ function AccountSection({
               Email
             </label>
             <input id="client-email" value={overview.user.email} readOnly disabled className={INPUT} />
-            <p className="mt-2 text-xs font-light text-[#6a6a6a]">
+            <p className="mt-2 text-xs font-light text-ink-muted">
               This is your verified sign-in address. Contact your TMI team to change it.
             </p>
           </div>

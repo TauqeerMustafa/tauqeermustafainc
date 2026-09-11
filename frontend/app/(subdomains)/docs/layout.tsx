@@ -1,5 +1,4 @@
 import type { Metadata } from 'next';
-import DocsLayoutClient from './DocsLayoutClient';
 
 export const metadata: Metadata = {
   title: {
@@ -19,5 +18,6 @@ export default function DocsLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  return <DocsLayoutClient>{children}</DocsLayoutClient>;
+  return <div className="min-h-screen bg-canvas text-ink">{children}</div>;
 }
+

@@ -1,12 +1,121 @@
-﻿import type { Metadata } from "next";
+import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowLeft, ArrowRight, Check, ShieldCheck } from "lucide-react";
 import { communityGuidelines } from "@/data/community";
 import { buildMetadata } from "@/lib/metadata";
+import { PageHero, Section } from "@/components/home/ui";
 
-export const metadata: Metadata = buildMetadata({ title: "Community Guidelines | TMI Community", description: "The principles that keep the TMI community useful, generous, and safe for everyone.", path: "/community/guidelines" });
-const checklist = ["Lead with context", "Credit the people and sources behind your work", "Use descriptive titles and relevant tags", "Keep sensitive information out of public threads", "Report issues privately so they can be handled with care"];
+export const metadata: Metadata = buildMetadata({
+  title: "Community Guidelines | TMI Community",
+  description: "The principles that keep the TMI community useful, generous, and safe for everyone.",
+  path: "/community/guidelines",
+});
+
+const checklist = [
+  "Lead with context",
+  "Credit the people and sources behind your work",
+  "Use descriptive titles and relevant tags",
+  "Keep sensitive information out of public threads",
+  "Report issues privately so they can be handled with care",
+];
 
 export default function CommunityGuidelinesPage() {
-  return <main className="bg-surface text-ink"><div className="m-stripe" aria-hidden="true" /><section className="bg-canvas text-ink"><div className="mx-auto max-w-[1440px] px-5 pb-16 pt-12 sm:px-8 sm:pb-24 sm:pt-16 lg:px-12"><Link href="/community" className="inline-flex min-h-11 items-center gap-2 font-mono text-[10px] font-bold uppercase tracking-[0.14em] text-ink/65 transition hover:text-canvas focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ink"><ArrowLeft className="h-3.5 w-3.5" aria-hidden /> Back to community</Link><div className="mt-12 max-w-5xl"><div className="flex items-center gap-3 font-mono text-[10px] font-bold uppercase tracking-[0.16em] text-action"><span className="h-px w-8 bg-action" /> Community handbook</div><h1 className="mt-6 text-[clamp(3rem,8vw,6.5rem)] font-bold uppercase leading-[0.94] tracking-[-0.04em]">Keep the room<br /><span className="text-action">worth returning to.</span></h1><p className="mt-8 max-w-2xl text-base font-light leading-7 text-ink/65 sm:text-lg">The TMI community is built for thoughtful exchange. These guidelines are simple by design: they give good conversations the conditions to become great ones.</p></div></div></section><div className="mx-auto max-w-[1200px] px-5 py-16 sm:px-8 sm:py-24 lg:px-12"><div className="grid gap-16 lg:grid-cols-[minmax(0,1fr)_300px] lg:gap-24"><div><div className="border-t border-line-2">{communityGuidelines.map((item) => <section key={item.number} className="grid gap-5 border-b border-line-2 py-7 sm:grid-cols-[64px_minmax(0,1fr)]"><span className="font-mono text-xs font-bold text-action">{item.number}</span><div><h2 className="text-2xl font-bold uppercase tracking-[-0.02em] text-ink">{item.title}</h2><p className="mt-3 max-w-xl text-sm font-light leading-7 text-ink-muted">{item.body}</p></div></section>)}</div></div><aside className="space-y-8"><div className="border border-line-2 bg-surface p-6"><ShieldCheck className="h-5 w-5 text-action" aria-hidden /><p className="mt-5 font-mono text-[10px] font-bold uppercase tracking-[0.15em] text-action">A quick check</p><ul className="mt-5 space-y-4">{checklist.map((item) => <li key={item} className="flex gap-3 text-xs font-light leading-5 text-ink-muted"><Check className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[#26733b]" aria-hidden />{item}</li>)}</ul></div><div className="border-t border-line-2 pt-6"><p className="text-sm font-light leading-7 text-ink-muted">Need to flag something? Start with a private note through our <Link href="/contact" className="font-semibold text-ink underline decoration-action decoration-2 underline-offset-4">contact page</Link>. We review every report with care.</p></div></aside></div><div className="mt-20 border border-line bg-canvas p-7 text-ink sm:p-10"><p className="font-mono text-[10px] font-bold uppercase tracking-[0.15em] text-action">Ready when you are</p><div className="mt-4 flex flex-col gap-7 sm:flex-row sm:items-end sm:justify-between"><p className="max-w-2xl text-2xl font-bold uppercase leading-tight tracking-[-0.03em]">Bring a question, a work-in-progress, or a lesson you learned the hard way.</p><Link href="/community" className="inline-flex min-h-11 shrink-0 items-center gap-2 border border-ink px-5 font-mono text-[10px] font-bold uppercase tracking-[0.14em] text-ink transition hover:bg-canvas hover:text-ink focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink">Explore conversations <ArrowRight className="h-3.5 w-3.5" aria-hidden /></Link></div></div></div></main>;
+  return (
+    <div className="min-h-screen bg-canvas text-ink">
+      <PageHero
+        eyebrow="Community Handbook // Standards & Etiquette"
+        title="Community Guidelines"
+        description="The principles that keep the TMI community useful, generous, and safe for everyone. Simple by design, creating the conditions for great exchange."
+      >
+        <Link
+          href="/community"
+          className="inline-flex items-center gap-2 border border-line bg-surface px-5 py-2.5 font-mono text-xs font-bold uppercase tracking-wider text-ink hover:border-action hover:text-action transition"
+        >
+          <ArrowLeft className="h-3.5 w-3.5" />
+          <span>Back to Discussions</span>
+        </Link>
+      </PageHero>
+
+      <Section className="bg-canvas py-12 sm:py-16">
+        <div className="max-w-6xl mx-auto">
+          <div className="grid gap-12 lg:grid-cols-[minmax(0,1fr)_320px] lg:gap-16">
+            {/* Guidelines List */}
+            <div className="border-t border-line">
+              {communityGuidelines.map((item) => (
+                <article
+                  key={item.number}
+                  className="grid gap-4 border-b border-line py-8 sm:grid-cols-[64px_minmax(0,1fr)]"
+                >
+                  <span className="font-mono text-sm font-bold text-action">
+                    {item.number}
+                  </span>
+                  <div>
+                    <h2 className="text-xl font-bold uppercase tracking-tight text-ink">
+                      {item.title}
+                    </h2>
+                    <p className="mt-3 text-sm font-light leading-relaxed text-ink-muted">
+                      {item.body}
+                    </p>
+                  </div>
+                </article>
+              ))}
+            </div>
+
+            {/* Sidebar */}
+            <aside className="space-y-6">
+              <div className="border border-line bg-surface p-6">
+                <div className="flex items-center gap-2 text-action mb-4">
+                  <ShieldCheck className="h-5 w-5" aria-hidden />
+                  <span className="font-mono text-xs font-bold uppercase tracking-wider">
+                    Quick Checklist
+                  </span>
+                </div>
+                <ul className="space-y-3">
+                  {checklist.map((item) => (
+                    <li key={item} className="flex gap-2.5 text-xs text-ink-muted leading-snug">
+                      <Check className="mt-0.5 h-3.5 w-3.5 shrink-0 text-emerald-600 dark:text-emerald-400" aria-hidden />
+                      <span>{item}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              <div className="border border-line bg-surface p-6 text-xs text-ink-muted leading-relaxed">
+                <p>
+                  Need to flag something? Start with a private note through our{" "}
+                  <Link
+                    href="/support/contact"
+                    className="font-semibold text-action underline underline-offset-4 hover:text-action-strong"
+                  >
+                    contact directory
+                  </Link>
+                  . We review every report with care.
+                </p>
+              </div>
+            </aside>
+          </div>
+
+          {/* Bottom CTA Card */}
+          <div className="mt-16 border border-line bg-surface p-8 sm:p-10 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6">
+            <div>
+              <span className="font-mono text-[10px] font-bold uppercase tracking-wider text-action block mb-1">
+                Ready to Participate?
+              </span>
+              <p className="text-lg sm:text-xl font-bold uppercase text-ink max-w-xl">
+                Bring a question, a work-in-progress, or a hard-won engineering lesson.
+              </p>
+            </div>
+            <Link
+              href="/community"
+              className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-action text-on-action font-mono text-xs font-bold uppercase hover:bg-action-strong transition shrink-0"
+            >
+              <span>Explore Conversations</span>
+              <ArrowRight className="h-3.5 w-3.5" aria-hidden />
+            </Link>
+          </div>
+        </div>
+      </Section>
+    </div>
+  );
 }
+
