@@ -25,7 +25,6 @@ import ThemeToggle from "@/components/layout/ThemeToggle";
 /** Main domain pages (no subdomains) */
 const primaryNav = [
   { name: "About", href: "/about" },
-  { name: "Profile & Deck", href: "/company-profile" },
   { name: "Services", href: "/services" },
   { name: "Pricing", href: "/pricing" },
   { name: "Portfolio", href: "/portfolio" },

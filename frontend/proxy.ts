@@ -33,7 +33,6 @@ const PORTAL_PREFIXES = ["/portals", "/admin", "/employees", "/management", "/cl
 
 const MAIN_SITE_EXACT_PATHS = new Set([
   "/about",
-  "/company-profile",
   "/services",
   "/pricing",
   "/portfolio",
@@ -172,6 +171,9 @@ export async function proxy(request: NextRequest) {
 
       // Secure Portals Suite redirects (portals.tauqeermustafa.tech)
       // Disallow serving admin, employees, management, client or chooser directly on main domain
+      if (pathname === "/company-profile" || pathname.startsWith("/company-profile/")) {
+        return NextResponse.redirect(`https://portals.tauqeermustafa.tech/employees/company-profile${search}`);
+      }
       if (pathname === "/admin" || pathname.startsWith("/admin/")) {
         return NextResponse.redirect(`https://portals.tauqeermustafa.tech${pathname}${search}`);
       }
@@ -303,6 +305,10 @@ export async function proxy(request: NextRequest) {
     if (hostname.includes("portals.tauqeermustafa.tech")) {
       if (pathname === "/") {
         url.pathname = "/portals";
+        return NextResponse.rewrite(url);
+      }
+      if (pathname === "/company-profile" || pathname.startsWith("/company-profile/")) {
+        url.pathname = "/employees/company-profile";
         return NextResponse.rewrite(url);
       }
       if (!PORTAL_PREFIXES.some((prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`))) {
