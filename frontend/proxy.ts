@@ -31,6 +31,29 @@ const OPEN_PATHS = ["/api/whatsapp/webhook", "/api/whatsapp/diagnose"];
  */
 const PORTAL_PREFIXES = ["/portals", "/admin", "/employees", "/management", "/client"];
 
+const MAIN_SITE_EXACT_PATHS = new Set([
+  "/about",
+  "/company-profile",
+  "/services",
+  "/pricing",
+  "/portfolio",
+  "/careers",
+  "/blog",
+  "/contact",
+  "/success-story",
+]);
+
+function isMainSitePath(pathname: string): boolean {
+  if (MAIN_SITE_EXACT_PATHS.has(pathname)) return true;
+  return (
+    pathname.startsWith("/services/") ||
+    pathname.startsWith("/portfolio/") ||
+    pathname.startsWith("/careers/") ||
+    pathname.startsWith("/blog/") ||
+    pathname.startsWith("/success-story/")
+  );
+}
+
 function unauthorized(status: number, error: string) {
   return NextResponse.json({ success: false, error }, { status });
 }
@@ -58,9 +81,23 @@ export async function proxy(request: NextRequest) {
 
   // 1. Handle subdomain routing and cross-domain redirects
   if (!pathname.startsWith("/api")) {
+    const search = request.nextUrl.search;
+
+    // Cross-subdomain redirect: When a visitor on any subdomain (e.g. portals, docs, support, billing)
+    // requests main website pages (e.g. /company-profile, /about, /pricing), redirect cleanly to main domain.
+    if (
+      !hostname.includes("localhost") &&
+      !hostname.includes("127.0.0.1") &&
+      hostname !== "tauqeermustafa.tech" &&
+      hostname !== "www.tauqeermustafa.tech"
+    ) {
+      if (isMainSitePath(pathname)) {
+        return NextResponse.redirect(`https://tauqeermustafa.tech${pathname}${search}`);
+      }
+    }
+
     // Redirect main domain paths to subdomains
     if (hostname === "tauqeermustafa.tech" || hostname === "www.tauqeermustafa.tech") {
-      const search = request.nextUrl.search;
 
       // Policy and legal redirects directly to docs subdomain
       if (pathname === "/privacy") {

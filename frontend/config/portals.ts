@@ -122,7 +122,7 @@ export const PORTAL_NAV: Record<PortalId, NavSection[]> = {
     {
       title: "Website",
       items: [
-        { label: "Company Profile & Kit", href: "/employees/company-profile", icon: Building2 },
+        { label: "Company Profile & Kit", href: "/admin/company-profile", icon: Building2 },
         { label: "Blog", href: "/admin/blog", icon: Newspaper },
         { label: "Portfolio", href: "/admin/portfolio", icon: ImageIcon },
         { label: "Services", href: "/admin/services", icon: Wrench },
@@ -222,7 +222,7 @@ export const PORTAL_NAV: Record<PortalId, NavSection[]> = {
           icon: BarChart3,
           permission: [PERMISSION.LEADS_READ_TEAM, PERMISSION.LEADS_READ_ALL],
         },
-        { label: "Company Profile & Kit", href: "/employees/company-profile", icon: Building2 },
+        { label: "Company Profile & Kit", href: "/management/company-profile", icon: Building2 },
         { label: "Objectives", href: "/management/objectives", icon: Target },
         { label: "Lead Playbook", href: "/management/playbook", icon: BookOpen },
       ],
