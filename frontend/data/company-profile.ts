@@ -441,7 +441,7 @@ export const outreachTemplates: OutreachTemplate[] = [
     id: "tmpl-wa-intro",
     title: "WhatsApp Quick Introduction & Deck",
     channel: "whatsapp",
-    purpose: "Send to warm prospects or incoming WhatsApp inquiries with instant deck link.",
+    purpose: "Send to warm prospects or incoming WhatsApp inquiries with attached deck.",
     body: `Hi [ClientName],
 
 Thanks for reaching out to Tauqeer Mustafa Inc. (TMI).
@@ -452,8 +452,7 @@ We are a UK-headquartered digital engineering agency specializing in:
 ✓ AI Automation & Custom Workflows (LLM / RAG)
 ✓ Cloud Architecture & DevOps (Docker / K8s / AWS)
 
-You can explore our interactive Company Profile and download our official Pitch Deck here:
-👉 https://tauqeermustafa.tech/company-profile
+Attached please find our official Company Profile & Pitch Deck.
 
 Would you be open for a brief 15-minute technical discovery call this week to review your project constraints?
 
@@ -482,8 +481,7 @@ Our core disciplines include:
 
 Unlike traditional agencies with bloated account management layers, our clients work directly with senior engineers led by our founder, ensuring zero scope drift and rapid delivery sprints (8-16 weeks).
 
-Attached please find our official Company Profile & Pitch Deck. You may also review our live interactive profile here:
-https://tauqeermustafa.tech/company-profile
+Attached please find our official Company Profile & Pitch Deck.
 
 Could we schedule a short 15-minute diagnostic call on [SuggestedDate] to discuss your roadmap?
 
@@ -527,7 +525,7 @@ Noticed your team at [CompanyName] is scaling your digital platforms.
 
 At Tauqeer Mustafa Inc. (TMI), we help fast-growing teams ship secure, production-grade web platforms, cloud infrastructure, and AI workflows without the usual agency bloat or handoff friction.
 
-We work directly with engineering leaders from architecture discovery through launch. You can check out our interactive company profile and pitch deck here: https://tauqeermustafa.tech/company-profile
+We work directly with engineering leaders from architecture discovery through launch.
 
 Would you be open to a brief chat sometime next week to compare notes on what you're building?
 

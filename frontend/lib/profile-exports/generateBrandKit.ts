@@ -90,8 +90,7 @@ export function generateDocxProposal(): void {
   <p>To initiate a statement of work or request a formal technical review, please contact:</p>
   <p><strong>Tauqeer Mustafa Inc. Commercial Desk</strong><br>
   Email: ${company.emails.sales}<br>
-  WhatsApp: ${company.whatsappChannels.general.number}<br>
-  Portal: <a href="${company.website}/company-profile">${company.website}/company-profile</a></p>
+  Website: <a href="${company.website}">${company.website}</a></p>
 </body>
 </html>
 `;

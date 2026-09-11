@@ -44,7 +44,7 @@ Here is the customized Tauqeer Mustafa Inc. (TMI) technical capabilities and col
 ═══════════════════════════════════════════════════════
 TAUQEER MUSTAFA INC. — TECHNICAL PROFILE & CAPABILITIES
 "Engineering that ships. Security that holds."
-Official Portal: https://tauqeermustafa.tech/company-profile
+Official Website: https://tauqeermustafa.tech
 ═══════════════════════════════════════════════════════`);
 
     sections.push(`1. EXECUTIVE SUMMARY & CREDENTIALS
@@ -94,8 +94,7 @@ Official Portal: https://tauqeermustafa.tech/company-profile
 • Founder GitHub: ${company.social.github}`);
     }
 
-    sections.push(`You can also review and download our complete 10-slide PowerPoint pitch deck and official PDF profile directly at:
-👉 https://tauqeermustafa.tech/company-profile
+    sections.push(`Attached please find our official 10-slide PowerPoint capabilities pitch deck and executive PDF profile.
 
 Looking forward to connecting with your team.
 

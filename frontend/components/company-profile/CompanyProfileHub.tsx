@@ -87,7 +87,7 @@ export default function CompanyProfileHub({
   };
 
   const handleCopyProfileUrl = () => {
-    const url = typeof window !== "undefined" ? window.location.origin + "/company-profile" : "https://tauqeermustafa.tech/company-profile";
+    const url = typeof window !== "undefined" ? window.location.href : "https://portals.tauqeermustafa.tech/employees/company-profile";
     navigator.clipboard.writeText(url);
     setCopiedLink(true);
     setTimeout(() => setCopiedLink(false), 2000);
