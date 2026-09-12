@@ -9,7 +9,7 @@ import {
   Minimize2,
   Copy,
   Check,
-  FilePresentation,
+  Presentation,
   Shield,
   Layers,
   Sparkles,

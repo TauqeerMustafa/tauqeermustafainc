@@ -64,6 +64,30 @@ export type WAMessage = {
   reactionTo?: string;
   /** Id of the button or list row the contact tapped. */
   choiceId?: string;
+  /** Detailed error message or reason when type is 'unsupported'. */
+  errorDetails?: string;
+  errorCode?: number;
+  unsupportedReason?: string;
+  /** Structured contacts payload when type is 'contacts'. */
+  contactsData?: Array<{
+    name?: string;
+    phones?: string[];
+    emails?: string[];
+    org?: string;
+  }>;
+  /** Structured location payload when type is 'location'. */
+  locationData?: {
+    name?: string;
+    address?: string;
+    latitude?: number;
+    longitude?: number;
+    url?: string;
+  };
+  /** Structured system payload when type is 'system'. */
+  systemData?: {
+    body?: string;
+    type?: string;
+  };
 };
 
 export type AutoReplyRule = {

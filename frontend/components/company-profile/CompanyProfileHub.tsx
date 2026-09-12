@@ -4,7 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import {
   Download,
-  FilePresentation,
+  Presentation,
   FileText,
   Building,
   ShieldCheck,

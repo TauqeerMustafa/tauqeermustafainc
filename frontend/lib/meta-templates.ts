@@ -50,7 +50,7 @@
 
 export type MetaTemplateDef = {
   name: string;
-  category: "MARKETING" | "UTILITY";
+  category: "MARKETING" | "UTILITY" | "AUTHENTICATION";
   language: string;
   department?: "general" | "support";
   header?: string;
@@ -328,6 +328,33 @@ export const META_TEMPLATES: MetaTemplateDef[] = [
     bodyExample: ["all systems", "Sunday 02:00 PKT", "under 15 minutes"],
     footer: "Infrastructure Operations Desk",
     buttons: ["Maintenance Details", "Contact Ops"],
+  },
+  {
+    name: "otp_verification_code",
+    category: "UTILITY",
+    language: "en_US",
+    department: "general",
+    header: "Verification Code",
+    body:
+      "Your security verification code for Tauqeer Mustafa Inc is {{1}}.\n\n" +
+      "This code is valid for 10 minutes. For your protection, never share this code or your account credentials with anyone.",
+    bodyExample: ["849201"],
+    footer: "Tauqeer Mustafa Inc Security",
+    buttons: ["Copy Code", "I did not request this"],
+  },
+  {
+    name: "security_alert_otp",
+    category: "UTILITY",
+    language: "en_US",
+    department: "support",
+    header: "Security Verification",
+    body:
+      "Security notice for {{1}}.\n\n" +
+      "A verification request was initiated. Your one-time authentication code is: {{2}}.\n\n" +
+      "If you did not make this request, notify our 24/7 support desk immediately.",
+    bodyExample: ["your account", "629140"],
+    footer: "24/7 SLA Technical Desk",
+    buttons: ["Contact Support", "Acknowledge"],
   },
 ];
 

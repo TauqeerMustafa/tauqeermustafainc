@@ -40,6 +40,11 @@ import {
   Plus,
   List,
   ArrowRight,
+  MapPin,
+  ExternalLink,
+  Shield,
+  Copy,
+  Info,
 } from "lucide-react";
 
 import {
@@ -668,19 +673,39 @@ const MEDIA_LABELS: Record<string, string> = {
   document: "📄 Document",
   sticker: "🏷️ Sticker",
   location: "📍 Location",
-  contacts: "👤 Contact",
+  contacts: "👤 Contact Card",
   reaction: "💬 Reaction",
-  unsupported: "⚠️ Unsupported message",
+  interactive: "🔘 Interactive Button",
+  nfm_reply: "📋 Form Response",
+  order: "🛒 Catalog Order",
+  system: "⚙️ System Notice",
+  unsupported: "⚠️ Unsupported Message",
+  otp: "🔐 Verification Code",
 };
 
 /**
- * Readable text for a message. Media, stickers and other non-text types are
- * stored with an empty body, so fall back to a type label instead of rendering
- * a blank bubble.
+ * Readable text for a message. Media, stickers, contacts, and other non-text types are
+ * mapped to informative descriptions instead of rendering blank or cryptic labels.
  */
 function describeMessage(m: WAMessage) {
+  if (m.unsupportedReason) return `⚠️ ${m.unsupportedReason}`;
   const body = (m.body || "").trim();
+  if (m.type === "unsupported" || body.toLowerCase().includes("unsupported message")) {
+    if (m.errorDetails) return `⚠️ Unsupported format (${m.errorDetails})`;
+    if (m.errorCode) return `⚠️ Unsupported format (Code ${m.errorCode})`;
+    return "⚠️ Unsupported format (Call / External OTP)";
+  }
   if (body) return body;
+  if (m.contactsData && m.contactsData.length > 0) {
+    const c = m.contactsData[0];
+    return `👤 Contact: ${c.name}${c.phones?.length ? ` (${c.phones[0]})` : ""}`;
+  }
+  if (m.locationData) {
+    return `📍 Location: ${[m.locationData.name, m.locationData.address].filter(Boolean).join(", ") || "Shared location"}`;
+  }
+  if (m.systemData) {
+    return `⚙️ System: ${m.systemData.body || m.systemData.type || "System notice"}`;
+  }
   if (MEDIA_LABELS[m.type]) return MEDIA_LABELS[m.type];
   return m.type && m.type !== "text" ? `📎 ${m.type}` : "";
 }
@@ -1913,6 +1938,177 @@ function BubbleActions({
   );
 }
 
+function UnsupportedCard({
+  message,
+  onReply,
+}: {
+  message: WAMessage;
+  onReply?: (m: WAMessage) => void;
+}) {
+  const reason =
+    message.unsupportedReason ||
+    (message.errorDetails ? `Unsupported format: ${message.errorDetails}` : "Unsupported WhatsApp Message Event");
+  return (
+    <div className="space-y-2 py-1 max-w-[340px]">
+      <div className="flex items-start gap-2.5 rounded-lg border border-amber-500/20 bg-amber-500/10 p-3 text-[13px] text-amber-900 dark:text-amber-200 shadow-xs">
+        <AlertCircle size={18} className="mt-0.5 shrink-0 text-amber-600 dark:text-amber-400" />
+        <div className="space-y-1 min-w-0">
+          <p className="font-semibold leading-tight text-amber-800 dark:text-amber-300">{reason}</p>
+          <p className="text-[12px] leading-relaxed text-amber-700/90 dark:text-amber-200/80">
+            Received in a format not directly supported by WhatsApp Cloud API (such as an incoming voice/video call, disappearing message toggle, poll vote, or external verification OTP).
+          </p>
+          {message.errorDetails && message.errorDetails !== reason && (
+            <p className="font-mono text-[11px] text-amber-800/80 dark:text-amber-300/80">
+              Details: {message.errorDetails} {message.errorCode ? `(Code ${message.errorCode})` : ""}
+            </p>
+          )}
+        </div>
+      </div>
+      {onReply && message.direction === "inbound" && (
+        <button
+          type="button"
+          onClick={() => onReply(message)}
+          className="inline-flex items-center gap-1.5 rounded-md bg-adm-surface-2 px-2.5 py-1 text-[12px] font-medium text-adm-text-2 transition hover:bg-adm-border"
+        >
+          <CornerUpLeft size={13} />
+          Reply to customer
+        </button>
+      )}
+    </div>
+  );
+}
+
+function ContactCard({
+  contacts,
+}: {
+  contacts: Array<{ name?: string; phones?: string[]; emails?: string[]; org?: string }>;
+}) {
+  const [copied, setCopied] = useState<string | null>(null);
+  const copyText = (val: string) => {
+    navigator.clipboard.writeText(val);
+    setCopied(val);
+    setTimeout(() => setCopied(null), 2000);
+  };
+
+  return (
+    <div className="space-y-2 py-1">
+      {contacts.map((c, i) => (
+        <div key={i} className="min-w-[240px] rounded-lg border border-adm-border/60 bg-adm-surface p-3 shadow-xs">
+          <div className="flex items-center gap-2.5 pb-2 border-b border-adm-border/40">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-adm-blue/10 text-adm-blue font-bold">
+              {initials(c.name || "C")}
+            </div>
+            <div className="min-w-0 flex-1">
+              <p className="truncate font-semibold text-[14px] text-adm-text">{c.name || "Unnamed Contact"}</p>
+              {c.org && <p className="truncate text-[12px] text-adm-text-3">{c.org}</p>}
+            </div>
+          </div>
+          <div className="pt-2 space-y-1.5">
+            {c.phones?.map((p, pi) => (
+              <div key={pi} className="flex items-center justify-between gap-2 text-[12px]">
+                <a
+                  href={`tel:${p}`}
+                  className="flex items-center gap-1.5 font-mono text-adm-blue hover:underline"
+                >
+                  <Phone size={12} />
+                  <span>{p}</span>
+                </a>
+                <button
+                  type="button"
+                  onClick={() => copyText(p)}
+                  className="p-1 text-adm-text-3 hover:text-adm-text transition"
+                  title="Copy number"
+                >
+                  {copied === p ? <Check size={12} className="text-adm-green" /> : <Copy size={12} />}
+                </button>
+              </div>
+            ))}
+            {c.emails?.map((e, ei) => (
+              <div key={ei} className="flex items-center justify-between gap-2 text-[12px]">
+                <a
+                  href={`mailto:${e}`}
+                  className="truncate text-adm-blue hover:underline"
+                >
+                  {e}
+                </a>
+              </div>
+            ))}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function LocationCard({
+  location,
+}: {
+  location: { name?: string; address?: string; latitude?: number; longitude?: number; url?: string };
+}) {
+  const mapUrl =
+    location.url ||
+    (location.latitude && location.longitude
+      ? `https://www.google.com/maps/search/?api=1&query=${location.latitude},${location.longitude}`
+      : undefined);
+
+  return (
+    <div className="min-w-[220px] rounded-lg border border-adm-border/60 bg-adm-surface p-3 space-y-2">
+      <div className="flex items-start gap-2">
+        <MapPin size={18} className="mt-0.5 shrink-0 text-red-500" />
+        <div className="min-w-0 flex-1">
+          {location.name && <p className="font-semibold text-[13.5px] text-adm-text">{location.name}</p>}
+          {location.address && <p className="text-[12px] text-adm-text-2">{location.address}</p>}
+          {location.latitude && location.longitude && (
+            <p className="font-mono text-[11px] text-adm-text-3">
+              {location.latitude.toFixed(5)}, {location.longitude.toFixed(5)}
+            </p>
+          )}
+        </div>
+      </div>
+      {mapUrl && (
+        <a
+          href={mapUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center gap-1 text-[12px] font-medium text-adm-blue hover:underline"
+        >
+          <span>View on Google Maps</span>
+          <ExternalLink size={12} />
+        </a>
+      )}
+    </div>
+  );
+}
+
+function OtpSnippet({ text }: { text: string }) {
+  const [copied, setCopied] = useState(false);
+  const match = text.match(/\b([0-9]{4,8})\b/);
+  if (!match) return null;
+  const code = match[1];
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText(code);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  return (
+    <div className="mt-2 flex items-center gap-2 rounded-md bg-adm-surface-2 p-1.5 border border-adm-border/50">
+      <span className="font-mono text-[13px] font-bold tracking-wider text-adm-text px-1">
+        {code}
+      </span>
+      <button
+        type="button"
+        onClick={handleCopy}
+        className="ml-auto inline-flex items-center gap-1 rounded bg-adm-blue/10 px-2 py-0.5 text-[11px] font-semibold text-adm-blue hover:bg-adm-blue/20 transition"
+      >
+        {copied ? <Check size={12} className="text-adm-green" /> : <Copy size={12} />}
+        <span>{copied ? "Copied" : "Copy Code"}</span>
+      </button>
+    </div>
+  );
+}
+
 function MessageBubble({
   message,
   tail,
@@ -1939,10 +2135,17 @@ function MessageBubble({
   const mediaKind = mediaKindOf(message);
   const isSticker = mediaKind === "sticker";
   const framed = mediaKind === "image" || mediaKind === "video";
+  const isUnsupported =
+    message.type === "unsupported" ||
+    !!message.unsupportedReason ||
+    (!mediaKind && !message.body && !message.contactsData?.length && !message.locationData && message.type === "unsupported") ||
+    (typeof message.body === "string" && message.body.toLowerCase().includes("unsupported message"));
+  const isContact = (message.type === "contacts" || !!message.contactsData?.length) && !!message.contactsData?.length;
+  const isLocation = (message.type === "location" || !!message.locationData) && !!message.locationData;
   // Stored media bodies read "[image] caption" — strip the label to get the caption.
   const captionText = (message.body || "").trim().replace(/^\[[a-z]+\]\s*/i, "");
   const hasCaption = !!mediaKind && !!captionText && captionText !== MEDIA_LABELS[message.type];
-  const isPlaceholder = !mediaKind && !(message.body || "").trim() && !MEDIA_LABELS[message.type];
+  const isPlaceholder = !mediaKind && !isUnsupported && !isContact && !isLocation && !(message.body || "").trim() && !MEDIA_LABELS[message.type];
   const time = new Date(message.timestamp).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
   const baseSpacerLen = isOutbound ? 11 : 7;
   const spacerLen = lineBadge ? baseSpacerLen + 8 : baseSpacerLen;
@@ -1986,7 +2189,13 @@ function MessageBubble({
 
         {quoted && <QuotedPreview quoted={quoted} outbound={isOutbound} />}
 
-        {mediaKind ? (
+        {isUnsupported ? (
+          <UnsupportedCard message={message} onReply={onReply} />
+        ) : isContact ? (
+          <ContactCard contacts={message.contactsData!} />
+        ) : isLocation ? (
+          <LocationCard location={message.locationData!} />
+        ) : mediaKind ? (
           <MessageMedia
             message={message}
             outbound={isOutbound}
@@ -2000,15 +2209,20 @@ function MessageBubble({
             }
           />
         ) : (
-          <span
-            className="whitespace-pre-wrap break-words"
-            style={isPlaceholder ? { fontStyle: "italic", color: WA.sub } : undefined}
-          >
-            {text || "—"}
-            <span aria-hidden style={{ display: "inline-block" }}>
-              {spacer}
+          <div>
+            <span
+              className="whitespace-pre-wrap break-words"
+              style={isPlaceholder ? { fontStyle: "italic", color: WA.sub } : undefined}
+            >
+              {text || "—"}
+              <span aria-hidden style={{ display: "inline-block" }}>
+                {spacer}
+              </span>
             </span>
-          </span>
+            {message.body && /\b(otp|code|verification|passcode)\b/i.test(message.body) && (
+              <OtpSnippet text={message.body} />
+            )}
+          </div>
         )}
 
         {/* Floated inline timestamp + ticks */}

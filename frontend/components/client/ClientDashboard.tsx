@@ -75,11 +75,7 @@ export default function ClientDashboard() {
         <main>
           <PageHero
             eyebrow="Private Workspace // Client Portal"
-            title={
-              <>
-                Your work, <span className="text-action">clearly in view.</span>
-              </>
-            }
+            title="Your work, clearly in view."
             description={
               overview
                 ? `Good to see you, ${firstName}. Here is the latest signal from your TMI projects.`

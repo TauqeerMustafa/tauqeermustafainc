@@ -73,7 +73,14 @@ function parseMetaComponents(components: unknown[]): {
     } else if (t === "FOOTER") {
       footer = c.text;
     } else if (t === "BUTTONS" && Array.isArray(c?.buttons)) {
-      buttons = c.buttons.map((b: any) => b?.text).filter(Boolean);
+      buttons = c.buttons
+        .map((b: any) => {
+          if (b?.text) return b.text;
+          if (b?.otp_type) return `OTP: ${b.otp_type === "COPY_CODE" ? "Copy Code" : b.otp_type}`;
+          if (b?.type === "OTP") return "Copy Code";
+          return "";
+        })
+        .filter(Boolean);
     }
   }
   return { header, body, bodyExample, footer, buttons };

@@ -121,28 +121,105 @@ export async function POST(request: Request) {
 
         for (const msg of messages) {
           const from    = msg.from;         // sender number (digits only)
-          const msgType = msg.type;         // "text" | "image" | "audio" | ...
+          const msgType = msg.type;         // "text" | "image" | "audio" | "contacts" | "location" | "unsupported" | ...
           const msgId   = msg.id ?? `msg_${from}_${msg.timestamp ?? ""}`;
           const name    = value?.contacts?.find(
             (c: { wa_id?: string; profile?: { name?: string } }) => c.wa_id === from
           )?.profile?.name;
 
           // Non-text messages carry no .text.body. Pull whatever text they do
-          // have (caption, reaction emoji, button title, location label) so the
-          // inbox never has to render a blank bubble.
+          // have (caption, reaction emoji, button title, location label, error summary, contact name)
+          // so the inbox never has to render a blank bubble.
           const media = msg?.image ?? msg?.video ?? msg?.audio ?? msg?.document ?? msg?.sticker;
           const location = msg?.location;
-          const text =
+          const contactsRaw = Array.isArray(msg?.contacts) ? msg.contacts : [];
+          const systemRaw = msg?.system;
+          const orderRaw = msg?.order;
+          const errorsRaw = Array.isArray(msg?.errors) ? msg.errors : [];
+
+          // Contacts parsing
+          const contactsData = contactsRaw.map((c: any) => {
+            const formattedName =
+              c?.name?.formatted_name ||
+              [c?.name?.first_name, c?.name?.last_name].filter(Boolean).join(" ") ||
+              "Contact";
+            const phones = (c?.phones || []).map((p: any) => String(p?.phone || p?.wa_id || "")).filter(Boolean);
+            const emails = (c?.emails || []).map((e: any) => String(e?.email || "")).filter(Boolean);
+            const org = c?.org?.company || c?.org?.title || undefined;
+            return { name: formattedName, phones, emails, org };
+          });
+
+          // Unsupported / error handling
+          let errorDetails: string | undefined;
+          let errorCode: number | undefined;
+          let unsupportedReason: string | undefined;
+          if (msgType === "unsupported" || errorsRaw.length > 0) {
+            const firstErr = errorsRaw[0];
+            errorCode = firstErr?.code ? Number(firstErr.code) : undefined;
+            const errTitle = firstErr?.title || "Unsupported message type";
+            errorDetails = firstErr?.error_data?.details || firstErr?.message || errTitle;
+
+            const lower = `${errTitle} ${errorDetails}`.toLowerCase();
+            if (lower.includes("call") || errorCode === 131053) {
+              unsupportedReason = "Missed WhatsApp Voice/Video Call";
+            } else if (lower.includes("ephemeral") || lower.includes("disappearing")) {
+              unsupportedReason = "Disappearing / Ephemeral Message notification";
+            } else if (lower.includes("poll")) {
+              unsupportedReason = "WhatsApp Poll or Vote";
+            } else if (lower.includes("otp") || lower.includes("auth") || lower.includes("verification")) {
+              unsupportedReason = "External Authentication / OTP verification notice";
+            } else if (errorDetails && errorDetails !== "Message type is not supported") {
+              unsupportedReason = `Unsupported message format (${errorDetails})`;
+            } else {
+              unsupportedReason = `Unsupported message format${errorCode ? ` (Code ${errorCode})` : ""}`;
+            }
+          }
+
+          // Structured location
+          const locationData = location
+            ? {
+                name: location.name || undefined,
+                address: location.address || undefined,
+                latitude: typeof location.latitude === "number" ? location.latitude : Number(location.latitude) || undefined,
+                longitude: typeof location.longitude === "number" ? location.longitude : Number(location.longitude) || undefined,
+                url: location.url || undefined,
+              }
+            : undefined;
+
+          // Structured system
+          const systemData = systemRaw
+            ? {
+                body: systemRaw.body || undefined,
+                type: systemRaw.type || undefined,
+              }
+            : undefined;
+
+          // Compute readable display text for inbox previews and search
+          let text =
             msg?.text?.body ??
             media?.caption ??
             msg?.reaction?.emoji ??
             msg?.button?.text ??
             msg?.interactive?.button_reply?.title ??
             msg?.interactive?.list_reply?.title ??
-            (location
-              ? [location.name, location.address].filter(Boolean).join(", ") ||
-                `${location.latitude}, ${location.longitude}`
-              : "");
+            "";
+
+          if (!text) {
+            if (contactsData.length > 0) {
+              const primary = contactsData[0];
+              text = `👤 Contact: ${primary.name}${primary.phones?.length ? ` (${primary.phones[0]})` : ""}`;
+            } else if (locationData) {
+              text = `📍 Location: ${[locationData.name, locationData.address].filter(Boolean).join(", ") || `${locationData.latitude}, ${locationData.longitude}`}`;
+            } else if (msg?.interactive?.nfm_reply) {
+              text = `📋 Form response received (WhatsApp Flow)`;
+            } else if (systemData) {
+              text = `⚙️ System: ${systemData.body || systemData.type || "System update"}`;
+            } else if (orderRaw) {
+              text = `🛒 Order: ${orderRaw.product_items?.length || 1} item(s)`;
+            } else if (unsupportedReason) {
+              text = `⚠️ ${unsupportedReason}`;
+            }
+          }
 
           // What the contact TAPPED, as opposed to what the button said. Titles
           // are copy and get reworded; ids are stable, so this is what a scripted
@@ -180,6 +257,12 @@ export async function POST(request: Request) {
             ...(msg?.context?.id ? { replyTo: String(msg.context.id) } : {}),
             ...(msg?.reaction?.message_id ? { reactionTo: String(msg.reaction.message_id) } : {}),
             ...(choiceId ? { choiceId: String(choiceId) } : {}),
+            ...(errorDetails ? { errorDetails } : {}),
+            ...(errorCode ? { errorCode } : {}),
+            ...(unsupportedReason ? { unsupportedReason } : {}),
+            ...(contactsData.length ? { contactsData } : {}),
+            ...(locationData ? { locationData } : {}),
+            ...(systemData ? { systemData } : {}),
           };
 
           // Persist directly to the store. `appendMessage` is idempotent on id;
@@ -187,7 +270,7 @@ export async function POST(request: Request) {
           // already seen — in which case we must NOT auto-reply again.
           const stored = await appendMessage(storedMessage);
 
-          if (stored) {
+          if (stored && msgType !== "unsupported" && msgType !== "system") {
             await handleAutoReply(from, text, msgId, channel, choiceId ? String(choiceId) : null);
           }
         }
