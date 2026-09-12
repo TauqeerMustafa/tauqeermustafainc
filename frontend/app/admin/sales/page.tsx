@@ -545,7 +545,7 @@ export default function B2BSalesCommandCenterPage() {
 
         <StatCard
           label={t("Total CRM Leads")}
-          value={totalLeads}
+          value={pipelineQuery.isLoading ? "…" : totalLeads}
           icon={Target}
           tone="amber"
           hint={
@@ -557,7 +557,7 @@ export default function B2BSalesCommandCenterPage() {
 
         <StatCard
           label={t("Pipeline Value")}
-          value={formatCurrency(openValue + wonValue)}
+          value={pipelineQuery.isLoading ? "…" : formatCurrency(openValue + wonValue)}
           icon={TrendingUp}
           tone="green"
           hint={`${formatCurrency(wonValue)} ${t("won")} · ${formatCurrency(openValue)} ${t("open")}`}
@@ -1019,27 +1019,33 @@ export default function B2BSalesCommandCenterPage() {
       {activeTab === "pipeline" && (
         <div className="flex flex-col gap-6">
           {/* Pipeline Stage Bar */}
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-7">
-            {(pipeline?.stages || []).map((stage) => (
-              <div
-                key={stage.status}
-                className="flex flex-col rounded-none border border-adm-border bg-adm-surface p-3"
-              >
-                <div className="flex items-center justify-between">
-                  <span className="text-[11px] font-bold uppercase tracking-wider text-adm-text-3">
-                    {stage.label}
-                  </span>
-                  <StatusPill status={stage.status} />
+          {pipelineQuery.isLoading ? (
+            <div className="flex items-center justify-center p-6 border border-adm-border bg-adm-surface text-xs text-adm-text-3">
+              <span className="animate-pulse">{t("Loading pipeline stages…")}</span>
+            </div>
+          ) : (
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-7">
+              {(pipeline?.stages || []).map((stage) => (
+                <div
+                  key={stage.status}
+                  className="flex flex-col rounded-none border border-adm-border bg-adm-surface p-3"
+                >
+                  <div className="flex items-center justify-between">
+                    <span className="text-[11px] font-bold uppercase tracking-wider text-adm-text-3">
+                      {stage.label}
+                    </span>
+                    <StatusPill status={stage.status} />
+                  </div>
+                  <p className="mt-2 text-xl font-bold tabular-nums text-adm-text">
+                    {stage.count}
+                  </p>
+                  <p className="mt-0.5 text-xs text-adm-text-3 tabular-nums">
+                    {formatCurrency(stage.value)}
+                  </p>
                 </div>
-                <p className="mt-2 text-xl font-bold tabular-nums text-adm-text">
-                  {stage.count}
-                </p>
-                <p className="mt-0.5 text-xs text-adm-text-3 tabular-nums">
-                  {formatCurrency(stage.value)}
-                </p>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
 
           {/* Table Panel */}
           <Panel

@@ -147,7 +147,7 @@ export const PLAYBOOK_45_DAYS: PlaybookDayTask[] = [
     phase: "foundation",
     title: "Cold Calling Script & Objection Rehearsal",
     description: "Practice the 30-second Cold Calling pitch and objection responses with a peer. Focus on tonality, calm pacing, and problem curiosity.",
-    actionItem: "Conduct 3 practice mock pitches with objection pivots.",
+    actionItem: "Conduct 3 practice rehearsal pitches with objection pivots.",
     targetCount: "3 Rehearsals",
     priority: "medium",
   },
