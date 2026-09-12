@@ -88,5 +88,12 @@ export const API_ENDPOINTS = {
     bulkDelete: "/tasks/bulk-delete",
     bulkUpdate: "/tasks/bulk-update",
   },
+  agent: {
+    pulse: "/agent/pulse",
+    briefing: "/agent/briefing",
+    runAudit: "/agent/run-audit",
+    chat: "/agent/chat",
+    action: "/agent/action",
+  },
 } as const;
 

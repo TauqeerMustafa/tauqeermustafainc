@@ -72,4 +72,8 @@ export const queryKeys = {
     list: (params: string) => ["tasks", "list", params] as const,
     mine: ["tasks", "mine"] as const,
   },
+  agent: {
+    pulse: ["agent", "pulse"] as const,
+    briefing: ["agent", "briefing"] as const,
+  },
 } as const;

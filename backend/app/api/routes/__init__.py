@@ -20,6 +20,7 @@ from app.api.routes.attendance import router as attendance_router
 from app.api.routes.leave import router as leave_router
 from app.api.routes.documents import router as document_router
 from app.api.routes.dashboard import router as dashboard_router
+from app.api.routes.agent import router as agent_router
 from app.api.routes.staff_messages import (
     admin_staff_router,
     staff_chat_router,
@@ -47,6 +48,8 @@ router.include_router(attendance_router, prefix="/attendance", tags=["attendance
 router.include_router(leave_router, prefix="/leave", tags=["leave"])
 router.include_router(document_router, prefix="/documents", tags=["documents"])
 router.include_router(dashboard_router, prefix="/dashboard", tags=["dashboard"])
+router.include_router(agent_router)
+router.include_router(agent_router, prefix="/ai-agent")
 router.include_router(staff_chat_router)
 router.include_router(admin_staff_router)
 

@@ -14,6 +14,7 @@ import {
   BarChart3,
   Bell,
   BookOpen,
+  Bot,
   Briefcase,
   Building2,
   CalendarDays,
@@ -63,7 +64,10 @@ export const PORTAL_NAV: Record<PortalId, NavSection[]> = {
   // ── Admin: run the company ─────────────────────────────────────────────────
   [PORTAL.ADMIN]: [
     {
-      items: [{ label: "Dashboard", href: "/admin/dashboard", icon: LayoutDashboard }],
+      items: [
+        { label: "Dashboard", href: "/admin/dashboard", icon: LayoutDashboard },
+        { label: "AI Executive Copilot", href: "/admin/ai-agent", icon: Bot },
+      ],
     },
     {
       title: "People",
@@ -214,7 +218,10 @@ export const PORTAL_NAV: Record<PortalId, NavSection[]> = {
   // ── Management: leadership reporting ───────────────────────────────────────
   [PORTAL.MANAGEMENT]: [
     {
-      items: [{ label: "Overview", href: "/management/dashboard", icon: LayoutDashboard }],
+      items: [
+        { label: "Overview", href: "/management/dashboard", icon: LayoutDashboard },
+        { label: "AI Executive Copilot", href: "/management/ai-agent", icon: Bot },
+      ],
     },
     {
       title: "Performance",

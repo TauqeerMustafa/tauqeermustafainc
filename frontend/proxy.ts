@@ -29,7 +29,7 @@ const OPEN_PATHS = ["/api/whatsapp/webhook", "/api/whatsapp/diagnose"];
  * `/management` was missing from this list, so https://portals…/management/login
  * rewrote to /client/management/login and 404'd.
  */
-const PORTAL_PREFIXES = ["/portals", "/admin", "/employees", "/management", "/client"];
+const PORTAL_PREFIXES = ["/portals", "/admin", "/employees", "/management", "/client", "/ai-agent", "/agent"];
 
 const MAIN_SITE_EXACT_PATHS = new Set([
   "/about",
@@ -40,6 +40,8 @@ const MAIN_SITE_EXACT_PATHS = new Set([
   "/blog",
   "/contact",
   "/success-story",
+  "/ai-agent",
+  "/agent",
 ]);
 
 function isMainSitePath(pathname: string): boolean {
@@ -306,6 +308,10 @@ export async function proxy(request: NextRequest) {
       if (pathname === "/") {
         url.pathname = "/portals";
         return NextResponse.rewrite(url);
+      }
+      if (pathname === "/ai-agent" || pathname === "/agent") {
+        url.pathname = "/management/ai-agent";
+        return NextResponse.redirect(url);
       }
       if (pathname === "/company-profile" || pathname.startsWith("/company-profile/")) {
         url.pathname = "/employees/company-profile";
