@@ -98,6 +98,17 @@ export const PORTAL_NAV: Record<PortalId, NavSection[]> = {
       title: "Revenue",
       items: [
         {
+          label: "B2B Sales Command",
+          href: "/admin/sales",
+          icon: Target,
+          permission: [
+            PERMISSION.LEADS_READ_OWN,
+            PERMISSION.LEADS_READ_TEAM,
+            PERMISSION.LEADS_READ_ALL,
+          ],
+          matches: ["/admin/sales"],
+        },
+        {
           label: "Clients & Leads",
           href: "/admin/client",
           icon: Briefcase,

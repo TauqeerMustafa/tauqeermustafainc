@@ -1,12 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { Briefcase, MessageCircle, TrendingUp, type LucideIcon } from "lucide-react";
+import { Briefcase, MessageCircle, Target, TrendingUp, type LucideIcon } from "lucide-react";
 
 import { useLeadPipeline } from "@/hooks/useLeads";
 import { useI18n } from "@/lib/i18n";
 
-export type RevenueFunctionId = "client" | "whatsapp" | "management";
+export type RevenueFunctionId = "client" | "whatsapp" | "management" | "sales";
 
 interface RevenueBannerProps {
   active?: RevenueFunctionId;
@@ -23,6 +23,13 @@ interface FunctionItem {
 }
 
 const REVENUE_FUNCTIONS: FunctionItem[] = [
+  {
+    id: "sales",
+    label: "B2B Sales Command Center",
+    shortLabel: "Sales Command",
+    href: "/admin/sales",
+    icon: Target,
+  },
   {
     id: "client",
     label: "Lead Workbench & CRM",

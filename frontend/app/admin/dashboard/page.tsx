@@ -23,6 +23,7 @@ import {
   MessagesSquare,
   Newspaper,
   Shield,
+  Target,
   Users,
   Wrench,
   type LucideIcon,
@@ -679,12 +680,24 @@ export default function AdminDashboardPage() {
             "Sales Pipeline & Client Relationships",
             "Manage client leads, deal qualification, follow-up dates, activity logs, and WhatsApp customer lines.",
             [
+              { label: "B2B Sales Command", href: "/admin/sales", icon: Target },
               { label: "Leads & Pipeline", href: "/admin/client", icon: Briefcase },
               { label: "WhatsApp Lead Line", href: "/admin/whatsapp", icon: MessageCircle },
             ],
           )}
 
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <DepartmentCard
+              href="/admin/sales"
+              icon={Target}
+              title="B2B Sales Command Center"
+              description="45-day structured B2B outreach playbook, daily execution checklists, objection scripts, and pipeline velocity."
+              actionLabel="Open Command Center"
+              badgeText="45-Day Playbook"
+              badgeTone="blue"
+              highlight
+            />
+
             <DepartmentCard
               href="/admin/client"
               icon={Briefcase}
