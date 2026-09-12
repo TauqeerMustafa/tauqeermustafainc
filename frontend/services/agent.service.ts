@@ -8,6 +8,13 @@ import type {
   CompanyAuditRunResponse,
   CompanyPulseMetrics,
   ExecutiveBriefing,
+  LeadToCashCycleRequest,
+  LeadToCashCycleResponse,
+  PaymentGenerationRequest,
+  PaymentLinkInfo,
+  ProjectProvisionRequest,
+  ProposalDossier,
+  ProposalGenerationRequest,
 } from "@/types";
 
 export const agentService = {
@@ -42,4 +49,40 @@ export const agentService = {
       method: "POST",
       data: payload,
     }),
+
+  runLeadToCashCycle: (payload: LeadToCashCycleRequest) =>
+    apiRequest<LeadToCashCycleResponse>({
+      url: API_ENDPOINTS.agent.leadToCashRun,
+      method: "POST",
+      data: payload,
+    }),
+
+  prospectLead: (payload: LeadToCashCycleRequest) =>
+    apiRequest<LeadToCashCycleResponse>({
+      url: API_ENDPOINTS.agent.leadToCashProspect,
+      method: "POST",
+      data: payload,
+    }),
+
+  generateProposal: (payload: ProposalGenerationRequest) =>
+    apiRequest<ProposalDossier>({
+      url: API_ENDPOINTS.agent.leadToCashProposal,
+      method: "POST",
+      data: payload,
+    }),
+
+  provisionProject: (payload: ProjectProvisionRequest) =>
+    apiRequest<LeadToCashCycleResponse>({
+      url: API_ENDPOINTS.agent.leadToCashProvision,
+      method: "POST",
+      data: payload,
+    }),
+
+  generatePaymentLink: (payload: PaymentGenerationRequest) =>
+    apiRequest<PaymentLinkInfo>({
+      url: API_ENDPOINTS.agent.leadToCashPayment,
+      method: "POST",
+      data: payload,
+    }),
 };
+

@@ -102,3 +102,82 @@ class CompanyAuditRunResponse(CamelModel):
     critical_count: int
     anomalies: list[AnomalyItem] = []
     executive_summary: str
+
+
+# ── Lead-to-Cash Autonomous Engine Schemas ────────────────────────────────────
+
+class ProposalMilestone(CamelModel):
+    title: str
+    description: str
+    estimated_days: int
+    fee: float
+
+
+class ProposalDossier(CamelModel):
+    proposal_id: str
+    client_name: str
+    company_name: str
+    project_title: str
+    scope_summary: str
+    tech_stack: list[str] = []
+    milestones: list[ProposalMilestone] = []
+    total_budget: float
+    currency: str = "USD"
+    estimated_timeline: str
+
+
+class PaymentLinkInfo(CamelModel):
+    invoice_number: str
+    client_name: str
+    client_email: str
+    amount: float
+    currency: str = "USD"
+    service: str
+    checkout_url: str
+    status: str = "issued"
+    created_at: datetime
+
+
+class LeadToCashCycleRequest(CamelModel):
+    company_name: Optional[str] = None
+    contact_person: Optional[str] = None
+    email: Optional[str] = None
+    industry: Optional[str] = None
+    service_type: Optional[str] = None
+    target_budget: Optional[float] = None
+    auto_run_all: bool = True
+
+
+class LeadToCashCycleResponse(CamelModel):
+    cycle_id: str
+    current_stage: str
+    lead_id: str
+    company_name: str
+    contact_person: str
+    email: str
+    proposal: Optional[ProposalDossier] = None
+    project_id: Optional[str] = None
+    project_name: Optional[str] = None
+    tasks_created_count: int = 0
+    payment: Optional[PaymentLinkInfo] = None
+    summary: str
+    completed: bool = False
+
+
+class ProposalGenerationRequest(CamelModel):
+    lead_id: str
+    service_type: Optional[str] = None
+    target_budget: Optional[float] = None
+
+
+class ProjectProvisionRequest(CamelModel):
+    lead_id: str
+
+
+class PaymentGenerationRequest(CamelModel):
+    lead_id: str
+    project_id: Optional[str] = None
+    amount: Optional[float] = None
+    service_type: Optional[str] = None
+
+

@@ -34,6 +34,7 @@ import {
   StatusPill,
   Tone,
 } from "@/components/portal/PortalUI";
+import { LeadToCashEngine } from "@/components/portal/LeadToCashEngine";
 import {
   useAgentBriefing,
   useAgentChat,
@@ -378,6 +379,9 @@ export default function AIAgentConsole() {
           hint={`${pulse.qualifiedLeads} qualified of ${pulse.totalLeads} leads`}
         />
       </div>
+
+      {/* Autonomous Lead-to-Cash Engine */}
+      <LeadToCashEngine />
 
       {/* 2. Departmental Health Breakdown (New Upgrade) */}
       {pulse.departments && pulse.departments.length > 0 && (

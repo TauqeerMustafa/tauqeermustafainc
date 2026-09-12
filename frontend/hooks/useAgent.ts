@@ -58,3 +58,54 @@ export function useExecuteAction() {
     },
   });
 }
+
+export function useRunLeadToCashCycle() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: agentService.runLeadToCashCycle,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.agent.pulse });
+      queryClient.invalidateQueries({ queryKey: queryKeys.agent.briefing });
+      queryClient.invalidateQueries({ queryKey: queryKeys.tasks.all });
+      queryClient.invalidateQueries({ queryKey: queryKeys.leads.pipeline });
+    },
+  });
+}
+
+export function useProspectLead() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: agentService.prospectLead,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.agent.pulse });
+      queryClient.invalidateQueries({ queryKey: queryKeys.leads.pipeline });
+    },
+  });
+}
+
+export function useGenerateProposal() {
+  return useMutation({
+    mutationFn: agentService.generateProposal,
+  });
+}
+
+export function useProvisionProject() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: agentService.provisionProject,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.tasks.all });
+      queryClient.invalidateQueries({ queryKey: queryKeys.leads.pipeline });
+    },
+  });
+}
+
+export function useGeneratePaymentLink() {
+  return useMutation({
+    mutationFn: agentService.generatePaymentLink,
+  });
+}
+

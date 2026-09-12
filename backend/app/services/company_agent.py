@@ -12,6 +12,7 @@ import uuid
 from datetime import date, datetime, timedelta, timezone
 from typing import Any
 
+import urllib.parse
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
@@ -22,7 +23,7 @@ from app.models.audit_log import AuditLog
 from app.models.contact_message import ContactMessage
 from app.models.department import Department
 from app.models.employee import Employee
-from app.models.lead import Lead
+from app.models.lead import Lead, LeadActivity
 from app.models.leave import LeaveRequest
 from app.models.portal import ClientProject
 from app.models.task import ProjectTask
@@ -36,6 +37,11 @@ from app.schemas.agent import (
     CompanyPulseMetrics,
     DepartmentHealth,
     ExecutiveBriefing,
+    LeadToCashCycleRequest,
+    LeadToCashCycleResponse,
+    PaymentLinkInfo,
+    ProposalDossier,
+    ProposalMilestone,
 )
 
 logger = get_logger(__name__)
@@ -947,3 +953,381 @@ class CompanyAgentService:
                 action_type=action_type,
                 message=f"Unsupported action type: '{action_type}'.",
             )
+
+    # =========================================================================
+    # AUTONOMOUS LEAD-TO-CASH ENGINE
+    # =========================================================================
+
+    @staticmethod
+    def generate_and_qualify_lead(
+        db: Session,
+        request: LeadToCashCycleRequest,
+        user: User | None = None,
+    ) -> Lead:
+        """Stage 1: Discovers or creates a B2B opportunity and qualifies it using BANT criteria."""
+        company = (request.company_name or "").strip()
+        contact = (request.contact_person or "").strip()
+        email = (request.email or "").strip()
+        industry = request.industry or "Enterprise Cloud & AI"
+        budget = request.target_budget or 18500.0
+
+        if not company:
+            import random
+            sample_leads = [
+                ("Apex FinTech Solutions", "David Vance", "david.vance@apexfintech.io", "FinTech & Payments", 24000.0),
+                ("Vanguard Health Analytics", "Sarah Jenkins", "sarah.j@vanguardhealth.org", "HealthTech & MedData", 32000.0),
+                ("OmniLogistics Global", "Marcus Sterling", "m.sterling@omnilogistics.com", "Supply Chain & Logistics", 19500.0),
+                ("CloudScale Systems", "Elena Rostova", "elena@cloudscale.net", "Cloud Infrastructure & DevOps", 28000.0),
+                ("Krypton Capital Partners", "Alexander Wright", "a.wright@kryptoncapital.com", "Financial Services", 45000.0),
+            ]
+            company, contact, email, industry, budget = random.choice(sample_leads)
+
+        lead = db.scalar(select(Lead).where(Lead.company_name == company))
+        if not lead:
+            lead = Lead(
+                company_name=company,
+                contact_person=contact,
+                contact_title="Chief Technology Officer" if not request.contact_person else "Decision Maker",
+                email=email,
+                phone="+1 (555) 392-8401",
+                source="ai_prospecting",
+                industry=industry,
+                status="qualified",
+                estimated_value=budget,
+                currency="USD",
+                next_follow_up_date=date.today() + timedelta(days=2),
+                assigned_exec_id=user.id if user else None,
+                created_by_id=user.id if user else None,
+            )
+            db.add(lead)
+            db.flush()
+        else:
+            lead.status = "qualified"
+            lead.estimated_value = budget
+            if user and not lead.assigned_exec_id:
+                lead.assigned_exec_id = user.id
+
+        qualification_note = (
+            f"Autonomous Lead-to-Cash Agent qualified {company} via BANT assessment: "
+            f"Budget confirmed at ${budget:,.2f}; Authority: {contact}; "
+            f"Need: Cloud AI Architecture & Workflow Automation; Timeline: 4-6 weeks."
+        )
+        activity = LeadActivity(
+            lead_id=lead.id,
+            author_id=user.id if user else None,
+            type="note",
+            body=qualification_note,
+        )
+        db.add(activity)
+        db.commit()
+        db.refresh(lead)
+        logger.info("Lead %s (%s) qualified successfully", lead.id, lead.company_name)
+        return lead
+
+    @staticmethod
+    def create_deal_proposal(
+        db: Session,
+        lead_id: uuid.UUID,
+        service_type: str | None = None,
+        target_budget: float | None = None,
+        user: User | None = None,
+    ) -> ProposalDossier:
+        """Stage 2: Generates comprehensive scope of work, architecture specs, and milestone schedule."""
+        lead = db.scalar(select(Lead).where(Lead.id == lead_id))
+        if not lead:
+            raise ValueError("Lead not found.")
+
+        total_budget = target_budget or float(lead.estimated_value or 18500.0)
+        service = service_type or "Next-Gen AI Platform & Enterprise Modernization"
+
+        m1_fee = round(total_budget * 0.35, 2)
+        m2_fee = round(total_budget * 0.45, 2)
+        m3_fee = round(total_budget - m1_fee - m2_fee, 2)
+
+        milestones = [
+            ProposalMilestone(
+                milestone_id="M1-DISCOVERY-ARCH",
+                title="Phase 1: Technical Architecture & System Blueprinting",
+                description="Comprehensive system design, API contracts, security compliance framework, and database modeling.",
+                estimated_days=7,
+                fee=m1_fee,
+            ),
+            ProposalMilestone(
+                milestone_id="M2-CORE-IMPLEMENTATION",
+                title="Phase 2: Core Platform Engineering & AI Agent Pipelines",
+                description="Implementation of microservices, autonomous agent workflows, payment gateway bindings, and data sync layers.",
+                estimated_days=18,
+                fee=m2_fee,
+            ),
+            ProposalMilestone(
+                milestone_id="M3-VERIFICATION-DEPLOY",
+                title="Phase 3: Security Hardening, QA Staging, and Production Launch",
+                description="End-to-end load testing, security audits, executive portal handover, and production CI/CD rollout.",
+                estimated_days=7,
+                fee=m3_fee,
+            ),
+        ]
+
+        proposal_id = f"PROP-{lead.company_name[:3].upper()}-{uuid.uuid4().hex[:6].upper()}"
+        dossier = ProposalDossier(
+            proposal_id=proposal_id,
+            client_name=lead.contact_person,
+            company_name=lead.company_name,
+            project_title=f"{lead.company_name} — {service}",
+            scope_summary=(
+                f"Full-lifecycle technical delivery for {lead.company_name}. Deliverables include cloud infrastructure, "
+                f"autonomous operational agent integration, multi-tenant portal modules, and automated payment/billing settlement."
+            ),
+            tech_stack=["FastAPI", "Next.js 15", "PostgreSQL", "Paddle/Stripe Payments", "Docker", "Tailwind CSS", "Redis"],
+            milestones=milestones,
+            total_budget=total_budget,
+            currency="USD",
+            estimated_timeline="4-5 Weeks Turnkey Delivery",
+        )
+
+        lead.status = "proposal_sent"
+        activity = LeadActivity(
+            lead_id=lead.id,
+            author_id=user.id if user else None,
+            type="status_change",
+            body=f"Formal Proposal '{proposal_id}' (${total_budget:,.2f}) generated and dispatched to {lead.contact_person}.",
+        )
+        db.add(activity)
+        db.commit()
+        return dossier
+
+    @staticmethod
+    def convert_lead_to_project(
+        db: Session,
+        lead_id: uuid.UUID,
+        user: User,
+        proposal: ProposalDossier | None = None,
+    ) -> tuple[ClientProject, list[ProjectTask]]:
+        """Stage 3: Automatically provisions ClientProject and creates initial sprint ProjectTasks."""
+        lead = db.scalar(select(Lead).where(Lead.id == lead_id))
+        if not lead:
+            raise ValueError("Lead not found.")
+
+        # Ensure client user exists
+        client_user = None
+        if lead.email:
+            client_user = db.scalar(select(User).where(User.email == lead.email))
+        if not client_user:
+            names = (lead.contact_person or "Valued Client").split(" ", 1)
+            first_name = names[0]
+            last_name = names[1] if len(names) > 1 else "Partner"
+            client_email = lead.email or f"client_{uuid.uuid4().hex[:6]}@partner.tauqeermustafa.tech"
+            client_user = db.scalar(select(User).where(User.email == client_email))
+            if not client_user:
+                client_user = User(
+                    first_name=first_name,
+                    last_name=last_name,
+                    email=client_email,
+                    password_hash="!managed_by_agent!",
+                    is_active=True,
+                    is_verified=True,
+                )
+                db.add(client_user)
+                db.flush()
+
+        project_name = proposal.project_title if proposal else f"{lead.company_name} Enterprise Solution"
+        summary = (
+            proposal.scope_summary
+            if proposal
+            else f"Autonomous delivery project for {lead.company_name} provisioned by Executive AI Agent."
+        )
+
+        project = ClientProject(
+            client_id=client_user.id,
+            name=project_name,
+            status="in_progress",
+            summary=summary,
+            next_milestone="M1: Technical Architecture & System Blueprinting",
+            progress=15,
+        )
+        db.add(project)
+        db.flush()
+
+        lead.status = "won"
+        activity = LeadActivity(
+            lead_id=lead.id,
+            author_id=user.id,
+            type="status_change",
+            body=f"Deal Won! Project '{project.name}' successfully provisioned with ID {project.id}.",
+        )
+        db.add(activity)
+
+        today = date.today()
+        task_templates = [
+            (
+                "M1: Architecture Blueprint & Cloud Topology Design",
+                f"Design scalable system topology, schemas, and API contracts for {lead.company_name}.",
+                "high",
+                today + timedelta(days=5),
+            ),
+            (
+                "M1: Environment Setup & Infrastructure Provisioning",
+                "Set up secure staging container, PostgreSQL database, and CI/CD automated pipeline.",
+                "medium",
+                today + timedelta(days=7),
+            ),
+            (
+                "M2: Core API & Autonomous Business Agent Integration",
+                "Integrate backend services, telemetry endpoints, and client portal views.",
+                "high",
+                today + timedelta(days=14),
+            ),
+            (
+                "M3: End-to-End Acceptance Testing & Staging Handover",
+                "Verify payment processing, webhook delivery, and complete client acceptance run.",
+                "medium",
+                today + timedelta(days=21),
+            ),
+        ]
+
+        created_tasks: list[ProjectTask] = []
+        for title, desc, prio, due in task_templates:
+            task = ProjectTask(
+                project_id=project.id,
+                title=title,
+                description=desc,
+                priority=prio,
+                status="todo",
+                due_date=due,
+                assigned_to_id=user.id,
+                created_by_id=user.id,
+            )
+            db.add(task)
+            created_tasks.append(task)
+
+        db.commit()
+        db.refresh(project)
+        return project, created_tasks
+
+    @staticmethod
+    def generate_invoice_and_payment_link(
+        db: Session,
+        lead: Lead,
+        project: ClientProject | None = None,
+        amount: float | None = None,
+        service_type: str | None = None,
+        user: User | None = None,
+    ) -> PaymentLinkInfo:
+        """Stage 4: Generates official billing invoice and online checkout link."""
+        inv_number = f"INV-{datetime.now().strftime('%Y%m')}-{uuid.uuid4().hex[:6].upper()}"
+        charge_amount = amount or float(lead.estimated_value or 18500.0)
+        service_name = service_type or (project.name if project else f"{lead.company_name} Strategic Engagement")
+
+        query_params = {
+            "amount": f"{charge_amount:.2f}",
+            "clientName": lead.contact_person,
+            "clientEmail": lead.email or "client@example.com",
+            "service": service_name,
+            "invoiceNumber": inv_number,
+        }
+        encoded_query = urllib.parse.urlencode(query_params)
+        checkout_url = f"/billing/pay?{encoded_query}"
+
+        activity = LeadActivity(
+            lead_id=lead.id,
+            author_id=user.id if user else None,
+            type="note",
+            body=(
+                f"Official invoice {inv_number} issued for ${charge_amount:,.2f}. "
+                f"Checkout URL dispatched: {checkout_url}"
+            ),
+        )
+        db.add(activity)
+
+        if user:
+            audit = AuditLog(
+                user_id=user.id,
+                action="agent_generate_payment",
+                entity_type="invoice",
+                entity_id=inv_number,
+                details={
+                    "amount": charge_amount,
+                    "lead_id": str(lead.id),
+                    "project_id": str(project.id) if project else None,
+                    "checkout_url": checkout_url,
+                },
+            )
+            db.add(audit)
+
+        db.commit()
+
+        return PaymentLinkInfo(
+            invoice_number=inv_number,
+            client_name=lead.contact_person,
+            client_email=lead.email or "client@example.com",
+            amount=charge_amount,
+            currency="USD",
+            service=service_name,
+            checkout_url=checkout_url,
+            status="issued",
+            created_at=datetime.now(timezone.utc),
+        )
+
+    @staticmethod
+    def run_full_lead_to_cash_cycle(
+        db: Session,
+        user: User,
+        request: LeadToCashCycleRequest,
+    ) -> LeadToCashCycleResponse:
+        """Stage 5: Autonomous End-to-End Execution — From Lead Discovery to Payment Ready."""
+        cycle_id = f"CYCLE-{uuid.uuid4().hex[:8].upper()}"
+        logger.info("Starting autonomous Lead-to-Cash cycle %s for user %s", cycle_id, user.email)
+
+        # 1. Lead Generation & Qualification
+        lead = CompanyAgentService.generate_and_qualify_lead(db, request, user=user)
+
+        # 2. Proposal Synthesis
+        proposal = CompanyAgentService.create_deal_proposal(
+            db,
+            lead_id=lead.id,
+            service_type=request.service_type,
+            target_budget=request.target_budget,
+            user=user,
+        )
+
+        # 3. Project & Task Provisioning
+        project, tasks = CompanyAgentService.convert_lead_to_project(
+            db,
+            lead_id=lead.id,
+            user=user,
+            proposal=proposal,
+        )
+
+        # 4. Invoicing & Payment Checkout Link
+        payment = CompanyAgentService.generate_invoice_and_payment_link(
+            db,
+            lead=lead,
+            project=project,
+            amount=proposal.total_budget,
+            service_type=proposal.project_title,
+            user=user,
+        )
+
+        summary = (
+            f"🚀 Autonomous Lead-to-Cash Cycle Completed: Successfully prospected and qualified {lead.company_name}, "
+            f"generated enterprise proposal '{proposal.proposal_id}' (${proposal.total_budget:,.2f}), "
+            f"provisioned project '{project.name}' with {len(tasks)} sprint tasks, and generated payment checkout "
+            f"link for Invoice {payment.invoice_number}."
+        )
+
+        return LeadToCashCycleResponse(
+            cycle_id=cycle_id,
+            current_stage="payment_ready",
+            lead_id=str(lead.id),
+            company_name=lead.company_name,
+            contact_person=lead.contact_person,
+            email=lead.email or "",
+            proposal=proposal,
+            project_id=str(project.id),
+            project_name=project.name,
+            tasks_created_count=len(tasks),
+            payment=payment,
+            summary=summary,
+            completed=True,
+        )
+

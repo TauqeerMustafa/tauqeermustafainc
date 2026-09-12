@@ -94,6 +94,11 @@ export const API_ENDPOINTS = {
     runAudit: "/agent/run-audit",
     chat: "/agent/chat",
     action: "/agent/action",
+    leadToCashRun: "/agent/lead-to-cash/run",
+    leadToCashProspect: "/agent/lead-to-cash/prospect",
+    leadToCashProposal: "/agent/lead-to-cash/proposal",
+    leadToCashProvision: "/agent/lead-to-cash/provision-project",
+    leadToCashPayment: "/agent/lead-to-cash/generate-payment",
   },
 } as const;
 

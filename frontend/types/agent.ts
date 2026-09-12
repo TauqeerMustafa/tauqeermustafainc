@@ -95,3 +95,80 @@ export interface CompanyAuditRunResponse {
   anomalies: AnomalyItem[];
   executiveSummary: string;
 }
+
+export interface ProposalMilestone {
+  milestoneId: string;
+  title: string;
+  description: string;
+  estimatedDays: number;
+  fee: number;
+}
+
+export interface ProposalDossier {
+  proposalId: string;
+  clientName: string;
+  companyName: string;
+  projectTitle: string;
+  scopeSummary: string;
+  techStack: string[];
+  milestones: ProposalMilestone[];
+  totalBudget: number;
+  currency: string;
+  estimatedTimeline: string;
+}
+
+export interface PaymentLinkInfo {
+  invoiceNumber: string;
+  clientName: string;
+  clientEmail: string;
+  amount: number;
+  currency: string;
+  service: string;
+  checkoutUrl: string;
+  status: string;
+  createdAt: string;
+}
+
+export interface LeadToCashCycleRequest {
+  companyName?: string;
+  contactPerson?: string;
+  email?: string;
+  industry?: string;
+  serviceType?: string;
+  targetBudget?: number;
+  autoRunAll?: boolean;
+}
+
+export interface LeadToCashCycleResponse {
+  cycleId: string;
+  currentStage: "qualified" | "proposal_sent" | "project_provisioned" | "payment_ready" | string;
+  leadId: string;
+  companyName: string;
+  contactPerson: string;
+  email: string;
+  proposal?: ProposalDossier | null;
+  projectId?: string | null;
+  projectName?: string | null;
+  tasksCreatedCount: number;
+  payment?: PaymentLinkInfo | null;
+  summary: string;
+  completed: boolean;
+}
+
+export interface ProposalGenerationRequest {
+  leadId: string;
+  serviceType?: string;
+  targetBudget?: number;
+}
+
+export interface ProjectProvisionRequest {
+  leadId: string;
+}
+
+export interface PaymentGenerationRequest {
+  leadId: string;
+  projectId?: string;
+  amount?: number;
+  serviceType?: string;
+}
+
