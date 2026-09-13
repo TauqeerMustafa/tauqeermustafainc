@@ -68,6 +68,17 @@ export interface AgentActionResponse {
   details?: Record<string, unknown> | null;
 }
 
+export interface ExecutedActionRecord {
+  actionType: string;
+  entityType: string;
+  entityId?: string | null;
+  entityTitle: string;
+  status: string;
+  message: string;
+  executedAt: string;
+  details?: Record<string, unknown> | null;
+}
+
 export interface AgentChatMessage {
   role: "user" | "assistant" | "system";
   content: string;
@@ -77,11 +88,16 @@ export interface AgentChatMessage {
 export interface AgentChatRequest {
   message: string;
   history?: AgentChatMessage[];
+  customInstructions?: string;
+  employeePersona?: "universal" | "project_manager" | "sales_exec" | "hr_specialist" | "finance_officer" | string;
+  autoExecute?: boolean;
 }
 
 export interface AgentChatResponse {
   reply: string;
   suggestedActions: AnomalyItem[];
+  executedActions?: ExecutedActionRecord[];
+  employeePersona?: string | null;
   relatedMetrics?: Record<string, unknown> | null;
 }
 

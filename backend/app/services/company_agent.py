@@ -12,6 +12,7 @@ import uuid
 from datetime import date, datetime, timedelta, timezone
 from typing import Any
 
+import re
 import urllib.parse
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
@@ -36,6 +37,7 @@ from app.schemas.agent import (
     CompanyAuditRunResponse,
     CompanyPulseMetrics,
     DepartmentHealth,
+    ExecutedActionRecord,
     ExecutiveBriefing,
     LeadToCashCycleRequest,
     LeadToCashCycleResponse,
@@ -529,26 +531,430 @@ class CompanyAgentService:
     ) -> AgentChatResponse:
         pulse = CompanyAgentService.get_company_pulse(db)
         audit = CompanyAgentService.run_autonomous_audit(db)
-        query = request.message.strip().lower()
+        raw_msg = request.message.strip()
+        query = raw_msg.lower()
+        custom_inst = (request.custom_instructions or "").strip().lower()
+        persona = request.employee_persona or "universal"
+        now_utc = datetime.now(timezone.utc)
+        today = date.today()
 
-        # Check for external LLM API keys
+        executed_actions: list[ExecutedActionRecord] = []
+
+        # Parse standing custom instructions defaults
+        default_priority = "medium"
+        if m_prio := re.search(r"\bpriority\b.*?\b(urgent|high|medium|low)\b", custom_inst):
+            default_priority = m_prio.group(1).lower()
+        elif m_always := re.search(r"\balways\b.*?\b(urgent|high|medium|low)\b", custom_inst):
+            default_priority = m_always.group(1).lower()
+
+        default_currency = "USD"
+        if "eur" in custom_inst or "euro" in custom_inst:
+            default_currency = "EUR"
+        elif "gbp" in custom_inst or "pound" in custom_inst:
+            default_currency = "GBP"
+
+        # -------------------------------------------------------------
+        # 1. Action Intent: Create / Add Project Task Immediately
+        # -------------------------------------------------------------
+        task_match = re.search(
+            r"(?:create|add|make|schedule|assign|new)\s+(?:a\s+)?(?:new\s+)?task(?:\s+for|\s+to|\s+called|\s*:)?\s*(.+)",
+            raw_msg,
+            re.IGNORECASE,
+        )
+        if (task_match or query.startswith("task:")) and request.auto_execute:
+            task_raw = task_match.group(1) if task_match else raw_msg.split("task:", 1)[1]
+            task_raw = task_raw.strip()
+
+            task_priority = default_priority
+            if re.search(r"\b(urgent|critical|asap|blocker)\b", task_raw, re.I):
+                task_priority = "urgent"
+            elif re.search(r"\b(high|important)\b", task_raw, re.I):
+                task_priority = "high"
+            elif re.search(r"\b(low)\b", task_raw, re.I):
+                task_priority = "low"
+
+            task_due = today + timedelta(days=3)
+            if re.search(r"\btoday\b", task_raw, re.I):
+                task_due = today
+            elif re.search(r"\btomorrow\b", task_raw, re.I):
+                task_due = today + timedelta(days=1)
+            elif m_days := re.search(r"\bin\s+(\d+)\s+days?\b", task_raw, re.I):
+                task_due = today + timedelta(days=int(m_days.group(1)))
+            elif re.search(r"\bnext\s+week\b", task_raw, re.I):
+                task_due = today + timedelta(days=7)
+
+            clean_title = re.sub(
+                r"\b(with\s+)?(urgent|high|medium|low)\s+priority\b", "", task_raw, flags=re.I
+            )
+            clean_title = re.sub(
+                r"\b(due\s+)?(today|tomorrow|next\s+week|in\s+\d+\s+days?)\b", "", clean_title, flags=re.I
+            )
+            clean_title = clean_title.strip(" :,.-")
+            if not clean_title:
+                clean_title = "Executive Task Directive"
+
+            active_proj = db.scalar(
+                select(ClientProject)
+                .where(ClientProject.status.in_(["in_progress", "active", "discovery"]))
+                .limit(1)
+            )
+
+            new_task = ProjectTask(
+                project_id=active_proj.id if active_proj else None,
+                title=clean_title,
+                description=(
+                    f"Created immediately by Autonomous Virtual Business Employee Agent ({persona.upper()}) "
+                    f"based on directive: '{raw_msg}'"
+                ),
+                priority=task_priority,
+                status="todo",
+                due_date=task_due,
+                assigned_to_id=user.id,
+                created_by_id=user.id,
+            )
+            db.add(new_task)
+            db.flush()
+
+            audit_entry = AuditLog(
+                user_id=user.id,
+                action="agent_create_task",
+                entity_type="project_task",
+                entity_id=str(new_task.id),
+                details={"title": clean_title, "priority": task_priority, "due_date": str(task_due)},
+            )
+            db.add(audit_entry)
+            db.commit()
+
+            executed_actions.append(
+                ExecutedActionRecord(
+                    action_type="create_task",
+                    entity_type="task",
+                    entity_id=str(new_task.id),
+                    entity_title=clean_title,
+                    status="success",
+                    message=f"Task '{clean_title}' provisioned immediately with {task_priority.upper()} priority, due {task_due}.",
+                    executed_at=now_utc,
+                    details={"priority": task_priority, "due_date": str(task_due), "task_id": str(new_task.id)},
+                )
+            )
+
+        # -------------------------------------------------------------
+        # 2. Action Intent: Post / Publish Company Announcement
+        # -------------------------------------------------------------
+        anno_match = re.search(
+            r"(?:post|create|publish|broadcast|send)\s+(?:an?\s+)?(?:announcement|broadcast|company notice|memo)(?:\s*:|\s+called|\s+titled|\s+about)?\s*(.+)",
+            raw_msg,
+            re.IGNORECASE,
+        )
+        if (anno_match or query.startswith("announce:") or query.startswith("broadcast:")) and request.auto_execute:
+            content_raw = (
+                anno_match.group(1)
+                if anno_match
+                else (raw_msg.split("announce:", 1)[-1] if "announce:" in raw_msg else raw_msg.split("broadcast:", 1)[-1])
+            ).strip()
+
+            if ":" in content_raw:
+                parts = content_raw.split(":", 1)
+                title = parts[0].strip()
+                body = parts[1].strip()
+            elif "-" in content_raw and len(content_raw.split("-", 1)[0].split()) <= 8:
+                parts = content_raw.split("-", 1)
+                title = parts[0].strip()
+                body = parts[1].strip()
+            else:
+                words = content_raw.split()
+                title = " ".join(words[:6]) + ("..." if len(words) > 6 else "")
+                body = content_raw
+
+            announcement = Announcement(
+                title=title or "Company Broadcast",
+                body=body or content_raw,
+                is_published=True,
+            )
+            db.add(announcement)
+            db.flush()
+
+            audit_entry = AuditLog(
+                user_id=user.id,
+                action="agent_publish_announcement",
+                entity_type="announcement",
+                entity_id=str(announcement.id),
+                details={"title": announcement.title},
+            )
+            db.add(audit_entry)
+            db.commit()
+
+            executed_actions.append(
+                ExecutedActionRecord(
+                    action_type="create_announcement",
+                    entity_type="announcement",
+                    entity_id=str(announcement.id),
+                    entity_title=announcement.title,
+                    status="success",
+                    message=f"Company Announcement '{announcement.title}' published company-wide immediately.",
+                    executed_at=now_utc,
+                    details={"announcement_id": str(announcement.id)},
+                )
+            )
+
+        # -------------------------------------------------------------
+        # 3. Action Intent: Approve / Process Leave Requests
+        # -------------------------------------------------------------
+        if (re.search(r"\b(approve|accept)\b.*?\bleave", query) or "approve leaves" in query) and request.auto_execute:
+            pending_leaves = db.scalars(
+                select(LeaveRequest).where(LeaveRequest.status == "pending")
+            ).all()
+
+            if pending_leaves:
+                for leave in pending_leaves:
+                    leave.status = "approved"
+                    leave.manager_id = user.id
+                    leave.manager_notes = "Approved immediately via Autonomous Virtual Business Employee Agent"
+
+                audit_entry = AuditLog(
+                    user_id=user.id,
+                    action="agent_batch_approve_leaves",
+                    entity_type="leave_request",
+                    entity_id="batch",
+                    details={"approved_count": len(pending_leaves)},
+                )
+                db.add(audit_entry)
+                db.commit()
+
+                executed_actions.append(
+                    ExecutedActionRecord(
+                        action_type="approve_leave",
+                        entity_type="leave_request",
+                        entity_id="batch",
+                        entity_title=f"{len(pending_leaves)} Pending Leave Request(s)",
+                        status="success",
+                        message=f"Successfully approved {len(pending_leaves)} pending staff leave request(s) immediately.",
+                        executed_at=now_utc,
+                        details={"approved_count": len(pending_leaves)},
+                    )
+                )
+
+        # -------------------------------------------------------------
+        # 4. Action Intent: Create / Qualify CRM Sales Lead
+        # -------------------------------------------------------------
+        lead_match = re.search(
+            r"(?:create|add|qualify|prospect|new)\s+(?:a\s+)?(?:(?:qualified|enterprise|b2b|new|sales)\s+)?(?:lead|deal|opportunity)(?:\s+for|\s+called|\s*:)?\s*(.+)",
+            raw_msg,
+            re.IGNORECASE,
+        )
+        if (lead_match or query.startswith("lead:")) and request.auto_execute:
+            lead_raw = lead_match.group(1) if lead_match else raw_msg.split("lead:", 1)[1]
+            lead_raw = lead_raw.strip()
+
+            budget_val = 20000.0
+            if m_val := re.search(r"\$?([0-9]+(?:,[0-9]{3})*(?:\.[0-9]{2})?)", lead_raw):
+                try:
+                    budget_val = float(m_val.group(1).replace(",", ""))
+                except ValueError:
+                    pass
+            elif m_k := re.search(r"(\d+)k\b", lead_raw, re.I):
+                budget_val = float(m_k.group(1)) * 1000
+
+            clean_comp = re.sub(
+                r"\$?[0-9]+(?:,[0-9]{3})*(?:\.[0-9]{2})?|\b\d+k\b|\b(for|budget|with|usd|dollars?)\b|[\$]",
+                "",
+                lead_raw,
+                flags=re.I,
+            ).strip(" :,.-")
+            if not clean_comp:
+                clean_comp = "Enterprise Opportunity"
+
+            new_lead = Lead(
+                company_name=clean_comp,
+                contact_person="Decision Maker",
+                email=f"contact@{clean_comp.lower().replace(' ', '')[:12]}.io",
+                status="qualified",
+                estimated_value=budget_val,
+                currency=default_currency,
+                source="ai_employee_directive",
+                next_follow_up_date=today + timedelta(days=2),
+                assigned_exec_id=user.id,
+                created_by_id=user.id,
+            )
+            db.add(new_lead)
+            db.flush()
+
+            act = LeadActivity(
+                lead_id=new_lead.id,
+                author_id=user.id,
+                type="note",
+                body=f"Created & qualified immediately by Virtual Business Employee Agent: '{raw_msg}'",
+            )
+            db.add(act)
+
+            audit_entry = AuditLog(
+                user_id=user.id,
+                action="agent_create_lead",
+                entity_type="lead",
+                entity_id=str(new_lead.id),
+                details={"company_name": clean_comp, "estimated_value": budget_val},
+            )
+            db.add(audit_entry)
+            db.commit()
+
+            executed_actions.append(
+                ExecutedActionRecord(
+                    action_type="create_lead",
+                    entity_type="lead",
+                    entity_id=str(new_lead.id),
+                    entity_title=clean_comp,
+                    status="success",
+                    message=f"Qualified enterprise lead '{clean_comp}' (${budget_val:,.2f}) added to sales pipeline.",
+                    executed_at=now_utc,
+                    details={"lead_id": str(new_lead.id), "value": budget_val},
+                )
+            )
+
+        # -------------------------------------------------------------
+        # 5. Action Intent: Create Invoice & Payment Link Immediately
+        # -------------------------------------------------------------
+        inv_match = re.search(
+            r"(?:create|generate|send|issue|bill)\s+(?:an?\s+)?(?:invoice|bill|payment link|checkout link)(?:\s+for)?\s*(.+)",
+            raw_msg,
+            re.IGNORECASE,
+        )
+        if (inv_match or query.startswith("invoice:")) and request.auto_execute:
+            inv_raw = inv_match.group(1) if inv_match else raw_msg.split("invoice:", 1)[1]
+            inv_raw = inv_raw.strip()
+
+            inv_amount = 15000.0
+            if m_val := re.search(r"\$?([0-9]+(?:,[0-9]{3})*(?:\.[0-9]{2})?)", inv_raw):
+                try:
+                    inv_amount = float(m_val.group(1).replace(",", ""))
+                except ValueError:
+                    pass
+            elif m_k := re.search(r"(\d+)k\b", inv_raw, re.I):
+                inv_amount = float(m_k.group(1)) * 1000
+
+            client_name_candidate = re.sub(
+                r"\$?[0-9]+(?:,[0-9]{3})*(?:\.[0-9]{2})?|\b\d+k\b|\b(for|usd|dollars?|amount)\b|[\$]",
+                "",
+                inv_raw,
+                flags=re.I,
+            ).strip(" :,.-")
+            if not client_name_candidate:
+                client_name_candidate = "Enterprise Client"
+
+            inv_number = f"INV-{datetime.now().strftime('%Y%m')}-{uuid.uuid4().hex[:6].upper()}"
+            checkout_params = urllib.parse.urlencode({
+                "amount": f"{inv_amount:.2f}",
+                "clientName": client_name_candidate,
+                "clientEmail": f"billing@{client_name_candidate.lower().replace(' ', '')[:10]}.com",
+                "service": f"{client_name_candidate} Strategic Software Engagement",
+                "invoiceNumber": inv_number,
+            })
+            checkout_url = f"/billing/pay?{checkout_params}"
+
+            audit_entry = AuditLog(
+                user_id=user.id,
+                action="agent_generate_invoice",
+                entity_type="invoice",
+                entity_id=inv_number,
+                details={"amount": inv_amount, "client": client_name_candidate, "checkout_url": checkout_url},
+            )
+            db.add(audit_entry)
+            db.commit()
+
+            executed_actions.append(
+                ExecutedActionRecord(
+                    action_type="generate_invoice",
+                    entity_type="invoice",
+                    entity_id=inv_number,
+                    entity_title=f"Invoice {inv_number} (${inv_amount:,.2f})",
+                    status="success",
+                    message=f"Official billing invoice {inv_number} issued for ${inv_amount:,.2f}. Checkout URL generated immediately.",
+                    executed_at=now_utc,
+                    details={"amount": inv_amount, "checkout_url": checkout_url, "invoice_number": inv_number},
+                )
+            )
+
+        # -------------------------------------------------------------
+        # 6. Action Intent: Escalate Overdue Tasks Immediately
+        # -------------------------------------------------------------
+        if any(w in query for w in ["escalate overdue", "escalate tasks", "fix bottlenecks", "resolve delays"]) and request.auto_execute:
+            act_res = CompanyAgentService.execute_action(db, user, "escalate_overdue_tasks", {})
+            if act_res.success:
+                executed_actions.append(
+                    ExecutedActionRecord(
+                        action_type="escalate_overdue_tasks",
+                        entity_type="task",
+                        entity_id="all_overdue",
+                        entity_title="Overdue Tasks Escalation",
+                        status="success",
+                        message="All overdue project tasks escalated to Urgent priority with assignees flagged.",
+                        executed_at=now_utc,
+                    )
+                )
+
+        # -------------------------------------------------------------
+        # 7. Action Intent: 1-Click Autonomous Lead-to-Cash Cycle
+        # -------------------------------------------------------------
+        if any(w in query for w in ["run autopilot", "lead to cash", "run full cycle", "run full loop", "close deal"]) and request.auto_execute:
+            cycle = CompanyAgentService.run_full_lead_to_cash_cycle(
+                db, user, LeadToCashCycleRequest(auto_run_all=True)
+            )
+            executed_actions.append(
+                ExecutedActionRecord(
+                    action_type="lead_to_cash_cycle",
+                    entity_type="project",
+                    entity_id=cycle.cycle_id,
+                    entity_title=f"Cycle: {cycle.company_name}",
+                    status="success",
+                    message=f"Autonomous Lead-to-Cash loop completed for {cycle.company_name}. Project provisioned & invoice generated.",
+                    executed_at=now_utc,
+                    details={"checkout_url": cycle.payment.checkout_url if cycle.payment else None},
+                )
+            )
+
+        # -------------------------------------------------------------
+        # Return Execution Confirmation if Directives were Run
+        # -------------------------------------------------------------
+        if executed_actions:
+            reply_lines = [
+                f"⚡ **Directive Executed Immediately** (Persona: **{persona.replace('_', ' ').title()}**)\n"
+            ]
+            if request.custom_instructions:
+                reply_lines.append(f"📌 *Applied Custom Instructions: \"{request.custom_instructions}\"*\n")
+
+            for act in executed_actions:
+                reply_lines.append(f"- **{act.entity_title}**: {act.message}")
+                if act.details and "checkout_url" in act.details:
+                    reply_lines.append(f"  👉 [Open Checkout Terminal]({act.details['checkout_url']})")
+
+            reply_lines.append(
+                f"\nOperational telemetry updated in real time. Health Score: **{pulse.health_score}% (Grade {pulse.operational_grade})**."
+            )
+            reply = "\n".join(reply_lines)
+            return AgentChatResponse(
+                reply=reply,
+                suggested_actions=audit.anomalies[:3],
+                executed_actions=executed_actions,
+                employee_persona=persona,
+                related_metrics=pulse.model_dump(),
+            )
+
+        # -------------------------------------------------------------
+        # Otherwise: Fallback to Advisory / Heuristic Intelligence
+        # -------------------------------------------------------------
         openai_key = os.environ.get("OPENAI_API_KEY")
-        gemini_key = os.environ.get("GEMINI_API_KEY")
-        anthropic_key = os.environ.get("ANTHROPIC_API_KEY")
-
         if openai_key:
             try:
                 import httpx
 
                 system_prompt = (
-                    "You are the Autonomous AI Executive Manager and Chief Operating Officer for Tauqeer Mustafa Inc. "
+                    f"You are the Autonomous AI Business Employee and Chief Operating Officer ({persona.upper()}) for Tauqeer Mustafa Inc. "
                     "You have complete real-time oversight of the company's HR, operations, tasks, pipeline, and announcements. "
+                    f"Standing Custom Instructions: {request.custom_instructions or 'None'}. "
                     f"Current Company Metrics: Headcount={pulse.headcount}, Present={pulse.present_today}, "
                     f"OpenTasks={pulse.open_tasks}, OverdueTasks={pulse.overdue_tasks}, CompletedThisWeek={pulse.completed_tasks_this_week}, "
                     f"PipelineValue=${pulse.pipeline_estimated_value:,.2f}, HealthScore={pulse.health_score}% (Grade {pulse.operational_grade}). "
                     f"Active Anomalies Count={len(audit.anomalies)}. "
-                    "Provide authoritative, actionable, concise, and structured executive responses. "
-                    "Always suggest concrete management steps when risks or bottlenecks are mentioned."
+                    "Provide authoritative, actionable, concise, and structured executive responses."
                 )
 
                 messages = [{"role": "system", "content": system_prompt}]
@@ -576,12 +982,13 @@ class CompanyAgentService:
                     return AgentChatResponse(
                         reply=reply_text,
                         suggested_actions=audit.anomalies[:3],
+                        executed_actions=[],
+                        employee_persona=persona,
                         related_metrics=pulse.model_dump(),
                     )
             except Exception as exc:
                 logger.warning("External OpenAI call failed, falling back to heuristic reasoner: %s", exc)
 
-        # Intelligent Built-in Executive Heuristic Reasoner
         suggested: list[AnomalyItem] = []
 
         if any(w in query for w in ["status", "pulse", "health", "how is the company", "overview"]):
@@ -638,7 +1045,7 @@ class CompanyAgentService:
             reply = (
                 "📢 **Company Broadcast Agent**:\n\n"
                 "I can draft and publish company-wide or departmental announcements immediately. "
-                "Specify the title and key message, or use the 1-click broadcast tool in the Action Center."
+                "Specify the title and key message, or instruct: `'Post announcement Team meeting at 3pm'`."
             )
 
         elif any(w in query for w in ["recommend", "advice", "what should i do", "priority"]):
@@ -653,22 +1060,26 @@ class CompanyAgentService:
 
         else:
             reply = (
-                f"Hello {user.first_name or 'Executive'}. I am your Autonomous Company AI Manager.\n\n"
-                f"The company health is currently rated **{pulse.health_score}% (Grade {pulse.operational_grade})**. "
-                f"You can ask me to:\n"
-                f"- Audit operational health & delivery risks (`'What tasks are overdue?'`)\n"
-                f"- Review and triage staff leaves (`'Check pending leaves'`)\n"
-                f"- Inspect revenue & sales pipeline (`'How is our pipeline?'`)\n"
-                f"- Draft announcements or broadcast company updates\n"
-                f"- Execute 1-click administrative actions to resolve bottlenecks"
+                f"Hello {user.first_name or 'Executive'}. I am your Autonomous Virtual Business Employee ({persona.replace('_', ' ').title()}).\n\n"
+                f"The company health is currently rated **{pulse.health_score}% (Grade {pulse.operational_grade})**.\n\n"
+                f"Give me any directive and I will **execute it immediately**:\n"
+                f"- `\"Create task Fix landing page header due tomorrow with urgent priority\"`\n"
+                f"- `\"Post announcement All-Hands Sprint Review at 4pm today\"`\n"
+                f"- `\"Approve all pending leave requests\"`\n"
+                f"- `\"Add qualified lead for Apex FinTech with $35,000 budget\"`\n"
+                f"- `\"Generate invoice for $12,500 for Acme Corp\"`\n"
+                f"- `\"Run autopilot\"` (Lead-to-Cash loop)"
             )
             suggested = audit.anomalies[:2]
 
         return AgentChatResponse(
             reply=reply,
             suggested_actions=suggested,
+            executed_actions=[],
+            employee_persona=persona,
             related_metrics=pulse.model_dump(),
         )
+
 
     @staticmethod
     def execute_action(

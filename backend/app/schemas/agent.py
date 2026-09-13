@@ -76,6 +76,17 @@ class AgentActionResponse(CamelModel):
     details: Optional[dict[str, Any]] = None
 
 
+class ExecutedActionRecord(CamelModel):
+    action_type: str
+    entity_type: str
+    entity_id: Optional[str] = None
+    entity_title: str
+    status: str = "success"
+    message: str
+    executed_at: datetime
+    details: Optional[dict[str, Any]] = None
+
+
 class AgentChatMessage(CamelModel):
     role: str  # "user" | "assistant" | "system"
     content: str
@@ -85,11 +96,16 @@ class AgentChatMessage(CamelModel):
 class AgentChatRequest(CamelModel):
     message: str
     history: list[AgentChatMessage] = []
+    custom_instructions: Optional[str] = None
+    employee_persona: Optional[str] = "universal"
+    auto_execute: bool = True
 
 
 class AgentChatResponse(CamelModel):
     reply: str
     suggested_actions: list[AnomalyItem] = []
+    executed_actions: list[ExecutedActionRecord] = []
+    employee_persona: Optional[str] = None
     related_metrics: Optional[dict[str, Any]] = None
 
 
