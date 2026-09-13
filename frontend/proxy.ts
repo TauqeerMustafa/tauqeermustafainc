@@ -29,7 +29,7 @@ const OPEN_PATHS = ["/api/whatsapp/webhook", "/api/whatsapp/diagnose"];
  * `/management` was missing from this list, so https://portals…/management/login
  * rewrote to /client/management/login and 404'd.
  */
-const PORTAL_PREFIXES = ["/portals", "/admin", "/employees", "/management", "/client", "/ai-agent", "/agent"];
+const PORTAL_PREFIXES = ["/portals", "/admin", "/employees", "/management", "/client", "/ai-workforce"];
 
 const MAIN_SITE_EXACT_PATHS = new Set([
   "/about",
@@ -40,8 +40,6 @@ const MAIN_SITE_EXACT_PATHS = new Set([
   "/blog",
   "/contact",
   "/success-story",
-  "/ai-agent",
-  "/agent",
 ]);
 
 function isMainSitePath(pathname: string): boolean {
@@ -191,6 +189,12 @@ export async function proxy(request: NextRequest) {
       if (pathname === "/portals" || pathname.startsWith("/portals/")) {
         return NextResponse.redirect(`https://portals.tauqeermustafa.tech${pathname}${search}`);
       }
+      if (pathname === "/ai-workforce" || pathname.startsWith("/ai-workforce/")) {
+        return NextResponse.redirect(`https://portals.tauqeermustafa.tech${pathname}${search}`);
+      }
+      if (pathname === "/ai-agent" || pathname === "/agent") {
+        return NextResponse.redirect(`https://portals.tauqeermustafa.tech/ai-workforce${search}`);
+      }
       if (pathname === "/login") {
         return NextResponse.redirect(`https://portals.tauqeermustafa.tech/portals${search}`);
       }
@@ -309,8 +313,8 @@ export async function proxy(request: NextRequest) {
         url.pathname = "/portals";
         return NextResponse.rewrite(url);
       }
-      if (pathname === "/ai-agent" || pathname === "/agent") {
-        url.pathname = "/management/ai-agent";
+      if (pathname === "/ai-agent" || pathname === "/agent" || pathname === "/management/ai-agent" || pathname === "/admin/ai-agent") {
+        url.pathname = "/ai-workforce";
         return NextResponse.redirect(url);
       }
       if (pathname === "/company-profile" || pathname.startsWith("/company-profile/")) {

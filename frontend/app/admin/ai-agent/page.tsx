@@ -1,7 +1,5 @@
-"use client";
-
-import AIAgentConsole from "@/components/portal/AIAgentConsole";
+import { redirect } from "next/navigation";
 
 export default function AdminAIAgentPage() {
-  return <AIAgentConsole />;
+  redirect("/ai-workforce");
 }

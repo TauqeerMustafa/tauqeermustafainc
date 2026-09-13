@@ -1,7 +1,5 @@
-"use client";
-
-import SiteAIAgentPage from "@/app/(site)/ai-agent/page";
+import { redirect } from "next/navigation";
 
 export default function SiteAgentAliasPage() {
-  return <SiteAIAgentPage />;
+  redirect("/ai-workforce");
 }

@@ -66,7 +66,6 @@ export const PORTAL_NAV: Record<PortalId, NavSection[]> = {
     {
       items: [
         { label: "Dashboard", href: "/admin/dashboard", icon: LayoutDashboard },
-        { label: "AI Executive Copilot", href: "/admin/ai-agent", icon: Bot },
       ],
     },
     {
@@ -220,7 +219,6 @@ export const PORTAL_NAV: Record<PortalId, NavSection[]> = {
     {
       items: [
         { label: "Overview", href: "/management/dashboard", icon: LayoutDashboard },
-        { label: "AI Executive Copilot", href: "/management/ai-agent", icon: Bot },
       ],
     },
     {

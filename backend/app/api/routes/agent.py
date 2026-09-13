@@ -27,8 +27,8 @@ router = APIRouter(prefix="/agent", tags=["agent"])
 
 
 @router.get("/")
-def get_agent_status():
-    """Returns AI Agent status and active capabilities."""
+def get_agent_status(current_user: CurrentManager):
+    """Returns AI Agent status and active capabilities (requires authenticated manager/executive session)."""
     return {
         "service": "Autonomous Company Executive AI Agent",
         "status": "operational",
