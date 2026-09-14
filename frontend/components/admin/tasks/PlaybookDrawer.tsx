@@ -90,7 +90,13 @@ function seedRows(playbook: Playbook | undefined, start: string): TaskRow[] {
   }));
 }
 
-export default function PlaybookDrawer({ onClose }: { onClose: () => void }) {
+export default function PlaybookDrawer({
+  onClose,
+  initialPicked = [],
+}: {
+  onClose: () => void;
+  initialPicked?: string[];
+}) {
   const { t } = useI18n();
 
   // Mounted only while open, so this fetches once per opening and the run
@@ -99,7 +105,7 @@ export default function PlaybookDrawer({ onClose }: { onClose: () => void }) {
   const assign = useCreateTasks();
 
   const [playbookId, setPlaybookId] = useState(PLAYBOOKS[0]?.id ?? "");
-  const [picked, setPicked] = useState<string[]>([]);
+  const [picked, setPicked] = useState<string[]>(initialPicked);
   const [start, setStart] = useState(today);
   const [rows, setRows] = useState<TaskRow[]>(() => seedRows(PLAYBOOKS[0], today()));
   const [progress, setProgress] = useState<Record<string, Progress>>({});

@@ -10,9 +10,10 @@ import {
   CheckCircle2,
   ClipboardList,
   Clock,
-  HelpCircle,
+  Filter,
   Plus,
   RefreshCw,
+  Sparkles,
   UserCheck,
   UserX,
   Users,
@@ -25,9 +26,10 @@ import {
   StatCard,
 } from "@/components/portal/PortalUI";
 import PlaybookDrawer from "@/components/admin/tasks/PlaybookDrawer";
+import { useEmployees } from "@/hooks/useEmployees";
 import { useAllAdminUsers } from "@/hooks/useAdmin";
 import { useAllTasks } from "@/hooks/useTasks";
-import type { AdminUser } from "@/types";
+import type { EmployeeRecord } from "@/types";
 import type { ProjectTask } from "@/services/task.service";
 
 // ---------------------------------------------------------------------------
@@ -44,11 +46,63 @@ function initials(name: string | null | undefined): string {
     .join("");
 }
 
-/** Returns true if a task is assigned to the given userId. */
-function isTaskAssignedTo(task: ProjectTask, userId: string): boolean {
-  if (task.assignedToId === userId) return true;
-  if (task.assignedToIds && task.assignedToIds.includes(userId)) return true;
-  if (task.assignees && task.assignees.some((a) => a.id === userId)) return true;
+export interface UnifiedPerson {
+  id: string; // userId used in task assignments
+  employeeId?: string; // Employee profile ID
+  employeeIdString?: string; // e.g. 006001
+  name: string;
+  email: string;
+  companyEmail?: string | null;
+  jobTitle: string;
+  role: string;
+  status: string;
+  isB2B: boolean;
+}
+
+function checkIsB2B(info: {
+  jobTitle?: string | null;
+  role?: string | null;
+  name?: string | null;
+}): boolean {
+  const title = (info.jobTitle || "").toLowerCase();
+  const role = (info.role || "").toLowerCase();
+  return (
+    title.includes("b2b") ||
+    title.includes("business") ||
+    title.includes("development") ||
+    title.includes("bde") ||
+    title.includes("sales") ||
+    title.includes("executive") ||
+    role === "member" ||
+    role === "bde" ||
+    role === "sales" ||
+    role === "business_development" ||
+    role === "exec"
+  );
+}
+
+/** Returns true if a task is assigned to this person (by userId, employeeId, email or name). */
+function isTaskAssignedToPerson(task: ProjectTask, person: UnifiedPerson): boolean {
+  if (task.assignedToId === person.id) return true;
+  if (person.employeeId && task.assignedToId === person.employeeId) return true;
+  if (task.assignedToIds && task.assignedToIds.includes(person.id)) return true;
+  if (
+    task.assignees &&
+    task.assignees.some(
+      (a) =>
+        a.id === person.id ||
+        (person.email && a.email?.toLowerCase() === person.email.toLowerCase()) ||
+        (person.companyEmail && a.email?.toLowerCase() === person.companyEmail.toLowerCase()),
+    )
+  ) {
+    return true;
+  }
+  // Name fallback check
+  if (task.assignedToName && person.name) {
+    const tName = task.assignedToName.toLowerCase().trim();
+    const pName = person.name.toLowerCase().trim();
+    if (tName === pName || (pName.length > 3 && tName.includes(pName))) return true;
+  }
   return false;
 }
 
@@ -57,15 +111,16 @@ function isTaskUnassigned(task: ProjectTask): boolean {
   const hasPrimary = Boolean(task.assignedToId);
   const hasMulti = Boolean(task.assignedToIds && task.assignedToIds.length > 0);
   const hasAssignees = Boolean(task.assignees && task.assignees.length > 0);
-  return !hasPrimary && !hasMulti && !hasAssignees;
+  const hasName = Boolean(task.assignedToName && task.assignedToName.trim().length > 0);
+  return !hasPrimary && !hasMulti && !hasAssignees && !hasName;
 }
 
 // ---------------------------------------------------------------------------
 // Per-member stats model
 // ---------------------------------------------------------------------------
 
-interface MemberTaskStats {
-  user: AdminUser;
+interface PersonTaskStats {
+  person: UnifiedPerson;
   total: number;
   done: number;
   inProgress: number;
@@ -76,35 +131,91 @@ interface MemberTaskStats {
 }
 
 type TabType = "all" | "assigned" | "unassigned" | "unassigned_tasks";
+type ScopeType = "b2b_only" | "full_roster";
 
 export default function B2bProgressTracker() {
   const [activeTab, setActiveTab] = useState<TabType>("all");
+  const [scope, setScope] = useState<ScopeType>("b2b_only");
   const [isPlaybookOpen, setPlaybookOpen] = useState(false);
+  const [initialPicked, setInitialPicked] = useState<string[]>([]);
 
-  // Unlimited multi-page fetches that bypass backend 100 caps
+  // 1. Employee Roster (/employees) — the exact list made by admin
+  const employeesQuery = useEmployees();
+  // 2. All Admin Users (/admin/users) — full user directory
   const usersQuery = useAllAdminUsers();
+  // 3. All Tasks (/tasks) — full unlimited tasks
   const tasksQuery = useAllTasks();
 
-  const isLoading = usersQuery.isLoading || tasksQuery.isLoading;
-  const isError = usersQuery.isError || tasksQuery.isError;
+  const isLoading = employeesQuery.isLoading || usersQuery.isLoading || tasksQuery.isLoading;
+  const isError = employeesQuery.isError || usersQuery.isError || tasksQuery.isError;
 
-  // Filter for approved B2B employees (role = member)
-  const b2bMembers = useMemo<AdminUser[]>(() => {
-    const all = usersQuery.data?.items ?? [];
-    return all.filter(
-      (u) => (u.roleSlug === "member" || (u as any).role_slug === "member") && u.status === "approved",
-    );
-  }, [usersQuery.data]);
+  // Merge employee roster + user accounts into unified staff list
+  const allPeople = useMemo<UnifiedPerson[]>(() => {
+    const map = new Map<string, UnifiedPerson>();
+
+    // Add from Employees roster first
+    const empList = (employeesQuery.data ?? []) as EmployeeRecord[];
+    for (const emp of empList) {
+      if (emp.status === "inactive") continue;
+      const isB2B = checkIsB2B({
+        jobTitle: emp.jobTitle,
+        role: emp.role,
+        name: emp.name,
+      });
+
+      map.set(emp.userId, {
+        id: emp.userId,
+        employeeId: emp.id,
+        employeeIdString: emp.employeeIdString ?? undefined,
+        name: emp.name || "Unnamed",
+        email: emp.email || "",
+        jobTitle: emp.jobTitle || "Employee",
+        role: emp.role || "member",
+        status: emp.status || "active",
+        isB2B,
+      });
+    }
+
+    // Add any non-client staff from Users list
+    const userList = usersQuery.data?.items ?? [];
+    for (const u of userList) {
+      if (u.roleSlug === "client") continue;
+      if (u.status !== "approved") continue;
+
+      const existing = map.get(u.id);
+      if (existing) {
+        if (u.openemailAddress) existing.companyEmail = u.openemailAddress;
+      } else {
+        const isB2B = checkIsB2B({
+          role: u.roleSlug,
+          name: u.name,
+        });
+
+        map.set(u.id, {
+          id: u.id,
+          name: u.name || "Unnamed",
+          email: u.email,
+          companyEmail: u.openemailAddress,
+          jobTitle: u.roleName || u.roleSlug || "Staff",
+          role: u.roleSlug || "member",
+          status: u.status,
+          isB2B,
+        });
+      }
+    }
+
+    return Array.from(map.values());
+  }, [employeesQuery.data, usersQuery.data]);
 
   // All tasks in the company
   const allTasks = useMemo<ProjectTask[]>(() => {
     return tasksQuery.data?.items ?? [];
   }, [tasksQuery.data]);
 
-  // Compute stats per member
-  const memberStats = useMemo<MemberTaskStats[]>(() => {
-    return b2bMembers.map((user) => {
-      const assigned = allTasks.filter((t) => isTaskAssignedTo(t, user.id));
+  // Calculate task stats per person
+  const allPersonStats = useMemo<PersonTaskStats[]>(() => {
+    return allPeople.map((person) => {
+      const assigned = allTasks.filter((t) => isTaskAssignedToPerson(t, person));
       const done = assigned.filter((t) => t.status === "done").length;
       const inProgress = assigned.filter((t) => t.status === "in_progress").length;
       const review = assigned.filter((t) => t.status === "review").length;
@@ -112,7 +223,7 @@ export default function B2bProgressTracker() {
       const total = assigned.length;
       const pct = total > 0 ? Math.round((done / total) * 100) : 0;
       return {
-        user,
+        person,
         total,
         done,
         inProgress,
@@ -122,16 +233,25 @@ export default function B2bProgressTracker() {
         isAssigned: total > 0,
       };
     });
-  }, [b2bMembers, allTasks]);
+  }, [allPeople, allTasks]);
+
+  // Filter based on scope (B2B Only vs Full Roster)
+  const scopedStats = useMemo(() => {
+    const b2bList = allPersonStats.filter((s) => s.person.isB2B || s.isAssigned);
+    if (scope === "b2b_only" && b2bList.length > 0) {
+      return b2bList;
+    }
+    return allPersonStats;
+  }, [allPersonStats, scope]);
 
   // Split assigned vs unassigned
-  const assignedMembers = useMemo(
-    () => memberStats.filter((m) => m.isAssigned),
-    [memberStats],
+  const assignedPeople = useMemo(
+    () => scopedStats.filter((m) => m.isAssigned),
+    [scopedStats],
   );
-  const unassignedMembers = useMemo(
-    () => memberStats.filter((m) => !m.isAssigned),
-    [memberStats],
+  const unassignedPeople = useMemo(
+    () => scopedStats.filter((m) => !m.isAssigned),
+    [scopedStats],
   );
 
   // Unassigned project tasks (no person attached)
@@ -140,63 +260,104 @@ export default function B2bProgressTracker() {
     [allTasks],
   );
 
-  // Collective progress metrics across all B2B employees
-  const totalB2bTasks = useMemo(
-    () => memberStats.reduce((acc, m) => acc + m.total, 0),
-    [memberStats],
+  // Collective metrics across the scoped workforce
+  const totalAssignedTasks = useMemo(
+    () => scopedStats.reduce((acc, m) => acc + m.total, 0),
+    [scopedStats],
   );
   const collectiveDone = useMemo(
-    () => memberStats.reduce((acc, m) => acc + m.done, 0),
-    [memberStats],
+    () => scopedStats.reduce((acc, m) => acc + m.done, 0),
+    [scopedStats],
   );
   const collectiveInProgress = useMemo(
-    () => memberStats.reduce((acc, m) => acc + m.inProgress, 0),
-    [memberStats],
+    () => scopedStats.reduce((acc, m) => acc + m.inProgress, 0),
+    [scopedStats],
   );
   const collectiveReview = useMemo(
-    () => memberStats.reduce((acc, m) => acc + m.review, 0),
-    [memberStats],
+    () => scopedStats.reduce((acc, m) => acc + m.review, 0),
+    [scopedStats],
   );
   const collectiveTodo = useMemo(
-    () => memberStats.reduce((acc, m) => acc + m.todo, 0),
-    [memberStats],
+    () => scopedStats.reduce((acc, m) => acc + m.todo, 0),
+    [scopedStats],
   );
-  const collectivePct = totalB2bTasks > 0 ? Math.round((collectiveDone / totalB2bTasks) * 100) : 0;
+  const collectivePct =
+    totalAssignedTasks > 0 ? Math.round((collectiveDone / totalAssignedTasks) * 100) : 0;
 
   // Filtered members list based on current tab
-  const displayedMembers = useMemo(() => {
-    if (activeTab === "assigned") return assignedMembers;
-    if (activeTab === "unassigned") return unassignedMembers;
-    return memberStats;
-  }, [activeTab, memberStats, assignedMembers, unassignedMembers]);
+  const displayedStats = useMemo(() => {
+    if (activeTab === "assigned") return assignedPeople;
+    if (activeTab === "unassigned") return unassignedPeople;
+    return scopedStats;
+  }, [activeTab, scopedStats, assignedPeople, unassignedPeople]);
+
+  function openPlaybookFor(userId: string) {
+    setInitialPicked([userId]);
+    setPlaybookOpen(true);
+  }
+
+  function openPlaybookForUnassigned() {
+    setInitialPicked(unassignedPeople.map((m) => m.person.id));
+    setPlaybookOpen(true);
+  }
 
   return (
     <div className="flex flex-col gap-6">
-      {/* ── Playbook Drawer (Self-contained) ─────────────────────────── */}
+      {/* ── Playbook Drawer ─────────────────────────────────────────── */}
       {isPlaybookOpen && (
-        <PlaybookDrawer onClose={() => setPlaybookOpen(false)} />
+        <PlaybookDrawer
+          onClose={() => setPlaybookOpen(false)}
+          initialPicked={initialPicked}
+        />
       )}
 
       {/* ── Header Title & Actions ─────────────────────────────────── */}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-2 sm:gap-3">
             <h2 className="text-xl font-bold uppercase tracking-tight text-adm-text">
               B2B Workforce & Collective Progress
             </h2>
             <span className="rounded-full border border-adm-blue/30 bg-adm-blue-light px-2.5 py-0.5 text-xs font-bold text-adm-blue tabular-nums">
-              {b2bMembers.length} Employees · {totalB2bTasks} Total Tasks
+              {scopedStats.length} {scope === "b2b_only" ? "B2B Staff" : "Total Roster"} · {totalAssignedTasks} Tasks
             </span>
           </div>
           <p className="mt-0.5 text-xs text-adm-text-3">
-            Live exact accounting of assigned tasks, unassigned employees, and collective team completion.
+            Exact tracking connected directly to the Employee Roster, live task assignments, and completion velocity.
           </p>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
+          {/* Scope Toggle */}
+          <div className="flex items-center rounded border border-adm-border bg-adm-surface-2 p-0.5 text-xs">
+            <button
+              type="button"
+              onClick={() => setScope("b2b_only")}
+              className={`px-2.5 py-1 font-semibold transition ${
+                scope === "b2b_only"
+                  ? "bg-adm-surface text-adm-blue shadow-sm font-bold"
+                  : "text-adm-text-3 hover:text-adm-text"
+              }`}
+            >
+              B2B Focus
+            </button>
+            <button
+              type="button"
+              onClick={() => setScope("full_roster")}
+              className={`px-2.5 py-1 font-semibold transition ${
+                scope === "full_roster"
+                  ? "bg-adm-surface text-adm-blue shadow-sm font-bold"
+                  : "text-adm-text-3 hover:text-adm-text"
+              }`}
+            >
+              Full Roster ({allPeople.length})
+            </button>
+          </div>
+
           <button
             type="button"
             onClick={() => {
+              employeesQuery.refetch();
               usersQuery.refetch();
               tasksQuery.refetch();
             }}
@@ -209,7 +370,10 @@ export default function B2bProgressTracker() {
 
           <button
             type="button"
-            onClick={() => setPlaybookOpen(true)}
+            onClick={() => {
+              setInitialPicked([]);
+              setPlaybookOpen(true);
+            }}
             className="btn-press flex items-center gap-1.5 border border-transparent bg-adm-blue px-3.5 py-1.5 text-xs font-bold text-white transition hover:opacity-90"
           >
             <ClipboardList size={14} />
@@ -219,26 +383,26 @@ export default function B2bProgressTracker() {
       </div>
 
       {/* ── Unassigned B2B Alert Banner ─────────────────────────────── */}
-      {unassignedMembers.length > 0 && (
+      {unassignedPeople.length > 0 && (
         <div className="flex flex-col gap-3 border border-adm-red/40 bg-adm-red-light p-4 text-adm-red sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-center gap-3">
-            <AlertCircle size={20} className="shrink-0 text-adm-red" />
+            <AlertCircle size={22} className="shrink-0 text-adm-red" />
             <div>
               <p className="text-sm font-bold">
-                {unassignedMembers.length} B2B Employee{unassignedMembers.length > 1 ? "s" : ""} Have No Tasks Assigned!
+                {unassignedPeople.length} Staff Member{unassignedPeople.length > 1 ? "s" : ""} on Roster Have No Tasks Assigned!
               </p>
               <p className="text-xs text-adm-red/80">
                 Unassigned:{" "}
                 <span className="font-semibold">
-                  {unassignedMembers.map((m) => m.user.name || m.user.email).join(", ")}
+                  {unassignedPeople.map((m) => m.person.name).join(", ")}
                 </span>
-                . They cannot work or report until tasks are assigned.
+                . They cannot start their week until tasks are assigned to their board.
               </p>
             </div>
           </div>
           <button
             type="button"
-            onClick={() => setPlaybookOpen(true)}
+            onClick={openPlaybookForUnassigned}
             className="btn-press shrink-0 border border-adm-red bg-adm-red px-3.5 py-1.5 text-xs font-bold text-white transition hover:opacity-90"
           >
             Assign Week 1 Tasks Now
@@ -249,26 +413,26 @@ export default function B2bProgressTracker() {
       {/* ── Summary Stat Cards (Exact Totals) ────────────────────────── */}
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
         <StatCard
-          label="Total B2B Employees"
-          value={b2bMembers.length}
+          label="Total on Roster"
+          value={scopedStats.length}
           icon={Users}
           tone="blue"
         />
         <StatCard
-          label="Assigned Employees"
-          value={assignedMembers.length}
+          label="Assigned Staff"
+          value={assignedPeople.length}
           icon={UserCheck}
           tone="green"
         />
         <StatCard
-          label="Unassigned B2B"
-          value={unassignedMembers.length}
+          label="Unassigned Staff"
+          value={unassignedPeople.length}
           icon={UserX}
-          tone={unassignedMembers.length > 0 ? "red" : "green"}
+          tone={unassignedPeople.length > 0 ? "red" : "green"}
         />
         <StatCard
-          label="Total Assigned Tasks"
-          value={totalB2bTasks}
+          label="Total Tasks Assigned"
+          value={totalAssignedTasks}
           icon={ClipboardList}
           tone="blue"
         />
@@ -293,11 +457,11 @@ export default function B2bProgressTracker() {
             <div className="flex items-center gap-2">
               <BarChart3 size={18} className="text-adm-blue" />
               <h3 className="text-sm font-bold uppercase tracking-wider text-adm-text">
-                Collective B2B Team Progress
+                Collective Workforce Progress
               </h3>
             </div>
             <p className="mt-1 text-xs text-adm-text-3">
-              Total work completed across all {b2bMembers.length} B2B employees combined
+              Total work completed across all {scopedStats.length} staff members combined ({collectiveDone} of {totalAssignedTasks} tasks closed)
             </p>
           </div>
 
@@ -307,7 +471,7 @@ export default function B2bProgressTracker() {
             </span>
             <div className="text-xs text-adm-text-3">
               <span className="font-bold text-adm-text">{collectiveDone}</span> of{" "}
-              <span className="font-bold text-adm-text">{totalB2bTasks}</span> tasks done
+              <span className="font-bold text-adm-text">{totalAssignedTasks}</span> done
             </div>
           </div>
         </div>
@@ -343,7 +507,7 @@ export default function B2bProgressTracker() {
 
       {/* ── Tabbed View: Assigned / Unassigned Members / Unassigned Tasks ── */}
       <Panel
-        title="B2B Workforce Breakdown"
+        title="Workforce Breakdown & Progress"
         icon={Users}
         padded={false}
         action={
@@ -357,7 +521,7 @@ export default function B2bProgressTracker() {
                   : "text-adm-text-3 hover:text-adm-text"
               }`}
             >
-              All B2B ({b2bMembers.length})
+              All ({scopedStats.length})
             </button>
 
             <button
@@ -369,7 +533,7 @@ export default function B2bProgressTracker() {
                   : "text-adm-text-3 hover:text-adm-text"
               }`}
             >
-              Assigned ({assignedMembers.length})
+              Assigned ({assignedPeople.length})
             </button>
 
             <button
@@ -381,8 +545,8 @@ export default function B2bProgressTracker() {
                   : "text-adm-text-3 hover:text-adm-red"
               }`}
             >
-              <span>Unassigned B2B ({unassignedMembers.length})</span>
-              {unassignedMembers.length > 0 && (
+              <span>Unassigned ({unassignedPeople.length})</span>
+              {unassignedPeople.length > 0 && (
                 <span className="h-2 w-2 rounded-full bg-adm-red shrink-0 animate-pulse" />
               )}
             </button>
@@ -403,7 +567,7 @@ export default function B2bProgressTracker() {
       >
         {isLoading ? (
           <div className="p-8">
-            <LoadingBlock label="Calculating exact B2B task metrics…" />
+            <LoadingBlock label="Calculating exact workforce task metrics from roster…" />
           </div>
         ) : isError ? (
           <div className="p-8 text-center text-xs text-adm-red">
@@ -470,19 +634,19 @@ export default function B2bProgressTracker() {
               </table>
             </div>
           )
-        ) : displayedMembers.length === 0 ? (
+        ) : displayedStats.length === 0 ? (
           /* ── Empty State for Member Tabs ── */
           <div className="p-8">
             <EmptyBlock
               title={
                 activeTab === "unassigned"
-                  ? "All B2B Employees Are Assigned!"
+                  ? "All Staff Have Tasks Assigned!"
                   : "No employees match this filter"
               }
               description={
                 activeTab === "unassigned"
-                  ? "Every single approved B2B member currently has tasks assigned on their board."
-                  : "Check other tabs or create new employee accounts."
+                  ? "Every single employee on the roster currently has tasks assigned on their board."
+                  : "Check other tabs or switch to Full Roster view."
               }
             />
           </div>
@@ -492,7 +656,7 @@ export default function B2bProgressTracker() {
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-adm-border bg-adm-surface-2 text-xs font-semibold uppercase text-adm-text-3">
-                  <th className="px-4 py-2.5 text-left">B2B Employee</th>
+                  <th className="px-4 py-2.5 text-left">Staff Member</th>
                   <th className="px-4 py-2.5 text-left">Progress</th>
                   <th className="px-4 py-2.5 text-left">Task Counts</th>
                   <th className="px-4 py-2.5 text-left">Status</th>
@@ -500,17 +664,17 @@ export default function B2bProgressTracker() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-adm-border">
-                {displayedMembers.map((item) => {
-                  const { user, total, done, inProgress, todo, pct, isAssigned } = item;
+                {displayedStats.map((item) => {
+                  const { person, total, done, inProgress, todo, pct, isAssigned } = item;
 
                   return (
                     <tr
-                      key={user.id}
+                      key={person.id}
                       className={`transition hover:bg-adm-surface-2 ${
                         !isAssigned ? "bg-adm-red-light/20" : ""
                       }`}
                     >
-                      {/* Avatar, Name, Email, Staff ID */}
+                      {/* Avatar, Name, Email, Staff ID & Job Title */}
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-3">
                           <span
@@ -520,17 +684,26 @@ export default function B2bProgressTracker() {
                                 : "bg-adm-red-light text-adm-red"
                             }`}
                           >
-                            {initials(user.name)}
+                            {initials(person.name)}
                           </span>
                           <div className="min-w-0">
-                            <span className="block truncate font-bold text-adm-text">
-                              {user.name ?? "Unnamed"}
-                            </span>
+                            <div className="flex items-center gap-2">
+                              <span className="block truncate font-bold text-adm-text">
+                                {person.name}
+                              </span>
+                              {person.employeeIdString && (
+                                <span className="rounded border border-adm-border bg-adm-surface-2 px-1.5 py-0.2 text-[10px] font-mono text-adm-text-3">
+                                  {person.employeeIdString}
+                                </span>
+                              )}
+                              {person.isB2B && (
+                                <span className="rounded bg-adm-blue-light px-1.5 py-0.2 text-[10px] font-bold text-adm-blue">
+                                  B2B
+                                </span>
+                              )}
+                            </div>
                             <span className="block truncate text-xs text-adm-text-3">
-                              {user.email}
-                              {user.openemailAddress && user.openemailAddress !== user.email
-                                ? ` · ${user.openemailAddress}`
-                                : ""}
+                              {person.jobTitle} · {person.email}
                             </span>
                           </div>
                         </div>
@@ -604,7 +777,7 @@ export default function B2bProgressTracker() {
                         {!isAssigned ? (
                           <button
                             type="button"
-                            onClick={() => setPlaybookOpen(true)}
+                            onClick={() => openPlaybookFor(person.id)}
                             className="btn-press inline-flex items-center gap-1 border border-adm-blue bg-adm-blue-light px-3 py-1 text-xs font-bold text-adm-blue transition hover:bg-adm-blue hover:text-white"
                           >
                             <Plus size={12} />
@@ -612,7 +785,7 @@ export default function B2bProgressTracker() {
                           </button>
                         ) : (
                           <Link
-                            href={`/admin/tasks?assignedToId=${user.id}`}
+                            href={`/admin/tasks?assignedToId=${person.id}`}
                             className="inline-flex items-center gap-1 text-xs font-semibold text-adm-blue transition hover:underline"
                           >
                             <span>View Board</span>
@@ -631,4 +804,5 @@ export default function B2bProgressTracker() {
     </div>
   );
 }
+
 
