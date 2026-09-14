@@ -35,6 +35,7 @@ import {
   useDeleteTask,
   useMyTasks,
   useTasks,
+  useAllTasks,
   useUpdateTask,
 } from "@/hooks/useTasks";
 import { useI18n } from "@/lib/i18n";
@@ -96,7 +97,7 @@ export default function TaskKanban({ isAdmin = false }) {
 
   // The `/tasks` list is manager-gated, so a member's board reads `/tasks/me`.
   // Only the matching query is enabled, or a member trips the 403.
-  const adminQuery = useTasks({ pageSize: 100 }, isAdmin);
+  const adminQuery = useAllTasks({}, isAdmin);
   const myQuery = useMyTasks(!isAdmin);
   const query = isAdmin ? adminQuery : myQuery;
   const tasks: ProjectTask[] = isAdmin ? adminQuery.data?.items ?? [] : myQuery.data ?? [];
@@ -292,9 +293,16 @@ export default function TaskKanban({ isAdmin = false }) {
     <div className="flex h-full min-h-[70vh] flex-col gap-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold uppercase" style={{ color: "var(--adm-text)" }}>
-            {t("Task Board")}
-          </h1>
+          <div className="flex items-center gap-3">
+            <h1 className="text-2xl font-bold uppercase" style={{ color: "var(--adm-text)" }}>
+              {t("Task Board")}
+            </h1>
+            {tasks.length > 0 && (
+              <span className="px-2.5 py-0.5 text-xs font-bold rounded-full border border-adm-border bg-adm-surface-2 text-adm-text-3 tabular-nums">
+                {tasks.length} {t("tasks total")}
+              </span>
+            )}
+          </div>
           <p className="mt-1 text-sm" style={{ color: "var(--adm-text-3)" }}>
             {isAdmin
               ? t("Assign, track and close delivery work across every project.")

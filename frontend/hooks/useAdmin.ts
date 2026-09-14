@@ -23,6 +23,18 @@ export function useAdminUsers(params: AdminUserListParams = {}, enabled = true) 
   });
 }
 
+/** Fetches all admin users across all pages without limit truncation. */
+export function useAllAdminUsers(
+  params: Omit<AdminUserListParams, "page" | "pageSize"> = {},
+  enabled = true,
+) {
+  return useQuery({
+    queryKey: [...queryKeys.admin.users, "all-unlimited", params],
+    queryFn: () => adminService.listAllUsers(params),
+    enabled,
+  });
+}
+
 export function useAdminRoles() {
   return useQuery({
     queryKey: queryKeys.admin.roles,

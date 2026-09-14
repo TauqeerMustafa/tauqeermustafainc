@@ -50,7 +50,7 @@ export default function DeliveryBanner({
 
   const projects = data?.projects ?? [];
   const tasks = data?.tasks ?? [];
-  const openTasks = tasks.filter((task) => task.status !== "done").length;
+  const openTasks = data?.overview?.openTasks ?? tasks.filter((task) => task.status !== "done").length;
 
   const counts: Record<string, number> = {
     projects: projects.length,

@@ -90,7 +90,7 @@ def list_tasks(
     db: DatabaseSession,
     _: CurrentManager,
     page: int = Query(default=1, ge=1),
-    page_size: int = Query(default=50, ge=1, le=100, alias="pageSize"),
+    page_size: int = Query(default=50, ge=1, le=1000, alias="pageSize"),
     project_id: uuid.UUID = Query(None, alias="projectId"),
     assigned_to_id: uuid.UUID = Query(None, alias="assignedToId"),
     status: str = Query(None),

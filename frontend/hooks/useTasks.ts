@@ -38,6 +38,18 @@ export function useTasks(params: TaskListParams = {}, enabled = true) {
   });
 }
 
+/** Fetches all tasks across all pages without limit truncation. */
+export function useAllTasks(
+  params: Omit<TaskListParams, "page" | "pageSize"> = {},
+  enabled = true,
+) {
+  return useQuery({
+    queryKey: [...queryKeys.tasks.all, "all-unlimited", serialize(params as TaskListParams)],
+    queryFn: () => taskService.listAll(params),
+    enabled,
+  });
+}
+
 /**
  * The signed-in user's own assigned tasks via `/tasks/me`, which any
  * authenticated user may read. Powers the employee portal's task board.

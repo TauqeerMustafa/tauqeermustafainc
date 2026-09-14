@@ -175,7 +175,7 @@ export default function AdminDashboardPage() {
     documents,
   } = dashboardQuery.data;
 
-  const openTaskCount = tasks.filter((t) => t.status !== "done").length;
+  const openTaskCount = overview.openTasks ?? tasks.filter((t) => t.status !== "done").length;
   const metrics = metricsQuery.data?.data;
   const unreadInquiries = inquiriesQuery.data?.data?.items?.length ?? 0;
 

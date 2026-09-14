@@ -65,6 +65,28 @@ export const adminService = {
         ...(params.status && params.status !== "all" ? { status: params.status } : {}),
       },
     }),
+  listAllUsers: async (params: Omit<AdminUserListParams, "page" | "pageSize"> = {}) => {
+    const first = await adminService.users({ ...params, page: 1, pageSize: 100 });
+    const firstItems = first.data?.items ?? [];
+    const pagination = first.data?.pagination;
+    const totalPages = pagination?.totalPages ?? 1;
+    const total = pagination?.total ?? firstItems.length;
+    if (totalPages <= 1) {
+      return { items: firstItems, total };
+    }
+    const promises = [];
+    for (let p = 2; p <= totalPages; p++) {
+      promises.push(adminService.users({ ...params, page: p, pageSize: 100 }));
+    }
+    const rest = await Promise.all(promises);
+    const allItems = [...firstItems];
+    for (const r of rest) {
+      if (r.data?.items) {
+        allItems.push(...r.data.items);
+      }
+    }
+    return { items: allItems, total };
+  },
   createUser: (payload: CreateAdminUserPayload) =>
     apiRequest<ApiResponse<AdminUser>>({
       url: API_ENDPOINTS.admin.users,
