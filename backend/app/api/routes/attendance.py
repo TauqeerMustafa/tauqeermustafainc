@@ -28,20 +28,40 @@ def check_in(payload: AttendanceCheckIn, db: DatabaseSession, current_user: Curr
         raise HTTPException(status_code=400, detail="Already checked in today")
         
     now = datetime.now(timezone.utc)
-    # Automated late detection: check notes or if past expected shift arrival
     status = "present"
-    if payload.notes and "late" in payload.notes.lower():
-        status = "late"
-    elif now.hour > 4 or (now.hour == 4 and now.minute > 15):
-        # 04:15 UTC corresponds to 09:15 AM PKT (standard morning shift + 15m grace)
-        status = "late"
+
+    # B2B remote employees have no fixed shift — anytime check-in is always recorded as Present
+    job_title = (employee.job_title or "").lower()
+    role_slug = (current_user.role.slug if current_user.role else "").lower()
+    is_b2b_remote = (
+        "b2b" in job_title
+        or "business" in job_title
+        or "development" in job_title
+        or "bde" in job_title
+        or "sales" in job_title
+        or "remote" in job_title
+        or role_slug in ("member", "bde", "sales")
+        or (payload.notes and ("remote" in payload.notes.lower() or "flexible" in payload.notes.lower() or "b2b" in payload.notes.lower()))
+    )
+
+    if not is_b2b_remote:
+        # Automated late detection for standard shift employees only
+        if payload.notes and "late" in payload.notes.lower():
+            status = "late"
+        elif now.hour > 4 or (now.hour == 4 and now.minute > 15):
+            # 04:15 UTC corresponds to 09:15 AM PKT (standard morning shift + 15m grace)
+            status = "late"
+
+    notes = payload.notes
+    if is_b2b_remote and not notes:
+        notes = "Remote daily check-in (Flexible hours)"
 
     attendance = Attendance(
         employee_id=employee.id,
         date=today,
         check_in_time=now,
         status=status,
-        notes=payload.notes
+        notes=notes,
     )
     db.add(attendance)
     db.commit()

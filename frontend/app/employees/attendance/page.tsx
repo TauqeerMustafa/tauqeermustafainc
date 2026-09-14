@@ -16,7 +16,12 @@ import {
 } from "@/components/portal/PortalUI";
 import { useCurrentUser } from "@/hooks/useAuth";
 import { useCheckIn, useCheckOut, useMyAttendance } from "@/hooks/useAttendance";
-import { evaluateCheckIn, getEmployeeShift, formatShiftDisplay } from "@/lib/attendance-shifts";
+import {
+  evaluateCheckIn,
+  getEmployeeShift,
+  formatShiftDisplay,
+  isB2BOrRemote,
+} from "@/lib/attendance-shifts";
 
 const DASH = "--:--";
 
@@ -57,11 +62,14 @@ export default function EmployeeAttendancePage() {
   const mutating = checkIn.isPending || checkOut.isPending;
   const mutationError = (checkIn.error ?? checkOut.error) as Error | undefined;
 
-  const assignedShift = getEmployeeShift(user?.id || user?.email);
+  const userRoleOrTitle = user?.role || user?.title || (user as any)?.roleSlug || (user as any)?.jobTitle;
+  const isB2B = isB2BOrRemote(userRoleOrTitle);
+  const assignedShift = getEmployeeShift(user?.id || user?.email, userRoleOrTitle);
+  const isRemote = isB2B || assignedShift.isRemote;
   const shiftDisplay = formatShiftDisplay(assignedShift.expectedTime);
 
   function handleCheckIn() {
-    const evaluation = evaluateCheckIn(new Date(), user?.id || user?.email);
+    const evaluation = evaluateCheckIn(new Date(), user?.id || user?.email, userRoleOrTitle);
     checkIn.mutate(evaluation.note);
   }
 
@@ -72,26 +80,51 @@ export default function EmployeeAttendancePage() {
         description="Log your working hours and review the last 60 days."
       />
 
-      {/* Shift Schedule Alert */}
-      <div className="border border-adm-blue/30 bg-adm-blue/5 p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-        <div className="flex items-center gap-3">
-          <div className="p-2 bg-adm-blue/10 text-adm-blue border border-adm-blue/20">
-            <Clock size={18} />
+      {/* Shift / Remote Status Banner */}
+      {isRemote ? (
+        <div className="border border-adm-green/30 bg-adm-green/5 p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-adm-green/10 text-adm-green border border-adm-green/20">
+              <Clock size={18} />
+            </div>
+            <div>
+              <p className="text-xs font-bold text-adm-text flex items-center gap-2">
+                <span>Remote / Flexible Work</span>
+                <span className="rounded bg-adm-green-light px-1.5 py-0.5 text-[10px] font-bold text-adm-green">
+                  No Shift Schedule
+                </span>
+              </p>
+              <p className="text-[11px] text-adm-text-3 mt-0.5">
+                For remote B2B team members, there is no fixed shift. Simply check in once daily whenever you start your work. Check-ins are always recorded as Present.
+              </p>
+            </div>
           </div>
-          <div>
-            <p className="text-xs font-bold text-adm-text">
-              Assigned Shift: {shiftDisplay}
-            </p>
-            <p className="text-[11px] text-adm-text-3">
-              Standard check-in deadline with {assignedShift.graceMinutes}m grace period. Check-in after this window automatically records as Late.
-            </p>
-          </div>
-        </div>
 
-        <span className="font-mono text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 border border-adm-border bg-adm-surface text-adm-text-2 self-start sm:self-auto">
-          Grace Period: {assignedShift.graceMinutes} min
-        </span>
-      </div>
+          <span className="font-mono text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 border border-adm-green/30 bg-adm-green-light text-adm-green self-start sm:self-auto">
+            Anytime Daily Check-in
+          </span>
+        </div>
+      ) : (
+        <div className="border border-adm-blue/30 bg-adm-blue/5 p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-adm-blue/10 text-adm-blue border border-adm-blue/20">
+              <Clock size={18} />
+            </div>
+            <div>
+              <p className="text-xs font-bold text-adm-text">
+                Assigned Shift: {shiftDisplay}
+              </p>
+              <p className="text-[11px] text-adm-text-3">
+                Standard check-in deadline with {assignedShift.graceMinutes}m grace period. Check-in after this window automatically records as Late.
+              </p>
+            </div>
+          </div>
+
+          <span className="font-mono text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 border border-adm-border bg-adm-surface text-adm-text-2 self-start sm:self-auto">
+            Grace Period: {assignedShift.graceMinutes} min
+          </span>
+        </div>
+      )}
 
       <Panel title="Today" icon={Clock} tone={checkedIn ? "green" : "amber"}>
         <p className="text-sm text-adm-text-2">
