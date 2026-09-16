@@ -129,6 +129,8 @@ export default function TaskKanban({ isAdmin = false }) {
   const [selectedTaskIds, setSelectedTaskIds] = useState<string[]>([]);
   const [isBulkDeleteOpen, setBulkDeleteOpen] = useState(false);
   const [assigneeSearch, setAssigneeSearch] = useState("");
+  const [draggedTaskId, setDraggedTaskId] = useState<string | null>(null);
+  const [dragOverColumnId, setDragOverColumnId] = useState<string | null>(null);
 
   const bulkDeleteTasks = useBulkDeleteTasks();
   const bulkUpdateTasks = useBulkUpdateTasks();
@@ -309,68 +311,70 @@ export default function TaskKanban({ isAdmin = false }) {
               : t("Everything assigned to you, by stage.")}
           </p>
         </div>
-        {isAdmin && (
-          <div className="flex items-center gap-2">
-            {tasks.length > 0 && (
-              <button
-                type="button"
-                onClick={() => setClearAllOpen(true)}
-                className="btn-press flex items-center justify-center gap-2 border px-4 py-2.5 text-sm font-bold transition hover:opacity-90"
-                style={{
-                  borderColor: "var(--adm-border)",
-                  color: "var(--adm-red)",
-                  background: "var(--adm-surface)",
-                }}
-              >
-                <Trash2 size={16} />
-                {t("Delete all tasks")}
-              </button>
-            )}
-            {tasks.length > 0 && (
-              <button
-                type="button"
-                onClick={toggleSelectAllTasks}
-                className="btn-press flex items-center justify-center gap-2 border px-3 py-2 text-xs font-bold transition hover:opacity-90"
-                style={{
-                  borderColor: "var(--adm-border)",
-                  color: "var(--adm-text-2)",
-                  background: "var(--adm-surface)",
-                }}
-              >
-                {selectedTaskIds.length === tasks.length ? (
-                  <>
-                    <CheckSquare size={14} /> {t("Deselect all")}
-                  </>
-                ) : (
-                  <>
-                    <Square size={14} /> {t("Select all")}
-                  </>
-                )}
-              </button>
-            )}
+        <div className="flex flex-wrap items-center gap-2">
+          {tasks.length > 0 && (
             <button
               type="button"
-              onClick={() => setPlaybookOpen(true)}
-              className="btn-press flex items-center justify-center gap-2 border px-5 py-2.5 text-sm font-bold transition hover:opacity-90"
-              style={{ borderColor: "var(--adm-border)", color: "var(--adm-text-2)" }}
+              onClick={toggleSelectAllTasks}
+              className="btn-press flex items-center justify-center gap-2 border px-3 py-2 text-xs font-bold transition hover:opacity-90"
+              style={{
+                borderColor: "var(--adm-border)",
+                color: "var(--adm-text-2)",
+                background: "var(--adm-surface)",
+              }}
             >
-              <ClipboardList size={16} />
-              {t("Assign playbook")}
+              {selectedTaskIds.length === tasks.length ? (
+                <>
+                  <CheckSquare size={14} /> {t("Deselect all")}
+                </>
+              ) : (
+                <>
+                  <Square size={14} /> {t("Select all")}
+                </>
+              )}
             </button>
+          )}
+          {isAdmin && tasks.length > 0 && (
             <button
               type="button"
-              onClick={() => openCreate()}
-              className="btn-press flex items-center justify-center gap-2 px-5 py-2.5 text-sm font-bold text-white transition hover:opacity-90"
-              style={{ background: "var(--adm-blue)" }}
+              onClick={() => setClearAllOpen(true)}
+              className="btn-press flex items-center justify-center gap-2 border px-4 py-2.5 text-sm font-bold transition hover:opacity-90"
+              style={{
+                borderColor: "var(--adm-border)",
+                color: "var(--adm-red)",
+                background: "var(--adm-surface)",
+              }}
             >
-              <Plus size={16} />
-              {t("New Task")}
+              <Trash2 size={16} />
+              {t("Delete all tasks")}
             </button>
-          </div>
-        )}
+          )}
+          {isAdmin && (
+            <>
+              <button
+                type="button"
+                onClick={() => setPlaybookOpen(true)}
+                className="btn-press flex items-center justify-center gap-2 border px-5 py-2.5 text-sm font-bold transition hover:opacity-90"
+                style={{ borderColor: "var(--adm-border)", color: "var(--adm-text-2)" }}
+              >
+                <ClipboardList size={16} />
+                {t("Assign playbook")}
+              </button>
+              <button
+                type="button"
+                onClick={() => openCreate()}
+                className="btn-press flex items-center justify-center gap-2 px-5 py-2.5 text-sm font-bold text-white transition hover:opacity-90"
+                style={{ background: "var(--adm-blue)" }}
+              >
+                <Plus size={16} />
+                {t("New Task")}
+              </button>
+            </>
+          )}
+        </div>
       </div>
 
-      {isAdmin && selectedTaskIds.length > 0 && (
+      {selectedTaskIds.length > 0 && (
         <div
           className="sticky top-20 z-40 flex flex-wrap items-center justify-between gap-3 border p-3.5 shadow-lg backdrop-blur-md"
           style={{
@@ -411,19 +415,21 @@ export default function TaskKanban({ isAdmin = false }) {
               ))}
             </div>
 
-            <button
-              type="button"
-              onClick={() => setBulkDeleteOpen(true)}
-              disabled={bulkDeleteTasks.isPending}
-              className="btn-press flex items-center gap-1.5 border px-3 py-1.5 text-xs font-bold text-white transition hover:opacity-90"
-              style={{
-                borderColor: "var(--adm-red)",
-                background: "var(--adm-red)",
-              }}
-            >
-              <Trash2 size={13} />
-              {t("Delete selected")}
-            </button>
+            {isAdmin && (
+              <button
+                type="button"
+                onClick={() => setBulkDeleteOpen(true)}
+                disabled={bulkDeleteTasks.isPending}
+                className="btn-press flex items-center gap-1.5 border px-3 py-1.5 text-xs font-bold text-white transition hover:opacity-90"
+                style={{
+                  borderColor: "var(--adm-red)",
+                  background: "var(--adm-red)",
+                }}
+              >
+                <Trash2 size={13} />
+                {t("Delete selected")}
+              </button>
+            )}
 
             <button
               type="button"
@@ -453,8 +459,37 @@ export default function TaskKanban({ isAdmin = false }) {
             return (
               <section
                 key={column.id}
-                className="flex flex-col border"
-                style={{ borderColor: "var(--adm-border)", background: "var(--adm-surface)" }}
+                className="flex flex-col border transition-colors duration-150"
+                style={{
+                  borderColor: dragOverColumnId === column.id ? "var(--adm-blue)" : "var(--adm-border)",
+                  background: dragOverColumnId === column.id ? "rgba(59, 130, 246, 0.05)" : "var(--adm-surface)",
+                  boxShadow: dragOverColumnId === column.id ? "inset 0 0 0 1px var(--adm-blue)" : "none",
+                }}
+                onDragOver={(e) => {
+                  e.preventDefault();
+                  e.dataTransfer.dropEffect = "move";
+                  if (dragOverColumnId !== column.id) {
+                    setDragOverColumnId(column.id);
+                  }
+                }}
+                onDragLeave={(e) => {
+                  if (e.currentTarget.contains(e.relatedTarget as Node)) return;
+                  setDragOverColumnId(null);
+                }}
+                onDrop={async (e) => {
+                  e.preventDefault();
+                  setDragOverColumnId(null);
+                  const taskId = e.dataTransfer.getData("text/plain") || draggedTaskId;
+                  if (!taskId) return;
+                  const targetTask = tasks.find((t) => t.id === taskId);
+                  if (targetTask && targetTask.status !== column.id) {
+                    await updateTask.mutateAsync({
+                      id: taskId,
+                      payload: { status: column.id },
+                    });
+                  }
+                  setDraggedTaskId(null);
+                }}
               >
                 <header
                   className="flex items-center justify-between border-b px-4 py-3"
@@ -485,9 +520,19 @@ export default function TaskKanban({ isAdmin = false }) {
                     return (
                       <article
                         key={task.id}
-                        className={`group border p-4 transition ${
+                        draggable
+                        onDragStart={(e) => {
+                          setDraggedTaskId(task.id);
+                          e.dataTransfer.setData("text/plain", task.id);
+                          e.dataTransfer.effectAllowed = "move";
+                        }}
+                        onDragEnd={() => {
+                          setDraggedTaskId(null);
+                          setDragOverColumnId(null);
+                        }}
+                        className={`group border p-4 transition cursor-grab active:cursor-grabbing ${
                           isSelected ? "ring-1 ring-adm-blue" : ""
-                        }`}
+                        } ${draggedTaskId === task.id ? "opacity-40 scale-[0.98]" : ""}`}
                         style={{
                           borderColor: isSelected ? "var(--adm-blue)" : "var(--adm-border)",
                           background: "var(--adm-surface-2)",
@@ -495,14 +540,14 @@ export default function TaskKanban({ isAdmin = false }) {
                       >
                         <div className="flex items-start justify-between gap-2">
                           <div className="flex items-start gap-2.5">
-                            {isAdmin && (
-                              <input
-                                type="checkbox"
-                                checked={isSelected}
-                                onChange={() => toggleSelectTask(task.id)}
-                                className="mt-0.5 h-3.5 w-3.5 rounded-none border-adm-border text-adm-blue cursor-pointer"
-                              />
-                            )}
+                            <input
+                              type="checkbox"
+                              checked={isSelected}
+                              onChange={() => toggleSelectTask(task.id)}
+                              onClick={(e) => e.stopPropagation()}
+                              className="mt-0.5 h-3.5 w-3.5 rounded-none border-adm-border text-adm-blue cursor-pointer"
+                              aria-label={`${t("Select")} ${task.title}`}
+                            />
                             <h3
                               className="text-sm font-bold leading-tight"
                               style={{ color: "var(--adm-text)" }}
@@ -510,13 +555,14 @@ export default function TaskKanban({ isAdmin = false }) {
                               {task.title}
                             </h3>
                           </div>
-                          {/* Task writes are admin-only, so the employee board
-                              stays read-only. */}
                           {isAdmin && (
                             <div className="flex shrink-0 items-center gap-1">
                               <button
                                 type="button"
-                                onClick={() => openEdit(task)}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  openEdit(task);
+                                }}
                                 aria-label={`${t("Edit")} ${task.title}`}
                                 title={t("Edit")}
                                 className="flex h-7 w-7 items-center justify-center rounded-full transition hover:bg-adm-surface lg:opacity-0 lg:group-hover:opacity-100"
@@ -526,7 +572,10 @@ export default function TaskKanban({ isAdmin = false }) {
                               </button>
                               <button
                                 type="button"
-                                onClick={() => setPendingDelete(task)}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setPendingDelete(task);
+                                }}
                                 aria-label={`${t("Delete")} ${task.title}`}
                                 title={t("Delete")}
                                 className="flex h-7 w-7 items-center justify-center rounded-full transition hover:bg-adm-red-light hover:text-adm-red lg:opacity-0 lg:group-hover:opacity-100"
@@ -604,11 +653,52 @@ export default function TaskKanban({ isAdmin = false }) {
                           </div>
                         )}
 
-                        {!isAdmin && (
-                          <div className="mt-2.5 flex items-center justify-end border-t pt-2" style={{ borderColor: "var(--adm-border)" }}>
-                            <label className="inline-flex items-center gap-1 text-[10px] font-mono font-bold uppercase tracking-wider text-adm-blue hover:opacity-80 cursor-pointer">
+                        {/* Quick status selector & staff deliverable button */}
+                        <div
+                          className="mt-3 flex flex-wrap items-center justify-between gap-2 border-t pt-2 text-[11px]"
+                          style={{ borderColor: "var(--adm-border)" }}
+                        >
+                          <div className="flex items-center gap-1.5">
+                            <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-adm-text-3">
+                              {t("Status")}:
+                            </span>
+                            <select
+                              value={task.status || "todo"}
+                              onChange={async (e) => {
+                                e.stopPropagation();
+                                const newStatus = e.target.value;
+                                if (newStatus !== task.status) {
+                                  await updateTask.mutateAsync({
+                                    id: task.id,
+                                    payload: { status: newStatus },
+                                  });
+                                }
+                              }}
+                              onClick={(e) => e.stopPropagation()}
+                              disabled={updateTask.isPending}
+                              aria-label={t("Change task status")}
+                              className="cursor-pointer border px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider transition hover:border-adm-blue focus:outline-none focus:ring-1 focus:ring-adm-blue disabled:opacity-50"
+                              style={{
+                                borderColor: "var(--adm-border)",
+                                background: "var(--adm-surface)",
+                                color: "var(--adm-text)",
+                              }}
+                            >
+                              {columns.map((col) => (
+                                <option key={col.id} value={col.id}>
+                                  {t(col.title)}
+                                </option>
+                              ))}
+                            </select>
+                          </div>
+
+                          {!isAdmin && (
+                            <label
+                              onClick={(e) => e.stopPropagation()}
+                              className="inline-flex items-center gap-1 text-[10px] font-mono font-bold uppercase tracking-wider text-adm-blue hover:opacity-80 cursor-pointer"
+                            >
                               <Paperclip size={11} />
-                              <span>{t("Attach Deliverable")}</span>
+                              <span>{t("Deliverable")}</span>
                               <input
                                 type="file"
                                 className="hidden"
@@ -626,8 +716,8 @@ export default function TaskKanban({ isAdmin = false }) {
                                 }}
                               />
                             </label>
-                          </div>
-                        )}
+                          )}
+                        </div>
                       </article>
                     );
                   })}

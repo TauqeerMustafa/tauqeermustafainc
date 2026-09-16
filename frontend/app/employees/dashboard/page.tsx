@@ -26,6 +26,7 @@ import {
 import { useCheckIn, useCheckOut } from "@/hooks/useAttendance";
 import { useEmployeeDashboard } from "@/hooks/useDashboard";
 import { useCurrentUser } from "@/hooks/useAuth";
+import { useUpdateTask } from "@/hooks/useTasks";
 
 function formatTime(value: string | null | undefined) {
   if (!value) return null;
@@ -55,6 +56,7 @@ export default function EmployeeDashboardPage() {
   const { data, isLoading, isError, error, refetch } = useEmployeeDashboard();
   const checkIn = useCheckIn();
   const checkOut = useCheckOut();
+  const updateTask = useUpdateTask();
 
   const firstName = me?.data?.name?.split(" ")[0] ?? "there";
 
@@ -172,7 +174,37 @@ export default function EmployeeDashboardPage() {
                     >
                       {task.title}
                     </span>
-                    <StatusPill status={task.status} />
+                    <div className="flex shrink-0 items-center gap-2">
+                      <select
+                        value={task.status || "todo"}
+                        onChange={async (e) => {
+                          const newStatus = e.target.value;
+                          if (newStatus !== task.status) {
+                            await updateTask.mutateAsync({
+                              id: task.id,
+                              payload: { status: newStatus },
+                            });
+                          }
+                        }}
+                        disabled={updateTask.isPending}
+                        aria-label={`Change status of ${task.title}`}
+                        className="cursor-pointer border rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.12em] transition hover:opacity-90 focus:outline-none focus:ring-1 focus:ring-adm-blue disabled:opacity-50"
+                        style={
+                          task.status === "done"
+                            ? { background: "var(--adm-green-light)", color: "var(--adm-green)", borderColor: "var(--adm-green)" }
+                            : task.status === "in_progress"
+                            ? { background: "var(--adm-blue-light)", color: "var(--adm-blue)", borderColor: "var(--adm-blue)" }
+                            : task.status === "review"
+                            ? { background: "var(--adm-amber-light)", color: "var(--adm-amber)", borderColor: "var(--adm-amber)" }
+                            : { background: "var(--adm-surface-2)", color: "var(--adm-text-2)", borderColor: "var(--adm-border)" }
+                        }
+                      >
+                        <option value="todo">To Do</option>
+                        <option value="in_progress">In Progress</option>
+                        <option value="review">Review</option>
+                        <option value="done">Done</option>
+                      </select>
+                    </div>
                   </li>
                 ))}
               </ul>

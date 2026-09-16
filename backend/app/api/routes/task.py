@@ -1,8 +1,9 @@
 """Project tasks.
 
-Reads are ``CurrentManager``: the management portal's Delivery page reports on
-open and overdue work, and exec/team-lead users would 403 on an admin-only list
-while the sidebar still offered them the page. Writes stay ``CurrentAdmin``.
+Reads are ``CurrentManager`` for company-wide lists and ``CurrentUser`` for
+``/tasks/me``. Writes to update status and progress deliverables on assigned tasks
+are permitted for assigned staff, while creating, deleting, and reassigning tasks
+remain ``CurrentAdmin``.
 """
 
 import math
@@ -12,7 +13,7 @@ from datetime import date
 from fastapi import APIRouter, HTTPException, Query, status
 from sqlalchemy import delete, func, or_, select, update
 
-from app.api.deps import CurrentAdmin, CurrentManager, CurrentUser, DatabaseSession
+from app.api.deps import CurrentAdmin, CurrentManager, CurrentUser, DatabaseSession, is_admin
 from app.models.task import ProjectTask
 from app.models.user import User
 from app.schemas.task import (
@@ -164,19 +165,57 @@ def bulk_delete_tasks(
     )
 
 
+VALID_STATUSES = {"todo", "in_progress", "review", "done"}
+
+
 @router.post("/bulk-update", response_model=ApiResponse[dict])
 def bulk_update_tasks(
-    payload: BulkTaskUpdatePayload, db: DatabaseSession, _: CurrentAdmin
+    payload: BulkTaskUpdatePayload, db: DatabaseSession, current_user: CurrentUser
 ) -> ApiResponse[dict]:
     """Update status or priority across multiple tasks."""
     updates = {}
     if payload.status is not None:
-        updates["status"] = payload.status
+        status_val = payload.status.strip().lower()
+        if status_val not in VALID_STATUSES:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"Invalid status '{payload.status}'. Allowed statuses: {', '.join(sorted(VALID_STATUSES))}",
+            )
+        updates["status"] = status_val
     if payload.priority is not None:
         updates["priority"] = payload.priority
 
     if not updates:
         raise HTTPException(status_code=400, detail="No fields to update")
+
+    user_is_admin = is_admin(current_user)
+
+    if not user_is_admin:
+        if payload.priority is not None:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Staff members can only update task status",
+            )
+        target_ids = list(set(payload.ids))
+        stmt = (
+            select(ProjectTask.id)
+            .outerjoin(ProjectTask.assignees)
+            .where(
+                ProjectTask.id.in_(target_ids),
+                or_(
+                    ProjectTask.assigned_to_id == current_user.id,
+                    User.id == current_user.id,
+                    ProjectTask.created_by_id == current_user.id,
+                ),
+            )
+            .distinct()
+        )
+        accessible_ids = db.scalars(stmt).all()
+        if len(accessible_ids) != len(target_ids):
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="You can only update tasks assigned to you",
+            )
 
     stmt = (
         update(ProjectTask)
@@ -218,34 +257,79 @@ def create_task(
 
 
 @router.put("/{task_id}", response_model=ApiResponse[ProjectTaskResponse])
+@router.patch("/{task_id}", response_model=ApiResponse[ProjectTaskResponse])
 def update_task(
     task_id: uuid.UUID,
     payload: ProjectTaskUpdate,
     db: DatabaseSession,
-    _: CurrentAdmin,
+    current_user: CurrentUser,
 ) -> ApiResponse[ProjectTaskResponse]:
     task = db.get(ProjectTask, task_id)
     if not task:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Task not found")
 
     dump = payload.model_dump(exclude_unset=True)
+    if not dump:
+        return ApiResponse(data=_to_read(task), message="No changes provided")
+
+    user_is_admin = is_admin(current_user)
+
+    if not user_is_admin:
+        # Check authorization: user must be assigned to task or created it
+        is_assigned = (
+            task.assigned_to_id == current_user.id
+            or any(a.id == current_user.id for a in task.assignees)
+            or task.created_by_id == current_user.id
+        )
+        if not is_assigned:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="You are not authorized to update this task",
+            )
+
+        # Disallow changing restricted fields
+        restricted_fields = {
+            "title",
+            "priority",
+            "due_date",
+            "project_id",
+            "assigned_to_id",
+            "assigned_to_ids",
+        }
+        forbidden_attempts = [f for f in restricted_fields if f in dump]
+        if forbidden_attempts:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Staff members can only update task status and notes/deliverables",
+            )
+
+    if "status" in dump and dump["status"] is not None:
+        status_val = dump["status"].strip().lower()
+        if status_val not in VALID_STATUSES:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"Invalid status '{dump['status']}'. Allowed statuses: {', '.join(sorted(VALID_STATUSES))}",
+            )
+        dump["status"] = status_val
+
     assigned_to_ids = dump.pop("assigned_to_ids", None)
 
     for field, value in dump.items():
         setattr(task, field, value)
 
-    if assigned_to_ids is not None:
-        if assigned_to_ids:
-            users = list(db.scalars(select(User).where(User.id.in_(assigned_to_ids))).all())
-            task.assignees = users
-            task.assigned_to_id = assigned_to_ids[0]
-        else:
-            task.assignees = []
-            task.assigned_to_id = None
-    elif "assigned_to_id" in dump and dump["assigned_to_id"]:
-        user = db.get(User, dump["assigned_to_id"])
-        if user:
-            task.assignees = [user]
+    if user_is_admin:
+        if assigned_to_ids is not None:
+            if assigned_to_ids:
+                users = list(db.scalars(select(User).where(User.id.in_(assigned_to_ids))).all())
+                task.assignees = users
+                task.assigned_to_id = assigned_to_ids[0]
+            else:
+                task.assignees = []
+                task.assigned_to_id = None
+        elif "assigned_to_id" in dump and dump["assigned_to_id"]:
+            user = db.get(User, dump["assigned_to_id"])
+            if user:
+                task.assignees = [user]
 
     db.commit()
     db.refresh(task)
