@@ -21,6 +21,7 @@ export type WANumberInfo = WANumber & {
   displayNumber?: string | null;
   verifiedName?: string | null;
   quality?: string | null;
+  codeVerificationStatus?: string | null;
   /** False when Meta will not accept a send from this id. */
   canSend: boolean;
   error?: string | null;
@@ -30,7 +31,7 @@ let cache: { at: number; data: WANumberInfo[] } | null = null;
 
 async function describe(number: WANumber, token: string): Promise<WANumberInfo> {
   const url = new URL(`${GRAPH_URL}/${number.id}`);
-  url.searchParams.set("fields", "id,display_phone_number,verified_name,quality_rating");
+  url.searchParams.set("fields", "id,display_phone_number,verified_name,quality_rating,code_verification_status");
   url.searchParams.set("access_token", token);
 
   try {
@@ -60,6 +61,7 @@ async function describe(number: WANumber, token: string): Promise<WANumberInfo> 
       displayNumber: json.display_phone_number,
       verifiedName: json.verified_name ?? null,
       quality: json.quality_rating ?? null,
+      codeVerificationStatus: json.code_verification_status ?? null,
       canSend: true,
       error: null,
     };
@@ -102,17 +104,18 @@ export async function GET(request: Request) {
         for (const item of json.data) {
           if (!item.id) continue;
           // primary is corrected below after the full list is built
-          discoveredMap.set(item.id, {
-            id: String(item.id),
-            label: item.verified_name || item.display_phone_number || `Line ${discoveredMap.size + 1}`,
-            primary: false,
-            slot: account.slot,
-            displayNumber: item.display_phone_number ?? null,
-            verifiedName: item.verified_name ?? null,
-            quality: item.quality_rating ?? null,
-            canSend: true,
-            error: null,
-          });
+            discoveredMap.set(item.id, {
+              id: String(item.id),
+              label: item.verified_name || item.display_phone_number || `Line ${discoveredMap.size + 1}`,
+              primary: false,
+              slot: account.slot,
+              displayNumber: item.display_phone_number ?? null,
+              verifiedName: item.verified_name ?? null,
+              quality: item.quality_rating ?? null,
+              codeVerificationStatus: item.code_verification_status ?? null,
+              canSend: true,
+              error: null,
+            });
         }
       }
     } catch (e) {

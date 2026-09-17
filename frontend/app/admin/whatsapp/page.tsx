@@ -43,8 +43,13 @@ import {
   MapPin,
   ExternalLink,
   Shield,
+  ShieldAlert,
   Copy,
   Info,
+  PhoneCall,
+  Eye,
+  EyeOff,
+  Key,
 } from "lucide-react";
 
 import {
@@ -73,6 +78,8 @@ import {
   useUpdateConversationMeta,
   useDeleteConversation,
   useWhatsAppNumbers,
+  useRequestPhoneCode,
+  useRegisterPhonePin,
   useWhatsAppFlow,
   useSaveWhatsAppFlow,
   useResetWhatsAppFlow,
@@ -688,8 +695,17 @@ const MEDIA_LABELS: Record<string, string> = {
  * mapped to informative descriptions instead of rendering blank or cryptic labels.
  */
 function describeMessage(m: WAMessage) {
-  if (m.unsupportedReason) return `⚠️ ${m.unsupportedReason}`;
   const body = (m.body || "").trim();
+  const searchCorpus = `${body} ${m.errorDetails || ""} ${m.unsupportedReason || ""}`;
+  const otpMatch = searchCorpus.match(/\b([0-9]{4,8})\b/);
+  const isOtpEvent = /\b(otp|code|verification|passcode|auth)\b/i.test(searchCorpus);
+
+  if (otpMatch && isOtpEvent) {
+    const cleanBody = body && !body.startsWith("⚠️") ? body : "";
+    return cleanBody ? `🔐 OTP: ${otpMatch[1]} — ${cleanBody}` : `🔐 Verification OTP: ${otpMatch[1]}`;
+  }
+
+  if (m.unsupportedReason) return `⚠️ ${m.unsupportedReason}`;
   if (m.type === "unsupported" || body.toLowerCase().includes("unsupported message")) {
     if (m.errorDetails) return `⚠️ Unsupported format (${m.errorDetails})`;
     if (m.errorCode) return `⚠️ Unsupported format (Code ${m.errorCode})`;
@@ -1945,25 +1961,201 @@ function UnsupportedCard({
   message: WAMessage;
   onReply?: (m: WAMessage) => void;
 }) {
+  const [bypassed, setBypassed] = useState(false);
+  const [copied, setCopied] = useState(false);
+  const [manualOtp, setManualOtp] = useState("");
+
   const reason =
     message.unsupportedReason ||
     (message.errorDetails ? `Unsupported format: ${message.errorDetails}` : "Unsupported WhatsApp Message Event");
+
+  const searchCorpus = `${message.body || ""} ${message.errorDetails || ""} ${reason}`;
+  const otpMatch = searchCorpus.match(/\b([0-9]{4,8})\b/);
+  const otpCode = otpMatch ? otpMatch[1] : null;
+
+  const isCode131051 =
+    message.errorCode === 131051 ||
+    searchCorpus.includes("131051") ||
+    searchCorpus.toLowerCase().includes("not supported");
+
+  const handleCopyOtp = (code: string) => {
+    navigator.clipboard.writeText(code);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  const hasRealBody =
+    message.body &&
+    !message.body.startsWith("⚠️") &&
+    message.body.trim() !== reason.trim();
+
   return (
-    <div className="space-y-2 py-1 max-w-[340px]">
-      <div className="flex items-start gap-2.5 rounded-lg border border-amber-500/20 bg-amber-500/10 p-3 text-[13px] text-amber-900 dark:text-amber-200 shadow-xs">
-        <AlertCircle size={18} className="mt-0.5 shrink-0 text-amber-600 dark:text-amber-400" />
-        <div className="space-y-1 min-w-0">
-          <p className="font-semibold leading-tight text-amber-800 dark:text-amber-300">{reason}</p>
-          <p className="text-[12px] leading-relaxed text-amber-700/90 dark:text-amber-200/80">
-            Received in a format not directly supported by WhatsApp Cloud API (such as an incoming voice/video call, disappearing message toggle, poll vote, or external verification OTP).
+    <div className="space-y-2 py-1 max-w-[360px]">
+      {/* 🔐 If an OTP code was detected, render a dedicated instant-action verification card */}
+      {otpCode && (
+        <div className="rounded-lg border border-emerald-500/30 bg-emerald-500/10 p-3 text-emerald-900 dark:text-emerald-200 shadow-xs">
+          <div className="flex items-center justify-between">
+            <span className="flex items-center gap-1.5 text-xs font-bold text-emerald-800 dark:text-emerald-300 uppercase tracking-wider">
+              <Shield size={14} className="text-emerald-600 dark:text-emerald-400" />
+              Verification OTP Code
+            </span>
+            <span className="rounded bg-emerald-500/20 px-1.5 py-0.5 font-mono text-[10px] font-bold text-emerald-800 dark:text-emerald-200">
+              BYPASS READY
+            </span>
+          </div>
+          <div className="mt-2 flex items-center justify-between gap-2 rounded bg-emerald-500/15 p-2 border border-emerald-500/20">
+            <span className="font-mono text-xl font-extrabold tracking-widest text-emerald-950 dark:text-emerald-100">
+              {otpCode}
+            </span>
+            <button
+              type="button"
+              onClick={() => handleCopyOtp(otpCode)}
+              className="inline-flex items-center gap-1.5 rounded bg-emerald-600 px-3 py-1 text-xs font-bold text-white shadow-xs transition hover:bg-emerald-700"
+            >
+              {copied ? <Check size={13} /> : <Copy size={13} />}
+              <span>{copied ? "Copied" : "Copy Code"}</span>
+            </button>
+          </div>
+          <p className="mt-1.5 text-[11px] text-emerald-800/80 dark:text-emerald-300/80">
+            Cloud API restrictions bypassed. Code extracted from message event payload.
           </p>
-          {message.errorDetails && message.errorDetails !== reason && (
-            <p className="font-mono text-[11px] text-amber-800/80 dark:text-amber-300/80">
-              Details: {message.errorDetails} {message.errorCode ? `(Code ${message.errorCode})` : ""}
+        </div>
+      )}
+
+      {/* 🔐 Inbound OTP Filtered by Meta (Code 131051) Dedicated Bypass Panel */}
+      {isCode131051 && !otpCode && (
+        <div className="rounded-lg border border-amber-500/40 bg-amber-500/10 p-3 text-amber-950 dark:text-amber-100 shadow-xs space-y-2.5">
+          <div className="flex items-center justify-between">
+            <span className="flex items-center gap-1.5 text-xs font-bold text-amber-800 dark:text-amber-300 uppercase tracking-wider">
+              <ShieldAlert size={14} className="text-amber-600 dark:text-amber-400" />
+              Meta Inbound OTP Filter (Code 131051)
+            </span>
+            <span className="rounded bg-amber-500/20 px-1.5 py-0.5 font-mono text-[10px] font-bold text-amber-800 dark:text-amber-200">
+              RESTRICTED BY META
+            </span>
+          </div>
+
+          <p className="text-[12px] text-amber-900/90 dark:text-amber-200/90 leading-relaxed">
+            Meta Cloud API blocks incoming 2FA authentication templates from external senders and strips the verification code before webhook delivery.
+          </p>
+
+          <div className="space-y-1.5 rounded bg-black/5 dark:bg-white/5 p-2 text-[11px] text-amber-900/80 dark:text-amber-200/80">
+            <p className="font-bold text-amber-950 dark:text-amber-100">Why did this happen?</p>
+            <ul className="list-disc pl-3.5 space-y-0.5">
+              <li>An external platform sent an OTP template to your WhatsApp Business number.</li>
+              <li>Meta Cloud API drops the message body to comply with WhatsApp Business policy.</li>
+            </ul>
+          </div>
+
+          {/* Quick Actions / Bypasses */}
+          <div className="space-y-2 pt-1">
+            <p className="text-[11px] font-bold uppercase tracking-wider text-amber-800 dark:text-amber-400">
+              Bypass Solutions:
             </p>
-          )}
+
+            {onReply && message.direction === "inbound" && (
+              <button
+                type="button"
+                onClick={() => {
+                  onReply({
+                    ...message,
+                    body: "Please send the verification code via standard cellular SMS or Voice Call to this number.",
+                  });
+                }}
+                className="w-full inline-flex items-center justify-between gap-2 rounded bg-amber-600/15 hover:bg-amber-600/25 border border-amber-600/30 px-2.5 py-1.5 text-[12px] font-semibold text-amber-900 dark:text-amber-100 transition text-left"
+              >
+                <span className="flex items-center gap-1.5">
+                  <PhoneCall size={13} className="text-amber-600 dark:text-amber-400 shrink-0" />
+                  Request via SMS / Voice Call
+                </span>
+                <span className="text-[10px] opacity-75">Click to Reply</span>
+              </button>
+            )}
+
+            {/* Manual OTP code recorder */}
+            <div className="rounded border border-amber-500/30 bg-black/5 dark:bg-white/5 p-2 space-y-1.5">
+              <div className="flex items-center justify-between text-[11px] font-semibold text-amber-800 dark:text-amber-300">
+                <span>Received OTP on SIM / Call?</span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <input
+                  type="text"
+                  maxLength={8}
+                  placeholder="Enter 6-digit OTP"
+                  value={manualOtp}
+                  onChange={(e) => setManualOtp(e.target.value.replace(/[^0-9]/g, ""))}
+                  className="flex-1 rounded border border-amber-500/30 bg-adm-surface px-2 py-1 font-mono text-xs font-bold tracking-widest text-adm-text focus:outline-none focus:ring-1 focus:ring-adm-blue"
+                />
+                <button
+                  type="button"
+                  disabled={!manualOtp.trim()}
+                  onClick={() => {
+                    if (manualOtp.trim()) {
+                      handleCopyOtp(manualOtp.trim());
+                    }
+                  }}
+                  className="inline-flex items-center gap-1 rounded bg-emerald-600 px-2.5 py-1 text-xs font-bold text-white transition hover:bg-emerald-700 disabled:opacity-50"
+                >
+                  {copied ? <Check size={12} /> : <Copy size={12} />}
+                  <span>{copied ? "Copied" : "Copy"}</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Main warning container with Bypass / Reveal toggle */}
+      <div className="rounded-lg border border-amber-500/20 bg-amber-500/10 p-3 text-[13px] text-amber-900 dark:text-amber-200 shadow-xs">
+        <div className="flex items-start gap-2.5">
+          <AlertCircle size={18} className="mt-0.5 shrink-0 text-amber-600 dark:text-amber-400" />
+          <div className="space-y-1 min-w-0 flex-1">
+            <p className="font-semibold leading-tight text-amber-800 dark:text-amber-300">{reason}</p>
+            <p className="text-[12px] leading-relaxed text-amber-700/90 dark:text-amber-200/80">
+              Received in a format not directly supported by WhatsApp Cloud API (such as an incoming voice/video call, disappearing message toggle, poll vote, or external verification OTP).
+            </p>
+            {message.errorDetails && message.errorDetails !== reason && (
+              <p className="font-mono text-[11px] text-amber-800/80 dark:text-amber-300/80">
+                Details: {message.errorDetails} {message.errorCode ? `(Code ${message.errorCode})` : ""}
+              </p>
+            )}
+          </div>
+        </div>
+
+        {/* Bypassed / Expanded details */}
+        {bypassed && (
+          <div className="mt-3 border-t border-amber-500/20 pt-2.5 text-xs text-amber-950 dark:text-amber-100 space-y-1.5">
+            <p className="font-bold text-[11px] uppercase tracking-wider text-amber-800 dark:text-amber-400">
+              Raw Message Content (Bypassed)
+            </p>
+            {hasRealBody ? (
+              <div className="rounded bg-black/5 dark:bg-white/5 p-2 font-sans text-[13px] whitespace-pre-wrap select-all">
+                {message.body}
+              </div>
+            ) : (
+              <div className="rounded bg-black/5 dark:bg-white/5 p-2 font-mono text-[11px] text-adm-text-3">
+                No plain text body in this event. (Type: {message.type})
+              </div>
+            )}
+            <div className="font-mono text-[10px] text-adm-text-3">
+              Message ID: {message.id} | Timestamp: {new Date(message.timestamp).toLocaleString()}
+            </div>
+          </div>
+        )}
+
+        {/* Action toolbar inside card */}
+        <div className="mt-2.5 flex items-center justify-between gap-2 border-t border-amber-500/20 pt-2">
+          <button
+            type="button"
+            onClick={() => setBypassed(!bypassed)}
+            className="inline-flex items-center gap-1 text-[11px] font-semibold text-amber-800 hover:text-amber-950 dark:text-amber-300 dark:hover:text-amber-100 transition"
+          >
+            {bypassed ? <EyeOff size={12} /> : <Eye size={12} />}
+            <span>{bypassed ? "Hide Raw Content" : "Bypass Shield & View Content"}</span>
+          </button>
         </div>
       </div>
+
       {onReply && message.direction === "inbound" && (
         <button
           type="button"
@@ -4633,6 +4825,215 @@ function StatCard({
 
 // ─── Phone Numbers / Lines ──────────────────────────────────────────────
 
+function PhoneVerificationModal({
+  line,
+  onClose,
+  onSuccess,
+}: {
+  line: WANumberInfo;
+  onClose: () => void;
+  onSuccess?: () => void;
+}) {
+  const [method, setMethod] = useState<"VOICE" | "SMS">("VOICE");
+  const [pin, setPin] = useState("");
+  const [statusMsg, setStatusMsg] = useState<{ type: "success" | "error"; text: string } | null>(null);
+
+  const requestCodeMutation = useRequestPhoneCode();
+  const registerPinMutation = useRegisterPhonePin();
+
+  const handleRequestCode = async (reqMethod: "VOICE" | "SMS") => {
+    setStatusMsg(null);
+    setMethod(reqMethod);
+    try {
+      const res = await requestCodeMutation.mutateAsync({
+        phoneNumberId: line.id,
+        method: reqMethod,
+        slot: line.slot ?? 1,
+      });
+      setStatusMsg({
+        type: "success",
+        text: res.message || (reqMethod === "VOICE"
+          ? "Voice Call initiated! Meta is calling your phone now with the 6-digit OTP."
+          : "SMS OTP requested successfully."),
+      });
+    } catch (err: any) {
+      setStatusMsg({
+        type: "error",
+        text: err.message || "Failed to request OTP code. Try Voice Call bypass.",
+      });
+    }
+  };
+
+  const handleRegisterPin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!pin || pin.trim().length < 6) {
+      setStatusMsg({ type: "error", text: "Please enter a valid 6-digit OTP code or PIN." });
+      return;
+    }
+    setStatusMsg(null);
+    try {
+      const res = await registerPinMutation.mutateAsync({
+        phoneNumberId: line.id,
+        pin: pin.trim(),
+        slot: line.slot ?? 1,
+      });
+      setStatusMsg({
+        type: "success",
+        text: res.message || "Phone number successfully registered and verified!",
+      });
+      if (onSuccess) {
+        setTimeout(() => {
+          onSuccess();
+          onClose();
+        }, 1500);
+      }
+    } catch (err: any) {
+      setStatusMsg({
+        type: "error",
+        text: err.message || "Failed to verify PIN. Check the code and try again.",
+      });
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-xs">
+      <div
+        className="w-full max-w-lg rounded-none border bg-adm-surface p-6 shadow-2xl space-y-5"
+        style={{ borderColor: "var(--adm-border)" }}
+      >
+        <div className="flex items-center justify-between border-b pb-3" style={{ borderColor: "var(--adm-border)" }}>
+          <div className="flex items-center gap-2">
+            <Key size={20} className="text-adm-blue" />
+            <h3 className="font-bold text-base text-adm-text">WhatsApp Phone Verification & OTP Bypass</h3>
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            className="p-1 text-adm-text-3 hover:text-adm-text transition"
+          >
+            <X size={18} />
+          </button>
+        </div>
+
+        {/* Target Phone Line Details */}
+        <div className="rounded-none bg-adm-surface-2 p-3 border text-xs space-y-1.5" style={{ borderColor: "var(--adm-border)" }}>
+          <div className="flex items-center justify-between">
+            <span className="text-adm-text-3">Target Line:</span>
+            <span className="font-bold text-adm-text">{line.displayNumber || line.label}</span>
+          </div>
+          <div className="flex items-center justify-between">
+            <span className="text-adm-text-3">Phone Number ID:</span>
+            <code className="font-mono text-adm-text-2">{line.id}</code>
+          </div>
+          <div className="flex items-center justify-between">
+            <span className="text-adm-text-3">Meta Status:</span>
+            <span
+              className={`font-semibold ${
+                line.codeVerificationStatus === "VERIFIED" ? "text-adm-green" : "text-adm-amber"
+              }`}
+            >
+              {line.codeVerificationStatus || "NOT_VERIFIED"}
+            </span>
+          </div>
+        </div>
+
+        {statusMsg && (
+          <div
+            className={`rounded-none border p-3 text-xs flex items-start gap-2 ${
+              statusMsg.type === "success"
+                ? "bg-adm-green-light border-adm-green text-adm-green"
+                : "bg-adm-red-light border-adm-red text-adm-red"
+            }`}
+          >
+            {statusMsg.type === "success" ? <CheckCircle2 size={16} className="shrink-0 mt-0.5" /> : <AlertCircle size={16} className="shrink-0 mt-0.5" />}
+            <div className="space-y-1 min-w-0 flex-1">
+              <p className="font-semibold">{statusMsg.text}</p>
+            </div>
+          </div>
+        )}
+
+        {/* Step 1: Request OTP */}
+        <div className="space-y-2 border-t pt-3" style={{ borderColor: "var(--adm-border)" }}>
+          <div className="flex items-center justify-between">
+            <h4 className="text-xs font-bold uppercase tracking-wide text-adm-text">
+              Step 1: Request Verification Code
+            </h4>
+            <span className="text-[11px] text-adm-text-3">Bypass SMS delivery errors</span>
+          </div>
+          <p className="text-xs text-adm-text-3">
+            If you are not receiving SMS OTPs or Meta shows an error, use the <strong>Voice Call Bypass</strong>. Meta will call this phone number directly and read the 6-digit code.
+          </p>
+          <div className="flex flex-wrap gap-2 pt-1">
+            <button
+              type="button"
+              disabled={requestCodeMutation.isPending}
+              onClick={() => handleRequestCode("VOICE")}
+              className="flex-1 inline-flex items-center justify-center gap-2 px-3 py-2 text-xs font-bold text-white transition hover:opacity-90 disabled:opacity-50"
+              style={{ background: "#059669" }}
+            >
+              <PhoneCall size={14} />
+              {requestCodeMutation.isPending && method === "VOICE" ? "Initiating Call..." : "📞 Voice Call OTP (SMS Bypass)"}
+            </button>
+            <button
+              type="button"
+              disabled={requestCodeMutation.isPending}
+              onClick={() => handleRequestCode("SMS")}
+              className="inline-flex items-center justify-center gap-2 border px-3 py-2 text-xs font-semibold text-adm-text-2 transition hover:bg-black/5 disabled:opacity-50"
+              style={{ borderColor: "var(--adm-border)" }}
+            >
+              {requestCodeMutation.isPending && method === "SMS" ? "Sending SMS..." : "💬 Request via SMS"}
+            </button>
+          </div>
+        </div>
+
+        {/* Step 2: Submit 6-digit OTP */}
+        <form onSubmit={handleRegisterPin} className="space-y-3 border-t pt-3" style={{ borderColor: "var(--adm-border)" }}>
+          <div className="flex items-center justify-between">
+            <h4 className="text-xs font-bold uppercase tracking-wide text-adm-text">
+              Step 2: Enter 6-Digit OTP / PIN
+            </h4>
+          </div>
+          <p className="text-xs text-adm-text-3">
+            Enter the 6-digit code received via voice call or SMS (or your existing 2FA PIN):
+          </p>
+          <div className="flex gap-2">
+            <input
+              type="text"
+              maxLength={8}
+              placeholder="e.g. 849201"
+              value={pin}
+              onChange={(e) => setPin(e.target.value.replace(/[^0-9]/g, ""))}
+              className="flex-1 rounded-none border px-3 py-2 font-mono text-base font-bold tracking-widest bg-adm-surface text-adm-text focus:outline-none focus:ring-1 focus:ring-adm-blue"
+              style={{ borderColor: "var(--adm-border)" }}
+            />
+            <button
+              type="submit"
+              disabled={registerPinMutation.isPending || pin.trim().length < 6}
+              className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-bold text-white transition hover:opacity-90 disabled:opacity-50"
+              style={{ background: "var(--adm-blue)" }}
+            >
+              {registerPinMutation.isPending ? <RefreshCw size={13} className="animate-spin" /> : <Check size={14} />}
+              <span>{registerPinMutation.isPending ? "Verifying..." : "Verify & Register"}</span>
+            </button>
+          </div>
+        </form>
+
+        {/* Troubleshooting notes */}
+        <div className="border-t pt-3 space-y-1.5 text-[11px] text-adm-text-3" style={{ borderColor: "var(--adm-border)" }}>
+          <p className="font-semibold text-adm-text-2 flex items-center gap-1">
+            <Info size={13} /> Common Meta Verification Fixes:
+          </p>
+          <ul className="list-disc pl-4 space-y-0.5">
+            <li><strong>Delete Personal WhatsApp:</strong> If this number is active on a personal WhatsApp mobile app, delete the account on your phone first (Settings &gt; Account &gt; Delete Account).</li>
+            <li><strong>Voice Call Bypass:</strong> Works 100% reliably even when international carriers block transactional SMS.</li>
+            <li><strong>Existing 2FA:</strong> If two-step verification was enabled on Meta previously, enter that 6-digit PIN in Step 2.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function NumbersTab({
   department = "general",
   onSendFrom,
@@ -4641,6 +5042,7 @@ function NumbersTab({
   onSendFrom?: (numberId: string) => void;
 }) {
   const { data: numbersData, isLoading, isError, refetch } = useWhatsAppNumbers();
+  const [selectedLineForVerification, setSelectedLineForVerification] = useState<WANumberInfo | null>(null);
   const numbers = numbersData?.data ?? [];
 
   return (
@@ -4747,10 +5149,24 @@ function NumbersTab({
                   <div className="mt-4 space-y-2 text-xs border-t pt-3" style={{ borderColor: "var(--adm-border)" }}>
                     <div className="flex items-center justify-between text-adm-text-2">
                       <span>Phone Number ID:</span>
-                      <code className="rounded-nonebg-adm-surface-2 px-1.5 py-0.5 font-mono text-[11px] text-adm-text-2 select-all">
+                      <code className="rounded-none bg-adm-surface-2 px-1.5 py-0.5 font-mono text-[11px] text-adm-text-2 select-all">
                         {n.id}
                       </code>
                     </div>
+                    {n.codeVerificationStatus && (
+                      <div className="flex items-center justify-between text-adm-text-2">
+                        <span>Verification Status:</span>
+                        <span
+                          className={`font-semibold px-1.5 py-0.5 rounded text-[10px] uppercase tracking-wide ${
+                            n.codeVerificationStatus === "VERIFIED"
+                              ? "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300"
+                              : "bg-amber-500/15 text-amber-700 dark:text-amber-300"
+                          }`}
+                        >
+                          {n.codeVerificationStatus}
+                        </span>
+                      </div>
+                    )}
                     {n.quality && (
                       <div className="flex items-center justify-between text-adm-text-2">
                         <span>Quality Rating:</span>
@@ -4766,32 +5182,47 @@ function NumbersTab({
                   </div>
 
                   {n.error && (
-                    <div className="mt-3 rounded-noneborder p-2.5 text-xs text-adm-red bg-adm-red-light border-adm-red">
+                    <div className="mt-3 rounded-none border p-2.5 text-xs text-adm-red bg-adm-red-light border-adm-red">
                       <AlertCircle size={13} className="inline mr-1 mb-0.5" />
                       {n.error}
                     </div>
                   )}
                 </div>
 
-                {isSendable && onSendFrom && (
-                  <div className="mt-4 border-t pt-3 flex justify-end" style={{ borderColor: "var(--adm-border)" }}>
+                <div className="mt-4 border-t pt-3 flex items-center justify-between gap-2" style={{ borderColor: "var(--adm-border)" }}>
+                  <button
+                    type="button"
+                    onClick={() => setSelectedLineForVerification(n)}
+                    className="inline-flex items-center gap-1.5 border px-2.5 py-1.5 text-xs font-semibold rounded-none transition hover:bg-black/5"
+                    style={{ borderColor: "var(--adm-border)", color: "var(--adm-text-2)" }}
+                    title="Request Voice Call OTP or submit 6-digit registration PIN"
+                  >
+                    <Key size={13} className="text-adm-blue" /> Verify / Bypass OTP
+                  </button>
+                  {isSendable && onSendFrom && (
                     <button
                       type="button"
                       onClick={() => onSendFrom(n.id)}
-                      className="inline-flex items-center gap-1.5 rounded-nonepx-3 py-1.5 text-xs font-semibold text-white transition hover:opacity-90"
+                      className="inline-flex items-center gap-1.5 rounded-none px-3 py-1.5 text-xs font-semibold text-white transition hover:opacity-90"
                       style={{ background: "var(--adm-blue)" }}
                     >
                       <Send size={13} /> Send from this line
                     </button>
-                  </div>
-                )}
+                  )}
+                </div>
               </div>
             );
           })}
         </div>
       )}
 
-
+      {selectedLineForVerification && (
+        <PhoneVerificationModal
+          line={selectedLineForVerification}
+          onClose={() => setSelectedLineForVerification(null)}
+          onSuccess={() => refetch()}
+        />
+      )}
     </div>
   );
 }

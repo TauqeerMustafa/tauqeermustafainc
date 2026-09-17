@@ -229,6 +229,7 @@ export type WANumberInfo = {
   displayNumber?: string | null;
   verifiedName?: string | null;
   quality?: string | null;
+  codeVerificationStatus?: string | null;
   canSend: boolean;
   error?: string | null;
 };
@@ -242,6 +243,50 @@ export function useWhatsAppNumbers() {
     queryKey: ["whatsapp-numbers"],
     queryFn: () => getJSON("/numbers"),
     staleTime: 5 * 60 * 1000,
+  });
+}
+
+/** Request an OTP code via Voice Call (recommended bypass) or SMS for phone verification. */
+export function useRequestPhoneCode() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (payload: { phoneNumberId: string; method?: "VOICE" | "SMS"; slot?: number }) => {
+      const res = await fetch(`${API_BASE}/verify-phone`, {
+        method: "POST",
+        headers: authHeaders({ "Content-Type": "application/json" }),
+        body: JSON.stringify({ action: "request_code", ...payload }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || "Failed to request verification code");
+      }
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["whatsapp-numbers"] });
+    },
+  });
+}
+
+/** Submit a 6-digit OTP code or PIN to register and verify the phone number with Meta Cloud API. */
+export function useRegisterPhonePin() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (payload: { phoneNumberId: string; pin: string; slot?: number }) => {
+      const res = await fetch(`${API_BASE}/verify-phone`, {
+        method: "POST",
+        headers: authHeaders({ "Content-Type": "application/json" }),
+        body: JSON.stringify({ action: "register", ...payload }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || "Failed to verify and register phone number");
+      }
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["whatsapp-numbers"] });
+    },
   });
 }
 

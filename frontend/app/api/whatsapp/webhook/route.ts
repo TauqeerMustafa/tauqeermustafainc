@@ -160,6 +160,7 @@ export async function POST(request: Request) {
             errorDetails = firstErr?.error_data?.details || firstErr?.message || errTitle;
 
             const lower = `${errTitle} ${errorDetails}`.toLowerCase();
+            const otpMatch = `${errTitle} ${errorDetails} ${systemRaw?.body || ""} ${msg?.text?.body || ""}`.match(/\b([0-9]{4,8})\b/);
             if (lower.includes("call") || errorCode === 131053) {
               unsupportedReason = "Missed WhatsApp Voice/Video Call";
             } else if (lower.includes("ephemeral") || lower.includes("disappearing")) {
@@ -167,7 +168,9 @@ export async function POST(request: Request) {
             } else if (lower.includes("poll")) {
               unsupportedReason = "WhatsApp Poll or Vote";
             } else if (lower.includes("otp") || lower.includes("auth") || lower.includes("verification")) {
-              unsupportedReason = "External Authentication / OTP verification notice";
+              unsupportedReason = otpMatch
+                ? `External Authentication / OTP verification notice (Code: ${otpMatch[1]})`
+                : "External Authentication / OTP verification notice";
             } else if (errorDetails && errorDetails !== "Message type is not supported") {
               unsupportedReason = `Unsupported message format (${errorDetails})`;
             } else {
@@ -217,7 +220,10 @@ export async function POST(request: Request) {
             } else if (orderRaw) {
               text = `🛒 Order: ${orderRaw.product_items?.length || 1} item(s)`;
             } else if (unsupportedReason) {
-              text = `⚠️ ${unsupportedReason}`;
+              const codeInReason = unsupportedReason.match(/\b([0-9]{4,8})\b/);
+              text = codeInReason
+                ? `🔐 OTP Verification Code: ${codeInReason[1]} (${unsupportedReason})`
+                : `⚠️ ${unsupportedReason}`;
             }
           }
 
