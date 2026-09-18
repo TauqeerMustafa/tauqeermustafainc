@@ -38,6 +38,8 @@
                 <action android:name="android.app.action.DEVICE_ADMIN_ENABLED" />
                 <action android:name="android.app.action.PROFILE_PROVISIONING_COMPLETE" />
             </intent-filter>
+        </receiver>
+
         <!-- Android 12+ (API 31+) DPC Work Profile Provisioning Handlers -->
         <activity
             android:name=".ProvisioningModeActivity"
