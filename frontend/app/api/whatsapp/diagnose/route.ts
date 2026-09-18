@@ -88,11 +88,11 @@ async function inspect(
 import { timingSafeEqual } from "node:crypto";
 
 export async function GET(request: Request) {
-  const secret = process.env.WA_DIAGNOSE_KEY?.trim();
+  const secret = process.env.WA_DIAGNOSE_KEY?.trim() || process.env.WEBHOOK_VERIFY_TOKEN?.trim();
   const key = new URL(request.url).searchParams.get("key")?.trim() || "";
   if (!secret) {
     return NextResponse.json(
-      { success: false, error: "Set WA_DIAGNOSE_KEY in environment to access diagnostic telemetry." },
+      { success: false, error: "Set WA_DIAGNOSE_KEY or WEBHOOK_VERIFY_TOKEN in environment to access diagnostic telemetry." },
       { status: 503 }
     );
   }

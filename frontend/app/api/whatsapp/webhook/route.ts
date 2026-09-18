@@ -119,9 +119,11 @@ export async function POST(request: Request) {
       for (const change of entry?.changes ?? []) {
         const value    = change?.value;
         const messages = value?.messages ?? [];
+        const phoneId      = String(value?.metadata?.phone_number_id || "").trim();
+        const displayPhone = String(value?.metadata?.display_phone_number || "").trim();
         // The number this event arrived on. One webhook serves the whole WABA,
         // so this — not the environment — decides who replies.
-        const channel  = String(value?.metadata?.phone_number_id || value?.metadata?.display_phone_number || "");
+        const channel      = phoneId || displayPhone || "";
 
         for (const msg of messages) {
           const from    = msg.from;         // sender number (digits only)
@@ -240,7 +242,13 @@ export async function POST(request: Request) {
             msg?.button?.payload ??
             null;
 
-          console.log(`[webhook] Message from ${from} on ${channel} (${msgType}): ${text.slice(0, 100)}`);
+          // Department attribution: prioritize explicit executive tags or channel matching
+          const isDirectFromText = /\[?(executive|direct\s*desk)\]?/i.test(text);
+          const dept: "general" | "support" | "direct" = isDirectFromText
+            ? "direct"
+            : getChannelDepartment(phoneId || displayPhone || channel);
+
+          console.log(`[webhook] Message from ${from} on ${channel} (dept: ${dept}, ${msgType}): ${text.slice(0, 100)}`);
 
           const storedMessage: WAMessage = {
             id: msgId,
@@ -248,6 +256,7 @@ export async function POST(request: Request) {
             to: channel,
             jid: `${from}@s.whatsapp.net`,
             channel,
+            department: dept,
             name: name || from,
             type: msgType,
             body: text,
@@ -281,7 +290,7 @@ export async function POST(request: Request) {
           const stored = await appendMessage(storedMessage);
 
           if (stored && msgType !== "unsupported" && msgType !== "system") {
-            await handleAutoReply(from, text, msgId, channel, choiceId ? String(choiceId) : null);
+            await handleAutoReply(from, text, msgId, channel, choiceId ? String(choiceId) : null, dept);
           }
         }
 
@@ -332,10 +341,12 @@ async function handleAutoReply(
   incomingText: string,
   msgId: string,
   channel: string,
-  choiceId: string | null
+  choiceId: string | null,
+  overrideDept?: "general" | "support" | "direct"
 ) {
   // 1. Resolve department: Line 1 -> general, Line 2 -> support, Line 3 -> direct
-  const dept: "general" | "support" | "direct" = getChannelDepartment(channel);
+  const dept: "general" | "support" | "direct" =
+    overrideDept || getChannelDepartment(channel);
 
   // 2. Always reply through the channel message arrived on, fallback to primary
   const phoneNumberId = channel || primaryNumberId();
@@ -389,7 +400,7 @@ async function handleAutoReply(
     if (choiceId) {
       const next = await resolveEffectiveChoice(choiceId, dept);
       if (next) {
-        await sendFlowStep(token, phoneNumberId, to, next, msgId);
+        await sendFlowStep(token, phoneNumberId, to, next, msgId, dept);
         return;
       }
     }
@@ -398,7 +409,7 @@ async function handleAutoReply(
     if (!choiceId && incomingText) {
       const textChoice = await resolveChoiceFromText(incomingText, dept);
       if (textChoice) {
-        await sendFlowStep(token, phoneNumberId, to, textChoice, msgId);
+        await sendFlowStep(token, phoneNumberId, to, textChoice, msgId, dept);
         return;
       }
     }
@@ -420,7 +431,7 @@ async function handleAutoReply(
     if (isStartCmd || isFirst) {
       const entry = await getEffectiveFlowStep(FLOW_ENTRY, dept);
       if (entry) {
-        await sendFlowStep(token, phoneNumberId, to, entry, msgId);
+        await sendFlowStep(token, phoneNumberId, to, entry, msgId, dept);
         return;
       }
     }
@@ -428,7 +439,7 @@ async function handleAutoReply(
     // 8. Keyword rules for active conversation
     const rule = matchRule(await getRules(dept), incomingText);
     if (rule) {
-      await sendText(token, phoneNumberId, to, rule.reply, msgId);
+      await sendText(token, phoneNumberId, to, rule.reply, msgId, dept);
     }
   } catch (error) {
     console.error("[webhook] Auto-reply error:", error);
@@ -463,7 +474,8 @@ async function sendFlowStep(
   phoneNumberId: string,
   to: string,
   step: FlowStep,
-  msgId: string
+  msgId: string,
+  dept: "general" | "support" | "direct" = "general"
 ) {
   await markRead(token, phoneNumberId, msgId);
 
@@ -493,14 +505,39 @@ async function sendFlowStep(
       cache: "no-store",
     });
     const fbData = await fbRes.json();
-    const fbId = fbData?.messages?.[0]?.id;
+    let fbId = fbData?.messages?.[0]?.id;
+    let finalSender = phoneNumberId;
+
+    // If sending from phoneNumberId failed, try via primary line to ensure user is answered
+    if (!fbId) {
+      const primary = primaryNumberId();
+      if (primary && primary !== phoneNumberId) {
+        console.warn(`[webhook] Retrying auto-reply step via primary line ${primary}`);
+        const priRes = await fetch(`${GRAPH_URL}/${primary}/messages`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+          body: JSON.stringify({
+            messaging_product: "whatsapp",
+            to,
+            type: "text",
+            text: { body: fallbackText, preview_url: false },
+          }),
+          cache: "no-store",
+        });
+        const priData = await priRes.json();
+        fbId = priData?.messages?.[0]?.id;
+        if (fbId) finalSender = primary;
+      }
+    }
+
     if (fbId) {
       await appendMessage({
         id: fbId,
-        from: phoneNumberId,
+        from: finalSender,
         to,
         jid: `${to}@s.whatsapp.net`,
         channel: phoneNumberId,
+        department: dept,
         type: "text",
         body: fallbackText,
         timestamp: new Date().toISOString(),
@@ -519,6 +556,7 @@ async function sendFlowStep(
     to,
     jid: `${to}@s.whatsapp.net`,
     channel: phoneNumberId,
+    department: dept,
     type: step.kind === "text" ? "text" : "interactive",
     // Spell the options out — the interactive part cannot be read back later.
     body: stepTranscript(step),
@@ -542,7 +580,8 @@ async function sendText(
   phoneNumberId: string,
   to: string,
   text: string,
-  msgId: string
+  msgId: string,
+  dept: "general" | "support" | "direct" = "general"
 ) {
   try {
     await markRead(token, phoneNumberId, msgId);
@@ -562,15 +601,40 @@ async function sendText(
       }),
     });
     const data = await res.json();
-    const messageId = data?.messages?.[0]?.id;
+    let messageId = data?.messages?.[0]?.id;
+    let finalSender = phoneNumberId;
+
+    if (!messageId) {
+      const primary = primaryNumberId();
+      if (primary && primary !== phoneNumberId) {
+        console.warn(`[webhook] Retrying text auto-reply via primary line ${primary}`);
+        const priRes = await fetch(`${GRAPH_URL}/${primary}/messages`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            messaging_product: "whatsapp",
+            to,
+            type: "text",
+            text: { body: text, preview_url: false },
+          }),
+        });
+        const priData = await priRes.json();
+        messageId = priData?.messages?.[0]?.id;
+        if (messageId) finalSender = primary;
+      }
+    }
 
     if (messageId) {
       await appendMessage({
         id: messageId,
-        from: phoneNumberId,
+        from: finalSender,
         to,
         jid: `${to}@s.whatsapp.net`,
         channel: phoneNumberId,
+        department: dept,
         type: "text",
         body: text,
         timestamp: new Date().toISOString(),

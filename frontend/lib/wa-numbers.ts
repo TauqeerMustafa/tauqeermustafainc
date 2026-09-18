@@ -185,13 +185,21 @@ export function waNumbers(): WANumber[] {
 export function registerKnownNumbers(extra: WANumber[]) {
   if (!cached) cached = build();
   for (const item of extra) {
-    if (!cached.some((c) => c.id === item.id)) {
+    const existing = cached.find((c) => c.id === item.id);
+    if (!existing) {
       cached.push({
         id: item.id,
         label: item.label || `Line ${cached.length + 1}`,
         primary: cached.length === 0,
         slot: item.slot ?? 1,
+        department: item.department,
+        displayNumber: item.displayNumber,
       });
+    } else {
+      if (item.department) existing.department = item.department;
+      if (item.displayNumber) existing.displayNumber = item.displayNumber;
+      if (item.label && !item.label.startsWith("Line ")) existing.label = item.label;
+      if (item.slot) existing.slot = item.slot;
     }
   }
 }
@@ -268,32 +276,64 @@ export function getChannelDepartment(
   const cleanId = idOrNumber.trim();
   if (!cleanId) return "general";
 
-  if (cleanId === DEFAULT_THIRD_ID || cleanId.toLowerCase().includes("direct") || cleanId.toLowerCase().includes("executive")) {
+  const lower = cleanId.toLowerCase();
+  if (
+    cleanId === DEFAULT_THIRD_ID ||
+    lower.includes("direct") ||
+    lower.includes("executive") ||
+    lower.includes("priority")
+  ) {
     return "direct";
   }
 
   const primary = primaryNumberId();
   if (primary && cleanId === primary) return "general";
 
+  const digits = cleanId.replace(/[^0-9]/g, "");
   const nums = allNumbers || waNumbers();
-  const num = nums.find(
-    (n) =>
-      n.id === cleanId ||
-      (n.displayNumber && n.displayNumber.replace(/[^0-9]/g, "") === cleanId.replace(/[^0-9]/g, ""))
-  );
+
+  // 1. Exact match on id, displayNumber, or clean digits
+  const num = nums.find((n) => {
+    if (n.id === cleanId) return true;
+    const nDigits = n.id.replace(/[^0-9]/g, "");
+    if (digits && nDigits && digits === nDigits) return true;
+    if (n.displayNumber) {
+      if (n.displayNumber === cleanId) return true;
+      const dDigits = n.displayNumber.replace(/[^0-9]/g, "");
+      if (digits && dDigits && digits === dDigits) return true;
+    }
+    return false;
+  });
+
   if (num) {
     if (num.department) return num.department;
     if (num.primary) return "general";
-    if (num.id === DEFAULT_THIRD_ID) return "direct";
+    if (num.id === DEFAULT_THIRD_ID || num.slot === 3) return "direct";
+    if (num.slot === 2) return "support";
+  }
+
+  // 2. Explicit keywords
+  if (lower.includes("support") || cleanId === DEFAULT_SECOND_ID) {
     return "support";
   }
 
-  if (cleanId.toLowerCase().includes("support") || cleanId === DEFAULT_SECOND_ID) {
-    return "support";
+  // 3. Multi-line awareness: if 3 lines are known, match against the 3rd line
+  if (nums.length >= 3) {
+    const directNum = nums.find(n => n.department === "direct" || n.id === DEFAULT_THIRD_ID || n.slot === 3) || nums[2];
+    if (directNum && (directNum.id === cleanId || (digits && directNum.id.replace(/[^0-9]/g, "") === digits))) {
+      return "direct";
+    }
   }
 
-  // Any non-primary channel ID is our support line
-  if (primary && cleanId !== primary) {
+  // 4. Check against known direct number specifically
+  const directNum = nums.find((n) => n.department === "direct" || n.id === DEFAULT_THIRD_ID || n.slot === 3);
+  if (directNum && (directNum.id === cleanId || (digits && directNum.id.replace(/[^0-9]/g, "") === digits))) {
+    return "direct";
+  }
+
+  // 5. Check against known support number
+  const supportNum = nums.find((n) => n.department === "support" || n.id === DEFAULT_SECOND_ID || n.slot === 2);
+  if (supportNum && (supportNum.id === cleanId || (digits && supportNum.id.replace(/[^0-9]/g, "") === digits))) {
     return "support";
   }
 

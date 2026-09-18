@@ -176,6 +176,11 @@ function cleanDigits(s?: string | null): string {
  * onto Line 1, so there is intentionally none of it here.
  */
 function messageDirectlyMatchesNumber(m: WAMessage, numberInfo: WANumberInfo): boolean {
+  // If message has an explicit department stamped and it matches this line's department
+  if (m.department && numberInfo.department && m.department === numberInfo.department) {
+    return true;
+  }
+
   const ch = channelOf(m);
   if (!ch) return false;
   if (ch === numberInfo.id) return true;
@@ -188,6 +193,16 @@ function messageDirectlyMatchesNumber(m: WAMessage, numberInfo: WANumberInfo): b
   if (chDigits && displayDigits && chDigits === displayDigits) return true;
   if (numberInfo.displayNumber && ch === numberInfo.displayNumber) return true;
 
+  // Also check m.to / m.from against numberInfo
+  const toDigits = cleanDigits(m.to);
+  if (toDigits && idDigits && toDigits === idDigits) return true;
+  if (toDigits && displayDigits && toDigits === displayDigits) return true;
+
+  if (numberInfo.department === "direct") {
+    if (ch === "1291624014041103" || toDigits === "1291624014041103") return true;
+    if (/\[?(executive|direct\s*desk)\]?/i.test(m.body || "")) return true;
+  }
+
   return false;
 }
 
@@ -197,6 +212,11 @@ function messageBelongsToChannel(
   allNumbers: WANumberInfo[]
 ): boolean {
   if (!numberInfo) return true;
+
+  // 0. Explicit stamped department check
+  if (m.department && numberInfo.department) {
+    return m.department === numberInfo.department;
+  }
 
   // 1. Check if directly matches target line
   if (messageDirectlyMatchesNumber(m, numberInfo)) return true;
@@ -209,7 +229,10 @@ function messageBelongsToChannel(
 
   if (matchesAnotherLine) return false;
 
-  // 3. Fallback: unlabelled or legacy messages belong to the primary line
+  // 3. Fallback: only legacy/unlabelled messages without distinct channel belong to primary
+  const ch = channelOf(m);
+  if (!ch || ch === "unknown") return !!numberInfo.primary;
+
   return !!numberInfo.primary;
 }
 
@@ -257,16 +280,27 @@ function withSeenChannels(
     if (extras.some((e) => e.id === ch || cleanDigits(e.id) === cleanDigits(ch))) continue;
     // An explicit channel stamp that Meta's discovered list does not include is
     // one of OUR lines that discovery missed — such as the second or third number.
+    const hasDirectMessage = messages.some(
+      (msg) =>
+        (msg.channel === ch || msg.to === ch) &&
+        (msg.department === "direct" || /\[?(executive|direct\s*desk)\]?/i.test(msg.body || ""))
+    );
+    const hasDirectLineInApi = apiNumbers.some((n) => n.department === "direct");
+    const hasSupportLineInApi = apiNumbers.some((n) => n.department === "support");
+
     const isDirect =
       ch === "1291624014041103" ||
       ch.toLowerCase().includes("direct") ||
-      ch.toLowerCase().includes("executive");
-    const primaryKnown = apiNumbers.some((n) => n.primary);
+      ch.toLowerCase().includes("executive") ||
+      hasDirectMessage ||
+      (!hasDirectLineInApi && hasSupportLineInApi);
+
     const isSupport =
       !isDirect &&
-      (primaryKnown ||
-      ch.toLowerCase().includes("support") ||
-      ch === "1318810581311680");
+      (ch.toLowerCase().includes("support") ||
+        ch === "1318810581311680" ||
+        !hasSupportLineInApi);
+
     extras.push({
       id: ch,
       label: isDirect
@@ -287,16 +321,21 @@ function withSeenChannels(
 
 /** Determine which department a message belongs to: "general" (Inquiries/Sales), "support" (Client Support Desk), or "direct" (Executive Desk) */
 function getMessageDepartment(m: WAMessage, allNumbers: WANumberInfo[] = []): "general" | "support" | "direct" {
-  const line = getLineForMessage(m, allNumbers);
-  if (line?.department) return line.department;
+  if (m.department) return m.department;
+  if (/\[?(executive|direct\s*desk)\]?/i.test(m.body || "")) return "direct";
+
   const ch = channelOf(m);
   if (
     ch === "1291624014041103" ||
     ch.toLowerCase().includes("direct") ||
-    ch.toLowerCase().includes("executive") ||
-    line?.id === "1291624014041103" ||
-    line?.slot === 3
+    ch.toLowerCase().includes("executive")
   ) {
+    return "direct";
+  }
+
+  const line = getLineForMessage(m, allNumbers);
+  if (line?.department) return line.department;
+  if (line?.id === "1291624014041103" || line?.slot === 3) {
     return "direct";
   }
   if (
@@ -5318,6 +5357,31 @@ function NumbersTab({
   const [syncingId, setSyncingId] = useState<string | null>(null);
   const numbers = numbersData?.data ?? [];
 
+  const [subscribing, setSubscribing] = useState(false);
+
+  const handleResubscribeWebhooks = async () => {
+    setSubscribing(true);
+    try {
+      const res = await fetch("/api/whatsapp/numbers", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "subscribe_apps" }),
+      });
+      const data = await res.json();
+      await refetch();
+      if (data?.success) {
+        const slotsSubscribed = data?.results?.filter((r: any) => r.ok)?.length || 0;
+        alert(`Success! Subscribed ${slotsSubscribed} Meta WABA(s) to webhook delivery. Meta will now route all incoming messages directly to your inbox.`);
+      } else {
+        alert(data?.error || "Failed to subscribe webhooks with Meta");
+      }
+    } catch (e: any) {
+      alert(e.message || "Failed to re-subscribe webhooks with Meta");
+    } finally {
+      setSubscribing(false);
+    }
+  };
+
   const handleSyncProfile = async (n: WANumberInfo) => {
     setSyncingId(n.id);
     try {
@@ -5345,14 +5409,27 @@ function NumbersTab({
             Independent, separated phone numbers connected to Meta WhatsApp Business API
           </p>
         </div>
-        <button
-          type="button"
-          onClick={() => refetch()}
-          className="flex items-center gap-2 border px-3 py-1.5 text-xs font-semibold rounded-none transition hover:bg-black/5"
-          style={{ borderColor: "var(--adm-border)", color: "var(--adm-text-2)" }}
-        >
-          <RefreshCw size={14} /> Refresh Lines
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={handleResubscribeWebhooks}
+            disabled={subscribing}
+            className="flex items-center gap-1.5 border px-3 py-1.5 text-xs font-semibold rounded-none transition hover:opacity-90 disabled:opacity-50"
+            style={{ borderColor: "#7c3aed", color: "#7c3aed" }}
+            title="Force Meta Cloud API to route all incoming messages for your phone lines to this server"
+          >
+            <ShieldCheck size={14} className={subscribing ? "animate-spin" : ""} />
+            <span>{subscribing ? "Subscribing..." : "Re-subscribe Webhooks"}</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => refetch()}
+            className="flex items-center gap-2 border px-3 py-1.5 text-xs font-semibold rounded-none transition hover:bg-black/5"
+            style={{ borderColor: "var(--adm-border)", color: "var(--adm-text-2)" }}
+          >
+            <RefreshCw size={14} /> Refresh Lines
+          </button>
+        </div>
       </div>
 
       {isLoading ? (

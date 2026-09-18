@@ -164,27 +164,47 @@ export async function GET(request: Request) {
     resultList[0].primary = true;
   }
 
-  for (const n of resultList) {
-    const conf = configured.find((c) => c.id === n.id);
-    if (n.primary) {
-      n.department = "general";
-      if (!n.label || n.label === "Primary number" || n.label === "Line 1") {
-        n.label = "General Inquiries & Sales";
-      }
-    } else if (
+  // Identify primary line first
+  const primaryItem = resultList.find((n) => n.primary) || resultList[0];
+  if (primaryItem) {
+    primaryItem.primary = true;
+    primaryItem.department = "general";
+    if (!primaryItem.label || primaryItem.label === "Primary number" || primaryItem.label === "Line 1") {
+      primaryItem.label = "General Inquiries & Sales";
+    }
+  }
+
+  // Process all non-primary lines intelligently
+  const nonPrimary = resultList.filter((n) => n !== primaryItem);
+
+  // 1. Identify direct line (Line 3): explicit ID match, slot 3, direct/executive label, or 2nd non-primary
+  let directLineCandidate = nonPrimary.find(
+    (n) =>
       n.id === "1291624014041103" ||
-      conf?.department === "direct" ||
+      n.slot === 3 ||
       n.label?.toLowerCase().includes("direct") ||
       n.label?.toLowerCase().includes("executive") ||
-      n.slot === 3
-    ) {
+      configured.find((c) => c.id === n.id)?.department === "direct"
+  );
+
+  // If no explicit candidate by tag/id, but we discovered multiple lines from Meta WABA:
+  // nonPrimary[0] = Support (Line 2), nonPrimary[1] = Direct (Line 3)
+  if (!directLineCandidate && nonPrimary.length >= 2) {
+    directLineCandidate = nonPrimary[1];
+  }
+
+  for (let i = 0; i < nonPrimary.length; i++) {
+    const n = nonPrimary[i];
+    const conf = configured.find((c) => c.id === n.id);
+    const isDirect = n === directLineCandidate || n.id === "1291624014041103" || n.slot === 3;
+    if (isDirect) {
       n.department = "direct";
-      if (!n.label || n.label === "Third number" || n.label === "Line 3") {
+      if (!n.label || n.label === "Third number" || n.label === "Line 3" || n.label.startsWith("Line ")) {
         n.label = conf?.label || "Executive & Direct Desk";
       }
     } else {
       n.department = "support";
-      if (!n.label || n.label === "Second number" || n.label === "Line 2") {
+      if (!n.label || n.label === "Second number" || n.label === "Line 2" || n.label.startsWith("Line ")) {
         n.label = conf?.label || "Technical & Client Support";
       }
     }
@@ -196,4 +216,44 @@ export async function GET(request: Request) {
   cache = { at: Date.now(), data: resultList };
   return NextResponse.json({ success: true, data: resultList });
 }
+
+/**
+ * POST /api/whatsapp/numbers — Re-subscribe WABAs to Meta webhook app and refresh numbers
+ */
+export async function POST(request: Request) {
+  try {
+    const body = await request.json().catch(() => ({}));
+    const accounts = usableAccounts();
+    const results: Array<{ slot: number; wabaId: string | null; ok: boolean; error?: string }> = [];
+
+    for (const account of accounts) {
+      if (!account.token || !account.wabaId) {
+        results.push({ slot: account.slot, wabaId: null, ok: false, error: "Missing token or WABA ID" });
+        continue;
+      }
+      try {
+        const subUrl = new URL(`${GRAPH_URL}/${account.wabaId}/subscribed_apps`);
+        subUrl.searchParams.set("access_token", account.token);
+        const res = await fetch(subUrl, { method: "POST", cache: "no-store" });
+        const json = await res.json();
+        results.push({
+          slot: account.slot,
+          wabaId: account.wabaId,
+          ok: res.ok,
+          error: json?.error?.message || (json?.success ? undefined : JSON.stringify(json)),
+        });
+      } catch (e: any) {
+        results.push({ slot: account.slot, wabaId: account.wabaId, ok: false, error: e?.message || String(e) });
+      }
+    }
+
+    // Invalidate cached numbers
+    cache = null;
+
+    return NextResponse.json({ success: true, results });
+  } catch (err: any) {
+    return NextResponse.json({ success: false, error: err?.message || String(err) }, { status: 500 });
+  }
+}
+
 

@@ -83,6 +83,8 @@ export type WAMessage = {
     body?: string;
     type?: string;
   };
+  /** Explicit departmental tag: general, support, or direct */
+  department?: "general" | "support" | "direct";
 };
 
 export type AutoReplyRule = {
