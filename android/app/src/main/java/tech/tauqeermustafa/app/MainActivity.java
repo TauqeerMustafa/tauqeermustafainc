@@ -88,7 +88,7 @@ public class MainActivity extends AppCompatActivity {
 
         // Remove "; wv" to avoid restricted WebView user-agent flags
         String defaultUa = settings.getUserAgentString();
-        settings.setUserAgentString(defaultUa.replace("; wv", "") + " TMIPortalsApp/3.0.0.1.3");
+        settings.setUserAgentString(defaultUa.replace("; wv", "") + " TMIPortalsApp/3.0.0.1.4");
 
         // Register JavaScript interface for Enterprise Work Profile and Portal Bridge
         webView.addJavascriptInterface(new TMIAndroidBridge(this), "TMIAndroidBridge");
