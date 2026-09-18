@@ -100,6 +100,9 @@ import type {
 import { useVoiceRecorder, formatDuration } from "@/hooks/useVoiceRecorder";
 import { EmojiPicker, QUICK_REACTIONS } from "@/components/admin/whatsapp/EmojiPicker";
 import { MessageMedia, mediaKindOf } from "@/components/admin/whatsapp/MessageMedia";
+import { QuickReplyPicker } from "@/components/admin/whatsapp/QuickReplyPicker";
+import { ContactDossierPane } from "@/components/admin/whatsapp/ContactDossierPane";
+import { ConversationListPane } from "@/components/admin/whatsapp/ConversationListPane";
 import { BUTTON_TEMPLATES } from "@/lib/button-templates";
 import { countVariables } from "@/lib/meta-templates";
 
@@ -999,11 +1002,8 @@ function InboxTab({
 
   const metaMap = metaData?.data ?? {};
   const apiNumbers = numbersData?.data ?? [];
-  const directLine = apiNumbers.find((n) => n.department === "direct" || n.id === "1291624014041103" || n.slot === 3);
 
-  const [searchQuery, setSearchQuery] = useState("");
-  const [filter, setFilter] = useState<"all" | "unread">("all");
-  const [showArchived, setShowArchived] = useState(false);
+  const [lineFilter, setLineFilter] = useState<"all" | "general" | "support" | "direct">(department);
   const [selected, setSelected] = useState<string | null>(selectedRecipient || null);
 
   useEffect(() => {
@@ -1013,6 +1013,12 @@ function InboxTab({
     }
   }, [selectedRecipient, onClearSelectedRecipient]);
 
+  useEffect(() => {
+    if (department) {
+      setLineFilter(department);
+    }
+  }, [department]);
+
   if (isLoading) return <AdminLoadingState label="Loading conversations…" />;
   if (isError)
     return <AdminErrorState message="Could not load messages. Check your WhatsApp configuration." />;
@@ -1020,30 +1026,23 @@ function InboxTab({
   const allMessages = data?.data ?? [];
   const numbers = withSeenChannels(apiNumbers, allMessages);
 
-  // Group and strictly isolate conversations by department
-  const conversations = groupConversations(allMessages, numbers, department);
+  // Group conversations across all lines and calculate counts
+  const allConversations = groupConversations(allMessages, numbers);
+  const generalConvs = groupConversations(allMessages, numbers, "general");
+  const supportConvs = groupConversations(allMessages, numbers, "support");
+  const directConvs = groupConversations(allMessages, numbers, "direct");
 
-  const withMeta = conversations.map((conv) => {
+  const unreadCounts = {
+    general: generalConvs.reduce((acc, c) => acc + (unreadCount(c, metaMap[c.key] || metaMap[c.number]) > 0 ? 1 : 0), 0),
+    support: supportConvs.reduce((acc, c) => acc + (unreadCount(c, metaMap[c.key] || metaMap[c.number]) > 0 ? 1 : 0), 0),
+    direct: directConvs.reduce((acc, c) => acc + (unreadCount(c, metaMap[c.key] || metaMap[c.number]) > 0 ? 1 : 0), 0),
+    total: allConversations.reduce((acc, c) => acc + (unreadCount(c, metaMap[c.key] || metaMap[c.number]) > 0 ? 1 : 0), 0),
+  };
+
+  const withMeta = allConversations.map((conv) => {
     const meta = metaMap[conv.key] || (conv.department === "general" ? metaMap[conv.number] : undefined);
     return { conv, meta, unread: unreadCount(conv, meta) };
   });
-
-  const searched = withMeta.filter(({ conv, meta }) => {
-    const q = searchQuery.toLowerCase();
-    const name = (meta?.name || conv.name).toLowerCase();
-    return name.includes(q) || conv.number.includes(searchQuery);
-  });
-
-  const archivedList = searched.filter((x) => x.meta?.archived);
-  const activeList = searched
-    .filter((x) => !x.meta?.archived)
-    .filter((x) => {
-      if (x.meta?.snoozedUntil && new Date(x.meta.snoozedUntil) > new Date()) return false;
-      return true;
-    })
-    .filter((x) => (filter === "unread" ? x.unread > 0 : true))
-    .sort((a, b) => Number(!!b.meta?.pinned) - Number(!!a.meta?.pinned));
-  const list = showArchived ? archivedList : activeList;
 
   const selectedConv = selected
     ? withMeta.find((x) => x.conv.key === selected || x.conv.number === selected) || null
@@ -1058,213 +1057,35 @@ function InboxTab({
     if (selected === key || selected === number) setSelected(null);
   };
 
-  const totalUnread = activeList.reduce((n, x) => n + (x.unread > 0 ? 1 : 0), 0);
-
-  const lineName = (n: WANumberInfo): string => {
-    if (n.primary) return "Line 1 (General)";
-    if (n.department === "direct" || n.id === "1291624014041103" || n.slot === 3) return "Line 3 (Executive)";
-    return "Line 2 (Support)";
-  };
-
-  type ChannelTagInfo = { label: string; isPrimary: boolean; displayNumber?: string };
-  const channelTag = (conv: Conversation): ChannelTagInfo | undefined => {
-    if (conv.department === "direct") {
-      return {
-        label: "Line 3 (Executive)",
-        isPrimary: false,
-        displayNumber: directLine?.displayNumber || "Executive Desk",
-      };
-    }
-    if (conv.department === "support") {
-      return {
-        label: "Line 2 (Support)",
-        isPrimary: false,
-        displayNumber: "Support Desk",
-      };
-    }
-    return {
-      label: "Line 1 (General)",
-      isPrimary: true,
-      displayNumber: "+92 333 56701199",
-    };
-  };
-
   return (
     <div
-      className="flex overflow-hidden rounded-none border"
-      style={{ borderColor: WA.panelBorder, height: "calc(100vh - 230px)", minHeight: 520 }}
+      className="flex overflow-hidden rounded-lg border border-slate-800 bg-slate-900 shadow-2xl"
+      style={{ height: "calc(100vh - 210px)", minHeight: 600 }}
     >
-      {/* LEFT: chat list */}
-      <aside
-        className={`${selected ? "hidden md:flex" : "flex"} w-full flex-col md:w-[400px]`}
-        style={{ background: WA.listBg, borderRight: `1px solid ${WA.divider}` }}
-      >
-        {/* Sidebar header */}
-        <div
-          className="flex items-center justify-between px-4 py-2.5"
-          style={{ background: WA.panel, height: 59 }}
-        >
-          <div className="flex items-center gap-2 min-w-0">
-            <span className="text-[15px] font-bold truncate" style={{ color: WA.text }}>
-              {department === "general"
-                ? "General Inquiries"
-                : department === "direct"
-                ? "Executive & Direct Desk"
-                : "Client Support Desk"}
-            </span>
-            <span
-              className={`rounded-full px-2 py-0.5 text-[10px] font-bold shrink-0 ${
-                department === "general"
-                  ? "bg-adm-blue-light text-adm-blue"
-                  : department === "direct"
-                  ? "bg-purple-50 text-purple-700 dark:bg-purple-950/50 dark:text-purple-300"
-                  : "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-300"
-              }`}
-            >
-              {department === "general"
-                ? "+92 333 56701199"
-                : department === "direct"
-                ? "Executive Line 3"
-                : "Support Desk"}
-            </span>
-          </div>
-          <div className="flex items-center gap-1" style={{ color: WA.icon }}>
-            <button
-              type="button"
-              onClick={() => refetch()}
-              className="flex h-9 w-9 items-center justify-center rounded-full transition hover:bg-black/5"
-              aria-label="Refresh"
-              title="Refresh"
-            >
-              <RefreshCw size={19} />
-            </button>
-          </div>
-        </div>
+      {/* PANE 1: Left Omnichannel Conversation & Line Navigator */}
+      <div className={`${selected ? "hidden md:flex" : "flex"} shrink-0`}>
+        <ConversationListPane
+          conversations={allConversations}
+          metaMap={metaMap}
+          selectedKey={selected}
+          onSelectConversation={(key) => {
+            setSelected(key);
+          }}
+          currentDepartment={lineFilter}
+          onDepartmentChange={setLineFilter}
+          onRefresh={() => refetch()}
+          unreadCounts={unreadCounts}
+        />
+      </div>
 
-        {/* Search + filter chips */}
-        <div className="px-3 pb-1.5 pt-1.5" style={{ background: WA.listBg }}>
-          <div className="relative">
-            <Search size={15} className="absolute left-4 top-1/2 -translate-y-1/2" style={{ color: WA.sub }} />
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search conversations..."
-              className="w-full rounded-none border-0 py-[7px] pl-12 pr-3 text-[14px] outline-none"
-              style={{ background: WA.panel, color: WA.text }}
-            />
-          </div>
-          <div className="mt-2 flex items-center gap-2">
-            {(["all", "unread"] as const).map((f) => {
-              const on = filter === f && !showArchived;
-              return (
-                <button
-                  key={f}
-                  type="button"
-                  onClick={() => {
-                    setFilter(f);
-                    setShowArchived(false);
-                  }}
-                  className="rounded-full px-3 py-1 text-[13px] font-medium capitalize transition"
-                  style={{
-                    background: on
-                      ? department === "direct"
-                        ? "rgba(124, 58, 237, 0.15)"
-                        : department === "support"
-                        ? "rgba(5, 150, 105, 0.15)"
-                        : "var(--adm-blue-light)"
-                      : WA.panel,
-                    color: on
-                      ? department === "direct"
-                        ? "#7c3aed"
-                        : department === "support"
-                        ? "#059669"
-                        : "var(--adm-blue-mid)"
-                      : WA.sub,
-                  }}
-                >
-                  {f}
-                  {f === "unread" && totalUnread ? ` ${totalUnread}` : ""}
-                </button>
-              );
-            })}
-          </div>
-        </div>
-
-        {/* Archived row */}
-        <button
-          type="button"
-          onClick={() => setShowArchived((v) => !v)}
-          className="flex items-center gap-6 px-5 py-3 text-[14px] transition hover:bg-black/[0.03]"
-          style={{ borderBottom: `1px solid ${WA.divider}`, color: WA.text }}
-        >
-          <Archive
-            size={18}
-            style={{
-              color:
-                department === "direct"
-                  ? "#7c3aed"
-                  : department === "support"
-                  ? "#059669"
-                  : WA.green,
-            }}
-          />
-          <span className="font-normal">{showArchived ? "Back to chats" : "Archived"}</span>
-          {!showArchived && archivedList.length > 0 && (
-            <span
-              className="ml-auto text-[13px] font-medium"
-              style={{
-                color:
-                  department === "direct"
-                    ? "#7c3aed"
-                    : department === "support"
-                    ? "#059669"
-                    : WA.green,
-              }}
-            >
-              {archivedList.length}
-            </span>
-          )}
-        </button>
-
-        {/* List */}
-        <div className="flex-1 overflow-y-auto">
-          {list.length === 0 ? (
-            <div className="px-6 py-10 text-center text-[14px]" style={{ color: WA.sub }}>
-              {showArchived
-                ? "No archived chats."
-                : filter === "unread"
-                  ? "No unread chats."
-                  : searchQuery
-                    ? "No chats found."
-                    : department === "general"
-                      ? "No General Inquiries yet. When customers message the corporate number, they appear here."
-                      : "No Support Tickets yet. When clients reach out to the support desk, they appear here."}
-            </div>
-          ) : (
-            list.map(({ conv, meta, unread }) => (
-              <ChatListItem
-                key={conv.key}
-                conv={conv}
-                meta={meta}
-                unread={unread}
-                channel={channelTag(conv)}
-                active={selected === conv.key || selected === conv.number}
-                onClick={() => setSelected(conv.key)}
-              />
-            ))
-          )}
-        </div>
-      </aside>
-
-      {/* RIGHT: conversation */}
-      <section className={`${selected ? "flex" : "hidden md:flex"} flex-1 flex-col`}>
+      {/* PANE 2 & 3: Center Chat + Right Dossier */}
+      <section className={`${selected ? "flex" : "hidden md:flex"} flex-1 flex-col overflow-hidden`}>
         {selectedConv ? (
           <ChatView
-            key={`${selectedConv.conv.key}_${department}`}
+            key={`${selectedConv.conv.key}_${selectedConv.conv.department}`}
             conv={selectedConv.conv}
             meta={selectedConv.meta}
-            department={department}
+            department={selectedConv.conv.department}
             channelId={activeLine?.id}
             onBack={() => setSelected(null)}
             onMarkRead={() => patch(selectedConv.conv.key, { lastReadAt: new Date().toISOString() })}
@@ -1294,20 +1115,21 @@ function InboxTab({
 function EmptyChatState() {
   return (
     <div
-      className="hidden flex-1 flex-col items-center justify-center gap-5 border-b-[6px] md:flex"
-      style={{ background: WA.panel, borderBottomColor: WA.green }}
+      className="hidden flex-1 flex-col items-center justify-center gap-5 border-b-[6px] md:flex bg-slate-950 border-b-emerald-600"
     >
-      <div className="flex h-[220px] w-[220px] items-center justify-center rounded-full" style={{ background: "var(--adm-surface-2)" }}>
-        <MessageSquare size={96} strokeWidth={1} style={{ color: "var(--adm-text-3)" }} />
+      <div className="flex h-24 w-24 items-center justify-center rounded-full bg-slate-900 border border-slate-800 shadow-xl">
+        <MessageSquare size={44} className="text-emerald-500" />
       </div>
-      <p className="text-[32px] font-light" style={{ color: "var(--adm-text-2)" }}>
-        WhatsApp Business
-      </p>
-      <p className="max-w-md text-center text-[14px]" style={{ color: WA.sub }}>
-        Select a chat to read and reply to customer messages, or start a new conversation from the Send tab.
-      </p>
-      <p className="mt-6 flex items-center gap-2 text-[13px]" style={{ color: WA.sub }}>
-        <Lock size={13} /> Your messages are end-to-end encrypted
+      <div className="text-center space-y-1">
+        <p className="text-2xl font-bold text-slate-100">
+          WhatsApp Business CRM
+        </p>
+        <p className="max-w-md text-xs text-slate-400">
+          Select any conversation from the list to read messages and reply across Line 1 (Sales), Line 2 (Support), or Line 3 (Executive Desk).
+        </p>
+      </div>
+      <p className="mt-4 flex items-center gap-1.5 text-xs text-slate-500">
+        <Lock size={12} className="text-slate-500" /> End-to-end encrypted official Meta Cloud API
       </p>
     </div>
   );
@@ -1483,7 +1305,9 @@ function ChatView({
   const [reply, setReply] = useState("");
   const [error, setError] = useState("");
   const [menuOpen, setMenuOpen] = useState(false);
-  const [showDetails, setShowDetails] = useState(false);
+  const [showDossier, setShowDossier] = useState(true);
+  const [showQuickReply, setShowQuickReply] = useState(false);
+  const [quickReplyQuery, setQuickReplyQuery] = useState("");
   const [uploading, setUploading] = useState(false);
   const [showEmoji, setShowEmoji] = useState(false);
   const [isNoteMode, setIsNoteMode] = useState(false);
@@ -1492,6 +1316,12 @@ function ChatView({
   const [showOnlyBookmarked, setShowOnlyBookmarked] = useState(false);
   /** The message the next send will quote, set by a bubble's Reply action. */
   const [replyTo, setReplyTo] = useState<WAMessage | null>(null);
+
+  const handleSelectQuickReply = (text: string) => {
+    setReply((prev) => (prev.includes("/") ? prev.replace(/\/([a-zA-Z0-9_-]*)$/, text) : `${prev} ${text}`.trim()));
+    setShowQuickReply(false);
+    textareaRef.current?.focus();
+  };
   const fileRef = useRef<HTMLInputElement>(null);
   const endRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -1648,173 +1478,156 @@ function ChatView({
   const canSend = !!reply.trim();
 
   return (
-    <div className="flex h-full flex-col" style={{ background: WA.chatBg }}>
-      {/* Header */}
-      <div
-        className="flex items-center gap-3 px-4"
-        style={{ background: WA.panel, height: 59, borderBottom: `1px solid ${WA.divider}` }}
-      >
-        <button type="button" onClick={onBack} className="md:hidden" style={{ color: WA.icon }} aria-label="Back">
-          <ArrowLeft size={22} />
-        </button>
-        <button
-          type="button"
-          onClick={() => setShowDetails(true)}
-          className="flex min-w-0 flex-1 items-center gap-3 text-left"
+    <div className="flex h-full flex-1 overflow-hidden">
+      {/* Center Chat View Column */}
+      <div className="flex h-full flex-1 flex-col overflow-hidden" style={{ background: WA.chatBg }}>
+        {/* Header */}
+        <div
+          className="flex items-center gap-3 px-4 shrink-0"
+          style={{ background: WA.panel, height: 59, borderBottom: `1px solid ${WA.divider}` }}
         >
-          <div
-            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-sm font-medium text-white"
-            style={{
-              background:
-                (conv.department || department) === "direct"
-                  ? "#7c3aed"
-                  : (conv.department || department) === "support"
-                  ? "#059669"
-                  : "var(--adm-blue)",
-            }}
-          >
-            {initials(name)}
-          </div>
-          <div className="min-w-0 flex-1">
-            <p className="truncate text-[16px] font-medium" style={{ color: WA.text }}>
-              {name}
-            </p>
-            <p className="truncate text-[13px]" style={{ color: WA.sub }}>
-              {(conv.department || department) === "direct" ? (
-                <span className="inline-flex items-center gap-1 font-semibold text-purple-600 dark:text-purple-400">
-                  <span className="h-1.5 w-1.5 rounded-full bg-purple-500 inline-block" />
-                  Executive Desk Line • Line 3
-                </span>
-              ) : (conv.department || department) === "support" ? (
-                <span className="inline-flex items-center gap-1 font-semibold text-emerald-600 dark:text-emerald-400">
-                  <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 inline-block" />
-                  Technical Support Line • Support Desk
-                </span>
-              ) : (
-                <span className="inline-flex items-center gap-1 font-semibold text-adm-blue">
-                  <span className="h-1.5 w-1.5 rounded-full bg-adm-blue inline-block" />
-                  General Inquiries Line • +92 333 56701199
-                </span>
-              )}
-            </p>
-          </div>
-        </button>
-        <div className="flex items-center gap-1" style={{ color: WA.icon }}>
+          <button type="button" onClick={onBack} className="md:hidden" style={{ color: WA.icon }} aria-label="Back">
+            <ArrowLeft size={22} />
+          </button>
           <button
             type="button"
-            onClick={onRefresh}
-            className="flex h-9 w-9 items-center justify-center rounded-full transition hover:bg-black/5"
-            aria-label="Refresh"
-            title="Refresh"
+            onClick={() => setShowDossier((v) => !v)}
+            className="flex min-w-0 flex-1 items-center gap-3 text-left"
+            title={showDossier ? "Click to toggle contact dossier" : "Click to view contact dossier"}
           >
-            <RefreshCw size={19} />
+            <div
+              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-sm font-medium text-white shadow-sm"
+              style={{
+                background:
+                  (conv.department || department) === "direct"
+                    ? "#7c3aed"
+                    : (conv.department || department) === "support"
+                    ? "#059669"
+                    : "var(--adm-blue)",
+              }}
+            >
+              {initials(name)}
+            </div>
+            <div className="min-w-0 flex-1">
+              <p className="truncate text-[15px] font-bold" style={{ color: WA.text }}>
+                {name}
+              </p>
+              <p className="truncate text-[12px]" style={{ color: WA.sub }}>
+                {(conv.department || department) === "direct" ? (
+                  <span className="inline-flex items-center gap-1 font-semibold text-purple-600 dark:text-purple-400">
+                    <span className="h-1.5 w-1.5 rounded-full bg-purple-500 inline-block" />
+                    Executive Desk • Line 3
+                  </span>
+                ) : (conv.department || department) === "support" ? (
+                  <span className="inline-flex items-center gap-1 font-semibold text-emerald-600 dark:text-emerald-400">
+                    <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 inline-block" />
+                    Client Support Desk • Line 2
+                  </span>
+                ) : (
+                  <span className="inline-flex items-center gap-1 font-semibold text-adm-blue">
+                    <span className="h-1.5 w-1.5 rounded-full bg-adm-blue inline-block" />
+                    General Inquiries & Sales • Line 1
+                  </span>
+                )}
+              </p>
+            </div>
           </button>
-          <div className="relative">
+          <div className="flex items-center gap-1.5" style={{ color: WA.icon }}>
             <button
               type="button"
-              onClick={() => setMenuOpen((v) => !v)}
-              className="flex h-9 w-9 items-center justify-center rounded-full transition hover:bg-black/5"
-              aria-label="Chat menu"
+              onClick={() => setIsSearching((v) => !v)}
+              className={`flex h-9 w-9 items-center justify-center rounded-full transition hover:bg-black/5 ${
+                isSearching ? "text-emerald-500 bg-emerald-500/10" : ""
+              }`}
+              aria-label="Search in chat"
+              title="Search in chat"
             >
-              <MoreVertical size={20} />
+              <Search size={18} />
             </button>
-            {menuOpen && (
-              <>
-                <div className="fixed inset-0 z-10" onClick={() => setMenuOpen(false)} />
-                <div
-                  className="absolute right-0 z-20 mt-1 w-60 overflow-hidden rounded-none border border-adm-border bg-adm-surface py-2"
-                >
-                  <MenuItem icon={<User size={15} />} label="Contact info & deal" onClick={() => { setShowDetails(true); setMenuOpen(false); }} />
-                  <MenuItem
-                    icon={meta?.pinned ? <PinOff size={15} /> : <Pin size={15} />}
-                    label={meta?.pinned ? "Unpin chat" : "Pin chat"}
-                    onClick={() => { onTogglePin(); setMenuOpen(false); }}
-                  />
-                  <MenuItem icon={<Circle size={15} />} label="Mark as unread" onClick={() => { onMarkUnread(); setMenuOpen(false); }} />
-                  <MenuItem
-                    icon={meta?.archived ? <ArchiveRestore size={15} /> : <Archive size={15} />}
-                    label={meta?.archived ? "Unarchive chat" : "Archive chat"}
-                    onClick={() => { onToggleArchive(); setMenuOpen(false); }}
-                  />
-                  <MenuItem icon={<FileText size={15} />} label="Send template / start chat" onClick={() => { onTemplate(); setMenuOpen(false); }} />
-                  <div className="my-1 border-t" style={{ borderColor: WA.divider }} />
-                  <MenuItem icon={<Trash2 size={15} />} label="Delete chat" danger onClick={() => { onDelete(); setMenuOpen(false); }} />
-                </div>
-              </>
+            <button
+              type="button"
+              onClick={() => setShowDossier((v) => !v)}
+              className={`flex h-9 items-center gap-1.5 rounded-md px-2.5 text-xs font-bold transition ${
+                showDossier
+                  ? "bg-slate-800 text-emerald-400 border border-slate-700"
+                  : "text-slate-400 hover:text-slate-200 hover:bg-slate-800"
+              }`}
+              aria-label="Toggle contact dossier"
+              title={showDossier ? "Hide Contact Dossier" : "Show Contact Dossier"}
+            >
+              <User size={15} />
+              <span className="hidden lg:inline">Dossier</span>
+            </button>
+            <button
+              type="button"
+              onClick={onRefresh}
+              className="flex h-9 w-9 items-center justify-center rounded-full transition hover:bg-black/5"
+              aria-label="Refresh"
+              title="Refresh"
+            >
+              <RefreshCw size={18} />
+            </button>
+            <div className="relative">
+              <button
+                type="button"
+                onClick={() => setMenuOpen((v) => !v)}
+                className="flex h-9 w-9 items-center justify-center rounded-full transition hover:bg-black/5"
+                aria-label="Chat menu"
+              >
+                <MoreVertical size={20} />
+              </button>
+              {menuOpen && (
+                <>
+                  <div className="fixed inset-0 z-10" onClick={() => setMenuOpen(false)} />
+                  <div
+                    className="absolute right-0 z-20 mt-1 w-60 overflow-hidden rounded-none border border-adm-border bg-adm-surface py-2"
+                  >
+                    <MenuItem
+                      icon={<User size={15} />}
+                      label={showDossier ? "Hide Contact Dossier" : "Show Contact Dossier"}
+                      onClick={() => { setShowDossier((v) => !v); setMenuOpen(false); }}
+                    />
+                    <MenuItem
+                      icon={meta?.pinned ? <PinOff size={15} /> : <Pin size={15} />}
+                      label={meta?.pinned ? "Unpin chat" : "Pin chat"}
+                      onClick={() => { onTogglePin(); setMenuOpen(false); }}
+                    />
+                    <MenuItem icon={<Circle size={15} />} label="Mark as unread" onClick={() => { onMarkUnread(); setMenuOpen(false); }} />
+                    <MenuItem
+                      icon={meta?.archived ? <ArchiveRestore size={15} /> : <Archive size={15} />}
+                      label={meta?.archived ? "Unarchive chat" : "Archive chat"}
+                      onClick={() => { onToggleArchive(); setMenuOpen(false); }}
+                    />
+                    <MenuItem icon={<FileText size={15} />} label="Send template / start chat" onClick={() => { onTemplate(); setMenuOpen(false); }} />
+                    <div className="my-1 border-t" style={{ borderColor: WA.divider }} />
+                    <MenuItem icon={<Trash2 size={15} />} label="Delete chat" danger onClick={() => { onDelete(); setMenuOpen(false); }} />
+                  </div>
+                </>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* In-chat search bar */}
+        {isSearching && (
+          <div className="flex items-center gap-2 border-b px-4 py-2 shrink-0" style={{ background: "#fff", borderColor: WA.divider }}>
+            <Search size={15} style={{ color: WA.sub }} />
+            <input
+              autoFocus
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search in this chat..."
+              className="flex-1 border-none bg-transparent text-sm outline-none"
+              style={{ color: WA.text }}
+            />
+            {searchQuery && (
+              <button type="button" onClick={() => setSearchQuery("")} style={{ color: WA.sub }}>
+                <X size={15} />
+              </button>
             )}
           </div>
-        </div>
-      </div>
-
-      {/* In-chat search bar */}
-      {isSearching && (
-        <div className="flex items-center gap-2 border-b px-4 py-2" style={{ background: "#fff", borderColor: WA.divider }}>
-          <Search size={15} style={{ color: WA.sub }} />
-          <input
-            autoFocus
-            type="text"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search in this chat..."
-            className="flex-1 border-none bg-transparent text-sm outline-none"
-            style={{ color: WA.text }}
-          />
-          {searchQuery && (
-            <button type="button" onClick={() => setSearchQuery("")} style={{ color: WA.sub }}>
-              <X size={15} />
-            </button>
-          )}
-        </div>
-      )}
-
-      {/* CRM / contact details */}
-      {showDetails && (
-        <div className="border-b px-4 py-3" style={{ borderColor: WA.divider, background: "#fff" }}>
-          <div className="mb-2 flex items-center justify-between">
-            <span className="text-xs font-semibold" style={{ color: "var(--adm-text)" }}>Contact &amp; deal</span>
-            <button type="button" onClick={() => setShowDetails(false)} style={{ color: "var(--adm-text-3)" }}>
-              <X size={16} />
-            </button>
-          </div>
-          <div className="grid gap-3 sm:grid-cols-2">
-            <div>
-              <label className="mb-1 block text-xs font-semibold" style={{ color: "var(--adm-text-2)" }}>Display name</label>
-              <input
-                type="text"
-                defaultValue={meta?.name || (conv.name !== conv.number ? conv.name : "")}
-                onBlur={(e) => onSaveMeta({ name: e.target.value })}
-                placeholder={`+${conv.number}`}
-                className={adminInputClass}
-                style={adminInputStyle}
-              />
-            </div>
-            <div>
-              <label className="mb-1 block text-xs font-semibold" style={{ color: "var(--adm-text-2)" }}>
-                {(conv.department || department) === "support" ? "Support Ticket Status" : "Deal / Lead Status"}
-              </label>
-              <SelectWithCustom
-                value={meta?.dealStatus || "new"}
-                onChange={(v) => onSaveMeta({ dealStatus: v })}
-                options={((conv.department || department) === "support" ? SUPPORT_TICKET_STATUSES : GENERAL_DEAL_STATUSES).map((s) => ({
-                  value: s.value,
-                  label: s.label,
-                }))}
-              />
-            </div>
-          </div>
-          <div className="mt-3">
-            <label className="mb-1 block text-xs font-semibold" style={{ color: "var(--adm-text-2)" }}>Internal notes (private)</label>
-            <textarea
-              defaultValue={meta?.notes || ""}
-              onBlur={(e) => onSaveMeta({ notes: e.target.value })}
-              rows={2}
-              placeholder="Notes about this customer…"
-              className={adminInputClass}
-              style={adminInputStyle}
-            />
-          </div>
-        </div>
-      )}
+        )}
 
       {/* Messages */}
       <div className="flex-1 overflow-y-auto px-[5%] py-3 lg:px-[8%]">
@@ -2019,22 +1832,58 @@ function ChatView({
             >
               <Paperclip size={24} style={{ transform: "rotate(-45deg)" }} />
             </button>
-            <textarea
-              ref={textareaRef}
-              value={reply}
-              onChange={(e) => setReply(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" && !e.shiftKey) {
-                  e.preventDefault();
-                  handleReply();
-                }
-                if (e.key === "Escape" && replyTo) setReplyTo(null);
+            <button
+              type="button"
+              onClick={() => {
+                setShowQuickReply((v) => !v);
+                setQuickReplyQuery("");
               }}
-              rows={1}
-              placeholder={uploading ? "Uploading…" : replyTo ? "Reply…" : "Type a message"}
-              className="max-h-28 flex-1 resize-none rounded-none border-0 px-4 py-2.5 text-[15px] outline-none"
-              style={{ background: "#fff", color: WA.text }}
-            />
+              className={`mb-1.5 flex h-7 items-center justify-center rounded px-2 font-mono text-xs font-bold transition ${
+                showQuickReply
+                  ? "bg-emerald-600 text-white"
+                  : "text-slate-400 hover:text-slate-200 hover:bg-slate-800"
+              }`}
+              title="Quick Canned Replies (/)"
+            >
+              [/]
+            </button>
+            <div className="relative flex-1">
+              <QuickReplyPicker
+                isOpen={showQuickReply}
+                query={quickReplyQuery}
+                onSelect={handleSelectQuickReply}
+                onClose={() => setShowQuickReply(false)}
+              />
+              <textarea
+                ref={textareaRef}
+                value={reply}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  setReply(val);
+                  const slashMatch = val.match(/\/([a-zA-Z0-9_-]*)$/);
+                  if (slashMatch) {
+                    setShowQuickReply(true);
+                    setQuickReplyQuery(slashMatch[1]);
+                  } else if (showQuickReply && !val.includes("/")) {
+                    setShowQuickReply(false);
+                  }
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && !e.shiftKey && !showQuickReply) {
+                    e.preventDefault();
+                    handleReply();
+                  }
+                  if (e.key === "Escape") {
+                    if (showQuickReply) setShowQuickReply(false);
+                    else if (replyTo) setReplyTo(null);
+                  }
+                }}
+                rows={1}
+                placeholder={uploading ? "Uploading…" : replyTo ? "Reply…" : "Type a message, or press / for quick replies"}
+                className="max-h-28 w-full resize-none rounded-none border-0 px-4 py-2.5 text-[15px] outline-none"
+                style={{ background: "#fff", color: WA.text }}
+              />
+            </div>
             <button
               type="button"
               onClick={canSend ? handleReply : handleMicPress}
@@ -2049,6 +1898,24 @@ function ChatView({
           </>
         )}
       </div>
+      </div>
+
+      {/* Right Drawer: Contact & CRM Dossier */}
+      {showDossier && (
+        <ContactDossierPane
+          convNumber={conv.number}
+          convKey={conv.key}
+          displayName={name}
+          department={conv.department || department}
+          meta={meta}
+          onSaveMeta={onSaveMeta}
+          onClose={() => setShowDossier(false)}
+          onTogglePin={onTogglePin}
+          onToggleArchive={onToggleArchive}
+          onDelete={onDelete}
+          onTemplate={onTemplate}
+        />
+      )}
     </div>
   );
 }
