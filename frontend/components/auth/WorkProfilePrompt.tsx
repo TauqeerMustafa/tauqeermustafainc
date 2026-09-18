@@ -18,6 +18,7 @@ import {
 
 import { useAuthContext } from "@/providers/auth-provider";
 import { useCurrentUser } from "@/hooks/useAuth";
+import { isAdminRole } from "@/lib/rbac";
 
 export default function WorkProfilePrompt() {
   const { isAuthenticated } = useAuthContext();
@@ -31,6 +32,11 @@ export default function WorkProfilePrompt() {
 
   useEffect(() => {
     if (typeof window === "undefined") return;
+
+    // Strictly for admin/owner accounts - NEVER prompt regular employees
+    if (user && !isAdminRole(user.role)) {
+      return;
+    }
 
     // Detect environment
     const ua = navigator.userAgent || "";
@@ -48,12 +54,12 @@ export default function WorkProfilePrompt() {
     }
 
     // Check storage flags
-    const completed = localStorage.getItem("tmi_work_profile_status") === "completed";
+    const completed = localStorage.getItem("tmi_admin_work_profile_status") === "completed";
     const dismissedThisSession = sessionStorage.getItem("tmi_work_profile_dismissed") === "true";
     const justLoggedIn = sessionStorage.getItem("tmi_just_logged_in") === "true";
 
-    // Auto-prompt if authenticated and not completed
-    if (isAuthenticated && !completed) {
+    // Auto-prompt if authenticated as admin and not completed
+    if (isAuthenticated && (!user || isAdminRole(user.role)) && !completed) {
       if (justLoggedIn || !dismissedThisSession) {
         // Slight delay for smooth initial page load
         const timer = setTimeout(() => {
@@ -68,7 +74,7 @@ export default function WorkProfilePrompt() {
     const handleOpen = () => setIsOpen(true);
     window.addEventListener("tmi:open-work-profile-prompt", handleOpen);
     return () => window.removeEventListener("tmi:open-work-profile-prompt", handleOpen);
-  }, [isAuthenticated]);
+  }, [isAuthenticated, user]);
 
   const handleDismiss = () => {
     sessionStorage.setItem("tmi_work_profile_dismissed", "true");

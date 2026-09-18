@@ -8,7 +8,7 @@ import PortalHeader from "@/components/portal/PortalHeader";
 import PortalSidebar from "@/components/portal/PortalSidebar";
 import WorkProfilePrompt from "@/components/auth/WorkProfilePrompt";
 import { useI18n } from "@/lib/i18n";
-import type { PortalId } from "@/lib/rbac";
+import { PORTAL, type PortalId } from "@/lib/rbac";
 
 /**
  * The one and only portal chrome. /admin, /employees, /management and /client
@@ -47,7 +47,8 @@ export default function PortalShell({
 
   return (
     <PortalGuard portal={portal}>
-      <WorkProfilePrompt />
+      {/* Work profile prompt exclusively for Admin / Founder - not for employees */}
+      {portal === PORTAL.ADMIN && <WorkProfilePrompt />}
       {/* `dir` sits here, not on <html>: Urdu and Arabic should flip the portal
           chrome without mirroring the marketing site rendered by the same root
           layout. */}
