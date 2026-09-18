@@ -1,4 +1,4 @@
-﻿/**
+/**
  * POST /api/whatsapp/send
  * Sends a WhatsApp message via Meta Cloud API (Graph API v20).
  *
@@ -108,7 +108,7 @@ export async function POST(request: Request) {
 
     const numberDef = waNumbers().find((n) => n.id === phoneNumberId);
     const account = accountAt(numberDef?.slot ?? 1);
-    const token = account.token;
+    const token = account.token || accountAt(1).token;
 
     if (!token) {
       return NextResponse.json(

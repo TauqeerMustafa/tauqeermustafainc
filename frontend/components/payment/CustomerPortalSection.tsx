@@ -33,12 +33,27 @@ export default function CustomerPortalSection() {
       return;
     }
 
+    const token =
+      typeof window !== "undefined"
+        ? localStorage.getItem("tmi_client_token") ||
+          localStorage.getItem("token") ||
+          localStorage.getItem("tmi_auth_token")
+        : null;
+
+    if (!token) {
+      setError("Please sign in to your client account or admin portal before accessing billing settings.");
+      return;
+    }
+
     setLoading(true);
 
     try {
       const res = await fetch("/api/billing/paddle/portal-session", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
         body: JSON.stringify({
           email: email.trim() || undefined,
           customerId: customerId.trim() || undefined,

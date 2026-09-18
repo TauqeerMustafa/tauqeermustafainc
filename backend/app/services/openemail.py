@@ -172,6 +172,7 @@ def send_message(
     from_name: str | None = None,
     text: str | None = None,
     html: str | None = None,
+    attachments: list[dict] | None = None,
     save: bool = True,
 ) -> dict:
     """Send a message from ``mailbox_id`` via open.email and return the response.
@@ -200,6 +201,8 @@ def send_message(
         body["text"] = text
     if html:
         body["html"] = html
+    if attachments:
+        body["attachments"] = attachments
 
     query = "?save=true" if save else ""
     try:

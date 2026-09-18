@@ -12,8 +12,8 @@ export type { FlowStep };
 
 const API_BASE = "/api/whatsapp";
 
-/** Suffix that scopes a request to General (Inquiries/Sales) or Support (Technical Desk). */
-const deptQuery = (department?: "general" | "support") =>
+/** Suffix that scopes a request to General (Inquiries/Sales), Support (Technical Desk), or Direct (Executive Line). */
+const deptQuery = (department?: "general" | "support" | "direct") =>
   department ? `?department=${department}` : "";
 
 /**
@@ -225,9 +225,10 @@ export type WANumberInfo = {
   label: string;
   primary: boolean;
   slot?: number;
-  department?: "general" | "support";
+  department?: "general" | "support" | "direct";
   displayNumber?: string | null;
   verifiedName?: string | null;
+  nameStatus?: string | null;
   quality?: string | null;
   codeVerificationStatus?: string | null;
   canSend: boolean;
@@ -281,6 +282,28 @@ export function useRegisterPhonePin() {
       const data = await res.json();
       if (!res.ok || !data.success) {
         throw new Error(data.error || "Failed to verify and register phone number");
+      }
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["whatsapp-numbers"] });
+    },
+  });
+}
+
+/** Synchronize company profile details with Meta whatsapp_business_profile and re-bind certificate. */
+export function useSyncWhatsAppProfile() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (payload: { phoneNumberId: string; slot?: number; pin?: string }) => {
+      const res = await fetch(`${API_BASE}/profile`, {
+        method: "POST",
+        headers: authHeaders({ "Content-Type": "application/json" }),
+        body: JSON.stringify({ action: "sync_profile", ...payload }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || "Failed to sync business profile with Meta");
       }
       return data;
     },
@@ -364,14 +387,14 @@ export function useWhatsAppStats() {
 
 // ── Auto-reply rules ───────────────────────────────────────────────────────
 
-export function useAutoReplyRules(department?: "general" | "support") {
+export function useAutoReplyRules(department?: "general" | "support" | "direct") {
   return useQuery<{ success: boolean; data: AutoReplyRule[] }>({
     queryKey: ["whatsapp-rules", department],
     queryFn: () => getJSON(`/rules${deptQuery(department)}`),
   });
 }
 
-export function useSaveAutoReplyRules(department?: "general" | "support") {
+export function useSaveAutoReplyRules(department?: "general" | "support" | "direct") {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (rules: AutoReplyRule[]) => {
@@ -426,7 +449,7 @@ export function useDeleteTemplate() {
 
 // ── Meta-approved templates (business-initiated) ─────────────────────────────
 
-export function useMetaTemplates(department?: "general" | "support") {
+export function useMetaTemplates(department?: "general" | "support" | "direct") {
   return useQuery<{ success: boolean; data: MetaTemplate[]; configured?: boolean; notice?: string }>({
     queryKey: ["whatsapp-meta-templates", department],
     queryFn: () => getJSON(`/meta-templates${deptQuery(department)}`),
@@ -526,16 +549,16 @@ export function useDeleteConversation() {
   });
 }
 
-// ?? Programmatic Lead Flow (Bot Messages) ???????????????????????????????????
+// ── Programmatic Lead Flow (Bot Messages) ───────────────────────────────────
 
-export function useWhatsAppFlow(department?: "general" | "support") {
+export function useWhatsAppFlow(department?: "general" | "support" | "direct") {
   return useQuery<{ success: boolean; data: FlowStep[]; isCustom: boolean }>({
     queryKey: ["whatsapp-flow", department],
     queryFn: () => getJSON(`/flow${deptQuery(department)}`),
   });
 }
 
-export function useSaveWhatsAppFlow(department?: "general" | "support") {
+export function useSaveWhatsAppFlow(department?: "general" | "support" | "direct") {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (steps: FlowStep[]) => {
@@ -551,7 +574,7 @@ export function useSaveWhatsAppFlow(department?: "general" | "support") {
   });
 }
 
-export function useResetWhatsAppFlow(department?: "general" | "support") {
+export function useResetWhatsAppFlow(department?: "general" | "support" | "direct") {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async () => {

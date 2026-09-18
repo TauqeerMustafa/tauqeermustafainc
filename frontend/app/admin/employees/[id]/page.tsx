@@ -4,7 +4,6 @@ import { useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import {
-  ArrowLeft,
   Briefcase,
   CalendarClock,
   Edit2,
@@ -16,6 +15,7 @@ import {
 } from "lucide-react";
 
 import {
+  Breadcrumb,
   DataTable,
   EmptyBlock,
   ErrorBlock,
@@ -122,14 +122,14 @@ export default function EmployeeProfilePage() {
 
   return (
     <div className="flex flex-col gap-8">
-      <div className="flex items-start gap-4">
-        <Link
-          href="/admin/employees"
-          aria-label="Back to employees"
-          className="mt-1 flex h-9 w-9 shrink-0 items-center justify-center border border-adm-border text-adm-text-2 transition hover:bg-adm-surface-2 hover:text-adm-text"
-        >
-          <ArrowLeft size={16} />
-        </Link>
+      <div className="flex flex-col gap-4">
+        <Breadcrumb
+          items={[
+            { label: "People", href: "/admin/people" },
+            { label: "Employees", href: "/admin/employees" },
+            { label: employee.name ?? "Employee" },
+          ]}
+        />
         <PortalPageHeader
           title={employee.name ?? "Employee"}
           description={employee.jobTitle || "No job title on record."}

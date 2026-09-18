@@ -180,7 +180,7 @@ export default function AnnouncementsPage({ isAdmin = false }: { isAdmin?: boole
 
   return (
     <div className="flex flex-col gap-6 max-w-5xl mx-auto w-full h-full min-h-[70vh]">
-      {isAdmin && <PeopleBanner active="announcements" />}
+      {isAdmin && <PeopleBanner />}
 
       {/* Page Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">

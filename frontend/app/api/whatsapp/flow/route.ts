@@ -17,7 +17,7 @@ import { getKV } from "@/lib/kv";
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
-    const dept = searchParams.get("department") as "general" | "support" | null;
+    const dept = searchParams.get("department") as "general" | "support" | "direct" | null;
     const kv = getKV();
     let isCustom = false;
     const key = getFlowKey(dept || undefined);
@@ -47,7 +47,7 @@ export async function GET(request: Request) {
 export async function PUT(request: Request) {
   try {
     const body = await request.json();
-    const { steps, department } = body as { steps: FlowStep[]; department?: "general" | "support" };
+    const { steps, department } = body as { steps: FlowStep[]; department?: "general" | "support" | "direct" };
 
     if (!Array.isArray(steps) || steps.length === 0) {
       return NextResponse.json(
@@ -59,7 +59,7 @@ export async function PUT(request: Request) {
     for (const step of steps) {
       if (!step.id || !step.kind || !step.body) {
         return NextResponse.json(
-          { success: false, error: "Step missing required id, kind, or body" },
+          { success: false, error: "Each step must have id, kind, and body" },
           { status: 400 }
         );
       }
@@ -86,7 +86,7 @@ export async function POST(request: Request) {
   try {
     const body = await request.json().catch(() => ({}));
     const action = body?.action;
-    const department = body?.department as "general" | "support" | undefined;
+    const department = body?.department as "general" | "support" | "direct" | undefined;
 
     if (action === "reset") {
       await resetFlowSteps(department);

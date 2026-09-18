@@ -25,7 +25,7 @@ export async function POST(request: Request) {
     }
 
     const account = accountAt(Number(slot) || 1);
-    const token = account.token?.trim();
+    const token = account.token?.trim() || accountAt(1).token?.trim();
 
     if (!token) {
       return NextResponse.json(

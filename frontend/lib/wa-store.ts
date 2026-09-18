@@ -91,7 +91,7 @@ export type AutoReplyRule = {
   mode: "contains" | "equals" | "starts" | "regex" | (string & {});
   reply: string;
   enabled: boolean;
-  department?: "general" | "support";
+  department?: "general" | "support" | "direct";
 };
 
 /** Keep the stored history bounded. */
@@ -440,7 +440,7 @@ async function isUntouchedSeed(kv: KVClient, stored: AutoReplyRule[]): Promise<b
  * the untouched seed — see `isUntouchedSeed`. Anything hand-written is left
  * exactly as the admin left it.
  */
-export async function getRules(department?: "general" | "support"): Promise<AutoReplyRule[]> {
+export async function getRules(department?: "general" | "support" | "direct"): Promise<AutoReplyRule[]> {
   const kv = getKV();
   let allRules: AutoReplyRule[];
   if (!kv) {
@@ -460,26 +460,25 @@ export async function getRules(department?: "general" | "support"): Promise<Auto
     }
   }
 
+  if (department === "direct") {
+    return allRules.filter((r) => r.department === "direct" || r.id.startsWith("direct_"));
+  }
   if (department === "support") {
     return allRules.filter((r) => r.department === "support" || r.id.startsWith("support_"));
   }
   if (department === "general") {
-    return allRules.filter((r) => r.department === "general" || (!r.department && !r.id.startsWith("support_")));
+    return allRules.filter((r) => r.department === "general" || (!r.department && !r.id.startsWith("support_") && !r.id.startsWith("direct_")));
   }
   return allRules;
 }
 
-export async function setRules(rules: AutoReplyRule[], department?: "general" | "support"): Promise<boolean> {
+export async function setRules(rules: AutoReplyRule[], department?: "general" | "support" | "direct"): Promise<boolean> {
   const kv = getKV();
   if (!kv) return false;
 
   if (department) {
     const existing = (await kv.get<AutoReplyRule[]>(KEYS.rules)) ?? DEFAULT_RULES;
-    const others = existing.filter((r) =>
-      department === "support"
-        ? r.department !== "support" && !r.id.startsWith("support_")
-        : r.department === "support" || r.id.startsWith("support_")
-    );
+    const others = existing.filter((r) => r.department !== department);
     const tagged = rules.map((r) => ({ ...r, department }));
     await kv.set(KEYS.rules, [...others, ...tagged]);
   } else {

@@ -52,7 +52,7 @@ export type MetaTemplateDef = {
   name: string;
   category: "MARKETING" | "UTILITY" | "AUTHENTICATION";
   language: string;
-  department?: "general" | "support";
+  department?: "general" | "support" | "direct";
   header?: string;
   body: string;
   bodyExample?: string[];

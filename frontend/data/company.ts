@@ -80,6 +80,19 @@ export const company = {
       action: "Contact Support Desk",
       badge: "24/7 Client Support",
     },
+    direct: {
+      name: "Executive & Direct Desk",
+      number: process.env.NEXT_PUBLIC_WHATSAPP_NUMBER_3 || "+92 333 56701199",
+      url:
+        process.env.NEXT_PUBLIC_WHATSAPP_URL_3 ||
+        (process.env.NEXT_PUBLIC_WHATSAPP_NUMBER_3
+          ? `https://wa.me/${process.env.NEXT_PUBLIC_WHATSAPP_NUMBER_3.replace(/[^0-9]/g, "")}`
+          : "https://wa.me/message/NMUGLZ5AW7TVC1"),
+      displayNumber: process.env.NEXT_PUBLIC_WHATSAPP_DISPLAY_3 || "Executive Desk",
+      description: "Executive desk, enterprise proposals & strategic partnerships",
+      action: "Chat with Executive Desk",
+      badge: "Priority Desk",
+    },
   },
 
   website: "https://tauqeermustafa.tech",

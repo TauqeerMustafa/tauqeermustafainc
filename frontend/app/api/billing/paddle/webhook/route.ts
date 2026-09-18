@@ -17,13 +17,21 @@ export async function POST(request: NextRequest) {
   const paddle = getPaddleServerInstance();
   let eventData: unknown = null;
 
+  const isProduction = process.env.NODE_ENV === "production";
+
   try {
-    if (paddle && secret && !secret.includes("YOUR_")) {
+    if (!secret || secret.includes("YOUR_")) {
+      if (isProduction) {
+        console.error("PADDLE_NOTIFICATION_WEBHOOK_SECRET is not configured in production environment.");
+        return NextResponse.json({ error: "Webhook signature secret unconfigured" }, { status: 503 });
+      }
+      // Fallback only permitted in explicit local development
+      console.warn("PADDLE_NOTIFICATION_WEBHOOK_SECRET not configured. Parsing raw JSON body in dev mode only.");
+      eventData = JSON.parse(rawBody);
+    } else if (paddle) {
       eventData = await paddle.webhooks.unmarshal(rawBody, secret, signature);
     } else {
-      // Fallback for development if secret not yet provided in sandbox
-      console.warn("PADDLE_NOTIFICATION_WEBHOOK_SECRET not configured. Parsing raw JSON body in dev mode.");
-      eventData = JSON.parse(rawBody);
+      return NextResponse.json({ error: "Paddle server instance unavailable" }, { status: 503 });
     }
   } catch (err) {
     console.error("Paddle webhook signature verification failed:", err);

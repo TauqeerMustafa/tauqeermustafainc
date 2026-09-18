@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { FaWhatsapp } from "react-icons/fa6";
-import { X, Briefcase, LifeBuoy, ArrowRight } from "lucide-react";
+import { X, Briefcase, LifeBuoy, ArrowRight, ShieldCheck } from "lucide-react";
 
 import { company } from "@/data/company";
 
@@ -124,6 +124,35 @@ export default function WhatsAppChat() {
               </div>
               <p className="mt-1 text-[11px] leading-relaxed text-ink-light pl-9">
                 Active client helpdesk, bug reports & SLA escalation
+              </p>
+            </a>
+
+            {/* Executive & Direct Desk (Third Line) */}
+            <a
+              href={company.whatsappChannels.direct.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={() => setOpen(false)}
+              className="group block rounded-xl border border-line bg-surface p-3 transition hover:border-[#7c3aed] hover:bg-surface-2"
+            >
+              <div className="flex items-start justify-between gap-2">
+                <div className="flex items-center gap-2">
+                  <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#7c3aed]/10 text-[#7c3aed]">
+                    <ShieldCheck className="h-3.5 w-3.5" />
+                  </div>
+                  <div>
+                    <span className="text-[13px] font-bold text-ink group-hover:text-[#7c3aed] transition">
+                      Executive & Direct
+                    </span>
+                    <span className="ml-1.5 rounded-full bg-[#7c3aed]/10 px-1.5 py-0.2 font-mono text-[9px] font-semibold text-[#7c3aed]">
+                      Priority
+                    </span>
+                  </div>
+                </div>
+                <ArrowRight className="h-4 w-4 text-ink-light transition group-hover:translate-x-0.5 group-hover:text-[#7c3aed]" />
+              </div>
+              <p className="mt-1 text-[11px] leading-relaxed text-ink-light pl-9">
+                Executive desk, enterprise proposals & strategic partnerships
               </p>
             </a>
           </div>

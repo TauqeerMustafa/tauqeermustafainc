@@ -43,18 +43,19 @@ export async function POST(request: Request) {
     );
   }
 
-  const refId = ticketId || `TMI-SUP-${Math.floor(10000 + Math.random() * 90000)}`;
+  // Generate ticketId strictly server-side to prevent arbitrary ticket overwrites
+  const refId = `TMI-SUP-${crypto.randomUUID().slice(0, 8).toUpperCase()}`;
   const createdAt = new Date().toISOString();
 
   const ticketData = {
     ticketId: refId,
-    fullName,
-    email,
-    clientId: clientId || undefined,
+    fullName: fullName.trim(),
+    email: email.trim().toLowerCase(),
+    clientId: clientId?.trim() || undefined,
     department,
     severity,
-    subject,
-    message,
+    subject: subject.trim(),
+    message: message.trim(),
     status: "OPEN",
     createdAt,
   };
@@ -104,20 +105,32 @@ export async function POST(request: Request) {
   );
 }
 
+import { resolveAuthUser } from "@/lib/server-auth";
+
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const id = searchParams.get("id")?.trim().toUpperCase();
+  const email = searchParams.get("email")?.trim().toLowerCase();
 
   if (!id) {
     return NextResponse.json({ success: false, message: "Ticket ID is required." }, { status: 400 });
   }
 
+  const user = await resolveAuthUser(request);
   const kv = getKV();
   if (kv) {
     try {
       const data = await kv.get(`ticket:${id}`);
       if (data) {
         const ticket = typeof data === "string" ? JSON.parse(data) : data;
+        const isOwner = email && ticket.email && ticket.email.toLowerCase() === email;
+        const isStaff = user && (user.isAdmin || user.role === "support" || user.role === "admin");
+        if (!isOwner && !isStaff) {
+          return NextResponse.json(
+            { success: false, message: "Access denied. Provide the registered email address to view this ticket." },
+            { status: 403 }
+          );
+        }
         return NextResponse.json({ success: true, ticket });
       }
     } catch {

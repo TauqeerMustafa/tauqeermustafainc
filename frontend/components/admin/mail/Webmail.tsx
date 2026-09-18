@@ -44,6 +44,7 @@ import {
 
 import { getStoredToken } from "@/lib/auth-storage";
 import { apiRequest } from "@/lib/api-client";
+import { sanitizeHtml } from "@/lib/sanitize-html";
 
 /**
  * Authenticated fetch carrying the portal session token for /api/mail/* routes.
@@ -63,6 +64,63 @@ type Mailbox = { id: string; primaryAddress: string };
 type Message = Record<string, any>;
 type Attachment = Record<string, any>;
 type ComposeMode = "new" | "reply" | "replyAll" | "forward";
+
+type OutgoingAttachment = {
+  id: string;
+  name: string;
+  size: number;
+  type: string;
+  base64: string;
+};
+
+const MAX_ATTACHMENTS_TOTAL_BYTES = 15 * 1024 * 1024; // 15 MB
+
+async function readFilesAsAttachments(
+  files: FileList | File[],
+  currentTotalBytes = 0,
+): Promise<{ attachments: OutgoingAttachment[]; error?: string }> {
+  const list = Array.from(files);
+  const out: OutgoingAttachment[] = [];
+  let runningTotal = currentTotalBytes;
+
+  for (const file of list) {
+    if (runningTotal + file.size > MAX_ATTACHMENTS_TOTAL_BYTES) {
+      return {
+        attachments: out,
+        error: `Total attachments exceed 15 MB limit. “${file.name}” was skipped.`,
+      };
+    }
+    runningTotal += file.size;
+
+    try {
+      const base64 = await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => {
+          const res = reader.result as string;
+          const commaIdx = res.indexOf(",");
+          resolve(commaIdx >= 0 ? res.slice(commaIdx + 1) : res);
+        };
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+
+      out.push({
+        id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+        name: file.name,
+        size: file.size,
+        type: file.type || "application/octet-stream",
+        base64,
+      });
+    } catch {
+      return {
+        attachments: out,
+        error: `Failed to read “${file.name}”.`,
+      };
+    }
+  }
+
+  return { attachments: out };
+}
 
 type Draft = {
   id: string;
@@ -411,10 +469,19 @@ export default function Webmail({
   const [draftNotice, setDraftNotice] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
 
+  // Attached files in compose modal
+  const [attachedFiles, setAttachedFiles] = useState<OutgoingAttachment[]>([]);
+  const [attachingFiles, setAttachingFiles] = useState(false);
+  const [isDraggingOver, setIsDraggingOver] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
   // Inline quick reply inside reading pane
   const [inlineReplyOpen, setInlineReplyOpen] = useState(false);
   const [inlineReplyText, setInlineReplyText] = useState("");
   const [inlineSending, setInlineSending] = useState(false);
+  const [inlineAttachedFiles, setInlineAttachedFiles] = useState<OutgoingAttachment[]>([]);
+  const [inlineAttaching, setInlineAttaching] = useState(false);
+  const inlineFileInputRef = useRef<HTMLInputElement>(null);
 
   // Server scheduled send
   const [scheduledAt, setScheduledAt] = useState("");
@@ -683,6 +750,7 @@ export default function Webmail({
     setShowBcc(false);
     setSubject("");
     setBodyText("");
+    setAttachedFiles([]);
     setScheduledAt("");
     setShowSchedule(false);
     setSendError(null);
@@ -696,6 +764,7 @@ export default function Webmail({
     setComposing(true);
     setComposeMinimized(false);
     setDraftId(null);
+    setAttachedFiles([]);
     setScheduledAt("");
     setShowSchedule(false);
     setSendError(null);
@@ -738,9 +807,49 @@ export default function Webmail({
     setShowBcc(Boolean(d.bcc));
     setSubject(d.subject);
     setBodyText(d.body);
+    setAttachedFiles([]);
     setScheduledAt("");
     setShowSchedule(false);
     setSendError(null);
+  }
+
+  async function handleFilesSelected(files: FileList | null) {
+    if (!files || files.length === 0) return;
+    setAttachingFiles(true);
+    setSendError(null);
+    const currentTotal = attachedFiles.reduce((acc, f) => acc + f.size, 0);
+    const { attachments: newAtts, error } = await readFilesAsAttachments(files, currentTotal);
+    if (newAtts.length > 0) {
+      setAttachedFiles((prev) => [...prev, ...newAtts]);
+    }
+    if (error) {
+      setSendError(error);
+    }
+    setAttachingFiles(false);
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  }
+
+  function removeAttachment(id: string) {
+    setAttachedFiles((prev) => prev.filter((f) => f.id !== id));
+  }
+
+  async function handleInlineFilesSelected(files: FileList | null) {
+    if (!files || files.length === 0) return;
+    setInlineAttaching(true);
+    const currentTotal = inlineAttachedFiles.reduce((acc, f) => acc + f.size, 0);
+    const { attachments: newAtts, error } = await readFilesAsAttachments(files, currentTotal);
+    if (newAtts.length > 0) {
+      setInlineAttachedFiles((prev) => [...prev, ...newAtts]);
+    }
+    if (error) {
+      setNotice(error);
+    }
+    setInlineAttaching(false);
+    if (inlineFileInputRef.current) inlineFileInputRef.current.value = "";
+  }
+
+  function removeInlineAttachment(id: string) {
+    setInlineAttachedFiles((prev) => prev.filter((f) => f.id !== id));
   }
 
   async function handleSend(e?: React.FormEvent) {
@@ -754,24 +863,37 @@ export default function Webmail({
     setSending(true);
     setSendError(null);
     try {
+      const payload: Record<string, any> = {
+        mailbox: active.id,
+        fromAddress: active.primaryAddress,
+        to: toArr,
+        cc: parseAddrs(cc),
+        bcc: parseAddrs(bcc),
+        subject: subject.trim() || "(No subject)",
+        text: bodyText,
+      };
+      if (attachedFiles.length > 0) {
+        payload.attachments = attachedFiles.map((f) => ({
+          filename: f.name,
+          content: f.base64,
+          contentType: f.type,
+        }));
+      }
       const res = await authFetch("/api/mail/send", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          mailbox: active.id,
-          fromAddress: active.primaryAddress,
-          to: toArr,
-          cc: parseAddrs(cc),
-          bcc: parseAddrs(bcc),
-          subject: subject.trim() || "(No subject)",
-          text: bodyText,
-        }),
+        body: JSON.stringify(payload),
       });
       const json = await res.json();
       if (!res.ok || json.error) throw new Error(json.error || "Could not send the message.");
       dropDraft(draftId);
+      setAttachedFiles([]);
       setComposing(false);
-      setNotice("Message sent.");
+      setNotice(
+        attachedFiles.length > 0
+          ? `Message sent with ${attachedFiles.length} attachment${attachedFiles.length > 1 ? "s" : ""}.`
+          : "Message sent."
+      );
       loadMessages(active.id, true);
     } catch (err: any) {
       setSendError(err.message);
@@ -781,28 +903,41 @@ export default function Webmail({
   }
 
   async function handleInlineReply() {
-    if (!active || !selected || !inlineReplyText.trim()) return;
+    if (!active || !selected || (!inlineReplyText.trim() && inlineAttachedFiles.length === 0)) return;
     const recipient = rawEmail(selected.from) || addr(selected.from);
     if (!recipient) return;
 
     setInlineSending(true);
     try {
+      const payload: Record<string, any> = {
+        mailbox: active.id,
+        fromAddress: active.primaryAddress,
+        to: [recipient],
+        subject: /^re:/i.test(selected.subject || "") ? selected.subject : `Re: ${selected.subject || ""}`,
+        text: inlineReplyText.trim() || (inlineAttachedFiles.length > 0 ? "[Attachment sent]" : ""),
+      };
+      if (inlineAttachedFiles.length > 0) {
+        payload.attachments = inlineAttachedFiles.map((f) => ({
+          filename: f.name,
+          content: f.base64,
+          contentType: f.type,
+        }));
+      }
       const res = await authFetch("/api/mail/send", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          mailbox: active.id,
-          fromAddress: active.primaryAddress,
-          to: [recipient],
-          subject: /^re:/i.test(selected.subject || "") ? selected.subject : `Re: ${selected.subject || ""}`,
-          text: inlineReplyText,
-        }),
+        body: JSON.stringify(payload),
       });
       const json = await res.json();
       if (!res.ok || json.error) throw new Error(json.error || "Could not send reply.");
       setInlineReplyText("");
+      setInlineAttachedFiles([]);
       setInlineReplyOpen(false);
-      setNotice("Reply sent.");
+      setNotice(
+        inlineAttachedFiles.length > 0
+          ? `Reply sent with ${inlineAttachedFiles.length} attachment${inlineAttachedFiles.length > 1 ? "s" : ""}.`
+          : "Reply sent."
+      );
       loadMessages(active.id, true);
     } catch (err: any) {
       setNotice(`Reply failed: ${err.message}`);
@@ -1658,7 +1793,7 @@ export default function Webmail({
                   <div
                     className="webmail-html-body prose prose-sm max-w-none text-sm leading-relaxed"
                     style={{ color: "var(--adm-text)" }}
-                    dangerouslySetInnerHTML={{ __html: content.body }}
+                    dangerouslySetInnerHTML={{ __html: sanitizeHtml(content.body) }}
                   />
                 </div>
               ) : (
@@ -1747,19 +1882,97 @@ export default function Webmail({
                     className="w-full resize-none bg-transparent text-sm outline-none"
                     style={{ color: "var(--adm-text)" }}
                   />
-                  <div className="mt-3 flex items-center justify-between border-t pt-3" style={{ borderColor: "var(--adm-border)" }}>
-                    <button
-                      type="button"
-                      onClick={() => setInlineReplyOpen(false)}
-                      className="text-xs font-semibold"
-                      style={{ color: "var(--adm-text-3)" }}
+
+                  {/* Inline Attached Files */}
+                  {inlineAttachedFiles.length > 0 && (
+                    <div
+                      className="mt-2 flex flex-wrap gap-2 border-t pt-2"
+                      style={{ borderColor: "var(--adm-border)" }}
                     >
-                      Cancel
-                    </button>
+                      {inlineAttachedFiles.map((att) => (
+                        <div
+                          key={att.id}
+                          className="flex items-center gap-1.5 rounded-lg border px-2 py-1 text-xs"
+                          style={{ borderColor: "var(--adm-border)", background: "var(--adm-surface-2)" }}
+                        >
+                          <Paperclip size={12} style={{ color: "var(--adm-blue)" }} />
+                          <span
+                            className="max-w-[130px] truncate font-medium"
+                            style={{ color: "var(--adm-text)" }}
+                            title={att.name}
+                          >
+                            {att.name}
+                          </span>
+                          <span className="text-[10px]" style={{ color: "var(--adm-text-3)" }}>
+                            {formatBytes(att.size)}
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => removeInlineAttachment(att.id)}
+                            title={`Remove ${att.name}`}
+                            className="rounded p-0.5 transition hover:text-adm-red"
+                            style={{ color: "var(--adm-text-3)" }}
+                          >
+                            <X size={12} />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  <div className="mt-3 flex items-center justify-between border-t pt-3" style={{ borderColor: "var(--adm-border)" }}>
+                    <div className="flex items-center gap-3">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setInlineReplyOpen(false);
+                          setInlineAttachedFiles([]);
+                        }}
+                        className="text-xs font-semibold transition hover:opacity-80"
+                        style={{ color: "var(--adm-text-3)" }}
+                      >
+                        Cancel
+                      </button>
+
+                      {/* Hidden file input for quick reply */}
+                      <input
+                        ref={inlineFileInputRef}
+                        type="file"
+                        multiple
+                        className="hidden"
+                        onChange={(e) => handleInlineFilesSelected(e.target.files)}
+                      />
+
+                      {/* Attach button */}
+                      <button
+                        type="button"
+                        onClick={() => inlineFileInputRef.current?.click()}
+                        disabled={inlineAttaching}
+                        title="Attach files (max 15 MB total)"
+                        className="flex items-center gap-1 text-xs font-semibold transition hover:text-adm-blue"
+                        style={{ color: inlineAttachedFiles.length > 0 ? "var(--adm-blue)" : "var(--adm-text-3)" }}
+                      >
+                        {inlineAttaching ? (
+                          <Loader2 size={13} className="animate-spin" />
+                        ) : (
+                          <Paperclip size={13} />
+                        )}
+                        <span>Attach</span>
+                        {inlineAttachedFiles.length > 0 && (
+                          <span
+                            className="ml-0.5 rounded-full px-1.5 py-0.2 text-[10px] font-bold"
+                            style={{ background: "var(--adm-blue-light)", color: "var(--adm-blue)" }}
+                          >
+                            {inlineAttachedFiles.length}
+                          </span>
+                        )}
+                      </button>
+                    </div>
+
                     <button
                       type="button"
                       onClick={handleInlineReply}
-                      disabled={inlineSending || !inlineReplyText.trim()}
+                      disabled={inlineSending || (!inlineReplyText.trim() && inlineAttachedFiles.length === 0)}
                       className="btn-press flex items-center gap-2 rounded-full px-5 py-2 text-xs font-bold text-white transition disabled:opacity-50"
                       style={{ background: "var(--adm-blue)" }}
                     >
@@ -2253,7 +2466,42 @@ export default function Webmail({
 
           {/* Composer Body (rendered only when not minimized) */}
           {!composeMinimized && (
-            <form onSubmit={handleSend} className="flex min-h-0 flex-1 flex-col">
+            <form
+              onSubmit={handleSend}
+              onDragOver={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                setIsDraggingOver(true);
+              }}
+              onDragLeave={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                setIsDraggingOver(false);
+              }}
+              onDrop={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                setIsDraggingOver(false);
+                if (e.dataTransfer.files) {
+                  handleFilesSelected(e.dataTransfer.files);
+                }
+              }}
+              className="relative flex min-h-0 flex-1 flex-col"
+            >
+              {isDraggingOver && (
+                <div
+                  className="absolute inset-0 z-50 flex flex-col items-center justify-center gap-2 rounded-b-2xl border-2 border-dashed backdrop-blur-sm pointer-events-none"
+                  style={{
+                    borderColor: "var(--adm-blue)",
+                    background: "rgba(255, 255, 255, 0.9)",
+                    color: "var(--adm-blue)",
+                  }}
+                >
+                  <Paperclip size={32} className="animate-bounce" />
+                  <p className="text-xs font-bold">Drop files here to attach</p>
+                </div>
+              )}
+
               {/* Top Fields */}
               <div className="space-y-1.5 border-b p-4 text-xs" style={{ borderColor: "var(--adm-border)" }}>
                 {/* From Field */}
@@ -2361,13 +2609,62 @@ export default function Webmail({
 
               {/* Message Textarea */}
               <textarea
-                required
+                required={attachedFiles.length === 0}
                 value={bodyText}
                 onChange={(e) => setBodyText(e.target.value)}
                 placeholder="Write your email here…"
                 className="flex-1 resize-none bg-transparent p-4 text-xs leading-relaxed outline-none"
                 style={{ color: "var(--adm-text)" }}
               />
+
+              {/* Attachment List in Composer */}
+              {attachedFiles.length > 0 && (
+                <div
+                  className="border-t px-4 py-2.5 space-y-2"
+                  style={{ borderColor: "var(--adm-border)", background: "var(--adm-surface-2)" }}
+                >
+                  <div className="flex items-center justify-between text-[11px] font-semibold" style={{ color: "var(--adm-text-3)" }}>
+                    <span className="flex items-center gap-1.5">
+                      <Paperclip size={12} style={{ color: "var(--adm-blue)" }} />
+                      <span>
+                        {attachedFiles.length} Attachment{attachedFiles.length === 1 ? "" : "s"} (
+                        {formatBytes(attachedFiles.reduce((a, b) => a + b.size, 0))})
+                      </span>
+                    </span>
+                    {attachingFiles && (
+                      <span className="flex items-center gap-1 text-adm-blue">
+                        <Loader2 size={11} className="animate-spin" /> Processing…
+                      </span>
+                    )}
+                  </div>
+                  <div className="flex flex-wrap gap-2 max-h-28 overflow-y-auto pr-1">
+                    {attachedFiles.map((att) => (
+                      <div
+                        key={att.id}
+                        className="group flex items-center gap-2 rounded-lg border px-2.5 py-1 text-xs transition hover:shadow-sm"
+                        style={{ borderColor: "var(--adm-border)", background: "var(--adm-surface)" }}
+                      >
+                        <Paperclip size={12} className="shrink-0" style={{ color: "var(--adm-blue)" }} />
+                        <span className="max-w-[140px] truncate font-medium" style={{ color: "var(--adm-text)" }} title={att.name}>
+                          {att.name}
+                        </span>
+                        <span className="text-[10px]" style={{ color: "var(--adm-text-3)" }}>
+                          {formatBytes(att.size)}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => removeAttachment(att.id)}
+                          title={`Remove ${att.name}`}
+                          className="rounded p-0.5 transition hover:bg-adm-surface-2 hover:text-adm-red"
+                          style={{ color: "var(--adm-text-3)" }}
+                        >
+                          <X size={12} />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
 
               {/* Schedule Send Sub-bar if toggled */}
               {showSchedule && (
@@ -2407,12 +2704,38 @@ export default function Webmail({
                 <div className="flex items-center gap-2">
                   <button
                     type="submit"
-                    disabled={sending}
+                    disabled={sending || attachingFiles}
                     className="btn-press flex items-center gap-2 rounded-full px-5 py-2 text-xs font-bold tracking-wide text-white transition hover:opacity-95 disabled:opacity-50"
                     style={{ background: "var(--adm-blue)" }}
                   >
                     {sending ? <Loader2 size={13} className="animate-spin" /> : <Send size={13} />}
                     <span>{sending ? "Sending…" : "Send"}</span>
+                  </button>
+
+                  {/* Hidden file input for composer */}
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    multiple
+                    className="hidden"
+                    onChange={(e) => handleFilesSelected(e.target.files)}
+                  />
+
+                  {/* Attachment Button */}
+                  <button
+                    type="button"
+                    onClick={() => fileInputRef.current?.click()}
+                    disabled={attachingFiles}
+                    title="Attach files (max 15 MB total)"
+                    className={`flex h-8 w-8 items-center justify-center rounded-full border transition hover:bg-adm-surface-2 ${
+                      attachedFiles.length > 0 ? "border-adm-blue text-adm-blue" : ""
+                    }`}
+                    style={{
+                      borderColor: attachedFiles.length > 0 ? "var(--adm-blue)" : "var(--adm-border)",
+                      color: attachedFiles.length > 0 ? "var(--adm-blue)" : "var(--adm-text-3)",
+                    }}
+                  >
+                    {attachingFiles ? <Loader2 size={14} className="animate-spin" /> : <Paperclip size={15} />}
                   </button>
 
                   <button
@@ -2433,6 +2756,7 @@ export default function Webmail({
                     type="button"
                     onClick={() => {
                       dropDraft(draftId);
+                      setAttachedFiles([]);
                       setComposing(false);
                       setNotice("Draft discarded.");
                     }}

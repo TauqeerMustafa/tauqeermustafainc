@@ -50,7 +50,7 @@ export default function AdminEmployeesPage() {
 
   return (
     <div className="flex flex-col gap-8">
-      <PeopleBanner active="employees" />
+      <PeopleBanner />
 
       <PortalPageHeader title="Employees" description="Every person on the roster, their role, and their account status.">
         <PortalButton href="/admin/employees/create" icon={Plus}>

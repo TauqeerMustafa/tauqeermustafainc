@@ -78,7 +78,11 @@ export async function GET(request: Request) {
 function signatureValid(raw: string, header: string | null): boolean {
   const secrets = appSecrets();
   if (secrets.length === 0) {
-    console.warn("[webhook] No WHATSAPP_APP_SECRET configured — skipping signature check");
+    if (process.env.NODE_ENV === "production") {
+      console.error("[webhook] WHATSAPP_APP_SECRET is not configured in production — rejecting unverified webhook");
+      return false;
+    }
+    console.warn("[webhook] No WHATSAPP_APP_SECRET configured — skipping signature check in dev mode only");
     return true;
   }
   if (!header || !header.startsWith("sha256=")) return false;
@@ -330,8 +334,8 @@ async function handleAutoReply(
   channel: string,
   choiceId: string | null
 ) {
-  // 1. Resolve department: Line 1 -> general, Line 2 -> support
-  const dept: "general" | "support" = getChannelDepartment(channel);
+  // 1. Resolve department: Line 1 -> general, Line 2 -> support, Line 3 -> direct
+  const dept: "general" | "support" | "direct" = getChannelDepartment(channel);
 
   // 2. Always reply through the channel message arrived on, fallback to primary
   const phoneNumberId = channel || primaryNumberId();
@@ -341,13 +345,22 @@ async function handleAutoReply(
   let numberDef = waNumbers().find((n) => n.id === phoneNumberId);
   if (!numberDef) {
     const isPrimary = phoneNumberId === primaryNumberId();
+    const isDirect = phoneNumberId === "1291624014041103" || dept === "direct";
     numberDef = {
       id: phoneNumberId,
-      label: isPrimary ? "General Inquiries & Sales" : "Technical & Client Support",
+      label: isPrimary
+        ? "General Inquiries & Sales"
+        : isDirect
+        ? "Executive & Direct Desk"
+        : "Technical & Client Support",
       primary: isPrimary,
-      slot: 1,
+      slot: isDirect ? 3 : 1,
       department: dept,
-      displayNumber: isPrimary ? "+92 333 56701199" : "Support Desk",
+      displayNumber: isPrimary
+        ? "+92 333 56701199"
+        : isDirect
+        ? "Executive Desk"
+        : "Support Desk",
     };
     registerKnownNumbers([numberDef]);
   }

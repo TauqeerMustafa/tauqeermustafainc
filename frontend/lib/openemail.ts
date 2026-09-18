@@ -66,6 +66,12 @@ export async function fetchOpenEmailMessageContent(mailboxId: string, messageId:
   return oeFetch(`/mailboxes/${mailboxId}/messages/${messageId}/content`);
 }
 
+export interface OpenEmailAttachment {
+  filename: string;
+  content: string; // base64
+  contentType?: string;
+}
+
 export interface SendMessageInput {
   from: string;
   fromName?: string;
@@ -75,6 +81,7 @@ export interface SendMessageInput {
   subject: string;
   text?: string;
   html?: string;
+  attachments?: OpenEmailAttachment[];
   save?: boolean;
 }
 
@@ -92,6 +99,13 @@ export async function sendOpenEmailMessage(mailboxId: string, input: SendMessage
   };
   if (input.text) base.text = input.text;
   if (input.html) base.html = input.html;
+  if (input.attachments && input.attachments.length > 0) {
+    base.attachments = input.attachments.map((att) => ({
+      filename: att.filename,
+      content: att.content,
+      ...(att.contentType ? { contentType: att.contentType } : {}),
+    }));
+  }
 
   const to = asEmails(input.to);
   const cc = asEmails(input.cc);

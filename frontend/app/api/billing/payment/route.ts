@@ -68,7 +68,7 @@ export async function POST(request: Request) {
         : method === "bank"
         ? `Direct Bank Transfer (${senderBank || "Meezan Bank"})`
         : "Wise Multi-Currency Wire",
-    status: method === "bank" ? "PENDING_RECONCILIATION" : "VERIFIED_SETTLED",
+    status: method === "bank" ? "PENDING_RECONCILIATION" : "PENDING_VERIFICATION",
     timestamp,
     referenceNote: bankRef ? `Bank RRN / Ref: ${bankRef}` : undefined,
     bankNotes: bankNotes || undefined,
@@ -103,18 +103,35 @@ export async function POST(request: Request) {
   return NextResponse.json({ success: true, receipt }, { status: 201 });
 }
 
+import { resolveAuthUser } from "@/lib/server-auth";
+
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const invoice = searchParams.get("invoice")?.trim().toUpperCase();
   const txId = searchParams.get("txId")?.trim().toUpperCase();
+  const email = searchParams.get("email")?.trim().toLowerCase();
 
+  const user = await resolveAuthUser(request);
   const kv = getKV();
+
+  const canAccess = (clientEmail?: string) => {
+    if (user && (user.isAdmin || user.role === "manager" || user.role === "admin")) return true;
+    if (email && clientEmail && clientEmail.toLowerCase() === email) return true;
+    if (user && clientEmail && clientEmail.toLowerCase() === user.email.toLowerCase()) return true;
+    return false;
+  };
 
   if (txId && kv) {
     try {
       const data = await kv.get(`payment:${txId}`);
       if (data) {
         const receipt = typeof data === "string" ? JSON.parse(data) : data;
+        if (!canAccess(receipt?.clientEmail)) {
+          return NextResponse.json(
+            { success: false, message: "Access denied. Provide your client email to view this receipt." },
+            { status: 403 }
+          );
+        }
         return NextResponse.json({ success: true, receipt });
       }
     } catch {
@@ -127,6 +144,12 @@ export async function GET(request: Request) {
       const data = await kv.get(`invoice:${invoice}`);
       if (data) {
         const inv = typeof data === "string" ? JSON.parse(data) : data;
+        if (!canAccess(inv?.clientEmail)) {
+          return NextResponse.json(
+            { success: false, message: "Access denied. Provide your client email to view this invoice." },
+            { status: 403 }
+          );
+        }
         return NextResponse.json({ success: true, invoice: inv });
       }
     } catch {

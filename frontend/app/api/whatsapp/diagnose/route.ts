@@ -85,16 +85,21 @@ async function inspect(
   };
 }
 
+import { timingSafeEqual } from "node:crypto";
+
 export async function GET(request: Request) {
-  const secret = process.env.WA_DIAGNOSE_KEY?.trim() || process.env.WEBHOOK_VERIFY_TOKEN;
-  const key = new URL(request.url).searchParams.get("key");
+  const secret = process.env.WA_DIAGNOSE_KEY?.trim();
+  const key = new URL(request.url).searchParams.get("key")?.trim() || "";
   if (!secret) {
     return NextResponse.json(
-      { success: false, error: "Set WA_DIAGNOSE_KEY (or WEBHOOK_VERIFY_TOKEN) to protect this endpoint." },
+      { success: false, error: "Set WA_DIAGNOSE_KEY in environment to access diagnostic telemetry." },
       { status: 503 }
     );
   }
-  if (key !== secret) {
+
+  const keyBuf = Buffer.from(key);
+  const secretBuf = Buffer.from(secret);
+  if (keyBuf.length !== secretBuf.length || !timingSafeEqual(keyBuf, secretBuf)) {
     return NextResponse.json({ success: false, error: "Forbidden" }, { status: 403 });
   }
 
@@ -172,13 +177,14 @@ export async function GET(request: Request) {
       const ch = m.channel || "(none/primary)";
       channelCounts[ch] = (channelCounts[ch] ?? 0) + 1;
     }
+    const maskPhone = (p: string) => (p && p.length > 5 ? `${p.slice(0, 4)}••••${p.slice(-2)}` : "••••");
     const recent = allMessages.slice(-15).map((m) => ({
       id: m.id,
       direction: m.direction,
-      from: m.from,
-      to: m.to,
+      from: maskPhone(m.from),
+      to: maskPhone(m.to),
       channel: m.channel ?? null,
-      body: (m.body ?? "").slice(0, 60),
+      body: m.body ? `[${m.body.length} chars message]` : "",
       timestamp: m.timestamp,
     }));
     messagesAudit = {

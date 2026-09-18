@@ -1,11 +1,15 @@
 import math
 import uuid
 
-from fastapi import APIRouter, HTTPException, Query, status
+from typing import Annotated
+from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi.security import HTTPAuthorizationCredentials
 from sqlalchemy import delete, func, select
 
-from app.api.deps import CurrentAdmin, DatabaseSession
+from app.api.deps import CurrentAdmin, DatabaseSession, bearer_scheme, is_admin
+from app.core.security import decode_access_token
 from app.models.announcement import Announcement
+from app.models.user import User
 from app.schemas.announcement import (
     AnnouncementCreate,
     AnnouncementRead,
@@ -20,12 +24,25 @@ router = APIRouter(prefix="/announcements", tags=["announcements"])
 @router.get("", response_model=ApiResponse[PaginatedResult[AnnouncementRead]])
 def list_announcements(
     db: DatabaseSession,
+    credentials: Annotated[HTTPAuthorizationCredentials | None, Depends(bearer_scheme)] = None,
     page: int = Query(default=1, ge=1),
     page_size: int = Query(default=20, ge=1, le=100),
-    published_only: bool = Query(default=False),
+    published_only: bool = Query(default=True),
 ) -> ApiResponse[PaginatedResult[AnnouncementRead]]:
+    # Only authenticated admins can view unpublished/draft announcements
+    can_view_drafts = False
+    if credentials:
+        sub = decode_access_token(credentials.credentials)
+        if sub:
+            try:
+                user = db.get(User, uuid.UUID(sub))
+                if user and user.is_active and is_admin(user):
+                    can_view_drafts = True
+            except (ValueError, TypeError):
+                pass
+
     stmt = select(Announcement).order_by(Announcement.created_at.desc())
-    if published_only:
+    if not can_view_drafts or published_only:
         stmt = stmt.where(Announcement.is_published.is_(True))
 
     total = db.scalar(select(func.count()).select_from(stmt.subquery())) or 0

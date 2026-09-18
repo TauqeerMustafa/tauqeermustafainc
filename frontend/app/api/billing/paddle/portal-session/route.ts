@@ -3,14 +3,31 @@ import {
   createPaddleCustomerPortalSession,
   isPaddleServerConfigured,
 } from "@/lib/paddle-server";
+import { resolveAuthUser } from "@/lib/server-auth";
 
 export async function POST(request: Request) {
   try {
+    const user = await resolveAuthUser(request);
+    if (!user) {
+      return NextResponse.json(
+        { success: false, message: "Authentication required. Please sign in to access your billing portal." },
+        { status: 401 }
+      );
+    }
+
     const body = await request.json();
     const { email, customerId } = body;
 
-    const identifier = (customerId || email || "").trim();
+    // Non-admins may only access their own customer portal
+    const targetEmail = (email || user.email || "").trim().toLowerCase();
+    if (!user.isAdmin && targetEmail !== user.email.toLowerCase()) {
+      return NextResponse.json(
+        { success: false, message: "Forbidden. You may only access your own billing portal." },
+        { status: 403 }
+      );
+    }
 
+    const identifier = (customerId || targetEmail).trim();
     if (!identifier) {
       return NextResponse.json(
         { success: false, message: "Please provide either your client email or Paddle Customer ID." },

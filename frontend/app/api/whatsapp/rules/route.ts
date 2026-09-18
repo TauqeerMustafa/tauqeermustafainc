@@ -11,14 +11,16 @@ import { isStoreReady, getRules, setRules, DEFAULT_RULES, type AutoReplyRule } f
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
-    const dept = searchParams.get("department") as "general" | "support" | null;
+    const dept = searchParams.get("department") as "general" | "support" | "direct" | null;
 
     if (!isStoreReady()) {
       let data = DEFAULT_RULES;
-      if (dept === "support") {
+      if (dept === "direct") {
+        data = DEFAULT_RULES.filter((r) => r.department === "direct" || r.id.startsWith("direct_"));
+      } else if (dept === "support") {
         data = DEFAULT_RULES.filter((r) => r.department === "support" || r.id.startsWith("support_"));
       } else if (dept === "general") {
-        data = DEFAULT_RULES.filter((r) => r.department === "general" || (!r.department && !r.id.startsWith("support_")));
+        data = DEFAULT_RULES.filter((r) => r.department === "general" || (!r.department && !r.id.startsWith("support_") && !r.id.startsWith("direct_")));
       }
       return NextResponse.json({
         success: true,
@@ -41,7 +43,7 @@ export async function GET(request: Request) {
 export async function PUT(request: Request) {
   try {
     const body = await request.json();
-    const { rules, department } = body as { rules: AutoReplyRule[]; department?: "general" | "support" };
+    const { rules, department } = body as { rules: AutoReplyRule[]; department?: "general" | "support" | "direct" };
 
     if (!Array.isArray(rules)) {
       return NextResponse.json({ success: false, error: "Rules must be an array" }, { status: 400 });

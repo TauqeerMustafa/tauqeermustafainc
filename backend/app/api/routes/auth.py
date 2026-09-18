@@ -208,7 +208,14 @@ async def upload_avatar(
             detail=f"Image size exceeds the {MAX_AVATAR_BYTES // (1024 * 1024)}MB limit.",
         )
 
-    ext = Path(file.filename or "avatar.jpg").suffix.lower() or ".jpg"
+    SAFE_EXTENSIONS = {
+        "image/jpeg": ".jpg",
+        "image/png": ".png",
+        "image/webp": ".webp",
+        "image/gif": ".gif",
+        "image/avif": ".avif",
+    }
+    ext = SAFE_EXTENSIONS.get(file.content_type, ".jpg")
     filename = f"{current_user.id}_{uuid.uuid4().hex[:8]}{ext}"
     dest_path = AVATARS_DIR / filename
 
@@ -227,8 +234,25 @@ async def upload_avatar(
 @router.get("/avatars/{filename}")
 def get_avatar(filename: str) -> FileResponse:
     """Serve uploaded avatar images."""
-    file_path = AVATARS_DIR / filename
-    if not file_path.is_file():
+    base_name = os.path.basename(filename)
+    if (
+        not base_name
+        or base_name != filename
+        or ".." in filename
+        or "/" in filename
+        or "\\" in filename
+        or "\0" in filename
+    ):
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid filename")
+
+    base_dir = AVATARS_DIR.resolve()
+    file_path = (AVATARS_DIR / base_name).resolve()
+
+    if not file_path.is_relative_to(base_dir) or not file_path.is_file():
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Avatar not found")
-    return FileResponse(file_path)
+
+    return FileResponse(
+        file_path,
+        headers={"X-Content-Type-Options": "nosniff"},
+    )
 

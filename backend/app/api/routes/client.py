@@ -71,6 +71,19 @@ def _verified_client(user: User) -> None:
 
 
 def _issue_email_code(db: DatabaseSession, user: User) -> str:
+    recent = db.scalar(
+        select(VerificationCode).where(
+            VerificationCode.user_id == user.id,
+            VerificationCode.channel == "email",
+            VerificationCode.created_at >= datetime.now(timezone.utc) - timedelta(seconds=60),
+        )
+    )
+    if recent:
+        raise HTTPException(
+            status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+            detail="Please wait 60 seconds before requesting a new verification code.",
+        )
+
     code = create_verification_code()
     db.execute(delete(VerificationCode).where(VerificationCode.user_id == user.id, VerificationCode.channel == "email", VerificationCode.consumed_at.is_(None)))
     record = VerificationCode(user_id=user.id, channel="email", code_hash=hash_verification_code(code), expires_at=datetime.now(timezone.utc) + timedelta(minutes=settings.verification_code_ttl_minutes))
@@ -85,7 +98,8 @@ def _issue_email_code(db: DatabaseSession, user: User) -> str:
 
 
 def _code_response(code: str) -> CodeSentResponse:
-    debug_code = code if settings.environment != "production" or settings.debug else None
+    # Never expose OTP verification codes in API responses in production/staging environments
+    debug_code = code if settings.environment == "development" and settings.debug else None
     return CodeSentResponse(channel="email", expires_in_seconds=settings.verification_code_ttl_minutes * 60, debug_code=debug_code)
 
 
@@ -99,17 +113,17 @@ def client_register(payload: ClientRegisterRequest, db: DatabaseSession) -> ApiR
     if existing_user is not None:
         if existing_user.email_verified_at is not None:
             raise HTTPException(status_code=409, detail="An account with this email already exists")
-        # Unverified existing account (e.g. from an earlier attempt): update credentials and re-issue code
-        parts = payload.name.strip().split(" ", 1)
-        existing_user.first_name = parts[0]
-        existing_user.last_name = parts[1] if len(parts) > 1 else ""
-        existing_user.password_hash = hash_password(payload.password)
-        if payload.phone:
-            existing_user.phone = payload.phone
-        db.commit()
-        db.refresh(existing_user)
+        # For existing unverified accounts, re-issue code without silently overwriting passwords
         _issue_email_code(db, existing_user)
-        return ApiResponse(data=ClientRegisterResponse(user_id=existing_user.id, email=existing_user.email, phone=existing_user.phone, message="Your account is ready. Verify the code sent to your email."), message="Email verification required")
+        return ApiResponse(
+            data=ClientRegisterResponse(
+                user_id=existing_user.id,
+                email=existing_user.email,
+                phone=existing_user.phone,
+                message="An account with this email is pending verification. A new verification code was sent to your email.",
+            ),
+            message="Email verification required",
+        )
 
     role = _client_role(db)
     parts = payload.name.strip().split(" ", 1)

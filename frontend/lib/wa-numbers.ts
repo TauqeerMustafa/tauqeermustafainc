@@ -21,17 +21,20 @@
  *   WHATSAPP_PHONE_NUMBER_ID     – the primary number (unchanged)
  *   WHATSAPP_PHONE_NUMBER_ID_2   – the second number; set it to "off" to drop
  *                                  the built-in default below
+ *   WHATSAPP_PHONE_NUMBER_ID_3   – the third number; set it to "off" to drop
+ *                                  the built-in default below
  *   WHATSAPP_PHONE_LABEL         – display label for the primary
  *   WHATSAPP_PHONE_LABEL_2       – display label for the second
+ *   WHATSAPP_PHONE_LABEL_3       – display label for the third
  *   WHATSAPP_PHONE_NUMBERS       – explicit full list, "id|Label, id|Label",
  *                                  which overrides everything above
  *
  * A phone-number id is an identifier, not a credential — unlike WHATSAPP_TOKEN
- * it is safe in source. The second number is therefore defaulted in code so it
- * goes live without waiting on an environment change, and env still wins.
+ * it is safe in source. The second and third numbers are therefore defaulted in
+ * code so they go live without waiting on an environment change, and env still wins.
  */
 
-export type WADepartment = "general" | "support";
+export type WADepartment = "general" | "support" | "direct";
 
 export type WANumber = {
   /** Meta Phone Number ID — what `POST /{id}/messages` addresses. */
@@ -42,7 +45,7 @@ export type WANumber = {
   primary: boolean;
   /** Which Meta app credential slot this number uses (1-4). */
   slot: number;
-  /** Dedicated department: general info & sales or technical support. */
+  /** Dedicated department: general info & sales, technical support, or executive/direct desk. */
   department?: WADepartment;
   /** Optional human display phone number e.g. +92 333 56701199 */
   displayNumber?: string | null;
@@ -51,16 +54,13 @@ export type WANumber = {
 /**
  * Fallback id for the second number, used ONLY until the numbers route
  * discovers the real Phone Number IDs from Meta's WABA and registers them.
- *
- * This value came from WhatsApp Manager as a "Phone profile ID", which is very
- * likely NOT the Phone Number ID that `POST /{id}/messages` and inbound
- * `metadata.phone_number_id` actually use — so it exists purely so the second
- * line is not dead on a cold start. The live list from
- * `GET /api/whatsapp/numbers` (Meta's `{waba}/phone_numbers`) is the source of
- * truth and overrides this the moment it loads; `GET /api/whatsapp/diagnose`
- * prints the real ids next to what is stored if they ever disagree.
  */
 const DEFAULT_SECOND_ID = "1318810581311680";
+
+/**
+ * Fallback id for the third number (Executive / Direct Desk).
+ */
+const DEFAULT_THIRD_ID = "1291624014041103";
 
 /** Vercel masks some values in previews; the sentinel means "not really set". */
 const SENTINEL = "[SENSITIVE]";
@@ -115,6 +115,8 @@ function build(): WANumber[] {
   const primaryId = clean(process.env.WHATSAPP_PHONE_NUMBER_ID);
   const secondRaw = clean(process.env.WHATSAPP_PHONE_NUMBER_ID_2);
   const secondId = secondRaw ? (isDisabled(secondRaw) ? null : secondRaw) : DEFAULT_SECOND_ID;
+  const thirdRaw = clean(process.env.WHATSAPP_PHONE_NUMBER_ID_3);
+  const thirdId = thirdRaw ? (isDisabled(thirdRaw) ? null : thirdRaw) : DEFAULT_THIRD_ID;
 
   const numbers: WANumber[] = [];
   if (primaryId && !isDisabled(primaryId)) {
@@ -138,6 +140,18 @@ function build(): WANumber[] {
       slot: hasDedicatedSlot2Token ? 2 : 1,
       department: "support",
       displayNumber: clean(process.env.WHATSAPP_DISPLAY_NUMBER_2) || "Support Desk",
+    });
+  }
+  if (thirdId) {
+    const hasDedicatedSlot3Token = Boolean(clean(process.env.WHATSAPP_TOKEN_3));
+    const hasDedicatedSlot2Token = Boolean(clean(process.env.WHATSAPP_TOKEN_2));
+    numbers.push({
+      id: thirdId,
+      label: clean(process.env.WHATSAPP_PHONE_LABEL_3) || "Executive & Direct Desk",
+      primary: numbers.length === 0,
+      slot: hasDedicatedSlot3Token ? 3 : (hasDedicatedSlot2Token ? 2 : 1),
+      department: "direct",
+      displayNumber: clean(process.env.WHATSAPP_DISPLAY_NUMBER_3) || "Executive Desk",
     });
   }
   return dedupe(numbers);
@@ -190,7 +204,7 @@ export function primaryNumberId(): string | null {
 export function isKnownNumber(id: string | null | undefined): boolean {
   const value = (id ?? "").trim();
   if (!value) return false;
-  if (value === DEFAULT_SECOND_ID) return true;
+  if (value === DEFAULT_SECOND_ID || value === DEFAULT_THIRD_ID) return true;
   // Exact match against the configured list, which also holds every id the
   // numbers route discovered from Meta and fed through registerKnownNumbers().
   // A Phone Number ID is exact — there is no "close enough", so no digit
@@ -221,14 +235,14 @@ export function resolveNumberId(requested?: string | null): ResolvedNumber {
     return {
       ok: false,
       error:
-        "No WhatsApp sender is configured. Set WHATSAPP_PHONE_NUMBER_ID (and WHATSAPP_PHONE_NUMBER_ID_2 for the second number).",
+        "No WhatsApp sender is configured. Set WHATSAPP_PHONE_NUMBER_ID (and WHATSAPP_PHONE_NUMBER_ID_2 or WHATSAPP_PHONE_NUMBER_ID_3).",
     };
   }
 
   const wanted = (requested ?? "").trim();
   if (!wanted) return { ok: true, id: primaryNumberId() as string };
 
-  if (wanted === DEFAULT_SECOND_ID) {
+  if (wanted === DEFAULT_SECOND_ID || wanted === DEFAULT_THIRD_ID) {
     return { ok: true, id: wanted };
   }
 
@@ -244,7 +258,7 @@ export function resolveNumberId(requested?: string | null): ResolvedNumber {
 }
 
 /**
- * Return whether a line or message belongs to "general" or "support".
+ * Return whether a line or message belongs to "general", "support", or "direct".
  */
 export function getChannelDepartment(
   idOrNumber?: string | null,
@@ -253,6 +267,10 @@ export function getChannelDepartment(
   if (!idOrNumber) return "general";
   const cleanId = idOrNumber.trim();
   if (!cleanId) return "general";
+
+  if (cleanId === DEFAULT_THIRD_ID || cleanId.toLowerCase().includes("direct") || cleanId.toLowerCase().includes("executive")) {
+    return "direct";
+  }
 
   const primary = primaryNumberId();
   if (primary && cleanId === primary) return "general";
@@ -266,6 +284,7 @@ export function getChannelDepartment(
   if (num) {
     if (num.department) return num.department;
     if (num.primary) return "general";
+    if (num.id === DEFAULT_THIRD_ID) return "direct";
     return "support";
   }
 

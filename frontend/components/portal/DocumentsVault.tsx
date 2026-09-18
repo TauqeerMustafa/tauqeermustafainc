@@ -282,7 +282,7 @@ export default function DocumentsVault({ isAdmin = false }) {
 
   return (
     <div className="flex h-full min-h-[70vh] flex-col gap-6">
-      {isAdmin && <PeopleBanner active="documents" />}
+      {isAdmin && <PeopleBanner />}
 
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>

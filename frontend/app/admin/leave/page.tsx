@@ -64,7 +64,7 @@ export default function AdminLeavePage() {
 
   return (
     <div className="flex flex-col gap-8">
-      <PeopleBanner active="leave" />
+      <PeopleBanner />
 
       <PortalPageHeader
         title="Leave Approvals"

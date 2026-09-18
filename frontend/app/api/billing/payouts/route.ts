@@ -105,20 +105,32 @@ export async function POST(request: Request) {
   return NextResponse.json({ success: true, payout: payoutRecord }, { status: 201 });
 }
 
+import { resolveAuthUser } from "@/lib/server-auth";
+
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const ref = searchParams.get("ref")?.trim().toUpperCase();
+  const email = searchParams.get("email")?.trim().toLowerCase();
 
   if (!ref) {
     return NextResponse.json({ success: false, message: "Reference is required." }, { status: 400 });
   }
 
+  const user = await resolveAuthUser(request);
   const kv = getKV();
   if (kv) {
     try {
       const data = await kv.get(`payout:${ref}`);
       if (data) {
         const record = typeof data === "string" ? JSON.parse(data) : data;
+        const isOwner = email && record.email && record.email.toLowerCase() === email;
+        const isStaff = user && (user.isAdmin || user.role === "manager" || user.role === "finance" || user.role === "admin");
+        if (!isOwner && !isStaff) {
+          return NextResponse.json(
+            { success: false, message: "Access denied. Provide your registered payee email address to view this disbursement." },
+            { status: 403 }
+          );
+        }
         return NextResponse.json({ success: true, payout: record });
       }
     } catch {

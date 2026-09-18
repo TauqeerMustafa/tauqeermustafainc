@@ -16,7 +16,7 @@ export async function POST(request: Request) {
     const body = await request.json();
     // `accountId` is the sending mailbox id; kept for backward compatibility.
     const mailbox = body.mailbox || body.accountId;
-    const { fromName, subject, content, text } = body;
+    const { fromName, subject, content, text, attachments } = body;
     const messageText = text ?? content;
 
     // `to` may arrive as an array or a string; `toAddress` is the legacy single field.
@@ -26,6 +26,18 @@ export async function POST(request: Request) {
 
     if (!mailbox || to.length === 0 || !subject || !messageText) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
+    }
+
+    // Process attachments if provided
+    let cleanAttachments: Array<{ filename: string; content: string; contentType?: string }> | undefined;
+    if (Array.isArray(attachments)) {
+      cleanAttachments = attachments
+        .filter((a) => a && typeof a.filename === "string" && typeof a.content === "string")
+        .map((a) => ({
+          filename: a.filename.trim(),
+          content: a.content.trim(),
+          ...(typeof a.contentType === "string" ? { contentType: a.contentType.trim() } : {}),
+        }));
     }
 
     const user = await resolveMailUser(request);
@@ -42,6 +54,7 @@ export async function POST(request: Request) {
       bcc,
       subject,
       text: messageText,
+      attachments: cleanAttachments,
       save: true,
     });
 

@@ -1,76 +1,74 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Bell, Check, CheckCheck, ExternalLink, LogOut, Menu, Search, Trash2, X } from "lucide-react";
 
+import CommandPalette from "@/components/portal/CommandPalette";
 import PortalThemeToggle from "@/components/portal/PortalThemeToggle";
 import { Avatar } from "@/components/portal/PortalUI";
+import { usePortalNotifications } from "@/hooks/usePortalNotifications";
 import { useCurrentUser, useLogout } from "@/hooks/useAuth";
 import { useI18n } from "@/lib/i18n";
-import { roleLabel, type PortalId } from "@/lib/rbac";
+import { PORTAL, roleLabel, type PortalId } from "@/lib/rbac";
 import { currentLocationPath, loginUrlWithReturnTo } from "@/lib/return-to";
 
 /**
  * Portal topbar — Adminator's layout (menu · search | actions · identity) in
  * BMW chrome: a squared surface plate on a hairline, round icon controls.
  * Everything rides `adm-*` utilities so it flips light↔dark with the theme.
+ *
+ * The search affordance opens a ⌘K command palette over the portal's nav; the
+ * bell shows a live, portal-aware feed derived from real hooks
+ * (`usePortalNotifications`). There is no notifications backend, so read /
+ * dismissed state is the only thing kept client-side, in localStorage, keyed by
+ * the feed's stable item ids.
  */
 
 type Props = { portal: PortalId; onMenuClick: () => void };
 
-type NotificationItem = {
-  id: string;
-  title: string;
-  description: string;
-  time: string;
-  read: boolean;
-  type: "task" | "attendance" | "announcement" | "message";
-  href: string;
-};
+/** Read/dismissed ids layered over the derived feed. */
+type NotifState = { read: string[]; dismissed: string[] };
 
-const INITIAL_NOTIFICATIONS: NotificationItem[] = [
-  {
-    id: "notif-1",
-    title: "Shift Schedule Confirmed",
-    description: "Your daily expected check-in time is assigned as 09:00 AM.",
-    time: "10m ago",
-    read: false,
-    type: "attendance",
-    href: "/employees/attendance",
-  },
-  {
-    id: "notif-2",
-    title: "Direct Chat Available",
-    description: "You can now message your Department Head or Admin directly.",
-    time: "25m ago",
-    read: false,
-    type: "message",
-    href: "/employees/chat",
-  },
-  {
-    id: "notif-3",
-    title: "New Task Deliverables",
-    description: "Check your active sprint deliverables in My Tasks.",
-    time: "1h ago",
-    read: false,
-    type: "task",
-    href: "/employees/tasks",
-  },
-  {
-    id: "notif-4",
-    title: "Executive Policy Update",
-    description: "Updated security audit protocol documents have been published to Document Vault.",
-    time: "3h ago",
-    read: true,
-    type: "announcement",
-    href: "/employees/documents",
-  },
-];
+const STORAGE_KEY = "tmi_portal_notifications";
 
 const ICON_BUTTON =
   "flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-adm-border text-adm-text-2 transition hover:bg-adm-surface-2 hover:text-adm-text";
+
+/** Announcements destination per portal; portals without one hide the footer. */
+const ANNOUNCEMENTS_HREF: Partial<Record<PortalId, string>> = {
+  [PORTAL.ADMIN]: "/admin/announcements",
+  [PORTAL.EMPLOYEES]: "/employees/announcements",
+};
+
+function readState(): NotifState {
+  if (typeof window === "undefined") return { read: [], dismissed: [] };
+  try {
+    const parsed = JSON.parse(localStorage.getItem(STORAGE_KEY) ?? "");
+    if (parsed && Array.isArray(parsed.read) && Array.isArray(parsed.dismissed)) {
+      const strings = (arr: unknown[]) => arr.filter((x): x is string => typeof x === "string");
+      return { read: strings(parsed.read), dismissed: strings(parsed.dismissed) };
+    }
+  } catch {
+    // No saved state, or the legacy array shape — start clean.
+  }
+  return { read: [], dismissed: [] };
+}
+
+function relativeTime(iso: string | null): string {
+  if (!iso) return "";
+  const then = new Date(iso).getTime();
+  if (Number.isNaN(then)) return "";
+  const mins = Math.round((Date.now() - then) / 60_000);
+  if (mins < 1) return "just now";
+  if (mins < 60) return `${mins}m ago`;
+  const hrs = Math.round(mins / 60);
+  if (hrs < 24) return `${hrs}h ago`;
+  const days = Math.round(hrs / 24);
+  if (days < 7) return `${days}d ago`;
+  return `${Math.round(days / 7)}w ago`;
+}
 
 export default function PortalHeader({ portal, onMenuClick }: Props) {
   const router = useRouter();
@@ -79,26 +77,61 @@ export default function PortalHeader({ portal, onMenuClick }: Props) {
   const { t } = useI18n();
   const user = data?.data;
 
-  const [notifOpen, setNotifOpen] = useState(false);
-  const [notifications, setNotifications] = useState<NotificationItem[]>(() => {
-    if (typeof window !== "undefined") {
-      const saved = localStorage.getItem("tmi_portal_notifications");
-      if (saved) {
-        try {
-          return JSON.parse(saved);
-        } catch {
-          // fallback
-        }
-      }
-    }
-    return INITIAL_NOTIFICATIONS;
-  });
+  const derived = usePortalNotifications(portal);
 
+  const [notifOpen, setNotifOpen] = useState(false);
+  const [paletteOpen, setPaletteOpen] = useState(false);
+  const [isMac, setIsMac] = useState(false);
+  const [state, setState] = useState<NotifState>(readState);
   const notifRef = useRef<HTMLDivElement>(null);
 
+  const readSet = useMemo(() => new Set(state.read), [state.read]);
+  const dismissedSet = useMemo(() => new Set(state.dismissed), [state.dismissed]);
+  const visible = useMemo(
+    () => derived.filter((n) => !dismissedSet.has(n.id)),
+    [derived, dismissedSet],
+  );
+  const unreadCount = useMemo(
+    () => visible.filter((n) => !readSet.has(n.id)).length,
+    [visible, readSet],
+  );
+
+  // Persist read/dismissed state.
   useEffect(() => {
-    localStorage.setItem("tmi_portal_notifications", JSON.stringify(notifications));
-  }, [notifications]);
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    } catch {
+      // Private mode or quota — read/dismissed state just won't persist.
+    }
+  }, [state]);
+
+  // Prune ids no longer in the feed so localStorage can't grow without bound.
+  useEffect(() => {
+    const ids = new Set(derived.map((n) => n.id));
+    setState((prev) => {
+      const read = prev.read.filter((id) => ids.has(id));
+      const dismissed = prev.dismissed.filter((id) => ids.has(id));
+      return read.length === prev.read.length && dismissed.length === prev.dismissed.length
+        ? prev
+        : { read, dismissed };
+    });
+  }, [derived]);
+
+  // Global ⌘K / Ctrl-K toggles the palette.
+  useEffect(() => {
+    function onKey(e: KeyboardEvent) {
+      if ((e.metaKey || e.ctrlKey) && (e.key === "k" || e.key === "K")) {
+        e.preventDefault();
+        setPaletteOpen((prev) => !prev);
+      }
+    }
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, []);
+
+  useEffect(() => {
+    setIsMac(/mac/i.test(navigator.userAgent));
+  }, []);
 
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
@@ -112,20 +145,28 @@ export default function PortalHeader({ portal, onMenuClick }: Props) {
     }
   }, [notifOpen]);
 
-  const unreadCount = notifications.filter((n) => !n.read).length;
-
   function markAsRead(id: string) {
-    setNotifications((prev) =>
-      prev.map((n) => (n.id === id ? { ...n, read: true } : n)),
-    );
+    setState((prev) => (prev.read.includes(id) ? prev : { ...prev, read: [...prev.read, id] }));
   }
 
   function markAllAsRead() {
-    setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
+    setState((prev) => ({
+      ...prev,
+      read: Array.from(new Set([...prev.read, ...visible.map((n) => n.id)])),
+    }));
+  }
+
+  function dismiss(id: string) {
+    setState((prev) =>
+      prev.dismissed.includes(id) ? prev : { ...prev, dismissed: [...prev.dismissed, id] },
+    );
   }
 
   function clearAll() {
-    setNotifications([]);
+    setState((prev) => ({
+      ...prev,
+      dismissed: Array.from(new Set([...prev.dismissed, ...visible.map((n) => n.id)])),
+    }));
   }
 
   function handleLogout() {
@@ -133,6 +174,9 @@ export default function PortalHeader({ portal, onMenuClick }: Props) {
     logout();
     router.replace(back);
   }
+
+  const announcementsHref = ANNOUNCEMENTS_HREF[portal];
+  const kbdHint = isMac ? "⌘K" : "Ctrl K";
 
   return (
     <header className="sticky top-0 z-30 flex h-16 items-center justify-between gap-3 border-b border-adm-border bg-adm-surface px-4 sm:h-[60px] sm:px-6 lg:px-8">
@@ -146,19 +190,19 @@ export default function PortalHeader({ portal, onMenuClick }: Props) {
           <Menu size={18} />
         </button>
 
-        <div className="relative hidden md:block">
-          <Search
-            size={15}
-            className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-adm-text-3"
-            aria-hidden="true"
-          />
-          <input
-            type="search"
-            placeholder={t("Search anything…")}
-            aria-label={t("Search anything…")}
-            className="w-56 rounded-none border border-adm-border bg-adm-surface-2 py-1.5 pl-9 pr-4 text-sm text-adm-text outline-none transition placeholder:text-adm-text-3 focus:border-adm-blue focus:bg-adm-surface focus:ring-2 focus:ring-adm-blue/15 lg:w-72"
-          />
-        </div>
+        <button
+          type="button"
+          onClick={() => setPaletteOpen(true)}
+          aria-label={t("Search")}
+          aria-keyshortcuts="Meta+K Control+K"
+          className="hidden w-56 items-center gap-2 rounded-none border border-adm-border bg-adm-surface-2 py-1.5 pl-3 pr-2 text-sm text-adm-text-3 transition hover:border-adm-border-2 hover:text-adm-text md:flex lg:w-72"
+        >
+          <Search size={15} className="shrink-0" aria-hidden="true" />
+          <span className="flex-1 text-left">{t("Search…")}</span>
+          <kbd className="rounded-full border border-adm-border px-2 py-0.5 text-[10px] font-medium text-adm-text-3">
+            {kbdHint}
+          </kbd>
+        </button>
       </div>
 
       <div className="flex items-center gap-2">
@@ -186,115 +230,131 @@ export default function PortalHeader({ portal, onMenuClick }: Props) {
           {notifOpen && (
             <div
               role="dialog"
-              aria-label="Notifications"
-              className="absolute right-0 top-full mt-2 w-[min(22rem,calc(100vw-2rem))] sm:w-96 border border-adm-border bg-adm-surface shadow-2xl z-50 animate-in fade-in-0 zoom-in-95 duration-150"
+              aria-label={t("Notifications")}
+              className="absolute right-0 top-full z-50 mt-2 w-[min(22rem,calc(100vw-2rem))] border border-adm-border-2 bg-adm-surface sm:w-96"
             >
               {/* Header */}
-              <div className="flex items-center justify-between border-b border-adm-border px-4 py-3 bg-adm-surface-2/70">
+              <div className="flex items-center justify-between border-b border-adm-border bg-adm-surface-2/70 px-4 py-3">
                 <div className="flex items-center gap-2">
-                  <span className="font-mono text-xs font-bold uppercase tracking-wider text-adm-text">
-                    Notifications
+                  <span className="text-xs font-bold uppercase tracking-wider text-adm-text">
+                    {t("Notifications")}
                   </span>
                   {unreadCount > 0 && (
-                    <span className="bg-adm-blue px-1.5 py-0.2 font-mono text-[10px] font-bold text-white">
-                      {unreadCount} new
+                    <span className="rounded-full bg-adm-blue px-2 py-0.5 text-[10px] font-bold text-white">
+                      {unreadCount} {t("new")}
                     </span>
                   )}
                 </div>
 
-                <div className="flex items-center gap-2 text-xs">
+                <div className="flex items-center gap-3 text-xs">
                   {unreadCount > 0 && (
                     <button
                       type="button"
                       onClick={markAllAsRead}
-                      className="font-mono text-[10px] uppercase tracking-wider text-adm-text-3 hover:text-adm-blue transition flex items-center gap-1"
+                      className="flex items-center gap-1 text-[10px] uppercase tracking-wider text-adm-text-3 transition hover:text-adm-blue"
                     >
-                      <CheckCheck size={12} /> Mark read
+                      <CheckCheck size={12} /> {t("Mark read")}
                     </button>
                   )}
-                  {notifications.length > 0 && (
+                  {visible.length > 0 && (
                     <button
                       type="button"
                       onClick={clearAll}
-                      className="font-mono text-[10px] uppercase tracking-wider text-adm-text-3 hover:text-adm-red transition flex items-center gap-1"
+                      className="flex items-center gap-1 text-[10px] uppercase tracking-wider text-adm-text-3 transition hover:text-adm-red"
                     >
-                      <Trash2 size={11} /> Clear
+                      <Trash2 size={11} /> {t("Clear")}
                     </button>
                   )}
                 </div>
               </div>
 
               {/* Notification List */}
-              <div className="max-h-80 overflow-y-auto divide-y divide-adm-border">
-                {notifications.length === 0 ? (
+              <div className="max-h-80 divide-y divide-adm-border overflow-y-auto">
+                {visible.length === 0 ? (
                   <div className="p-8 text-center text-xs text-adm-text-3">
-                    <p className="font-medium">All caught up!</p>
-                    <p className="mt-1 text-[11px]">No active notifications.</p>
+                    <p className="font-medium">{t("All caught up!")}</p>
+                    <p className="mt-1 text-[11px]">{t("No active notifications.")}</p>
                   </div>
                 ) : (
-                  notifications.map((item) => (
-                    <div
-                      key={item.id}
-                      className={`p-3.5 transition hover:bg-adm-surface-2 flex items-start justify-between gap-3 ${
-                        !item.read ? "bg-adm-blue/5" : ""
-                      }`}
-                    >
-                      <Link
-                        href={item.href}
-                        onClick={() => {
-                          markAsRead(item.id);
-                          setNotifOpen(false);
-                        }}
-                        className="flex-1 min-w-0 group"
+                  visible.map((item) => {
+                    const Icon = item.icon;
+                    const isRead = readSet.has(item.id);
+                    const time = relativeTime(item.createdAt);
+                    return (
+                      <div
+                        key={item.id}
+                        className={`flex items-start justify-between gap-3 p-3.5 transition hover:bg-adm-surface-2 ${
+                          isRead ? "" : "bg-adm-blue/5"
+                        }`}
                       >
-                        <div className="flex items-center justify-between gap-2 mb-0.5">
-                          <p className={`text-xs truncate ${!item.read ? "font-bold text-adm-text" : "font-medium text-adm-text-2"} group-hover:text-adm-blue transition`}>
-                            {item.title}
-                          </p>
-                          <span className="font-mono text-[9px] text-adm-text-3 shrink-0">
-                            {item.time}
+                        <Link
+                          href={item.href}
+                          onClick={() => {
+                            markAsRead(item.id);
+                            setNotifOpen(false);
+                          }}
+                          className="group flex min-w-0 flex-1 items-start gap-3"
+                        >
+                          <span className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-adm-border text-adm-text-2">
+                            <Icon size={14} />
                           </span>
-                        </div>
-                        <p className="text-[11px] leading-relaxed text-adm-text-3 line-clamp-2">
-                          {item.description}
-                        </p>
-                      </Link>
+                          <div className="min-w-0 flex-1">
+                            <div className="mb-0.5 flex items-center justify-between gap-2">
+                              <p
+                                className={`truncate text-xs transition group-hover:text-adm-blue ${
+                                  isRead ? "font-medium text-adm-text-2" : "font-bold text-adm-text"
+                                }`}
+                              >
+                                {item.title}
+                              </p>
+                              {time && (
+                                <span className="shrink-0 text-[9px] text-adm-text-3">{time}</span>
+                              )}
+                            </div>
+                            <p className="line-clamp-2 text-[11px] leading-relaxed text-adm-text-3">
+                              {item.description}
+                            </p>
+                          </div>
+                        </Link>
 
-                      <div className="flex items-center gap-1 shrink-0 pt-0.5">
-                        {!item.read && (
+                        <div className="flex shrink-0 items-center gap-1 pt-0.5">
+                          {!isRead && (
+                            <button
+                              type="button"
+                              onClick={() => markAsRead(item.id)}
+                              title={t("Mark as read")}
+                              className="p-1 text-adm-text-3 transition hover:text-adm-blue"
+                            >
+                              <Check size={12} />
+                            </button>
+                          )}
                           <button
                             type="button"
-                            onClick={() => markAsRead(item.id)}
-                            title="Mark as read"
-                            className="text-adm-text-3 hover:text-adm-blue p-1"
+                            onClick={() => dismiss(item.id)}
+                            title={t("Dismiss")}
+                            className="p-1 text-adm-text-3 transition hover:text-adm-red"
                           >
-                            <Check size={12} />
+                            <X size={12} />
                           </button>
-                        )}
-                        <button
-                          type="button"
-                          onClick={() => setNotifications((prev) => prev.filter((n) => n.id !== item.id))}
-                          title="Dismiss"
-                          className="text-adm-text-3 hover:text-adm-red p-1"
-                        >
-                          <X size={12} />
-                        </button>
+                        </div>
                       </div>
-                    </div>
-                  ))
+                    );
+                  })
                 )}
               </div>
 
               {/* Footer */}
-              <div className="border-t border-adm-border px-4 py-2 bg-adm-surface-2/40 text-center">
-                <Link
-                  href="/employees/announcements"
-                  onClick={() => setNotifOpen(false)}
-                  className="font-mono text-[10px] font-bold uppercase tracking-wider text-adm-blue hover:underline inline-flex items-center gap-1"
-                >
-                  View All Announcements <ExternalLink size={10} />
-                </Link>
-              </div>
+              {announcementsHref && (
+                <div className="border-t border-adm-border bg-adm-surface-2/40 px-4 py-2 text-center">
+                  <Link
+                    href={announcementsHref}
+                    onClick={() => setNotifOpen(false)}
+                    className="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-adm-blue hover:underline"
+                  >
+                    {t("View all announcements")} <ExternalLink size={10} />
+                  </Link>
+                </div>
+              )}
             </div>
           )}
         </div>
@@ -321,6 +381,8 @@ export default function PortalHeader({ portal, onMenuClick }: Props) {
           <LogOut size={17} />
         </button>
       </div>
+
+      <CommandPalette portal={portal} open={paletteOpen} onClose={() => setPaletteOpen(false)} />
     </header>
   );
 }

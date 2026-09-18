@@ -31,3 +31,22 @@ Thumbs.db
 .codex/
 
 .env*
+
+# Sensitive data, contact lists & PII
+*.csv
+*.vcf
+numbers_*.txt
+tmi_whatsapp_*.txt
+washeet_*.csv
+announcement.sql
+publish_announcement.py
+test_email.py
+test_one.py
+send_all_b2b_emails.py
+deploy-multipage.log
+
+# Deployment manuals with potential tokens
+*DEPLOYMENT*.txt
+DEPLOYMENT-COMMANDS.sh
+
+.env*

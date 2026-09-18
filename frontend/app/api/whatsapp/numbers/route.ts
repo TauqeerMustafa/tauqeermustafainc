@@ -20,6 +20,7 @@ export type WANumberInfo = WANumber & {
   /** The number as a person would read it, e.g. "+92 300 1234567". */
   displayNumber?: string | null;
   verifiedName?: string | null;
+  nameStatus?: string | null;
   quality?: string | null;
   codeVerificationStatus?: string | null;
   /** False when Meta will not accept a send from this id. */
@@ -31,7 +32,7 @@ let cache: { at: number; data: WANumberInfo[] } | null = null;
 
 async function describe(number: WANumber, token: string): Promise<WANumberInfo> {
   const url = new URL(`${GRAPH_URL}/${number.id}`);
-  url.searchParams.set("fields", "id,display_phone_number,verified_name,quality_rating,code_verification_status");
+  url.searchParams.set("fields", "id,display_phone_number,verified_name,name_status,new_name_status,quality_rating,code_verification_status");
   url.searchParams.set("access_token", token);
 
   try {
@@ -60,6 +61,7 @@ async function describe(number: WANumber, token: string): Promise<WANumberInfo> 
       ...number,
       displayNumber: json.display_phone_number,
       verifiedName: json.verified_name ?? null,
+      nameStatus: json.name_status ?? json.new_name_status ?? null,
       quality: json.quality_rating ?? null,
       codeVerificationStatus: json.code_verification_status ?? null,
       canSend: true,
@@ -94,7 +96,7 @@ export async function GET(request: Request) {
       }
 
       const url = new URL(`${GRAPH_URL}/${account.wabaId}/phone_numbers`);
-      url.searchParams.set("fields", "id,display_phone_number,verified_name,quality_rating,code_verification_status");
+      url.searchParams.set("fields", "id,display_phone_number,verified_name,name_status,new_name_status,quality_rating,code_verification_status");
       url.searchParams.set("access_token", account.token);
 
       const res = await fetch(url, { cache: "no-store" });
@@ -111,6 +113,7 @@ export async function GET(request: Request) {
               slot: account.slot,
               displayNumber: item.display_phone_number ?? null,
               verifiedName: item.verified_name ?? null,
+              nameStatus: item.name_status ?? item.new_name_status ?? null,
               quality: item.quality_rating ?? null,
               codeVerificationStatus: item.code_verification_status ?? null,
               canSend: true,
@@ -162,15 +165,27 @@ export async function GET(request: Request) {
   }
 
   for (const n of resultList) {
+    const conf = configured.find((c) => c.id === n.id);
     if (n.primary) {
       n.department = "general";
       if (!n.label || n.label === "Primary number" || n.label === "Line 1") {
         n.label = "General Inquiries & Sales";
       }
+    } else if (
+      n.id === "1291624014041103" ||
+      conf?.department === "direct" ||
+      n.label?.toLowerCase().includes("direct") ||
+      n.label?.toLowerCase().includes("executive") ||
+      n.slot === 3
+    ) {
+      n.department = "direct";
+      if (!n.label || n.label === "Third number" || n.label === "Line 3") {
+        n.label = conf?.label || "Executive & Direct Desk";
+      }
     } else {
       n.department = "support";
       if (!n.label || n.label === "Second number" || n.label === "Line 2") {
-        n.label = "Technical & Client Support";
+        n.label = conf?.label || "Technical & Client Support";
       }
     }
   }

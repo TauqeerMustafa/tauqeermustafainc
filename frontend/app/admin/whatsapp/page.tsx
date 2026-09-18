@@ -50,6 +50,7 @@ import {
   Eye,
   EyeOff,
   Key,
+  ShieldCheck,
 } from "lucide-react";
 
 import {
@@ -83,6 +84,7 @@ import {
   useWhatsAppFlow,
   useSaveWhatsAppFlow,
   useResetWhatsAppFlow,
+  useSyncWhatsAppProfile,
   describeNumber,
 } from "@/hooks/useWhatsApp";
 import type {
@@ -142,7 +144,7 @@ type Conversation = {
   name: string;
   messages: WAMessage[];
   channel?: string;
-  department: "general" | "support";
+  department: "general" | "support" | "direct";
   dealStatus?: DealStatus;
   notes?: string;
   tags?: string[];
@@ -254,23 +256,28 @@ function withSeenChannels(
     if (!ch || covers(ch)) continue;
     if (extras.some((e) => e.id === ch || cleanDigits(e.id) === cleanDigits(ch))) continue;
     // An explicit channel stamp that Meta's discovered list does not include is
-    // one of OUR lines that discovery missed — most often the second number,
-    // whose real Phone Number ID differs from any hard-coded fallback. General
-    // is the primary line alone, so any line that is not the primary is Support.
-    // (We reach here only because `ch` matched no api number, primary included.)
-    // Fall back to the old id/label heuristic only when no primary is known yet.
+    // one of OUR lines that discovery missed — such as the second or third number.
+    const isDirect =
+      ch === "1291624014041103" ||
+      ch.toLowerCase().includes("direct") ||
+      ch.toLowerCase().includes("executive");
     const primaryKnown = apiNumbers.some((n) => n.primary);
     const isSupport =
-      primaryKnown ||
+      !isDirect &&
+      (primaryKnown ||
       ch.toLowerCase().includes("support") ||
-      ch === "1318810581311680";
+      ch === "1318810581311680");
     extras.push({
       id: ch,
-      label: isSupport ? "Technical & Client Support" : `Line ${apiNumbers.length + extras.length + 1}`,
+      label: isDirect
+        ? "Executive & Direct Desk"
+        : isSupport
+        ? "Technical & Client Support"
+        : `Line ${apiNumbers.length + extras.length + 1}`,
       primary: false,
-      slot: 1,
+      slot: isDirect ? 3 : 1,
       canSend: false,
-      department: isSupport ? "support" : "general",
+      department: isDirect ? "direct" : isSupport ? "support" : "general",
       displayNumber: null,
       error: "Received messages arrived on this number, but Meta has not confirmed it — replies may not send until it is configured.",
     });
@@ -278,13 +285,22 @@ function withSeenChannels(
   return extras.length ? [...apiNumbers, ...extras] : apiNumbers;
 }
 
-/** Determine which department a message belongs to: "general" (Inquiries/Sales) or "support" (Client Support Desk) */
-function getMessageDepartment(m: WAMessage, allNumbers: WANumberInfo[] = []): "general" | "support" {
+/** Determine which department a message belongs to: "general" (Inquiries/Sales), "support" (Client Support Desk), or "direct" (Executive Desk) */
+function getMessageDepartment(m: WAMessage, allNumbers: WANumberInfo[] = []): "general" | "support" | "direct" {
   const line = getLineForMessage(m, allNumbers);
   if (line?.department) return line.department;
-  if (line && (!line.primary || line.label.toLowerCase().includes("support"))) return "support";
   const ch = channelOf(m);
   if (
+    ch === "1291624014041103" ||
+    ch.toLowerCase().includes("direct") ||
+    ch.toLowerCase().includes("executive") ||
+    line?.id === "1291624014041103" ||
+    line?.slot === 3
+  ) {
+    return "direct";
+  }
+  if (
+    (line && (!line.primary || line.label.toLowerCase().includes("support"))) ||
     ch.toLowerCase().includes("support") ||
     ch === "1318810581311680"
   ) {
@@ -296,12 +312,12 @@ function getMessageDepartment(m: WAMessage, allNumbers: WANumberInfo[] = []): "g
 /**
  * Group messages into conversations, newest activity first.
  * Conversations are strictly partitioned by department (${dept}_${number}),
- * ensuring General Inquiries and Client Support never bleed messages, notes, or deal stages.
+ * ensuring General Inquiries, Client Support, and Executive Desk never bleed messages, notes, or deal stages.
  */
 function groupConversations(
   messages: WAMessage[],
   allNumbers: WANumberInfo[] = [],
-  filterDepartment?: "general" | "support"
+  filterDepartment?: "general" | "support" | "direct"
 ): Conversation[] {
   const byKey = new Map<string, Conversation>();
   for (const m of messages) {
@@ -392,7 +408,7 @@ function SenderPicker({
 
 export default function AdminWhatsAppPage() {
   const [activeTab, setActiveTab] = useState<TabKey>("inbox");
-  const [department, setDepartment] = useState<"general" | "support">("general");
+  const [department, setDepartment] = useState<"general" | "support" | "direct">("general");
   const [prefillRecipient, setPrefillRecipient] = useState<string | null>(null);
   const [prefillSender, setPrefillSender] = useState<string | null>(null);
   const [selectedChatRecipient, setSelectedChatRecipient] = useState<string | null>(null);
@@ -408,15 +424,23 @@ export default function AdminWhatsAppPage() {
   const numbers = withSeenChannels(apiNumbers, allMessages);
 
   const generalLine = numbers.find((n) => n.department === "general" || n.primary) || numbers[0];
-  const supportLine = numbers.find((n) => n.department === "support" || (!n.primary && numbers.length > 1));
+  const supportLine = numbers.find((n) => n.department === "support" || (!n.primary && n.id !== "1291624014041103" && n.slot !== 3));
+  const directLine = numbers.find((n) => n.department === "direct" || n.id === "1291624014041103" || n.slot === 3);
 
-  const activeLine = department === "general" ? generalLine : (supportLine || generalLine);
+  const activeLine =
+    department === "general"
+      ? generalLine
+      : department === "direct"
+      ? (directLine || generalLine)
+      : (supportLine || generalLine);
 
   const generalConvs = groupConversations(allMessages, numbers, "general");
   const supportConvs = groupConversations(allMessages, numbers, "support");
+  const directConvs = groupConversations(allMessages, numbers, "direct");
 
   const generalUnreads = generalConvs.reduce((acc, c) => acc + (unreadCount(c, metaMap[c.key] || metaMap[c.number]) > 0 ? 1 : 0), 0);
   const supportUnreads = supportConvs.reduce((acc, c) => acc + (unreadCount(c, metaMap[c.key] || metaMap[c.number]) > 0 ? 1 : 0), 0);
+  const directUnreads = directConvs.reduce((acc, c) => acc + (unreadCount(c, metaMap[c.key] || metaMap[c.number]) > 0 ? 1 : 0), 0);
 
   const goReply = (number: string) => {
     setPrefillRecipient(number);
@@ -428,6 +452,8 @@ export default function AdminWhatsAppPage() {
     const matchedNumber = numbers.find((n) => n.id === senderId);
     if (matchedNumber?.department) {
       setDepartment(matchedNumber.department);
+    } else if (matchedNumber?.id === "1291624014041103" || matchedNumber?.slot === 3) {
+      setDepartment("direct");
     }
     setPrefillSender(senderId);
     setActiveTab("send");
@@ -438,6 +464,8 @@ export default function AdminWhatsAppPage() {
       const line = numbers.find((n) => n.id === channelId);
       if (line?.department) {
         setDepartment(line.department);
+      } else if (channelId === "1291624014041103" || line?.slot === 3) {
+        setDepartment("direct");
       }
     }
     setSelectedChatRecipient(recipient);
@@ -453,7 +481,7 @@ export default function AdminWhatsAppPage() {
       />
 
       {/* Department Isolation Switcher */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-2">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 mb-2">
         {/* General Inquiries & Sales */}
         <button
           type="button"
@@ -563,6 +591,61 @@ export default function AdminWhatsAppPage() {
             </span>
           </div>
         </button>
+
+        {/* Executive & Direct Desk */}
+        <button
+          type="button"
+          onClick={() => {
+            setDepartment("direct");
+            setSelectedChatRecipient(null);
+          }}
+          className={`relative p-4 rounded-none border text-left transition flex items-start justify-between ${
+            department === "direct"
+              ? "bg-adm-surface border-[#7c3aed] ring-2 ring-[#7c3aed]/30 shadow-sm"
+              : "bg-adm-surface-2 border-adm-border hover:border-adm-text-3 opacity-75 hover:opacity-100"
+          }`}
+        >
+          <div className="flex items-start gap-3.5">
+            <div
+              className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-none font-bold ${
+                department === "direct"
+                  ? "bg-[#7c3aed] text-white"
+                  : "bg-adm-surface text-adm-text-2 border border-adm-border"
+              }`}
+            >
+              <ShieldCheck size={22} />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <h3 className="font-bold text-base text-adm-text">Executive & Direct Desk</h3>
+                <span className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold bg-[#7c3aed]/10 text-[#7c3aed]">
+                  <span className="h-1.5 w-1.5 rounded-full bg-[#7c3aed]" />
+                  Line 3
+                </span>
+              </div>
+              <p className="text-xs font-mono font-medium text-adm-text-2 mt-0.5">
+                {directLine?.displayNumber || "Executive Desk"}
+              </p>
+              <p className="text-xs text-adm-text-3 mt-1">
+                Executive desk, enterprise proposals & strategic partnerships
+              </p>
+            </div>
+          </div>
+          <div className="flex flex-col items-end gap-1.5">
+            <span
+              className={`text-[11px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-none ${
+                department === "direct"
+                  ? "bg-[#7c3aed] text-white"
+                  : "text-adm-text-3"
+              }`}
+            >
+              {department === "direct" ? "Active Department" : "Switch to Direct"}
+            </span>
+            <span className="text-xs text-adm-text-3">
+              {directConvs.length} conversations {directUnreads > 0 && `• ${directUnreads} unread`}
+            </span>
+          </div>
+        </button>
       </div>
 
       {/* Tabs */}
@@ -577,8 +660,22 @@ export default function AdminWhatsAppPage() {
             onClick={() => setActiveTab(tab.key)}
             className="flex items-center gap-2 whitespace-nowrap border-b-2 px-4 py-3 text-sm font-semibold transition"
             style={{
-              borderColor: activeTab === tab.key ? (department === "support" ? "#059669" : "var(--adm-blue)") : "transparent",
-              color: activeTab === tab.key ? (department === "support" ? "#059669" : "var(--adm-blue)") : "var(--adm-text-2)",
+              borderColor:
+                activeTab === tab.key
+                  ? department === "direct"
+                    ? "#7c3aed"
+                    : department === "support"
+                    ? "#059669"
+                    : "var(--adm-blue)"
+                  : "transparent",
+              color:
+                activeTab === tab.key
+                  ? department === "direct"
+                    ? "#7c3aed"
+                    : department === "support"
+                    ? "#059669"
+                    : "var(--adm-blue)"
+                  : "var(--adm-text-2)",
               marginBottom: "-1px",
             }}
           >
@@ -849,7 +946,7 @@ function InboxTab({
   selectedRecipient,
   onClearSelectedRecipient,
 }: {
-  department?: "general" | "support";
+  department?: "general" | "support" | "direct";
   activeLine?: WANumberInfo;
   onReply: (number: string) => void;
   selectedRecipient?: string | null;
@@ -863,6 +960,7 @@ function InboxTab({
 
   const metaMap = metaData?.data ?? {};
   const apiNumbers = numbersData?.data ?? [];
+  const directLine = apiNumbers.find((n) => n.department === "direct" || n.id === "1291624014041103" || n.slot === 3);
 
   const [searchQuery, setSearchQuery] = useState("");
   const [filter, setFilter] = useState<"all" | "unread">("all");
@@ -925,11 +1023,19 @@ function InboxTab({
 
   const lineName = (n: WANumberInfo): string => {
     if (n.primary) return "Line 1 (General)";
+    if (n.department === "direct" || n.id === "1291624014041103" || n.slot === 3) return "Line 3 (Executive)";
     return "Line 2 (Support)";
   };
 
   type ChannelTagInfo = { label: string; isPrimary: boolean; displayNumber?: string };
   const channelTag = (conv: Conversation): ChannelTagInfo | undefined => {
+    if (conv.department === "direct") {
+      return {
+        label: "Line 3 (Executive)",
+        isPrimary: false,
+        displayNumber: directLine?.displayNumber || "Executive Desk",
+      };
+    }
     if (conv.department === "support") {
       return {
         label: "Line 2 (Support)",
@@ -961,16 +1067,26 @@ function InboxTab({
         >
           <div className="flex items-center gap-2 min-w-0">
             <span className="text-[15px] font-bold truncate" style={{ color: WA.text }}>
-              {department === "general" ? "General Inquiries" : "Client Support Desk"}
+              {department === "general"
+                ? "General Inquiries"
+                : department === "direct"
+                ? "Executive & Direct Desk"
+                : "Client Support Desk"}
             </span>
             <span
               className={`rounded-full px-2 py-0.5 text-[10px] font-bold shrink-0 ${
                 department === "general"
                   ? "bg-adm-blue-light text-adm-blue"
+                  : department === "direct"
+                  ? "bg-purple-50 text-purple-700 dark:bg-purple-950/50 dark:text-purple-300"
                   : "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-300"
               }`}
             >
-              {department === "general" ? "+92 333 56701199" : "Support Desk"}
+              {department === "general"
+                ? "+92 333 56701199"
+                : department === "direct"
+                ? "Executive Line 3"
+                : "Support Desk"}
             </span>
           </div>
           <div className="flex items-center gap-1" style={{ color: WA.icon }}>
@@ -1012,8 +1128,20 @@ function InboxTab({
                   }}
                   className="rounded-full px-3 py-1 text-[13px] font-medium capitalize transition"
                   style={{
-                    background: on ? (department === "support" ? "rgba(5, 150, 105, 0.15)" : "var(--adm-blue-light)") : WA.panel,
-                    color: on ? (department === "support" ? "#059669" : "var(--adm-blue-mid)") : WA.sub,
+                    background: on
+                      ? department === "direct"
+                        ? "rgba(124, 58, 237, 0.15)"
+                        : department === "support"
+                        ? "rgba(5, 150, 105, 0.15)"
+                        : "var(--adm-blue-light)"
+                      : WA.panel,
+                    color: on
+                      ? department === "direct"
+                        ? "#7c3aed"
+                        : department === "support"
+                        ? "#059669"
+                        : "var(--adm-blue-mid)"
+                      : WA.sub,
                   }}
                 >
                   {f}
@@ -1031,10 +1159,30 @@ function InboxTab({
           className="flex items-center gap-6 px-5 py-3 text-[14px] transition hover:bg-black/[0.03]"
           style={{ borderBottom: `1px solid ${WA.divider}`, color: WA.text }}
         >
-          <Archive size={18} style={{ color: department === "support" ? "#059669" : WA.green }} />
+          <Archive
+            size={18}
+            style={{
+              color:
+                department === "direct"
+                  ? "#7c3aed"
+                  : department === "support"
+                  ? "#059669"
+                  : WA.green,
+            }}
+          />
           <span className="font-normal">{showArchived ? "Back to chats" : "Archived"}</span>
           {!showArchived && archivedList.length > 0 && (
-            <span className="ml-auto text-[13px] font-medium" style={{ color: department === "support" ? "#059669" : WA.green }}>
+            <span
+              className="ml-auto text-[13px] font-medium"
+              style={{
+                color:
+                  department === "direct"
+                    ? "#7c3aed"
+                    : department === "support"
+                    ? "#059669"
+                    : WA.green,
+              }}
+            >
               {archivedList.length}
             </span>
           )}
@@ -1157,7 +1305,14 @@ function ChatListItem({
     >
       <div
         className="flex h-[49px] w-[49px] shrink-0 items-center justify-center self-center rounded-full text-[17px] font-medium text-white"
-        style={{ background: conv.department === "support" ? "#059669" : "var(--adm-blue)" }}
+        style={{
+          background:
+            conv.department === "direct"
+              ? "#7c3aed"
+              : conv.department === "support"
+              ? "#059669"
+              : "var(--adm-blue)",
+        }}
       >
         {initials(name)}
       </div>
@@ -1246,7 +1401,7 @@ function ChatView({
   conv: Conversation;
   meta?: ConvMeta;
   channelId?: string;
-  department?: "general" | "support";
+  department?: "general" | "support" | "direct";
   onBack: () => void;
   onMarkRead: () => void;
   onMarkUnread: () => void;
@@ -1267,6 +1422,10 @@ function ChatView({
     const currentDept = conv.department || department;
     const deptLine = numbers.find((n) => n.department === currentDept);
     if (deptLine) return deptLine.id;
+    if (currentDept === "direct") {
+      const d = numbers.find((n) => n.id === "1291624014041103" || n.slot === 3);
+      if (d) return d.id;
+    }
     if (currentDept === "support") {
       const s = numbers.find((n) => !n.primary) || numbers[0];
       return s?.id || "";
@@ -1466,7 +1625,14 @@ function ChatView({
         >
           <div
             className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-sm font-medium text-white"
-            style={{ background: (conv.department || department) === "support" ? "#059669" : "var(--adm-blue)" }}
+            style={{
+              background:
+                (conv.department || department) === "direct"
+                  ? "#7c3aed"
+                  : (conv.department || department) === "support"
+                  ? "#059669"
+                  : "var(--adm-blue)",
+            }}
           >
             {initials(name)}
           </div>
@@ -1475,7 +1641,12 @@ function ChatView({
               {name}
             </p>
             <p className="truncate text-[13px]" style={{ color: WA.sub }}>
-              {(conv.department || department) === "support" ? (
+              {(conv.department || department) === "direct" ? (
+                <span className="inline-flex items-center gap-1 font-semibold text-purple-600 dark:text-purple-400">
+                  <span className="h-1.5 w-1.5 rounded-full bg-purple-500 inline-block" />
+                  Executive Desk Line • Line 3
+                </span>
+              ) : (conv.department || department) === "support" ? (
                 <span className="inline-flex items-center gap-1 font-semibold text-emerald-600 dark:text-emerald-400">
                   <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 inline-block" />
                   Technical Support Line • Support Desk
@@ -1645,7 +1816,15 @@ function ChatView({
                 reactions={reactionsByTarget.get(msg.id)}
                 onReply={setReplyTo}
                 onReact={handleReact}
-                lineBadge={msgLine ? (msgLine.primary ? "Line 1" : "Line 2") : undefined}
+                lineBadge={
+                  msgLine
+                    ? msgLine.primary
+                      ? "Line 1"
+                      : msgLine.department === "direct" || msgLine.id === "1291624014041103" || msgLine.slot === 3
+                      ? "Line 3"
+                      : "Line 2"
+                    : undefined
+                }
                 isPrimaryLine={msgLine?.primary}
               />
             </div>
@@ -1691,17 +1870,25 @@ function ChatView({
           <span className="text-adm-text-3 font-medium">Replying via:</span>
           <span
             className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-bold ${
-              (conv.department || department) === "support"
+              (conv.department || department) === "direct"
+                ? "bg-purple-50 text-purple-700 dark:bg-purple-950/50 dark:text-purple-300"
+                : (conv.department || department) === "support"
                 ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-300"
                 : "bg-adm-blue-light text-adm-blue"
             }`}
           >
             <span
               className={`h-1.5 w-1.5 rounded-full ${
-                (conv.department || department) === "support" ? "bg-emerald-500" : "bg-adm-blue"
+                (conv.department || department) === "direct"
+                  ? "bg-purple-500"
+                  : (conv.department || department) === "support"
+                  ? "bg-emerald-500"
+                  : "bg-adm-blue"
               }`}
             />
-            {(conv.department || department) === "support"
+            {(conv.department || department) === "direct"
+              ? "Executive Desk (Line 3)"
+              : (conv.department || department) === "support"
               ? "Support Desk"
               : "General Inquiries (+92 333 56701199)"}
           </span>
@@ -2425,16 +2612,18 @@ function MessageBubble({
           >
             {lineBadge && (
               <span
-                className={`rounded-nonepx-1 text-[9px] font-extrabold uppercase leading-tight tracking-wider ${
+                className={`px-1 text-[9px] font-extrabold uppercase leading-tight tracking-wider ${
                   overMedia
                     ? "bg-adm-surface/20 text-white"
                     : isPrimaryLine
                     ? "bg-adm-blue-light text-adm-blue"
+                    : lineBadge === "Line 3"
+                    ? "bg-[#7c3aed]/15 text-[#7c3aed]"
                     : "bg-adm-surface-2 text-adm-text-2"
                 }`}
-                title={isPrimaryLine ? "Line 1 (Primary)" : "Line 2 (Secondary)"}
+                title={isPrimaryLine ? "Line 1 (Primary)" : lineBadge === "Line 3" ? "Line 3 (Executive)" : "Line 2 (Support)"}
               >
-                {lineBadge === "Line 1" ? "L1" : lineBadge === "Line 2" ? "L2" : lineBadge}
+                {lineBadge === "Line 1" ? "L1" : lineBadge === "Line 3" ? "L3" : lineBadge === "Line 2" ? "L2" : lineBadge}
               </span>
             )}
             <span
@@ -2477,7 +2666,7 @@ function SendTab({
   defaultSender,
   onSent,
 }: {
-  department?: "general" | "support";
+  department?: "general" | "support" | "direct";
   defaultRecipient: string;
   defaultSender?: string;
   onSent?: (recipient?: string, senderId?: string) => void;
@@ -2514,7 +2703,15 @@ function SendTab({
   const [senderChoice, setSenderChoice] = useState(defaultSender || "");
   
   const deptLine = numbers.find((n) => n.department === department);
-  const fallbackSender = deptLine?.id || (department === "support" ? numbers.find((n) => !n.primary)?.id : numbers.find((n) => n.primary)?.id) || numbers[0]?.id || "";
+  const fallbackSender =
+    deptLine?.id ||
+    (department === "direct"
+      ? numbers.find((n) => n.id === "1291624014041103" || n.slot === 3)?.id
+      : department === "support"
+      ? numbers.find((n) => !n.primary)?.id
+      : numbers.find((n) => n.primary)?.id) ||
+    numbers[0]?.id ||
+    "";
   const sender = senderChoice || defaultSender || fallbackSender;
 
   const resetMedia = () => {
@@ -2630,19 +2827,33 @@ function SendTab({
         {/* Department Banner */}
         <div
           className={`flex items-center justify-between rounded-none p-3.5 border text-xs ${
-            department === "support"
+            department === "direct"
+              ? "bg-purple-50 dark:bg-purple-950/30 border-purple-500/30 text-purple-800 dark:text-purple-200"
+              : department === "support"
               ? "bg-emerald-50 dark:bg-emerald-950/30 border-emerald-500/30 text-emerald-800 dark:text-emerald-200"
               : "bg-adm-blue-light border-adm-blue/30 text-adm-blue"
           }`}
         >
           <div className="flex items-center gap-2.5">
-            {department === "support" ? <LifeBuoy size={18} className="text-emerald-600" /> : <Briefcase size={18} className="text-adm-blue" />}
+            {department === "direct" ? (
+              <ShieldCheck size={18} className="text-purple-600 dark:text-purple-400" />
+            ) : department === "support" ? (
+              <LifeBuoy size={18} className="text-emerald-600" />
+            ) : (
+              <Briefcase size={18} className="text-adm-blue" />
+            )}
             <div>
               <p className="font-bold text-[13px]">
-                {department === "support" ? "Technical & Client Support Desk" : "General Inquiries & Sales Line"}
+                {department === "direct"
+                  ? "Executive & Direct Desk"
+                  : department === "support"
+                  ? "Technical & Client Support Desk"
+                  : "General Inquiries & Sales Line"}
               </p>
               <p className="text-[11px] opacity-80">
-                {department === "support"
+                {department === "direct"
+                  ? "Outbound messages will send from executive direct line (Line 3)"
+                  : department === "support"
                   ? "Outbound messages will send from client support line"
                   : "Outbound messages will send from corporate general line +92 333 56701199"}
               </p>
@@ -2650,12 +2861,14 @@ function SendTab({
           </div>
           <span
             className={`rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider ${
-              department === "support"
+              department === "direct"
+                ? "bg-purple-600 text-white"
+                : department === "support"
                 ? "bg-emerald-600 text-white"
                 : "bg-adm-blue text-white"
             }`}
           >
-            {department === "support" ? "Line 2" : "Line 1"}
+            {department === "direct" ? "Line 3" : department === "support" ? "Line 2" : "Line 1"}
           </span>
         </div>
 
@@ -3086,7 +3299,7 @@ function metaStatusStyle(status: string): { label: string; color: string; bg: st
   return { label: "Pending review", color: "var(--adm-amber)", bg: "var(--adm-amber-light)" };
 }
 
-function MetaTemplatesTab({ defaultRecipient, department }: { defaultRecipient: string; department?: "general" | "support" }) {
+function MetaTemplatesTab({ defaultRecipient, department }: { defaultRecipient: string; department?: "general" | "support" | "direct" }) {
   const { data, isLoading, refetch } = useMetaTemplates(department);
   const submitTemplate = useSubmitMetaTemplate();
   const { data: numbersData } = useWhatsAppNumbers();
@@ -3097,7 +3310,15 @@ function MetaTemplatesTab({ defaultRecipient, department }: { defaultRecipient: 
   // A template is the only way to open a conversation with someone who has never
   // written to us, so it decides which of our numbers the customer first sees.
   // Derived, not seeded in an effect: the list arrives after first render.
-  const sender = senderChoice || numbers.find((n) => n.primary)?.id || "";
+  const sender =
+    senderChoice ||
+    (department === "direct"
+      ? numbers.find((n) => n.id === "1291624014041103" || n.slot === 3)?.id
+      : department === "support"
+      ? numbers.find((n) => !n.primary)?.id
+      : numbers.find((n) => n.primary)?.id) ||
+    numbers[0]?.id ||
+    "";
 
   const templates = data?.data ?? [];
   const configured = data?.configured;
@@ -3552,8 +3773,8 @@ function FlowTab({
   department,
   onDepartmentChange,
 }: {
-  department?: "general" | "support";
-  onDepartmentChange?: (dept: "general" | "support") => void;
+  department?: "general" | "support" | "direct";
+  onDepartmentChange?: (dept: "general" | "support" | "direct") => void;
 }) {
   const { data, isLoading, isError, refetch } = useWhatsAppFlow(department);
   const saveFlow = useSaveWhatsAppFlow(department);
@@ -3955,6 +4176,18 @@ function FlowTab({
               <LifeBuoy size={13} />
               <span>Line 2: Technical Support Desk</span>
             </button>
+            <button
+              type="button"
+              onClick={() => onDepartmentChange?.("direct")}
+              className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold transition ${
+                department === "direct"
+                  ? "bg-purple-600 text-white shadow-sm font-bold"
+                  : "text-adm-text-2 hover:bg-adm-surface-2"
+              }`}
+            >
+              <ShieldCheck size={13} />
+              <span>Line 3: Executive Desk</span>
+            </button>
           </div>
         </div>
 
@@ -3974,7 +4207,11 @@ function FlowTab({
         <div>
           <div className="flex items-center gap-2">
             <h2 className="text-lg font-bold" style={{ color: "var(--adm-text)" }}>
-              {department === "support" ? "Support Desk Bot Flow" : "General Inquiries Bot Flow"}
+              {department === "direct"
+                ? "Executive Desk Bot Flow"
+                : department === "support"
+                ? "Support Desk Bot Flow"
+                : "General Inquiries Bot Flow"}
             </h2>
             <span className="rounded-full px-2.5 py-0.5 text-xs font-semibold bg-adm-surface-2 text-adm-text-2 border border-adm-border">
               {data?.isCustom ? "Customized KV Flow" : "Built-in Defaults"}
@@ -4510,7 +4747,7 @@ function FlowTab({
   );
 }
 
-function RulesTab({ department }: { department?: "general" | "support" }) {
+function RulesTab({ department }: { department?: "general" | "support" | "direct" }) {
   const { data, isLoading, isError } = useAutoReplyRules(department);
   const saveRules = useSaveAutoReplyRules(department);
   const [localRules, setLocalRules] = useState<AutoReplyRule[]>([]);
@@ -4736,7 +4973,7 @@ function RuleEditor({
 
 // ─── Stats ──────────────────────────────────────────────────────────────
 
-function StatsTab({ department = "general" }: { department?: "general" | "support" }) {
+function StatsTab({ department = "general" }: { department?: "general" | "support" | "direct" }) {
   const { data: messagesData } = useWhatsAppMessages();
   const { data: numbersData } = useWhatsAppNumbers();
   const allMessages = messagesData?.data ?? [];
@@ -4762,22 +4999,30 @@ function StatsTab({ department = "general" }: { department?: "general" | "suppor
       <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
         <div>
           <h3 className="text-lg font-bold" style={{ color: "var(--adm-text)" }}>
-            {department === "general" ? "General Inquiries & Sales Analytics" : "Technical & Client Support Analytics"}
+            {department === "direct"
+              ? "Executive & Direct Desk Analytics"
+              : department === "support"
+              ? "Technical & Client Support Analytics"
+              : "General Inquiries & Sales Analytics"}
           </h3>
           <p className="text-sm" style={{ color: "var(--adm-text-3)" }}>
-            {department === "general"
-              ? "Message volume and traffic for Corporate Line (+92 333 56701199)"
-              : "Message volume and traffic for Support Desk Line"}
+            {department === "direct"
+              ? "Message volume and traffic for Executive Line (Line 3)"
+              : department === "support"
+              ? "Message volume and traffic for Support Desk Line"
+              : "Message volume and traffic for Corporate Line (+92 333 56701199)"}
           </p>
         </div>
         <span
           className={`rounded-full px-3 py-1 text-xs font-bold ${
-            department === "general"
-              ? "bg-adm-blue-light text-adm-blue"
-              : "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-300"
+            department === "direct"
+              ? "bg-purple-50 text-purple-700 dark:bg-purple-950/50 dark:text-purple-300"
+              : department === "support"
+              ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-300"
+              : "bg-adm-blue-light text-adm-blue"
           }`}
         >
-          {department === "general" ? "Line 1 Active" : "Line 2 Active"}
+          {department === "direct" ? "Line 3 Active" : department === "support" ? "Line 2 Active" : "Line 1 Active"}
         </span>
       </div>
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
@@ -4785,7 +5030,33 @@ function StatsTab({ department = "general" }: { department?: "general" | "suppor
         <StatCard title="Received" value={stats.inbound} iconBg="var(--adm-blue-light)" iconColor="var(--adm-blue)" icon={<MessageSquare size={22} />} />
         <StatCard title="Sent" value={stats.outbound} iconBg="var(--adm-green-light)" iconColor="var(--adm-green)" icon={<Send size={20} />} />
         <StatCard title="Today" value={stats.today} iconBg="var(--adm-blue-light)" iconColor="var(--adm-blue)" icon={<BarChart3 size={22} />} />
-        <StatCard title="Active Chats" value={stats.conversations} iconBg={department === "support" ? "rgba(5, 150, 105, 0.15)" : "var(--adm-blue-light)"} iconColor={department === "support" ? "#059669" : "var(--adm-blue)"} icon={department === "support" ? <LifeBuoy size={22} /> : <Briefcase size={22} />} />
+        <StatCard
+          title="Active Chats"
+          value={stats.conversations}
+          iconBg={
+            department === "direct"
+              ? "rgba(124, 58, 237, 0.15)"
+              : department === "support"
+              ? "rgba(5, 150, 105, 0.15)"
+              : "var(--adm-blue-light)"
+          }
+          iconColor={
+            department === "direct"
+              ? "#7c3aed"
+              : department === "support"
+              ? "#059669"
+              : "var(--adm-blue)"
+          }
+          icon={
+            department === "direct" ? (
+              <ShieldCheck size={22} />
+            ) : department === "support" ? (
+              <LifeBuoy size={22} />
+            ) : (
+              <Briefcase size={22} />
+            )
+          }
+        />
       </div>
     </div>
   );
@@ -5038,12 +5309,30 @@ function NumbersTab({
   department = "general",
   onSendFrom,
 }: {
-  department?: "general" | "support";
+  department?: "general" | "support" | "direct";
   onSendFrom?: (numberId: string) => void;
 }) {
   const { data: numbersData, isLoading, isError, refetch } = useWhatsAppNumbers();
   const [selectedLineForVerification, setSelectedLineForVerification] = useState<WANumberInfo | null>(null);
+  const syncProfileMutation = useSyncWhatsAppProfile();
+  const [syncingId, setSyncingId] = useState<string | null>(null);
   const numbers = numbersData?.data ?? [];
+
+  const handleSyncProfile = async (n: WANumberInfo) => {
+    setSyncingId(n.id);
+    try {
+      await syncProfileMutation.mutateAsync({
+        phoneNumberId: n.id,
+        slot: n.slot ?? 1,
+      });
+      await refetch();
+      alert(`Business Profile successfully synchronized with Meta for ${n.displayNumber || n.label}!`);
+    } catch (err: any) {
+      alert(err.message || "Failed to sync profile with Meta");
+    } finally {
+      setSyncingId(null);
+    }
+  };
 
   return (
     <div className="mx-auto max-w-4xl space-y-6">
@@ -5082,8 +5371,10 @@ function NumbersTab({
         <div className="grid gap-4 sm:grid-cols-2">
           {numbers.map((n, idx) => {
             const isSendable = n.canSend !== false;
-            const isSupportLine = n.department === "support" || (!n.primary && idx > 0);
-            const isCurrentDept = (isSupportLine ? "support" : "general") === department;
+            const isDirectLine = n.department === "direct" || n.id === "1291624014041103" || n.slot === 3;
+            const isSupportLine = !isDirectLine && (n.department === "support" || (!n.primary && idx > 0));
+            const lineDept = isDirectLine ? "direct" : isSupportLine ? "support" : "general";
+            const isCurrentDept = lineDept === department;
             return (
               <div
                 key={n.id}
@@ -5092,8 +5383,14 @@ function NumbersTab({
                 }`}
                 style={{
                   borderColor: isCurrentDept
-                    ? isSupportLine ? "#059669" : "var(--adm-blue)"
-                    : isSendable ? "var(--adm-border)" : "var(--adm-red)"
+                    ? isDirectLine
+                      ? "#7c3aed"
+                      : isSupportLine
+                      ? "#059669"
+                      : "var(--adm-blue)"
+                    : isSendable
+                    ? "var(--adm-border)"
+                    : "var(--adm-red)",
                 }}
               >
                 <div>
@@ -5102,10 +5399,20 @@ function NumbersTab({
                       <div
                         className="flex h-10 w-10 items-center justify-center rounded-full text-white font-bold"
                         style={{
-                          background: isSupportLine ? "#059669" : "var(--adm-blue)"
+                          background: isDirectLine
+                            ? "#7c3aed"
+                            : isSupportLine
+                            ? "#059669"
+                            : "var(--adm-blue)",
                         }}
                       >
-                        {isSupportLine ? <LifeBuoy size={19} /> : <Briefcase size={19} />}
+                        {isDirectLine ? (
+                          <ShieldCheck size={19} />
+                        ) : isSupportLine ? (
+                          <LifeBuoy size={19} />
+                        ) : (
+                          <Briefcase size={19} />
+                        )}
                       </div>
                       <div>
                         <div className="flex items-center gap-2">
@@ -5114,7 +5421,11 @@ function NumbersTab({
                           </h4>
                         </div>
                         <p className="text-xs font-semibold text-adm-text-2 mt-0.5">
-                          {isSupportLine ? "Technical & Client Support Line" : "General Inquiries & Sales Line"}
+                          {isDirectLine
+                            ? "Executive & Direct Desk (Line 3)"
+                            : isSupportLine
+                            ? "Technical & Client Support Line"
+                            : "General Inquiries & Sales Line"}
                         </p>
                         {n.verifiedName && (
                           <p className="text-xs font-medium text-adm-text-3">{n.verifiedName}</p>
@@ -5125,7 +5436,9 @@ function NumbersTab({
                       {isCurrentDept && (
                         <span
                           className={`rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wide ${
-                            isSupportLine
+                            isDirectLine
+                              ? "bg-purple-50 text-purple-700 dark:bg-purple-950/50 dark:text-purple-300"
+                              : isSupportLine
                               ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-300"
                               : "bg-adm-blue-light text-adm-blue"
                           }`}
@@ -5155,7 +5468,7 @@ function NumbersTab({
                     </div>
                     {n.codeVerificationStatus && (
                       <div className="flex items-center justify-between text-adm-text-2">
-                        <span>Verification Status:</span>
+                        <span>Phone OTP Status:</span>
                         <span
                           className={`font-semibold px-1.5 py-0.5 rounded text-[10px] uppercase tracking-wide ${
                             n.codeVerificationStatus === "VERIFIED"
@@ -5164,6 +5477,20 @@ function NumbersTab({
                           }`}
                         >
                           {n.codeVerificationStatus}
+                        </span>
+                      </div>
+                    )}
+                    {n.nameStatus && (
+                      <div className="flex items-center justify-between text-adm-text-2">
+                        <span>Display Name Status:</span>
+                        <span
+                          className={`font-semibold px-1.5 py-0.5 rounded text-[10px] uppercase tracking-wide ${
+                            n.nameStatus === "APPROVED" || n.nameStatus === "AVAILABLE_WITHOUT_REVIEW"
+                              ? "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300"
+                              : "bg-amber-500/15 text-amber-700 dark:text-amber-300"
+                          }`}
+                        >
+                          {n.nameStatus}
                         </span>
                       </div>
                     )}
@@ -5189,16 +5516,29 @@ function NumbersTab({
                   )}
                 </div>
 
-                <div className="mt-4 border-t pt-3 flex items-center justify-between gap-2" style={{ borderColor: "var(--adm-border)" }}>
-                  <button
-                    type="button"
-                    onClick={() => setSelectedLineForVerification(n)}
-                    className="inline-flex items-center gap-1.5 border px-2.5 py-1.5 text-xs font-semibold rounded-none transition hover:bg-black/5"
-                    style={{ borderColor: "var(--adm-border)", color: "var(--adm-text-2)" }}
-                    title="Request Voice Call OTP or submit 6-digit registration PIN"
-                  >
-                    <Key size={13} className="text-adm-blue" /> Verify / Bypass OTP
-                  </button>
+                <div className="mt-4 border-t pt-3 flex flex-wrap items-center justify-between gap-2" style={{ borderColor: "var(--adm-border)" }}>
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setSelectedLineForVerification(n)}
+                      className="inline-flex items-center gap-1.5 border px-2.5 py-1.5 text-xs font-semibold rounded-none transition hover:bg-black/5"
+                      style={{ borderColor: "var(--adm-border)", color: "var(--adm-text-2)" }}
+                      title="Request Voice Call OTP or submit 6-digit registration PIN"
+                    >
+                      <Key size={13} className="text-adm-blue" /> Verify PIN
+                    </button>
+                    <button
+                      type="button"
+                      disabled={syncingId === n.id}
+                      onClick={() => handleSyncProfile(n)}
+                      className="inline-flex items-center gap-1.5 border px-2.5 py-1.5 text-xs font-semibold rounded-none transition hover:bg-black/5 disabled:opacity-50"
+                      style={{ borderColor: "var(--adm-border)", color: "var(--adm-text-2)" }}
+                      title="Push verified company name, description, address & website directly to Meta Cloud API"
+                    >
+                      <RefreshCw size={13} className={syncingId === n.id ? "animate-spin text-emerald-600" : "text-emerald-600"} />
+                      {syncingId === n.id ? "Syncing..." : "Sync Profile"}
+                    </button>
+                  </div>
                   {isSendable && onSendFrom && (
                     <button
                       type="button"
@@ -5206,7 +5546,7 @@ function NumbersTab({
                       className="inline-flex items-center gap-1.5 rounded-none px-3 py-1.5 text-xs font-semibold text-white transition hover:opacity-90"
                       style={{ background: "var(--adm-blue)" }}
                     >
-                      <Send size={13} /> Send from this line
+                      <Send size={13} /> Send
                     </button>
                   )}
                 </div>
@@ -5233,7 +5573,7 @@ function PipelineTab({
   department = "general",
   onOpenChat,
 }: {
-  department?: "general" | "support";
+  department?: "general" | "support" | "direct";
   onOpenChat: (recipient: string, channelId?: string) => void;
 }) {
   const { data, isLoading } = useWhatsAppMessages();
@@ -5282,22 +5622,34 @@ function PipelineTab({
       <div className="flex flex-wrap items-center justify-between gap-2 px-1">
         <div>
           <h3 className="font-bold text-base text-adm-text">
-            {department === "general" ? "General Sales & Inquiries Pipeline" : "Technical & Client Support Pipeline"}
+            {department === "direct"
+              ? "Executive Desk & Direct Leads Pipeline"
+              : department === "general"
+              ? "General Sales & Inquiries Pipeline"
+              : "Technical & Client Support Pipeline"}
           </h3>
           <p className="text-xs text-adm-text-3">
-            {department === "general"
+            {department === "direct"
+              ? "Track executive communications, high-priority partner deals, and direct consultations"
+              : department === "general"
               ? "Track inbound corporate quotes, leads, proposals, and deal stages"
               : "Track client tickets, incident reports, SLA progress, and issue resolutions"}
           </p>
         </div>
         <span
           className={`rounded-full px-2.5 py-0.5 text-xs font-bold ${
-            department === "general"
+            department === "direct"
+              ? "bg-purple-50 text-purple-700 dark:bg-purple-950/50 dark:text-purple-300"
+              : department === "general"
               ? "bg-adm-blue-light text-adm-blue"
               : "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-300"
           }`}
         >
-          {department === "general" ? "Line 1: +92 333 56701199" : "Line 2: Support Desk"}
+          {department === "direct"
+            ? "Line 3: Executive Desk"
+            : department === "general"
+            ? "Line 1: +92 333 56701199"
+            : "Line 2: Support Desk"}
         </span>
       </div>
 

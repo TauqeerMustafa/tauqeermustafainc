@@ -91,12 +91,12 @@ Scroll down to "Environment Variables" section:
 1. Click "Add Environment Variable" button
 2. Add FIRST variable:
    Key: WHATSAPP_TOKEN
-   Value: EAA5D14LMyusBSDAmu7r0LvZCG9iKJzLE8dnZATzsz6EN0QhtnN0wZB8ZC2ovfsP854fk9MixVgQZANWLTpnqdRaU8hqVuXXH32MfBglGat4rBXYXFryzOnyC8zSk8bP7HOkNVWFuC9HxFw2zZBvfaQBijUa9xU45Fg6qh96SETp8TCmDb00gD81I0UXbHj3mmPOQZDZD
+   Value: <YOUR_WHATSAPP_SYSTEM_USER_TOKEN>
 
 3. Click "Add Environment Variable" again
 4. Add SECOND variable:
    Key: WEBHOOK_VERIFY_TOKEN
-   Value: tmi_webhook_2026
+   Value: <YOUR_SECURE_WEBHOOK_VERIFY_TOKEN>
 
 5. Click "Add Environment Variable" again
 6. Add THIRD variable:
@@ -118,8 +118,8 @@ Your environment variables should look like:
 ┌─────────────────────────────────────────────────────────────┐
 │ Environment Variables                                       │
 ├─────────────────────────────────────────────────────────────┤
-│ WHATSAPP_TOKEN = EAA5D14LMyusB...                          │
-│ WEBHOOK_VERIFY_TOKEN = tmi_webhook_2026                    │
+│ WHATSAPP_TOKEN = <YOUR_WHATSAPP_SYSTEM_USER_TOKEN>          │
+│ WEBHOOK_VERIFY_TOKEN = <YOUR_SECURE_WEBHOOK_VERIFY_TOKEN>  │
 │ PHONE_NUMBER_ID = 1150558061484722                         │
 │ PORT = 3001                                                 │
 │ NODE_ENV = production                                       │

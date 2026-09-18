@@ -21,6 +21,7 @@
  */
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import {
   AlertTriangle,
   ArrowDownRight,
@@ -864,6 +865,209 @@ export function Pagination({
         >
           <ChevronRight size={16} />
         </button>
+      </div>
+    </div>
+  );
+}
+
+/* ──────────────────────────────────────────────────────────────────────────
+   HIERARCHY SCAFFOLD — main → section → sub → detail.
+
+   The sidebar is MAIN. `SectionOverview` is the section "div": a card grid that
+   fans out to a vertical's sub-tools. Each sub-tool page carries a `SubNav` — a
+   persistent, route-linked sub-tab bar to hop between siblings — and a row on it
+   drills into a detail view fronted by `Breadcrumb`. These two primitives are
+   the reusable spine of that model; `PeopleBanner` is the first `SubNav` caller.
+   ────────────────────────────────────────────────────────────────────────── */
+
+/**
+ * The in-context sub-tab bar for one vertical. Unlike `Tabs` (local state), this
+ * is route-linked so every sub-tool is deep-linkable and the active pill is
+ * derived from the URL — the "sub" layer of the hierarchy. Callers pass
+ * already-final strings (this layer is i18n-free, like the rest of PortalUI).
+ *
+ * Active match is longest-prefix, mirroring `isNavItemActive`: an item lights up
+ * on its own `href` and on any child route (`/admin/employees/[id]` keeps
+ * "Employees" lit), or on any extra prefix in `matches`.
+ */
+export function SubNav({
+  label,
+  alert,
+  items,
+}: {
+  /** Section name shown beside the indicator dot, e.g. "People & HR". */
+  label?: string;
+  /** Optional standing alert, e.g. amber "3 leave pending". Hidden when count is 0. */
+  alert?: { count: number; label: string; tone?: Tone };
+  items: readonly {
+    label: string;
+    href: string;
+    icon?: LucideIcon;
+    count?: number;
+    countTone?: Tone;
+    /** Extra active-prefixes; defaults to `[href]`. */
+    matches?: string[];
+  }[];
+}) {
+  const pathname = usePathname();
+  const alertTone = alert?.tone ?? "amber";
+
+  return (
+    <div className="flex flex-col gap-3 border-b border-adm-border pb-4">
+      <div className="flex flex-col gap-2.5 sm:flex-row sm:items-center sm:justify-between">
+        {label && (
+          <div className="flex items-center gap-2">
+            <span className="h-2 w-2 shrink-0 rounded-full bg-adm-blue" />
+            <span className="text-xs font-semibold uppercase tracking-wider text-adm-text">
+              {label}
+            </span>
+            {alert && alert.count > 0 && (
+              <span
+                className={`rounded-full px-2 py-0.5 text-[11px] font-medium tabular-nums ${TONE[alertTone].bg} ${TONE[alertTone].fg}`}
+              >
+                {alert.count} {alert.label}
+              </span>
+            )}
+          </div>
+        )}
+
+        <nav aria-label={label ? `${label} functions` : "Section functions"} className="flex flex-wrap items-center gap-1.5">
+          {items.map((item) => {
+            const Icon = item.icon;
+            const prefixes = item.matches ?? [item.href];
+            const active = prefixes.some(
+              (prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`),
+            );
+            const count = item.count;
+
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                aria-current={active ? "page" : undefined}
+                className={`inline-flex items-center gap-1.5 rounded-none px-3 py-1 text-xs font-medium transition active:scale-95 ${
+                  active
+                    ? "bg-adm-blue font-semibold text-white"
+                    : "border border-adm-border bg-adm-surface text-adm-text-2 hover:border-adm-border-2 hover:bg-adm-surface-2 hover:text-adm-text"
+                }`}
+              >
+                {Icon && <Icon size={13} className={active ? "text-white" : "text-adm-text-3"} />}
+                <span>{item.label}</span>
+                {typeof count === "number" && count > 0 && (
+                  <span
+                    className={`inline-flex h-4 min-w-4 items-center justify-center rounded-full px-1 text-[10px] font-medium tabular-nums ${
+                      active
+                        ? "bg-white/20 text-white"
+                        : item.countTone
+                          ? `${TONE[item.countTone].bg} ${TONE[item.countTone].fg}`
+                          : "border border-adm-border bg-adm-surface-2 text-adm-text-3"
+                    }`}
+                  >
+                    {count}
+                  </span>
+                )}
+              </Link>
+            );
+          })}
+        </nav>
+      </div>
+    </div>
+  );
+}
+
+/**
+ * The section "div": a header plus a card grid that fans out to a vertical's
+ * sub-tools. Each card is a square hairline tile linking to one sub-tool and
+ * surfacing a single live stat, so the overview reads at a glance and every
+ * card is a drill-in. Generalized from the dashboard's department cards.
+ */
+export function SectionOverview({
+  eyebrow,
+  title,
+  description,
+  actions,
+  cards,
+}: {
+  eyebrow?: string;
+  title: string;
+  description?: string;
+  /** Right-aligned header actions. */
+  actions?: ReactNode;
+  cards: readonly {
+    title: string;
+    description?: string;
+    icon: LucideIcon;
+    href: string;
+    /** One live figure, e.g. a count. */
+    stat?: ReactNode;
+    statLabel?: string;
+    tone?: Tone;
+    badge?: { label: string; tone?: Tone };
+  }[];
+}) {
+  return (
+    <div className="flex flex-col gap-6">
+      <header className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+        <div className="min-w-0">
+          {eyebrow && <Eyebrow>{eyebrow}</Eyebrow>}
+          <h1
+            className={`truncate text-2xl font-semibold tracking-tight text-adm-text sm:text-3xl ${
+              eyebrow ? "mt-2" : ""
+            }`}
+          >
+            {title}
+          </h1>
+          {description && <p className="mt-1.5 text-sm font-normal text-adm-text-3">{description}</p>}
+        </div>
+        {actions && <div className="flex shrink-0 flex-wrap items-center gap-2.5">{actions}</div>}
+      </header>
+
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+        {cards.map((card) => {
+          const Icon = card.icon;
+          const tone = card.tone ?? "blue";
+          const hasStat = card.stat !== undefined || Boolean(card.statLabel);
+
+          return (
+            <Link
+              key={card.href}
+              href={card.href}
+              className="group flex min-w-0 flex-col rounded-none border border-adm-border bg-adm-surface p-5 transition-colors hover:border-adm-border-2"
+            >
+              <div className="flex items-start justify-between gap-3">
+                <span
+                  className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-none ${TONE[tone].bg} ${TONE[tone].fg}`}
+                >
+                  <Icon size={18} />
+                </span>
+                <ChevronRight
+                  size={16}
+                  className="mt-1 shrink-0 text-adm-text-3 transition-transform group-hover:translate-x-0.5 group-hover:text-adm-text"
+                  aria-hidden="true"
+                />
+              </div>
+
+              <h2 className="mt-4 flex flex-wrap items-center gap-2 text-base font-semibold tracking-tight text-adm-text">
+                {card.title}
+                {card.badge && <Badge tone={card.badge.tone ?? "neutral"}>{card.badge.label}</Badge>}
+              </h2>
+              {card.description && (
+                <p className="mt-1 text-sm text-adm-text-3">{card.description}</p>
+              )}
+
+              {hasStat && (
+                <div className="mt-4 flex items-baseline gap-2 border-t border-adm-border pt-3">
+                  {card.stat !== undefined && (
+                    <span className="text-2xl font-semibold tabular-nums tracking-tight text-adm-text">
+                      {card.stat}
+                    </span>
+                  )}
+                  {card.statLabel && <Label>{card.statLabel}</Label>}
+                </div>
+              )}
+            </Link>
+          );
+        })}
       </div>
     </div>
   );

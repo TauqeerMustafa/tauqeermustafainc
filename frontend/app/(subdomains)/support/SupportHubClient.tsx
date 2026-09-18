@@ -110,7 +110,7 @@ const KNOWLEDGE_ARTICLES = [
       "Guidance on verifying webhook handshake tokens, Meta Graph API limits, and inbound event delivery.",
     steps: [
       "Verify that your Meta App Webhook Callback is pointed to https://tmi-whatsapp-service.onrender.com/webhook.",
-      "Confirm WEBHOOK_VERIFY_TOKEN matches 'tmi_webhook_2026'.",
+      "Confirm WEBHOOK_VERIFY_TOKEN matches the value configured in your Meta Developer App.",
       "Ensure phone number ID 1211044558768028 has active Meta business verification.",
       "Check API health at /api/whatsapp/diagnose via your admin session.",
     ],

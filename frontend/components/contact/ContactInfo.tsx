@@ -42,6 +42,13 @@ const items: ContactItem[] = [
     external: true,
   },
   {
+    label: "WhatsApp (Executive Desk)",
+    value: company.whatsappChannels.direct.displayNumber,
+    icon: FaWhatsapp,
+    href: company.whatsappChannels.direct.url,
+    external: true,
+  },
+  {
     label: "Working Hours",
     value: company.workingHours,
     icon: Clock,

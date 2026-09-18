@@ -674,16 +674,17 @@ export const DEFAULT_SUPPORT_STEPS: FlowStep[] = [
   },
 ];
 
-export function getFlowKey(department?: "general" | "support"): string {
+export function getFlowKey(department?: "general" | "support" | "direct"): string {
+  if (department === "direct") return `${KEYS.flow}:direct`;
   return department === "support" ? `${KEYS.flow}:support` : KEYS.flow;
 }
 
-export function getDefaultSteps(department?: "general" | "support"): FlowStep[] {
+export function getDefaultSteps(department?: "general" | "support" | "direct"): FlowStep[] {
   return department === "support" ? DEFAULT_SUPPORT_STEPS : DEFAULT_STEPS;
 }
 
 /** Fetches flow steps honoring department sandbox and KV custom copy. */
-export async function getFlowSteps(department?: "general" | "support"): Promise<FlowStep[]> {
+export async function getFlowSteps(department?: "general" | "support" | "direct"): Promise<FlowStep[]> {
   const kv = getKV();
   const key = getFlowKey(department);
   if (kv) {
@@ -700,7 +701,7 @@ export async function getFlowSteps(department?: "general" | "support"): Promise<
 }
 
 /** Saves customized flow steps into Upstash KV under departmental key. */
-export async function saveFlowSteps(steps: FlowStep[], department?: "general" | "support"): Promise<boolean> {
+export async function saveFlowSteps(steps: FlowStep[], department?: "general" | "support" | "direct"): Promise<boolean> {
   const kv = getKV();
   if (!kv) return false;
   const key = getFlowKey(department);
@@ -714,7 +715,7 @@ export async function saveFlowSteps(steps: FlowStep[], department?: "general" | 
 }
 
 /** Resets custom flow in Upstash KV back to departmental built-in defaults. */
-export async function resetFlowSteps(department?: "general" | "support"): Promise<boolean> {
+export async function resetFlowSteps(department?: "general" | "support" | "direct"): Promise<boolean> {
   const kv = getKV();
   if (!kv) return false;
   const key = getFlowKey(department);
@@ -728,7 +729,7 @@ export async function resetFlowSteps(department?: "general" | "support"): Promis
 }
 
 /** Fetches a single step by ID, honoring departmental defaults and KV copy. */
-export async function getEffectiveFlowStep(id?: string | null, department?: "general" | "support"): Promise<FlowStep | null> {
+export async function getEffectiveFlowStep(id?: string | null, department?: "general" | "support" | "direct"): Promise<FlowStep | null> {
   if (!id) return null;
   const steps = await getFlowSteps(department);
   return steps.find((s) => s.id === id) ?? (department === "support" ? DEFAULT_SUPPORT_STEPS.find((s) => s.id === id) : flowStep(id)) ?? null;
@@ -754,12 +755,12 @@ function findChoiceTarget(steps: FlowStep[], choiceId: string): FlowStep | null 
 /** Resolves the step a choice tap leads to, honoring departmental sandbox with cross-fallback. */
 export async function resolveEffectiveChoice(
   choiceId?: string | null,
-  department?: "general" | "support"
+  department?: "general" | "support" | "direct"
 ): Promise<FlowStep | null> {
   if (!choiceId) return null;
 
   const primaryDept = department || "general";
-  const secondaryDept = primaryDept === "support" ? "general" : "support";
+  const secondaryDept = primaryDept === "support" ? "general" : primaryDept === "direct" ? "general" : "support";
 
   // 1. Check primary department custom / KV steps
   const primarySteps = await getFlowSteps(primaryDept);
@@ -839,7 +840,7 @@ export async function resolveEffectiveChoice(
 /** Resolves a plain text reply (e.g. typing a choice title) to the matching next step. */
 export async function resolveChoiceFromText(
   text: string,
-  department?: "general" | "support"
+  department?: "general" | "support" | "direct"
 ): Promise<FlowStep | null> {
   const clean = (text || "").trim().toLowerCase();
   if (!clean) return null;
