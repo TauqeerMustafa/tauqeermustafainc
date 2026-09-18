@@ -67,6 +67,9 @@ function initials(name: string | null | undefined) {
 
 function draftFrom(employee: EmployeeRecord): UpdateEmployeePayload {
   return {
+    name: employee.name ?? "",
+    email: employee.email ?? "",
+    phone: employee.phone ?? "",
     jobTitle: employee.jobTitle ?? "",
     joiningDate: employee.joiningDate ?? "",
     status: employee.status,
@@ -110,6 +113,9 @@ export default function EmployeeProfilePage() {
         id,
         payload: {
           ...draft,
+          name: draft.name?.trim() || null,
+          email: draft.email?.trim() || null,
+          phone: draft.phone?.trim() || null,
           jobTitle: draft.jobTitle || null,
           joiningDate: draft.joiningDate || null,
           address: draft.address || null,
@@ -200,12 +206,44 @@ export default function EmployeeProfilePage() {
       <PortalDialog open={editing} title="Edit employment record" onClose={() => setEditing(false)}>
         <form onSubmit={saveEditor} className="flex flex-col gap-5">
           <p className="text-xs text-adm-text-3">
-            Name, email and role live on the linked user account and are edited under{" "}
+            Update employee details, contact info, and attached email account. Additional role permissions can be managed under{" "}
             <Link href="/admin/users" className="text-adm-blue underline">
               Users
             </Link>
             .
           </p>
+
+          <Field label="Full name" htmlFor="edit-name">
+            <input
+              id="edit-name"
+              value={draft.name ?? ""}
+              onChange={(event) => setDraft({ ...draft, name: event.target.value })}
+              className={inputClass}
+              placeholder="e.g. Jane Doe"
+            />
+          </Field>
+
+          <Field label="Email address (Login & Webmail)" htmlFor="edit-email">
+            <input
+              id="edit-email"
+              type="email"
+              value={draft.email ?? ""}
+              onChange={(event) => setDraft({ ...draft, email: event.target.value })}
+              className={inputClass}
+              placeholder="employee@domain.com"
+            />
+          </Field>
+
+          <Field label="Phone number" htmlFor="edit-phone">
+            <input
+              id="edit-phone"
+              type="tel"
+              value={draft.phone ?? ""}
+              onChange={(event) => setDraft({ ...draft, phone: event.target.value })}
+              className={inputClass}
+              placeholder="+1 555-0100"
+            />
+          </Field>
 
           <Field label="Job title" htmlFor="edit-job-title">
             <input

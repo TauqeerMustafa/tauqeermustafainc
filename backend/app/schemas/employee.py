@@ -27,7 +27,12 @@ class EmployeeCreate(EmployeeBase):
 
 
 class EmployeeUpdate(EmployeeBase):
-    pass
+    status: Optional[str] = None
+    name: Optional[str] = None
+    first_name: Optional[str] = None
+    last_name: Optional[str] = None
+    email: Optional[str] = None
+    phone: Optional[str] = None
 
 
 class EmployeeResponse(EmployeeBase):

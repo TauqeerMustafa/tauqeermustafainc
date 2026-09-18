@@ -622,30 +622,56 @@ def create_employee(
     current_admin: CurrentAdmin,
 ):
     # Check if user email already exists
-    existing_user = db.query(User).filter(User.email == payload.email).first()
+    clean_email = payload.email.strip().lower()
+    existing_user = db.query(User).filter(User.email == clean_email).first()
     if existing_user:
-        raise HTTPException(status_code=400, detail="Email already registered")
+        if existing_user.employee:
+            raise HTTPException(
+                status_code=400,
+                detail="An employee profile is already attached to this email address",
+            )
+        # Link to existing user account
+        new_user = existing_user
+        if payload.first_name and not new_user.first_name:
+            new_user.first_name = payload.first_name.strip()
+        if payload.last_name and not new_user.last_name:
+            new_user.last_name = payload.last_name.strip()
+        if payload.role_id and not new_user.role_id:
+            new_user.role_id = payload.role_id
+        if payload.emergency_contact and not new_user.phone:
+            new_user.phone = payload.emergency_contact
 
-    # 1. Create User account
-    # Provision the open.email mailbox first so the account is created with a
-    # working inbox, exactly like Admin → Users. Non-fatal: if the key is
-    # absent or the address is taken, we fall back to the account email.
-    mailbox = provision_user_mailbox(payload.email)
-    new_user = User(
-        first_name=payload.first_name,
-        last_name=payload.last_name,
-        email=payload.email,
-        password_hash=hash_password(payload.password),
-        is_active=True,
-        is_verified=True,
-        status="approved",
-        role_id=payload.role_id,
-        openemail_mailbox_id=mailbox.get("id") if mailbox else None,
-        openemail_address=(mailbox.get("primaryAddress") if mailbox else None) or payload.email,
-        phone=payload.emergency_contact # Store phone in user too if needed
-    )
-    db.add(new_user)
-    db.flush()
+        # Provision open.email mailbox if not already provisioned
+        if not new_user.openemail_address:
+            mailbox = provision_user_mailbox(clean_email)
+            if mailbox:
+                new_user.openemail_mailbox_id = mailbox.get("id")
+                new_user.openemail_address = (
+                    mailbox.get("primaryAddress") or clean_email
+                )
+            else:
+                new_user.openemail_address = clean_email
+    else:
+        # 1. Create User account
+        # Provision the open.email mailbox first so the account is created with a
+        # working inbox, exactly like Admin → Users. Non-fatal: if the key is
+        # absent or the address is taken, we fall back to the account email.
+        mailbox = provision_user_mailbox(clean_email)
+        new_user = User(
+            first_name=payload.first_name.strip(),
+            last_name=payload.last_name.strip(),
+            email=clean_email,
+            password_hash=hash_password(payload.password),
+            is_active=True,
+            is_verified=True,
+            status="approved",
+            role_id=payload.role_id,
+            openemail_mailbox_id=mailbox.get("id") if mailbox else None,
+            openemail_address=(mailbox.get("primaryAddress") if mailbox else None) or clean_email,
+            phone=payload.emergency_contact,
+        )
+        db.add(new_user)
+        db.flush()
 
     # 2. Create Employee profile
     new_employee = Employee(
@@ -660,7 +686,7 @@ def create_employee(
         department_id=payload.department_id,
         manager_id=payload.manager_id,
         joining_date=payload.joining_date,
-        status=payload.status,
+        status=payload.status or "active",
         address=payload.address,
         emergency_contact=payload.emergency_contact,
     )
@@ -670,10 +696,15 @@ def create_employee(
     # 3. Create Audit Log
     audit_log = AuditLog(
         user_id=current_admin.id,
-        action="CREATE",
+        action="ATTACH" if existing_user else "CREATE",
         entity_type="employee",
         entity_id=str(new_employee.id),
-        details={"employee_id": str(new_employee.id), "user_id": str(new_user.id), "email": payload.email}
+        details={
+            "employee_id": str(new_employee.id),
+            "user_id": str(new_user.id),
+            "email": clean_email,
+            "attached_existing_user": bool(existing_user),
+        },
     )
     db.add(audit_log)
     
@@ -693,18 +724,68 @@ def update_employee(
         raise HTTPException(status_code=404, detail="Employee not found")
 
     update_data = payload.model_dump(exclude_unset=True)
+    user_updated_fields: list[str] = []
+
+    user = employee.user
+    if user:
+        if "email" in update_data:
+            new_email = update_data.pop("email")
+            if new_email and new_email.strip() and new_email.strip().lower() != user.email.lower():
+                clean_email = new_email.strip().lower()
+                existing = db.query(User).filter(User.email == clean_email, User.id != user.id).first()
+                if existing:
+                    raise HTTPException(
+                        status_code=400,
+                        detail="Email address is already in use by another account",
+                    )
+                user.email = clean_email
+                if not user.openemail_address:
+                    user.openemail_address = clean_email
+                user_updated_fields.append("email")
+
+        if "name" in update_data:
+            new_name = update_data.pop("name")
+            if new_name is not None and new_name.strip():
+                parts = new_name.strip().split(maxsplit=1)
+                user.first_name = parts[0]
+                user.last_name = parts[1] if len(parts) > 1 else ""
+                user_updated_fields.append("name")
+
+        if "first_name" in update_data:
+            fn = update_data.pop("first_name")
+            if fn is not None:
+                user.first_name = fn.strip()
+                user_updated_fields.append("first_name")
+
+        if "last_name" in update_data:
+            ln = update_data.pop("last_name")
+            if ln is not None:
+                user.last_name = ln.strip()
+                user_updated_fields.append("last_name")
+
+        if "phone" in update_data:
+            new_phone = update_data.pop("phone")
+            if new_phone is not None:
+                user.phone = new_phone.strip() if isinstance(new_phone, str) else None
+                user_updated_fields.append("phone")
+    else:
+        for f in ["email", "name", "first_name", "last_name", "phone"]:
+            update_data.pop(f, None)
+
     for key, value in update_data.items():
         setattr(employee, key, value)
 
     # 3. Create Audit Log
-    audit_log = AuditLog(
-        user_id=current_admin.id,
-        action="UPDATE",
-        entity_type="employee",
-        entity_id=str(employee.id),
-        details={"updated_fields": list(update_data.keys())}
-    )
-    db.add(audit_log)
+    all_updated = list(update_data.keys()) + user_updated_fields
+    if all_updated:
+        audit_log = AuditLog(
+            user_id=current_admin.id,
+            action="UPDATE",
+            entity_type="employee",
+            entity_id=str(employee.id),
+            details={"updated_fields": all_updated},
+        )
+        db.add(audit_log)
 
     db.commit()
     db.refresh(employee)

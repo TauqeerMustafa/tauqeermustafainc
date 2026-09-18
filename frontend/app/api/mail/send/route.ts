@@ -17,16 +17,12 @@ export async function POST(request: Request) {
     // `accountId` is the sending mailbox id; kept for backward compatibility.
     const mailbox = body.mailbox || body.accountId;
     const { fromName, subject, content, text, attachments } = body;
-    const messageText = text ?? content;
+    const rawText = typeof text === "string" ? text.trim() : typeof content === "string" ? content.trim() : "";
 
     // `to` may arrive as an array or a string; `toAddress` is the legacy single field.
     const to = toList(body.to ?? body.toAddress);
     const cc = toList(body.cc);
     const bcc = toList(body.bcc);
-
-    if (!mailbox || to.length === 0 || !subject || !messageText) {
-      return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
-    }
 
     // Process attachments if provided
     let cleanAttachments: Array<{ filename: string; content: string; contentType?: string }> | undefined;
@@ -39,6 +35,16 @@ export async function POST(request: Request) {
           ...(typeof a.contentType === "string" ? { contentType: a.contentType.trim() } : {}),
         }));
     }
+
+    const hasAttachments = Boolean(cleanAttachments && cleanAttachments.length > 0);
+    if (!mailbox || to.length === 0 || !subject || (!rawText && !hasAttachments)) {
+      return NextResponse.json(
+        { error: "Missing required fields: recipients, subject, and message text or an attachment are required" },
+        { status: 400 },
+      );
+    }
+
+    const messageText = rawText || (hasAttachments ? "[Attached files]" : "");
 
     const user = await resolveMailUser(request);
     const mb = await assertMailboxAccess(user, mailbox);

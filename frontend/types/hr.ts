@@ -154,11 +154,13 @@ export interface CreateEmployeePayload {
 }
 
 /**
- * PATCH /employees/{id} maps onto `EmployeeUpdate`, which carries only the
- * employment fields. Name, email and role live on the linked user row and are
- * edited through /admin/users, so they are deliberately absent here.
+ * PATCH /employees/{id} maps onto `EmployeeUpdate`. Supports updating both
+ * employment attributes and linked account details (name, email, phone).
  */
 export interface UpdateEmployeePayload {
+  name?: string | null;
+  email?: string | null;
+  phone?: string | null;
   jobTitle?: string | null;
   departmentId?: string | null;
   managerId?: string | null;

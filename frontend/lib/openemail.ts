@@ -43,7 +43,16 @@ async function oeFetch(path: string, init?: RequestInit) {
 
 export async function fetchOpenEmailMailboxes() {
   const data = await oeFetch(`/identities`);
-  return { mailboxes: data.identities || [] };
+  const rawList = Array.isArray(data)
+    ? data
+    : Array.isArray(data?.identities)
+    ? data.identities
+    : Array.isArray(data?.mailboxes)
+    ? data.mailboxes
+    : Array.isArray(data?.data)
+    ? data.data
+    : [];
+  return { mailboxes: rawList };
 }
 
 export interface MessageListOptions {

@@ -104,11 +104,23 @@ async function readFilesAsAttachments(
         reader.readAsDataURL(file);
       });
 
+      const ext = file.name.split(".").pop()?.toLowerCase();
+      let mimeType = file.type || "";
+      if (!mimeType) {
+        if (ext === "eml" || ext === "msg") mimeType = "message/rfc822";
+        else if (ext === "pdf") mimeType = "application/pdf";
+        else if (ext === "png") mimeType = "image/png";
+        else if (ext === "jpg" || ext === "jpeg") mimeType = "image/jpeg";
+        else if (ext === "txt") mimeType = "text/plain";
+        else if (ext === "docx" || ext === "doc") mimeType = "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+        else mimeType = "application/octet-stream";
+      }
+
       out.push({
         id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
         name: file.name,
         size: file.size,
-        type: file.type || "application/octet-stream",
+        type: mimeType,
         base64,
       });
     } catch {
@@ -870,7 +882,7 @@ export default function Webmail({
         cc: parseAddrs(cc),
         bcc: parseAddrs(bcc),
         subject: subject.trim() || "(No subject)",
-        text: bodyText,
+        text: bodyText.trim() || (attachedFiles.length > 0 ? "[Attached files]" : ""),
       };
       if (attachedFiles.length > 0) {
         payload.attachments = attachedFiles.map((f) => ({

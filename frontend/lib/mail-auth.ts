@@ -26,6 +26,8 @@ export interface MailUser {
   email: string;
   role: string;
   isAdmin: boolean;
+  openemailAddress?: string;
+  openemailMailboxId?: string;
 }
 
 export interface Mailbox {
@@ -55,13 +57,18 @@ export async function resolveMailUser(request: Request): Promise<MailUser> {
 
   const body = await res.json().catch(() => null);
   const data = body?.data ?? body ?? {};
-  const email = String(data.email ?? "").toLowerCase();
+  const email = String(data.email ?? "").toLowerCase().trim();
   const role = String(data.role ?? "");
+  const openemailAddress =
+    typeof data.openemailAddress === "string" ? data.openemailAddress.toLowerCase().trim() : undefined;
+  const openemailMailboxId =
+    typeof data.openemailMailboxId === "string" ? data.openemailMailboxId.trim() : undefined;
+
   if (!email) throw new MailAuthError(401, "Your session has expired — sign in again.");
-  return { email, role, isAdmin: role === "admin" };
+  return { email, role, isAdmin: role === "admin", openemailAddress, openemailMailboxId };
 }
 
-/** Mailboxes this user may see: all valid ones for admins, own address only otherwise. */
+/** Mailboxes this user may see: all valid ones for admins, own address/mailbox only otherwise. */
 export async function allowedMailboxes(user: MailUser): Promise<Mailbox[]> {
   const data = await fetchOpenEmailMailboxes();
   const all: Mailbox[] = (data.mailboxes || [])
@@ -71,7 +78,13 @@ export async function allowedMailboxes(user: MailUser): Promise<Mailbox[]> {
       primaryAddress: m.primaryAddress,
     }));
   if (user.isAdmin) return all;
-  return all.filter((m) => m.primaryAddress.toLowerCase() === user.email);
+  return all.filter((m) => {
+    const addr = m.primaryAddress.toLowerCase().trim();
+    if (addr === user.email) return true;
+    if (user.openemailAddress && addr === user.openemailAddress) return true;
+    if (user.openemailMailboxId && m.id === user.openemailMailboxId) return true;
+    return false;
+  });
 }
 
 /** Resolve + authorize one mailbox id, throwing 403 when it is out of the user's scope. */

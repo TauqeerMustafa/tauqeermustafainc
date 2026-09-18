@@ -5,7 +5,12 @@ import Webmail from "@/components/admin/mail/Webmail";
 
 export const dynamic = "force-dynamic";
 
-export default function EmployeeMessagesPage() {
+export default async function EmployeeMessagesPage({
+  searchParams,
+}: {
+  searchParams?: Promise<{ compose?: string; to?: string; subject?: string }>;
+}) {
+  const sp = searchParams ? await searchParams : {};
   return (
     <div className="space-y-4">
       {/* Direct Chat Switch Banner */}
@@ -33,7 +38,11 @@ export default function EmployeeMessagesPage() {
       </div>
 
       <AdminPageHeader title="Webmail" description="Your secure company inbox. Read and send messages." />
-      <Webmail />
+      <Webmail
+        initialTo={sp?.to ?? ""}
+        initialSubject={sp?.subject ?? ""}
+        autoCompose={Boolean(sp?.compose || sp?.to)}
+      />
     </div>
   );
 }
