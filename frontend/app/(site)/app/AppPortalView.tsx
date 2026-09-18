@@ -165,7 +165,7 @@ export default function AppPortalView() {
             >
               <div className="flex items-center gap-2">
                 <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
-                <span>RELEASE: <strong className="text-ink">v3.0.0.1.4 SIGNED RELEASE</strong></span>
+                <span>RELEASE: <strong className="text-ink">v3.0.0.1.5 SIGNED RELEASE</strong></span>
               </div>
               <span className="hidden sm:inline text-ink/20">•</span>
               <div className="flex items-center gap-2">
@@ -527,7 +527,7 @@ export default function AppPortalView() {
                       Channel: Direct Android Sideload
                     </span>
                     <h3 className="mt-1 text-2xl font-bold uppercase tracking-tight text-ink">
-                      Native Android Release APK (v3.0.0.1.4)
+                      Native Android Release APK (v3.0.0.1.5)
                     </h3>
                   </div>
                   <div className="flex flex-wrap items-center gap-3">

@@ -68,4 +68,16 @@
 
     </LinearLayout>
 
+    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+        android:id="@+id/btnWorkProfile"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="true"
+        android:layout_margin="20dp"
+        android:text="💼 Setup Work Profile"
+        android:textColor="#FFFFFF"
+        android:backgroundTint="#1C69D4"
+        android:visibility="gone" />
+
 </RelativeLayout>

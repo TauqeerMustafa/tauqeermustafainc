@@ -71,7 +71,7 @@ jobs:
           if git diff --staged --quiet; then
             echo "No changes to APK"
           else
-            git commit -m "build(apk): deploy v3.0.0.1.4 release APK to web downloads [skip ci]"
+            git commit -m "build(apk): deploy v3.0.0.1.5 release APK to web downloads [skip ci]"
             git push origin master
           fi
 
@@ -82,14 +82,14 @@ jobs:
           path: android/output/TMI-Portals.apk
           if-no-files-found: error
 
-      - name: Create or Update GitHub Release v3.0.0.1.4
+      - name: Create or Update GitHub Release v3.0.0.1.5
         uses: softprops/action-gh-release@v2
         if: github.ref == 'refs/heads/master'
         with:
-          tag_name: v3.0.0.1.4
-          name: "TMI Portals App v3.0.0.1.4"
+          tag_name: v3.0.0.1.5
+          name: "TMI Portals App v3.0.0.1.5"
           body: |
-            ### Official Signed Release APK for Tauqeer Mustafa Inc Portals (v3.0.0.1.4)
+            ### Official Signed Release APK for Tauqeer Mustafa Inc Portals (v3.0.0.1.5)
             
             **What's New in v3.0.0.1.4:**
             - 💼 **Native On-Device Work Profile Controller**: Self-owned Android Enterprise Profile Owner (DPC) integration with zero 3rd-party dependencies.

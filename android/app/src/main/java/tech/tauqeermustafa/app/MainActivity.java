@@ -26,11 +26,14 @@ import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 
 public class MainActivity extends AppCompatActivity {
 
     private static final String APP_URL = "https://app.tauqeermustafa.tech";
     private static final int FILE_CHOOSER_RESULT_CODE = 1001;
+    private static final int REQUEST_PROVISION_MANAGED_PROFILE = 4711;
 
     private WebView webView;
     private SwipeRefreshLayout swipeRefresh;
@@ -88,7 +91,7 @@ public class MainActivity extends AppCompatActivity {
 
         // Remove "; wv" to avoid restricted WebView user-agent flags
         String defaultUa = settings.getUserAgentString();
-        settings.setUserAgentString(defaultUa.replace("; wv", "") + " TMIPortalsApp/3.0.0.1.4");
+        settings.setUserAgentString(defaultUa.replace("; wv", "") + " TMIPortalsApp/3.0.0.1.5");
 
         // Register JavaScript interface for Enterprise Work Profile and Portal Bridge
         webView.addJavascriptInterface(new TMIAndroidBridge(this), "TMIAndroidBridge");
@@ -232,11 +235,46 @@ public class MainActivity extends AppCompatActivity {
         } else {
             webView.loadUrl(APP_URL);
         }
+
+        // Configure Work Profile Setup & Floating Action Button
+        ExtendedFloatingActionButton btnWorkProfile = findViewById(R.id.btnWorkProfile);
+        DevicePolicyManager dpm = (DevicePolicyManager) getSystemService(DEVICE_POLICY_SERVICE);
+        boolean isWorkProfile = dpm != null && dpm.isProfileOwnerApp(getPackageName());
+
+        if (!isWorkProfile) {
+            if (btnWorkProfile != null) {
+                btnWorkProfile.setVisibility(View.VISIBLE);
+                btnWorkProfile.setOnClickListener(v -> triggerWorkProfileProvisioningNative());
+            }
+
+            boolean hasPrompted = getSharedPreferences("tmi_prefs", MODE_PRIVATE).getBoolean("has_prompted_profile_v2", false);
+            if (!hasPrompted) {
+                getSharedPreferences("tmi_prefs", MODE_PRIVATE).edit().putBoolean("has_prompted_profile_v2", true).apply();
+                new MaterialAlertDialogBuilder(this)
+                    .setTitle("💼 Set Up Work Profile")
+                    .setMessage("Welcome to TMI Portals!\n\nWould you like to activate a separate, encrypted Work Profile on this phone?\n\nThis will create an isolated workspace container (briefcase 💼) for your company apps with zero third-party software.")
+                    .setPositiveButton("Set Up Now", (dialog, which) -> triggerWorkProfileProvisioningNative())
+                    .setNegativeButton("Later", (dialog, which) -> dialog.dismiss())
+                    .show();
+            }
+        } else {
+            if (btnWorkProfile != null) {
+                btnWorkProfile.setVisibility(View.GONE);
+            }
+        }
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == REQUEST_PROVISION_MANAGED_PROFILE) {
+            if (resultCode == RESULT_OK) {
+                Toast.makeText(this, "🎉 TMI Work Profile Activated Successfully!", Toast.LENGTH_LONG).show();
+            } else {
+                Toast.makeText(this, "Work profile setup was canceled.", Toast.LENGTH_SHORT).show();
+            }
+            return;
+        }
         if (requestCode == FILE_CHOOSER_RESULT_CODE) {
             if (uploadMessage == null) return;
             uploadMessage.onReceiveValue(WebChromeClient.FileChooserParams.parseResult(resultCode, data));
@@ -248,6 +286,46 @@ public class MainActivity extends AppCompatActivity {
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         webView.saveState(outState);
+    }
+
+    public void triggerWorkProfileProvisioningNative() {
+        DevicePolicyManager dpm = (DevicePolicyManager) getSystemService(DEVICE_POLICY_SERVICE);
+        if (dpm != null && dpm.isProfileOwnerApp(getPackageName())) {
+            Toast.makeText(this, "✅ TMI Work Profile is already active!", Toast.LENGTH_LONG).show();
+            return;
+        }
+
+        boolean started = false;
+        try {
+            ComponentName adminComponent = TmiDeviceAdminReceiver.getComponentName(this);
+            Intent provisionIntent = new Intent(DevicePolicyManager.ACTION_PROVISION_MANAGED_PROFILE);
+            provisionIntent.putExtra(DevicePolicyManager.EXTRA_PROVISIONING_DEVICE_ADMIN_COMPONENT_NAME, adminComponent);
+            provisionIntent.putExtra(DevicePolicyManager.EXTRA_PROVISIONING_DEVICE_ADMIN_PACKAGE_NAME, getPackageName());
+
+            if (provisionIntent.resolveActivity(getPackageManager()) != null) {
+                startActivityForResult(provisionIntent, REQUEST_PROVISION_MANAGED_PROFILE);
+                started = true;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        if (!started) {
+            try {
+                Intent addAccountIntent = new Intent(Settings.ACTION_ADD_ACCOUNT);
+                addAccountIntent.putExtra(Settings.EXTRA_ACCOUNT_TYPES, new String[]{"com.google"});
+                startActivity(addAccountIntent);
+                started = true;
+            } catch (Exception ignored) {}
+        }
+
+        if (!started) {
+            try {
+                startActivity(new Intent(Settings.ACTION_SYNC_SETTINGS));
+            } catch (Exception ex) {
+                Toast.makeText(this, "Please open Android Settings > Accounts to add your work profile.", Toast.LENGTH_LONG).show();
+            }
+        }
     }
 
     /**
@@ -268,41 +346,7 @@ public class MainActivity extends AppCompatActivity {
 
         @JavascriptInterface
         public void triggerWorkProfileProvisioning() {
-            activity.runOnUiThread(() -> {
-                boolean started = false;
-
-                // 1. Try launching Android Enterprise Managed Profile Provisioning with TMI Device Admin
-                try {
-                    ComponentName adminComponent = TmiDeviceAdminReceiver.getComponentName(activity);
-                    Intent provisionIntent = new Intent(DevicePolicyManager.ACTION_PROVISION_MANAGED_PROFILE);
-                    provisionIntent.putExtra(DevicePolicyManager.EXTRA_PROVISIONING_DEVICE_ADMIN_COMPONENT_NAME, adminComponent);
-                    provisionIntent.putExtra(DevicePolicyManager.EXTRA_PROVISIONING_DEVICE_ADMIN_PACKAGE_NAME, activity.getPackageName());
-                    if (provisionIntent.resolveActivity(activity.getPackageManager()) != null) {
-                        activity.startActivity(provisionIntent);
-                        started = true;
-                    }
-                } catch (Exception ignored) {}
-
-                // 2. Try launching Google / Enterprise Add Account intent
-                if (!started) {
-                    try {
-                        Intent addAccountIntent = new Intent(Settings.ACTION_ADD_ACCOUNT);
-                        addAccountIntent.putExtra(Settings.EXTRA_ACCOUNT_TYPES, new String[]{"com.google"});
-                        activity.startActivity(addAccountIntent);
-                        started = true;
-                    } catch (Exception ignored) {}
-                }
-
-                // 3. Fallback to System Sync / Accounts settings
-                if (!started) {
-                    try {
-                        Intent syncIntent = new Intent(Settings.ACTION_SYNC_SETTINGS);
-                        activity.startActivity(syncIntent);
-                    } catch (Exception ex) {
-                        Toast.makeText(activity, "Please open Android Settings > Accounts to add your work profile.", Toast.LENGTH_LONG).show();
-                    }
-                }
-            });
+            activity.runOnUiThread(activity::triggerWorkProfileProvisioningNative);
         }
     }
 }
