@@ -95,6 +95,22 @@ export async function proxy(request: NextRequest) {
       }
     }
 
+    // Cross-subdomain redirect: When a visitor on any subdomain other than portals.tauqeermustafa.tech
+    // (e.g. app, support, docs, billing, community) requests portal routes, redirect directly to portals.tauqeermustafa.tech.
+    if (
+      !hostname.includes("localhost") &&
+      !hostname.includes("127.0.0.1") &&
+      !hostname.includes("portals.tauqeermustafa.tech")
+    ) {
+      if (
+        PORTAL_PREFIXES.some((prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`)) ||
+        pathname === "/login" ||
+        pathname === "/dashboard"
+      ) {
+        return NextResponse.redirect(`https://portals.tauqeermustafa.tech${pathname}${search}`);
+      }
+    }
+
     // Redirect main domain paths to subdomains
     if (hostname === "tauqeermustafa.tech" || hostname === "www.tauqeermustafa.tech") {
 
@@ -338,7 +354,7 @@ export async function proxy(request: NextRequest) {
         return NextResponse.rewrite(url);
       }
       if (PORTAL_PREFIXES.some((prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`))) {
-        return NextResponse.next();
+        return NextResponse.redirect(`https://portals.tauqeermustafa.tech${pathname}${request.nextUrl.search}`);
       }
       if (pathname.startsWith("/app")) {
         return NextResponse.next();
