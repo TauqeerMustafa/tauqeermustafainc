@@ -47,9 +47,14 @@ export type WANumber = {
   slot: number;
   /** Dedicated department: general info & sales, technical support, or executive/direct desk. */
   department?: WADepartment;
-  /** Optional human display phone number e.g. +92 333 56701199 */
+  /** Optional human display phone number e.g. +92 335 6701199 */
   displayNumber?: string | null;
 };
+
+/**
+ * Fallback id for the primary number (General Inquiries & Sales).
+ */
+const DEFAULT_PRIMARY_ID = "1239592269240963";
 
 /**
  * Fallback id for the second number, used ONLY until the numbers route
@@ -112,7 +117,8 @@ function build(): WANumber[] {
   const explicit = clean(process.env.WHATSAPP_PHONE_NUMBERS);
   if (explicit) return dedupe(parseExplicitList(explicit));
 
-  const primaryId = clean(process.env.WHATSAPP_PHONE_NUMBER_ID);
+  const primaryRaw = clean(process.env.WHATSAPP_PHONE_NUMBER_ID);
+  const primaryId = primaryRaw ? (isDisabled(primaryRaw) ? null : primaryRaw) : DEFAULT_PRIMARY_ID;
   const secondRaw = clean(process.env.WHATSAPP_PHONE_NUMBER_ID_2);
   const secondId = secondRaw ? (isDisabled(secondRaw) ? null : secondRaw) : DEFAULT_SECOND_ID;
   const thirdRaw = clean(process.env.WHATSAPP_PHONE_NUMBER_ID_3);
@@ -126,7 +132,7 @@ function build(): WANumber[] {
       primary: true,
       slot: 1,
       department: "general",
-      displayNumber: "+92 333 56701199",
+      displayNumber: clean(process.env.WHATSAPP_DISPLAY_NUMBER) || "+92 335 6701199",
     });
   }
   if (secondId) {
@@ -212,7 +218,7 @@ export function primaryNumberId(): string | null {
 export function isKnownNumber(id: string | null | undefined): boolean {
   const value = (id ?? "").trim();
   if (!value) return false;
-  if (value === DEFAULT_SECOND_ID || value === DEFAULT_THIRD_ID) return true;
+  if (value === DEFAULT_PRIMARY_ID || value === DEFAULT_SECOND_ID || value === DEFAULT_THIRD_ID) return true;
   // Exact match against the configured list, which also holds every id the
   // numbers route discovered from Meta and fed through registerKnownNumbers().
   // A Phone Number ID is exact — there is no "close enough", so no digit
@@ -250,7 +256,7 @@ export function resolveNumberId(requested?: string | null): ResolvedNumber {
   const wanted = (requested ?? "").trim();
   if (!wanted) return { ok: true, id: primaryNumberId() as string };
 
-  if (wanted === DEFAULT_SECOND_ID || wanted === DEFAULT_THIRD_ID) {
+  if (wanted === DEFAULT_PRIMARY_ID || wanted === DEFAULT_SECOND_ID || wanted === DEFAULT_THIRD_ID) {
     return { ok: true, id: wanted };
   }
 
@@ -290,6 +296,7 @@ export function getChannelDepartment(
 
   const primary = primaryNumberId();
   if (primary && cleanId === primary) return "general";
+  if (cleanId === DEFAULT_PRIMARY_ID || digits === "923356701199" || digits === "9233356701199") return "general";
 
   const nums = allNumbers || waNumbers();
 

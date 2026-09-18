@@ -650,7 +650,7 @@ export const DEFAULT_SUPPORT_STEPS: FlowStep[] = [
     id: "hotline_info",
     body:
       "*24/7 Emergency Dispatch Desk:*\n" +
-      "Phone: *+92 333 56701199*\n" +
+      "Phone: *+92 335 6701199*\n" +
       "Email: support@tauqeermustafa.tech\n\n" +
       "Available 24/7/365 for active retainer accounts with critical outages.",
   },

@@ -352,7 +352,7 @@ async function handleAutoReply(
   // 3. Ensure number definition is registered in waNumbers
   let numberDef = waNumbers().find((n) => n.id === phoneNumberId);
   if (!numberDef) {
-    const isPrimary = phoneNumberId === primaryNumberId();
+    const isPrimary = phoneNumberId === primaryNumberId() || phoneNumberId === "1239592269240963";
     const isDirect = phoneNumberId === "1291624014041103" || dept === "direct";
     numberDef = {
       id: phoneNumberId,
@@ -365,7 +365,7 @@ async function handleAutoReply(
       slot: isDirect ? 3 : 1,
       department: dept,
       displayNumber: isPrimary
-        ? "+92 333 56701199"
+        ? "+92 335 6701199"
         : isDirect
         ? "Executive Desk"
         : "Support Desk",

@@ -347,6 +347,15 @@ function getMessageDepartment(m: WAMessage, allNumbers: WANumberInfo[] = []): "g
     return "direct";
   }
   if (
+    ch === "1239592269240963" ||
+    chDigits === "923356701199" ||
+    toDigits === "923356701199" ||
+    line?.id === "1239592269240963" ||
+    line?.primary
+  ) {
+    return "general";
+  }
+  if (
     (line && (!line.primary || line.label.toLowerCase().includes("support"))) ||
     ch.toLowerCase().includes("support") ||
     ch === "1318810581311680"
@@ -561,7 +570,7 @@ export default function AdminWhatsAppPage() {
                 </span>
               </div>
               <p className="text-xs font-mono font-medium text-adm-text-2 mt-0.5">
-                {generalLine?.displayNumber || "+92 333 56701199"}
+                {generalLine?.displayNumber || "+92 335 6701199"}
               </p>
               <p className="text-xs text-adm-text-3 mt-1">
                 Corporate inquiries, sales proposals, partnerships & business quotes
@@ -1747,7 +1756,7 @@ function ChatView({
               ? "Executive Desk (Line 3)"
               : (conv.department || department) === "support"
               ? "Support Desk"
-              : "General Inquiries (+92 333 56701199)"}
+              : "General Inquiries (+92 335 6701199)"}
           </span>
         </div>
       </div>
@@ -2766,7 +2775,7 @@ function SendTab({
                   ? "Outbound messages will send from executive direct line (Line 3)"
                   : department === "support"
                   ? "Outbound messages will send from client support line"
-                  : "Outbound messages will send from corporate general line +92 333 56701199"}
+                  : "Outbound messages will send from corporate general line +92 335 6701199"}
               </p>
             </div>
           </div>
@@ -4921,7 +4930,7 @@ function StatsTab({ department = "general" }: { department?: "general" | "suppor
               ? "Message volume and traffic for Executive Line (Line 3)"
               : department === "support"
               ? "Message volume and traffic for Support Desk Line"
-              : "Message volume and traffic for Corporate Line (+92 333 56701199)"}
+              : "Message volume and traffic for Corporate Line (+92 335 6701199)"}
           </p>
         </div>
         <span
@@ -5597,7 +5606,7 @@ function PipelineTab({
           {department === "direct"
             ? "Line 3: Executive Desk"
             : department === "general"
-            ? "Line 1: +92 333 56701199"
+            ? "Line 1: +92 335 6701199"
             : "Line 2: Support Desk"}
         </span>
       </div>

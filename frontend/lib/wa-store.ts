@@ -306,7 +306,7 @@ export const DEFAULT_SUPPORT_RULES: AutoReplyRule[] = [
     department: "support",
     reply:
       "*CRITICAL P1 INCIDENT PROTOCOL ACTIVATED*\n\n" +
-      "Emergency voice bridge dispatch is active at *+92 333 56701199*.\n\n" +
+      "Emergency voice bridge dispatch is active at *+92 335 6701199*.\n\n" +
       "Our incident commander responds within 15 to 60 minutes. Please state:\n" +
       "1. *Affected URL / service endpoint*\n" +
       "2. *Time outage was detected*\n" +
@@ -334,7 +334,7 @@ export const DEFAULT_SUPPORT_RULES: AutoReplyRule[] = [
     department: "support",
     reply:
       "*24/7 Production Hotline:*\n" +
-      "Direct emergency voice bridge: *+92 333 56701199*\n\n" +
+      "Direct emergency voice bridge: *+92 335 6701199*\n\n" +
       "Available 24/7/365 for active retainer clients experiencing critical system degradation.",
     enabled: true,
   },

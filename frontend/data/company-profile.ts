@@ -255,7 +255,7 @@ export const profileSlides: ProfileSlide[] = [
     bullets: [
       "Website: https://tauqeermustafa.tech",
       "Direct Sales & Proposal Inquiries: sales@tauqeermustafa.tech / contact@tauqeermustafa.tech",
-      "WhatsApp Sales Channel: +92 333 56701199 (Direct WhatsApp Chat)",
+      "WhatsApp Sales Channel: +92 335 6701199 (Direct WhatsApp Chat)",
       "24/7 Client Technical Support: support@tauqeermustafa.tech / wa.me/message/TJILSTIMLJHVK1",
       "Executive & Direct Desk: WhatsApp Priority Hotline",
       "Founder GitHub: github.com/tauqeermustafa | LinkedIn: linkedin.com/in/tauqeermustafa",
@@ -263,7 +263,7 @@ export const profileSlides: ProfileSlide[] = [
     keyHighlights: [
       { label: "General Email", value: "info@tauqeermustafa.tech" },
       { label: "Sales Email", value: "sales@tauqeermustafa.tech" },
-      { label: "WhatsApp", value: "+92 333 56701199" },
+      { label: "WhatsApp", value: "+92 335 6701199" },
       { label: "Executive Desk", value: "Priority WhatsApp Line" },
       { label: "Support", value: "24/7 Live Desk" },
     ],
@@ -504,7 +504,7 @@ Technical Partnerships Lead
 Tauqeer Mustafa Inc.
 Website: https://tauqeermustafa.tech
 Direct Sales: sales@tauqeermustafa.tech
-WhatsApp: +92 333 56701199`,
+WhatsApp: +92 335 6701199`,
     variables: ["[ClientName]", "[EmployeeName]", "[SuggestedDate]"],
   },
   {

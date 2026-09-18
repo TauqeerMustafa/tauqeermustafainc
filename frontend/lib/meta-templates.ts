@@ -268,7 +268,7 @@ export const META_TEMPLATES: MetaTemplateDef[] = [
       "URGENT ACKNOWLEDGEMENT for {{1}}.\n\n" +
       "Our incident commander has initiated the emergency triage bridge for outage report {{2}}.\n\n" +
       "Voice bridge dispatch is standing by at {{3}}.",
-    bodyExample: ["Production Cluster", "TMI-INC-99120", "+92 333 56701199"],
+    bodyExample: ["Production Cluster", "TMI-INC-99120", "+92 335 6701199"],
     footer: "15 to 60 min SLA Response",
     buttons: ["Join Bridge", "View Incident Status"],
   },

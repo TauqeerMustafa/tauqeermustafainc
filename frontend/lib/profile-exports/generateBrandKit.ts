@@ -172,7 +172,7 @@ Email: marketing@tauqeermustafa.tech / contact@tauqeermustafa.tech
 - **Direct Contacts:**
   - Sales & Proposals: sales@tauqeermustafa.tech
   - Support & Helpdesk: support@tauqeermustafa.tech
-  - WhatsApp Line: +92 333 56701199
+  - WhatsApp Line: +92 335 6701199
 `;
 
   zip.folder("logos")?.file("tmi-logo-dark.svg", logoDarkSvg);
