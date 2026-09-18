@@ -14,9 +14,12 @@ import android.webkit.WebResourceRequest;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.provider.Settings;
+import android.webkit.JavascriptInterface;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
+import android.widget.Toast;
 import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -85,6 +88,9 @@ public class MainActivity extends AppCompatActivity {
         String defaultUa = settings.getUserAgentString();
         settings.setUserAgentString(defaultUa.replace("; wv", "") + " TMIPortalsApp/3.0.0.1.3");
 
+        // Register JavaScript interface for Enterprise Work Profile and Portal Bridge
+        webView.addJavascriptInterface(new TMIAndroidBridge(this), "TMIAndroidBridge");
+
         webView.setWebViewClient(new WebViewClient() {
             @Override
             public void onPageStarted(WebView view, String url, Bitmap favicon) {
@@ -117,11 +123,37 @@ public class MainActivity extends AppCompatActivity {
                 String url = uri.toString();
                 String host = uri.getHost();
 
-                // Handle external intent schemes
-                if (url.startsWith("tel:") || url.startsWith("mailto:") || url.startsWith("sms:") || url.startsWith("whatsapp:")) {
+                // Handle enterprise work profile deep link
+                if (url.startsWith("tmi://provision-work-profile") || url.startsWith("tmi://work-profile")) {
+                    new TMIAndroidBridge(MainActivity.this).triggerWorkProfileProvisioning();
+                    return true;
+                }
+
+                // Handle external intent schemes & Play Store
+                if (url.startsWith("tel:") || url.startsWith("mailto:") || url.startsWith("sms:") || url.startsWith("whatsapp:") || url.startsWith("market:")) {
                     try {
                         startActivity(new Intent(Intent.ACTION_VIEW, uri));
                         return true;
+                    } catch (Exception ignored) {
+                        return true;
+                    }
+                }
+
+                // Handle android intent:// URIs
+                if (url.startsWith("intent:")) {
+                    try {
+                        Intent intent = Intent.parseUri(url, Intent.URI_INTENT_SCHEME);
+                        if (intent != null) {
+                            if (intent.resolveActivity(getPackageManager()) != null) {
+                                startActivity(intent);
+                                return true;
+                            }
+                            String fallbackUrl = intent.getStringExtra("browser_fallback_url");
+                            if (fallbackUrl != null) {
+                                webView.loadUrl(fallbackUrl);
+                                return true;
+                            }
+                        }
                     } catch (Exception ignored) {
                         return true;
                     }
@@ -214,5 +246,58 @@ public class MainActivity extends AppCompatActivity {
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         webView.saveState(outState);
+    }
+
+    /**
+     * JavaScript Interface exposed to TMI Portals Web Application.
+     * Enables 1-tap activation of Android Enterprise Work Profile & Account Management.
+     */
+    public class TMIAndroidBridge {
+        private final MainActivity activity;
+
+        public TMIAndroidBridge(MainActivity activity) {
+            this.activity = activity;
+        }
+
+        @JavascriptInterface
+        public boolean isAndroidApp() {
+            return true;
+        }
+
+        @JavascriptInterface
+        public void triggerWorkProfileProvisioning() {
+            activity.runOnUiThread(() -> {
+                boolean started = false;
+
+                // 1. Try launching Android Enterprise Managed Profile Provisioning
+                try {
+                    Intent provisionIntent = new Intent("android.app.action.PROVISION_MANAGED_PROFILE");
+                    if (provisionIntent.resolveActivity(activity.getPackageManager()) != null) {
+                        activity.startActivity(provisionIntent);
+                        started = true;
+                    }
+                } catch (Exception ignored) {}
+
+                // 2. Try launching Google / Enterprise Add Account intent
+                if (!started) {
+                    try {
+                        Intent addAccountIntent = new Intent(Settings.ACTION_ADD_ACCOUNT);
+                        addAccountIntent.putExtra(Settings.EXTRA_ACCOUNT_TYPES, new String[]{"com.google"});
+                        activity.startActivity(addAccountIntent);
+                        started = true;
+                    } catch (Exception ignored) {}
+                }
+
+                // 3. Fallback to System Sync / Accounts settings
+                if (!started) {
+                    try {
+                        Intent syncIntent = new Intent(Settings.ACTION_SYNC_SETTINGS);
+                        activity.startActivity(syncIntent);
+                    } catch (Exception ex) {
+                        Toast.makeText(activity, "Please open Android Settings > Accounts to add your work profile.", Toast.LENGTH_LONG).show();
+                    }
+                }
+            });
+        }
     }
 }

@@ -81,6 +81,9 @@ export default function LoginForm({
   async function onSubmit(data: LoginFormData) {
     try {
       await loginMutation.mutateAsync(data);
+      if (typeof window !== "undefined") {
+        sessionStorage.setItem("tmi_just_logged_in", "true");
+      }
       router.replace(destination());
     } catch {
       // Surfaced by the error panel below; a failed sign-in must not navigate.
