@@ -203,9 +203,9 @@ export async function GET(request: Request) {
         n.label = conf?.label || "Executive & Direct Desk";
       }
     } else {
-      n.department = "support";
-      if (!n.label || n.label === "Second number" || n.label === "Line 2" || n.label.startsWith("Line ")) {
-        n.label = conf?.label || "Technical & Client Support";
+      n.department = conf?.department || "support";
+      if (!n.label || n.label === "Second number" || n.label === "Line 2" || n.label === "Line 4" || n.label.startsWith("Line ")) {
+        n.label = conf?.label || (n.id === "1083562997861778" ? "Operations & Priority Desk" : "Technical & Client Support");
       }
     }
   }

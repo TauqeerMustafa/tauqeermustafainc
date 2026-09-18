@@ -23,9 +23,12 @@
  *                                  the built-in default below
  *   WHATSAPP_PHONE_NUMBER_ID_3   – the third number; set it to "off" to drop
  *                                  the built-in default below
+ *   WHATSAPP_PHONE_NUMBER_ID_4   – the fourth number; set it to "off" to drop
+ *                                  the built-in default below
  *   WHATSAPP_PHONE_LABEL         – display label for the primary
  *   WHATSAPP_PHONE_LABEL_2       – display label for the second
  *   WHATSAPP_PHONE_LABEL_3       – display label for the third
+ *   WHATSAPP_PHONE_LABEL_4       – display label for the fourth
  *   WHATSAPP_PHONE_NUMBERS       – explicit full list, "id|Label, id|Label",
  *                                  which overrides everything above
  *
@@ -66,6 +69,11 @@ const DEFAULT_SECOND_ID = "1318810581311680";
  * Fallback id for the third number (Executive / Direct Desk).
  */
 const DEFAULT_THIRD_ID = "1291624014041103";
+
+/**
+ * Fallback id for the fourth number.
+ */
+const DEFAULT_FOURTH_ID = "1083562997861778";
 
 /** Vercel masks some values in previews; the sentinel means "not really set". */
 const SENTINEL = "[SENSITIVE]";
@@ -123,6 +131,8 @@ function build(): WANumber[] {
   const secondId = secondRaw ? (isDisabled(secondRaw) ? null : secondRaw) : DEFAULT_SECOND_ID;
   const thirdRaw = clean(process.env.WHATSAPP_PHONE_NUMBER_ID_3);
   const thirdId = thirdRaw ? (isDisabled(thirdRaw) ? null : thirdRaw) : DEFAULT_THIRD_ID;
+  const fourthRaw = clean(process.env.WHATSAPP_PHONE_NUMBER_ID_4);
+  const fourthId = fourthRaw ? (isDisabled(fourthRaw) ? null : fourthRaw) : DEFAULT_FOURTH_ID;
 
   const numbers: WANumber[] = [];
   if (primaryId && !isDisabled(primaryId)) {
@@ -158,6 +168,19 @@ function build(): WANumber[] {
       slot: hasDedicatedSlot3Token ? 3 : (hasDedicatedSlot2Token ? 2 : 1),
       department: "direct",
       displayNumber: clean(process.env.WHATSAPP_DISPLAY_NUMBER_3) || "+44 7575 376078",
+    });
+  }
+  if (fourthId) {
+    const hasDedicatedSlot4Token = Boolean(clean(process.env.WHATSAPP_TOKEN_4));
+    const hasDedicatedSlot3Token = Boolean(clean(process.env.WHATSAPP_TOKEN_3));
+    const hasDedicatedSlot2Token = Boolean(clean(process.env.WHATSAPP_TOKEN_2));
+    numbers.push({
+      id: fourthId,
+      label: clean(process.env.WHATSAPP_PHONE_LABEL_4) || "Operations & Priority Desk",
+      primary: numbers.length === 0,
+      slot: hasDedicatedSlot4Token ? 4 : (hasDedicatedSlot3Token ? 3 : (hasDedicatedSlot2Token ? 2 : 1)),
+      department: "support",
+      displayNumber: clean(process.env.WHATSAPP_DISPLAY_NUMBER_4) || null,
     });
   }
   return dedupe(numbers);
@@ -218,7 +241,14 @@ export function primaryNumberId(): string | null {
 export function isKnownNumber(id: string | null | undefined): boolean {
   const value = (id ?? "").trim();
   if (!value) return false;
-  if (value === DEFAULT_PRIMARY_ID || value === DEFAULT_SECOND_ID || value === DEFAULT_THIRD_ID) return true;
+  if (
+    value === DEFAULT_PRIMARY_ID ||
+    value === DEFAULT_SECOND_ID ||
+    value === DEFAULT_THIRD_ID ||
+    value === DEFAULT_FOURTH_ID
+  ) {
+    return true;
+  }
   // Exact match against the configured list, which also holds every id the
   // numbers route discovered from Meta and fed through registerKnownNumbers().
   // A Phone Number ID is exact — there is no "close enough", so no digit
@@ -256,7 +286,12 @@ export function resolveNumberId(requested?: string | null): ResolvedNumber {
   const wanted = (requested ?? "").trim();
   if (!wanted) return { ok: true, id: primaryNumberId() as string };
 
-  if (wanted === DEFAULT_PRIMARY_ID || wanted === DEFAULT_SECOND_ID || wanted === DEFAULT_THIRD_ID) {
+  if (
+    wanted === DEFAULT_PRIMARY_ID ||
+    wanted === DEFAULT_SECOND_ID ||
+    wanted === DEFAULT_THIRD_ID ||
+    wanted === DEFAULT_FOURTH_ID
+  ) {
     return { ok: true, id: wanted };
   }
 
@@ -317,11 +352,12 @@ export function getChannelDepartment(
     if (num.department) return num.department;
     if (num.primary) return "general";
     if (num.id === DEFAULT_THIRD_ID || num.slot === 3) return "direct";
-    if (num.slot === 2) return "support";
+    if (num.slot === 2 || num.slot === 4) return "support";
+    if (num.id === DEFAULT_FOURTH_ID) return "support";
   }
 
   // 2. Explicit keywords
-  if (lower.includes("support") || cleanId === DEFAULT_SECOND_ID) {
+  if (lower.includes("support") || cleanId === DEFAULT_SECOND_ID || cleanId === DEFAULT_FOURTH_ID) {
     return "support";
   }
 
