@@ -312,8 +312,8 @@ public class MainActivity extends AppCompatActivity {
             Intent provisionIntent = new Intent(DevicePolicyManager.ACTION_PROVISION_MANAGED_PROFILE);
             provisionIntent.putExtra(DevicePolicyManager.EXTRA_PROVISIONING_DEVICE_ADMIN_COMPONENT_NAME, adminComponent);
             provisionIntent.putExtra(DevicePolicyManager.EXTRA_PROVISIONING_DEVICE_ADMIN_PACKAGE_NAME, getPackageName());
-            provisionIntent.putExtra(DevicePolicyManager.EXTRA_PROVISIONING_SKIP_ENCRYPT, true);
-            provisionIntent.putExtra(DevicePolicyManager.EXTRA_PROVISIONING_LEAVE_ALL_SYSTEM_APPS_ENABLED, true);
+            provisionIntent.putExtra("android.app.extra.PROVISIONING_SKIP_ENCRYPT", true);
+            provisionIntent.putExtra("android.app.extra.PROVISIONING_LEAVE_ALL_SYSTEM_APPS_ENABLED", true);
 
             if (provisionIntent.resolveActivity(getPackageManager()) != null) {
                 startActivityForResult(provisionIntent, REQUEST_PROVISION_MANAGED_PROFILE);
