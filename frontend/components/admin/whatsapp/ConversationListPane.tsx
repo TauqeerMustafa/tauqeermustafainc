@@ -14,8 +14,10 @@ import {
   LifeBuoy,
   ShieldCheck,
   X,
+  MessageSquare,
+  SlidersHorizontal,
 } from "lucide-react";
-import type { WAMessage, ConvMeta, WANumberInfo } from "@/hooks/useWhatsApp";
+import type { WAMessage, ConvMeta } from "@/hooks/useWhatsApp";
 
 export type ConversationItem = {
   key: string;
@@ -26,7 +28,7 @@ export type ConversationItem = {
   department: "general" | "support" | "direct";
 };
 
-type DepartmentFilter = "all" | "general" | "support" | "direct";
+export type DepartmentFilter = "all" | "general" | "support" | "direct" | string;
 type StatusFilter = "all" | "unread" | "archived";
 
 function initials(name: string) {
@@ -50,11 +52,11 @@ function formatListTime(ts: string): string {
 
 function Ticks({ status }: { status?: string }) {
   const s = (status || "").toLowerCase();
-  if (s === "failed") return <AlertCircle size={12} className="text-red-400" />;
-  if (s === "read") return <CheckCheck size={14} className="text-blue-400" />;
-  if (s === "delivered") return <CheckCheck size={14} className="text-slate-400" />;
-  if (s === "sent") return <Check size={14} className="text-slate-400" />;
-  return <Clock size={12} className="text-slate-500" />;
+  if (s === "failed") return <AlertCircle size={12} className="text-red-500 shrink-0" />;
+  if (s === "read") return <CheckCheck size={14} className="text-blue-500 shrink-0" />;
+  if (s === "delivered") return <CheckCheck size={14} className="text-adm-text-3 shrink-0" />;
+  if (s === "sent") return <Check size={14} className="text-adm-text-3 shrink-0" />;
+  return <Clock size={12} className="text-adm-text-3 shrink-0" />;
 }
 
 export function ConversationListPane({
@@ -74,7 +76,17 @@ export function ConversationListPane({
   currentDepartment: DepartmentFilter;
   onDepartmentChange: (dept: DepartmentFilter) => void;
   onRefresh: () => void;
-  unreadCounts: { general: number; support: number; direct: number; total: number };
+  unreadCounts: {
+    general: number;
+    support: number;
+    direct: number;
+    total: number;
+    line1?: number;
+    line2?: number;
+    line3?: number;
+    line4?: number;
+    [key: string]: number | undefined;
+  };
 }) {
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
@@ -91,7 +103,22 @@ export function ConversationListPane({
   // Filter by line/department
   const lineFiltered = withDetails.filter(({ conv }) => {
     if (currentDepartment === "all") return true;
-    return conv.department === currentDepartment;
+    if (currentDepartment === "general" || currentDepartment === "1239592269240963" || currentDepartment === "line1") {
+      return conv.channel === "1239592269240963" || conv.department === "general";
+    }
+    if (currentDepartment === "1318810581311680" || currentDepartment === "line2") {
+      return conv.channel === "1318810581311680" || (conv.department === "support" && conv.channel !== "1083562997861778");
+    }
+    if (currentDepartment === "direct" || currentDepartment === "1291624014041103" || currentDepartment === "line3") {
+      return conv.channel === "1291624014041103" || conv.department === "direct";
+    }
+    if (currentDepartment === "1083562997861778" || currentDepartment === "line4") {
+      return conv.channel === "1083562997861778";
+    }
+    if (currentDepartment === "support") {
+      return conv.department === "support" || conv.channel === "1318810581311680" || conv.channel === "1083562997861778";
+    }
+    return conv.channel === currentDepartment || conv.department === currentDepartment;
   });
 
   // Filter by search query
@@ -123,128 +150,186 @@ export function ConversationListPane({
   });
 
   return (
-    <aside className="flex h-full w-full md:w-[350px] lg:w-[380px] shrink-0 flex-col border-r border-slate-800 bg-slate-900/95">
+    <aside
+      className="flex h-full w-full md:w-[350px] lg:w-[380px] shrink-0 flex-col border-r"
+      style={{
+        background: "var(--adm-surface)",
+        borderColor: "var(--adm-border)",
+      }}
+    >
       {/* Top Header & Refresh */}
-      <div className="flex h-14 items-center justify-between border-b border-slate-800 px-4">
-        <div>
-          <h1 className="text-sm font-bold text-slate-100">WhatsApp CRM</h1>
-          <p className="text-[11px] text-slate-400">Omnichannel Meta Cloud Console</p>
+      <div
+        className="flex h-14 items-center justify-between border-b px-4 shrink-0"
+        style={{ borderColor: "var(--adm-border)", background: "var(--adm-surface)" }}
+      >
+        <div className="flex items-center gap-2.5">
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-adm-blue text-white shadow-sm">
+            <MessageSquare size={16} />
+          </div>
+          <div>
+            <h2 className="text-sm font-bold leading-tight" style={{ color: "var(--adm-text)" }}>
+              WhatsApp Inbox
+            </h2>
+            <p className="text-[11px] font-medium" style={{ color: "var(--adm-text-3)" }}>
+              Unified Command Stream
+            </p>
+          </div>
         </div>
         <button
           type="button"
           onClick={onRefresh}
-          className="rounded-full p-2 text-slate-400 hover:bg-slate-800 hover:text-slate-100 transition"
+          className="rounded-lg p-2 text-adm-text-3 hover:text-adm-text hover:bg-adm-surface-2 transition"
           title="Refresh messages"
         >
           <RefreshCw size={15} />
         </button>
       </div>
 
-      {/* Multi-line Filter Tabs */}
-      <div className="p-3 pb-2 border-b border-slate-800/80 space-y-2.5">
-        <div className="grid grid-cols-4 gap-1 rounded-lg bg-slate-950 p-1 border border-slate-800 text-[11px] font-semibold">
+      {/* Omnichannel Line Filter Chips (All 4 Lines + Combined) */}
+      <div
+        className="p-3 pb-2 border-b space-y-2.5 shrink-0"
+        style={{ borderColor: "var(--adm-border)", background: "var(--adm-surface)" }}
+      >
+        {/* Horizontal Line Switcher Pills */}
+        <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5">
+          {/* All Lines */}
           <button
             type="button"
             onClick={() => onDepartmentChange("all")}
-            className={`flex items-center justify-center gap-1 rounded py-1.5 transition ${
+            className={`flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1 text-[11px] font-bold transition ${
               currentDepartment === "all"
-                ? "bg-slate-800 text-white shadow-sm"
-                : "text-slate-400 hover:text-slate-200"
+                ? "bg-adm-blue text-white shadow-sm"
+                : "bg-adm-surface-2 text-adm-text-2 border border-adm-border hover:border-adm-text-3 hover:text-adm-text"
             }`}
           >
-            <span>All</span>
+            <span>All Lines</span>
             {unreadCounts.total > 0 && (
-              <span className="flex h-4 min-w-[16px] items-center justify-center rounded-full bg-emerald-500 px-1 text-[9px] font-bold text-slate-950">
+              <span
+                className={`flex h-4 min-w-[16px] items-center justify-center rounded-full px-1 text-[9px] font-bold ${
+                  currentDepartment === "all" ? "bg-white text-adm-blue" : "bg-emerald-500 text-white"
+                }`}
+              >
                 {unreadCounts.total}
               </span>
             )}
           </button>
 
+          {/* Line 1: General Inquiries & Sales */}
           <button
             type="button"
             onClick={() => onDepartmentChange("general")}
-            className={`flex items-center justify-center gap-1 rounded py-1.5 transition ${
-              currentDepartment === "general"
-                ? "bg-blue-600/30 text-blue-300 ring-1 ring-blue-500/50"
-                : "text-slate-400 hover:text-slate-200"
+            className={`flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1 text-[11px] font-bold transition ${
+              currentDepartment === "general" || currentDepartment === "1239592269240963" || currentDepartment === "line1"
+                ? "bg-blue-600 text-white shadow-sm"
+                : "bg-adm-surface-2 text-adm-text-2 border border-adm-border hover:border-adm-text-3 hover:text-adm-text"
             }`}
-            title="Line 1: General Inquiries & Sales"
+            title="Line 1: General Inquiries & Sales (+92 335 6701199)"
           >
-            <span>Line 1</span>
-            {unreadCounts.general > 0 && (
+            <span className="h-1.5 w-1.5 rounded-full bg-blue-400" />
+            <span>Line 1: Sales</span>
+            {(unreadCounts.line1 ?? unreadCounts.general) > 0 && (
               <span className="flex h-4 min-w-[16px] items-center justify-center rounded-full bg-blue-500 px-1 text-[9px] font-bold text-white">
-                {unreadCounts.general}
+                {unreadCounts.line1 ?? unreadCounts.general}
               </span>
             )}
           </button>
 
+          {/* Line 2: Technical & Client Support */}
           <button
             type="button"
-            onClick={() => onDepartmentChange("support")}
-            className={`flex items-center justify-center gap-1 rounded py-1.5 transition ${
-              currentDepartment === "support"
-                ? "bg-emerald-600/30 text-emerald-300 ring-1 ring-emerald-500/50"
-                : "text-slate-400 hover:text-slate-200"
+            onClick={() => onDepartmentChange("1318810581311680")}
+            className={`flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1 text-[11px] font-bold transition ${
+              currentDepartment === "1318810581311680" || currentDepartment === "line2"
+                ? "bg-emerald-600 text-white shadow-sm"
+                : "bg-adm-surface-2 text-adm-text-2 border border-adm-border hover:border-adm-text-3 hover:text-adm-text"
             }`}
             title="Line 2: Client Support Desk"
           >
-            <span>Line 2</span>
-            {unreadCounts.support > 0 && (
-              <span className="flex h-4 min-w-[16px] items-center justify-center rounded-full bg-emerald-500 px-1 text-[9px] font-bold text-slate-950">
-                {unreadCounts.support}
+            <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
+            <span>Line 2: Support</span>
+            {(unreadCounts.line2 ?? 0) > 0 && (
+              <span className="flex h-4 min-w-[16px] items-center justify-center rounded-full bg-emerald-500 px-1 text-[9px] font-bold text-white">
+                {unreadCounts.line2}
               </span>
             )}
           </button>
 
+          {/* Line 3: Executive & Direct Desk */}
           <button
             type="button"
             onClick={() => onDepartmentChange("direct")}
-            className={`flex items-center justify-center gap-1 rounded py-1.5 transition ${
-              currentDepartment === "direct"
-                ? "bg-purple-600/30 text-purple-300 ring-1 ring-purple-500/50"
-                : "text-slate-400 hover:text-slate-200"
+            className={`flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1 text-[11px] font-bold transition ${
+              currentDepartment === "direct" || currentDepartment === "1291624014041103" || currentDepartment === "line3"
+                ? "bg-purple-600 text-white shadow-sm"
+                : "bg-adm-surface-2 text-adm-text-2 border border-adm-border hover:border-adm-text-3 hover:text-adm-text"
             }`}
-            title="Line 3: Executive Desk"
+            title="Line 3: Executive Desk (+44 7575 376078)"
           >
-            <span>Line 3</span>
-            {unreadCounts.direct > 0 && (
+            <span className="h-1.5 w-1.5 rounded-full bg-purple-400" />
+            <span>Line 3: Exec</span>
+            {(unreadCounts.line3 ?? unreadCounts.direct) > 0 && (
               <span className="flex h-4 min-w-[16px] items-center justify-center rounded-full bg-purple-500 px-1 text-[9px] font-bold text-white">
-                {unreadCounts.direct}
+                {unreadCounts.line3 ?? unreadCounts.direct}
+              </span>
+            )}
+          </button>
+
+          {/* Line 4: Operations & Priority Desk */}
+          <button
+            type="button"
+            onClick={() => onDepartmentChange("1083562997861778")}
+            className={`flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1 text-[11px] font-bold transition ${
+              currentDepartment === "1083562997861778" || currentDepartment === "line4"
+                ? "bg-amber-600 text-white shadow-sm"
+                : "bg-adm-surface-2 text-adm-text-2 border border-adm-border hover:border-adm-text-3 hover:text-adm-text"
+            }`}
+            title="Line 4: Operations & Priority Desk"
+          >
+            <span className="h-1.5 w-1.5 rounded-full bg-amber-400" />
+            <span>Line 4: Ops</span>
+            {(unreadCounts.line4 ?? 0) > 0 && (
+              <span className="flex h-4 min-w-[16px] items-center justify-center rounded-full bg-amber-500 px-1 text-[9px] font-bold text-white">
+                {unreadCounts.line4}
               </span>
             )}
           </button>
         </div>
 
-        {/* Search bar */}
+        {/* Search Input */}
         <div className="relative">
-          <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" />
+          <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-adm-text-3" />
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search name, phone, message…"
-            className="w-full rounded-md border border-slate-800 bg-slate-950 py-1.5 pl-9 pr-8 text-xs text-slate-200 placeholder-slate-500 outline-none transition focus:border-emerald-500/60"
+            placeholder="Search contacts, numbers, messages…"
+            className="w-full rounded-md border py-1.5 pl-9 pr-8 text-xs outline-none transition focus:border-adm-blue"
+            style={{
+              borderColor: "var(--adm-border)",
+              background: "var(--adm-surface-2)",
+              color: "var(--adm-text)",
+            }}
           />
           {searchQuery && (
             <button
               type="button"
               onClick={() => setSearchQuery("")}
-              className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300"
+              className="absolute right-2.5 top-1/2 -translate-y-1/2 text-adm-text-3 hover:text-adm-text"
             >
               <X size={13} />
             </button>
           )}
         </div>
 
-        {/* Status Pills */}
-        <div className="flex items-center gap-1 text-xs">
+        {/* Status Filter Chips */}
+        <div className="flex items-center gap-1.5 text-xs pt-0.5">
           <button
             type="button"
             onClick={() => setStatusFilter("all")}
-            className={`rounded-full px-2.5 py-0.5 text-[11px] font-medium transition ${
+            className={`rounded-full px-3 py-0.5 text-[11px] font-medium transition ${
               statusFilter === "all"
-                ? "bg-slate-800 text-slate-200 font-semibold"
-                : "text-slate-400 hover:text-slate-200"
+                ? "bg-adm-surface-2 text-adm-text font-bold border border-adm-border"
+                : "text-adm-text-3 hover:text-adm-text"
             }`}
           >
             All ({lineFiltered.length})
@@ -252,10 +337,10 @@ export function ConversationListPane({
           <button
             type="button"
             onClick={() => setStatusFilter("unread")}
-            className={`rounded-full px-2.5 py-0.5 text-[11px] font-medium transition ${
+            className={`rounded-full px-3 py-0.5 text-[11px] font-medium transition ${
               statusFilter === "unread"
-                ? "bg-emerald-500/20 text-emerald-400 font-semibold"
-                : "text-slate-400 hover:text-slate-200"
+                ? "bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 font-bold"
+                : "text-adm-text-3 hover:text-adm-text"
             }`}
           >
             Unread
@@ -263,10 +348,10 @@ export function ConversationListPane({
           <button
             type="button"
             onClick={() => setStatusFilter("archived")}
-            className={`rounded-full px-2.5 py-0.5 text-[11px] font-medium transition flex items-center gap-1 ${
+            className={`rounded-full px-3 py-0.5 text-[11px] font-medium transition flex items-center gap-1 ${
               statusFilter === "archived"
-                ? "bg-slate-800 text-slate-200 font-semibold"
-                : "text-slate-400 hover:text-slate-200"
+                ? "bg-adm-surface-2 text-adm-text font-bold border border-adm-border"
+                : "text-adm-text-3 hover:text-adm-text"
             }`}
           >
             <Archive size={11} />
@@ -275,13 +360,16 @@ export function ConversationListPane({
         </div>
       </div>
 
-      {/* Conversations List */}
-      <div className="flex-1 overflow-y-auto divide-y divide-slate-800/40">
+      {/* Conversations Scroll Stream */}
+      <div
+        className="flex-1 overflow-y-auto divide-y"
+        style={{ borderColor: "var(--adm-border)" }}
+      >
         {sortedList.length === 0 ? (
-          <div className="flex flex-col items-center justify-center p-8 text-center text-xs text-slate-500 space-y-2">
-            <p>No conversations found</p>
-            <span className="text-[10px] text-slate-600">
-              {searchQuery ? "Try a different search keyword" : "Incoming messages will appear here"}
+          <div className="flex flex-col items-center justify-center p-8 text-center text-xs text-adm-text-3 space-y-2">
+            <p className="font-semibold text-adm-text-2">No conversations found</p>
+            <span className="text-[11px]">
+              {searchQuery ? "Try a different search keyword or number" : "Incoming messages on all 4 lines will stream here"}
             </span>
           </div>
         ) : (
@@ -292,6 +380,19 @@ export function ConversationListPane({
             const isOutbound = last?.direction === "outbound";
             const lastText = last?.body || (last?.type ? `[${last.type}]` : "No messages");
 
+            const isLine4 = conv.channel === "1083562997861778";
+            const isLine3 = conv.channel === "1291624014041103" || conv.department === "direct";
+            const isLine2 = conv.channel === "1318810581311680";
+            const isLine1 = conv.channel === "1239592269240963" || conv.department === "general";
+
+            const lineThemeColor = isLine4
+              ? "#d97706"
+              : isLine3
+              ? "#7c3aed"
+              : isLine2
+              ? "#059669"
+              : "var(--adm-blue)";
+
             return (
               <button
                 key={conv.key}
@@ -299,21 +400,17 @@ export function ConversationListPane({
                 onClick={() => onSelectConversation(conv.key, conv.number, conv.department)}
                 className={`flex w-full items-start gap-3 p-3 text-left transition ${
                   isSelected
-                    ? "bg-slate-800/90 border-l-4 border-emerald-500"
-                    : "hover:bg-slate-800/40 border-l-4 border-transparent"
+                    ? "bg-adm-surface-2 border-l-4"
+                    : "hover:bg-adm-surface-2/60 border-l-4 border-transparent"
                 }`}
+                style={{
+                  borderLeftColor: isSelected ? lineThemeColor : "transparent",
+                }}
               >
                 {/* Avatar with Department Color */}
                 <div
-                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-xs font-bold text-white shadow-md"
-                  style={{
-                    background:
-                      conv.department === "direct"
-                        ? "#7c3aed"
-                        : conv.department === "support"
-                        ? "#059669"
-                        : "#2563eb",
-                  }}
+                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-xs font-bold text-white shadow-sm"
+                  style={{ background: lineThemeColor }}
                 >
                   {initials(name)}
                 </div>
@@ -322,18 +419,29 @@ export function ConversationListPane({
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center justify-between gap-1">
                     <div className="flex items-center gap-1.5 min-w-0">
-                      <span className="truncate text-xs font-bold text-slate-100">{name}</span>
+                      <span
+                        className="truncate text-xs font-bold"
+                        style={{ color: "var(--adm-text)" }}
+                      >
+                        {name}
+                      </span>
                       {meta?.pinned && (
-                        <Pin size={11} className="shrink-0 text-amber-400 rotate-45" />
+                        <Pin size={11} className="shrink-0 text-amber-500 rotate-45" />
                       )}
                     </div>
-                    <span className="shrink-0 text-[10px] text-slate-500 font-mono">
+                    <span
+                      className="shrink-0 text-[10px] font-mono"
+                      style={{ color: "var(--adm-text-3)" }}
+                    >
                       {last ? formatListTime(last.timestamp) : ""}
                     </span>
                   </div>
 
                   <div className="mt-1 flex items-center justify-between gap-2">
-                    <div className="flex items-center gap-1 min-w-0 text-[11px] text-slate-400">
+                    <div
+                      className="flex items-center gap-1 min-w-0 text-[11px]"
+                      style={{ color: "var(--adm-text-2)" }}
+                    >
                       {isOutbound && (
                         <span className="shrink-0">
                           <Ticks status={last?.status} />
@@ -343,26 +451,30 @@ export function ConversationListPane({
                     </div>
 
                     <div className="flex items-center gap-1 shrink-0">
-                      {/* Department indicator */}
+                      {/* Department Line indicator */}
                       <span
                         className={`rounded px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider ${
-                          conv.department === "direct"
-                            ? "bg-purple-500/10 text-purple-400 border border-purple-500/20"
-                            : conv.department === "support"
-                            ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
-                            : "bg-blue-500/10 text-blue-400 border border-blue-500/20"
+                          isLine4
+                            ? "bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20"
+                            : isLine3
+                            ? "bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/20"
+                            : isLine2
+                            ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20"
+                            : "bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20"
                         }`}
                       >
-                        {conv.department === "direct"
-                          ? "Direct"
-                          : conv.department === "support"
-                          ? "Support"
-                          : "Sales"}
+                        {isLine4
+                          ? "Ops • L4"
+                          : isLine3
+                          ? "Direct • L3"
+                          : isLine2
+                          ? "Support • L2"
+                          : "Sales • L1"}
                       </span>
 
                       {/* Unread badge */}
                       {unread > 0 && (
-                        <span className="flex h-4 min-w-[16px] items-center justify-center rounded-full bg-emerald-500 px-1 text-[10px] font-bold text-slate-950">
+                        <span className="flex h-4 min-w-[16px] items-center justify-center rounded-full bg-emerald-500 px-1 text-[10px] font-bold text-white">
                           {unread}
                         </span>
                       )}

@@ -528,217 +528,181 @@ export default function AdminWhatsAppPage() {
     setActiveTab("inbox");
   };
 
+  const allConvs = groupConversations(allMessages, numbers);
+  const totalUnreads = allConvs.reduce((acc, c) => acc + (unreadCount(c, metaMap[c.key] || metaMap[c.number]) > 0 ? 1 : 0), 0);
+
   return (
-    <div className="flex flex-col gap-6">
-      <CommunicationsBanner active="whatsapp" />
-      <AdminPageHeader
-        title="WhatsApp Business Manager"
-        description="Isolated multi-channel operations: General Inquiries & Corporate Sales vs Technical Support Desk"
-      />
+    <div className="flex flex-col gap-4">
+      <CommunicationsBanner compact active="whatsapp" />
 
-      {/* Department Isolation Switcher */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 mb-2">
-        {/* General Inquiries & Sales */}
-        <button
-          type="button"
-          onClick={() => {
-            setDepartment("general");
-            setSelectedChatRecipient(null);
-          }}
-          className={`relative p-4 rounded-none border text-left transition flex items-start justify-between ${
-            department === "general"
-              ? "bg-adm-surface border-adm-blue ring-2 ring-adm-blue/30 shadow-sm"
-              : "bg-adm-surface-2 border-adm-border hover:border-adm-text-3 opacity-75 hover:opacity-100"
-          }`}
-        >
-          <div className="flex items-start gap-3.5">
-            <div
-              className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-none font-bold ${
-                department === "general"
-                  ? "bg-adm-blue text-white"
-                  : "bg-adm-surface text-adm-text-2 border border-adm-border"
-              }`}
-            >
-              <Briefcase size={22} />
-            </div>
+      {/* WhatsApp Command Center Header */}
+      <div className="flex flex-col gap-3">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="flex items-center gap-3">
             <div>
-              <div className="flex items-center gap-2">
-                <h3 className="font-bold text-base text-adm-text">General Inquiries & Sales</h3>
-                <span className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold bg-adm-blue-light text-adm-blue">
-                  <span className="h-1.5 w-1.5 rounded-full bg-adm-blue" />
-                  Line 1
+              <div className="flex flex-wrap items-center gap-2.5">
+                <h1
+                  className="text-xl font-bold tracking-tight sm:text-2xl"
+                  style={{ color: "var(--adm-text)" }}
+                >
+                  WhatsApp Command Center
+                </h1>
+                <span className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-semibold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+                  <span className="relative flex h-2 w-2">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                  </span>
+                  Meta Cloud API Active
+                </span>
+                <span
+                  className="hidden sm:inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-medium border"
+                  style={{
+                    background: "var(--adm-surface-2)",
+                    borderColor: "var(--adm-border)",
+                    color: "var(--adm-text-2)",
+                  }}
+                >
+                  <Phone size={11} className="text-adm-blue" />
+                  {numbers.length || 4} Lines Live
                 </span>
               </div>
-              <p className="text-xs font-mono font-medium text-adm-text-2 mt-0.5">
-                {generalLine?.displayNumber || "+92 335 6701199"}
-              </p>
-              <p className="text-xs text-adm-text-3 mt-1">
-                Corporate inquiries, sales proposals, partnerships & business quotes
+              <p className="mt-0.5 text-xs" style={{ color: "var(--adm-text-3)" }}>
+                Omnichannel enterprise messaging: Line 1 (Sales), Line 2 (Support), Line 3 (Executive Desk), Line 4 (Operations)
               </p>
             </div>
           </div>
-          <div className="flex flex-col items-end gap-1.5">
-            <span
-              className={`text-[11px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-none ${
-                department === "general"
-                  ? "bg-adm-blue text-white"
-                  : "text-adm-text-3"
-              }`}
-            >
-              {department === "general" ? "Active Department" : "Switch to General"}
-            </span>
-            <span className="text-xs text-adm-text-3">
-              {generalConvs.length} conversations {generalUnreads > 0 && `• ${generalUnreads} unread`}
-            </span>
-          </div>
-        </button>
 
-        {/* Technical & Client Support */}
-        <button
-          type="button"
-          onClick={() => {
-            setDepartment("support");
-            setSelectedChatRecipient(null);
-          }}
-          className={`relative p-4 rounded-none border text-left transition flex items-start justify-between ${
-            department === "support"
-              ? "bg-adm-surface border-emerald-600 ring-2 ring-emerald-600/30 shadow-sm"
-              : "bg-adm-surface-2 border-adm-border hover:border-adm-text-3 opacity-75 hover:opacity-100"
-          }`}
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => setActiveTab("send")}
+              className="inline-flex items-center gap-1.5 rounded-md bg-adm-blue px-3.5 py-1.5 text-xs font-bold text-white hover:bg-adm-blue-mid transition shadow-sm"
+            >
+              <Send size={13} />
+              <span>Compose Message</span>
+            </button>
+          </div>
+        </div>
+
+        {/* Clean Segmented Navigation Tabs (No Horizontal Scrollbar) */}
+        <div
+          className="flex items-center gap-1.5 border-b pb-2 overflow-x-auto no-scrollbar"
+          style={{ borderColor: "var(--adm-border)" }}
         >
-          <div className="flex items-start gap-3.5">
-            <div
-              className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-none font-bold ${
-                department === "support"
-                  ? "bg-emerald-600 text-white"
-                  : "bg-adm-surface text-adm-text-2 border border-adm-border"
-              }`}
-            >
-              <LifeBuoy size={22} />
-            </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <h3 className="font-bold text-base text-adm-text">Technical & Client Support</h3>
-                <span className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold bg-emerald-50 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-300">
-                  <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
-                  Line 2
-                </span>
-              </div>
-              <p className="text-xs font-mono font-medium text-adm-text-2 mt-0.5">
-                {supportLine?.displayNumber || "Online Desk"}
-              </p>
-              <p className="text-xs text-adm-text-3 mt-1">
-                24/7 client helpdesk, SLA incident handling & technical issue reports
-              </p>
-            </div>
-          </div>
-          <div className="flex flex-col items-end gap-1.5">
-            <span
-              className={`text-[11px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-none ${
-                department === "support"
-                  ? "bg-emerald-600 text-white"
-                  : "text-adm-text-3"
-              }`}
-            >
-              {department === "support" ? "Active Department" : "Switch to Support"}
-            </span>
-            <span className="text-xs text-adm-text-3">
-              {supportConvs.length} conversations {supportUnreads > 0 && `• ${supportUnreads} unread`}
-            </span>
-          </div>
-        </button>
+          {TABS.map((tab) => {
+            const isActive = activeTab === tab.key;
+            return (
+              <button
+                key={tab.key}
+                type="button"
+                onClick={() => setActiveTab(tab.key)}
+                className={`inline-flex items-center gap-2 rounded-md px-3.5 py-2 text-xs font-semibold transition whitespace-nowrap ${
+                  isActive
+                    ? "bg-adm-blue text-white shadow-sm"
+                    : "hover:bg-adm-surface-2"
+                }`}
+                style={{
+                  color: isActive ? "#ffffff" : "var(--adm-text-2)",
+                }}
+              >
+                {tab.icon}
+                <span>{tab.label}</span>
+                {tab.key === "inbox" && totalUnreads > 0 && (
+                  <span
+                    className={`rounded-full px-1.5 py-0.2 text-[10px] font-bold ${
+                      isActive ? "bg-white text-adm-blue" : "bg-emerald-500 text-white"
+                    }`}
+                  >
+                    {totalUnreads}
+                  </span>
+                )}
+              </button>
+            );
+          })}
+        </div>
 
-        {/* Executive & Direct Desk */}
-        <button
-          type="button"
-          onClick={() => {
-            setDepartment("direct");
-            setSelectedChatRecipient(null);
-          }}
-          className={`relative p-4 rounded-none border text-left transition flex items-start justify-between ${
-            department === "direct"
-              ? "bg-adm-surface border-[#7c3aed] ring-2 ring-[#7c3aed]/30 shadow-sm"
-              : "bg-adm-surface-2 border-adm-border hover:border-adm-text-3 opacity-75 hover:opacity-100"
-          }`}
-        >
-          <div className="flex items-start gap-3.5">
-            <div
-              className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-none font-bold ${
-                department === "direct"
-                  ? "bg-[#7c3aed] text-white"
-                  : "bg-adm-surface text-adm-text-2 border border-adm-border"
-              }`}
-            >
-              <ShieldCheck size={22} />
-            </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <h3 className="font-bold text-base text-adm-text">Executive & Direct Desk</h3>
-                <span className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold bg-[#7c3aed]/10 text-[#7c3aed]">
-                  <span className="h-1.5 w-1.5 rounded-full bg-[#7c3aed]" />
-                  Line 3
-                </span>
-              </div>
-              <p className="text-xs font-mono font-medium text-adm-text-2 mt-0.5">
-                {directLine?.displayNumber || "Executive Desk"}
-              </p>
-              <p className="text-xs text-adm-text-3 mt-1">
-                Executive desk, enterprise proposals & strategic partnerships
-              </p>
-            </div>
-          </div>
-          <div className="flex flex-col items-end gap-1.5">
-            <span
-              className={`text-[11px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-none ${
-                department === "direct"
-                  ? "bg-[#7c3aed] text-white"
-                  : "text-adm-text-3"
-              }`}
-            >
-              {department === "direct" ? "Active Department" : "Switch to Direct"}
-            </span>
-            <span className="text-xs text-adm-text-3">
-              {directConvs.length} conversations {directUnreads > 0 && `• ${directUnreads} unread`}
-            </span>
-          </div>
-        </button>
-      </div>
-
-      {/* Tabs */}
-      <div
-        className="mb-6 flex items-center gap-1 overflow-x-auto border-b"
-        style={{ borderColor: "var(--adm-border)" }}
-      >
-        {TABS.map((tab) => (
-          <button
-            key={tab.key}
-            type="button"
-            onClick={() => setActiveTab(tab.key)}
-            className="flex items-center gap-2 whitespace-nowrap border-b-2 px-4 py-3 text-sm font-semibold transition"
+        {/* Compact Department Scope Switcher (Visible on non-chat tabs) */}
+        {activeTab !== "inbox" && activeTab !== "numbers" && (
+          <div
+            className="flex flex-wrap items-center justify-between gap-3 p-2.5 rounded-lg border"
             style={{
-              borderColor:
-                activeTab === tab.key
-                  ? department === "direct"
-                    ? "#7c3aed"
-                    : department === "support"
-                    ? "#059669"
-                    : "var(--adm-blue)"
-                  : "transparent",
-              color:
-                activeTab === tab.key
-                  ? department === "direct"
-                    ? "#7c3aed"
-                    : department === "support"
-                    ? "#059669"
-                    : "var(--adm-blue)"
-                  : "var(--adm-text-2)",
-              marginBottom: "-1px",
+              borderColor: "var(--adm-border)",
+              background: "var(--adm-surface)",
             }}
           >
-            {tab.icon}
-            {tab.label}
-          </button>
-        ))}
+            <div className="flex flex-wrap items-center gap-2">
+              <span
+                className="text-[11px] font-bold uppercase tracking-wider"
+                style={{ color: "var(--adm-text-3)" }}
+              >
+                Department Scope:
+              </span>
+              <div
+                className="inline-flex rounded-md border p-0.5"
+                style={{
+                  borderColor: "var(--adm-border)",
+                  background: "var(--adm-surface-2)",
+                }}
+              >
+                <button
+                  type="button"
+                  onClick={() => setDepartment("general")}
+                  className={`flex items-center gap-1.5 px-3 py-1 text-xs font-semibold rounded transition ${
+                    department === "general"
+                      ? "bg-adm-blue text-white shadow-sm"
+                      : "hover:text-adm-text"
+                  }`}
+                  style={{
+                    color: department === "general" ? "#ffffff" : "var(--adm-text-2)",
+                  }}
+                >
+                  <Briefcase size={12} />
+                  <span>Line 1: Sales ({generalLine?.displayNumber || "+92 335 6701199"})</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setDepartment("support")}
+                  className={`flex items-center gap-1.5 px-3 py-1 text-xs font-semibold rounded transition ${
+                    department === "support"
+                      ? "bg-emerald-600 text-white shadow-sm"
+                      : "hover:text-adm-text"
+                  }`}
+                  style={{
+                    color: department === "support" ? "#ffffff" : "var(--adm-text-2)",
+                  }}
+                >
+                  <LifeBuoy size={12} />
+                  <span>Line 2 & 4: Support & Operations</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setDepartment("direct")}
+                  className={`flex items-center gap-1.5 px-3 py-1 text-xs font-semibold rounded transition ${
+                    department === "direct"
+                      ? "bg-purple-600 text-white shadow-sm"
+                      : "hover:text-adm-text"
+                  }`}
+                  style={{
+                    color: department === "direct" ? "#ffffff" : "var(--adm-text-2)",
+                  }}
+                >
+                  <ShieldCheck size={12} />
+                  <span>Line 3: Executive ({directLine?.displayNumber || "+44 7575 376078"})</span>
+                </button>
+              </div>
+            </div>
+            <span
+              className="text-xs font-medium"
+              style={{ color: "var(--adm-text-3)" }}
+            >
+              {department === "general"
+                ? "General inquiries & sales quotes"
+                : department === "support"
+                ? "Technical incident handling & client SLAs"
+                : "Enterprise proposals & executive direct desk"}
+            </span>
+          </div>
+        )}
       </div>
 
       {activeTab === "inbox" && (
@@ -1017,7 +981,7 @@ function InboxTab({
   const metaMap = metaData?.data ?? {};
   const apiNumbers = numbersData?.data ?? [];
 
-  const [lineFilter, setLineFilter] = useState<"all" | "general" | "support" | "direct">(department);
+  const [lineFilter, setLineFilter] = useState<string>("all");
   const [selected, setSelected] = useState<string | null>(selectedRecipient || null);
 
   useEffect(() => {
@@ -1026,12 +990,6 @@ function InboxTab({
       if (onClearSelectedRecipient) onClearSelectedRecipient();
     }
   }, [selectedRecipient, onClearSelectedRecipient]);
-
-  useEffect(() => {
-    if (department) {
-      setLineFilter(department);
-    }
-  }, [department]);
 
   if (isLoading) return <AdminLoadingState label="Loading conversations…" />;
   if (isError)
@@ -1046,10 +1004,19 @@ function InboxTab({
   const supportConvs = groupConversations(allMessages, numbers, "support");
   const directConvs = groupConversations(allMessages, numbers, "direct");
 
+  const line1Convs = allConversations.filter(c => c.channel === "1239592269240963" || c.department === "general");
+  const line2Convs = allConversations.filter(c => c.channel === "1318810581311680" || (c.department === "support" && c.channel !== "1083562997861778"));
+  const line3Convs = allConversations.filter(c => c.channel === "1291624014041103" || c.department === "direct");
+  const line4Convs = allConversations.filter(c => c.channel === "1083562997861778");
+
   const unreadCounts = {
     general: generalConvs.reduce((acc, c) => acc + (unreadCount(c, metaMap[c.key] || metaMap[c.number]) > 0 ? 1 : 0), 0),
     support: supportConvs.reduce((acc, c) => acc + (unreadCount(c, metaMap[c.key] || metaMap[c.number]) > 0 ? 1 : 0), 0),
     direct: directConvs.reduce((acc, c) => acc + (unreadCount(c, metaMap[c.key] || metaMap[c.number]) > 0 ? 1 : 0), 0),
+    line1: line1Convs.reduce((acc, c) => acc + (unreadCount(c, metaMap[c.key] || metaMap[c.number]) > 0 ? 1 : 0), 0),
+    line2: line2Convs.reduce((acc, c) => acc + (unreadCount(c, metaMap[c.key] || metaMap[c.number]) > 0 ? 1 : 0), 0),
+    line3: line3Convs.reduce((acc, c) => acc + (unreadCount(c, metaMap[c.key] || metaMap[c.number]) > 0 ? 1 : 0), 0),
+    line4: line4Convs.reduce((acc, c) => acc + (unreadCount(c, metaMap[c.key] || metaMap[c.number]) > 0 ? 1 : 0), 0),
     total: allConversations.reduce((acc, c) => acc + (unreadCount(c, metaMap[c.key] || metaMap[c.number]) > 0 ? 1 : 0), 0),
   };
 
@@ -1073,8 +1040,13 @@ function InboxTab({
 
   return (
     <div
-      className="flex overflow-hidden rounded-lg border border-slate-800 bg-slate-900 shadow-2xl"
-      style={{ height: "calc(100vh - 210px)", minHeight: 600 }}
+      className="flex overflow-hidden rounded-xl border shadow-sm"
+      style={{
+        height: "calc(100vh - 190px)",
+        minHeight: 640,
+        borderColor: "var(--adm-border)",
+        background: "var(--adm-surface)",
+      }}
     >
       {/* PANE 1: Left Omnichannel Conversation & Line Navigator */}
       <div className={`${selected ? "hidden md:flex" : "flex"} shrink-0`}>
@@ -1100,7 +1072,7 @@ function InboxTab({
             conv={selectedConv.conv}
             meta={selectedConv.meta}
             department={selectedConv.conv.department}
-            channelId={activeLine?.id}
+            channelId={selectedConv.conv.channel || activeLine?.id}
             onBack={() => setSelected(null)}
             onMarkRead={() => patch(selectedConv.conv.key, { lastReadAt: new Date().toISOString() })}
             onMarkUnread={() => {
@@ -1129,22 +1101,36 @@ function InboxTab({
 function EmptyChatState() {
   return (
     <div
-      className="hidden flex-1 flex-col items-center justify-center gap-5 border-b-[6px] md:flex bg-slate-950 border-b-emerald-600"
+      className="hidden flex-1 flex-col items-center justify-center gap-5 border-b-4 md:flex p-6 text-center"
+      style={{
+        background: "var(--adm-surface-2, #f8fafc)",
+        borderBottomColor: "var(--adm-blue)",
+      }}
     >
-      <div className="flex h-24 w-24 items-center justify-center rounded-full bg-slate-900 border border-slate-800 shadow-xl">
-        <MessageSquare size={44} className="text-emerald-500" />
+      <div
+        className="flex h-20 w-20 items-center justify-center rounded-2xl shadow-sm border"
+        style={{
+          background: "var(--adm-surface)",
+          borderColor: "var(--adm-border)",
+        }}
+      >
+        <MessageSquare size={38} className="text-adm-blue" />
       </div>
-      <div className="text-center space-y-1">
-        <p className="text-2xl font-bold text-slate-100">
-          WhatsApp Business CRM
-        </p>
-        <p className="max-w-md text-xs text-slate-400">
-          Select any conversation from the list to read messages and reply across Line 1 (Sales), Line 2 (Support), or Line 3 (Executive Desk).
+      <div className="space-y-1.5 max-w-md">
+        <h3 className="text-xl font-bold" style={{ color: "var(--adm-text)" }}>
+          WhatsApp Command Center
+        </h3>
+        <p className="text-xs" style={{ color: "var(--adm-text-3)" }}>
+          Select any conversation from the list to read messages, manage deal stages, and dispatch responses across Line 1 (Sales), Line 2 (Support), Line 3 (Executive), or Line 4 (Operations).
         </p>
       </div>
-      <p className="mt-4 flex items-center gap-1.5 text-xs text-slate-500">
-        <Lock size={12} className="text-slate-500" /> End-to-end encrypted official Meta Cloud API
-      </p>
+      <div
+        className="mt-2 flex items-center gap-1.5 text-xs font-medium"
+        style={{ color: "var(--adm-text-3)" }}
+      >
+        <Lock size={12} className="text-emerald-500" />
+        <span>End-to-end encrypted official Meta Cloud API</span>
+      </div>
     </div>
   );
 }
@@ -1527,12 +1513,17 @@ function ChatView({
                 {name}
               </p>
               <p className="truncate text-[12px]" style={{ color: WA.sub }}>
-                {(conv.department || department) === "direct" ? (
+                {conv.channel === "1083562997861778" ? (
+                  <span className="inline-flex items-center gap-1 font-semibold text-amber-600 dark:text-amber-400">
+                    <span className="h-1.5 w-1.5 rounded-full bg-amber-500 inline-block" />
+                    Operations Desk • Line 4
+                  </span>
+                ) : (conv.department || department) === "direct" || conv.channel === "1291624014041103" ? (
                   <span className="inline-flex items-center gap-1 font-semibold text-purple-600 dark:text-purple-400">
                     <span className="h-1.5 w-1.5 rounded-full bg-purple-500 inline-block" />
                     Executive Desk • Line 3
                   </span>
-                ) : (conv.department || department) === "support" ? (
+                ) : (conv.department || department) === "support" || conv.channel === "1318810581311680" ? (
                   <span className="inline-flex items-center gap-1 font-semibold text-emerald-600 dark:text-emerald-400">
                     <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 inline-block" />
                     Client Support Desk • Line 2
@@ -1563,8 +1554,8 @@ function ChatView({
               onClick={() => setShowDossier((v) => !v)}
               className={`flex h-9 items-center gap-1.5 rounded-md px-2.5 text-xs font-bold transition ${
                 showDossier
-                  ? "bg-slate-800 text-emerald-400 border border-slate-700"
-                  : "text-slate-400 hover:text-slate-200 hover:bg-slate-800"
+                  ? "bg-adm-blue text-white shadow-sm"
+                  : "text-adm-text-3 hover:text-adm-text hover:bg-adm-surface-2 border border-adm-border"
               }`}
               aria-label="Toggle contact dossier"
               title={showDossier ? "Hide Contact Dossier" : "Show Contact Dossier"}
@@ -1688,6 +1679,8 @@ function ChatView({
                       ? "Line 1"
                       : msgLine.department === "direct" || msgLine.id === "1291624014041103" || msgLine.slot === 3
                       ? "Line 3"
+                      : msgLine.id === "1083562997861778" || msgLine.slot === 4
+                      ? "Line 4"
                       : "Line 2"
                     : undefined
                 }
@@ -1727,38 +1720,43 @@ function ChatView({
         </div>
       )}
 
-      {/* Active Department Sending Line Indicator */}
+      {/* Active Department Sending Line Indicator with Interactive Picker */}
       <div
-        className="flex items-center justify-between border-t px-4 py-1.5 text-xs"
+        className="flex items-center justify-between border-t px-4 py-1.5 text-xs shrink-0"
         style={{ background: WA.panel, borderColor: WA.divider }}
       >
         <div className="flex items-center gap-2">
           <span className="text-adm-text-3 font-medium">Replying via:</span>
-          <span
-            className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-bold ${
-              (conv.department || department) === "direct"
-                ? "bg-purple-50 text-purple-700 dark:bg-purple-950/50 dark:text-purple-300"
-                : (conv.department || department) === "support"
-                ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-300"
-                : "bg-adm-blue-light text-adm-blue"
-            }`}
+          <select
+            value={sender}
+            onChange={(e) => setActiveSenderId(e.target.value)}
+            className="rounded border px-2 py-0.5 text-xs font-semibold outline-none cursor-pointer"
+            style={{
+              borderColor: "var(--adm-border)",
+              background: "var(--adm-surface)",
+              color: "var(--adm-text)",
+            }}
           >
-            <span
-              className={`h-1.5 w-1.5 rounded-full ${
-                (conv.department || department) === "direct"
-                  ? "bg-purple-500"
-                  : (conv.department || department) === "support"
-                  ? "bg-emerald-500"
-                  : "bg-adm-blue"
-              }`}
-            />
-            {(conv.department || department) === "direct"
-              ? "Executive Desk (Line 3)"
-              : (conv.department || department) === "support"
-              ? "Support Desk"
-              : "General Inquiries (+92 335 6701199)"}
-          </span>
+            {numbers.map((n) => {
+              const label =
+                n.id === "1083562997861778" || n.slot === 4
+                  ? `Line 4 (Operations Desk)${n.displayNumber ? ` • ${n.displayNumber}` : ""}`
+                  : n.id === "1291624014041103" || n.slot === 3 || n.department === "direct"
+                  ? `Line 3 (Executive Desk)${n.displayNumber ? ` • ${n.displayNumber}` : ""}`
+                  : n.id === "1318810581311680" || n.slot === 2
+                  ? `Line 2 (Client Support)${n.displayNumber ? ` • ${n.displayNumber}` : ""}`
+                  : `Line 1 (Sales)${n.displayNumber ? ` • ${n.displayNumber}` : ""}`;
+              return (
+                <option key={n.id} value={n.id}>
+                  {label}
+                </option>
+              );
+            })}
+          </select>
         </div>
+        <span className="text-[11px] font-mono" style={{ color: "var(--adm-text-3)" }}>
+          {senderInfo?.displayNumber || (sender === "1239592269240963" ? "+92 335 6701199" : sender === "1291624014041103" ? "+44 7575 376078" : "")}
+        </span>
       </div>
 
       {/* Composer */}
@@ -1921,6 +1919,7 @@ function ChatView({
           convKey={conv.key}
           displayName={name}
           department={conv.department || department}
+          channelId={conv.channel || channelId}
           meta={meta}
           onSaveMeta={onSaveMeta}
           onClose={() => setShowDossier(false)}
