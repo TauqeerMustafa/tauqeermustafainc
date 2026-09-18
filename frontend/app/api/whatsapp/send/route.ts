@@ -23,7 +23,7 @@
 import { NextResponse } from "next/server";
 import { META_TEMPLATES, buildSendComponents } from "@/lib/meta-templates";
 import { flowStep, stepPayload, stepTranscript } from "@/lib/wa-flow";
-import { resolveNumberId, waNumbers } from "@/lib/wa-numbers";
+import { resolveNumberId, waNumbers, getChannelDepartment } from "@/lib/wa-numbers";
 import { accountAt } from "@/lib/wa-accounts";
 import { appendMessage, type WAMessage } from "@/lib/wa-store";
 
@@ -443,6 +443,7 @@ export async function POST(request: Request) {
         // outbound, but the inbox needs one field that means the same thing in
         // both directions â€” otherwise a reply can leave from the wrong number.
         channel: phoneNumberId,
+        department: numberDef?.department || getChannelDepartment(phoneNumberId),
         type: storedType,
         body: storedBody,
         timestamp: new Date().toISOString(),
