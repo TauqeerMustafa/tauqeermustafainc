@@ -14,6 +14,8 @@ import android.webkit.WebResourceRequest;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.app.admin.DevicePolicyManager;
+import android.content.ComponentName;
 import android.provider.Settings;
 import android.webkit.JavascriptInterface;
 import android.widget.Button;
@@ -269,9 +271,12 @@ public class MainActivity extends AppCompatActivity {
             activity.runOnUiThread(() -> {
                 boolean started = false;
 
-                // 1. Try launching Android Enterprise Managed Profile Provisioning
+                // 1. Try launching Android Enterprise Managed Profile Provisioning with TMI Device Admin
                 try {
-                    Intent provisionIntent = new Intent("android.app.action.PROVISION_MANAGED_PROFILE");
+                    ComponentName adminComponent = TmiDeviceAdminReceiver.getComponentName(activity);
+                    Intent provisionIntent = new Intent(DevicePolicyManager.ACTION_PROVISION_MANAGED_PROFILE);
+                    provisionIntent.putExtra(DevicePolicyManager.EXTRA_PROVISIONING_DEVICE_ADMIN_COMPONENT_NAME, adminComponent);
+                    provisionIntent.putExtra(DevicePolicyManager.EXTRA_PROVISIONING_DEVICE_ADMIN_PACKAGE_NAME, activity.getPackageName());
                     if (provisionIntent.resolveActivity(activity.getPackageManager()) != null) {
                         activity.startActivity(provisionIntent);
                         started = true;
