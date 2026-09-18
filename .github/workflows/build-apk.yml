@@ -71,7 +71,7 @@ jobs:
           if git diff --staged --quiet; then
             echo "No changes to APK"
           else
-            git commit -m "build(apk): deploy v3.0.0.1.5 release APK to web downloads [skip ci]"
+            git commit -m "build(apk): deploy v3.0.0.1.6 release APK to web downloads [skip ci]"
             git push origin master
           fi
 
@@ -82,26 +82,24 @@ jobs:
           path: android/output/TMI-Portals.apk
           if-no-files-found: error
 
-      - name: Create or Update GitHub Release v3.0.0.1.5
+      - name: Create or Update GitHub Release v3.0.0.1.6
         uses: softprops/action-gh-release@v2
         if: github.ref == 'refs/heads/master'
         with:
-          tag_name: v3.0.0.1.5
-          name: "TMI Portals App v3.0.0.1.5"
+          tag_name: v3.0.0.1.6
+          name: "TMI Portals App v3.0.0.1.6"
           body: |
-            ### Official Signed Release APK for Tauqeer Mustafa Inc Portals (v3.0.0.1.5)
+            ### Official Signed Release APK for Tauqeer Mustafa Inc Portals (v3.0.0.1.6)
             
-            **What's New in v3.0.0.1.4:**
-            - 💼 **Native On-Device Work Profile Controller**: Self-owned Android Enterprise Profile Owner (DPC) integration with zero 3rd-party dependencies.
-            - 🛡️ **Google Play Protect Compliance**: Signed with RSA 2048-bit official release certificate; non-debuggable release build.
-            - 🔒 **Disabled Cleartext Traffic**: Enforced strict HTTPS (TLS 1.3) across all network calls.
-            - ⚡ **WebView Scroll & Refresh Fix**: Smooth touch scroll and swipe-to-refresh without freeze.
-            - 🍪 **Session Management**: Persistent session cookies for Next.js portal authentication.
+            **What's New in v3.0.0.1.6:**
+            - 💼 **Fixed "Contact Your Admin" Provisioning Error**: Properly negotiates `PROVISIONING_MODE_MANAGED_PROFILE_ON_PERSONAL_DEVICE` on Android 12–15 so personal devices don't reject work profile creation.
+            - 🛡️ **Diagnostics & Conflict Resolution**: Automatically detects and informs the user if Dual Apps or an existing work profile blocks activation.
+            - ⚡ **Zero Third-Party MDM Required**: Fully self-owned Profile Owner container badged with native Android briefcase 💼.
             
             **Installation:**
             1. Download `TMI-Portals.apk` below.
-            2. Tap the file on your Android device and select **Install**.
-            3. Contact `app@tauqeermustafa.tech` for support.
+            2. Tap the file on your Android device and select **Install / Update**.
+            3. Contact `admin@tauqeermustafa.tech` for support.
           files: android/output/TMI-Portals.apk
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -16,6 +16,7 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.app.admin.DevicePolicyManager;
 import android.content.ComponentName;
+import android.os.UserManager;
 import android.provider.Settings;
 import android.webkit.JavascriptInterface;
 import android.widget.Button;
@@ -91,7 +92,7 @@ public class MainActivity extends AppCompatActivity {
 
         // Remove "; wv" to avoid restricted WebView user-agent flags
         String defaultUa = settings.getUserAgentString();
-        settings.setUserAgentString(defaultUa.replace("; wv", "") + " TMIPortalsApp/3.0.0.1.5");
+        settings.setUserAgentString(defaultUa.replace("; wv", "") + " TMIPortalsApp/3.0.0.1.6");
 
         // Register JavaScript interface for Enterprise Work Profile and Portal Bridge
         webView.addJavascriptInterface(new TMIAndroidBridge(this), "TMIAndroidBridge");
@@ -270,8 +271,12 @@ public class MainActivity extends AppCompatActivity {
         if (requestCode == REQUEST_PROVISION_MANAGED_PROFILE) {
             if (resultCode == RESULT_OK) {
                 Toast.makeText(this, "🎉 TMI Work Profile Activated Successfully!", Toast.LENGTH_LONG).show();
+                ExtendedFloatingActionButton btnWorkProfile = findViewById(R.id.btnWorkProfile);
+                if (btnWorkProfile != null) {
+                    btnWorkProfile.setVisibility(View.GONE);
+                }
             } else {
-                Toast.makeText(this, "Work profile setup was canceled.", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Work profile setup was canceled or aborted by device policy.", Toast.LENGTH_SHORT).show();
             }
             return;
         }
@@ -295,12 +300,20 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
 
+        // Pre-flight check: Is managed profile provisioning permitted by Android on this device?
+        if (dpm != null && !dpm.isProvisioningAllowed(DevicePolicyManager.ACTION_PROVISION_MANAGED_PROFILE)) {
+            showProvisioningBlockedDialog();
+            return;
+        }
+
         boolean started = false;
         try {
             ComponentName adminComponent = TmiDeviceAdminReceiver.getComponentName(this);
             Intent provisionIntent = new Intent(DevicePolicyManager.ACTION_PROVISION_MANAGED_PROFILE);
             provisionIntent.putExtra(DevicePolicyManager.EXTRA_PROVISIONING_DEVICE_ADMIN_COMPONENT_NAME, adminComponent);
             provisionIntent.putExtra(DevicePolicyManager.EXTRA_PROVISIONING_DEVICE_ADMIN_PACKAGE_NAME, getPackageName());
+            provisionIntent.putExtra(DevicePolicyManager.EXTRA_PROVISIONING_SKIP_ENCRYPT, true);
+            provisionIntent.putExtra(DevicePolicyManager.EXTRA_PROVISIONING_LEAVE_ALL_SYSTEM_APPS_ENABLED, true);
 
             if (provisionIntent.resolveActivity(getPackageManager()) != null) {
                 startActivityForResult(provisionIntent, REQUEST_PROVISION_MANAGED_PROFILE);
@@ -326,6 +339,42 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText(this, "Please open Android Settings > Accounts to add your work profile.", Toast.LENGTH_LONG).show();
             }
         }
+    }
+
+    private void showProvisioningBlockedDialog() {
+        UserManager userManager = (UserManager) getSystemService(USER_SERVICE);
+        boolean hasMultipleProfiles = false;
+        if (userManager != null) {
+            try {
+                hasMultipleProfiles = userManager.getUserProfiles().size() > 1;
+            } catch (Exception ignored) {}
+        }
+
+        StringBuilder msg = new StringBuilder();
+        msg.append("Android cannot activate a new Work Profile right now due to device configuration:\n\n");
+        if (hasMultipleProfiles) {
+            msg.append("1. An existing Work Profile or Secondary Profile already exists on this phone. Android only allows ONE work profile at a time. Please remove the old work profile from Android Settings.\n\n");
+        } else {
+            msg.append("1. Existing Work Profile: If you previously tested or enrolled another work profile, remove it first.\n\n");
+        }
+        msg.append("2. Dual Apps / Dual Messenger (Samsung, Xiaomi, Oppo, OnePlus): Cloned apps create a hidden secondary profile that blocks Android Work Profiles. Please turn off Dual Apps / Dual Messenger in phone Settings.\n\n");
+        msg.append("3. Screen Lock: Ensure your device has a PIN, Password, or Fingerprint set up.\n\n");
+        msg.append("Tap 'Open Settings' to view your device accounts and remove any conflicting profiles.");
+
+        new MaterialAlertDialogBuilder(this)
+            .setTitle("⚠️ Work Profile Setup Blocked")
+            .setMessage(msg.toString())
+            .setPositiveButton("Open Settings", (dialog, which) -> {
+                try {
+                    startActivity(new Intent(Settings.ACTION_SYNC_SETTINGS));
+                } catch (Exception e) {
+                    try {
+                        startActivity(new Intent(Settings.ACTION_SETTINGS));
+                    } catch (Exception ignored) {}
+                }
+            })
+            .setNegativeButton("Close", (dialog, which) -> dialog.dismiss())
+            .show();
     }
 
     /**
