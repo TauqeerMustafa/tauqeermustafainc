@@ -151,7 +151,7 @@ function build(): WANumber[] {
       primary: numbers.length === 0,
       slot: hasDedicatedSlot3Token ? 3 : (hasDedicatedSlot2Token ? 2 : 1),
       department: "direct",
-      displayNumber: clean(process.env.WHATSAPP_DISPLAY_NUMBER_3) || "Executive Desk",
+      displayNumber: clean(process.env.WHATSAPP_DISPLAY_NUMBER_3) || "+44 7575 376078",
     });
   }
   return dedupe(numbers);
@@ -275,10 +275,12 @@ export function getChannelDepartment(
   if (!idOrNumber) return "general";
   const cleanId = idOrNumber.trim();
   if (!cleanId) return "general";
-
   const lower = cleanId.toLowerCase();
+  const digits = cleanId.replace(/[^0-9]/g, "");
   if (
     cleanId === DEFAULT_THIRD_ID ||
+    digits === "447575376078" ||
+    cleanId.includes("447575376078") ||
     lower.includes("direct") ||
     lower.includes("executive") ||
     lower.includes("priority")
@@ -289,7 +291,6 @@ export function getChannelDepartment(
   const primary = primaryNumberId();
   if (primary && cleanId === primary) return "general";
 
-  const digits = cleanId.replace(/[^0-9]/g, "");
   const nums = allNumbers || waNumbers();
 
   // 1. Exact match on id, displayNumber, or clean digits

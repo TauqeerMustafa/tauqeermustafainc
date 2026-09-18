@@ -328,8 +328,13 @@ function getMessageDepartment(m: WAMessage, allNumbers: WANumberInfo[] = []): "g
   if (/\[?(executive|direct\s*desk)\]?/i.test(m.body || "")) return "direct";
 
   const ch = channelOf(m);
+  const chDigits = ch.replace(/[^0-9]/g, "");
+  const fromDigits = (m.from || "").replace(/[^0-9]/g, "");
+  const toDigits = (m.to || "").replace(/[^0-9]/g, "");
   if (
     ch === "1291624014041103" ||
+    chDigits === "447575376078" ||
+    toDigits === "447575376078" ||
     ch.toLowerCase().includes("direct") ||
     ch.toLowerCase().includes("executive")
   ) {
