@@ -156,8 +156,9 @@ export async function GET(request: Request) {
       slotConfigured.map((n) => inspect(n.id, n.label, token, visibleIds, wabaId))
     );
 
-    // Also test 1318810581311680 (Line 3: Executive Desk UK number) directly with this token
-    const line3Direct = await inspect("1318810581311680", "Executive Desk Line 3 (+44 7575 376078)", token, visibleIds, wabaId);
+    // Also test Line 3 (1034864159583818) and Line 2 (1318810581311680) directly with this token
+    const line3Direct = await inspect("1034864159583818", "Line 3", token, visibleIds, wabaId);
+    const line2Direct = await inspect("1318810581311680", "Line 2 (+44 7575 376078)", token, visibleIds, wabaId);
 
     slotsReport.push({
       slot: account.slot,
@@ -168,6 +169,7 @@ export async function GET(request: Request) {
       subscribeAttempt,
       checks,
       line3Direct,
+      line2Direct,
     });
   }
 
@@ -186,12 +188,11 @@ export async function GET(request: Request) {
       departmentCounts[dept] = (departmentCounts[dept] ?? 0) + 1;
 
       const isDirectMatch =
-        m.channel === "1318810581311680" ||
-        m.channel === "1291624014041103" ||
+        m.channel === "1034864159583818" ||
+        m.channel === "1083562997861778" ||
         m.department === "direct" ||
-        (m.from && m.from.includes("447575376078")) ||
-        (m.to && m.to.includes("447575376078")) ||
-        (m.channel && m.channel.includes("447575376078"));
+        (m.from && (m.from.includes("1034864159583818") || m.from.includes("1083562997861778"))) ||
+        (m.to && (m.to.includes("1034864159583818") || m.to.includes("1083562997861778")));
 
       if (isDirectMatch) {
         directMatches.push({

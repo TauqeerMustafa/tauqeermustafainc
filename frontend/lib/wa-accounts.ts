@@ -84,18 +84,18 @@ function readSlot(slot: number): WAAccount {
           }
         : slot === 3
           ? {
-              token: process.env.WHATSAPP_TOKEN_3,
-              appSecret: process.env.WHATSAPP_APP_SECRET_3,
-              wabaId: process.env.WHATSAPP_BUSINESS_ACCOUNT_ID_3,
+              token: process.env.WHATSAPP_TOKEN_3 || process.env.WHATSAPP_TOKEN_2 || process.env.WHATSAPP_TOKEN,
+              appSecret: process.env.WHATSAPP_APP_SECRET_3 || process.env.WHATSAPP_APP_SECRET_2 || process.env.WHATSAPP_APP_SECRET,
+              wabaId: process.env.WHATSAPP_BUSINESS_ACCOUNT_ID_3 || "1083562997861778",
               verifyToken: process.env.WEBHOOK_VERIFY_TOKEN_3,
-              label: process.env.WHATSAPP_APP_LABEL_3,
+              label: process.env.WHATSAPP_APP_LABEL_3 || "Line 3",
             }
           : {
               token: process.env.WHATSAPP_TOKEN_4,
               appSecret: process.env.WHATSAPP_APP_SECRET_4,
               wabaId: process.env.WHATSAPP_BUSINESS_ACCOUNT_ID_4,
               verifyToken: process.env.WEBHOOK_VERIFY_TOKEN_4,
-              label: process.env.WHATSAPP_APP_LABEL_4,
+              label: process.env.WHATSAPP_APP_LABEL_4 || "Line 4",
             };
 
   return {

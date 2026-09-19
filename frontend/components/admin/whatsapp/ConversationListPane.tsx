@@ -106,14 +106,29 @@ export function ConversationListPane({
     if (currentDepartment === "general" || currentDepartment === "1239592269240963" || currentDepartment === "line1") {
       return conv.channel === "1239592269240963" || conv.department === "general";
     }
-    if (currentDepartment === "support" || currentDepartment === "line2") {
-      return (conv.department === "support" && conv.channel !== "1318810581311680" && conv.channel !== "1083562997861778") || conv.channel === "support";
+    if (currentDepartment === "support" || currentDepartment === "1318810581311680" || currentDepartment === "line2") {
+      return (
+        conv.channel === "1318810581311680" ||
+        (conv.department === "support" &&
+          conv.channel !== "1291624014041103" &&
+          conv.channel !== "1034864159583818" &&
+          conv.channel !== "1083562997861778")
+      );
     }
-    if (currentDepartment === "direct" || currentDepartment === "1318810581311680" || currentDepartment === "1291624014041103" || currentDepartment === "line3") {
-      return conv.channel === "1318810581311680" || conv.channel === "1291624014041103" || conv.department === "direct";
+    if (
+      currentDepartment === "direct" ||
+      currentDepartment === "1034864159583818" ||
+      currentDepartment === "1083562997861778" ||
+      currentDepartment === "line3"
+    ) {
+      return (
+        conv.channel === "1034864159583818" ||
+        conv.channel === "1083562997861778" ||
+        conv.department === "direct"
+      );
     }
-    if (currentDepartment === "1083562997861778" || currentDepartment === "line4") {
-      return conv.channel === "1083562997861778";
+    if (currentDepartment === "1291624014041103" || currentDepartment === "line4") {
+      return conv.channel === "1291624014041103";
     }
     return conv.channel === currentDepartment || conv.department === currentDepartment;
   });
@@ -178,40 +193,40 @@ export function ConversationListPane({
           className="rounded-lg p-2 text-adm-text-3 hover:text-adm-text hover:bg-adm-surface-2 transition"
           title="Refresh messages"
         >
-          <RefreshCw size={15} />
+          <RotateCw size={15} />
         </button>
       </div>
 
-      {/* Omnichannel Line Filter Chips (All 4 Lines + Combined) */}
+      {/* Department Line Filter Pills & Search */}
       <div
-        className="p-3 pb-2 border-b space-y-2.5 shrink-0"
-        style={{ borderColor: "var(--adm-border)", background: "var(--adm-surface)" }}
+        className="flex flex-col gap-2 border-b p-3 shrink-0"
+        style={{ borderColor: "var(--adm-border)" }}
       >
-        {/* Horizontal Line Switcher Pills */}
-        <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5">
+        {/* Line selection tabs */}
+        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
           {/* All Lines */}
           <button
             type="button"
             onClick={() => onDepartmentChange("all")}
             className={`flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1 text-[11px] font-bold transition ${
               currentDepartment === "all"
-                ? "bg-adm-blue text-white shadow-sm"
+                ? "bg-adm-text text-adm-bg shadow-sm"
                 : "bg-adm-surface-2 text-adm-text-2 border border-adm-border hover:border-adm-text-3 hover:text-adm-text"
             }`}
           >
-            <span>All Lines</span>
-            {unreadCounts.total > 0 && (
-              <span
-                className={`flex h-4 min-w-[16px] items-center justify-center rounded-full px-1 text-[9px] font-bold ${
-                  currentDepartment === "all" ? "bg-white text-adm-blue" : "bg-emerald-500 text-white"
-                }`}
-              >
-                {unreadCounts.total}
-              </span>
-            )}
+            <span>All</span>
+            <span
+              className={`rounded-full px-1.5 py-0.2 text-[10px] font-semibold ${
+                currentDepartment === "all"
+                  ? "bg-adm-bg/20 text-adm-bg"
+                  : "bg-adm-surface text-adm-text-3"
+              }`}
+            >
+              {unreadCounts.total}
+            </span>
           </button>
 
-          {/* Line 1: General Inquiries & Sales */}
+          {/* Line 1 */}
           <button
             type="button"
             onClick={() => onDepartmentChange("general")}
@@ -220,10 +235,10 @@ export function ConversationListPane({
                 ? "bg-blue-600 text-white shadow-sm"
                 : "bg-adm-surface-2 text-adm-text-2 border border-adm-border hover:border-adm-text-3 hover:text-adm-text"
             }`}
-            title="Line 1: General Inquiries & Sales (+92 335 6701199)"
+            title="Line 1 (+92 335 6701199)"
           >
             <span className="h-1.5 w-1.5 rounded-full bg-blue-400" />
-            <span>Line 1: Sales</span>
+            <span>Line 1</span>
             {(unreadCounts.line1 ?? unreadCounts.general) > 0 && (
               <span className="flex h-4 min-w-[16px] items-center justify-center rounded-full bg-blue-500 px-1 text-[9px] font-bold text-white">
                 {unreadCounts.line1 ?? unreadCounts.general}
@@ -231,19 +246,19 @@ export function ConversationListPane({
             )}
           </button>
 
-          {/* Line 2: Technical & Client Support */}
+          {/* Line 2 */}
           <button
             type="button"
             onClick={() => onDepartmentChange("support")}
             className={`flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1 text-[11px] font-bold transition ${
-              currentDepartment === "support" || currentDepartment === "line2"
+              currentDepartment === "support" || currentDepartment === "1318810581311680" || currentDepartment === "line2"
                 ? "bg-emerald-600 text-white shadow-sm"
                 : "bg-adm-surface-2 text-adm-text-2 border border-adm-border hover:border-adm-text-3 hover:text-adm-text"
             }`}
-            title="Line 2: Client Support Desk"
+            title="Line 2 (+44 7575 376078)"
           >
             <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
-            <span>Line 2: Support</span>
+            <span>Line 2</span>
             {(unreadCounts.line2 ?? unreadCounts.support ?? 0) > 0 && (
               <span className="flex h-4 min-w-[16px] items-center justify-center rounded-full bg-emerald-500 px-1 text-[9px] font-bold text-white">
                 {unreadCounts.line2 ?? unreadCounts.support}
@@ -251,19 +266,22 @@ export function ConversationListPane({
             )}
           </button>
 
-          {/* Line 3: Executive & Direct Desk */}
+          {/* Line 3 */}
           <button
             type="button"
             onClick={() => onDepartmentChange("direct")}
             className={`flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1 text-[11px] font-bold transition ${
-              currentDepartment === "direct" || currentDepartment === "1318810581311680" || currentDepartment === "1291624014041103" || currentDepartment === "line3"
+              currentDepartment === "direct" ||
+              currentDepartment === "1034864159583818" ||
+              currentDepartment === "1083562997861778" ||
+              currentDepartment === "line3"
                 ? "bg-purple-600 text-white shadow-sm"
                 : "bg-adm-surface-2 text-adm-text-2 border border-adm-border hover:border-adm-text-3 hover:text-adm-text"
             }`}
-            title="Line 3: Executive Desk (+44 7575 376078)"
+            title="Line 3"
           >
             <span className="h-1.5 w-1.5 rounded-full bg-purple-400" />
-            <span>Line 3: Exec</span>
+            <span>Line 3</span>
             {(unreadCounts.line3 ?? unreadCounts.direct) > 0 && (
               <span className="flex h-4 min-w-[16px] items-center justify-center rounded-full bg-purple-500 px-1 text-[9px] font-bold text-white">
                 {unreadCounts.line3 ?? unreadCounts.direct}
@@ -271,19 +289,19 @@ export function ConversationListPane({
             )}
           </button>
 
-          {/* Line 4: Operations & Priority Desk */}
+          {/* Line 4 */}
           <button
             type="button"
-            onClick={() => onDepartmentChange("1083562997861778")}
+            onClick={() => onDepartmentChange("1291624014041103")}
             className={`flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1 text-[11px] font-bold transition ${
-              currentDepartment === "1083562997861778" || currentDepartment === "line4"
+              currentDepartment === "1291624014041103" || currentDepartment === "line4"
                 ? "bg-amber-600 text-white shadow-sm"
                 : "bg-adm-surface-2 text-adm-text-2 border border-adm-border hover:border-adm-text-3 hover:text-adm-text"
             }`}
-            title="Line 4: Operations & Priority Desk"
+            title="Line 4"
           >
             <span className="h-1.5 w-1.5 rounded-full bg-amber-400" />
-            <span>Line 4: Ops</span>
+            <span>Line 4</span>
             {(unreadCounts.line4 ?? 0) > 0 && (
               <span className="flex h-4 min-w-[16px] items-center justify-center rounded-full bg-amber-500 px-1 text-[9px] font-bold text-white">
                 {unreadCounts.line4}
@@ -377,9 +395,14 @@ export function ConversationListPane({
             const isOutbound = last?.direction === "outbound";
             const lastText = last?.body || (last?.type ? `[${last.type}]` : "No messages");
 
-            const isLine4 = conv.channel === "1083562997861778";
-            const isLine3 = conv.channel === "1318810581311680" || conv.channel === "1291624014041103" || conv.department === "direct";
-            const isLine2 = (conv.department === "support" && !isLine4 && conv.channel !== "1318810581311680") || conv.channel === "support";
+            const isLine4 = conv.channel === "1291624014041103";
+            const isLine3 =
+              conv.channel === "1034864159583818" ||
+              conv.channel === "1083562997861778" ||
+              conv.department === "direct";
+            const isLine2 =
+              conv.channel === "1318810581311680" ||
+              (conv.department === "support" && !isLine4 && !isLine3);
             const isLine1 = conv.channel === "1239592269240963" || conv.department === "general";
 
             const lineThemeColor = isLine4
@@ -461,12 +484,12 @@ export function ConversationListPane({
                         }`}
                       >
                         {isLine4
-                          ? "Ops • L4"
+                          ? "Line 4"
                           : isLine3
-                          ? "Direct • L3"
+                          ? "Line 3"
                           : isLine2
-                          ? "Support • L2"
-                          : "Sales • L1"}
+                          ? "Line 2"
+                          : "Line 1"}
                       </span>
 
                       {/* Unread badge */}

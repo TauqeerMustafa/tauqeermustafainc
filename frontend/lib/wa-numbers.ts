@@ -60,19 +60,24 @@ export type WANumber = {
 const DEFAULT_PRIMARY_ID = "1239592269240963";
 
 /**
- * Fallback id for the second number (Technical & Client Support).
+ * Fallback id for the second number (Line 2).
  */
-const DEFAULT_SECOND_ID = "1083562997861778";
+const DEFAULT_SECOND_ID = "1318810581311680";
 
 /**
- * Fallback id for the third number (Executive / Direct Desk - +44 7575 376078).
+ * Fallback id for the third number (Line 3 - Phone Number ID: 1034864159583818).
  */
-const DEFAULT_THIRD_ID = "1318810581311680";
+const DEFAULT_THIRD_ID = "1034864159583818";
 
 /**
- * Fallback id for the fourth number (Sandbox / Direct Desk test line).
+ * Fallback id for the fourth number (Line 4 - Test Sandbox: 1291624014041103).
  */
 const DEFAULT_FOURTH_ID = "1291624014041103";
+
+/**
+ * Known WABA ID associated with Line 3 (1083562997861778).
+ */
+export const LINE3_WABA_ID = "1083562997861778";
 
 /** Vercel masks some values in previews; the sentinel means "not really set". */
 const SENTINEL = "[SENSITIVE]";
@@ -112,7 +117,7 @@ function parseExplicitList(raw: string): WANumber[] {
     const label = labelParts.join("|").trim();
     out.push({ 
       id, 
-      label: label || `Number ${out.length + 1}`, 
+      label: label || `Line ${out.length + 1}`, 
       primary: out.length === 0,
       slot 
     });
@@ -129,15 +134,21 @@ function build(): WANumber[] {
   const secondRaw = clean(process.env.WHATSAPP_PHONE_NUMBER_ID_2);
   const secondId = secondRaw ? (isDisabled(secondRaw) ? null : secondRaw) : DEFAULT_SECOND_ID;
   const thirdRaw = clean(process.env.WHATSAPP_PHONE_NUMBER_ID_3);
-  const thirdId = thirdRaw ? (isDisabled(thirdRaw) ? null : thirdRaw) : DEFAULT_THIRD_ID;
-  const fourthRaw = clean(process.env.WHATSAPP_PHONE_NUMBER_ID_4);
+  let thirdId = thirdRaw ? (isDisabled(thirdRaw) ? null : thirdRaw) : DEFAULT_THIRD_ID;
+  let fourthRaw = clean(process.env.WHATSAPP_PHONE_NUMBER_ID_4);
+  if (fourthRaw === "1083562997861778" || fourthRaw === "1034864159583818") {
+    if (!thirdRaw || thirdRaw === DEFAULT_THIRD_ID) {
+      thirdId = "1034864159583818";
+    }
+    fourthRaw = DEFAULT_FOURTH_ID;
+  }
   const fourthId = fourthRaw ? (isDisabled(fourthRaw) ? null : fourthRaw) : DEFAULT_FOURTH_ID;
 
   const numbers: WANumber[] = [];
   if (primaryId && !isDisabled(primaryId)) {
     numbers.push({
       id: primaryId,
-      label: clean(process.env.WHATSAPP_PHONE_LABEL) || "General Inquiries & Sales",
+      label: clean(process.env.WHATSAPP_PHONE_LABEL) || "Line 1",
       primary: true,
       slot: 1,
       department: "general",
@@ -148,13 +159,13 @@ function build(): WANumber[] {
     const hasDedicatedSlot2Token = Boolean(clean(process.env.WHATSAPP_TOKEN_2));
     numbers.push({
       id: secondId,
-      label: clean(process.env.WHATSAPP_PHONE_LABEL_2) || "Technical & Client Support",
+      label: clean(process.env.WHATSAPP_PHONE_LABEL_2) || "Line 2",
       // With no primary configured, the second number has to carry the traffic
       // rather than leaving the integration dead.
       primary: numbers.length === 0,
       slot: hasDedicatedSlot2Token ? 2 : 1,
       department: "support",
-      displayNumber: clean(process.env.WHATSAPP_DISPLAY_NUMBER_2) || "Support Desk",
+      displayNumber: clean(process.env.WHATSAPP_DISPLAY_NUMBER_2) || "+44 7575 376078",
     });
   }
   if (thirdId) {
@@ -162,11 +173,11 @@ function build(): WANumber[] {
     const hasDedicatedSlot2Token = Boolean(clean(process.env.WHATSAPP_TOKEN_2));
     numbers.push({
       id: thirdId,
-      label: clean(process.env.WHATSAPP_PHONE_LABEL_3) || "Executive & Direct Desk",
+      label: clean(process.env.WHATSAPP_PHONE_LABEL_3) || "Line 3",
       primary: numbers.length === 0,
       slot: hasDedicatedSlot3Token ? 3 : (hasDedicatedSlot2Token ? 2 : 1),
       department: "direct",
-      displayNumber: clean(process.env.WHATSAPP_DISPLAY_NUMBER_3) || "+44 7575 376078",
+      displayNumber: clean(process.env.WHATSAPP_DISPLAY_NUMBER_3) || null,
     });
   }
   if (fourthId) {
@@ -175,7 +186,7 @@ function build(): WANumber[] {
     const hasDedicatedSlot2Token = Boolean(clean(process.env.WHATSAPP_TOKEN_2));
     numbers.push({
       id: fourthId,
-      label: clean(process.env.WHATSAPP_PHONE_LABEL_4) || "Operations & Priority Desk",
+      label: clean(process.env.WHATSAPP_PHONE_LABEL_4) || "Line 4",
       primary: numbers.length === 0,
       slot: hasDedicatedSlot4Token ? 4 : (hasDedicatedSlot3Token ? 3 : (hasDedicatedSlot2Token ? 2 : 1)),
       department: "support",
@@ -323,12 +334,15 @@ export function getChannelDepartment(
   if (!cleanId) return "general";
   const lower = cleanId.toLowerCase();
   const digits = cleanId.replace(/[^0-9]/g, "");
+
+  // 1. Line 3 (Direct / Executive): Phone ID 1034864159583818, WABA ID 1083562997861778
   if (
-    cleanId === "1318810581311680" ||
-    cleanId === "1291624014041103" ||
+    cleanId === "1034864159583818" ||
+    cleanId === "1083562997861778" ||
     cleanId === DEFAULT_THIRD_ID ||
-    digits === "447575376078" ||
-    cleanId.includes("447575376078") ||
+    cleanId === LINE3_WABA_ID ||
+    lower.includes("line 3") ||
+    lower.includes("line3") ||
     lower.includes("direct") ||
     lower.includes("executive") ||
     lower.includes("priority")
@@ -336,13 +350,42 @@ export function getChannelDepartment(
     return "direct";
   }
 
+  // 2. Line 2 (Support): Phone ID 1318810581311680 (+44 7575 376078)
+  if (
+    cleanId === "1318810581311680" ||
+    cleanId === DEFAULT_SECOND_ID ||
+    digits === "447575376078" ||
+    cleanId.includes("447575376078") ||
+    lower.includes("line 2") ||
+    lower.includes("line2") ||
+    lower.includes("support")
+  ) {
+    return "support";
+  }
+
+  // 3. Line 1 (General / Sales): Phone ID 1239592269240963 (+92 335 6701199)
   const primary = primaryNumberId();
   if (primary && cleanId === primary) return "general";
-  if (cleanId === DEFAULT_PRIMARY_ID || digits === "923356701199" || digits === "9233356701199") return "general";
+  if (
+    cleanId === DEFAULT_PRIMARY_ID ||
+    digits === "923356701199" ||
+    digits === "9233356701199" ||
+    lower.includes("line 1") ||
+    lower.includes("line1") ||
+    lower.includes("sales") ||
+    lower.includes("general")
+  ) {
+    return "general";
+  }
+
+  // 4. Line 4 (Test Sandbox): Phone ID 1291624014041103
+  if (cleanId === "1291624014041103" || cleanId === DEFAULT_FOURTH_ID || lower.includes("line 4") || lower.includes("line4")) {
+    return "support";
+  }
 
   const nums = allNumbers || waNumbers();
 
-  // 1. Exact match on id, displayNumber, or clean digits
+  // 5. Match against configured or discovered numbers list
   const num = nums.find((n) => {
     if (n.id === cleanId) return true;
     const nDigits = n.id.replace(/[^0-9]/g, "");
@@ -358,34 +401,9 @@ export function getChannelDepartment(
   if (num) {
     if (num.department) return num.department;
     if (num.primary) return "general";
-    if (num.id === DEFAULT_THIRD_ID || num.slot === 3) return "direct";
-    if (num.slot === 2 || num.slot === 4) return "support";
-    if (num.id === DEFAULT_FOURTH_ID) return "support";
-  }
-
-  // 2. Explicit keywords
-  if (lower.includes("support") || cleanId === DEFAULT_SECOND_ID || cleanId === DEFAULT_FOURTH_ID) {
-    return "support";
-  }
-
-  // 3. Multi-line awareness: if 3 lines are known, match against the 3rd line
-  if (nums.length >= 3) {
-    const directNum = nums.find(n => n.department === "direct" || n.id === DEFAULT_THIRD_ID || n.slot === 3) || nums[2];
-    if (directNum && (directNum.id === cleanId || (digits && directNum.id.replace(/[^0-9]/g, "") === digits))) {
-      return "direct";
-    }
-  }
-
-  // 4. Check against known direct number specifically
-  const directNum = nums.find((n) => n.department === "direct" || n.id === DEFAULT_THIRD_ID || n.slot === 3);
-  if (directNum && (directNum.id === cleanId || (digits && directNum.id.replace(/[^0-9]/g, "") === digits))) {
-    return "direct";
-  }
-
-  // 5. Check against known support number
-  const supportNum = nums.find((n) => n.department === "support" || n.id === DEFAULT_SECOND_ID || n.slot === 2);
-  if (supportNum && (supportNum.id === cleanId || (digits && supportNum.id.replace(/[^0-9]/g, "") === digits))) {
-    return "support";
+    if (num.id === DEFAULT_THIRD_ID || num.id === "1034864159583818" || num.id === "1083562997861778" || num.slot === 3) return "direct";
+    if (num.slot === 2 || num.id === "1318810581311680") return "support";
+    if (num.slot === 4 || num.id === DEFAULT_FOURTH_ID) return "support";
   }
 
   return "general";

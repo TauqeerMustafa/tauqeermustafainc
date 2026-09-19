@@ -164,57 +164,54 @@ export async function GET(request: Request) {
     resultList[0].primary = true;
   }
 
-  // Identify primary line first
-  const primaryItem = resultList.find((n) => n.primary) || resultList[0];
+  // Identify primary line first (Line 1)
+  const primaryItem = resultList.find((n) => n.primary || n.id === "1239592269240963") || resultList[0];
   if (primaryItem) {
     primaryItem.primary = true;
     primaryItem.department = "general";
-    if (!primaryItem.label || primaryItem.label === "Primary number" || primaryItem.label === "Line 1") {
-      primaryItem.label = "General Inquiries & Sales";
-    }
+    primaryItem.slot = 1;
+    primaryItem.label = "Line 1";
+    if (!primaryItem.displayNumber) primaryItem.displayNumber = "+92 335 6701199";
   }
 
-  // Process all non-primary lines intelligently
+  // Process all non-primary lines
   const nonPrimary = resultList.filter((n) => n !== primaryItem);
 
-  // 1. Identify direct line (Line 3): explicit ID match, UK number (+44 7575 376078), slot 3, direct/executive label, or 2nd non-primary
-  let directLineCandidate = nonPrimary.find(
-    (n) =>
-      n.id === "1318810581311680" ||
-      n.id === "1291624014041103" ||
-      n.displayNumber?.replace(/[^0-9]/g, "") === "447575376078" ||
-      n.slot === 3 ||
-      n.label?.toLowerCase().includes("direct") ||
-      n.label?.toLowerCase().includes("executive") ||
-      configured.find((c) => c.id === n.id)?.department === "direct"
-  );
-
-  // If no explicit candidate by tag/id, but we discovered multiple lines from Meta WABA:
-  // nonPrimary[0] = Support (Line 2), nonPrimary[1] = Direct (Line 3)
-  if (!directLineCandidate && nonPrimary.length >= 2) {
-    directLineCandidate = nonPrimary[1];
-  }
-
-  for (let i = 0; i < nonPrimary.length; i++) {
-    const n = nonPrimary[i];
+  for (const n of nonPrimary) {
     const conf = configured.find((c) => c.id === n.id);
-    const isDirect =
-      n === directLineCandidate ||
-      n.id === "1318810581311680" ||
-      n.id === "1291624014041103" ||
-      n.displayNumber?.replace(/[^0-9]/g, "") === "447575376078" ||
+    const isLine3 =
+      n.id === "1034864159583818" ||
+      n.id === "1083562997861778" ||
       n.slot === 3 ||
       conf?.department === "direct";
-    if (isDirect) {
+
+    const isLine2 =
+      !isLine3 &&
+      (n.id === "1318810581311680" ||
+        n.displayNumber?.replace(/[^0-9]/g, "") === "447575376078" ||
+        n.slot === 2);
+
+    const isLine4 =
+      !isLine3 &&
+      !isLine2 &&
+      (n.id === "1291624014041103" || n.slot === 4);
+
+    if (isLine3) {
       n.department = "direct";
-      if (!n.label || n.label === "Third number" || n.label === "Line 3" || n.label.startsWith("Line ") || n.label === "Second number") {
-        n.label = conf?.label || "Executive & Direct Desk";
-      }
+      n.slot = 3;
+      n.label = "Line 3";
+    } else if (isLine2) {
+      n.department = "support";
+      n.slot = 2;
+      n.label = "Line 2";
+      if (!n.displayNumber) n.displayNumber = "+44 7575 376078";
+    } else if (isLine4) {
+      n.department = "support";
+      n.slot = 4;
+      n.label = "Line 4";
     } else {
       n.department = conf?.department || "support";
-      if (!n.label || n.label === "Second number" || n.label === "Line 2" || n.label === "Line 4" || n.label.startsWith("Line ")) {
-        n.label = conf?.label || (n.id === "1083562997861778" ? "Operations & Priority Desk" : "Technical & Client Support");
-      }
+      n.label = conf?.label || `Line ${resultList.indexOf(n) + 1}`;
     }
   }
 

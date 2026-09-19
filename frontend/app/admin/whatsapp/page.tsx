@@ -201,18 +201,24 @@ function messageDirectlyMatchesNumber(m: WAMessage, numberInfo: WANumberInfo): b
   if (toDigits && idDigits && toDigits === idDigits) return true;
   if (toDigits && displayDigits && toDigits === displayDigits) return true;
 
-  if (numberInfo.department === "direct") {
+  if (numberInfo.department === "direct" || numberInfo.slot === 3 || numberInfo.id === "1034864159583818") {
     if (
-      ch === "1318810581311680" ||
-      ch === "1291624014041103" ||
-      toDigits === "1318810581311680" ||
-      toDigits === "1291624014041103" ||
-      toDigits === "447575376078" ||
-      chDigits === "447575376078"
+      ch === "1034864159583818" ||
+      ch === "1083562997861778" ||
+      toDigits === "1034864159583818" ||
+      toDigits === "1083562997861778"
     ) return true;
     if (/\[?(executive|direct\s*desk)\]?/i.test(m.body || "")) return true;
   }
 
+  if (numberInfo.department === "support" || numberInfo.slot === 2 || numberInfo.id === "1318810581311680") {
+    if (
+      ch === "1318810581311680" ||
+      toDigits === "1318810581311680" ||
+      toDigits === "447575376078" ||
+      chDigits === "447575376078"
+    ) return true;
+  }
   return false;
 }
 
@@ -298,33 +304,35 @@ function withSeenChannels(
     const hasDirectLineInApi = apiNumbers.some((n) => n.department === "direct");
     const hasSupportLineInApi = apiNumbers.some((n) => n.department === "support");
 
-    const isDirect =
-      ch === "1318810581311680" ||
-      ch === "1291624014041103" ||
-      cleanDigits(ch) === "447575376078" ||
+    const isLine3 =
+      ch === "1034864159583818" ||
+      ch === "1083562997861778" ||
       ch.toLowerCase().includes("direct") ||
       ch.toLowerCase().includes("executive") ||
-      hasDirectMessage ||
-      (!hasDirectLineInApi && hasSupportLineInApi);
+      hasDirectMessage;
 
-    const isSupport =
-      !isDirect &&
-      (ch.toLowerCase().includes("support") ||
-        ch === "1083562997861778" ||
-        !hasSupportLineInApi);
+    const isLine2 =
+      !isLine3 &&
+      (ch === "1318810581311680" ||
+        cleanDigits(ch) === "447575376078" ||
+        ch.toLowerCase().includes("support"));
+
+    const isLine4 = ch === "1291624014041103";
 
     extras.push({
       id: ch,
-      label: isDirect
-        ? "Executive & Direct Desk"
-        : isSupport
-        ? "Technical & Client Support"
+      label: isLine3
+        ? "Line 3"
+        : isLine2
+        ? "Line 2"
+        : isLine4
+        ? "Line 4"
         : `Line ${apiNumbers.length + extras.length + 1}`,
       primary: false,
-      slot: isDirect ? 3 : 1,
+      slot: isLine4 ? 4 : isLine3 ? 3 : isLine2 ? 2 : 1,
       canSend: false,
-      department: isDirect ? "direct" : isSupport ? "support" : "general",
-      displayNumber: isDirect ? "+44 7575 376078" : null,
+      department: isLine3 ? "direct" : "support",
+      displayNumber: isLine2 ? "+44 7575 376078" : null,
       error: "Received messages arrived on this number, but Meta has not confirmed it — replies may not send until it is configured.",
     });
   }
@@ -340,22 +348,42 @@ function getMessageDepartment(m: WAMessage, allNumbers: WANumberInfo[] = []): "g
   const chDigits = ch.replace(/[^0-9]/g, "");
   const fromDigits = (m.from || "").replace(/[^0-9]/g, "");
   const toDigits = (m.to || "").replace(/[^0-9]/g, "");
+
+  // Line 3: 1034864159583818 / 1083562997861778
   if (
-    ch === "1318810581311680" ||
-    ch === "1291624014041103" ||
-    chDigits === "447575376078" ||
-    fromDigits === "447575376078" ||
-    toDigits === "447575376078" ||
+    ch === "1034864159583818" ||
+    ch === "1083562997861778" ||
+    toDigits === "1034864159583818" ||
+    toDigits === "1083562997861778" ||
+    fromDigits === "1034864159583818" ||
+    fromDigits === "1083562997861778" ||
+    ch.toLowerCase().includes("line 3") ||
     ch.toLowerCase().includes("direct") ||
     ch.toLowerCase().includes("executive")
   ) {
     return "direct";
   }
 
+  // Line 2: 1318810581311680 (+44 7575 376078)
+  if (
+    ch === "1318810581311680" ||
+    chDigits === "447575376078" ||
+    fromDigits === "447575376078" ||
+    toDigits === "447575376078" ||
+    toDigits === "1318810581311680" ||
+    ch.toLowerCase().includes("line 2") ||
+    ch.toLowerCase().includes("support")
+  ) {
+    return "support";
+  }
+
   const line = getLineForMessage(m, allNumbers);
   if (line?.department) return line.department;
-  if (line?.id === "1318810581311680" || line?.id === "1291624014041103" || line?.slot === 3) {
+  if (line?.id === "1034864159583818" || line?.id === "1083562997861778" || line?.slot === 3) {
     return "direct";
+  }
+  if (line?.id === "1318810581311680" || line?.slot === 2) {
+    return "support";
   }
   if (
     ch === "1239592269240963" ||
@@ -369,7 +397,7 @@ function getMessageDepartment(m: WAMessage, allNumbers: WANumberInfo[] = []): "g
   if (
     (line && (!line.primary || line.label.toLowerCase().includes("support"))) ||
     ch.toLowerCase().includes("support") ||
-    ch === "1083562997861778"
+    ch === "1291624014041103"
   ) {
     return "support";
   }
@@ -491,8 +519,8 @@ export default function AdminWhatsAppPage() {
   const numbers = withSeenChannels(apiNumbers, allMessages);
 
   const generalLine = numbers.find((n) => n.department === "general" || n.primary) || numbers[0];
-  const supportLine = numbers.find((n) => n.department === "support" || (!n.primary && n.id !== "1318810581311680" && n.id !== "1291624014041103" && n.slot !== 3));
-  const directLine = numbers.find((n) => n.department === "direct" || n.id === "1318810581311680" || n.id === "1291624014041103" || n.slot === 3);
+  const supportLine = numbers.find((n) => n.id === "1318810581311680" || n.slot === 2 || (n.department === "support" && n.id !== "1291624014041103" && n.id !== "1034864159583818" && n.id !== "1083562997861778"));
+  const directLine = numbers.find((n) => n.id === "1034864159583818" || n.id === "1083562997861778" || n.slot === 3 || n.department === "direct");
 
   const activeLine =
     department === "general"
@@ -519,8 +547,10 @@ export default function AdminWhatsAppPage() {
     const matchedNumber = numbers.find((n) => n.id === senderId);
     if (matchedNumber?.department) {
       setDepartment(matchedNumber.department);
-    } else if (matchedNumber?.id === "1318810581311680" || matchedNumber?.id === "1291624014041103" || matchedNumber?.slot === 3) {
+    } else if (matchedNumber?.id === "1034864159583818" || matchedNumber?.id === "1083562997861778" || matchedNumber?.slot === 3) {
       setDepartment("direct");
+    } else if (matchedNumber?.id === "1318810581311680" || matchedNumber?.slot === 2) {
+      setDepartment("support");
     }
     setPrefillSender(senderId);
     setActiveTab("send");
@@ -531,8 +561,10 @@ export default function AdminWhatsAppPage() {
       const line = numbers.find((n) => n.id === channelId);
       if (line?.department) {
         setDepartment(line.department);
-      } else if (channelId === "1318810581311680" || channelId === "1291624014041103" || line?.slot === 3) {
+      } else if (channelId === "1034864159583818" || channelId === "1083562997861778" || line?.slot === 3) {
         setDepartment("direct");
+      } else if (channelId === "1318810581311680" || line?.slot === 2) {
+        setDepartment("support");
       }
     }
     setSelectedChatRecipient(recipient);
@@ -857,7 +889,7 @@ function describeMessage(m: WAMessage) {
 function lastPreview(conv: Conversation) {
   const m = conv.messages.at(-1);
   if (!m) return "";
-  return describeMessage(m).replace(/\n/g, " ");
+  return describeMessage(m).replace(/\r\n/g, " ");
 }
 
 /** WhatsApp chat-list timestamp: time today, "Yesterday", weekday this week, else date. */
@@ -1016,9 +1048,9 @@ function InboxTab({
   const directConvs = groupConversations(allMessages, numbers, "direct");
 
   const line1Convs = allConversations.filter(c => c.channel === "1239592269240963" || c.department === "general");
-  const line2Convs = allConversations.filter(c => (c.department === "support" && c.channel !== "1083562997861778" && c.channel !== "1318810581311680"));
-  const line3Convs = allConversations.filter(c => c.channel === "1318810581311680" || c.channel === "1291624014041103" || c.department === "direct");
-  const line4Convs = allConversations.filter(c => c.channel === "1083562997861778");
+  const line2Convs = allConversations.filter(c => c.channel === "1318810581311680" || (c.department === "support" && c.channel !== "1291624014041103" && c.channel !== "1034864159583818" && c.channel !== "1083562997861778"));
+  const line3Convs = allConversations.filter(c => c.channel === "1034864159583818" || c.channel === "1083562997861778" || c.department === "direct");
+  const line4Convs = allConversations.filter(c => c.channel === "1291624014041103");
 
   const unreadCounts = {
     general: generalConvs.reduce((acc, c) => acc + (unreadCount(c, metaMap[c.key] || metaMap[c.number]) > 0 ? 1 : 0), 0),
@@ -1295,8 +1327,12 @@ function ChatView({
     const deptLine = numbers.find((n) => n.department === currentDept);
     if (deptLine) return deptLine.id;
     if (currentDept === "direct") {
-      const d = numbers.find((n) => n.id === "1318810581311680" || n.id === "1291624014041103" || n.slot === 3 || n.department === "direct");
+      const d = numbers.find((n) => n.id === "1034864159583818" || n.id === "1083562997861778" || n.slot === 3 || n.department === "direct");
       if (d) return d.id;
+    }
+    if (currentDept === "support") {
+      const s = numbers.find((n) => n.id === "1318810581311680" || n.slot === 2 || n.department === "support") || numbers.find((n) => !n.primary) || numbers[0];
+      return s?.id || "";
     }
     if (currentDept === "support") {
       const s = numbers.find((n) => !n.primary) || numbers[0];
@@ -1524,25 +1560,25 @@ function ChatView({
                 {name}
               </p>
               <p className="truncate text-[12px]" style={{ color: WA.sub }}>
-                {conv.channel === "1083562997861778" ? (
+                {conv.channel === "1291624014041103" ? (
                   <span className="inline-flex items-center gap-1 font-semibold text-amber-600 dark:text-amber-400">
                     <span className="h-1.5 w-1.5 rounded-full bg-amber-500 inline-block" />
-                    Operations Desk • Line 4
+                    Line 4
                   </span>
-                ) : (conv.department || department) === "direct" || conv.channel === "1318810581311680" || conv.channel === "1291624014041103" ? (
+                ) : (conv.department || department) === "direct" || conv.channel === "1034864159583818" || conv.channel === "1083562997861778" ? (
                   <span className="inline-flex items-center gap-1 font-semibold text-purple-600 dark:text-purple-400">
                     <span className="h-1.5 w-1.5 rounded-full bg-purple-500 inline-block" />
-                    Executive Desk • Line 3
+                    Line 3
                   </span>
-                ) : (conv.department || department) === "support" ? (
+                ) : (conv.department || department) === "support" || conv.channel === "1318810581311680" ? (
                   <span className="inline-flex items-center gap-1 font-semibold text-emerald-600 dark:text-emerald-400">
                     <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 inline-block" />
-                    Client Support Desk • Line 2
+                    Line 2
                   </span>
                 ) : (
                   <span className="inline-flex items-center gap-1 font-semibold text-adm-blue">
                     <span className="h-1.5 w-1.5 rounded-full bg-adm-blue inline-block" />
-                    General Inquiries & Sales • Line 1
+                    Line 1
                   </span>
                 )}
               </p>
@@ -1686,13 +1722,13 @@ function ChatView({
                 onReact={handleReact}
                 lineBadge={
                   msgLine
-                    ? msgLine.primary
+                    ? msgLine.primary || msgLine.id === "1239592269240963" || msgLine.slot === 1
                       ? "Line 1"
-                      : msgLine.department === "direct" || msgLine.id === "1318810581311680" || msgLine.id === "1291624014041103" || msgLine.slot === 3
+                      : msgLine.id === "1318810581311680" || msgLine.slot === 2
+                      ? "Line 2"
+                      : msgLine.id === "1034864159583818" || msgLine.id === "1083562997861778" || msgLine.slot === 3 || msgLine.department === "direct"
                       ? "Line 3"
-                      : msgLine.id === "1083562997861778" || msgLine.slot === 4
-                      ? "Line 4"
-                      : "Line 2"
+                      : "Line 4"
                     : undefined
                 }
                 isPrimaryLine={msgLine?.primary}
@@ -1750,13 +1786,13 @@ function ChatView({
           >
             {numbers.map((n) => {
               const label =
-                n.id === "1318810581311680" || n.id === "1291624014041103" || n.slot === 3 || n.department === "direct"
-                  ? `Line 3 (Executive Desk)${n.displayNumber ? ` • ${n.displayNumber}` : ""}`
-                  : n.id === "1083562997861778" || n.slot === 4
-                  ? `Line 4 (Operations Desk)${n.displayNumber ? ` • ${n.displayNumber}` : ""}`
-                  : n.slot === 2 || n.department === "support"
-                  ? `Line 2 (Client Support)${n.displayNumber ? ` • ${n.displayNumber}` : ""}`
-                  : `Line 1 (Sales)${n.displayNumber ? ` • ${n.displayNumber}` : ""}`;
+                n.primary || n.id === "1239592269240963" || n.slot === 1
+                  ? `Line 1${n.displayNumber ? ` • ${n.displayNumber}` : ""}`
+                  : n.id === "1318810581311680" || n.slot === 2
+                  ? `Line 2${n.displayNumber ? ` • ${n.displayNumber}` : ""}`
+                  : n.id === "1034864159583818" || n.id === "1083562997861778" || n.slot === 3 || n.department === "direct"
+                  ? `Line 3${n.displayNumber ? ` • ${n.displayNumber}` : ""}`
+                  : `Line 4${n.displayNumber ? ` • ${n.displayNumber}` : ""}`;
               return (
                 <option key={n.id} value={n.id}>
                   {label}
@@ -1766,7 +1802,7 @@ function ChatView({
           </select>
         </div>
         <span className="text-[11px] font-mono" style={{ color: "var(--adm-text-3)" }}>
-          {senderInfo?.displayNumber || (sender === "1239592269240963" ? "+92 335 6701199" : (sender === "1318810581311680" || sender === "1291624014041103") ? "+44 7575 376078" : "")}
+          {senderInfo?.displayNumber || (sender === "1239592269240963" ? "+92 335 6701199" : sender === "1318810581311680" ? "+44 7575 376078" : "")}
         </span>
       </div>
 
@@ -2636,10 +2672,10 @@ function SendTab({
   const fallbackSender =
     deptLine?.id ||
     (department === "direct"
-      ? numbers.find((n) => n.id === "1318810581311680" || n.id === "1291624014041103" || n.slot === 3 || n.department === "direct")?.id
+      ? numbers.find((n) => n.id === "1034864159583818" || n.id === "1083562997861778" || n.slot === 3 || n.department === "direct")?.id
       : department === "support"
-      ? numbers.find((n) => !n.primary && n.id !== "1318810581311680" && n.id !== "1291624014041103" && n.slot !== 3)?.id
-      : numbers.find((n) => n.primary)?.id) ||
+      ? numbers.find((n) => n.id === "1318810581311680" || n.slot === 2 || (n.department === "support" && n.id !== "1291624014041103" && n.id !== "1034864159583818" && n.id !== "1083562997861778"))?.id
+      : numbers.find((n) => n.primary || n.id === "1239592269240963")?.id) ||
     numbers[0]?.id ||
     "";
   const sender = senderChoice || defaultSender || fallbackSender;
@@ -3151,7 +3187,7 @@ function ButtonPreview({
       .replace(/\*(.+?)\*/g, "<strong>$1</strong>")
       .replace(/_(.+?)_/g, "<em>$1</em>")
       .replace(/~(.+?)~/g, "<span style=\"text-decoration:line-through\">$1</span>")
-      .replace(/\n/g, "<br/>");
+      .replace(/\r\n/g, "<br/>");
 
   return (
     <div>
@@ -3243,10 +3279,10 @@ function MetaTemplatesTab({ defaultRecipient, department }: { defaultRecipient: 
   const sender =
     senderChoice ||
     (department === "direct"
-      ? numbers.find((n) => n.id === "1318810581311680" || n.id === "1291624014041103" || n.slot === 3 || n.department === "direct")?.id
+      ? numbers.find((n) => n.id === "1034864159583818" || n.id === "1083562997861778" || n.slot === 3 || n.department === "direct")?.id
       : department === "support"
-      ? numbers.find((n) => !n.primary && n.id !== "1318810581311680" && n.id !== "1291624014041103" && n.slot !== 3)?.id
-      : numbers.find((n) => n.primary)?.id) ||
+      ? numbers.find((n) => n.id === "1318810581311680" || n.slot === 2 || (n.department === "support" && n.id !== "1291624014041103" && n.id !== "1034864159583818" && n.id !== "1083562997861778"))?.id
+      : numbers.find((n) => n.primary || n.id === "1239592269240963")?.id) ||
     numbers[0]?.id ||
     "";
 
@@ -5339,8 +5375,8 @@ function NumbersTab({
         <div className="grid gap-4 sm:grid-cols-2">
           {numbers.map((n, idx) => {
             const isSendable = n.canSend !== false;
-            const isDirectLine = n.department === "direct" || n.id === "1318810581311680" || n.id === "1291624014041103" || n.slot === 3;
-            const isSupportLine = !isDirectLine && (n.department === "support" || (!n.primary && idx > 0));
+            const isDirectLine = n.department === "direct" || n.id === "1034864159583818" || n.id === "1083562997861778" || n.slot === 3;
+            const isSupportLine = !isDirectLine && (n.id === "1318810581311680" || n.slot === 2 || n.department === "support" || (!n.primary && idx > 0));
             const lineDept = isDirectLine ? "direct" : isSupportLine ? "support" : "general";
             const isCurrentDept = lineDept === department;
             return (
@@ -5389,11 +5425,13 @@ function NumbersTab({
                           </h4>
                         </div>
                         <p className="text-xs font-semibold text-adm-text-2 mt-0.5">
+                        <p className="text-xs font-semibold text-adm-text-2 mt-0.5">
                           {isDirectLine
-                            ? "Executive & Direct Desk (Line 3)"
+                            ? "Line 3"
                             : isSupportLine
-                            ? "Technical & Client Support Line"
-                            : "General Inquiries & Sales Line"}
+                            ? (n.slot === 4 || n.id === "1291624014041103" ? "Line 4" : "Line 2")
+                            : "Line 1"}
+                        </p>
                         </p>
                         {n.verifiedName && (
                           <p className="text-xs font-medium text-adm-text-3">{n.verifiedName}</p>

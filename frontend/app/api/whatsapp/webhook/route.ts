@@ -113,14 +113,16 @@ export async function POST(request: Request) {
 
     // Walk the standard Meta webhook envelope
     for (const entry of body?.entry ?? []) {
+      const entryWabaId = String(entry?.id || "").trim();
       for (const change of entry?.changes ?? []) {
         const value    = change?.value;
         const messages = value?.messages ?? [];
-        const phoneId      = String(value?.metadata?.phone_number_id || "").trim();
+        const rawPhoneId   = String(value?.metadata?.phone_number_id || "").trim();
         const displayPhone = String(value?.metadata?.display_phone_number || "").trim();
-        // The number this event arrived on. One webhook serves the whole WABA,
-        // so this — not the environment — decides who replies.
-        const channel      = phoneId || displayPhone || "";
+        // The number this event arrived on. If Meta sends WABA ID 1083562997861778 or Phone ID 1034864159583818,
+        // it belongs to Line 3.
+        const phoneId      = rawPhoneId || (entryWabaId === "1083562997861778" ? "1034864159583818" : "");
+        const channel      = phoneId || displayPhone || entryWabaId || "";
 
         for (const msg of messages) {
           const from    = msg.from;         // sender number (digits only)
@@ -239,9 +241,16 @@ export async function POST(request: Request) {
             msg?.button?.payload ??
             null;
 
-          // Department attribution: prioritize explicit executive tags or channel matching
+          // Department attribution: prioritize explicit Line 3 IDs or executive tags
           const isDirectFromText = /\[?(executive|direct\s*desk)\]?/i.test(text);
-          const dept: "general" | "support" | "direct" = isDirectFromText
+          const isLine3Channel =
+            phoneId === "1034864159583818" ||
+            phoneId === "1083562997861778" ||
+            channel === "1034864159583818" ||
+            channel === "1083562997861778" ||
+            entryWabaId === "1083562997861778";
+
+          const dept: "general" | "support" | "direct" = isDirectFromText || isLine3Channel
             ? "direct"
             : getChannelDepartment(phoneId || displayPhone || channel);
 
@@ -353,22 +362,20 @@ async function handleAutoReply(
   let numberDef = waNumbers().find((n) => n.id === phoneNumberId);
   if (!numberDef) {
     const isPrimary = phoneNumberId === primaryNumberId() || phoneNumberId === "1239592269240963";
-    const isDirect = phoneNumberId === "1318810581311680" || phoneNumberId === "1291624014041103" || dept === "direct";
+    const isLine2 = phoneNumberId === "1318810581311680";
+    const isLine3 = phoneNumberId === "1034864159583818" || phoneNumberId === "1083562997861778" || dept === "direct";
+    const isLine4 = phoneNumberId === "1291624014041103";
     numberDef = {
       id: phoneNumberId,
-      label: isPrimary
-        ? "General Inquiries & Sales"
-        : isDirect
-        ? "Executive & Direct Desk"
-        : "Technical & Client Support",
+      label: isPrimary ? "Line 1" : isLine2 ? "Line 2" : isLine3 ? "Line 3" : "Line 4",
       primary: isPrimary,
-      slot: isDirect ? 3 : 1,
-      department: dept,
+      slot: isLine4 ? 4 : isLine3 ? 3 : isLine2 ? 2 : 1,
+      department: isLine3 ? "direct" : isPrimary ? "general" : "support",
       displayNumber: isPrimary
         ? "+92 335 6701199"
-        : isDirect
+        : isLine2
         ? "+44 7575 376078"
-        : "Support Desk",
+        : null,
     };
     registerKnownNumbers([numberDef]);
   }

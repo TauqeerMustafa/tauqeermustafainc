@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Bell, Check, CheckCheck, ExternalLink, LogOut, Menu, Search, Trash2, X } from "lucide-react";
@@ -70,6 +70,16 @@ function relativeTime(iso: string | null): string {
   return `${Math.round(days / 7)}w ago`;
 }
 
+/**
+ * Post-mount platform detection via `useSyncExternalStore` rather than a
+ * setState-in-effect: the server snapshot is `false` (so SSR and first paint
+ * render "Ctrl K"), and the client snapshot reads the user agent once hydration
+ * runs. The UA never changes, so `subscribe` is a no-op.
+ */
+const subscribePlatform = () => () => {};
+const getIsMacSnapshot = () => /mac/i.test(navigator.userAgent);
+const getIsMacServerSnapshot = () => false;
+
 export default function PortalHeader({ portal, onMenuClick }: Props) {
   const router = useRouter();
   const logout = useLogout();
@@ -81,9 +91,9 @@ export default function PortalHeader({ portal, onMenuClick }: Props) {
 
   const [notifOpen, setNotifOpen] = useState(false);
   const [paletteOpen, setPaletteOpen] = useState(false);
-  const [isMac, setIsMac] = useState(false);
   const [state, setState] = useState<NotifState>(readState);
   const notifRef = useRef<HTMLDivElement>(null);
+  const isMac = useSyncExternalStore(subscribePlatform, getIsMacSnapshot, getIsMacServerSnapshot);
 
   const readSet = useMemo(() => new Set(state.read), [state.read]);
   const dismissedSet = useMemo(() => new Set(state.dismissed), [state.dismissed]);

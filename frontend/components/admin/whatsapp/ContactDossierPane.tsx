@@ -107,9 +107,14 @@ export function ContactDossierPane({
     onSaveMeta({ tags: tags.filter((t) => t !== tagToRemove) });
   };
 
-  const isLine4 = channelId === "1083562997861778";
-  const isLine3 = channelId === "1318810581311680" || channelId === "1291624014041103" || department === "direct";
-  const isLine2 = (department === "support" && !isLine4 && channelId !== "1318810581311680") || channelId === "support";
+  const isLine4 = channelId === "1291624014041103";
+  const isLine3 =
+    channelId === "1034864159583818" ||
+    channelId === "1083562997861778" ||
+    department === "direct";
+  const isLine2 =
+    channelId === "1318810581311680" ||
+    (department === "support" && !isLine4 && !isLine3);
 
   const themeColor = isLine4
     ? "#d97706"
@@ -205,22 +210,22 @@ export function ContactDossierPane({
             {isLine4 ? (
               <span className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20">
                 <SlidersHorizontal size={12} />
-                Operations Desk (Line 4)
+                Line 4
               </span>
             ) : isLine3 ? (
               <span className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/20">
                 <ShieldCheck size={12} />
-                Executive Desk (Line 3)
+                Line 3
               </span>
             ) : isLine2 ? (
               <span className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
                 <LifeBuoy size={12} />
-                Client Support Desk (Line 2)
+                Line 2
               </span>
             ) : (
               <span className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20">
                 <Briefcase size={12} />
-                General Inquiries & Sales (Line 1)
+                Line 1
               </span>
             )}
           </div>
