@@ -1946,24 +1946,22 @@ export default function Webmail({
                         Cancel
                       </button>
 
-                      {/* Hidden file input for quick reply */}
-                      <input
-                        ref={inlineFileInputRef}
-                        type="file"
-                        multiple
-                        className="hidden"
-                        onChange={(e) => handleInlineFilesSelected(e.target.files)}
-                      />
-
-                      {/* Attach button */}
-                      <button
-                        type="button"
-                        onClick={() => inlineFileInputRef.current?.click()}
-                        disabled={inlineAttaching}
+                      {/* Attach button as label for cross-platform and WebView reliability */}
+                      <label
                         title="Attach files (max 15 MB total)"
-                        className="flex items-center gap-1 text-xs font-semibold transition hover:text-adm-blue"
+                        className={`cursor-pointer flex items-center gap-1 text-xs font-semibold transition hover:text-adm-blue ${
+                          inlineAttaching ? "opacity-50 pointer-events-none" : ""
+                        }`}
                         style={{ color: inlineAttachedFiles.length > 0 ? "var(--adm-blue)" : "var(--adm-text-3)" }}
                       >
+                        <input
+                          ref={inlineFileInputRef}
+                          type="file"
+                          multiple
+                          className="sr-only"
+                          onChange={(e) => handleInlineFilesSelected(e.target.files)}
+                          disabled={inlineAttaching}
+                        />
                         {inlineAttaching ? (
                           <Loader2 size={13} className="animate-spin" />
                         ) : (
@@ -1978,7 +1976,7 @@ export default function Webmail({
                             {inlineAttachedFiles.length}
                           </span>
                         )}
-                      </button>
+                      </label>
                     </div>
 
                     <button
@@ -2594,10 +2592,9 @@ export default function Webmail({
                     Subject
                   </span>
                   <input
-                    required
                     value={subject}
                     onChange={(e) => setSubject(e.target.value)}
-                    placeholder="Subject"
+                    placeholder="Subject (optional)"
                     className="flex-1 bg-transparent font-medium outline-none"
                     style={{ color: "var(--adm-text)" }}
                   />
@@ -2724,31 +2721,27 @@ export default function Webmail({
                     <span>{sending ? "Sending…" : "Send"}</span>
                   </button>
 
-                  {/* Hidden file input for composer */}
-                  <input
-                    ref={fileInputRef}
-                    type="file"
-                    multiple
-                    className="hidden"
-                    onChange={(e) => handleFilesSelected(e.target.files)}
-                  />
-
-                  {/* Attachment Button */}
-                  <button
-                    type="button"
-                    onClick={() => fileInputRef.current?.click()}
-                    disabled={attachingFiles}
+                  {/* Attachment Button wrapped in label for cross-platform and WebView reliability */}
+                  <label
                     title="Attach files (max 15 MB total)"
-                    className={`flex h-8 w-8 items-center justify-center rounded-full border transition hover:bg-adm-surface-2 ${
+                    className={`cursor-pointer flex h-8 w-8 items-center justify-center rounded-full border transition hover:bg-adm-surface-2 ${
                       attachedFiles.length > 0 ? "border-adm-blue text-adm-blue" : ""
-                    }`}
+                    } ${attachingFiles ? "opacity-50 pointer-events-none" : ""}`}
                     style={{
                       borderColor: attachedFiles.length > 0 ? "var(--adm-blue)" : "var(--adm-border)",
                       color: attachedFiles.length > 0 ? "var(--adm-blue)" : "var(--adm-text-3)",
                     }}
                   >
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      multiple
+                      className="sr-only"
+                      onChange={(e) => handleFilesSelected(e.target.files)}
+                      disabled={attachingFiles}
+                    />
                     {attachingFiles ? <Loader2 size={14} className="animate-spin" /> : <Paperclip size={15} />}
-                  </button>
+                  </label>
 
                   <button
                     type="button"

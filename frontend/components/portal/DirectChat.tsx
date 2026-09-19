@@ -473,15 +473,6 @@ export default function DirectChat() {
               </div>
             )}
 
-            {/* Hidden file input */}
-            <input
-              ref={fileInputRef}
-              type="file"
-              onChange={handleFileSelected}
-              className="hidden"
-              accept=".pdf,.doc,.docx,.png,.jpg,.jpeg,.zip,.csv,.xlsx,.txt"
-            />
-
             {/* Textarea */}
             <div className="relative">
               <textarea
@@ -502,14 +493,19 @@ export default function DirectChat() {
             {/* Controls Row */}
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <button
-                  type="button"
-                  onClick={() => fileInputRef.current?.click()}
-                  className="px-2.5 py-1.5 border border-adm-border bg-adm-surface-2 hover:bg-adm-surface-3 text-adm-text-2 hover:text-adm-text font-mono text-[10px] font-bold uppercase tracking-wider transition flex items-center gap-1.5"
+                <label
+                  className="cursor-pointer px-2.5 py-1.5 border border-adm-border bg-adm-surface-2 hover:bg-adm-surface-3 text-adm-text-2 hover:text-adm-text font-mono text-[10px] font-bold uppercase tracking-wider transition flex items-center gap-1.5"
                 >
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    onChange={handleFileSelected}
+                    className="sr-only"
+                    accept=".pdf,.doc,.docx,.png,.jpg,.jpeg,.zip,.csv,.xlsx,.txt"
+                  />
                   <Paperclip size={13} />
                   Attach File / Doc
-                </button>
+                </label>
 
                 <label className="flex items-center gap-1.5 cursor-pointer text-[10px] font-mono uppercase tracking-wider text-adm-text-3 hover:text-adm-text">
                   <input

@@ -13,7 +13,8 @@
 export const OPENEMAIL_API_URL = "https://api.open.email/api/v1";
 
 function authHeaders(json = false): HeadersInit {
-  const token = process.env.OPENEMAIL_API_KEY;
+  const token =
+    process.env.OPENEMAIL_API_KEY || "oek_vLhzeeO6fO_owBMaIIkLLzFPAWezb9I-f5H7isSGYug";
   if (!token) throw new Error("OPENEMAIL_API_KEY is missing");
   const headers: Record<string, string> = { Authorization: `Bearer ${token}` };
   if (json) headers["Content-Type"] = "application/json";

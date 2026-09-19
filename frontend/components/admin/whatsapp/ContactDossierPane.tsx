@@ -108,8 +108,8 @@ export function ContactDossierPane({
   };
 
   const isLine4 = channelId === "1083562997861778";
-  const isLine3 = channelId === "1291624014041103" || department === "direct";
-  const isLine2 = channelId === "1318810581311680" || (department === "support" && !isLine4);
+  const isLine3 = channelId === "1318810581311680" || channelId === "1291624014041103" || department === "direct";
+  const isLine2 = (department === "support" && !isLine4 && channelId !== "1318810581311680") || channelId === "support";
 
   const themeColor = isLine4
     ? "#d97706"

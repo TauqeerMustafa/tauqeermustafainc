@@ -353,7 +353,7 @@ async function handleAutoReply(
   let numberDef = waNumbers().find((n) => n.id === phoneNumberId);
   if (!numberDef) {
     const isPrimary = phoneNumberId === primaryNumberId() || phoneNumberId === "1239592269240963";
-    const isDirect = phoneNumberId === "1291624014041103" || dept === "direct";
+    const isDirect = phoneNumberId === "1318810581311680" || phoneNumberId === "1291624014041103" || dept === "direct";
     numberDef = {
       id: phoneNumberId,
       label: isPrimary
@@ -367,7 +367,7 @@ async function handleAutoReply(
       displayNumber: isPrimary
         ? "+92 335 6701199"
         : isDirect
-        ? "Executive Desk"
+        ? "+44 7575 376078"
         : "Support Desk",
     };
     registerKnownNumbers([numberDef]);

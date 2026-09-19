@@ -106,17 +106,14 @@ export function ConversationListPane({
     if (currentDepartment === "general" || currentDepartment === "1239592269240963" || currentDepartment === "line1") {
       return conv.channel === "1239592269240963" || conv.department === "general";
     }
-    if (currentDepartment === "1318810581311680" || currentDepartment === "line2") {
-      return conv.channel === "1318810581311680" || (conv.department === "support" && conv.channel !== "1083562997861778");
+    if (currentDepartment === "support" || currentDepartment === "line2") {
+      return (conv.department === "support" && conv.channel !== "1318810581311680" && conv.channel !== "1083562997861778") || conv.channel === "support";
     }
-    if (currentDepartment === "direct" || currentDepartment === "1291624014041103" || currentDepartment === "line3") {
-      return conv.channel === "1291624014041103" || conv.department === "direct";
+    if (currentDepartment === "direct" || currentDepartment === "1318810581311680" || currentDepartment === "1291624014041103" || currentDepartment === "line3") {
+      return conv.channel === "1318810581311680" || conv.channel === "1291624014041103" || conv.department === "direct";
     }
     if (currentDepartment === "1083562997861778" || currentDepartment === "line4") {
       return conv.channel === "1083562997861778";
-    }
-    if (currentDepartment === "support") {
-      return conv.department === "support" || conv.channel === "1318810581311680" || conv.channel === "1083562997861778";
     }
     return conv.channel === currentDepartment || conv.department === currentDepartment;
   });
@@ -237,9 +234,9 @@ export function ConversationListPane({
           {/* Line 2: Technical & Client Support */}
           <button
             type="button"
-            onClick={() => onDepartmentChange("1318810581311680")}
+            onClick={() => onDepartmentChange("support")}
             className={`flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1 text-[11px] font-bold transition ${
-              currentDepartment === "1318810581311680" || currentDepartment === "line2"
+              currentDepartment === "support" || currentDepartment === "line2"
                 ? "bg-emerald-600 text-white shadow-sm"
                 : "bg-adm-surface-2 text-adm-text-2 border border-adm-border hover:border-adm-text-3 hover:text-adm-text"
             }`}
@@ -247,9 +244,9 @@ export function ConversationListPane({
           >
             <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
             <span>Line 2: Support</span>
-            {(unreadCounts.line2 ?? 0) > 0 && (
+            {(unreadCounts.line2 ?? unreadCounts.support ?? 0) > 0 && (
               <span className="flex h-4 min-w-[16px] items-center justify-center rounded-full bg-emerald-500 px-1 text-[9px] font-bold text-white">
-                {unreadCounts.line2}
+                {unreadCounts.line2 ?? unreadCounts.support}
               </span>
             )}
           </button>
@@ -259,7 +256,7 @@ export function ConversationListPane({
             type="button"
             onClick={() => onDepartmentChange("direct")}
             className={`flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1 text-[11px] font-bold transition ${
-              currentDepartment === "direct" || currentDepartment === "1291624014041103" || currentDepartment === "line3"
+              currentDepartment === "direct" || currentDepartment === "1318810581311680" || currentDepartment === "1291624014041103" || currentDepartment === "line3"
                 ? "bg-purple-600 text-white shadow-sm"
                 : "bg-adm-surface-2 text-adm-text-2 border border-adm-border hover:border-adm-text-3 hover:text-adm-text"
             }`}
@@ -381,8 +378,8 @@ export function ConversationListPane({
             const lastText = last?.body || (last?.type ? `[${last.type}]` : "No messages");
 
             const isLine4 = conv.channel === "1083562997861778";
-            const isLine3 = conv.channel === "1291624014041103" || conv.department === "direct";
-            const isLine2 = conv.channel === "1318810581311680";
+            const isLine3 = conv.channel === "1318810581311680" || conv.channel === "1291624014041103" || conv.department === "direct";
+            const isLine2 = (conv.department === "support" && !isLine4 && conv.channel !== "1318810581311680") || conv.channel === "support";
             const isLine1 = conv.channel === "1239592269240963" || conv.department === "general";
 
             const lineThemeColor = isLine4

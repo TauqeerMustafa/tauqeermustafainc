@@ -85,9 +85,7 @@ export const company = {
       number: process.env.NEXT_PUBLIC_WHATSAPP_NUMBER_3 || "+44 7575 376078",
       url:
         process.env.NEXT_PUBLIC_WHATSAPP_URL_3 ||
-        (process.env.NEXT_PUBLIC_WHATSAPP_NUMBER_3
-          ? `https://wa.me/${process.env.NEXT_PUBLIC_WHATSAPP_NUMBER_3.replace(/[^0-9]/g, "")}?text=%5BExecutive%20Desk%5D%20Hello%2C%20I%20would%20like%20to%20inquire%20about%20enterprise%20consultation.`
-          : "https://wa.me/message/NMUGLZ5AW7TVC1"),
+        `https://wa.me/${(process.env.NEXT_PUBLIC_WHATSAPP_NUMBER_3 || "+44 7575 376078").replace(/[^0-9]/g, "")}?text=%5BExecutive%20Desk%5D%20Hello%2C%20I%20would%20like%20to%20inquire%20about%20enterprise%20consultation.`,
       displayNumber: process.env.NEXT_PUBLIC_WHATSAPP_DISPLAY_3 || "+44 7575 376078",
       description: "Executive desk, enterprise proposals & strategic partnerships",
       action: "Chat with Executive Desk",

@@ -60,20 +60,19 @@ export type WANumber = {
 const DEFAULT_PRIMARY_ID = "1239592269240963";
 
 /**
- * Fallback id for the second number, used ONLY until the numbers route
- * discovers the real Phone Number IDs from Meta's WABA and registers them.
+ * Fallback id for the second number (Technical & Client Support).
  */
-const DEFAULT_SECOND_ID = "1318810581311680";
+const DEFAULT_SECOND_ID = "1083562997861778";
 
 /**
- * Fallback id for the third number (Executive / Direct Desk).
+ * Fallback id for the third number (Executive / Direct Desk - +44 7575 376078).
  */
-const DEFAULT_THIRD_ID = "1291624014041103";
+const DEFAULT_THIRD_ID = "1318810581311680";
 
 /**
- * Fallback id for the fourth number.
+ * Fallback id for the fourth number (Sandbox / Direct Desk test line).
  */
-const DEFAULT_FOURTH_ID = "1083562997861778";
+const DEFAULT_FOURTH_ID = "1291624014041103";
 
 /** Vercel masks some values in previews; the sentinel means "not really set". */
 const SENTINEL = "[SENSITIVE]";
@@ -245,7 +244,10 @@ export function isKnownNumber(id: string | null | undefined): boolean {
     value === DEFAULT_PRIMARY_ID ||
     value === DEFAULT_SECOND_ID ||
     value === DEFAULT_THIRD_ID ||
-    value === DEFAULT_FOURTH_ID
+    value === DEFAULT_FOURTH_ID ||
+    value === "1318810581311680" ||
+    value === "1291624014041103" ||
+    value === "1083562997861778"
   ) {
     return true;
   }
@@ -290,7 +292,10 @@ export function resolveNumberId(requested?: string | null): ResolvedNumber {
     wanted === DEFAULT_PRIMARY_ID ||
     wanted === DEFAULT_SECOND_ID ||
     wanted === DEFAULT_THIRD_ID ||
-    wanted === DEFAULT_FOURTH_ID
+    wanted === DEFAULT_FOURTH_ID ||
+    wanted === "1318810581311680" ||
+    wanted === "1291624014041103" ||
+    wanted === "1083562997861778"
   ) {
     return { ok: true, id: wanted };
   }
@@ -319,6 +324,8 @@ export function getChannelDepartment(
   const lower = cleanId.toLowerCase();
   const digits = cleanId.replace(/[^0-9]/g, "");
   if (
+    cleanId === "1318810581311680" ||
+    cleanId === "1291624014041103" ||
     cleanId === DEFAULT_THIRD_ID ||
     digits === "447575376078" ||
     cleanId.includes("447575376078") ||

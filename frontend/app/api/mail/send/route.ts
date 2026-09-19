@@ -3,6 +3,7 @@ import { sendOpenEmailMessage } from "@/lib/openemail";
 import { assertMailboxAccess, mailErrorStatus, resolveMailUser } from "@/lib/mail-auth";
 
 export const dynamic = "force-dynamic";
+export const maxDuration = 60;
 
 /** Accept a comma/semicolon-separated string, an array, or nothing → clean list. */
 function toList(value: unknown): string[] {

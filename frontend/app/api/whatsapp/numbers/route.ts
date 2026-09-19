@@ -177,10 +177,12 @@ export async function GET(request: Request) {
   // Process all non-primary lines intelligently
   const nonPrimary = resultList.filter((n) => n !== primaryItem);
 
-  // 1. Identify direct line (Line 3): explicit ID match, slot 3, direct/executive label, or 2nd non-primary
+  // 1. Identify direct line (Line 3): explicit ID match, UK number (+44 7575 376078), slot 3, direct/executive label, or 2nd non-primary
   let directLineCandidate = nonPrimary.find(
     (n) =>
+      n.id === "1318810581311680" ||
       n.id === "1291624014041103" ||
+      n.displayNumber?.replace(/[^0-9]/g, "") === "447575376078" ||
       n.slot === 3 ||
       n.label?.toLowerCase().includes("direct") ||
       n.label?.toLowerCase().includes("executive") ||
@@ -196,10 +198,16 @@ export async function GET(request: Request) {
   for (let i = 0; i < nonPrimary.length; i++) {
     const n = nonPrimary[i];
     const conf = configured.find((c) => c.id === n.id);
-    const isDirect = n === directLineCandidate || n.id === "1291624014041103" || n.slot === 3;
+    const isDirect =
+      n === directLineCandidate ||
+      n.id === "1318810581311680" ||
+      n.id === "1291624014041103" ||
+      n.displayNumber?.replace(/[^0-9]/g, "") === "447575376078" ||
+      n.slot === 3 ||
+      conf?.department === "direct";
     if (isDirect) {
       n.department = "direct";
-      if (!n.label || n.label === "Third number" || n.label === "Line 3" || n.label.startsWith("Line ")) {
+      if (!n.label || n.label === "Third number" || n.label === "Line 3" || n.label.startsWith("Line ") || n.label === "Second number") {
         n.label = conf?.label || "Executive & Direct Desk";
       }
     } else {
