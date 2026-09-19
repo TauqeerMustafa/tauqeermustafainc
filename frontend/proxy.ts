@@ -62,6 +62,14 @@ export async function proxy(request: NextRequest) {
   const url = request.nextUrl.clone();
   const hostname = request.headers.get("host") || "";
 
+  // Delete / block APK and download access from portals.tauqeermustafa.tech
+  if (
+    hostname.includes("portals.tauqeermustafa.tech") &&
+    (pathname.startsWith("/downloads") || pathname.endsWith(".apk"))
+  ) {
+    return new NextResponse(null, { status: 404 });
+  }
+
   // 0. Static assets, logos, icons, fonts, and public files must never be rewritten by subdomain routing
   if (
     pathname.startsWith("/_next") ||

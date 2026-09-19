@@ -95,8 +95,8 @@ export default function WorkProfilePrompt() {
       // Deep-link into installed TMI Portals app
       window.location.href = "tmi://provision-work-profile";
       setTimeout(() => {
-        // Fallback: If not opened within 1.5s, download latest release APK
-        window.location.href = "/downloads/TMI-Portals.apk";
+        // Fallback: If not opened within 1.5s, direct to official app portal
+        window.location.href = "https://app.tauqeermustafa.tech";
       }, 1500);
     }
   };
@@ -251,12 +251,13 @@ export default function WorkProfilePrompt() {
                     <span>Launch Work Setup</span>
                   </button>
                   <a
-                    href="/downloads/TMI-Portals.apk"
-                    download="TMI-Portals.apk"
+                    href="https://app.tauqeermustafa.tech"
+                    target="_blank"
+                    rel="noopener noreferrer"
                     className="inline-flex items-center justify-center gap-1.5 border border-adm-border bg-adm-surface px-3 py-2.5 font-mono text-xs font-bold uppercase tracking-wider text-adm-text transition hover:border-adm-blue hover:text-adm-blue shrink-0"
-                    title="Download Native APK"
+                    title="Get App on app.tauqeermustafa.tech"
                   >
-                    <span>Get APK</span>
+                    <span>Get App</span>
                   </a>
                 </div>
               </div>
