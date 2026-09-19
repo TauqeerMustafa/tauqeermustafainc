@@ -534,19 +534,10 @@ export default function AppPortalView() {
                     <a
                       href="/downloads/TMI-Portals.apk"
                       download="TMI-Portals.apk"
-                      className="inline-flex items-center justify-center gap-2 bg-action px-6 py-3 font-mono text-xs font-bold uppercase tracking-wider text-on-action hover:bg-action-strong transition"
+                      className="inline-flex items-center justify-center gap-2 bg-action px-6 py-3 font-mono text-xs font-bold uppercase tracking-wider text-on-action hover:bg-action-strong transition shadow-sm"
                     >
                       <Download className="h-4 w-4" />
-                      <span>Download TMI-Portals.apk (Direct)</span>
-                    </a>
-                    <a
-                      href="https://github.com/TauqeerMustafa/tauqeermustafainc/releases/latest/download/TMI-Portals.apk"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center justify-center gap-2 border border-ink/20 bg-canvas px-4 py-3 font-mono text-xs font-bold uppercase tracking-wider text-ink hover:bg-ink/5 transition"
-                    >
-                      <span>GitHub Mirror</span>
-                      <ExternalLink className="h-3.5 w-3.5" />
+                      <span>Download TMI-Portals.apk (v3.0.0.1.7)</span>
                     </a>
                   </div>
                 </div>
