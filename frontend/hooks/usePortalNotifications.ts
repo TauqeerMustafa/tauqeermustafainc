@@ -118,14 +118,14 @@ export function usePortalNotifications(portal: PortalId): PortalNotification[] {
 
   const adminData = adminDash.data;
   const employeeData = employeeDash.data;
-  const contactTotal = unreadContact.data?.data.pagination.total ?? 0;
+  const contactTotal = unreadContact.data?.data?.pagination?.total ?? 0;
   const staffTotal = staffUnread.data?.unreadCount ?? 0;
 
   return useMemo(() => {
     const items: PortalNotification[] = [];
 
     if (isAdmin) {
-      for (const leave of adminData?.pendingLeave.slice(0, LEAVE_CAP) ?? []) {
+      for (const leave of adminData?.pendingLeave?.slice(0, LEAVE_CAP) ?? []) {
         items.push({
           id: `leave-${leave.id}`,
           title: `Leave · ${leave.employee}`,
@@ -158,7 +158,7 @@ export function usePortalNotifications(portal: PortalId): PortalNotification[] {
         });
       }
 
-      for (const ann of adminData?.announcements.slice(0, ANNOUNCE_CAP) ?? []) {
+      for (const ann of adminData?.announcements?.slice(0, ANNOUNCE_CAP) ?? []) {
         items.push({
           id: `ann-${ann.id}`,
           title: ann.title,
@@ -171,7 +171,7 @@ export function usePortalNotifications(portal: PortalId): PortalNotification[] {
     }
 
     if (isEmployees && employeeData) {
-      const pendingLeave = employeeData.leave.pendingCount;
+      const pendingLeave = employeeData?.leave?.pendingCount ?? 0;
       if (pendingLeave > 0) {
         items.push({
           id: `myleave-${pendingLeave}`,
@@ -183,7 +183,7 @@ export function usePortalNotifications(portal: PortalId): PortalNotification[] {
         });
       }
 
-      const openTasks = employeeData.tasks.filter((task) => task.status !== "done").slice(0, TASK_CAP);
+      const openTasks = (employeeData?.tasks ?? []).filter((task) => task.status !== "done").slice(0, TASK_CAP);
       for (const task of openTasks) {
         items.push({
           id: `task-${task.id}`,
@@ -195,7 +195,7 @@ export function usePortalNotifications(portal: PortalId): PortalNotification[] {
         });
       }
 
-      for (const ann of employeeData.announcements.slice(0, ANNOUNCE_CAP)) {
+      for (const ann of employeeData?.announcements?.slice(0, ANNOUNCE_CAP) ?? []) {
         items.push({
           id: `ann-${ann.id}`,
           title: ann.title,

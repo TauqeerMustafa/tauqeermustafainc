@@ -44,10 +44,10 @@ class StaffThread(CamelModel):
     department_name: Optional[str] = None
     last_message_at: Optional[datetime] = None
     last_message_preview: Optional[str] = None
-    awaiting_reply: int
-    has_urgent: bool
-    channels: list[str]
-    messages: list[StaffMessageRead]
+    awaiting_reply: int = 0
+    has_urgent: bool = False
+    channels: list[str] = []
+    messages: list[StaffMessageRead] = []
 
 
 class StaffUnreadCount(CamelModel):

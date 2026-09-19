@@ -24,8 +24,10 @@ admin_staff_router = APIRouter(prefix="/admin/staff-messages", tags=["admin-staf
 def _display_name(user: User | None) -> str:
     if user is None:
         return "Leadership Desk"
-    name = f"{user.first_name} {user.last_name}".strip()
-    return name or user.email
+    first = (user.first_name or "").strip()
+    last = (user.last_name or "").strip()
+    name = f"{first} {last}".strip()
+    return name or user.email or "Leadership Desk"
 
 
 def _to_message_read(msg: StaffMessage) -> StaffMessageRead:
@@ -141,11 +143,10 @@ def list_staff_threads(
     emp_map = {e.user_id: e for e in employees}
 
     # Fetch all messages for these threads
-    msg_query = (
-        select(StaffMessage)
-        .where(StaffMessage.user_id.in_(user_ids))
-        .order_by(StaffMessage.created_at.asc())
-    )
+    msg_query = select(StaffMessage).where(StaffMessage.user_id.in_(user_ids))
+    if channel:
+        msg_query = msg_query.where(StaffMessage.channel == channel)
+    msg_query = msg_query.order_by(StaffMessage.created_at.asc())
     all_messages = list(db.scalars(msg_query).all())
 
     by_user: dict[uuid.UUID, list[StaffMessage]] = {uid: [] for uid in user_ids}
@@ -305,6 +306,8 @@ def reply_to_staff(
     db.add(msg)
     db.commit()
     db.refresh(msg)
+    if msg.author is None:
+        msg.author = current_manager
     return _to_message_read(msg)
 
 

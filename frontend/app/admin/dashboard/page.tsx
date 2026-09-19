@@ -165,17 +165,17 @@ export default function AdminDashboardPage() {
   }
 
   const {
-    overview,
-    attendanceToday,
-    pendingLeave,
-    recentActivity,
-    tasks,
-    projects,
-    announcements,
-    documents,
-  } = dashboardQuery.data;
+    overview = { totalEmployees: 0, present: 0, onLeave: 0, openTasks: 0 },
+    attendanceToday = { present: 0, late: 0, absent: 0, onLeave: 0 },
+    pendingLeave = [],
+    recentActivity = [],
+    tasks = [],
+    projects = [],
+    announcements = [],
+    documents = [],
+  } = dashboardQuery.data ?? {};
 
-  const openTaskCount = overview.openTasks ?? tasks.filter((t) => t.status !== "done").length;
+  const openTaskCount = overview.openTasks ?? (tasks ?? []).filter((t) => t.status !== "done").length;
   const metrics = metricsQuery.data?.data;
   const unreadInquiries = inquiriesQuery.data?.data?.items?.length ?? 0;
 

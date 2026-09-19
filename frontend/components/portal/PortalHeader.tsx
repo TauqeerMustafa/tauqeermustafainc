@@ -140,10 +140,6 @@ export default function PortalHeader({ portal, onMenuClick }: Props) {
   }, []);
 
   useEffect(() => {
-    setIsMac(/mac/i.test(navigator.userAgent));
-  }, []);
-
-  useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
       if (notifRef.current && !notifRef.current.contains(e.target as Node)) {
         setNotifOpen(false);
