@@ -247,17 +247,6 @@ public class MainActivity extends AppCompatActivity {
                 btnWorkProfile.setVisibility(View.VISIBLE);
                 btnWorkProfile.setOnClickListener(v -> triggerWorkProfileProvisioningNative());
             }
-
-            boolean hasPrompted = getSharedPreferences("tmi_prefs", MODE_PRIVATE).getBoolean("has_prompted_profile_v2", false);
-            if (!hasPrompted) {
-                getSharedPreferences("tmi_prefs", MODE_PRIVATE).edit().putBoolean("has_prompted_profile_v2", true).apply();
-                new MaterialAlertDialogBuilder(this)
-                    .setTitle("💼 Set Up Work Profile")
-                    .setMessage("Welcome to TMI Portals!\n\nWould you like to activate a separate, encrypted Work Profile on this phone?\n\nThis will create an isolated workspace container (briefcase 💼) for your company apps with zero third-party software.")
-                    .setPositiveButton("Set Up Now", (dialog, which) -> triggerWorkProfileProvisioningNative())
-                    .setNegativeButton("Later", (dialog, which) -> dialog.dismiss())
-                    .show();
-            }
         } else {
             if (btnWorkProfile != null) {
                 btnWorkProfile.setVisibility(View.GONE);
