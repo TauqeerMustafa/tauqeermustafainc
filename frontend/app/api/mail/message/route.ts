@@ -116,7 +116,27 @@ export async function GET(request: Request) {
 
     const data = await fetchOpenEmailMessageContent(mailbox, messageId);
     const { content, isHtml } = extractBody(data);
-    const attachments = data?.attachments || data?.content?.attachments || [];
+    const rawAttachments = data?.attachments || data?.content?.attachments || [];
+    const attachments = Array.isArray(rawAttachments)
+      ? rawAttachments.map((att: any, idx: number) => {
+          const section = att.section || att.id || String(idx + 2);
+          const filename = att.filename || att.name || `attachment-${section}`;
+          const q = new URLSearchParams({
+            mailbox,
+            id: messageId,
+            section: String(section),
+            filename,
+          });
+          return {
+            ...att,
+            filename,
+            section,
+            url: `/api/mail/attachment?${q.toString()}`,
+            downloadUrl: `/api/mail/attachment?${q.toString()}`,
+            viewUrl: `/api/mail/attachment?${q.toString()}&inline=true`,
+          };
+        })
+      : [];
 
     return NextResponse.json({
       content: content || "No content available.",

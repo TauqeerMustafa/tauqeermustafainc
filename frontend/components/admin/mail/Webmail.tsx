@@ -460,6 +460,7 @@ export default function Webmail({
   const [selected, setSelected] = useState<Message | null>(null);
   const [content, setContent] = useState<{ html: boolean; body: string } | null>(null);
   const [attachments, setAttachments] = useState<Attachment[]>([]);
+  const [downloadingAttId, setDownloadingAttId] = useState<string | null>(null);
   const [loadingContent, setLoadingContent] = useState(false);
   const [detailsExpanded, setDetailsExpanded] = useState(false);
 
@@ -747,6 +748,36 @@ export default function Webmail({
       setContent({ html: false, body: `Error loading message: ${e.message}` });
     } finally {
       setLoadingContent(false);
+    }
+  }
+
+  async function handleDownloadAttachment(att: Attachment) {
+    const name = att.filename || att.name || "attachment";
+    const section = att.section || att.id || "2";
+    if (!active || !selected) return;
+    const attId = `${idOf(selected)}-${section}`;
+    setDownloadingAttId(attId);
+    const url =
+      att.downloadUrl ||
+      att.url ||
+      `/api/mail/attachment?mailbox=${encodeURIComponent(active.id)}&id=${encodeURIComponent(idOf(selected))}&section=${encodeURIComponent(section)}&filename=${encodeURIComponent(name)}`;
+    try {
+      const res = await authFetch(url);
+      if (!res.ok) throw new Error(`Could not download file (${res.status})`);
+      const blob = await res.blob();
+      const objectUrl = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = objectUrl;
+      a.download = name;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      setTimeout(() => URL.revokeObjectURL(objectUrl), 10000);
+      setNotice(`Downloaded “${name}”`);
+    } catch (err: any) {
+      setNotice(`Download failed: ${err.message}`);
+    } finally {
+      setDownloadingAttId(null);
     }
   }
 
@@ -1821,25 +1852,48 @@ export default function Webmail({
             {/* Attachments Section */}
             {attachments.length > 0 && (
               <div className="border-t p-5" style={{ borderColor: "var(--adm-border)" }}>
-                <h4 className="mb-3 text-xs font-bold uppercase tracking-wider" style={{ color: "var(--adm-text-3)" }}>
-                  {attachments.length} Attachment{attachments.length === 1 ? "" : "s"}
+                <h4 className="mb-3 text-xs font-bold uppercase tracking-wider flex items-center gap-2" style={{ color: "var(--adm-text-3)" }}>
+                  <Paperclip size={13} style={{ color: "var(--adm-blue)" }} />
+                  <span>
+                    {attachments.length} Attachment{attachments.length === 1 ? "" : "s"}
+                  </span>
                 </h4>
                 <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2 md:grid-cols-3">
                   {attachments.map((att, i) => {
                     const name = att.filename || att.name || `Attachment-${i + 1}`;
                     const size = formatBytes(att.size);
-                    const href = typeof att.url === "string" && /^https?:\/\//i.test(att.url) ? att.url : null;
+                    const section = att.section || att.id || String(i + 2);
+                    const attKey = `${selected ? idOf(selected) : ""}-${section}`;
+                    const isDownloading = downloadingAttId === attKey;
+                    const token = getStoredToken();
+                    const rawBase =
+                      att.downloadUrl ||
+                      att.url ||
+                      (active && selected
+                        ? `/api/mail/attachment?mailbox=${encodeURIComponent(active.id)}&id=${encodeURIComponent(idOf(selected))}&section=${encodeURIComponent(section)}&filename=${encodeURIComponent(name)}`
+                        : "");
+                    const downloadHref = rawBase
+                      ? token
+                        ? `${rawBase}&token=${encodeURIComponent(token)}`
+                        : rawBase
+                      : null;
+                    const viewHref = downloadHref ? `${downloadHref}&inline=true` : null;
 
                     return (
                       <div
                         key={i}
-                        className="flex items-center justify-between gap-3 rounded-xl border p-3 transition hover:shadow-sm"
+                        className="group flex items-center justify-between gap-3 rounded-xl border p-3 transition hover:shadow-sm"
                         style={{ borderColor: "var(--adm-border)", background: "var(--adm-surface-2)" }}
                       >
-                        <div className="flex min-w-0 items-center gap-2.5">
-                          <Paperclip size={15} style={{ color: "var(--adm-blue)" }} />
-                          <div className="min-w-0">
-                            <p className="truncate text-xs font-semibold" style={{ color: "var(--adm-text)" }}>
+                        <button
+                          type="button"
+                          onClick={() => handleDownloadAttachment(att)}
+                          className="flex min-w-0 flex-1 items-center gap-2.5 text-left transition hover:opacity-80"
+                          title={`Click to download ${name}`}
+                        >
+                          <Paperclip size={15} className="shrink-0" style={{ color: "var(--adm-blue)" }} />
+                          <div className="min-w-0 flex-1">
+                            <p className="truncate text-xs font-semibold hover:underline" style={{ color: "var(--adm-text)" }}>
                               {name}
                             </p>
                             {size && (
@@ -1848,19 +1902,35 @@ export default function Webmail({
                               </p>
                             )}
                           </div>
-                        </div>
-                        {href && (
-                          <a
-                            href={href}
-                            target="_blank"
-                            rel="noreferrer"
-                            className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md border transition hover:bg-adm-surface"
+                        </button>
+                        <div className="flex items-center gap-1.5 shrink-0">
+                          {viewHref && (
+                            <a
+                              href={viewHref}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="flex h-7 w-7 items-center justify-center rounded-md border transition hover:bg-adm-surface hover:text-adm-blue"
+                              style={{ borderColor: "var(--adm-border)", color: "var(--adm-text-3)" }}
+                              title="View / Open in new tab"
+                            >
+                              <ExternalLink size={12} />
+                            </a>
+                          )}
+                          <button
+                            type="button"
+                            onClick={() => handleDownloadAttachment(att)}
+                            disabled={isDownloading}
+                            className="flex h-7 w-7 items-center justify-center rounded-md border transition hover:bg-adm-surface hover:text-adm-blue disabled:opacity-50"
                             style={{ borderColor: "var(--adm-border)", color: "var(--adm-blue)" }}
                             title="Download attachment"
                           >
-                            <Download size={13} />
-                          </a>
-                        )}
+                            {isDownloading ? (
+                              <Loader2 size={12} className="animate-spin" />
+                            ) : (
+                              <Download size={13} />
+                            )}
+                          </button>
+                        </div>
                       </div>
                     );
                   })}

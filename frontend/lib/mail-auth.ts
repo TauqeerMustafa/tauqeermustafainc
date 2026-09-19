@@ -37,8 +37,26 @@ export interface Mailbox {
 
 /** Validate the caller's Bearer token against the backend and return who they are. */
 export async function resolveMailUser(request: Request): Promise<MailUser> {
+  let token = "";
   const match = /^Bearer\s+(.+)$/i.exec(request.headers.get("authorization") || "");
-  const token = match?.[1]?.trim();
+  if (match?.[1]) {
+    token = match[1].trim();
+  } else {
+    try {
+      const url = new URL(request.url);
+      const queryToken = url.searchParams.get("token");
+      if (queryToken) token = queryToken.trim();
+    } catch {}
+
+    if (!token) {
+      const cookieHeader = request.headers.get("cookie") || "";
+      const cookieMatch = /(?:^|;\s*)(?:token|auth_token|access_token)=([^;]+)/.exec(cookieHeader);
+      if (cookieMatch?.[1]) {
+        token = decodeURIComponent(cookieMatch[1].trim());
+      }
+    }
+  }
+
   if (!token) throw new MailAuthError(401, "Sign in to access mail.");
 
   const apiBase = process.env.NEXT_PUBLIC_API_URL?.replace(/\/+$/, "");

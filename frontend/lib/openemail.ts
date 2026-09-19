@@ -158,3 +158,40 @@ export async function sendOpenEmailMessage(mailboxId: string, input: SendMessage
 export async function deleteOpenEmailMessage(mailboxId: string, messageId: string) {
   return oeFetch(`/mailboxes/${mailboxId}/messages/${messageId}`, { method: "DELETE" });
 }
+
+export async function fetchOpenEmailAttachmentPart(
+  mailboxId: string,
+  messageId: string,
+  section: string,
+) {
+  const token =
+    process.env.OPENEMAIL_API_KEY || "oek_vLhzeeO6fO_owBMaIIkLLzFPAWezb9I-f5H7isSGYug";
+  const res = await fetch(
+    `${OPENEMAIL_API_URL}/mailboxes/${mailboxId}/messages/${messageId}/parts/${section}`,
+    {
+      headers: { Authorization: `Bearer ${token}` },
+      cache: "no-store",
+    },
+  );
+  if (!res.ok) {
+    let detail = res.statusText;
+    try {
+      const body = await res.json();
+      detail = body?.error || body?.message || detail;
+    } catch {}
+    throw new Error(`open.email ${res.status}: ${detail}`);
+  }
+
+  const contentType = res.headers.get("content-type") || "application/octet-stream";
+  const disposition = res.headers.get("content-disposition") || "";
+  let filename = "";
+  const match = disposition.match(/filename="?([^"]+)"?/i);
+  if (match) filename = match[1];
+
+  const arrayBuffer = await res.arrayBuffer();
+  return {
+    buffer: Buffer.from(arrayBuffer),
+    contentType,
+    filename,
+  };
+}
