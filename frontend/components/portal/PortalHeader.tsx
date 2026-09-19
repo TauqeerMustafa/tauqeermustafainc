@@ -45,7 +45,9 @@ const ANNOUNCEMENTS_HREF: Partial<Record<PortalId, string>> = {
 function readState(): NotifState {
   if (typeof window === "undefined") return { read: [], dismissed: [] };
   try {
-    const parsed = JSON.parse(localStorage.getItem(STORAGE_KEY) ?? "");
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return { read: [], dismissed: [] };
+    const parsed = JSON.parse(raw);
     if (parsed && Array.isArray(parsed.read) && Array.isArray(parsed.dismissed)) {
       const strings = (arr: unknown[]) => arr.filter((x): x is string => typeof x === "string");
       return { read: strings(parsed.read), dismissed: strings(parsed.dismissed) };
@@ -77,7 +79,8 @@ function relativeTime(iso: string | null): string {
  * runs. The UA never changes, so `subscribe` is a no-op.
  */
 const subscribePlatform = () => () => {};
-const getIsMacSnapshot = () => /mac/i.test(navigator.userAgent);
+const getIsMacSnapshot = () =>
+  typeof navigator !== "undefined" ? /mac/i.test(navigator.userAgent) : false;
 const getIsMacServerSnapshot = () => false;
 
 export default function PortalHeader({ portal, onMenuClick }: Props) {
@@ -95,10 +98,10 @@ export default function PortalHeader({ portal, onMenuClick }: Props) {
   const notifRef = useRef<HTMLDivElement>(null);
   const isMac = useSyncExternalStore(subscribePlatform, getIsMacSnapshot, getIsMacServerSnapshot);
 
-  const readSet = useMemo(() => new Set(state.read), [state.read]);
-  const dismissedSet = useMemo(() => new Set(state.dismissed), [state.dismissed]);
+  const readSet = useMemo(() => new Set(state?.read ?? []), [state?.read]);
+  const dismissedSet = useMemo(() => new Set(state?.dismissed ?? []), [state?.dismissed]);
   const visible = useMemo(
-    () => derived.filter((n) => !dismissedSet.has(n.id)),
+    () => (derived ?? []).filter((n) => !dismissedSet.has(n.id)),
     [derived, dismissedSet],
   );
   const unreadCount = useMemo(
@@ -117,11 +120,13 @@ export default function PortalHeader({ portal, onMenuClick }: Props) {
 
   // Prune ids no longer in the feed so localStorage can't grow without bound.
   useEffect(() => {
-    const ids = new Set(derived.map((n) => n.id));
+    const ids = new Set((derived ?? []).map((n) => n.id));
     setState((prev) => {
-      const read = prev.read.filter((id) => ids.has(id));
-      const dismissed = prev.dismissed.filter((id) => ids.has(id));
-      return read.length === prev.read.length && dismissed.length === prev.dismissed.length
+      const prevRead = prev?.read ?? [];
+      const prevDismissed = prev?.dismissed ?? [];
+      const read = prevRead.filter((id) => ids.has(id));
+      const dismissed = prevDismissed.filter((id) => ids.has(id));
+      return read.length === prevRead.length && dismissed.length === prevDismissed.length
         ? prev
         : { read, dismissed };
     });

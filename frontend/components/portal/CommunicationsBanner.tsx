@@ -84,7 +84,11 @@ export default function CommunicationsBanner({
   const staffUnreadQuery = useStaffUnreadCount();
 
   const unreadCount = inquiriesQuery.data?.data?.items?.length ?? 0;
-  const staffUnreadCount = staffUnreadQuery.data?.unreadCount ?? 0;
+  const staffUnreadCount =
+    (staffUnreadQuery.data as any)?.unreadCount ??
+    (staffUnreadQuery.data as any)?.unread_count ??
+    (staffUnreadQuery.data as any)?.data?.unreadCount ??
+    0;
 
   return (
     <div className="flex flex-col gap-3 border-b border-adm-border pb-4">

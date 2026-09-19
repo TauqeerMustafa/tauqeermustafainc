@@ -36,8 +36,11 @@ export default function PortalShell({
     setIsSidebarOpen(false);
   }, [pathname]);
 
-  const isPublic = publicPaths.some(
-    (path) => pathname === path || pathname.startsWith(`${path}/`),
+  const isPublic = Boolean(
+    pathname &&
+      publicPaths.some(
+        (path) => pathname === path || pathname.startsWith(`${path}/`),
+      ),
   );
 
   if (isPublic) {

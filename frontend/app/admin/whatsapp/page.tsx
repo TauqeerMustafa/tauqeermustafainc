@@ -5425,13 +5425,11 @@ function NumbersTab({
                           </h4>
                         </div>
                         <p className="text-xs font-semibold text-adm-text-2 mt-0.5">
-                        <p className="text-xs font-semibold text-adm-text-2 mt-0.5">
                           {isDirectLine
                             ? "Line 3"
                             : isSupportLine
                             ? (n.slot === 4 || n.id === "1291624014041103" ? "Line 4" : "Line 2")
                             : "Line 1"}
-                        </p>
                         </p>
                         {n.verifiedName && (
                           <p className="text-xs font-medium text-adm-text-3">{n.verifiedName}</p>

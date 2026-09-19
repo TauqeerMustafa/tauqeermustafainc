@@ -300,7 +300,8 @@ export const PORTAL_PRIMARY_ROLE: Record<PortalId, RoleSlug> = {
 };
 
 /** Longest-prefix active match so `/admin/employees/create` lights Employees. */
-export function isNavItemActive(item: NavItem, pathname: string): boolean {
+export function isNavItemActive(item: NavItem, pathname: string | null | undefined): boolean {
+  if (!pathname) return false;
   const prefixes = item.matches ?? [item.href];
   return prefixes.some(
     (prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`),
