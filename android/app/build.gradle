@@ -10,8 +10,8 @@ android {
         applicationId "tech.tauqeermustafa.app"
         minSdk 24
         targetSdk 34
-        versionCode 300016
-        versionName "3.0.0.1.6"
+        versionCode 300017
+        versionName "3.0.0.1.7"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 

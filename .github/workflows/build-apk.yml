@@ -71,7 +71,7 @@ jobs:
           if git diff --staged --quiet; then
             echo "No changes to APK"
           else
-            git commit -m "build(apk): deploy v3.0.0.1.6 release APK to web downloads [skip ci]"
+            git commit -m "build(apk): deploy v3.0.0.1.7 release APK to web downloads [skip ci]"
             git push origin master
           fi
 
@@ -82,18 +82,18 @@ jobs:
           path: android/output/TMI-Portals.apk
           if-no-files-found: error
 
-      - name: Create or Update GitHub Release v3.0.0.1.6
+      - name: Create or Update GitHub Release v3.0.0.1.7
         uses: softprops/action-gh-release@v2
         if: github.ref == 'refs/heads/master'
         with:
-          tag_name: v3.0.0.1.6
-          name: "TMI Portals App v3.0.0.1.6"
+          tag_name: v3.0.0.1.7
+          name: "TMI Portals App v3.0.0.1.7"
           body: |
-            ### Official Signed Release APK for Tauqeer Mustafa Inc Portals (v3.0.0.1.6)
+            ### Official Signed Release APK for Tauqeer Mustafa Inc Portals (v3.0.0.1.7)
             
-            **What's New in v3.0.0.1.6:**
-            - 💼 **Fixed "Contact Your Admin" Provisioning Error**: Properly negotiates `PROVISIONING_MODE_MANAGED_PROFILE_ON_PERSONAL_DEVICE` on Android 12–15 so personal devices don't reject work profile creation.
-            - 🛡️ **Diagnostics & Conflict Resolution**: Automatically detects and informs the user if Dual Apps or an existing work profile blocks activation.
+            **What's New in v3.0.0.1.7:**
+            - 💼 **Full Work Profile Provisioning Pipeline**: Added `internalOnly` install location, `device_admin` & `managed_users` features, and `FinalizeActivity` (`ACTION_PROVISIONING_SUCCESSFUL`).
+            - 🛡️ **Android 13/14 Restricted Settings Guide**: Direct 1-tap navigation to App Info so users can allow restricted settings for sideloaded device policy controllers.
             - ⚡ **Zero Third-Party MDM Required**: Fully self-owned Profile Owner container badged with native Android briefcase 💼.
             
             **Installation:**

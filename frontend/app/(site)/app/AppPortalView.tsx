@@ -527,7 +527,7 @@ export default function AppPortalView() {
                       Channel: Direct Android Sideload
                     </span>
                     <h3 className="mt-1 text-2xl font-bold uppercase tracking-tight text-ink">
-                      Native Android Release APK (v3.0.0.1.6)
+                      Native Android Release APK (v3.0.0.1.7)
                     </h3>
                   </div>
                   <div className="flex flex-wrap items-center gap-3">

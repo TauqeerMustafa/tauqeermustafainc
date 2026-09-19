@@ -92,9 +92,12 @@ export default function WorkProfilePrompt() {
     if (bridge && typeof bridge.triggerWorkProfileProvisioning === "function") {
       bridge.triggerWorkProfileProvisioning();
     } else {
-      // Fallback: Open Android System Account Intent
-      window.location.href =
-        "intent:#Intent;action=android.settings.ADD_ACCOUNT_SETTINGS;S.account_types=com.google;end";
+      // Deep-link into installed TMI Portals app
+      window.location.href = "tmi://provision-work-profile";
+      setTimeout(() => {
+        // Fallback: If not opened within 1.5s, download latest release APK
+        window.location.href = "/downloads/TMI-Portals.apk";
+      }, 1500);
     }
   };
 
@@ -262,23 +265,23 @@ export default function WorkProfilePrompt() {
               <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-3 pt-2">
                 <div className="border border-adm-border p-3 bg-adm-surface">
                   <span className="font-mono text-[10px] font-bold text-adm-blue">STEP 01</span>
-                  <p className="mt-1 text-xs font-semibold text-adm-text">Open Device Accounts</p>
+                  <p className="mt-1 text-xs font-semibold text-adm-text">Install Official APK</p>
                   <p className="mt-0.5 text-[11px] text-adm-text-3 leading-snug">
-                    Open Android <strong>Settings → Accounts → Add Account → Google</strong>.
+                    Download and install the latest signed release <strong>(v3.0.0.1.7)</strong>.
                   </p>
                 </div>
                 <div className="border border-adm-border p-3 bg-adm-surface">
-                  <span className="font-mono text-[10px] font-bold text-adm-blue">STEP 02</span>
-                  <p className="mt-1 text-xs font-semibold text-adm-text">Enter Work Credentials</p>
+                  <span className="font-mono text-[10px] font-bold text-adm-blue">STEP 02 (Android 13+)</span>
+                  <p className="mt-1 text-xs font-semibold text-adm-text">Allow Restricted Settings</p>
                   <p className="mt-0.5 text-[11px] text-adm-text-3 leading-snug">
-                    Sign in with <span className="font-mono text-adm-blue">{user?.email || "@tauqeermustafa.tech"}</span>.
+                    In phone <strong>Settings → Apps → TMI Portals → 3 Dots (⋮)</strong>, tap <strong>Allow restricted settings</strong>.
                   </p>
                 </div>
                 <div className="border border-adm-border p-3 bg-adm-surface">
                   <span className="font-mono text-[10px] font-bold text-adm-blue">STEP 03</span>
-                  <p className="mt-1 text-xs font-semibold text-adm-text">Accept Work Profile</p>
+                  <p className="mt-1 text-xs font-semibold text-adm-text">Provision Briefcase 💼</p>
                   <p className="mt-0.5 text-[11px] text-adm-text-3 leading-snug">
-                    Android provisions the sandboxed 💼 Work Profile automatically.
+                    Open app & tap <strong>Launch Work Setup</strong> to activate your private Work Profile.
                   </p>
                 </div>
               </div>
