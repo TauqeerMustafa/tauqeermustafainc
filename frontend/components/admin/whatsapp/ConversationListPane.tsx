@@ -193,7 +193,7 @@ export function ConversationListPane({
           className="rounded-lg p-2 text-adm-text-3 hover:text-adm-text hover:bg-adm-surface-2 transition"
           title="Refresh messages"
         >
-          <RotateCw size={15} />
+          <RefreshCw size={15} />
         </button>
       </div>
 

@@ -20,6 +20,7 @@ import {
   CircleDollarSign,
   Mail,
   MessageSquare,
+  Pencil,
   Phone,
   Plus,
   Search,
@@ -213,14 +214,81 @@ export default function LeadWorkbench({
   const deleteLead = useDeleteLead();
   const logActivity = useLogLeadActivity();
 
+  const [editingLead, setEditingLead] = useState<Lead | LeadDetail | null>(null);
+  const [editForm, setEditForm] = useState<FormState>(EMPTY_FORM);
+  const [editFormError, setEditFormError] = useState<string | null>(null);
+
   // `/admin/users` is admin-only, so only an admin can be offered an owner
   // picker; a team lead assigns from the admin console instead of tripping a 403.
   const canPickOwner = canReassign && isAdminRole(user?.role);
   const usersQuery = useAdminUsers(
     { pageSize: 100 },
-    canPickOwner && (isCreateOpen || Boolean(openLeadId)),
+    canPickOwner && (isCreateOpen || Boolean(editingLead) || Boolean(openLeadId)),
   );
   const assignableUsers = usersQuery.data?.data.items ?? [];
+
+  function startEditLead(lead: Lead | LeadDetail) {
+    setEditingLead(lead);
+    setEditForm({
+      companyName: lead.companyName || "",
+      contactPerson: lead.contactPerson || "",
+      contactTitle: lead.contactTitle || "",
+      email: lead.email || "",
+      phone: lead.phone || "",
+      source: lead.source || "linkedin",
+      industry: lead.industry || "",
+      status: lead.status || "new",
+      estimatedValue: lead.estimatedValue != null ? String(lead.estimatedValue) : "",
+      currency: lead.currency || "USD",
+      nextFollowUpDate: dateInputValue(lead.nextFollowUpDate),
+      assignedExecId: lead.assignedExecId || "",
+    });
+    setEditFormError(null);
+  }
+
+  function closeEdit() {
+    setEditingLead(null);
+    setEditForm(EMPTY_FORM);
+    setEditFormError(null);
+  }
+
+  function editField<K extends keyof FormState>(key: K) {
+    return (event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) =>
+      setEditForm((prev) => ({ ...prev, [key]: event.target.value }));
+  }
+
+  async function submitEdit(event: React.FormEvent) {
+    event.preventDefault();
+    if (!editingLead) return;
+    setEditFormError(null);
+
+    const payload: UpdateLeadPayload = {
+      companyName: editForm.companyName.trim(),
+      contactPerson: editForm.contactPerson.trim(),
+      contactTitle: editForm.contactTitle.trim() || null,
+      email: editForm.email.trim() || null,
+      phone: editForm.phone.trim() || null,
+      source: editForm.source,
+      industry: editForm.industry.trim() || null,
+      status: editForm.status,
+      estimatedValue: editForm.estimatedValue ? Number(editForm.estimatedValue) : null,
+      currency: editForm.currency || "USD",
+      nextFollowUpDate: editForm.nextFollowUpDate || null,
+    };
+    if (canPickOwner && editForm.assignedExecId && editForm.assignedExecId !== editingLead.assignedExecId) {
+      payload.assignedExecId = editForm.assignedExecId;
+    }
+
+    try {
+      await updateLead.mutateAsync({ id: editingLead.id, payload });
+      if (openLeadId === editingLead.id) {
+        detail.refetch();
+      }
+      closeEdit();
+    } catch (error) {
+      setEditFormError(error instanceof Error ? error.message : t("Could not update this lead."));
+    }
+  }
 
   const filtered = useMemo(() => {
     const needle = term.trim().toLowerCase();
@@ -522,21 +590,37 @@ export default function LeadWorkbench({
                       </span>
                     </td>
                     <td className="px-5 py-3 text-end">
-                      {canDelete && (
-                        <button
-                          type="button"
-                          onClick={(event) => {
-                            // The row itself opens the drawer.
-                            event.stopPropagation();
-                            setPendingDelete(lead);
-                          }}
-                          aria-label={`${t("Delete")} ${lead.companyName}`}
-                          title={t("Delete")}
-                          className="text-adm-text-3 transition hover:text-adm-red"
-                        >
-                          <Trash2 size={15} />
-                        </button>
-                      )}
+                      <div className="flex items-center justify-end gap-2.5">
+                        {canEdit && (
+                          <button
+                            type="button"
+                            onClick={(event) => {
+                              event.stopPropagation();
+                              startEditLead(lead);
+                            }}
+                            aria-label={`${t("Edit")} ${lead.companyName}`}
+                            title={t("Edit lead")}
+                            className="rounded p-1 text-adm-text-3 transition hover:bg-adm-surface-3 hover:text-adm-blue"
+                          >
+                            <Pencil size={15} />
+                          </button>
+                        )}
+                        {canDelete && (
+                          <button
+                            type="button"
+                            onClick={(event) => {
+                              // The row itself opens the drawer.
+                              event.stopPropagation();
+                              setPendingDelete(lead);
+                            }}
+                            aria-label={`${t("Delete")} ${lead.companyName}`}
+                            title={t("Delete")}
+                            className="rounded p-1 text-adm-text-3 transition hover:bg-adm-surface-3 hover:text-adm-red"
+                          >
+                            <Trash2 size={15} />
+                          </button>
+                        )}
+                      </div>
                     </td>
                   </tr>
                 ))}
@@ -723,6 +807,185 @@ export default function LeadWorkbench({
       </AdminDrawer>
 
       <AdminDrawer
+        open={Boolean(editingLead)}
+        title={editingLead ? `${t("Edit Lead")} — ${editingLead.companyName}` : t("Edit Lead")}
+        onClose={closeEdit}
+      >
+        <form onSubmit={submitEdit} className="grid gap-5">
+          <AdminField label={t("Company")} htmlFor="edit-lead-company">
+            <input
+              id="edit-lead-company"
+              required
+              value={editForm.companyName}
+              onChange={editField("companyName")}
+              className={adminInputClass}
+              style={adminInputStyle}
+            />
+          </AdminField>
+
+          <div className="grid gap-5 sm:grid-cols-2">
+            <AdminField label={t("Contact person")} htmlFor="edit-lead-person">
+              <input
+                id="edit-lead-person"
+                required
+                value={editForm.contactPerson}
+                onChange={editField("contactPerson")}
+                className={adminInputClass}
+                style={adminInputStyle}
+              />
+            </AdminField>
+            <AdminField label={t("Job title")} htmlFor="edit-lead-title">
+              <input
+                id="edit-lead-title"
+                value={editForm.contactTitle}
+                onChange={editField("contactTitle")}
+                placeholder={t("e.g. Operations Director")}
+                className={adminInputClass}
+                style={adminInputStyle}
+              />
+            </AdminField>
+          </div>
+
+          <div className="grid gap-5 sm:grid-cols-2">
+            <AdminField label={t("Email")} htmlFor="edit-lead-email">
+              <input
+                id="edit-lead-email"
+                type="email"
+                value={editForm.email}
+                onChange={editField("email")}
+                className={adminInputClass}
+                style={adminInputStyle}
+              />
+            </AdminField>
+            <AdminField label={t("Phone")} htmlFor="edit-lead-phone">
+              <input
+                id="edit-lead-phone"
+                value={editForm.phone}
+                onChange={editField("phone")}
+                className={adminInputClass}
+                style={adminInputStyle}
+              />
+            </AdminField>
+          </div>
+
+          <div className="grid gap-5 sm:grid-cols-2">
+            <AdminField label={t("Source")} htmlFor="edit-lead-source">
+              <select
+                id="edit-lead-source"
+                value={editForm.source}
+                onChange={editField("source")}
+                className={adminInputClass}
+                style={adminInputStyle}
+              >
+                {LEAD_SOURCES.map((value) => (
+                  <option key={value} value={value}>
+                    {t(SOURCE_LABEL[value])}
+                  </option>
+                ))}
+              </select>
+            </AdminField>
+            <AdminField label={t("Industry")} htmlFor="edit-lead-industry">
+              <input
+                id="edit-lead-industry"
+                value={editForm.industry}
+                onChange={editField("industry")}
+                placeholder={t("e.g. Logistics")}
+                className={adminInputClass}
+                style={adminInputStyle}
+              />
+            </AdminField>
+          </div>
+
+          <div className="grid gap-5 sm:grid-cols-3">
+            <AdminField label={t("Status")} htmlFor="edit-lead-status">
+              <select
+                id="edit-lead-status"
+                value={editForm.status}
+                onChange={editField("status")}
+                className={adminInputClass}
+                style={adminInputStyle}
+              >
+                {LEAD_STATUSES.map((value) => (
+                  <option key={value} value={value}>
+                    {t(STATUS_LABEL[value])}
+                  </option>
+                ))}
+              </select>
+            </AdminField>
+            <AdminField label={t("Estimated value")} htmlFor="edit-lead-value">
+              <input
+                id="edit-lead-value"
+                type="number"
+                min={0}
+                step="100"
+                value={editForm.estimatedValue}
+                onChange={editField("estimatedValue")}
+                className={adminInputClass}
+                style={adminInputStyle}
+              />
+            </AdminField>
+            <AdminField label={t("Currency")} htmlFor="edit-lead-currency">
+              <select
+                id="edit-lead-currency"
+                value={editForm.currency}
+                onChange={editField("currency")}
+                className={adminInputClass}
+                style={adminInputStyle}
+              >
+                {["USD", "EUR", "GBP", "AED", "PKR", "SAR"].map((code) => (
+                  <option key={code} value={code}>
+                    {code}
+                  </option>
+                ))}
+              </select>
+            </AdminField>
+          </div>
+
+          <AdminField label={t("Next follow-up")} htmlFor="edit-lead-follow-up">
+            <input
+              id="edit-lead-follow-up"
+              type="date"
+              value={editForm.nextFollowUpDate}
+              onChange={editField("nextFollowUpDate")}
+              className={adminInputClass}
+              style={adminInputStyle}
+            />
+          </AdminField>
+
+          {canPickOwner && (
+            <AdminField label={t("Owner")} htmlFor="edit-lead-owner">
+              <select
+                id="edit-lead-owner"
+                value={editForm.assignedExecId}
+                onChange={editField("assignedExecId")}
+                className={adminInputClass}
+                style={adminInputStyle}
+              >
+                <option value="">{t("Unassigned")}</option>
+                {assignableUsers.map((option) => (
+                  <option key={option.id} value={option.id}>
+                    {option.name || option.email}
+                  </option>
+                ))}
+              </select>
+            </AdminField>
+          )}
+
+          {editFormError && (
+            <p className="text-sm" role="alert" style={{ color: "var(--adm-red)" }}>
+              {editFormError}
+            </p>
+          )}
+
+          <AdminFormActions
+            onCancel={closeEdit}
+            isPending={updateLead.isPending}
+            submitLabel={t("Save changes")}
+          />
+        </form>
+      </AdminDrawer>
+
+      <AdminDrawer
         open={Boolean(openLeadId)}
         title={detail.data?.companyName ?? t("Lead")}
         onClose={() => setOpenLeadId(null)}
@@ -742,6 +1005,7 @@ export default function LeadWorkbench({
             canEdit={canEdit}
             isSaving={updateLead.isPending}
             isLogging={logActivity.isPending}
+            onEdit={() => startEditLead(detail.data!)}
             onPatch={(payload) => patch(detail.data!.id, payload)}
             onLog={async (payload) => {
               await logActivity.mutateAsync({ id: detail.data!.id, payload });
@@ -775,6 +1039,7 @@ type DetailProps = {
   canEdit: boolean;
   isSaving: boolean;
   isLogging: boolean;
+  onEdit?: (lead: LeadDetail) => void;
   onPatch: (payload: UpdateLeadPayload) => void;
   onLog: (payload: { type: string; body: string }) => Promise<void>;
 };
@@ -793,6 +1058,7 @@ function LeadDetailBody({
   canEdit,
   isSaving,
   isLogging,
+  onEdit,
   onPatch,
   onLog,
 }: DetailProps) {
@@ -811,34 +1077,50 @@ function LeadDetailBody({
 
   return (
     <div className="grid gap-6">
-      <div className="grid gap-1 border-b pb-5" style={{ borderColor: "var(--adm-border)" }}>
-        <p className="text-sm font-semibold" style={{ color: "var(--adm-text)" }}>
-          {lead.contactPerson}
-          {lead.contactTitle ? (
-            <span className="font-normal" style={{ color: "var(--adm-text-3)" }}>
-              {" "}
-              · {lead.contactTitle}
-            </span>
-          ) : null}
-        </p>
-        <div className="flex flex-wrap items-center gap-4 text-sm">
-          {lead.email ? (
-            <a href={`mailto:${lead.email}`} className="flex items-center gap-1.5 text-adm-blue hover:underline">
-              <Mail size={14} />
-              {lead.email}
-            </a>
-          ) : null}
-          {lead.phone ? (
-            <a href={`tel:${lead.phone}`} className="flex items-center gap-1.5 text-adm-blue hover:underline">
-              <Phone size={14} />
-              {lead.phone}
-            </a>
-          ) : null}
+      <div className="flex items-start justify-between gap-3 border-b pb-5" style={{ borderColor: "var(--adm-border)" }}>
+        <div className="grid gap-1 min-w-0">
+          <p className="text-base font-bold" style={{ color: "var(--adm-text)" }}>
+            {lead.companyName}
+          </p>
+          <p className="text-sm font-semibold" style={{ color: "var(--adm-text-2)" }}>
+            {lead.contactPerson}
+            {lead.contactTitle ? (
+              <span className="font-normal" style={{ color: "var(--adm-text-3)" }}>
+                {" "}
+                · {lead.contactTitle}
+              </span>
+            ) : null}
+          </p>
+          <div className="flex flex-wrap items-center gap-4 text-sm">
+            {lead.email ? (
+              <a href={`mailto:${lead.email}`} className="flex items-center gap-1.5 text-adm-blue hover:underline">
+                <Mail size={14} />
+                {lead.email}
+              </a>
+            ) : null}
+            {lead.phone ? (
+              <a href={`tel:${lead.phone}`} className="flex items-center gap-1.5 text-adm-blue hover:underline">
+                <Phone size={14} />
+                {lead.phone}
+              </a>
+            ) : null}
+          </div>
+          <p className="text-xs" style={{ color: "var(--adm-text-3)" }}>
+            {t(SOURCE_LABEL[lead.source] ?? String(lead.source))}
+            {lead.industry ? ` · ${lead.industry}` : ""} · {t("Added")} {formatDate(lead.createdAt)}
+          </p>
         </div>
-        <p className="text-xs" style={{ color: "var(--adm-text-3)" }}>
-          {t(SOURCE_LABEL[lead.source] ?? String(lead.source))}
-          {lead.industry ? ` · ${lead.industry}` : ""} · {t("Added")} {formatDate(lead.createdAt)}
-        </p>
+        {canEdit && onEdit && (
+          <button
+            type="button"
+            onClick={() => onEdit(lead)}
+            className="btn-press flex shrink-0 items-center gap-1.5 border px-3 py-1.5 text-xs font-semibold text-adm-text transition hover:border-adm-blue hover:text-adm-blue"
+            style={{ borderColor: "var(--adm-border)", background: "var(--adm-surface-2)" }}
+          >
+            <Pencil size={13} />
+            {t("Edit Details")}
+          </button>
+        )}
       </div>
 
       <div className="grid gap-5 sm:grid-cols-2">

@@ -166,6 +166,47 @@ export function portalsForRole(raw: string | null | undefined): PortalId[] {
 }
 
 /**
+ * Baseline permission fallback by role, guaranteeing that essential permissions
+ * (such as member/employee own lead management) function reliably even if the
+ * session permission list is temporarily sparse or before role backfills.
+ */
+export const DEFAULT_ROLE_PERMISSIONS: Partial<Record<RoleSlug, readonly PermissionSlug[]>> = {
+  [ROLE.MEMBER]: [
+    PERMISSION.LEADS_READ_OWN,
+    PERMISSION.LEADS_CREATE,
+    PERMISSION.LEADS_UPDATE_OWN,
+    PERMISSION.LEADS_EXPORT_OWN,
+  ],
+  [ROLE.EXEC]: [
+    PERMISSION.LEADS_READ_OWN,
+    PERMISSION.LEADS_CREATE,
+    PERMISSION.LEADS_UPDATE_OWN,
+    PERMISSION.LEADS_DELETE_OWN,
+    PERMISSION.LEADS_EXPORT_OWN,
+  ],
+  [ROLE.TEAM_LEAD]: [
+    PERMISSION.LEADS_READ_OWN,
+    PERMISSION.LEADS_READ_TEAM,
+    PERMISSION.LEADS_CREATE,
+    PERMISSION.LEADS_UPDATE_OWN,
+    PERMISSION.LEADS_DELETE_OWN,
+    PERMISSION.LEADS_EXPORT_OWN,
+    PERMISSION.LEADS_EXPORT_TEAM,
+  ],
+};
+
+function effectivePermissions(
+  user: { role?: string | null; permissions?: string[] | null } | null | undefined,
+): string[] {
+  if (!user) return [];
+  const granted = user.permissions ?? [];
+  const slug = normalizeRole(user.role);
+  const defaults = slug && DEFAULT_ROLE_PERMISSIONS[slug] ? DEFAULT_ROLE_PERMISSIONS[slug]! : [];
+  if (defaults.length === 0) return granted;
+  return Array.from(new Set([...granted, ...defaults]));
+}
+
+/**
  * Permission check. Admins are granted everything implicitly: the backend
  * treats `is_superuser` as a bypass in `get_current_admin`, and the UI must
  * agree or an admin would see a menu that doesn't match what the API allows.
@@ -177,7 +218,7 @@ export function can(
   if (!user) return false;
   if (isAdminRole(user.role)) return true;
   if (needed.length === 0) return true;
-  const granted = user.permissions ?? [];
+  const granted = effectivePermissions(user);
   return needed.some((slug) => granted.includes(slug));
 }
 
@@ -188,7 +229,7 @@ export function scopeFor(
 ): "all" | "team" | "own" | null {
   if (!user) return null;
   if (isAdminRole(user.role)) return "all";
-  const granted = user.permissions ?? [];
+  const granted = effectivePermissions(user);
   if (granted.includes(`${base}.all`)) return "all";
   if (granted.includes(`${base}.team`)) return "team";
   if (granted.includes(`${base}.own`)) return "own";

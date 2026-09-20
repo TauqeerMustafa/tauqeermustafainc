@@ -252,13 +252,7 @@ function messageBelongsToChannel(
   return !!numberInfo.primary;
 }
 
-/** Get the canonical sender number ID for a message or conversation */
-function getLineForMessage(m: WAMessage, allNumbers: WANumberInfo[]): WANumberInfo | undefined {
-  for (const n of allNumbers) {
-    if (messageBelongsToChannel(m, n, allNumbers)) return n;
-  }
-  return allNumbers.find((n) => n.primary) || allNumbers[0];
-}
+
 
 /**
  * The lines to show in the inbox: the ones Meta confirmed (from the numbers
@@ -277,9 +271,11 @@ function withSeenChannels(
   apiNumbers: WANumberInfo[],
   messages: WAMessage[]
 ): WANumberInfo[] {
+  const safeApiNumbers = Array.isArray(apiNumbers) ? apiNumbers : [];
+  const safeMessages = Array.isArray(messages) ? messages : [];
   const covers = (ch: string) => {
     const chDigits = cleanDigits(ch);
-    return apiNumbers.some(
+    return safeApiNumbers.some(
       (n) =>
         n.id === ch ||
         (chDigits && cleanDigits(n.id) === chDigits) ||
@@ -288,7 +284,8 @@ function withSeenChannels(
   };
 
   const extras: WANumberInfo[] = [];
-  for (const m of messages) {
+  for (const m of safeMessages) {
+    if (!m) continue;
     // Only the explicit channel stamp is trustworthy as OUR line — the
     // to/from fallback is the customer's number on legacy rows.
     const ch = (m.channel || "").trim();
@@ -296,13 +293,13 @@ function withSeenChannels(
     if (extras.some((e) => e.id === ch || cleanDigits(e.id) === cleanDigits(ch))) continue;
     // An explicit channel stamp that Meta's discovered list does not include is
     // one of OUR lines that discovery missed — such as the second or third number.
-    const hasDirectMessage = messages.some(
+    const hasDirectMessage = safeMessages.some(
       (msg) =>
         (msg.channel === ch || msg.to === ch) &&
         (msg.department === "direct" || /\[?(executive|direct\s*desk)\]?/i.test(msg.body || ""))
     );
-    const hasDirectLineInApi = apiNumbers.some((n) => n.department === "direct");
-    const hasSupportLineInApi = apiNumbers.some((n) => n.department === "support");
+    const hasDirectLineInApi = safeApiNumbers.some((n) => n.department === "direct");
+    const hasSupportLineInApi = safeApiNumbers.some((n) => n.department === "support");
 
     const isLine3 =
       ch === "1034864159583818" ||
@@ -327,7 +324,7 @@ function withSeenChannels(
         ? "Line 2"
         : isLine4
         ? "Line 4"
-        : `Line ${apiNumbers.length + extras.length + 1}`,
+        : `Line ${safeApiNumbers.length + extras.length + 1}`,
       primary: false,
       slot: isLine4 ? 4 : isLine3 ? 3 : isLine2 ? 2 : 1,
       canSend: false,
@@ -336,7 +333,7 @@ function withSeenChannels(
       error: "Received messages arrived on this number, but Meta has not confirmed it — replies may not send until it is configured.",
     });
   }
-  return extras.length ? [...apiNumbers, ...extras] : apiNumbers;
+  return extras.length ? [...safeApiNumbers, ...extras] : safeApiNumbers;
 }
 
 /** Determine which department a message belongs to: "general" (Inquiries/Sales), "support" (Client Support Desk), or "direct" (Executive Desk) */
@@ -357,56 +354,78 @@ function getMessageDepartment(m: WAMessage, allNumbers: WANumberInfo[] = []): "g
     toDigits === "1083562997861778" ||
     fromDigits === "1034864159583818" ||
     fromDigits === "1083562997861778" ||
-    ch.toLowerCase().includes("line 3") ||
-    ch.toLowerCase().includes("direct") ||
-    ch.toLowerCase().includes("executive")
+    /\[?(executive|direct\s*desk)\]?/i.test(m.body || "")
   ) {
     return "direct";
   }
 
-  // Line 2: 1318810581311680 (+44 7575 376078)
+  // Line 2: 1318810581311680 / UK number +44 7575 376078
   if (
     ch === "1318810581311680" ||
-    chDigits === "447575376078" ||
-    fromDigits === "447575376078" ||
-    toDigits === "447575376078" ||
     toDigits === "1318810581311680" ||
-    ch.toLowerCase().includes("line 2") ||
-    ch.toLowerCase().includes("support")
+    fromDigits === "1318810581311680" ||
+    chDigits === "447575376078" ||
+    toDigits === "447575376078" ||
+    fromDigits === "447575376078"
   ) {
     return "support";
   }
 
-  const line = getLineForMessage(m, allNumbers);
-  if (line?.department) return line.department;
-  if (line?.id === "1034864159583818" || line?.id === "1083562997861778" || line?.slot === 3) {
-    return "direct";
-  }
-  if (line?.id === "1318810581311680" || line?.slot === 2) {
+  // Line 4: 1291624014041103 (Test Sandbox)
+  if (
+    ch === "1291624014041103" ||
+    toDigits === "1291624014041103" ||
+    fromDigits === "1291624014041103"
+  ) {
     return "support";
   }
+
+  // Line 1: Primary 1239592269240963 / Pakistan number +92 335 6701199
   if (
     ch === "1239592269240963" ||
+    toDigits === "1239592269240963" ||
+    fromDigits === "1239592269240963" ||
     chDigits === "923356701199" ||
     toDigits === "923356701199" ||
-    line?.id === "1239592269240963" ||
-    line?.primary
+    fromDigits === "923356701199"
   ) {
     return "general";
   }
-  if (
-    (line && (!line.primary || line.label.toLowerCase().includes("support"))) ||
-    ch.toLowerCase().includes("support") ||
-    ch === "1291624014041103"
-  ) {
-    return "support";
-  }
+
+  // Match against discovered numbers list
+  const matched = allNumbers.find((n) => messageDirectlyMatchesNumber(m, n));
+  if (matched?.department) return matched.department;
+
   return "general";
 }
 
 /**
- * Group messages into conversations, newest activity first.
- * Conversations are strictly partitioned by department (${dept}_${number}),
+ * Return which sending number a message belongs to, matching strictly by exact
+ * Meta Phone Number ID, display number, or explicit channel metadata.
+ */
+function getLineForMessage(m: WAMessage, allNumbers: WANumberInfo[] = []): WANumberInfo | undefined {
+  const directMatch = allNumbers.find((n) => messageDirectlyMatchesNumber(m, n));
+  if (directMatch) return directMatch;
+
+  const dept = getMessageDepartment(m, allNumbers);
+  if (dept === "direct") {
+    return (
+      allNumbers.find((n) => n.id === "1034864159583818" || n.id === "1083562997861778" || n.slot === 3 || n.department === "direct") ||
+      allNumbers.find((n) => n.department === "direct")
+    );
+  }
+  if (dept === "support") {
+    return (
+      allNumbers.find((n) => n.id === "1318810581311680" || n.slot === 2 || (n.department === "support" && n.id !== "1291624014041103" && n.id !== "1034864159583818" && n.id !== "1083562997861778")) ||
+      allNumbers.find((n) => n.department === "support") ||
+      allNumbers.find((n) => !n.primary)
+    );
+  }
+  return allNumbers.find((n) => n.primary || n.id === "1239592269240963") || allNumbers[0];
+}
+
+/**
+ * Multi-line conversation grouper: groups messages into distinct conversations keyed by (department + customer number),
  * ensuring General Inquiries, Client Support, and Executive Desk never bleed messages, notes, or deal stages.
  */
 function groupConversations(
@@ -414,9 +433,12 @@ function groupConversations(
   allNumbers: WANumberInfo[] = [],
   filterDepartment?: "general" | "support" | "direct"
 ): Conversation[] {
+  const safeMessages = Array.isArray(messages) ? messages : [];
+  const safeNumbers = Array.isArray(allNumbers) ? allNumbers : [];
   const byKey = new Map<string, Conversation>();
-  for (const m of messages) {
-    const dept = getMessageDepartment(m, allNumbers);
+  for (const m of safeMessages) {
+    if (!m) continue;
+    const dept = getMessageDepartment(m, safeNumbers);
     if (filterDepartment && dept !== filterDepartment) continue;
     const number = numberOf(m);
     const key = `${dept}_${number}`;
@@ -441,8 +463,8 @@ function groupConversations(
   for (const c of convos) {
     c.messages.sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
     const last = c.messages.at(-1);
-    const line = last ? getLineForMessage(last, allNumbers) : undefined;
-    c.channel = line?.id || channelOf(last!) || undefined;
+    const line = last ? getLineForMessage(last, safeNumbers) : undefined;
+    c.channel = line?.id || (last ? channelOf(last) : undefined) || undefined;
   }
   convos.sort((a, b) => {
     const at = a.messages.at(-1) ? new Date(a.messages.at(-1)!.timestamp).getTime() : 0;
@@ -512,9 +534,9 @@ export default function AdminWhatsAppPage() {
   const { data: messagesData } = useWhatsAppMessages();
   const { data: metaData } = useConversationMeta();
 
-  const apiNumbers = numbersData?.data ?? [];
-  const allMessages = messagesData?.data ?? [];
-  const metaMap = metaData?.data ?? {};
+  const apiNumbers = Array.isArray(numbersData?.data) ? numbersData.data : [];
+  const allMessages = Array.isArray(messagesData?.data) ? messagesData.data : [];
+  const metaMap = (metaData?.data && typeof metaData.data === "object" && !Array.isArray(metaData.data)) ? metaData.data : {};
 
   const numbers = withSeenChannels(apiNumbers, allMessages);
 
@@ -1021,8 +1043,8 @@ function InboxTab({
   const updateMeta = useUpdateConversationMeta();
   const deleteConv = useDeleteConversation();
 
-  const metaMap = metaData?.data ?? {};
-  const apiNumbers = numbersData?.data ?? [];
+  const metaMap = (metaData?.data && typeof metaData.data === "object" && !Array.isArray(metaData.data)) ? metaData.data : {};
+  const apiNumbers = Array.isArray(numbersData?.data) ? numbersData.data : [];
 
   const [lineFilter, setLineFilter] = useState<string>("all");
   const [selected, setSelected] = useState<string | null>(selectedRecipient || null);
@@ -1038,7 +1060,7 @@ function InboxTab({
   if (isError)
     return <AdminErrorState message="Could not load messages. Check your WhatsApp configuration." />;
 
-  const allMessages = data?.data ?? [];
+  const allMessages = Array.isArray(data?.data) ? data.data : [];
   const numbers = withSeenChannels(apiNumbers, allMessages);
 
   // Group conversations across all lines and calculate counts
@@ -1332,10 +1354,6 @@ function ChatView({
     }
     if (currentDept === "support") {
       const s = numbers.find((n) => n.id === "1318810581311680" || n.slot === 2 || n.department === "support") || numbers.find((n) => !n.primary) || numbers[0];
-      return s?.id || "";
-    }
-    if (currentDept === "support") {
-      const s = numbers.find((n) => !n.primary) || numbers[0];
       return s?.id || "";
     }
     return numbers.find((n) => n.primary)?.id || numbers[0]?.id || "";

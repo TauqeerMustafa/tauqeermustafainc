@@ -109,9 +109,13 @@ def _narrow(stmt: Select, db: Session, user: User, scope: str) -> Select:
         # Leads assigned to nobody stay invisible to team scope on purpose: an
         # unassigned lead belongs to no team, so it is an admin/all-scope concern.
         return stmt.where(
-            or_(Lead.assigned_exec_id.in_(teammates), Lead.assigned_exec_id == user.id)
+            or_(
+                Lead.assigned_exec_id.in_(teammates),
+                Lead.assigned_exec_id == user.id,
+                Lead.created_by_id == user.id,
+            )
         )
-    return stmt.where(Lead.assigned_exec_id == user.id)
+    return stmt.where(or_(Lead.assigned_exec_id == user.id, Lead.created_by_id == user.id))
 
 
 def _exec_name(lead: Lead) -> Optional[str]:
@@ -345,7 +349,10 @@ def update_lead(
     changes = payload.model_dump(exclude_unset=True)
 
     if "assigned_exec_id" in changes and _scope(db, current_user, "leads.update") == "own":
-        raise HTTPException(status_code=403, detail="You cannot reassign leads")
+        if changes["assigned_exec_id"] == lead.assigned_exec_id:
+            del changes["assigned_exec_id"]
+        else:
+            raise HTTPException(status_code=403, detail="You cannot reassign leads")
     new_owner = changes.get("assigned_exec_id")
     if new_owner and db.get(User, new_owner) is None:
         raise HTTPException(status_code=400, detail="Assigned user does not exist")
