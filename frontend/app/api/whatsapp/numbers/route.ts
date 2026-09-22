@@ -183,8 +183,7 @@ export async function GET(request: Request) {
     const isLine3 =
       n.id === "1034864159583818" ||
       n.id === "1083562997861778" ||
-      n.slot === 3 ||
-      conf?.department === "direct";
+      n.slot === 3;
 
     const isLine2 =
       !isLine3 &&
@@ -195,21 +194,54 @@ export async function GET(request: Request) {
     const isLine4 =
       !isLine3 &&
       !isLine2 &&
-      (n.id === "1291624014041103" || n.slot === 4);
+      (n.id === "2663451950739498" || n.slot === 4);
+
+    const isLine5 =
+      !isLine3 &&
+      !isLine2 &&
+      !isLine4 &&
+      (n.id === "1739099617324219" || n.slot === 5);
+
+    const isLine6 =
+      !isLine3 &&
+      !isLine2 &&
+      !isLine4 &&
+      !isLine5 &&
+      (n.id === "1485319076722009" || n.slot === 6);
+
+    const isLine7 =
+      !isLine3 &&
+      !isLine2 &&
+      !isLine4 &&
+      !isLine5 &&
+      !isLine6 &&
+      (n.id === "1291624014041103" || n.slot === 7);
 
     if (isLine3) {
       n.department = "direct";
       n.slot = 3;
-      n.label = "Line 3";
+      n.label = conf?.label || "Line 3 (US)";
     } else if (isLine2) {
       n.department = "support";
       n.slot = 2;
-      n.label = "Line 2";
+      n.label = conf?.label || "Line 2 (UK)";
       if (!n.displayNumber) n.displayNumber = "+44 7575 376078";
     } else if (isLine4) {
-      n.department = "support";
+      n.department = "direct";
       n.slot = 4;
-      n.label = "Line 4";
+      n.label = conf?.label || "Line 4 (NL 1)";
+    } else if (isLine5) {
+      n.department = "support";
+      n.slot = 5;
+      n.label = conf?.label || "Line 5 (NL 2)";
+    } else if (isLine6) {
+      n.department = "direct";
+      n.slot = 6;
+      n.label = conf?.label || "Line 6 (SL)";
+    } else if (isLine7) {
+      n.department = "support";
+      n.slot = 7;
+      n.label = conf?.label || "Line 7 (Sandbox)";
     } else {
       n.department = conf?.department || "support";
       n.label = conf?.label || `Line ${resultList.indexOf(n) + 1}`;

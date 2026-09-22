@@ -85,6 +85,9 @@ export function ConversationListPane({
     line2?: number;
     line3?: number;
     line4?: number;
+    line5?: number;
+    line6?: number;
+    line7?: number;
     [key: string]: number | undefined;
   };
 }) {
@@ -112,7 +115,10 @@ export function ConversationListPane({
         (conv.department === "support" &&
           conv.channel !== "1291624014041103" &&
           conv.channel !== "1034864159583818" &&
-          conv.channel !== "1083562997861778")
+          conv.channel !== "1083562997861778" &&
+          conv.channel !== "2663451950739498" &&
+          conv.channel !== "1739099617324219" &&
+          conv.channel !== "1485319076722009")
       );
     }
     if (
@@ -124,10 +130,21 @@ export function ConversationListPane({
       return (
         conv.channel === "1034864159583818" ||
         conv.channel === "1083562997861778" ||
-        conv.department === "direct"
+        (conv.department === "direct" &&
+          conv.channel !== "2663451950739498" &&
+          conv.channel !== "1485319076722009")
       );
     }
-    if (currentDepartment === "1291624014041103" || currentDepartment === "line4") {
+    if (currentDepartment === "2663451950739498" || currentDepartment === "line4") {
+      return conv.channel === "2663451950739498";
+    }
+    if (currentDepartment === "1739099617324219" || currentDepartment === "line5") {
+      return conv.channel === "1739099617324219";
+    }
+    if (currentDepartment === "1485319076722009" || currentDepartment === "line6") {
+      return conv.channel === "1485319076722009";
+    }
+    if (currentDepartment === "1291624014041103" || currentDepartment === "line7") {
       return conv.channel === "1291624014041103";
     }
     return conv.channel === currentDepartment || conv.department === currentDepartment;
@@ -289,22 +306,82 @@ export function ConversationListPane({
             )}
           </button>
 
-          {/* Line 4 */}
+          {/* Line 4 (NL 1) */}
+          <button
+            type="button"
+            onClick={() => onDepartmentChange("2663451950739498")}
+            className={`flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1 text-[11px] font-bold transition ${
+              currentDepartment === "2663451950739498" || currentDepartment === "line4"
+                ? "bg-indigo-600 text-white shadow-sm"
+                : "bg-adm-surface-2 text-adm-text-2 border border-adm-border hover:border-adm-text-3 hover:text-adm-text"
+            }`}
+            title="Line 4 (NL 1: 2663451950739498)"
+          >
+            <span className="h-1.5 w-1.5 rounded-full bg-indigo-400" />
+            <span>Line 4</span>
+            {(unreadCounts.line4 ?? 0) > 0 && (
+              <span className="flex h-4 min-w-[16px] items-center justify-center rounded-full bg-indigo-500 px-1 text-[9px] font-bold text-white">
+                {unreadCounts.line4}
+              </span>
+            )}
+          </button>
+
+          {/* Line 5 (NL 2) */}
+          <button
+            type="button"
+            onClick={() => onDepartmentChange("1739099617324219")}
+            className={`flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1 text-[11px] font-bold transition ${
+              currentDepartment === "1739099617324219" || currentDepartment === "line5"
+                ? "bg-cyan-600 text-white shadow-sm"
+                : "bg-adm-surface-2 text-adm-text-2 border border-adm-border hover:border-adm-text-3 hover:text-adm-text"
+            }`}
+            title="Line 5 (NL 2: 1739099617324219)"
+          >
+            <span className="h-1.5 w-1.5 rounded-full bg-cyan-400" />
+            <span>Line 5</span>
+            {(unreadCounts.line5 ?? 0) > 0 && (
+              <span className="flex h-4 min-w-[16px] items-center justify-center rounded-full bg-cyan-500 px-1 text-[9px] font-bold text-white">
+                {unreadCounts.line5}
+              </span>
+            )}
+          </button>
+
+          {/* Line 6 (SL) */}
+          <button
+            type="button"
+            onClick={() => onDepartmentChange("1485319076722009")}
+            className={`flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1 text-[11px] font-bold transition ${
+              currentDepartment === "1485319076722009" || currentDepartment === "line6"
+                ? "bg-rose-600 text-white shadow-sm"
+                : "bg-adm-surface-2 text-adm-text-2 border border-adm-border hover:border-adm-text-3 hover:text-adm-text"
+            }`}
+            title="Line 6 (SL: 1485319076722009)"
+          >
+            <span className="h-1.5 w-1.5 rounded-full bg-rose-400" />
+            <span>Line 6</span>
+            {(unreadCounts.line6 ?? 0) > 0 && (
+              <span className="flex h-4 min-w-[16px] items-center justify-center rounded-full bg-rose-500 px-1 text-[9px] font-bold text-white">
+                {unreadCounts.line6}
+              </span>
+            )}
+          </button>
+
+          {/* Line 7 (Sandbox) */}
           <button
             type="button"
             onClick={() => onDepartmentChange("1291624014041103")}
             className={`flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1 text-[11px] font-bold transition ${
-              currentDepartment === "1291624014041103" || currentDepartment === "line4"
+              currentDepartment === "1291624014041103" || currentDepartment === "line7"
                 ? "bg-amber-600 text-white shadow-sm"
                 : "bg-adm-surface-2 text-adm-text-2 border border-adm-border hover:border-adm-text-3 hover:text-adm-text"
             }`}
-            title="Line 4"
+            title="Line 7 (Sandbox)"
           >
             <span className="h-1.5 w-1.5 rounded-full bg-amber-400" />
-            <span>Line 4</span>
-            {(unreadCounts.line4 ?? 0) > 0 && (
+            <span>Line 7</span>
+            {(unreadCounts.line7 ?? 0) > 0 && (
               <span className="flex h-4 min-w-[16px] items-center justify-center rounded-full bg-amber-500 px-1 text-[9px] font-bold text-white">
-                {unreadCounts.line4}
+                {unreadCounts.line7}
               </span>
             )}
           </button>

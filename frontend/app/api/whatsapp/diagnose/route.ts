@@ -156,9 +156,12 @@ export async function GET(request: Request) {
       slotConfigured.map((n) => inspect(n.id, n.label, token, visibleIds, wabaId))
     );
 
-    // Also test Line 3 (1034864159583818) and Line 2 (1318810581311680) directly with this token
-    const line3Direct = await inspect("1034864159583818", "Line 3", token, visibleIds, wabaId);
-    const line2Direct = await inspect("1318810581311680", "Line 2 (+44 7575 376078)", token, visibleIds, wabaId);
+    // Also test Line 3 (US), Line 2 (UK), Line 4 (NL 1), Line 5 (NL 2), Line 6 (SL) directly with this token
+    const line3Direct = await inspect("1034864159583818", "Line 3 (US)", token, visibleIds, wabaId);
+    const line2Direct = await inspect("1318810581311680", "Line 2 (UK: +44 7575 376078)", token, visibleIds, wabaId);
+    const line4Direct = await inspect("2663451950739498", "Line 4 (NL 1)", token, visibleIds, wabaId);
+    const line5Direct = await inspect("1739099617324219", "Line 5 (NL 2)", token, visibleIds, wabaId);
+    const line6Direct = await inspect("1485319076722009", "Line 6 (SL)", token, visibleIds, wabaId);
 
     slotsReport.push({
       slot: account.slot,
@@ -170,6 +173,9 @@ export async function GET(request: Request) {
       checks,
       line3Direct,
       line2Direct,
+      line4Direct,
+      line5Direct,
+      line6Direct,
     });
   }
 
@@ -190,9 +196,11 @@ export async function GET(request: Request) {
       const isDirectMatch =
         m.channel === "1034864159583818" ||
         m.channel === "1083562997861778" ||
+        m.channel === "2663451950739498" ||
+        m.channel === "1485319076722009" ||
         m.department === "direct" ||
-        (m.from && (m.from.includes("1034864159583818") || m.from.includes("1083562997861778"))) ||
-        (m.to && (m.to.includes("1034864159583818") || m.to.includes("1083562997861778")));
+        (m.from && (m.from.includes("1034864159583818") || m.from.includes("2663451950739498") || m.from.includes("1485319076722009"))) ||
+        (m.to && (m.to.includes("1034864159583818") || m.to.includes("2663451950739498") || m.to.includes("1485319076722009")));
 
       if (isDirectMatch) {
         directMatches.push({

@@ -30,8 +30,8 @@
  * arrived on. Which numbers belong to which slot is `lib/wa-numbers`' business.
  */
 
-/** Slots scanned for credentials. Four is well past what one business needs. */
-export const MAX_ACCOUNTS = 4;
+/** Slots scanned for credentials. Supports multi-region & multi-line expansion. */
+export const MAX_ACCOUNTS = 8;
 
 /** Vercel masks sensitive values in some contexts; the sentinel means "unset". */
 const SENTINEL = "[SENSITIVE]";
@@ -65,6 +65,9 @@ export type WAAccount = {
  * injects it. Verbose, but it cannot silently read undefined.
  */
 function readSlot(slot: number): WAAccount {
+  const primaryToken = process.env.WHATSAPP_TOKEN;
+  const primarySecret = process.env.WHATSAPP_APP_SECRET;
+
   const raw =
     slot === 1
       ? {
@@ -76,27 +79,59 @@ function readSlot(slot: number): WAAccount {
         }
       : slot === 2
         ? {
-            token: process.env.WHATSAPP_TOKEN_2,
-            appSecret: process.env.WHATSAPP_APP_SECRET_2,
+            token: process.env.WHATSAPP_TOKEN_2 || primaryToken,
+            appSecret: process.env.WHATSAPP_APP_SECRET_2 || primarySecret,
             wabaId: process.env.WHATSAPP_BUSINESS_ACCOUNT_ID_2,
             verifyToken: process.env.WEBHOOK_VERIFY_TOKEN_2,
-            label: process.env.WHATSAPP_APP_LABEL_2,
+            label: process.env.WHATSAPP_APP_LABEL_2 || "Line 2",
           }
         : slot === 3
           ? {
-              token: process.env.WHATSAPP_TOKEN_3 || process.env.WHATSAPP_TOKEN_2 || process.env.WHATSAPP_TOKEN,
-              appSecret: process.env.WHATSAPP_APP_SECRET_3 || process.env.WHATSAPP_APP_SECRET_2 || process.env.WHATSAPP_APP_SECRET,
+              token: process.env.WHATSAPP_TOKEN_3 || process.env.WHATSAPP_TOKEN_2 || primaryToken,
+              appSecret: process.env.WHATSAPP_APP_SECRET_3 || process.env.WHATSAPP_APP_SECRET_2 || primarySecret,
               wabaId: process.env.WHATSAPP_BUSINESS_ACCOUNT_ID_3 || "1083562997861778",
               verifyToken: process.env.WEBHOOK_VERIFY_TOKEN_3,
               label: process.env.WHATSAPP_APP_LABEL_3 || "Line 3",
             }
-          : {
-              token: process.env.WHATSAPP_TOKEN_4,
-              appSecret: process.env.WHATSAPP_APP_SECRET_4,
-              wabaId: process.env.WHATSAPP_BUSINESS_ACCOUNT_ID_4,
-              verifyToken: process.env.WEBHOOK_VERIFY_TOKEN_4,
-              label: process.env.WHATSAPP_APP_LABEL_4 || "Line 4",
-            };
+          : slot === 4
+            ? {
+                token: process.env.WHATSAPP_TOKEN_4 || primaryToken,
+                appSecret: process.env.WHATSAPP_APP_SECRET_4 || primarySecret,
+                wabaId: process.env.WHATSAPP_BUSINESS_ACCOUNT_ID_4,
+                verifyToken: process.env.WEBHOOK_VERIFY_TOKEN_4,
+                label: process.env.WHATSAPP_APP_LABEL_4 || "Line 4",
+              }
+            : slot === 5
+              ? {
+                  token: process.env.WHATSAPP_TOKEN_5 || primaryToken,
+                  appSecret: process.env.WHATSAPP_APP_SECRET_5 || primarySecret,
+                  wabaId: process.env.WHATSAPP_BUSINESS_ACCOUNT_ID_5,
+                  verifyToken: process.env.WEBHOOK_VERIFY_TOKEN_5,
+                  label: process.env.WHATSAPP_APP_LABEL_5 || "Line 5",
+                }
+              : slot === 6
+                ? {
+                    token: process.env.WHATSAPP_TOKEN_6 || primaryToken,
+                    appSecret: process.env.WHATSAPP_APP_SECRET_6 || primarySecret,
+                    wabaId: process.env.WHATSAPP_BUSINESS_ACCOUNT_ID_6,
+                    verifyToken: process.env.WEBHOOK_VERIFY_TOKEN_6,
+                    label: process.env.WHATSAPP_APP_LABEL_6 || "Line 6",
+                  }
+                : slot === 7
+                  ? {
+                      token: process.env.WHATSAPP_TOKEN_7 || primaryToken,
+                      appSecret: process.env.WHATSAPP_APP_SECRET_7 || primarySecret,
+                      wabaId: process.env.WHATSAPP_BUSINESS_ACCOUNT_ID_7,
+                      verifyToken: process.env.WEBHOOK_VERIFY_TOKEN_7,
+                      label: process.env.WHATSAPP_APP_LABEL_7 || "Line 7",
+                    }
+                  : {
+                      token: process.env.WHATSAPP_TOKEN_8 || primaryToken,
+                      appSecret: process.env.WHATSAPP_APP_SECRET_8 || primarySecret,
+                      wabaId: process.env.WHATSAPP_BUSINESS_ACCOUNT_ID_8,
+                      verifyToken: process.env.WEBHOOK_VERIFY_TOKEN_8,
+                      label: process.env.WHATSAPP_APP_LABEL_8 || "Line 8",
+                    };
 
   return {
     slot,

@@ -1070,9 +1070,12 @@ function InboxTab({
   const directConvs = groupConversations(allMessages, numbers, "direct");
 
   const line1Convs = allConversations.filter(c => c.channel === "1239592269240963" || c.department === "general");
-  const line2Convs = allConversations.filter(c => c.channel === "1318810581311680" || (c.department === "support" && c.channel !== "1291624014041103" && c.channel !== "1034864159583818" && c.channel !== "1083562997861778"));
-  const line3Convs = allConversations.filter(c => c.channel === "1034864159583818" || c.channel === "1083562997861778" || c.department === "direct");
-  const line4Convs = allConversations.filter(c => c.channel === "1291624014041103");
+  const line2Convs = allConversations.filter(c => c.channel === "1318810581311680" || (c.department === "support" && c.channel !== "1291624014041103" && c.channel !== "1034864159583818" && c.channel !== "1083562997861778" && c.channel !== "2663451950739498" && c.channel !== "1739099617324219" && c.channel !== "1485319076722009"));
+  const line3Convs = allConversations.filter(c => c.channel === "1034864159583818" || c.channel === "1083562997861778");
+  const line4Convs = allConversations.filter(c => c.channel === "2663451950739498");
+  const line5Convs = allConversations.filter(c => c.channel === "1739099617324219");
+  const line6Convs = allConversations.filter(c => c.channel === "1485319076722009");
+  const line7Convs = allConversations.filter(c => c.channel === "1291624014041103");
 
   const unreadCounts = {
     general: generalConvs.reduce((acc, c) => acc + (unreadCount(c, metaMap[c.key] || metaMap[c.number]) > 0 ? 1 : 0), 0),
@@ -1082,6 +1085,9 @@ function InboxTab({
     line2: line2Convs.reduce((acc, c) => acc + (unreadCount(c, metaMap[c.key] || metaMap[c.number]) > 0 ? 1 : 0), 0),
     line3: line3Convs.reduce((acc, c) => acc + (unreadCount(c, metaMap[c.key] || metaMap[c.number]) > 0 ? 1 : 0), 0),
     line4: line4Convs.reduce((acc, c) => acc + (unreadCount(c, metaMap[c.key] || metaMap[c.number]) > 0 ? 1 : 0), 0),
+    line5: line5Convs.reduce((acc, c) => acc + (unreadCount(c, metaMap[c.key] || metaMap[c.number]) > 0 ? 1 : 0), 0),
+    line6: line6Convs.reduce((acc, c) => acc + (unreadCount(c, metaMap[c.key] || metaMap[c.number]) > 0 ? 1 : 0), 0),
+    line7: line7Convs.reduce((acc, c) => acc + (unreadCount(c, metaMap[c.key] || metaMap[c.number]) > 0 ? 1 : 0), 0),
     total: allConversations.reduce((acc, c) => acc + (unreadCount(c, metaMap[c.key] || metaMap[c.number]) > 0 ? 1 : 0), 0),
   };
 

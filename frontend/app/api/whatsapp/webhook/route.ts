@@ -241,16 +241,20 @@ export async function POST(request: Request) {
             msg?.button?.payload ??
             null;
 
-          // Department attribution: prioritize explicit Line 3 IDs or executive tags
+          // Department attribution: prioritize explicit Line 3, 4, 6 IDs or executive tags
           const isDirectFromText = /\[?(executive|direct\s*desk)\]?/i.test(text);
-          const isLine3Channel =
+          const isDirectChannel =
             phoneId === "1034864159583818" ||
             phoneId === "1083562997861778" ||
+            phoneId === "2663451950739498" ||
+            phoneId === "1485319076722009" ||
             channel === "1034864159583818" ||
             channel === "1083562997861778" ||
+            channel === "2663451950739498" ||
+            channel === "1485319076722009" ||
             entryWabaId === "1083562997861778";
 
-          const dept: "general" | "support" | "direct" = isDirectFromText || isLine3Channel
+          const dept: "general" | "support" | "direct" = isDirectFromText || isDirectChannel
             ? "direct"
             : getChannelDepartment(phoneId || displayPhone || channel);
 
@@ -363,14 +367,32 @@ async function handleAutoReply(
   if (!numberDef) {
     const isPrimary = phoneNumberId === primaryNumberId() || phoneNumberId === "1239592269240963";
     const isLine2 = phoneNumberId === "1318810581311680";
-    const isLine3 = phoneNumberId === "1034864159583818" || phoneNumberId === "1083562997861778" || dept === "direct";
-    const isLine4 = phoneNumberId === "1291624014041103";
+    const isLine3 = phoneNumberId === "1034864159583818" || phoneNumberId === "1083562997861778";
+    const isLine4 = phoneNumberId === "2663451950739498";
+    const isLine5 = phoneNumberId === "1739099617324219";
+    const isLine6 = phoneNumberId === "1485319076722009";
+    const isLine7 = phoneNumberId === "1291624014041103";
+
     numberDef = {
       id: phoneNumberId,
-      label: isPrimary ? "Line 1" : isLine2 ? "Line 2" : isLine3 ? "Line 3" : "Line 4",
+      label: isPrimary
+        ? "Line 1"
+        : isLine2
+        ? "Line 2 (UK)"
+        : isLine3
+        ? "Line 3 (US)"
+        : isLine4
+        ? "Line 4 (NL 1)"
+        : isLine5
+        ? "Line 5 (NL 2)"
+        : isLine6
+        ? "Line 6 (SL)"
+        : isLine7
+        ? "Line 7 (Sandbox)"
+        : "Line",
       primary: isPrimary,
-      slot: isLine4 ? 4 : isLine3 ? 3 : isLine2 ? 2 : 1,
-      department: isLine3 ? "direct" : isPrimary ? "general" : "support",
+      slot: isLine7 ? 7 : isLine6 ? 6 : isLine5 ? 5 : isLine4 ? 4 : isLine3 ? 3 : isLine2 ? 2 : 1,
+      department: (isLine3 || isLine4 || isLine6 || dept === "direct") ? "direct" : isPrimary ? "general" : "support",
       displayNumber: isPrimary
         ? "+92 335 6701199"
         : isLine2
