@@ -30,7 +30,7 @@ from app.schemas.employee import (
     EmployeeDetailActivity,
 )
 from app.services.onboarding import next_employee_number
-from app.services.openemail import provision_user_mailbox
+from app.services.openemail import ensure_user_mailbox, provision_user_mailbox
 
 router = APIRouter()
 
@@ -641,11 +641,11 @@ def create_employee(
         if payload.emergency_contact and not new_user.phone:
             new_user.phone = payload.emergency_contact
 
-        # Provision open.email mailbox if not already provisioned
-        if not new_user.openemail_address:
-            mailbox = provision_user_mailbox(clean_email)
-            if mailbox:
-                new_user.openemail_mailbox_id = mailbox.get("id")
+        # Provision or link open.email mailbox if not already provisioned
+        if not new_user.openemail_address or not new_user.openemail_mailbox_id:
+            mailbox = ensure_user_mailbox(clean_email, allow_fallback=True)
+            if mailbox and mailbox.get("id"):
+                new_user.openemail_mailbox_id = mailbox["id"]
                 new_user.openemail_address = (
                     mailbox.get("primaryAddress") or clean_email
                 )
@@ -653,10 +653,10 @@ def create_employee(
                 new_user.openemail_address = clean_email
     else:
         # 1. Create User account
-        # Provision the open.email mailbox first so the account is created with a
+        # Provision or link the open.email mailbox first so the account is created with a
         # working inbox, exactly like Admin → Users. Non-fatal: if the key is
-        # absent or the address is taken, we fall back to the account email.
-        mailbox = provision_user_mailbox(clean_email)
+        # absent or the address is taken, we fall back to company shared mailbox.
+        mailbox = ensure_user_mailbox(clean_email, allow_fallback=True)
         new_user = User(
             first_name=payload.first_name.strip(),
             last_name=payload.last_name.strip(),

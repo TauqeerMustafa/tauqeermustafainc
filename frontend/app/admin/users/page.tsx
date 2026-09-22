@@ -124,6 +124,7 @@ export default function AdminUsersPage() {
   const [resetForm, setResetForm] = useState({ password: "", sendEmail: false, deliverTo: "" });
   const [resetNotice, setResetNotice] = useState<string | null>(null);
   const [copiedReset, setCopiedReset] = useState(false);
+  const [hideMailboxBanner, setHideMailboxBanner] = useState(false);
 
   const users = usersQuery.data?.data.items ?? [];
   const roles = rolesQuery.data?.data ?? [];
@@ -215,9 +216,9 @@ export default function AdminUsersPage() {
     setProvisioningId(user.id);
     try {
       const res = await provisionMailbox.mutateAsync(user.id);
-      setProvisionNotice(`Mailbox ${res.data.openemailAddress ?? ""} is ready for ${res.data.name}.`.trim());
+      setProvisionNotice(res.message || `Mailbox configured for ${res.data.name}.`);
     } catch (err) {
-      setActionError(err instanceof Error ? err.message : "Could not provision a mailbox for this user.");
+      setActionError(err instanceof Error ? err.message : "Could not configure a mailbox for this user.");
     } finally {
       setProvisioningId(null);
     }
@@ -228,14 +229,9 @@ export default function AdminUsersPage() {
     setProvisionNotice(null);
     try {
       const res = await provisionAll.mutateAsync();
-      const { provisioned, failed } = res.data;
-      setProvisionNotice(
-        failed
-          ? `Provisioned ${provisioned} mailbox(es); ${failed} could not be created. Confirm OPENEMAIL_API_KEY is set on the backend and that each address's domain is managed in open.email.`
-          : `Provisioned ${provisioned} mailbox(es). Everyone now has an inbox.`,
-      );
+      setProvisionNotice(res.message || "Configured mailboxes for users.");
     } catch (err) {
-      setActionError(err instanceof Error ? err.message : "Could not provision mailboxes.");
+      setActionError(err instanceof Error ? err.message : "Could not configure mailboxes.");
     }
   }
 
@@ -341,19 +337,24 @@ export default function AdminUsersPage() {
         </div>
       ) : null}
 
-      {missingMailbox.length > 0 ? (
+      {missingMailbox.length > 0 && !hideMailboxBanner ? (
         <div className="mb-6 flex flex-col gap-3 border p-4 sm:flex-row sm:items-center sm:justify-between" style={{ borderColor: "var(--adm-amber)", background: "var(--adm-amber-light)" }}>
           <div className="flex items-start gap-3">
             <MailWarning size={18} className="mt-0.5 shrink-0" style={{ color: "var(--adm-amber)" }} />
             <div>
-              <p className="text-sm font-semibold" style={{ color: "var(--adm-text)" }}>{missingMailbox.length} user{missingMailbox.length === 1 ? "" : "s"} {missingMailbox.length === 1 ? "has" : "have"} no mailbox</p>
-              <p className="text-xs" style={{ color: "var(--adm-text-2)" }}>These accounts can&apos;t send or receive email until a mailbox is created for them. This provisions one for every user missing one.</p>
+              <p className="text-sm font-semibold" style={{ color: "var(--adm-text)" }}>{missingMailbox.length} user{missingMailbox.length === 1 ? "" : "s"} {missingMailbox.length === 1 ? "has" : "have"} no mailbox connected</p>
+              <p className="text-xs" style={{ color: "var(--adm-text-2)" }}>Connect to configure mailboxes automatically. Uses existing mailboxes or organization fallback if provider plan limit is reached.</p>
             </div>
           </div>
-          <button type="button" onClick={handleProvisionAll} disabled={provisionAll.isPending} className="inline-flex shrink-0 items-center justify-center gap-2 rounded-full px-4 py-2 text-sm font-semibold text-white transition hover:opacity-90 disabled:opacity-60" style={{ background: "var(--adm-amber)" }}>
-            {provisionAll.isPending ? <Loader2 size={15} className="animate-spin" /> : <MailPlus size={15} />}
-            {provisionAll.isPending ? "Provisioning…" : "Provision all missing"}
-          </button>
+          <div className="flex items-center gap-2">
+            <button type="button" onClick={handleProvisionAll} disabled={provisionAll.isPending} className="inline-flex shrink-0 items-center justify-center gap-2 rounded-full px-4 py-2 text-sm font-semibold text-white transition hover:opacity-90 disabled:opacity-60" style={{ background: "var(--adm-blue)" }}>
+              {provisionAll.isPending ? <Loader2 size={15} className="animate-spin" /> : <MailPlus size={15} />}
+              {provisionAll.isPending ? "Connecting…" : "Connect mailboxes"}
+            </button>
+            <button type="button" aria-label="Dismiss banner" onClick={() => setHideMailboxBanner(true)} className="p-1.5 transition hover:opacity-80" style={{ color: "var(--adm-text-3)" }}>
+              <X size={16} />
+            </button>
+          </div>
         </div>
       ) : null}
 
@@ -490,9 +491,9 @@ export default function AdminUsersPage() {
                       {user.hasMailbox ? (
                         <span className="inline-flex items-center gap-1.5" style={{ color: "var(--adm-text-2)" }}><Mail size={13} style={{ color: "var(--adm-text-3)" }} />{user.openemailAddress}</span>
                       ) : (
-                        <button type="button" onClick={(event) => { event.stopPropagation(); handleProvisionOne(user); }} disabled={provisioningId === user.id} className="inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 font-semibold transition hover:opacity-90 disabled:opacity-60" style={{ borderColor: "var(--adm-amber)", color: "var(--adm-amber)" }}>
-                          {provisioningId === user.id ? <Loader2 size={12} className="animate-spin" /> : <MailWarning size={12} />}
-                          {provisioningId === user.id ? "Creating…" : "No mailbox — create"}
+                        <button type="button" onClick={(event) => { event.stopPropagation(); handleProvisionOne(user); }} disabled={provisioningId === user.id} className="inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 font-semibold transition hover:opacity-90 disabled:opacity-60" style={{ borderColor: "var(--adm-blue)", color: "var(--adm-blue)" }}>
+                          {provisioningId === user.id ? <Loader2 size={12} className="animate-spin" /> : <MailPlus size={12} />}
+                          {provisioningId === user.id ? "Connecting…" : "Connect mailbox"}
                         </button>
                       )}
                     </td>

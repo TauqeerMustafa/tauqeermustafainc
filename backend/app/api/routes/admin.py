@@ -206,7 +206,7 @@ def create_user(
     # the address falls back to their account email. ``ensure_user_mailbox``
     # links an already-existing mailbox at this address instead of skipping it.
     from app.services.openemail import ensure_user_mailbox
-    mailbox = ensure_user_mailbox(payload.email)
+    mailbox = ensure_user_mailbox(payload.email, allow_fallback=True)
     openemail_mailbox_id = mailbox.get("id") if mailbox else None
     openemail_address = (mailbox.get("primaryAddress") if mailbox else None) or payload.email
 
@@ -279,28 +279,68 @@ def provision_missing_mailboxes(
     missing ``openemail_mailbox_id`` is linked to a find-or-created mailbox.
     Idempotent — users that already have a mailbox are left untouched.
     """
-    from app.services.openemail import ensure_user_mailbox
+    from app.services.openemail import (
+        ensure_user_mailbox,
+        get_company_fallback_mailbox,
+        list_mailboxes,
+    )
 
     users = db.scalars(select(User).where(User.openemail_mailbox_id.is_(None))).all()
+    if not users:
+        return ApiResponse(
+            data={"total": 0, "provisioned": 0, "linked_fallback": 0, "failed": 0},
+            message="All users already have mailboxes configured.",
+        )
+
+    all_mbs = list_mailboxes()
+    addr_map = {
+        str(m.get("primaryAddress") or "").strip().lower(): m
+        for m in all_mbs
+        if m.get("primaryAddress")
+    }
+    fallback_mb = get_company_fallback_mailbox(all_mbs)
 
     provisioned = 0
+    linked_fallback = 0
     failed = 0
     for user in users:
-        mailbox = ensure_user_mailbox(user.email)
-        if mailbox and mailbox.get("id"):
-            user.openemail_mailbox_id = mailbox["id"]
-            user.openemail_address = mailbox.get("primaryAddress") or user.email
+        target = user.email.strip().lower()
+        if target in addr_map:
+            user.openemail_mailbox_id = addr_map[target]["id"]
+            user.openemail_address = addr_map[target].get("primaryAddress") or user.email
             provisioned += 1
         else:
-            failed += 1
+            mb = ensure_user_mailbox(user.email, allow_fallback=True)
+            if mb and mb.get("id"):
+                user.openemail_mailbox_id = mb["id"]
+                user.openemail_address = user.email
+                if mb.get("isFallback"):
+                    linked_fallback += 1
+                else:
+                    provisioned += 1
+            elif fallback_mb and fallback_mb.get("id"):
+                user.openemail_mailbox_id = fallback_mb["id"]
+                user.openemail_address = user.email
+                linked_fallback += 1
+            else:
+                failed += 1
     db.commit()
 
+    total_done = provisioned + linked_fallback
+    msg = f"Configured mailboxes for {total_done} user(s)"
+    if linked_fallback:
+        msg += f" ({linked_fallback} connected via company shared mail service as open.email plan limit is reached)"
+    if failed:
+        msg += f"; {failed} could not be linked"
+
     return ApiResponse(
-        data={"total": len(users), "provisioned": provisioned, "failed": failed},
-        message=(
-            f"Provisioned {provisioned} mailbox(es)"
-            + (f"; {failed} could not be created" if failed else "")
-        ),
+        data={
+            "total": len(users),
+            "provisioned": provisioned,
+            "linked_fallback": linked_fallback,
+            "failed": failed,
+        },
+        message=msg,
     )
 
 
@@ -310,33 +350,27 @@ def provision_single_mailbox(
     db: DatabaseSession,
     _admin: CurrentAdmin,
 ) -> ApiResponse[AdminUserRead]:
-    """Create (or link an existing) open.email mailbox for one user.
-
-    Repairs a single account whose mailbox was never provisioned. Fails with a
-    clear 502 when the mailbox cannot be created so the admin knows to check
-    OPENEMAIL_API_KEY / that the address's domain is managed in open.email.
-    """
+    """Create (or link an existing) open.email mailbox for one user."""
     user = db.get(User, user_id)
     if user is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
 
     from app.services.openemail import ensure_user_mailbox
 
-    mailbox = ensure_user_mailbox(user.email)
+    mailbox = ensure_user_mailbox(user.email, allow_fallback=True)
     if not mailbox or not mailbox.get("id"):
         raise HTTPException(
             status_code=status.HTTP_502_BAD_GATEWAY,
-            detail=(
-                "Could not provision a mailbox. Confirm OPENEMAIL_API_KEY is set on the "
-                "backend and that this address's domain is managed in open.email."
-            ),
+            detail="Could not configure a mailbox. Confirm OPENEMAIL_API_KEY is configured on the backend.",
         )
 
     user.openemail_mailbox_id = mailbox["id"]
     user.openemail_address = mailbox.get("primaryAddress") or user.email
     db.commit()
     db.refresh(user)
-    return ApiResponse(data=_to_admin_user_read(user), message="Mailbox provisioned")
+
+    msg = "Mailbox provisioned" if not mailbox.get("isFallback") else "Mailbox linked via company shared mail service"
+    return ApiResponse(data=_to_admin_user_read(user), message=msg)
 
 
 @router.patch("/users/{user_id}", response_model=ApiResponse[AdminUserRead])

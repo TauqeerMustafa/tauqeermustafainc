@@ -32,6 +32,9 @@ async function oeFetch(path: string, init?: RequestInit) {
     try {
       const body = await res.json();
       detail = body?.error || body?.message || detail;
+      if (body?.error === "mailbox_limit_reached" || detail === "mailbox_limit_reached") {
+        detail = `open.email organization mailbox limit reached (max: ${body?.maxMailboxes ?? 3}).`;
+      }
     } catch {
       /* non-JSON error body */
     }

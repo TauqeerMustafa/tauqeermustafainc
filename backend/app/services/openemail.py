@@ -69,6 +69,20 @@ def provision_user_mailbox(email: str) -> dict | None:
         logger.info("open.email mailbox for %s already exists (409)", email)
         return None
 
+    if response.status_code == 403:
+        try:
+            err_data = response.json()
+            if err_data.get("error") == "mailbox_limit_reached":
+                logger.warning(
+                    "open.email mailbox limit reached (max: %s) while provisioning %s. "
+                    "Organization plan limit exceeded.",
+                    err_data.get("maxMailboxes"),
+                    email,
+                )
+                return None
+        except Exception:
+            pass
+
     if response.status_code not in (200, 201):
         logger.error(
             "open.email mailbox provisioning for %s failed (%s): %s",
@@ -132,30 +146,82 @@ def list_mailboxes() -> list[dict]:
     return [m for m in items if isinstance(m, dict)]
 
 
-def find_mailbox_by_address(email: str) -> dict | None:
+def find_mailbox_by_address(email: str, mailboxes: list[dict] | None = None) -> dict | None:
     """Find an existing mailbox whose primary address equals ``email``."""
     target = email.strip().lower()
-    for mb in list_mailboxes():
+    mbs = mailboxes if mailboxes is not None else list_mailboxes()
+    for mb in mbs:
         addr = str(mb.get("primaryAddress") or "").strip().lower()
         if addr and addr == target:
             return mb
     return None
 
 
-def ensure_user_mailbox(email: str) -> dict | None:
+def get_company_fallback_mailbox(mailboxes: list[dict] | None = None) -> dict | None:
+    """Find the best company mailbox to use as a shared/fallback mailbox.
+
+    Used when open.email plan limits are reached so users can still have
+    functional mail access without crashing or showing broken accounts.
+    """
+    mbs = mailboxes if mailboxes is not None else list_mailboxes()
+    valid = [m for m in mbs if m.get("primaryAddress")]
+    if not valid:
+        return None
+
+    preferred_prefixes = (
+        "notifications@",
+        "contact@",
+        "info@",
+        "admin@",
+        "support@",
+        "billing@",
+        "employee@",
+    )
+    for prefix in preferred_prefixes:
+        for m in valid:
+            addr = str(m.get("primaryAddress", "")).strip().lower()
+            if addr.startswith(prefix):
+                return m
+
+    return valid[0]
+
+
+def ensure_user_mailbox(email: str, allow_fallback: bool = True) -> dict | None:
     """Idempotently guarantee a mailbox exists for ``email`` and return it.
 
-    Unlike :func:`provision_user_mailbox`, this first looks the address up so a
-    mailbox that already exists (e.g. the user was recreated, or provisioning
-    once failed after the mailbox was made) is *linked* rather than reported as
-    a duplicate. Used by the admin backfill so existing users created while the
-    key was missing can be repaired without deleting them. Returns ``None`` only
-    when no mailbox exists and one could not be created.
+    1. Checks if a dedicated mailbox already exists for this address.
+    2. If not, attempts to provision a new dedicated mailbox.
+    3. If provisioning fails (e.g. open.email mailbox limit reached) and
+       ``allow_fallback`` is True, links to the company's shared mail service
+       so the user can still send/receive emails without breaking accounts.
     """
-    existing = find_mailbox_by_address(email)
+    all_mbs = list_mailboxes()
+    existing = find_mailbox_by_address(email, all_mbs)
     if existing:
         return existing
-    return provision_user_mailbox(email)
+
+    created = provision_user_mailbox(email)
+    if created:
+        return created
+
+    if allow_fallback:
+        fallback = get_company_fallback_mailbox(all_mbs)
+        if fallback and fallback.get("id"):
+            logger.info(
+                "open.email: dedicated mailbox unavailable for %s. Linking to company shared mailbox %s (id: %s) as fallback.",
+                email,
+                fallback.get("primaryAddress"),
+                fallback["id"],
+            )
+            return {
+                "id": fallback["id"],
+                "primaryAddress": email,
+                "sharedMailboxId": fallback["id"],
+                "sharedMailboxAddress": fallback.get("primaryAddress"),
+                "isFallback": True,
+            }
+
+    return None
 
 
 class OpenEmailSendError(RuntimeError):
