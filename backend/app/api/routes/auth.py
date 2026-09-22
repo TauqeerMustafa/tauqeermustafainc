@@ -170,7 +170,15 @@ def update_me(
             current_user.employee.emergency_contact = current_user.emergency_contact
 
     if payload.new_password:
-        if not payload.current_password or not verify_password(
+        if not current_user.is_superuser:
+            if not payload.current_password or not verify_password(
+                payload.current_password, current_user.password_hash
+            ):
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail="Current password is incorrect",
+                )
+        elif payload.current_password and not verify_password(
             payload.current_password, current_user.password_hash
         ):
             raise HTTPException(

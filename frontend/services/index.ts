@@ -1,6 +1,7 @@
 export { adminService } from "./admin.service";
 export { agentService } from "./agent.service";
 export type {
+  AdminResetPasswordPayload,
   AdminUserListParams,
   CreateAdminUserPayload,
   CreateRolePayload,

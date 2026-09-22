@@ -14,6 +14,7 @@ from app.models.user import User
 from app.schemas.common import ApiResponse, PaginatedResult, Pagination
 from app.services.onboarding import ensure_employee_profile
 from app.schemas.crm import (
+    AdminResetPasswordRequest,
     AdminUserCreate,
     AdminUserRead,
     AssignPermissionsRequest,
@@ -370,10 +371,59 @@ def update_user(
         if payload.status.value == "approved" and user.approved_at is None:
             user.approved_by_id = admin.id
             user.approved_at = datetime.now(timezone.utc)
+    if payload.password:
+        user.password_hash = hash_password(payload.password)
 
     db.commit()
     db.refresh(user)
     return ApiResponse(data=_to_admin_user_read(user), message="User updated successfully")
+
+
+@router.post("/users/{user_id}/reset-password", response_model=ApiResponse[AdminUserRead])
+def reset_user_password(
+    user_id: uuid.UUID,
+    payload: AdminResetPasswordRequest,
+    db: DatabaseSession,
+    admin: CurrentAdmin,
+) -> ApiResponse[AdminUserRead]:
+    """Reset a user's password without deleting or detaching any data.
+
+    All tasks, leads, attendance, employee records, document responses, and portal
+    access remain completely intact. Only password_hash is updated.
+    """
+    user = db.get(User, user_id)
+    if user is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+
+    user.password_hash = hash_password(payload.password)
+    db.commit()
+    db.refresh(user)
+
+    user_display_name = f"{user.first_name} {user.last_name}".strip() or user.email
+    message = f"Password for {user_display_name} reset successfully"
+    if payload.send_email:
+        from app.services.onboarding import send_password_reset_notification
+
+        recipient = payload.deliver_to or user.email
+        channel = send_password_reset_notification(
+            to_email=str(recipient),
+            name=user_display_name,
+            account_email=str(user.email),
+            password=payload.password,
+            role_slug=user.role.slug if user.role else ("admin" if user.is_superuser else None),
+            sender_mailbox_id=admin.openemail_mailbox_id,
+            sender_address=admin.openemail_address or str(admin.email),
+            sender_name=f"{admin.first_name or ''} {admin.last_name or ''}".strip() or None,
+        )
+        if channel:
+            message += f" and emailed to {recipient} via {channel}."
+        else:
+            message += (
+                f". However, email notification could not be delivered to {recipient}. "
+                "Please deliver the new password manually."
+            )
+
+    return ApiResponse(data=_to_admin_user_read(user), message=message)
 
 
 @router.delete("/users/{user_id}", response_model=ApiResponse[dict])

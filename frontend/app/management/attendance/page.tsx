@@ -1,8 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { CalendarClock, Check, Plane, X } from "lucide-react";
+import { AlertCircle, CalendarClock, Check, CheckCircle2, Plane, X } from "lucide-react";
 
+import DailyWorkStatusList from "@/components/portal/DailyWorkStatusList";
 import {
   DataTable,
   EmptyBlock,
@@ -49,6 +50,7 @@ const QUEUE_FILTERS = [
 ] as const;
 
 export default function ManagementAttendancePage() {
+  const [viewMode, setViewMode] = useState<"status" | "roster">("status");
   const [date, setDate] = useState(today);
   const [queueStatus, setQueueStatus] = useState<string>("pending");
 
@@ -79,19 +81,76 @@ export default function ManagementAttendancePage() {
   const decidingId = decide.isPending ? decide.variables?.id : undefined;
 
   return (
-    <div className="flex flex-col gap-8">
-      <PortalPageHeader
-        title="Attendance & approvals"
-        description="Who is in today, and the leave sitting in your queue."
-      >
-        <input
-          type="date"
-          value={date}
-          onChange={(event) => setDate(event.target.value || today())}
-          aria-label="Roster date"
-          className={`${inputClass} w-44`}
-        />
-      </PortalPageHeader>
+    <div className="flex flex-col gap-6">
+      {/* View Switcher: Daily Work Status vs Roster & Leave */}
+      <div className="flex border-b border-adm-border">
+        <button
+          type="button"
+          onClick={() => setViewMode("status")}
+          className={`flex items-center gap-2 border-b-2 px-4 py-2.5 text-sm font-bold transition ${
+            viewMode === "status"
+              ? "border-emerald-500 text-emerald-600 dark:text-emerald-400"
+              : "border-transparent text-adm-text-3 hover:text-adm-text"
+          }`}
+        >
+          <CheckCircle2 size={16} className="text-emerald-500" />
+          <span>Who&apos;s Working Today (Check ✅ / Cross ❌)</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setViewMode("roster")}
+          className={`flex items-center gap-2 border-b-2 px-4 py-2.5 text-sm font-bold transition ${
+            viewMode === "roster"
+              ? "border-adm-blue text-adm-blue"
+              : "border-transparent text-adm-text-3 hover:text-adm-text"
+          }`}
+        >
+          <CalendarClock size={15} />
+          <span>Detailed Roster &amp; Approvals</span>
+          {pendingCount > 0 && (
+            <span className="rounded-full bg-amber-500 px-1.5 py-0.5 text-[10px] font-bold text-white">
+              {pendingCount}
+            </span>
+          )}
+        </button>
+      </div>
+
+      {viewMode === "status" ? (
+        <>
+          {pendingCount > 0 && (
+            <div className="flex items-center justify-between gap-3 border border-amber-500/30 bg-amber-500/10 p-3 text-xs text-amber-600 dark:text-amber-400">
+              <div className="flex items-center gap-2">
+                <AlertCircle size={16} className="shrink-0" />
+                <span>
+                  <strong>{pendingCount}</strong> leave request(s) waiting for your decision.
+                </span>
+              </div>
+              <button
+                type="button"
+                onClick={() => setViewMode("roster")}
+                className="font-bold underline hover:no-underline"
+              >
+                Review Leave Queue →
+              </button>
+            </div>
+          )}
+          <DailyWorkStatusList />
+        </>
+      ) : (
+        <>
+          <PortalPageHeader
+            title="Attendance & approvals"
+            description="Who is in today, and the leave sitting in your queue."
+          >
+            <input
+              type="date"
+              value={date}
+              onChange={(event) => setDate(event.target.value || today())}
+              aria-label="Roster date"
+              className={`${inputClass} w-44`}
+            />
+          </PortalPageHeader>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard label="Present" value={counts.present} icon={Check} tone="green" />
@@ -276,6 +335,8 @@ export default function ManagementAttendancePage() {
           </DataTable>
         )}
       </Panel>
+        </>
+      )}
     </div>
   );
 }

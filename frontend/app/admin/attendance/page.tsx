@@ -29,6 +29,7 @@ import {
   inputClass,
 } from "@/components/portal/PortalUI";
 import PeopleBanner from "@/components/portal/PeopleBanner";
+import DailyWorkStatusList from "@/components/portal/DailyWorkStatusList";
 import { useAttendanceRoster } from "@/hooks/useAttendance";
 import {
   DEFAULT_SHIFT,
@@ -56,6 +57,7 @@ function todayKey() {
 }
 
 export default function AdminAttendancePage() {
+  const [viewMode, setViewMode] = useState<"status" | "shifts">("status");
   const [date, setDate] = useState(todayKey());
   const [query, setQuery] = useState("");
   const { data, isLoading, isError, error, refetch } = useAttendanceRoster(date);
@@ -125,6 +127,41 @@ export default function AdminAttendancePage() {
   return (
     <div className="flex flex-col gap-8">
       <PeopleBanner />
+
+      <div className="flex flex-wrap items-center gap-2 border-b border-adm-border pb-1">
+        <button
+          type="button"
+          onClick={() => setViewMode("status")}
+          className={`flex items-center gap-2 border-b-2 px-4 py-2.5 text-sm font-bold transition ${
+            viewMode === "status"
+              ? "border-adm-blue text-adm-blue"
+              : "border-transparent text-adm-text-3 hover:text-adm-text"
+          }`}
+        >
+          <span className="flex h-5 w-5 items-center justify-center rounded-full bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-xs font-black">
+            ✓
+          </span>
+          <span>Who's Working Today (Check ✅ / Cross ❌)</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setViewMode("shifts")}
+          className={`flex items-center gap-2 border-b-2 px-4 py-2.5 text-sm font-bold transition ${
+            viewMode === "shifts"
+              ? "border-adm-blue text-adm-blue"
+              : "border-transparent text-adm-text-3 hover:text-adm-text"
+          }`}
+        >
+          <Settings2 size={15} />
+          <span>Shift Setup & Detailed Roster</span>
+        </button>
+      </div>
+
+      {viewMode === "status" ? (
+        <DailyWorkStatusList />
+      ) : (
+        <>
 
       <PortalPageHeader
         title="Daily Roster"
@@ -363,6 +400,8 @@ export default function AdminAttendancePage() {
           </div>
         </form>
       </PortalDialog>
+        </>
+      )}
     </div>
   );
 }

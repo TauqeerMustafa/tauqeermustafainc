@@ -53,6 +53,12 @@ export interface UpdateRolePayload {
   description?: string | null;
 }
 
+export interface AdminResetPasswordPayload {
+  password: string;
+  sendEmail?: boolean;
+  deliverTo?: string;
+}
+
 export const adminService = {
   users: (params: AdminUserListParams = {}) =>
     apiRequest<ApiResponse<PaginatedResponse<AdminUser>>>({
@@ -103,6 +109,13 @@ export const adminService = {
     apiRequest<ApiResponse<{ deleted: boolean }>>({
       url: `${API_ENDPOINTS.admin.users}/${id}`,
       method: "DELETE",
+    }),
+  /** Reset a user's password without deleting any data. */
+  resetUserPassword: (id: string, payload: AdminResetPasswordPayload) =>
+    apiRequest<ApiResponse<AdminUser>>({
+      url: `${API_ENDPOINTS.admin.users}/${id}/reset-password`,
+      method: "POST",
+      data: payload,
     }),
   bulkDeleteUsers: (ids: string[]) =>
     apiRequest<ApiResponse<{ deletedCount: number }>>({

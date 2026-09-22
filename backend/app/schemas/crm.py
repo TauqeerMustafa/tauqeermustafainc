@@ -156,6 +156,13 @@ class UpdateUserRequest(CamelModel):
     role_slug: str | None = Field(default=None, max_length=60)
     team_id: uuid.UUID | None = None
     status: UserStatus | None = None
+    password: str | None = Field(default=None, min_length=8, max_length=200)
+
+
+class AdminResetPasswordRequest(CamelModel):
+    password: str = Field(min_length=8, max_length=200)
+    send_email: bool = False
+    deliver_to: EmailStr | None = None
 
 
 # ── Lead activities ──────────────────────────────────────────────────────────────

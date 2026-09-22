@@ -305,3 +305,52 @@ def send_welcome_email(
         "no mail channel available; credentials for %s were not sent", account_email
     )
     return None
+
+
+def send_password_reset_notification(
+    *,
+    to_email: str,
+    name: str,
+    account_email: str,
+    password: str,
+    role_slug: str | None,
+    sender_mailbox_id: str | None = None,
+    sender_address: str | None = None,
+    sender_name: str | None = None,
+) -> str | None:
+    """Mail reset credentials to ``to_email``. Returns channel used or None."""
+    first_name = name.split()[0] if name.strip() else "there"
+    login_url = login_url_for_role(role_slug)
+    body = f"""Hello {first_name},
+
+Your password for your Tauqeer Mustafa Inc account has been reset by an administrator.
+
+Your updated credentials are:
+
+    Portal    {login_url}
+    Email     {account_email}
+    Password  {password}
+
+Please sign in and change this temporary password from Settings if desired.
+
+If you did not expect this password reset, please reach out to your administrator.
+
+— Tauqeer Mustafa Inc
+"""
+    subject = "Tauqeer Mustafa Inc — your password has been reset"
+    if _send_via_openemail(
+        to_email=to_email,
+        subject=subject,
+        text=body,
+        sender_mailbox_id=sender_mailbox_id,
+        sender_address=sender_address,
+        sender_name=sender_name,
+    ):
+        return "open.email"
+    if _send_via_smtp(to_email=to_email, subject=subject, text=body):
+        return "SMTP"
+
+    logger.warning(
+        "no mail channel available; password reset notification for %s was not sent", account_email
+    )
+    return None

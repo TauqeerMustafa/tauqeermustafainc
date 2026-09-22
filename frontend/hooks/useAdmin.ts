@@ -3,6 +3,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { queryKeys } from "@/constants/query-keys";
 import {
   adminService,
+  type AdminResetPasswordPayload,
   type AdminUserListParams,
   type CreateAdminUserPayload,
   type CreateRolePayload,
@@ -112,6 +113,18 @@ export function useBulkDeleteAdminUsers() {
       queryClient.invalidateQueries({ queryKey: queryKeys.admin.users });
       queryClient.invalidateQueries({ queryKey: queryKeys.admin.metrics });
       queryClient.invalidateQueries({ queryKey: queryKeys.admin.teams });
+    },
+  });
+}
+
+/** Reset a user's password without deleting any data. */
+export function useResetAdminUserPassword() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, payload }: { id: string; payload: AdminResetPasswordPayload }) =>
+      adminService.resetUserPassword(id, payload),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.admin.users });
     },
   });
 }

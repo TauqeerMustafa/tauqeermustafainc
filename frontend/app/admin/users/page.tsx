@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { Check, CheckSquare, Clock3, ListChecks, Loader2, Mail, MailPlus, MailWarning, MoreHorizontal, PauseCircle, Search, ShieldCheck, Square, Trash2, UserRound, X } from "lucide-react";
+import { Check, CheckSquare, Clock3, Copy, KeyRound, ListChecks, Loader2, Mail, MailPlus, MailWarning, MoreHorizontal, PauseCircle, Search, ShieldCheck, Square, Trash2, UserRound, X } from "lucide-react";
 
 import {
   AdminConfirmDialog,
@@ -17,11 +17,11 @@ import {
 } from "@/components/admin/AdminUI";
 import { Tabs } from "@/components/portal/PortalUI";
 import AccessControlBanner from "@/components/portal/AccessControlBanner";
-import { useAdminMetrics, useAdminRoles, useAdminTeams, useAdminUsers, useBulkDeleteAdminUsers, useCreateAdminUser, useDeleteAdminUser, useProvisionAllMailboxes, useProvisionMailbox, useUpdateAdminUser } from "@/hooks/useAdmin";
+import { useAdminMetrics, useAdminRoles, useAdminTeams, useAdminUsers, useBulkDeleteAdminUsers, useCreateAdminUser, useDeleteAdminUser, useProvisionAllMailboxes, useProvisionMailbox, useResetAdminUserPassword, useUpdateAdminUser } from "@/hooks/useAdmin";
 import { generatePassword } from "@/lib/credentials";
 import { readOnboardPrefill, suggestCompanyEmail, type OnboardPrefill } from "@/lib/onboarding-link";
 import type { AdminUser, UserStatus } from "@/types";
-import type { CreateAdminUserPayload } from "@/services/admin.service";
+import type { AdminResetPasswordPayload, CreateAdminUserPayload } from "@/services/admin.service";
 
 const emptyForm: CreateAdminUserPayload = {
   name: "",
@@ -116,9 +116,14 @@ export default function AdminUsersPage() {
   const bulkDeleteUsers = useBulkDeleteAdminUsers();
   const provisionMailbox = useProvisionMailbox();
   const provisionAll = useProvisionAllMailboxes();
+  const resetPassword = useResetAdminUserPassword();
 
   const [selectedUserIds, setSelectedUserIds] = useState<string[]>([]);
   const [isBulkDeleteOpen, setBulkDeleteOpen] = useState(false);
+  const [resetTarget, setResetTarget] = useState<AdminUser | null>(null);
+  const [resetForm, setResetForm] = useState({ password: "", sendEmail: false, deliverTo: "" });
+  const [resetNotice, setResetNotice] = useState<string | null>(null);
+  const [copiedReset, setCopiedReset] = useState(false);
 
   const users = usersQuery.data?.data.items ?? [];
   const roles = rolesQuery.data?.data ?? [];
@@ -234,6 +239,41 @@ export default function AdminUsersPage() {
     }
   }
 
+  function openResetPassword(user: AdminUser) {
+    setMenuId(null);
+    setResetTarget(user);
+    setResetForm({ password: generatePassword(), sendEmail: false, deliverTo: "" });
+    setResetNotice(null);
+    setCopiedReset(false);
+    setActionError(null);
+  }
+
+  async function handleResetPassword(event: React.FormEvent) {
+    event.preventDefault();
+    if (!resetTarget) return;
+    try {
+      const res = await resetPassword.mutateAsync({
+        id: resetTarget.id,
+        payload: {
+          password: resetForm.password,
+          sendEmail: resetForm.sendEmail,
+          deliverTo: resetForm.deliverTo.trim() || undefined,
+        },
+      });
+      setResetNotice(res.message || `Password for ${resetTarget.name} reset successfully.`);
+      setResetTarget(null);
+    } catch (err) {
+      setActionError(err instanceof Error ? err.message : "Could not reset the password.");
+      setResetTarget(null);
+    }
+  }
+
+  function copyResetPassword() {
+    navigator.clipboard.writeText(resetForm.password).then(() => {
+      setCopiedReset(true);
+      setTimeout(() => setCopiedReset(false), 2000);
+    });
+  }
   const metrics = metricsQuery.data?.data;
   const isLoading = usersQuery.isLoading || rolesQuery.isLoading || teamsQuery.isLoading;
   const isError = usersQuery.isError || rolesQuery.isError || teamsQuery.isError;
@@ -288,6 +328,16 @@ export default function AdminUsersPage() {
             <p className="text-sm font-medium" style={{ color: "var(--adm-text)" }}>{provisionNotice}</p>
           </div>
           <button type="button" aria-label="Dismiss" onClick={() => setProvisionNotice(null)} className="shrink-0" style={{ color: "var(--adm-text-3)" }}><X size={16} /></button>
+        </div>
+      ) : null}
+
+      {resetNotice ? (
+        <div className="mb-6 flex items-start justify-between gap-3 border p-4" style={{ borderColor: "var(--adm-green)", background: "var(--adm-green-light)" }}>
+          <div className="flex items-start gap-3">
+            <KeyRound size={18} className="mt-0.5 shrink-0" style={{ color: "var(--adm-green)" }} />
+            <p className="text-sm font-medium" style={{ color: "var(--adm-text)" }}>{resetNotice}</p>
+          </div>
+          <button type="button" aria-label="Dismiss" onClick={() => setResetNotice(null)} className="shrink-0" style={{ color: "var(--adm-text-3)" }}><X size={16} /></button>
         </div>
       ) : null}
 
@@ -456,6 +506,7 @@ export default function AdminUsersPage() {
                           {user.status === "approved" ? <button type="button" onClick={() => changeStatus(user, "suspended")} className="flex w-full items-center gap-2 px-3 py-2 text-sm hover:bg-adm-surface-2" style={{ color: "var(--adm-red)" }}><PauseCircle size={14} />Suspend access</button> : null}
                           {user.status === "suspended" ? <button type="button" onClick={() => changeStatus(user, "approved")} className="flex w-full items-center gap-2 px-3 py-2 text-sm hover:bg-adm-surface-2" style={{ color: "var(--adm-green)" }}><Check size={14} />Restore access</button> : null}
                           {user.status === "pending" ? <button type="button" onClick={() => changeStatus(user, "rejected")} className="flex w-full items-center gap-2 px-3 py-2 text-sm hover:bg-adm-surface-2" style={{ color: "var(--adm-text-2)" }}><X size={14} />Reject request</button> : null}
+                          <button type="button" onClick={() => openResetPassword(user)} className="flex w-full items-center gap-2 px-3 py-2 text-sm hover:bg-adm-surface-2" style={{ color: "var(--adm-blue)" }}><KeyRound size={14} />Reset password</button>
                           <button type="button" onClick={() => { setMenuId(null); setActionError(null); setDeleteTarget(user); }} className="mt-1 flex w-full items-center gap-2 border-t px-3 py-2 text-sm hover:bg-adm-red-light" style={{ borderColor: "var(--adm-border)", color: "var(--adm-red)" }}><Trash2 size={14} />Delete user</button>
                         </div>
                       ) : null}
@@ -526,6 +577,39 @@ export default function AdminUsersPage() {
         onConfirm={handleBulkDelete}
         onCancel={() => setBulkDeleteOpen(false)}
       />
+
+      <AdminDrawer open={Boolean(resetTarget)} title="Reset password" onClose={() => setResetTarget(null)}>
+        {resetTarget ? (
+          <form onSubmit={handleResetPassword} className="grid gap-5">
+            <div className="border p-3" style={{ borderColor: "var(--adm-border)", background: "var(--adm-surface-2)" }}>
+              <p className="text-sm font-semibold" style={{ color: "var(--adm-text)" }}>{resetTarget.name}</p>
+              <p className="text-xs" style={{ color: "var(--adm-text-3)" }}>{resetTarget.email} · {resetTarget.roleName ?? resetTarget.roleSlug ?? "Unassigned"}</p>
+            </div>
+            <p className="text-xs" style={{ color: "var(--adm-text-2)" }}>This updates the login password directly. None of this user&apos;s data, leads, tasks, or records will be deleted or affected.</p>
+            <AdminField label="New password" htmlFor="reset-password">
+              <div className="flex items-center gap-2">
+                <input id="reset-password" required minLength={8} type="text" autoComplete="off" spellCheck={false} className={`${adminInputClass} font-mono`} style={adminInputStyle} value={resetForm.password} onChange={(event) => setResetForm({ ...resetForm, password: event.target.value })} />
+                <button type="button" onClick={() => setResetForm({ ...resetForm, password: generatePassword() })} className="btn-press shrink-0 border px-3 py-2 text-xs font-bold uppercase tracking-wider" style={{ borderColor: "var(--adm-border)", color: "var(--adm-text-2)" }}>Generate</button>
+                <button type="button" onClick={copyResetPassword} className="btn-press shrink-0 border px-3 py-2 text-xs font-bold uppercase tracking-wider" style={{ borderColor: "var(--adm-border)", color: copiedReset ? "var(--adm-green)" : "var(--adm-text-2)" }}>{copiedReset ? <Check size={14} /> : <Copy size={14} />}</button>
+              </div>
+              <p className="text-xs" style={{ color: "var(--adm-text-3)" }}>At least 8 characters. The user will sign in with this password.</p>
+            </AdminField>
+            <AdminField label="Email notification" htmlFor="reset-send-email">
+              <label className="flex items-start gap-2.5 text-sm" style={{ color: "var(--adm-text-2)" }}>
+                <input id="reset-send-email" type="checkbox" className="mt-0.5" checked={resetForm.sendEmail} onChange={(event) => setResetForm({ ...resetForm, sendEmail: event.target.checked })} />
+                <span>Email the new credentials to this user.</span>
+              </label>
+              {resetForm.sendEmail ? (
+                <>
+                  <input type="email" placeholder="Deliver to (leave blank for account email)" aria-label="Deliver the reset notification to" className={adminInputClass} style={adminInputStyle} value={resetForm.deliverTo} onChange={(event) => setResetForm({ ...resetForm, deliverTo: event.target.value })} />
+                  <p className="text-xs" style={{ color: "var(--adm-text-3)" }}>Left blank, the email goes to the user&apos;s account address. Use a personal address if the user cannot access their company mailbox.</p>
+                </>
+              ) : null}
+            </AdminField>
+            <AdminFormActions onCancel={() => setResetTarget(null)} isPending={resetPassword.isPending} submitLabel="Reset password" />
+          </form>
+        ) : null}
+      </AdminDrawer>
     </div>
   );
 }
