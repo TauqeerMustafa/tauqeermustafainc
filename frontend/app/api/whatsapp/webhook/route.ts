@@ -493,6 +493,42 @@ async function isFirstContact(number: string, channelId?: string): Promise<boole
   }
 }
 
+/** Helper to simulate human typing delay */
+const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
+/** Blue ticks on the customer's side. Failure here must not block the reply. */
+async function markRead(token: string, phoneNumberId: string, msgId: string) {
+  if (!msgId) return;
+  await fetch(`${GRAPH_URL}/${phoneNumberId}/messages`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+    body: JSON.stringify({ messaging_product: "whatsapp", status: "read", message_id: msgId }),
+  }).catch(() => {});
+}
+
+/** Show typing indicator on the user's WhatsApp screen and pause for 5 seconds */
+async function sendTypingAndDelay(token: string, phoneNumberId: string, to: string, msgId?: string) {
+  if (msgId) {
+    await markRead(token, phoneNumberId, msgId);
+  }
+
+  // Send typing indicator / presence if supported
+  await fetch(`${GRAPH_URL}/${phoneNumberId}/messages`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+    body: JSON.stringify({
+      messaging_product: "whatsapp",
+      recipient_type: "individual",
+      to,
+      type: "typing",
+      typing: { state: "typing" },
+    }),
+  }).catch(() => {});
+
+  // Wait 5 seconds to simulate real agent / natural response time
+  await sleep(5000);
+}
+
 /** Send one step of the scripted flow and record it in the inbox (with plain text fallback). */
 async function sendFlowStep(
   token: string,
@@ -502,7 +538,7 @@ async function sendFlowStep(
   msgId: string,
   dept: "general" | "support" | "direct" = "general"
 ) {
-  await markRead(token, phoneNumberId, msgId);
+  await sendTypingAndDelay(token, phoneNumberId, to, msgId);
 
   let actualPhoneId = phoneNumberId;
   if (actualPhoneId === "1363415125370805") actualPhoneId = "1239592269240963";
@@ -604,15 +640,6 @@ async function sendFlowStep(
   });
 }
 
-/** Blue ticks on the customer's side. Failure here must not block the reply. */
-async function markRead(token: string, phoneNumberId: string, msgId: string) {
-  await fetch(`${GRAPH_URL}/${phoneNumberId}/messages`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-    body: JSON.stringify({ messaging_product: "whatsapp", status: "read", message_id: msgId }),
-  }).catch(() => {});
-}
-
 async function sendText(
   token: string,
   phoneNumberId: string,
@@ -622,7 +649,7 @@ async function sendText(
   dept: "general" | "support" | "direct" = "general"
 ) {
   try {
-    await markRead(token, phoneNumberId, msgId);
+    await sendTypingAndDelay(token, phoneNumberId, to, msgId);
 
     // Send the reply
     const res = await fetch(`${GRAPH_URL}/${phoneNumberId}/messages`, {
