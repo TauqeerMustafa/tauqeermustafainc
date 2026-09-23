@@ -55,44 +55,41 @@ export type WANumber = {
 };
 
 /**
- * Fallback id for the primary number (General Inquiries & Sales).
+ * Line 1: Tauqeer Mustafa Inc | PK (+92 335 6701199)
  */
-const DEFAULT_PRIMARY_ID = "1239592269240963";
+export const DEFAULT_PK_ID = "1363415125370805";
+export const ALIAS_PK_ID = "1239592269240963";
 
 /**
- * Fallback id for the second number (Line 2 - UK Support Desk).
+ * Line 2: Tauqeer Mustafa Inc | SL (+386 65 743 712 - Slovenia)
  */
-const DEFAULT_SECOND_ID = "1318810581311680";
+export const DEFAULT_SL_ID = "1485319076722009";
 
 /**
- * Fallback id for the third number (Line 3 - US Desk: 1034864159583818).
+ * Line 3: Tauqeer Mustafa Inc | NL (+31 97058026144 - Netherlands 1)
  */
-const DEFAULT_THIRD_ID = "1034864159583818";
+export const DEFAULT_NL_PRIMARY_ID = "2663451950739498";
 
 /**
- * Fallback id for Line 4 (Tauqeer Mustafa Inc | NL - Desk 1: 2663451950739498).
+ * Line 4: Tauqeer Mustafa Inc | NL (+31 97058026143 - Netherlands 2)
  */
-const DEFAULT_NL_PRIMARY_ID = "2663451950739498";
+export const DEFAULT_NL_SECONDARY_ID = "1739099617324219";
 
 /**
- * Fallback id for Line 5 (Tauqeer Mustafa Inc | NL - Desk 2: 1739099617324219).
+ * Line 5: Tauqeer Mustafa Inc | US (+1 555-431-6671 - United States 1)
  */
-const DEFAULT_NL_SECONDARY_ID = "1739099617324219";
+export const DEFAULT_US_PRIMARY_ID = "1083562997861778";
 
 /**
- * Fallback id for Line 6 (Tauqeer Mustafa Inc | SL: 1485319076722009).
+ * Line 6: Tauqeer Mustafa Inc | US (+1 555-434-0459 - United States 2)
  */
-const DEFAULT_SL_ID = "1485319076722009";
+export const DEFAULT_US_SECONDARY_ID = "1034864159583818";
 
-/**
- * Fallback id for Line 7 (Sandbox / Test Line: 1291624014041103).
- */
-const DEFAULT_SANDBOX_ID = "1291624014041103";
-
-/**
- * Known WABA ID associated with Line 3 (1083562997861778).
- */
-export const LINE3_WABA_ID = "1083562997861778";
+// Backwards compatibility aliases
+export const DEFAULT_PRIMARY_ID = DEFAULT_PK_ID;
+export const DEFAULT_SECOND_ID = DEFAULT_SL_ID;
+export const DEFAULT_THIRD_ID = DEFAULT_NL_PRIMARY_ID;
+export const LINE3_WABA_ID = DEFAULT_US_PRIMARY_ID;
 
 /** Vercel masks some values in previews; the sentinel means "not really set". */
 const SENTINEL = "[SENSITIVE]";
@@ -144,111 +141,64 @@ function build(): WANumber[] {
   const explicit = clean(process.env.WHATSAPP_PHONE_NUMBERS);
   if (explicit) return dedupe(parseExplicitList(explicit));
 
-  const primaryRaw = clean(process.env.WHATSAPP_PHONE_NUMBER_ID);
-  const primaryId = primaryRaw ? (isDisabled(primaryRaw) ? null : primaryRaw) : DEFAULT_PRIMARY_ID;
+  const line1Id = clean(process.env.WHATSAPP_PHONE_NUMBER_ID) || DEFAULT_PK_ID;
+  const line2Id = clean(process.env.WHATSAPP_PHONE_NUMBER_ID_2) || DEFAULT_SL_ID;
+  const line3Id = clean(process.env.WHATSAPP_PHONE_NUMBER_ID_3) || DEFAULT_NL_PRIMARY_ID;
+  const line4Id = clean(process.env.WHATSAPP_PHONE_NUMBER_ID_4) || DEFAULT_NL_SECONDARY_ID;
+  const line5Id = clean(process.env.WHATSAPP_PHONE_NUMBER_ID_5) || DEFAULT_US_PRIMARY_ID;
+  const line6Id = clean(process.env.WHATSAPP_PHONE_NUMBER_ID_6) || DEFAULT_US_SECONDARY_ID;
 
-  const secondRaw = clean(process.env.WHATSAPP_PHONE_NUMBER_ID_2);
-  const secondId = secondRaw ? (isDisabled(secondRaw) ? null : secondRaw) : DEFAULT_SECOND_ID;
-
-  const thirdRaw = clean(process.env.WHATSAPP_PHONE_NUMBER_ID_3);
-  let thirdId = thirdRaw ? (isDisabled(thirdRaw) ? null : thirdRaw) : DEFAULT_THIRD_ID;
-
-  let fourthRaw = clean(process.env.WHATSAPP_PHONE_NUMBER_ID_4);
-  if (fourthRaw === "1083562997861778" || fourthRaw === "1034864159583818") {
-    if (!thirdRaw || thirdRaw === DEFAULT_THIRD_ID) {
-      thirdId = "1034864159583818";
-    }
-    fourthRaw = DEFAULT_NL_PRIMARY_ID;
-  }
-  const fourthId = fourthRaw ? (isDisabled(fourthRaw) ? null : fourthRaw) : DEFAULT_NL_PRIMARY_ID;
-
-  const fifthRaw = clean(process.env.WHATSAPP_PHONE_NUMBER_ID_5);
-  const fifthId = fifthRaw ? (isDisabled(fifthRaw) ? null : fifthRaw) : DEFAULT_NL_SECONDARY_ID;
-
-  const sixthRaw = clean(process.env.WHATSAPP_PHONE_NUMBER_ID_6);
-  const sixthId = sixthRaw ? (isDisabled(sixthRaw) ? null : sixthRaw) : DEFAULT_SL_ID;
-
-  const seventhRaw = clean(process.env.WHATSAPP_PHONE_NUMBER_ID_7);
-  const seventhId = seventhRaw ? (isDisabled(seventhRaw) ? null : seventhRaw) : DEFAULT_SANDBOX_ID;
-
-  const numbers: WANumber[] = [];
-  if (primaryId && !isDisabled(primaryId)) {
-    numbers.push({
-      id: primaryId,
-      label: clean(process.env.WHATSAPP_PHONE_LABEL) || "Line 1",
+  const numbers: WANumber[] = [
+    {
+      id: line1Id,
+      label: clean(process.env.WHATSAPP_PHONE_LABEL) || "Line 1 (PK)",
       primary: true,
       slot: 1,
       department: "general",
       displayNumber: clean(process.env.WHATSAPP_DISPLAY_NUMBER) || "+92 335 6701199",
-    });
-  }
-  if (secondId) {
-    const hasDedicatedSlot2Token = Boolean(clean(process.env.WHATSAPP_TOKEN_2));
-    numbers.push({
-      id: secondId,
-      label: clean(process.env.WHATSAPP_PHONE_LABEL_2) || "Line 2",
-      primary: numbers.length === 0,
-      slot: hasDedicatedSlot2Token ? 2 : 1,
-      department: "support",
-      displayNumber: clean(process.env.WHATSAPP_DISPLAY_NUMBER_2) || "+44 7575 376078",
-    });
-  }
-  if (thirdId) {
-    const hasDedicatedSlot3Token = Boolean(clean(process.env.WHATSAPP_TOKEN_3));
-    const hasDedicatedSlot2Token = Boolean(clean(process.env.WHATSAPP_TOKEN_2));
-    numbers.push({
-      id: thirdId,
-      label: clean(process.env.WHATSAPP_PHONE_LABEL_3) || "Line 3",
-      primary: numbers.length === 0,
-      slot: hasDedicatedSlot3Token ? 3 : (hasDedicatedSlot2Token ? 2 : 1),
-      department: "direct",
-      displayNumber: clean(process.env.WHATSAPP_DISPLAY_NUMBER_3) || null,
-    });
-  }
-  if (fourthId) {
-    const hasDedicatedSlot4Token = Boolean(clean(process.env.WHATSAPP_TOKEN_4));
-    numbers.push({
-      id: fourthId,
-      label: clean(process.env.WHATSAPP_PHONE_LABEL_4) || "Line 4",
-      primary: numbers.length === 0,
-      slot: hasDedicatedSlot4Token ? 4 : 1,
-      department: "direct",
-      displayNumber: clean(process.env.WHATSAPP_DISPLAY_NUMBER_4) || null,
-    });
-  }
-  if (fifthId) {
-    const hasDedicatedSlot5Token = Boolean(clean(process.env.WHATSAPP_TOKEN_5));
-    numbers.push({
-      id: fifthId,
-      label: clean(process.env.WHATSAPP_PHONE_LABEL_5) || "Line 5",
-      primary: numbers.length === 0,
-      slot: hasDedicatedSlot5Token ? 5 : 1,
-      department: "support",
-      displayNumber: clean(process.env.WHATSAPP_DISPLAY_NUMBER_5) || null,
-    });
-  }
-  if (sixthId) {
-    const hasDedicatedSlot6Token = Boolean(clean(process.env.WHATSAPP_TOKEN_6));
-    numbers.push({
-      id: sixthId,
-      label: clean(process.env.WHATSAPP_PHONE_LABEL_6) || "Line 6",
-      primary: numbers.length === 0,
-      slot: hasDedicatedSlot6Token ? 6 : 1,
-      department: "direct",
-      displayNumber: clean(process.env.WHATSAPP_DISPLAY_NUMBER_6) || null,
-    });
-  }
-  if (seventhId) {
-    const hasDedicatedSlot7Token = Boolean(clean(process.env.WHATSAPP_TOKEN_7));
-    numbers.push({
-      id: seventhId,
-      label: clean(process.env.WHATSAPP_PHONE_LABEL_7) || "Line 7",
-      primary: numbers.length === 0,
-      slot: hasDedicatedSlot7Token ? 7 : 1,
-      department: "support",
-      displayNumber: clean(process.env.WHATSAPP_DISPLAY_NUMBER_7) || null,
-    });
-  }
+    },
+    {
+      id: line2Id,
+      label: clean(process.env.WHATSAPP_PHONE_LABEL_2) || "Line 2 (SL)",
+      primary: false,
+      slot: 2,
+      department: "general",
+      displayNumber: clean(process.env.WHATSAPP_DISPLAY_NUMBER_2) || "+386 65 743 712",
+    },
+    {
+      id: line3Id,
+      label: clean(process.env.WHATSAPP_PHONE_LABEL_3) || "Line 3 (NL 1)",
+      primary: false,
+      slot: 3,
+      department: "general",
+      displayNumber: clean(process.env.WHATSAPP_DISPLAY_NUMBER_3) || "+31 97058026144",
+    },
+    {
+      id: line4Id,
+      label: clean(process.env.WHATSAPP_PHONE_LABEL_4) || "Line 4 (NL 2)",
+      primary: false,
+      slot: 4,
+      department: "general",
+      displayNumber: clean(process.env.WHATSAPP_DISPLAY_NUMBER_4) || "+31 97058026143",
+    },
+    {
+      id: line5Id,
+      label: clean(process.env.WHATSAPP_PHONE_LABEL_5) || "Line 5 (US 1)",
+      primary: false,
+      slot: 5,
+      department: "general",
+      displayNumber: clean(process.env.WHATSAPP_DISPLAY_NUMBER_5) || "+1 555-431-6671",
+    },
+    {
+      id: line6Id,
+      label: clean(process.env.WHATSAPP_PHONE_LABEL_6) || "Line 6 (US 2)",
+      primary: false,
+      slot: 6,
+      department: "general",
+      displayNumber: clean(process.env.WHATSAPP_DISPLAY_NUMBER_6) || "+1 555-434-0459",
+    },
+  ];
+
   return dedupe(numbers);
 }
 
@@ -308,26 +258,23 @@ export function isKnownNumber(id: string | null | undefined): boolean {
   const value = (id ?? "").trim();
   if (!value) return false;
   if (
-    value === DEFAULT_PRIMARY_ID ||
-    value === DEFAULT_SECOND_ID ||
-    value === DEFAULT_THIRD_ID ||
+    value === DEFAULT_PK_ID ||
+    value === ALIAS_PK_ID ||
+    value === DEFAULT_SL_ID ||
     value === DEFAULT_NL_PRIMARY_ID ||
     value === DEFAULT_NL_SECONDARY_ID ||
-    value === DEFAULT_SL_ID ||
-    value === DEFAULT_SANDBOX_ID ||
-    value === "1318810581311680" ||
-    value === "1291624014041103" ||
-    value === "1083562997861778" ||
+    value === DEFAULT_US_PRIMARY_ID ||
+    value === DEFAULT_US_SECONDARY_ID ||
+    value === "1363415125370805" ||
+    value === "1239592269240963" ||
+    value === "1485319076722009" ||
     value === "2663451950739498" ||
     value === "1739099617324219" ||
-    value === "1485319076722009"
+    value === "1083562997861778" ||
+    value === "1034864159583818"
   ) {
     return true;
   }
-  // Exact match against the configured list, which also holds every id the
-  // numbers route discovered from Meta and fed through registerKnownNumbers().
-  // A Phone Number ID is exact — there is no "close enough", so no digit
-  // heuristics here: an id either is one we serve or it isn't.
   return waNumbers().some((n) => n.id === value);
 }
 
@@ -362,20 +309,20 @@ export function resolveNumberId(requested?: string | null): ResolvedNumber {
   if (!wanted) return { ok: true, id: primaryNumberId() as string };
 
   if (
-    wanted === DEFAULT_PRIMARY_ID ||
-    wanted === DEFAULT_PRIMARY_ID ||
-    wanted === DEFAULT_SECOND_ID ||
-    wanted === DEFAULT_THIRD_ID ||
+    wanted === DEFAULT_PK_ID ||
+    wanted === ALIAS_PK_ID ||
+    wanted === DEFAULT_SL_ID ||
     wanted === DEFAULT_NL_PRIMARY_ID ||
     wanted === DEFAULT_NL_SECONDARY_ID ||
-    wanted === DEFAULT_SL_ID ||
-    wanted === DEFAULT_SANDBOX_ID ||
-    wanted === "1318810581311680" ||
-    wanted === "1291624014041103" ||
-    wanted === "1083562997861778" ||
+    wanted === DEFAULT_US_PRIMARY_ID ||
+    wanted === DEFAULT_US_SECONDARY_ID ||
+    wanted === "1363415125370805" ||
+    wanted === "1239592269240963" ||
+    wanted === "1485319076722009" ||
     wanted === "2663451950739498" ||
     wanted === "1739099617324219" ||
-    wanted === "1485319076722009"
+    wanted === "1083562997861778" ||
+    wanted === "1034864159583818"
   ) {
     return { ok: true, id: wanted };
   }
@@ -393,125 +340,11 @@ export function resolveNumberId(requested?: string | null): ResolvedNumber {
 
 /**
  * Return whether a line or message belongs to "general", "support", or "direct".
+ * All 6 active numbers run unified programmatic messages as requested.
  */
 export function getChannelDepartment(
-  idOrNumber?: string | null,
-  allNumbers?: WANumber[]
+  _idOrNumber?: string | null,
+  _allNumbers?: WANumber[]
 ): WADepartment {
-  if (!idOrNumber) return "general";
-  const cleanId = idOrNumber.trim();
-  if (!cleanId) return "general";
-  const lower = cleanId.toLowerCase();
-  const digits = cleanId.replace(/[^0-9]/g, "");
-
-  // 1. Line 3 (Direct / Executive US): Phone ID 1034864159583818, WABA ID 1083562997861778
-  if (
-    cleanId === "1034864159583818" ||
-    cleanId === "1083562997861778" ||
-    cleanId === DEFAULT_THIRD_ID ||
-    cleanId === LINE3_WABA_ID ||
-    lower.includes("line 3") ||
-    lower.includes("line3") ||
-    lower.includes("direct") ||
-    lower.includes("executive") ||
-    lower.includes("priority")
-  ) {
-    return "direct";
-  }
-
-  // 2. Line 4 (Tauqeer Mustafa Inc | NL - Desk 1): Phone ID 2663451950739498
-  if (
-    cleanId === "2663451950739498" ||
-    cleanId === DEFAULT_NL_PRIMARY_ID ||
-    lower.includes("line 4") ||
-    lower.includes("line4") ||
-    lower.includes("nl 1") ||
-    lower.includes("nl-1")
-  ) {
-    return "direct";
-  }
-
-  // 3. Line 5 (Tauqeer Mustafa Inc | NL - Desk 2): Phone ID 1739099617324219
-  if (
-    cleanId === "1739099617324219" ||
-    cleanId === DEFAULT_NL_SECONDARY_ID ||
-    lower.includes("line 5") ||
-    lower.includes("line5") ||
-    lower.includes("nl 2") ||
-    lower.includes("nl-2")
-  ) {
-    return "support";
-  }
-
-  // 4. Line 6 (Tauqeer Mustafa Inc | SL): Phone ID 1485319076722009
-  if (
-    cleanId === "1485319076722009" ||
-    cleanId === DEFAULT_SL_ID ||
-    lower.includes("line 6") ||
-    lower.includes("line6") ||
-    lower.includes("sl")
-  ) {
-    return "direct";
-  }
-
-  // 5. Line 2 (Support UK): Phone ID 1318810581311680 (+44 7575 376078)
-  if (
-    cleanId === "1318810581311680" ||
-    cleanId === DEFAULT_SECOND_ID ||
-    digits === "447575376078" ||
-    cleanId.includes("447575376078") ||
-    lower.includes("line 2") ||
-    lower.includes("line2") ||
-    lower.includes("support")
-  ) {
-    return "support";
-  }
-
-  // 6. Line 1 (General / Sales PK): Phone ID 1239592269240963 (+92 335 6701199)
-  const primary = primaryNumberId();
-  if (primary && cleanId === primary) return "general";
-  if (
-    cleanId === DEFAULT_PRIMARY_ID ||
-    digits === "923356701199" ||
-    digits === "9233356701199" ||
-    lower.includes("line 1") ||
-    lower.includes("line1") ||
-    lower.includes("sales") ||
-    lower.includes("general")
-  ) {
-    return "general";
-  }
-
-  // 7. Line 7 (Test Sandbox): Phone ID 1291624014041103
-  if (cleanId === "1291624014041103" || cleanId === DEFAULT_SANDBOX_ID || lower.includes("line 7") || lower.includes("line7") || lower.includes("sandbox")) {
-    return "support";
-  }
-
-  const nums = allNumbers || waNumbers();
-
-  // 8. Match against configured or discovered numbers list
-  const num = nums.find((n) => {
-    if (n.id === cleanId) return true;
-    const nDigits = n.id.replace(/[^0-9]/g, "");
-    if (digits && nDigits && digits === nDigits) return true;
-    if (n.displayNumber) {
-      if (n.displayNumber === cleanId) return true;
-      const dDigits = n.displayNumber.replace(/[^0-9]/g, "");
-      if (digits && dDigits && digits === dDigits) return true;
-    }
-    return false;
-  });
-
-  if (num) {
-    if (num.department) return num.department;
-    if (num.primary) return "general";
-    if (num.id === DEFAULT_THIRD_ID || num.id === "1034864159583818" || num.id === "1083562997861778" || num.slot === 3) return "direct";
-    if (num.id === DEFAULT_NL_PRIMARY_ID || num.id === "2663451950739498" || num.slot === 4) return "direct";
-    if (num.id === DEFAULT_NL_SECONDARY_ID || num.id === "1739099617324219" || num.slot === 5) return "support";
-    if (num.id === DEFAULT_SL_ID || num.id === "1485319076722009" || num.slot === 6) return "direct";
-    if (num.slot === 2 || num.id === "1318810581311680") return "support";
-    if (num.slot === 7 || num.id === DEFAULT_SANDBOX_ID || num.id === "1291624014041103") return "support";
-  }
-
   return "general";
 }

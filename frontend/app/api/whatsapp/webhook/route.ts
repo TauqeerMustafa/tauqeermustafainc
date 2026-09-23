@@ -242,19 +242,10 @@ export async function POST(request: Request) {
             null;
 
           // Department attribution: prioritize explicit Line 3, 4, 6 IDs or executive tags
+          // Detect explicit keyword routing if user explicitly mentions executive desk
           const isDirectFromText = /\[?(executive|direct\s*desk)\]?/i.test(text);
-          const isDirectChannel =
-            phoneId === "1034864159583818" ||
-            phoneId === "1083562997861778" ||
-            phoneId === "2663451950739498" ||
-            phoneId === "1485319076722009" ||
-            channel === "1034864159583818" ||
-            channel === "1083562997861778" ||
-            channel === "2663451950739498" ||
-            channel === "1485319076722009" ||
-            entryWabaId === "1083562997861778";
 
-          const dept: "general" | "support" | "direct" = isDirectFromText || isDirectChannel
+          const dept: "general" | "support" | "direct" = isDirectFromText
             ? "direct"
             : getChannelDepartment(phoneId || displayPhone || channel);
 
@@ -365,38 +356,46 @@ async function handleAutoReply(
   // 3. Ensure number definition is registered in waNumbers
   let numberDef = waNumbers().find((n) => n.id === phoneNumberId);
   if (!numberDef) {
-    const isPrimary = phoneNumberId === primaryNumberId() || phoneNumberId === "1239592269240963";
-    const isLine2 = phoneNumberId === "1318810581311680";
-    const isLine3 = phoneNumberId === "1034864159583818" || phoneNumberId === "1083562997861778";
-    const isLine4 = phoneNumberId === "2663451950739498";
-    const isLine5 = phoneNumberId === "1739099617324219";
-    const isLine6 = phoneNumberId === "1485319076722009";
-    const isLine7 = phoneNumberId === "1291624014041103";
+    const isLine1 =
+      phoneNumberId === primaryNumberId() ||
+      phoneNumberId === "1363415125370805" ||
+      phoneNumberId === "1239592269240963";
+    const isLine2 = phoneNumberId === "1485319076722009";
+    const isLine3 = phoneNumberId === "2663451950739498";
+    const isLine4 = phoneNumberId === "1739099617324219";
+    const isLine5 = phoneNumberId === "1083562997861778";
+    const isLine6 = phoneNumberId === "1034864159583818";
 
     numberDef = {
       id: phoneNumberId,
-      label: isPrimary
-        ? "Line 1"
+      label: isLine1
+        ? "Line 1 (PK)"
         : isLine2
-        ? "Line 2 (UK)"
+        ? "Line 2 (SL)"
         : isLine3
-        ? "Line 3 (US)"
+        ? "Line 3 (NL 1)"
         : isLine4
-        ? "Line 4 (NL 1)"
+        ? "Line 4 (NL 2)"
         : isLine5
-        ? "Line 5 (NL 2)"
+        ? "Line 5 (US 1)"
         : isLine6
-        ? "Line 6 (SL)"
-        : isLine7
-        ? "Line 7 (Sandbox)"
+        ? "Line 6 (US 2)"
         : "Line",
-      primary: isPrimary,
-      slot: isLine7 ? 7 : isLine6 ? 6 : isLine5 ? 5 : isLine4 ? 4 : isLine3 ? 3 : isLine2 ? 2 : 1,
-      department: (isLine3 || isLine4 || isLine6 || dept === "direct") ? "direct" : isPrimary ? "general" : "support",
-      displayNumber: isPrimary
+      primary: isLine1,
+      slot: isLine6 ? 6 : isLine5 ? 5 : isLine4 ? 4 : isLine3 ? 3 : isLine2 ? 2 : 1,
+      department: "general",
+      displayNumber: isLine1
         ? "+92 335 6701199"
         : isLine2
-        ? "+44 7575 376078"
+        ? "+386 65 743 712"
+        : isLine3
+        ? "+31 97058026144"
+        : isLine4
+        ? "+31 97058026143"
+        : isLine5
+        ? "+1 555-431-6671"
+        : isLine6
+        ? "+1 555-434-0459"
         : null,
     };
     registerKnownNumbers([numberDef]);

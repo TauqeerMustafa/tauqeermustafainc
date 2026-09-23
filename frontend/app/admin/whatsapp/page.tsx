@@ -201,22 +201,48 @@ function messageDirectlyMatchesNumber(m: WAMessage, numberInfo: WANumberInfo): b
   if (toDigits && idDigits && toDigits === idDigits) return true;
   if (toDigits && displayDigits && toDigits === displayDigits) return true;
 
-  if (numberInfo.department === "direct" || numberInfo.slot === 3 || numberInfo.id === "1034864159583818") {
+  if (numberInfo.slot === 6 || numberInfo.id === "1034864159583818") {
     if (
       ch === "1034864159583818" ||
-      ch === "1083562997861778" ||
       toDigits === "1034864159583818" ||
-      toDigits === "1083562997861778"
+      toDigits === "15554340459" ||
+      chDigits === "15554340459"
     ) return true;
-    if (/\[?(executive|direct\s*desk)\]?/i.test(m.body || "")) return true;
   }
 
-  if (numberInfo.department === "support" || numberInfo.slot === 2 || numberInfo.id === "1318810581311680") {
+  if (numberInfo.slot === 5 || numberInfo.id === "1083562997861778") {
     if (
-      ch === "1318810581311680" ||
-      toDigits === "1318810581311680" ||
-      toDigits === "447575376078" ||
-      chDigits === "447575376078"
+      ch === "1083562997861778" ||
+      toDigits === "1083562997861778" ||
+      toDigits === "15554316671" ||
+      chDigits === "15554316671"
+    ) return true;
+  }
+
+  if (numberInfo.slot === 4 || numberInfo.id === "1739099617324219") {
+    if (
+      ch === "1739099617324219" ||
+      toDigits === "1739099617324219" ||
+      toDigits === "3197058026143" ||
+      chDigits === "3197058026143"
+    ) return true;
+  }
+
+  if (numberInfo.slot === 3 || numberInfo.id === "2663451950739498") {
+    if (
+      ch === "2663451950739498" ||
+      toDigits === "2663451950739498" ||
+      toDigits === "3197058026144" ||
+      chDigits === "3197058026144"
+    ) return true;
+  }
+
+  if (numberInfo.slot === 2 || numberInfo.id === "1485319076722009") {
+    if (
+      ch === "1485319076722009" ||
+      toDigits === "1485319076722009" ||
+      toDigits === "38665743712" ||
+      chDigits === "38665743712"
     ) return true;
   }
   return false;
@@ -301,96 +327,58 @@ function withSeenChannels(
     const hasDirectLineInApi = safeApiNumbers.some((n) => n.department === "direct");
     const hasSupportLineInApi = safeApiNumbers.some((n) => n.department === "support");
 
-    const isLine3 =
-      ch === "1034864159583818" ||
-      ch === "1083562997861778" ||
-      ch.toLowerCase().includes("direct") ||
-      ch.toLowerCase().includes("executive") ||
-      hasDirectMessage;
-
-    const isLine2 =
-      !isLine3 &&
-      (ch === "1318810581311680" ||
-        cleanDigits(ch) === "447575376078" ||
-        ch.toLowerCase().includes("support"));
-
-    const isLine4 = ch === "1291624014041103";
+    const isLine6 = ch === "1034864159583818" || cleanDigits(ch) === "15554340459";
+    const isLine5 = ch === "1083562997861778" || cleanDigits(ch) === "15554316671";
+    const isLine4 = ch === "1739099617324219" || cleanDigits(ch) === "3197058026143";
+    const isLine3 = ch === "2663451950739498" || cleanDigits(ch) === "3197058026144";
+    const isLine2 = ch === "1485319076722009" || cleanDigits(ch) === "38665743712";
+    const isLine1 =
+      ch === "1363415125370805" ||
+      ch === "1239592269240963" ||
+      cleanDigits(ch) === "923356701199";
 
     extras.push({
       id: ch,
-      label: isLine3
-        ? "Line 3"
-        : isLine2
-        ? "Line 2"
+      label: isLine6
+        ? "Line 6 (US 2)"
+        : isLine5
+        ? "Line 5 (US 1)"
         : isLine4
-        ? "Line 4"
+        ? "Line 4 (NL 2)"
+        : isLine3
+        ? "Line 3 (NL 1)"
+        : isLine2
+        ? "Line 2 (SL)"
+        : isLine1
+        ? "Line 1 (PK)"
         : `Line ${safeApiNumbers.length + extras.length + 1}`,
-      primary: false,
-      slot: isLine4 ? 4 : isLine3 ? 3 : isLine2 ? 2 : 1,
+      primary: isLine1,
+      slot: isLine6 ? 6 : isLine5 ? 5 : isLine4 ? 4 : isLine3 ? 3 : isLine2 ? 2 : 1,
       canSend: false,
-      department: isLine3 ? "direct" : "support",
-      displayNumber: isLine2 ? "+44 7575 376078" : null,
+      department: "general",
+      displayNumber: isLine1
+        ? "+92 335 6701199"
+        : isLine2
+        ? "+386 65 743 712"
+        : isLine3
+        ? "+31 97058026144"
+        : isLine4
+        ? "+31 97058026143"
+        : isLine5
+        ? "+1 555-431-6671"
+        : isLine6
+        ? "+1 555-434-0459"
+        : null,
       error: "Received messages arrived on this number, but Meta has not confirmed it — replies may not send until it is configured.",
     });
   }
   return extras.length ? [...safeApiNumbers, ...extras] : safeApiNumbers;
 }
 
-/** Determine which department a message belongs to: "general" (Inquiries/Sales), "support" (Client Support Desk), or "direct" (Executive Desk) */
+/** Determine which department a message belongs to: "general", "support", or "direct" */
 function getMessageDepartment(m: WAMessage, allNumbers: WANumberInfo[] = []): "general" | "support" | "direct" {
   if (m.department) return m.department;
   if (/\[?(executive|direct\s*desk)\]?/i.test(m.body || "")) return "direct";
-
-  const ch = channelOf(m);
-  const chDigits = ch.replace(/[^0-9]/g, "");
-  const fromDigits = (m.from || "").replace(/[^0-9]/g, "");
-  const toDigits = (m.to || "").replace(/[^0-9]/g, "");
-
-  // Line 3: 1034864159583818 / 1083562997861778
-  if (
-    ch === "1034864159583818" ||
-    ch === "1083562997861778" ||
-    toDigits === "1034864159583818" ||
-    toDigits === "1083562997861778" ||
-    fromDigits === "1034864159583818" ||
-    fromDigits === "1083562997861778" ||
-    /\[?(executive|direct\s*desk)\]?/i.test(m.body || "")
-  ) {
-    return "direct";
-  }
-
-  // Line 2: 1318810581311680 / UK number +44 7575 376078
-  if (
-    ch === "1318810581311680" ||
-    toDigits === "1318810581311680" ||
-    fromDigits === "1318810581311680" ||
-    chDigits === "447575376078" ||
-    toDigits === "447575376078" ||
-    fromDigits === "447575376078"
-  ) {
-    return "support";
-  }
-
-  // Line 4: 1291624014041103 (Test Sandbox)
-  if (
-    ch === "1291624014041103" ||
-    toDigits === "1291624014041103" ||
-    fromDigits === "1291624014041103"
-  ) {
-    return "support";
-  }
-
-  // Line 1: Primary 1239592269240963 / Pakistan number +92 335 6701199
-  if (
-    ch === "1239592269240963" ||
-    toDigits === "1239592269240963" ||
-    fromDigits === "1239592269240963" ||
-    chDigits === "923356701199" ||
-    toDigits === "923356701199" ||
-    fromDigits === "923356701199"
-  ) {
-    return "general";
-  }
 
   // Match against discovered numbers list
   const matched = allNumbers.find((n) => messageDirectlyMatchesNumber(m, n));
@@ -1069,13 +1057,17 @@ function InboxTab({
   const supportConvs = groupConversations(allMessages, numbers, "support");
   const directConvs = groupConversations(allMessages, numbers, "direct");
 
-  const line1Convs = allConversations.filter(c => c.channel === "1239592269240963" || c.department === "general");
-  const line2Convs = allConversations.filter(c => c.channel === "1318810581311680" || (c.department === "support" && c.channel !== "1291624014041103" && c.channel !== "1034864159583818" && c.channel !== "1083562997861778" && c.channel !== "2663451950739498" && c.channel !== "1739099617324219" && c.channel !== "1485319076722009"));
-  const line3Convs = allConversations.filter(c => c.channel === "1034864159583818" || c.channel === "1083562997861778");
-  const line4Convs = allConversations.filter(c => c.channel === "2663451950739498");
-  const line5Convs = allConversations.filter(c => c.channel === "1739099617324219");
-  const line6Convs = allConversations.filter(c => c.channel === "1485319076722009");
-  const line7Convs = allConversations.filter(c => c.channel === "1291624014041103");
+  const line1Convs = allConversations.filter(
+    (c) =>
+      c.channel === "1363415125370805" ||
+      c.channel === "1239592269240963" ||
+      (!c.channel && c.department === "general")
+  );
+  const line2Convs = allConversations.filter((c) => c.channel === "1485319076722009");
+  const line3Convs = allConversations.filter((c) => c.channel === "2663451950739498");
+  const line4Convs = allConversations.filter((c) => c.channel === "1739099617324219");
+  const line5Convs = allConversations.filter((c) => c.channel === "1083562997861778");
+  const line6Convs = allConversations.filter((c) => c.channel === "1034864159583818");
 
   const unreadCounts = {
     general: generalConvs.reduce((acc, c) => acc + (unreadCount(c, metaMap[c.key] || metaMap[c.number]) > 0 ? 1 : 0), 0),
@@ -1087,7 +1079,6 @@ function InboxTab({
     line4: line4Convs.reduce((acc, c) => acc + (unreadCount(c, metaMap[c.key] || metaMap[c.number]) > 0 ? 1 : 0), 0),
     line5: line5Convs.reduce((acc, c) => acc + (unreadCount(c, metaMap[c.key] || metaMap[c.number]) > 0 ? 1 : 0), 0),
     line6: line6Convs.reduce((acc, c) => acc + (unreadCount(c, metaMap[c.key] || metaMap[c.number]) > 0 ? 1 : 0), 0),
-    line7: line7Convs.reduce((acc, c) => acc + (unreadCount(c, metaMap[c.key] || metaMap[c.number]) > 0 ? 1 : 0), 0),
     total: allConversations.reduce((acc, c) => acc + (unreadCount(c, metaMap[c.key] || metaMap[c.number]) > 0 ? 1 : 0), 0),
   };
 
@@ -1746,13 +1737,7 @@ function ChatView({
                 onReact={handleReact}
                 lineBadge={
                   msgLine
-                    ? msgLine.primary || msgLine.id === "1239592269240963" || msgLine.slot === 1
-                      ? "Line 1"
-                      : msgLine.id === "1318810581311680" || msgLine.slot === 2
-                      ? "Line 2"
-                      : msgLine.id === "1034864159583818" || msgLine.id === "1083562997861778" || msgLine.slot === 3 || msgLine.department === "direct"
-                      ? "Line 3"
-                      : "Line 4"
+                    ? msgLine.label || `Line ${msgLine.slot}`
                     : undefined
                 }
                 isPrimaryLine={msgLine?.primary}
@@ -1809,14 +1794,7 @@ function ChatView({
             }}
           >
             {numbers.map((n) => {
-              const label =
-                n.primary || n.id === "1239592269240963" || n.slot === 1
-                  ? `Line 1${n.displayNumber ? ` • ${n.displayNumber}` : ""}`
-                  : n.id === "1318810581311680" || n.slot === 2
-                  ? `Line 2${n.displayNumber ? ` • ${n.displayNumber}` : ""}`
-                  : n.id === "1034864159583818" || n.id === "1083562997861778" || n.slot === 3 || n.department === "direct"
-                  ? `Line 3${n.displayNumber ? ` • ${n.displayNumber}` : ""}`
-                  : `Line 4${n.displayNumber ? ` • ${n.displayNumber}` : ""}`;
+              const label = `${n.label || `Line ${n.slot}`}${n.displayNumber ? ` • ${n.displayNumber}` : ""}`;
               return (
                 <option key={n.id} value={n.id}>
                   {label}
@@ -1826,7 +1804,7 @@ function ChatView({
           </select>
         </div>
         <span className="text-[11px] font-mono" style={{ color: "var(--adm-text-3)" }}>
-          {senderInfo?.displayNumber || (sender === "1239592269240963" ? "+92 335 6701199" : sender === "1318810581311680" ? "+44 7575 376078" : "")}
+          {senderInfo?.displayNumber || senderInfo?.label || ""}
         </span>
       </div>
 
@@ -2696,10 +2674,10 @@ function SendTab({
   const fallbackSender =
     deptLine?.id ||
     (department === "direct"
-      ? numbers.find((n) => n.id === "1034864159583818" || n.id === "1083562997861778" || n.slot === 3 || n.department === "direct")?.id
+      ? numbers.find((n) => n.id === "1034864159583818" || n.slot === 6)?.id
       : department === "support"
-      ? numbers.find((n) => n.id === "1318810581311680" || n.slot === 2 || (n.department === "support" && n.id !== "1291624014041103" && n.id !== "1034864159583818" && n.id !== "1083562997861778"))?.id
-      : numbers.find((n) => n.primary || n.id === "1239592269240963")?.id) ||
+      ? numbers.find((n) => n.id === "1485319076722009" || n.slot === 2)?.id
+      : numbers.find((n) => n.primary || n.id === "1363415125370805" || n.id === "1239592269240963")?.id) ||
     numbers[0]?.id ||
     "";
   const sender = senderChoice || defaultSender || fallbackSender;
@@ -3303,10 +3281,10 @@ function MetaTemplatesTab({ defaultRecipient, department }: { defaultRecipient: 
   const sender =
     senderChoice ||
     (department === "direct"
-      ? numbers.find((n) => n.id === "1034864159583818" || n.id === "1083562997861778" || n.slot === 3 || n.department === "direct")?.id
+      ? numbers.find((n) => n.id === "1034864159583818" || n.slot === 6)?.id
       : department === "support"
-      ? numbers.find((n) => n.id === "1318810581311680" || n.slot === 2 || (n.department === "support" && n.id !== "1291624014041103" && n.id !== "1034864159583818" && n.id !== "1083562997861778"))?.id
-      : numbers.find((n) => n.primary || n.id === "1239592269240963")?.id) ||
+      ? numbers.find((n) => n.id === "1485319076722009" || n.slot === 2)?.id
+      : numbers.find((n) => n.primary || n.id === "1363415125370805" || n.id === "1239592269240963")?.id) ||
     numbers[0]?.id ||
     "";
 
@@ -5399,8 +5377,8 @@ function NumbersTab({
         <div className="grid gap-4 sm:grid-cols-2">
           {numbers.map((n, idx) => {
             const isSendable = n.canSend !== false;
-            const isDirectLine = n.department === "direct" || n.id === "1034864159583818" || n.id === "1083562997861778" || n.slot === 3;
-            const isSupportLine = !isDirectLine && (n.id === "1318810581311680" || n.slot === 2 || n.department === "support" || (!n.primary && idx > 0));
+            const isDirectLine = n.department === "direct" || n.slot === 6;
+            const isSupportLine = !isDirectLine && (n.department === "support" || n.slot === 2);
             const lineDept = isDirectLine ? "direct" : isSupportLine ? "support" : "general";
             const isCurrentDept = lineDept === department;
             return (

@@ -165,13 +165,16 @@ export async function GET(request: Request) {
     resultList[0].primary = true;
   }
 
-  // Identify primary line first (Line 1)
-  const primaryItem = resultList.find((n) => n.primary || n.id === "1239592269240963") || resultList[0];
+  // Identify primary line first (Line 1 - PK)
+  const primaryItem =
+    resultList.find(
+      (n) => n.primary || n.id === "1363415125370805" || n.id === "1239592269240963"
+    ) || resultList[0];
   if (primaryItem) {
     primaryItem.primary = true;
     primaryItem.department = "general";
     primaryItem.slot = 1;
-    primaryItem.label = "Line 1";
+    primaryItem.label = "Line 1 (PK)";
     if (!primaryItem.displayNumber) primaryItem.displayNumber = "+92 335 6701199";
   }
 
@@ -180,70 +183,70 @@ export async function GET(request: Request) {
 
   for (const n of nonPrimary) {
     const conf = configured.find((c) => c.id === n.id);
-    const isLine3 =
-      n.id === "1034864159583818" ||
-      n.id === "1083562997861778" ||
-      n.slot === 3;
+    const digits = n.displayNumber?.replace(/[^0-9]/g, "") || "";
 
     const isLine2 =
-      !isLine3 &&
-      (n.id === "1318810581311680" ||
-        n.displayNumber?.replace(/[^0-9]/g, "") === "447575376078" ||
-        n.slot === 2);
+      n.id === "1485319076722009" ||
+      digits.includes("38665743712") ||
+      n.slot === 2;
+
+    const isLine3 =
+      !isLine2 &&
+      (n.id === "2663451950739498" ||
+        digits.includes("3197058026144") ||
+        n.slot === 3);
 
     const isLine4 =
-      !isLine3 &&
       !isLine2 &&
-      (n.id === "2663451950739498" || n.slot === 4);
+      !isLine3 &&
+      (n.id === "1739099617324219" ||
+        digits.includes("3197058026143") ||
+        n.slot === 4);
 
     const isLine5 =
-      !isLine3 &&
       !isLine2 &&
+      !isLine3 &&
       !isLine4 &&
-      (n.id === "1739099617324219" || n.slot === 5);
+      (n.id === "1083562997861778" ||
+        digits.includes("15554316671") ||
+        n.slot === 5);
 
     const isLine6 =
-      !isLine3 &&
       !isLine2 &&
+      !isLine3 &&
       !isLine4 &&
       !isLine5 &&
-      (n.id === "1485319076722009" || n.slot === 6);
+      (n.id === "1034864159583818" ||
+        digits.includes("15554340459") ||
+        n.slot === 6);
 
-    const isLine7 =
-      !isLine3 &&
-      !isLine2 &&
-      !isLine4 &&
-      !isLine5 &&
-      !isLine6 &&
-      (n.id === "1291624014041103" || n.slot === 7);
-
-    if (isLine3) {
-      n.department = "direct";
-      n.slot = 3;
-      n.label = conf?.label || "Line 3 (US)";
-    } else if (isLine2) {
-      n.department = "support";
+    if (isLine2) {
+      n.department = "general";
       n.slot = 2;
-      n.label = conf?.label || "Line 2 (UK)";
-      if (!n.displayNumber) n.displayNumber = "+44 7575 376078";
+      n.label = conf?.label || "Line 2 (SL)";
+      if (!n.displayNumber) n.displayNumber = "+386 65 743 712";
+    } else if (isLine3) {
+      n.department = "general";
+      n.slot = 3;
+      n.label = conf?.label || "Line 3 (NL 1)";
+      if (!n.displayNumber) n.displayNumber = "+31 97058026144";
     } else if (isLine4) {
-      n.department = "direct";
+      n.department = "general";
       n.slot = 4;
-      n.label = conf?.label || "Line 4 (NL 1)";
+      n.label = conf?.label || "Line 4 (NL 2)";
+      if (!n.displayNumber) n.displayNumber = "+31 97058026143";
     } else if (isLine5) {
-      n.department = "support";
+      n.department = "general";
       n.slot = 5;
-      n.label = conf?.label || "Line 5 (NL 2)";
+      n.label = conf?.label || "Line 5 (US 1)";
+      if (!n.displayNumber) n.displayNumber = "+1 555-431-6671";
     } else if (isLine6) {
-      n.department = "direct";
+      n.department = "general";
       n.slot = 6;
-      n.label = conf?.label || "Line 6 (SL)";
-    } else if (isLine7) {
-      n.department = "support";
-      n.slot = 7;
-      n.label = conf?.label || "Line 7 (Sandbox)";
+      n.label = conf?.label || "Line 6 (US 2)";
+      if (!n.displayNumber) n.displayNumber = "+1 555-434-0459";
     } else {
-      n.department = conf?.department || "support";
+      n.department = "general";
       n.label = conf?.label || `Line ${resultList.indexOf(n) + 1}`;
     }
   }
@@ -259,7 +262,21 @@ export async function GET(request: Request) {
     const fallbackNumbers: WANumberInfo[] = configured.map((n) => ({
       ...n,
       canSend: true,
-      displayNumber: n.displayNumber || (n.id === "1239592269240963" ? "+92 335 6701199" : n.id === "1318810581311680" ? "+44 7575 376078" : null),
+      displayNumber:
+        n.displayNumber ||
+        (n.id === "1363415125370805" || n.id === "1239592269240963"
+          ? "+92 335 6701199"
+          : n.id === "1485319076722009"
+          ? "+386 65 743 712"
+          : n.id === "2663451950739498"
+          ? "+31 97058026144"
+          : n.id === "1739099617324219"
+          ? "+31 97058026143"
+          : n.id === "1083562997861778"
+          ? "+1 555-431-6671"
+          : n.id === "1034864159583818"
+          ? "+1 555-434-0459"
+          : null),
       verifiedName: n.label,
       error: null,
     }));
