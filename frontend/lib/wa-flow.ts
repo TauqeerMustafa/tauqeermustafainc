@@ -99,49 +99,55 @@ export const DEFAULT_STEPS: FlowStep[] = [
     id: "start",
     header: "Tauqeer Mustafa Inc",
     body:
-      "We specialise in AI systems, cybersecurity, cloud engineering, and " +
-      "enterprise advisory.\n\n" +
-      "Select a category to route your enquiry to the right practice team:",
-    footer: "Mon–Sat · 09:00–18:00 PKT",
-    button: "Get Started",
+      "You have reached Tauqeer Mustafa Inc.\n" +
+      "Tell us which practice area your enquiry is for:\n\n" +
+      "• Security & Architecture — audits, hardening, recovery\n" +
+      "• Financial Systems & Controls — ledger review, reconciliations, automation\n" +
+      "• Organic Traffic & Acquisition — programmatic SEO, indexing, technical search\n" +
+      "• Client Services — active accounts, billing, portal access\n" +
+      "• Careers — open roles\n" +
+      "• Speak with a Human — general enquiries",
+    footer: "Monday to Saturday, 09:00 to 18:00, PKT",
+    button: "Choose a service",
     sections: [
       {
-        title: "Services",
+        title: "Practice Areas",
         rows: [
           {
             id: "cat_sec",
-            title: "Cybersecurity & Defense",
-            description: "Penetration testing, threat defense & risk audits",
+            title: "Security & Arch.",
+            description: "Audits, hardening, recovery",
             next: "scope_security",
           },
           {
             id: "cat_fin",
-            title: "Compliance & Governance",
-            description: "Internal controls, audit readiness & policy",
+            title: "Financial Controls",
+            description: "Ledger review, reconciliations, automation",
             next: "scope_compliance",
           },
           {
             id: "cat_seo",
-            title: "Growth & Digital",
-            description: "AI solutions, enterprise web & SEO",
+            title: "Organic Traffic",
+            description: "Programmatic SEO, indexing, search",
             next: "scope_seo",
           },
-        ],
-      },
-      {
-        title: "Accounts",
-        rows: [
           {
             id: "cat_cli",
-            title: "Existing Client",
-            description: "Project delivery, billing & technical queries",
+            title: "Client Services",
+            description: "Active accounts, retainers, portal assistance",
             next: "scope_client",
           },
           {
             id: "cat_gen",
-            title: "Careers & Partnerships",
-            description: "Roles, internships & executive advisory",
+            title: "Careers & Hiring",
+            description: "Open roles",
             next: "scope_general",
+          },
+          {
+            id: "cat_human",
+            title: "Speak to Human",
+            description: "General enquiry or confidential briefing",
+            next: "human",
           },
         ],
       },
