@@ -34,7 +34,7 @@ import { NextResponse } from "next/server";
 import { accountAt, appSecrets } from "@/lib/wa-accounts";
 import { createHmac, timingSafeEqual } from "node:crypto";
 import { getChannelDepartment, isKnownNumber, primaryNumberId, registerKnownNumbers, waNumbers } from "@/lib/wa-numbers";
-import { FLOW_ENTRY, getEffectiveFlowStep, resolveEffectiveChoice, resolveChoiceFromText, stepPayload, stepTranscript, type FlowStep } from "@/lib/wa-flow";
+import { FLOW_ENTRY, getEffectiveFlowStep, resolveEffectiveChoice, resolveChoiceFromText, stepPayload, stepTranscript, handleInboundMessage, type FlowStep } from "@/lib/wa-flow";
 import { isAdminSender, isCommand, executePortalCommand } from "@/lib/wa-commands";
 import {
   appendMessage,
@@ -438,51 +438,21 @@ async function handleAutoReply(
       }
     }
 
-    // 5. Interactive tap resolution (works across custom KV and built-in defaults)
-    if (choiceId) {
-      const next = await resolveEffectiveChoice(choiceId, dept);
-      if (next) {
-        await sendFlowStep(token, phoneNumberId, to, next, msgId, dept);
-        return;
-      }
-    }
-
-    // 6. Plain text reply matching a choice title
-    if (!choiceId && incomingText) {
-      const textChoice = await resolveChoiceFromText(incomingText, dept);
-      if (textChoice) {
-        await sendFlowStep(token, phoneNumberId, to, textChoice, msgId, dept);
-        return;
-      }
-    }
-
-    // 7. Check start command or first contact on THIS channel
-    const cleanText = (incomingText || "").trim().toLowerCase();
-    const isStartCmd =
-      /^(start|menu|hi|hello|hey|services|help|options|bot|0|restart|info|support|ticket|issue|problem|bug|test|down|status|assistance|lead|sales|quote|triage|incident)(\s.*)?$/i.test(
-        cleanText
-      ) ||
-      cleanText === "1" ||
-      cleanText === "2" ||
-      cleanText === "3" ||
-      cleanText === "4" ||
-      cleanText === "5";
-
-    const isFirst = await isFirstContact(to, phoneNumberId);
-
-    if (isStartCmd || isFirst) {
-      const entry = await getEffectiveFlowStep(FLOW_ENTRY, dept);
-      if (entry) {
-        await sendFlowStep(token, phoneNumberId, to, entry, msgId, dept);
-        return;
-      }
-    }
-
-    // 8. Keyword rules for active conversation
+    // 5. Keyword rules for active conversation manual overrides (e.g. pricing, urgent, hours)
     const rule = matchRule(await getRules(dept), incomingText);
     if (rule) {
       await sendText(token, phoneNumberId, to, rule.reply, msgId, dept);
+      return;
     }
+
+    // 6. Conversation State Machine (Welcome -> Service Menu -> Scope -> Timeline -> Intake -> Handoff)
+    await handleInboundMessage(
+      to,
+      incomingText,
+      choiceId ? String(choiceId) : undefined,
+      phoneNumberId,
+      msgId
+    );
   } catch (error) {
     console.error("[webhook] Auto-reply error:", error);
   }

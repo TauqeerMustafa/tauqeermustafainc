@@ -1,52 +1,565 @@
 /**
- * The scripted WhatsApp conversation for a new lead.
- *
- * WHAT IT IS
- * ──────────
- * A tree of steps. The first message a stranger gets is an interactive LIST — one
- * tap tells us which of the three service lines they are here about, instead of
- * asking them to type "services" and hoping. Everything after that is interactive
- * REPLY BUTTONS (Meta caps those at three, which is why the list carries the wide
- * first choice and the buttons carry the narrow follow-ups).
- *
- * THREE RULES THE COPY FOLLOWS
- * ────────────────────────────
- * 1. No emojis. Decorative characters read as noise on a business number and
- *    several of them still render as boxes on older Androids.
- * 2. No prices. What the work costs depends on scope, and a number sent by an
- *    automation is one a human then has to argue their way out of.
- * 3. No promise a person has to keep. "Answered within a few hours", "called
- *    within a week", "ahead of everything else in this inbox" — an automation
- *    cannot know any of that, and a missed promise costs more than a vague one
- *    was ever worth. Stating the working hours is a fact; stating a reply time
- *    is a guess. Same for superlatives: describe the work, do not rank it.
- *
- * Bold (*asterisks*) renders in message bodies, so it is used to label the lines
- * of a list where that makes a wall of text scannable. It does NOT render in
- * button titles, list row titles or row descriptions — those stay plain.
- *
- * WHY IT NEEDS NO STORED STATE
- * ────────────────────────────
- * Each choice carries the id of the step it leads to, and the webhook receives
- * that id back in `interactive.list_reply.id` / `button_reply.id`. So "where are
- * we in the flow" is answered by the tap itself — there is no per-contact cursor
- * in KV to go stale, and a contact who scrolls up and taps an old button gets the
- * answer that button always gave.
- *
- * Titles are display copy and are trimmed to Meta's limits at build time: list
- * row title 24 chars, row description 72, button title 20, header/footer 60.
- * Ids are NOT copy — renaming a title must never change an id, or taps arriving
- * from messages already on people's phones stop resolving.
+ * wa-flow.ts
+ * TMI WhatsApp Lead Triage — Conversation State Machine
+ * Flow: Welcome -> Service Menu -> Sub-scope -> Timeline -> Contact Details -> Human Handoff
  */
 
-import { getKV, KEYS } from "@/lib/kv";
+import { getKV } from "@/lib/kv";
+import { getSession, setSession, clearSession, type Session, type FlowStage, type ServiceKey } from "@/lib/wa-store";
+import { primaryNumberId, waNumbers } from "@/lib/wa-numbers";
+import { accountAt } from "@/lib/wa-accounts";
+import { notify } from "@/lib/wa-notify";
+
+const GRAPH_URL = "https://graph.facebook.com/v20.0";
+
+// ---------- Constants & Company Info ----------
+
+const COMPANY_NAME = "Tauqeer Mustafa Inc";
+const WEBSITE = "https://tauqeermustafa.tech";
+const HOURS = "Monday to Saturday, 09:00 to 18:00 (PKT)";
+const HOTLINE = "+92 335 6701199";
+const REP_QUEUE_CHANNEL = process.env.REP_QUEUE_CHANNEL ?? "#leads-inbound";
+
+// ---------- Service catalogue (mirrors tauqeermustafa.tech/services) ----------
+
+export const SERVICES: Record<
+  Exclude<ServiceKey, "client_services" | "careers" | "human">,
+  { label: string; desc: string; subOptions: { id: string; label: string }[] }
+> = {
+  web: {
+    label: "Web Development",
+    desc: "Secure web platforms, portals, dashboards, product systems",
+    subOptions: [
+      { id: "web_new", label: "New Platform / Portal Build" },
+      { id: "web_migration", label: "Rebuild or Migration" },
+      { id: "web_perf", label: "Performance / Core Web Vitals" },
+    ],
+  },
+  cybersecurity: {
+    label: "Cybersecurity",
+    desc: "Security reviews, hardening, governance, incident response",
+    subOptions: [
+      { id: "sec_audit", label: "Security Posture Review / Audit" },
+      { id: "sec_incident", label: "Active Incident / Breach Response" },
+      { id: "sec_access", label: "Access Control & Identity Governance" },
+    ],
+  },
+  ai: {
+    label: "AI Solutions",
+    desc: "Copilots, automation workflows, data-enabled tools",
+    subOptions: [
+      { id: "ai_automation", label: "Workflow Automation" },
+      { id: "ai_copilot", label: "Internal Assistant / Copilot" },
+      { id: "ai_rag", label: "Document Search / RAG System" },
+    ],
+  },
+  cloud: {
+    label: "Cloud Engineering",
+    desc: "Cloud infrastructure, CI/CD, deployment systems",
+    subOptions: [
+      { id: "cloud_arch", label: "Cloud Architecture (AWS/Azure/GCP)" },
+      { id: "cloud_cicd", label: "CI/CD Pipeline Setup" },
+      { id: "cloud_iac", label: "Infrastructure as Code" },
+    ],
+  },
+  uiux: {
+    label: "UI/UX & Product Design",
+    desc: "Research-informed interface and product design",
+    subOptions: [
+      { id: "ux_research", label: "User Research & Journey Mapping" },
+      { id: "ux_design", label: "Interface Design / Design System" },
+    ],
+  },
+};
+
+// ---------- Meta Graph API Sending Helpers ----------
+
+function resolveSendingId(id: string): string {
+  let actual = id;
+  if (actual === "1363415125370805") return "1239592269240963";
+  if (actual === "1485319076722009") return "1245811661959729";
+  if (actual === "2663451950739498") return "1401823986336958";
+  if (actual === "1739099617324219") return "1339948289200329";
+  if (actual === "1083562997861778") return "1385974501255442";
+  if (actual === "1034864159583818") return "1291624014041103";
+  return actual;
+}
+
+const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
+async function getSenderCredentials(channelId?: string) {
+  const phoneId = channelId || primaryNumberId() || "1239592269240963";
+  const actualPhoneId = resolveSendingId(phoneId);
+  const numberDef = waNumbers().find((n) => n.id === phoneId || n.id === actualPhoneId);
+  const account = accountAt(numberDef?.slot ?? 1);
+  const token = account.token || accountAt(1).token;
+  return { actualPhoneId, token: token ?? "" };
+}
+
+/** Show official Meta typing indicator on recipient's screen and pause for 5 seconds */
+async function sendTypingAndDelay(to: string, msgId?: string, channelId?: string) {
+  const { actualPhoneId, token } = await getSenderCredentials(channelId);
+  if (!token) return;
+
+  try {
+    if (msgId) {
+      await fetch(`${GRAPH_URL}/${actualPhoneId}/messages`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        body: JSON.stringify({
+          messaging_product: "whatsapp",
+          status: "read",
+          message_id: msgId,
+          typing_indicator: { type: "text" },
+        }),
+      }).catch(() => {});
+    }
+  } catch {}
+
+  await sleep(5000);
+}
+
+export async function sendMessage(to: string, bodyText: string, channelId?: string, msgId?: string) {
+  const { actualPhoneId, token } = await getSenderCredentials(channelId);
+  if (!token) return;
+
+  await sendTypingAndDelay(to, msgId, channelId);
+
+  await fetch(`${GRAPH_URL}/${actualPhoneId}/messages`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+    body: JSON.stringify({
+      messaging_product: "whatsapp",
+      recipient_type: "individual",
+      to,
+      type: "text",
+      text: { body: bodyText, preview_url: false },
+    }),
+  }).catch((e) => console.error("[wa-flow] sendMessage error:", e));
+}
+
+export async function sendListMessage(
+  to: string,
+  payload: {
+    header: string;
+    body: string;
+    footer?: string;
+    buttonText: string;
+    rows: { id: string; title: string; description?: string }[];
+  },
+  channelId?: string,
+  msgId?: string
+) {
+  const { actualPhoneId, token } = await getSenderCredentials(channelId);
+  if (!token) return;
+
+  await sendTypingAndDelay(to, msgId, channelId);
+
+  const cut = (s: string, n: number) => (s.length > n ? s.slice(0, n) : s);
+
+  const listPayload = {
+    messaging_product: "whatsapp",
+    recipient_type: "individual",
+    to,
+    type: "interactive",
+    interactive: {
+      type: "list",
+      header: { type: "text", text: cut(payload.header, 60) },
+      body: { text: cut(payload.body, 1024) },
+      ...(payload.footer ? { footer: { text: cut(payload.footer, 60) } } : {}),
+      action: {
+        button: cut(payload.buttonText, 20),
+        sections: [
+          {
+            title: "Practice Areas",
+            rows: payload.rows.slice(0, 10).map((r) => ({
+              id: r.id,
+              title: cut(r.title, 24),
+              ...(r.description ? { description: cut(r.description, 72) } : {}),
+            })),
+          },
+        ],
+      },
+    },
+  };
+
+  await fetch(`${GRAPH_URL}/${actualPhoneId}/messages`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+    body: JSON.stringify(listPayload),
+  }).catch((e) => console.error("[wa-flow] sendListMessage error:", e));
+}
+
+export async function sendButtonMessage(
+  to: string,
+  payload: {
+    body: string;
+    buttons: { id: string; title: string }[];
+    header?: string;
+    footer?: string;
+  },
+  channelId?: string,
+  msgId?: string
+) {
+  const { actualPhoneId, token } = await getSenderCredentials(channelId);
+  if (!token) return;
+
+  await sendTypingAndDelay(to, msgId, channelId);
+
+  const cut = (s: string, n: number) => (s.length > n ? s.slice(0, n) : s);
+
+  const buttonPayload = {
+    messaging_product: "whatsapp",
+    recipient_type: "individual",
+    to,
+    type: "interactive",
+    interactive: {
+      type: "button",
+      ...(payload.header ? { header: { type: "text", text: cut(payload.header, 60) } } : {}),
+      body: { text: cut(payload.body, 1024) },
+      ...(payload.footer ? { footer: { text: cut(payload.footer, 60) } } : {}),
+      action: {
+        buttons: payload.buttons.slice(0, 3).map((b) => ({
+          type: "reply",
+          reply: { id: b.id, title: cut(b.title, 20) },
+        })),
+      },
+    },
+  };
+
+  await fetch(`${GRAPH_URL}/${actualPhoneId}/messages`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+    body: JSON.stringify(buttonPayload),
+  }).catch((e) => console.error("[wa-flow] sendButtonMessage error:", e));
+}
+
+// ---------- Entry point: called on inbound WhatsApp message ----------
+
+export async function handleInboundMessage(
+  from: string,
+  text: string,
+  interactiveReplyId?: string,
+  channelId?: string,
+  msgId?: string
+) {
+  let session = await getSession(from);
+
+  if (!session) {
+    session = { stage: "welcome", startedAt: Date.now() };
+    await setSession(from, session);
+    return sendWelcome(from, channelId, msgId);
+  }
+
+  switch (session.stage) {
+    case "welcome":
+      return sendServiceMenu(from, session, channelId, msgId);
+    case "menu":
+      return handleMenuSelection(from, session, interactiveReplyId ?? text, channelId, msgId);
+    case "scope":
+      return handleScopeSelection(from, session, interactiveReplyId ?? text, channelId, msgId);
+    case "timeline":
+      return handleTimelineSelection(from, session, interactiveReplyId ?? text, channelId, msgId);
+    case "intake":
+      return handleIntake(from, session, text, channelId, msgId);
+    case "handoff":
+      // Already handed off — bot stays silent, representative owns thread
+      return;
+  }
+}
+
+// ---------- Step 0: Welcome ----------
+
+async function sendWelcome(to: string, channelId?: string, msgId?: string) {
+  await sendMessage(
+    to,
+    `Hello, and thank you for contacting *${COMPANY_NAME}*.\n\n` +
+      `We're a security-first engineering team delivering web platforms, ` +
+      `cybersecurity, AI automation, cloud infrastructure, and product design.\n\n` +
+      `Reply with anything to see how we can help.`,
+    channelId,
+    msgId
+  );
+  await setSession(to, { stage: "menu", startedAt: Date.now() });
+  return sendServiceMenu(to, { stage: "menu", startedAt: Date.now() }, channelId, msgId);
+}
+
+// ---------- Step 1: Service Menu ----------
+
+async function sendServiceMenu(to: string, session: Session, channelId?: string, msgId?: string) {
+  await sendListMessage(
+    to,
+    {
+      header: COMPANY_NAME,
+      body:
+        `Please tell us which area your enquiry concerns:\n\n` +
+        Object.values(SERVICES)
+          .map((s) => `• ${s.label} — ${s.desc}`)
+          .join("\n") +
+        `\n• Client Services — active accounts, billing, portal access\n` +
+        `• Careers — open roles\n` +
+        `• Speak with a Human — general enquiry`,
+      footer: `${HOURS}`,
+      buttonText: "Choose a service",
+      rows: [
+        ...Object.entries(SERVICES).map(([key, s]) => ({
+          id: key,
+          title: s.label,
+          description: s.desc,
+        })),
+        { id: "client_services", title: "Client Services", description: "Accounts, retainers, billing" },
+        { id: "careers", title: "Careers & Hiring", description: "Open roles" },
+        { id: "human", title: "Speak to Human", description: "General enquiry or confidential briefing" },
+      ],
+    },
+    channelId,
+    msgId
+  );
+  session.stage = "menu";
+  await setSession(to, session);
+}
+
+async function handleMenuSelection(
+  to: string,
+  session: Session,
+  selection: string,
+  channelId?: string,
+  msgId?: string
+) {
+  const key = normalizeSelection(selection);
+
+  if (key === "human" || key === "cat_human") {
+    return escalateToHuman(to, session, "General enquiry (requested human directly)", channelId, msgId);
+  }
+
+  if (key === "client_services" || key === "cat_cli") {
+    await sendMessage(
+      to,
+      `Client Services desk.\nFor account status, invoicing, or retainer changes, ` +
+        `a representative will confirm your account details shortly.`,
+      channelId,
+      msgId
+    );
+    return escalateToHuman(to, session, "Client Services enquiry", channelId, msgId);
+  }
+
+  if (key === "careers" || key === "cat_gen") {
+    await sendMessage(
+      to,
+      `Careers at ${COMPANY_NAME}.\nOpen roles and applications are handled at:\n${WEBSITE}/careers`,
+      channelId,
+      msgId
+    );
+    return; // Self-serve
+  }
+
+  const matchedKey = (
+    key === "cat_sec" ? "cybersecurity" : key === "cat_fin" ? "cybersecurity" : key === "cat_seo" ? "web" : key
+  ) as ServiceKey;
+
+  if (matchedKey in SERVICES) {
+    session.service = matchedKey;
+    session.stage = "scope";
+    await setSession(to, session);
+    return sendScopeOptions(to, session, channelId, msgId);
+  }
+
+  // Unrecognized input — re-show menu
+  await sendMessage(to, `Please choose an option from the menu below.`, channelId, msgId);
+  return sendServiceMenu(to, session, channelId, msgId);
+}
+
+// ---------- Step 2: Sub-scope within chosen service ----------
+
+async function sendScopeOptions(to: string, session: Session, channelId?: string, msgId?: string) {
+  const service = SERVICES[session.service as keyof typeof SERVICES];
+  if (!service) return sendServiceMenu(to, session, channelId, msgId);
+
+  // Critical incident fast-path
+  if (session.service === "cybersecurity") {
+    await sendMessage(
+      to,
+      `⚠️ If this is an *active breach or production outage*, reply *incident* now ` +
+        `to be connected immediately, or call our hotline directly: ${HOTLINE}.`,
+      channelId,
+      msgId
+    );
+  }
+
+  await sendButtonMessage(
+    to,
+    {
+      body: `${service.label} practice.\nSelect the type of work you require:`,
+      buttons: service.subOptions.map((o) => ({ id: o.id, title: o.label })),
+    },
+    channelId,
+    msgId
+  );
+}
+
+async function handleScopeSelection(
+  to: string,
+  session: Session,
+  selection: string,
+  channelId?: string,
+  msgId?: string
+) {
+  const normalized = selection.toLowerCase().trim();
+
+  if (normalized === "incident" && session.service === "cybersecurity") {
+    return escalateToHuman(to, session, "Active security incident — critical priority", channelId, msgId);
+  }
+
+  const service = SERVICES[session.service as keyof typeof SERVICES];
+  const match = service?.subOptions.find(
+    (o) => o.id === normalized || o.label.toLowerCase() === normalized || normalized.includes(o.id)
+  );
+
+  if (!match) {
+    await sendMessage(to, `Please select one of the options shown above.`, channelId, msgId);
+    return sendScopeOptions(to, session, channelId, msgId);
+  }
+
+  session.scope = match.label;
+  session.stage = "timeline";
+  await setSession(to, session);
+  return sendTimelineOptions(to, channelId, msgId);
+}
+
+// ---------- Step 3: Timeline ----------
+
+async function sendTimelineOptions(to: string, channelId?: string, msgId?: string) {
+  await sendButtonMessage(
+    to,
+    {
+      body:
+        `Understood. What is the scope and timeline for this engagement?\n\n` +
+        `• Immediate (Under 2 weeks) — urgent kick-off or critical need\n` +
+        `• Planned (1–3 months) — structured engagement\n` +
+        `• Exploration — requirements gathering, feasibility`,
+      buttons: [
+        { id: "immediate", title: "Immediate (< 2 wks)" },
+        { id: "planned", title: "Planned (1–3 mos)" },
+        { id: "exploration", title: "Exploration" },
+      ],
+    },
+    channelId,
+    msgId
+  );
+}
+
+async function handleTimelineSelection(
+  to: string,
+  session: Session,
+  selection: string,
+  channelId?: string,
+  msgId?: string
+) {
+  const map: Record<string, string> = {
+    immediate: "Immediate (< 2 weeks)",
+    planned: "Planned (1–3 months)",
+    exploration: "Exploration",
+  };
+  const normalized = selection.toLowerCase().trim();
+  const timeline = map[normalized] || (normalized.includes("2") ? map.immediate : normalized.includes("plan") ? map.planned : map.exploration);
+
+  session.timeline = timeline;
+  session.stage = "intake";
+  await setSession(to, session);
+
+  await sendMessage(
+    to,
+    `Thank you. One last thing before we connect you with our team — please send, ` +
+      `in a single message:\n\n` +
+      `1. *Company* — name and website\n` +
+      `2. *You* — your name and role\n` +
+      `3. *Outcome* — what you want to accomplish\n\n` +
+      `A voice note is also welcome if that's quicker.`,
+    channelId,
+    msgId
+  );
+}
+
+// ---------- Step 4: Intake -> Handoff ----------
+
+async function handleIntake(to: string, session: Session, text: string, channelId?: string, msgId?: string) {
+  if (!text || text.trim().length < 5) {
+    await sendMessage(
+      to,
+      `Just need a short summary (company, your name/role, and desired outcome) ` +
+        `before we bring in the team.`,
+      channelId,
+      msgId
+    );
+    return;
+  }
+
+  const service = session.service ? SERVICES[session.service as keyof typeof SERVICES]?.label : "General";
+  const summary =
+    `New qualified lead\n` +
+    `Service: ${service}\n` +
+    `Scope: ${session.scope ?? "—"}\n` +
+    `Timeline: ${session.timeline ?? "—"}\n` +
+    `Contact details:\n${text}`;
+
+  return escalateToHuman(to, session, summary, channelId, msgId);
+}
+
+// ---------- Handoff ----------
+
+async function escalateToHuman(
+  to: string,
+  session: Session,
+  reason: string,
+  channelId?: string,
+  msgId?: string
+) {
+  session.stage = "handoff";
+  await setSession(to, session);
+
+  await sendMessage(
+    to,
+    `Thank you — your enquiry has been reviewed and handed to our team. ` +
+      `A representative will follow up shortly during business hours (${HOURS}).\n\n` +
+      `Reference: ${to.slice(-6)}-${Date.now().toString().slice(-4)}`,
+    channelId,
+    msgId
+  );
+
+  await notifyRepresentative({
+    customer: to,
+    reason,
+    service: session.service,
+    scope: session.scope,
+    timeline: session.timeline,
+    channel: REP_QUEUE_CHANNEL,
+  });
+}
+
+async function notifyRepresentative(payload: {
+  customer: string;
+  reason: string;
+  service?: ServiceKey;
+  scope?: string;
+  timeline?: string;
+  channel: string;
+}) {
+  await notify(payload.channel, {
+    title: "New WhatsApp lead — human handoff",
+    ...payload,
+  });
+}
+
+function normalizeSelection(input: string): string {
+  return input.toLowerCase().trim().replace(/\s+/g, "_");
+}
+
+// ---------- Backwards Compatibility Helpers for FlowStep API ----------
 
 export type FlowChoice = {
-  /** Stable id sent to Meta and returned on tap. Never reword these. */
   id: string;
   title: string;
   description?: string;
-  /** Step this tap leads to. */
   next: string;
 };
 
@@ -57,7 +570,6 @@ export type FlowStep =
       header?: string;
       body: string;
       footer?: string;
-      /** Label on the button that opens the list, e.g. "Choose a service". */
       button: string;
       sections: { title: string; rows: FlowChoice[] }[];
     }
@@ -67,867 +579,26 @@ export type FlowStep =
       header?: string;
       body: string;
       footer?: string;
-      /** Meta accepts at most three. */
       buttons: FlowChoice[];
     }
   | { kind: "text"; id: string; body: string };
 
-/** Where a brand-new conversation starts. */
 export const FLOW_ENTRY = "start";
 
-const HOURS = "Monday to Saturday, 09:00 to 18:00 Pakistan time";
-
-/**
- * Asking for company, person and outcome in one message is deliberate: those are
- * the three fields a lead row cannot be opened without (see the lead-generation
- * playbook, "Intake"), so one reply is enough to put the enquiry in the pipeline.
- * Bold labels rather than bare numbers because this arrives as the second message
- * in a row and needs to be skimmable, not read.
- */
-const DETAILS_ASK =
-  "Three lines, one message:\n\n" +
-  "1. *Company* — name and website\n" +
-  "2. *You* — name and role\n" +
-  "3. *Outcome* — what you want to be different\n\n" +
-  "A voice note is fine if that is quicker.";
-
-export const DEFAULT_STEPS: FlowStep[] = [
-
-  // ── Step 1 · List ──────────────────────────────────────────────────────────
-  {
-    kind: "list",
-    id: "start",
-    header: "Tauqeer Mustafa Inc",
-    body:
-      "You have reached Tauqeer Mustafa Inc.\n" +
-      "Tell us which practice area your enquiry is for:\n\n" +
-      "• Security & Architecture — audits, hardening, recovery\n" +
-      "• Financial Systems & Controls — ledger review, reconciliations, automation\n" +
-      "• Organic Traffic & Acquisition — programmatic SEO, indexing, technical search\n" +
-      "• Client Services — active accounts, billing, portal access\n" +
-      "• Careers — open roles\n" +
-      "• Speak with a Human — general enquiries",
-    footer: "Monday to Saturday, 09:00 to 18:00, PKT",
-    button: "Choose a service",
-    sections: [
-      {
-        title: "Practice Areas",
-        rows: [
-          {
-            id: "cat_sec",
-            title: "Security & Arch.",
-            description: "Audits, hardening, recovery",
-            next: "scope_security",
-          },
-          {
-            id: "cat_fin",
-            title: "Financial Controls",
-            description: "Ledger review, reconciliations, automation",
-            next: "scope_compliance",
-          },
-          {
-            id: "cat_seo",
-            title: "Organic Traffic",
-            description: "Programmatic SEO, indexing, search",
-            next: "scope_seo",
-          },
-          {
-            id: "cat_cli",
-            title: "Client Services",
-            description: "Active accounts, retainers, portal assistance",
-            next: "scope_client",
-          },
-          {
-            id: "cat_gen",
-            title: "Careers & Hiring",
-            description: "Open roles",
-            next: "scope_general",
-          },
-          {
-            id: "cat_human",
-            title: "Speak to Human",
-            description: "General enquiry or confidential briefing",
-            next: "human",
-          },
-        ],
-      },
-    ],
-  },
-
-  // ── Step 2 · Lists (one per category) ──────────────────────────────────────
-  {
-    kind: "list",
-    id: "scope_security",
-    header: "Cybersecurity",
-    body: "Select the engagement type that applies to your requirement:",
-    footer: "Step 2 of 5",
-    button: "Select Scope",
-    sections: [
-      {
-        title: "Security Engagements",
-        rows: [
-          {
-            id: "sec_review",
-            title: "Vulnerability Assessment",
-            description: "Network, cloud & application risk audit",
-            next: "step3_scale",
-          },
-          {
-            id: "sec_incident",
-            title: "Incident Response",
-            description: "Active breach: containment & forensics",
-            next: "step3_scale",
-          },
-          {
-            id: "sec_defense",
-            title: "System Hardening",
-            description: "Zero-trust design & perimeter controls",
-            next: "step3_scale",
-          },
-        ],
-      },
-    ],
-  },
-
-  {
-    kind: "list",
-    id: "scope_compliance",
-    header: "Compliance & Governance",
-    body: "Select your primary compliance objective:",
-    footer: "Step 2 of 5",
-    button: "Select Scope",
-    sections: [
-      {
-        title: "Compliance Engagements",
-        rows: [
-          {
-            id: "fin_controls",
-            title: "Internal Controls",
-            description: "Risk framework & control architecture",
-            next: "step3_scale",
-          },
-          {
-            id: "fin_audit",
-            title: "Audit Readiness",
-            description: "Pre-audit records & statutory review",
-            next: "step3_scale",
-          },
-          {
-            id: "fin_governance",
-            title: "Corporate Governance",
-            description: "Policy design, board reporting & governance",
-            next: "step3_scale",
-          },
-        ],
-      },
-    ],
-  },
-
-  {
-    kind: "list",
-    id: "scope_seo",
-    header: "Growth & Digital",
-    body: "Select your primary growth objective:",
-    footer: "Step 2 of 5",
-    button: "Select Scope",
-    sections: [
-      {
-        title: "Growth Engagements",
-        rows: [
-          {
-            id: "seo_growth",
-            title: "Search Optimisation",
-            description: "Rankings, Core Web Vitals & technical SEO",
-            next: "step3_scale",
-          },
-          {
-            id: "seo_adsense",
-            title: "AdSense Optimisation",
-            description: "Ad yield, placement strategy & revenue uplift",
-            next: "step3_scale",
-          },
-          {
-            id: "seo_funnel",
-            title: "Conversion Strategy",
-            description: "Traffic-to-lead funnel design & automation",
-            next: "step3_scale",
-          },
-        ],
-      },
-    ],
-  },
-
-  {
-    kind: "list",
-    id: "scope_client",
-    header: "Client Services",
-    body: "Select the area where you need assistance:",
-    footer: "Step 2 of 5",
-    button: "Select Area",
-    sections: [
-      {
-        title: "Client Account",
-        rows: [
-          {
-            id: "cli_milestone",
-            title: "Delivery & Milestones",
-            description: "Progress updates, deliverables & sign-off",
-            next: "step3_scale",
-          },
-          {
-            id: "cli_invoice",
-            title: "Billing & Invoices",
-            description: "Retainer statements, payments & receipts",
-            next: "step3_scale",
-          },
-          {
-            id: "cli_technical",
-            title: "Technical Support",
-            description: "Priority query on a live deliverable",
-            next: "step3_scale",
-          },
-        ],
-      },
-    ],
-  },
-
-  {
-    kind: "list",
-    id: "scope_general",
-    header: "Careers & Partnerships",
-    body: "Select your area of interest:",
-    footer: "Step 2 of 5",
-    button: "Select Option",
-    sections: [
-      {
-        title: "Talent & Advisory",
-        rows: [
-          {
-            id: "gen_careers",
-            title: "Professional Roles",
-            description: "Full-time positions in engineering & advisory",
-            next: "step3_scale",
-          },
-          {
-            id: "gen_intern",
-            title: "Paid Internship",
-            description: "Structured programme, performance-evaluated",
-            next: "step3_scale",
-          },
-          {
-            id: "gen_exec",
-            title: "Executive Advisory",
-            description: "Strategic collaboration or senior consulting",
-            next: "step3_scale",
-          },
-        ],
-      },
-    ],
-  },
-
-  // ── Step 3 · List ──────────────────────────────────────────────────────────
-  {
-    kind: "list",
-    id: "step3_scale",
-    header: "Organisation & Timeline",
-    body:
-      "Two quick details help us assign the right resource and set accurate " +
-      "expectations.\n\n" +
-      "Select the profile that best fits your situation:",
-    footer: "Step 3 of 5",
-    button: "Select Profile",
-    sections: [
-      {
-        title: "Organisation Size",
-        rows: [
-          {
-            id: "scale_ent",
-            title: "Enterprise (100+ staff)",
-            description: "Multi-site, complex org or regulated sector",
-            next: "step4_format",
-          },
-          {
-            id: "scale_sme",
-            title: "Growth Business",
-            description: "Scaling team with defined milestones",
-            next: "step4_format",
-          },
-        ],
-      },
-      {
-        title: "Project Timeline",
-        rows: [
-          {
-            id: "scale_urgent",
-            title: "Urgent (Within 7 Days)",
-            description: "Active risk, breach, or hard deadline",
-            next: "step4_format",
-          },
-          {
-            id: "scale_quarter",
-            title: "Planned Initiative",
-            description: "Roadmap item with a defined start window",
-            next: "step4_format",
-          },
-        ],
-      },
-    ],
-  },
-
-  // ── Step 4 · Buttons ────────────────────────────────────────────────────────
-  {
-    kind: "buttons",
-    id: "step4_format",
-    header: "How Should We Connect?",
-    body:
-      "We keep first conversations short and focused — no lengthy forms, " +
-      "no generic calls.\n\n" +
-      "Choose your preferred format:",
-    footer: "Step 4 of 5",
-    buttons: [
-      { id: "btn_call", title: "Book Discovery Call", next: "step5_action" },
-      { id: "btn_brief", title: "Request a Proposal", next: "step5_action" },
-      { id: "btn_direct", title: "Brief Practice Lead", next: "step5_action" },
-    ],
-  },
-
-  // ── Step 5 · Buttons ────────────────────────────────────────────────────────
-  {
-    kind: "buttons",
-    id: "step5_action",
-    header: "One Last Step",
-    body:
-      "Your message goes directly to a practice lead — not a shared queue.\n\n" +
-      "Choose how to proceed:",
-    footer: "Step 5 of 5",
-    buttons: [
-      { id: "act_details", title: "Share Project Brief", next: "details" },
-      { id: "act_deck", title: "Send Company Info", next: "briefing" },
-      { id: "act_agent", title: "Connect Me Now", next: "human" },
-    ],
-  },
-
-  // ── Terminal steps ──────────────────────────────────────────────────────────
-  {
-    kind: "text",
-    id: "details",
-    body:
-      "*Your brief is received.*\n\n" +
-      "Reply in one message:\n\n" +
-      "1. *Company* — name and website\n" +
-      "2. *You* — name and role\n" +
-      "3. *Outcome* — what needs to change after this engagement\n\n" +
-      "A voice note works just as well.",
-  },
-
-  {
-    kind: "text",
-    id: "briefing",
-    body:
-      "*Noted.*\n\n" +
-      "Reply with your work email and company website.\n\n" +
-      "A practice lead will send relevant case studies and an approach note " +
-      "within one business day.\n\n" +
-      `Hours: ${HOURS}.`,
-  },
-
-  {
-    kind: "text",
-    id: "urgent",
-    body:
-      "*Urgent escalation logged.*\n\n" +
-      "Reply with:\n\n" +
-      "1. *What occurred* — and when it started\n" +
-      "2. *Systems affected* — endpoints, infrastructure, or data scope\n" +
-      "3. *Direct contact number* — for immediate coordination\n\n" +
-      "The on-call lead will respond on this channel.",
-  },
-
-  {
-    kind: "text",
-    id: "apply",
-    body:
-      "*Thank you for your interest.*\n\n" +
-      "Send your CV as a PDF and include:\n" +
-      "— The role or area you are applying for\n" +
-      "— Your location and current availability\n\n" +
-      "A portfolio or writing sample is welcome but not required.",
-  },
-
-  {
-    kind: "text",
-    id: "human",
-    body:
-      "*Connecting you to a practice lead.*\n\n" +
-      "Your message has been flagged for direct review.\n\n" +
-      "Send any files, notes, or context now — they will be waiting when the " +
-      "lead opens this thread. No automated replies from this point.",
-  },
-];
-
-export const STEPS: FlowStep[] = DEFAULT_STEPS;
-
-const BY_ID = new Map(STEPS.map((s) => [s.id, s]));
-
-/**
- * Every step, in the order written above. Exported so the admin composer can
- * offer the flow as a list of steps to send by hand, rather than repeating the
- * ids as string literals somewhere else and letting the two drift.
- */
-export const FLOW_STEPS: readonly FlowStep[] = STEPS;
-
-/** All choices, flattened, so a tap can be resolved without knowing its step. */
-const CHOICES = new Map<string, FlowChoice>();
-for (const step of STEPS) {
-  const choices = step.kind === "list" ? step.sections.flatMap((s) => s.rows) : step.kind === "buttons" ? step.buttons : [];
-  for (const c of choices) CHOICES.set(c.id, c);
+export function stepTranscript(step: FlowStep): string {
+  if (step.kind === "text") return step.body;
+  const choices =
+    step.kind === "buttons"
+      ? step.buttons.map((b) => `- ${b.title}`)
+      : step.sections.flatMap((s) => s.rows.map((r) => `- ${r.title}`));
+  return [step.header, step.body, step.footer, `[${step.kind === "list" ? step.button : "Buttons"}]`, ...choices]
+    .filter(Boolean)
+    .join("\n");
 }
 
-export function flowStep(id?: string | null): FlowStep | null {
-  return id ? BY_ID.get(id) ?? null : null;
-}
-
-/**
- * The step a tap leads to, or null if the id is not ours — an id from an older
- * revision of the flow, or a button sent by hand from the composer.
- */
-export function resolveChoice(choiceId?: string | null): FlowStep | null {
-  if (!choiceId) return null;
-  const choice = CHOICES.get(choiceId);
-  return choice ? flowStep(choice.next) : null;
-}
-
-/** True when this id belongs to the flow at all (used to skip keyword rules). */
-export function isFlowChoice(choiceId?: string | null): boolean {
-  return !!choiceId && CHOICES.has(choiceId);
-}
-
-// ─── Dynamic / Editable Flow (Backed by Upstash KV) ──────────────────────────
-
-/**
- * Fetches current flow steps: returns customized steps if saved in KV,
- * or falls back to built-in DEFAULT_STEPS.
- */
-export const DEFAULT_SUPPORT_STEPS: FlowStep[] = [
-
-  // ── Step 1 · List ──────────────────────────────────────────────────────────
-  {
-    kind: "list",
-    id: "start",
-    header: "Technical Support",
-    body:
-      "You have reached the *Tauqeer Mustafa Inc* 24/7 Technical Incident " +
-      "& Support Desk.\n\n" +
-      "Select your issue category to begin triage and route to on-call engineering:",
-    footer: "P1 Critical · 15–30 min SLA",
-    button: "Begin Triage",
-    sections: [
-      {
-        title: "Incident Triage",
-        rows: [
-          {
-            id: "supp_p1",
-            title: "P1 Critical Incident",
-            description: "Production down, breach active, or critical data loss",
-            next: "supp_scope",
-          },
-          {
-            id: "supp_bug",
-            title: "P2/P3 Service Issue",
-            description: "Degraded performance, error loop, or broken feature",
-            next: "supp_scope",
-          },
-          {
-            id: "supp_ticket",
-            title: "Check Ticket Status",
-            description: "Track resolution progress by TMI-SUP reference ID",
-            next: "check_ticket",
-          },
-          {
-            id: "supp_lead",
-            title: "Duty Lead Escalation",
-            description: "Direct escalation — requires active retainer account",
-            next: "supp_scope",
-          },
-        ],
-      },
-    ],
-  },
-
-  // ── Step 2 · List ──────────────────────────────────────────────────────────
-  {
-    kind: "list",
-    id: "supp_scope",
-    header: "Affected System Layer",
-    body:
-      "Pinpointing the affected component routes your ticket to the right engineer.\n\n" +
-      "Select the primary layer experiencing issues:",
-    footer: "Step 2 of 5",
-    button: "Select Component",
-    sections: [
-      {
-        title: "Infrastructure Tier",
-        rows: [
-          {
-            id: "comp_prod",
-            title: "Compute & Database",
-            description: "Backend servers, cloud compute, VMs or database host",
-            next: "supp_impact",
-          },
-          {
-            id: "comp_api",
-            title: "API & Integrations",
-            description: "REST/GraphQL endpoints, webhooks, or queue workers",
-            next: "supp_impact",
-          },
-          {
-            id: "comp_client",
-            title: "Web Portal & CDN",
-            description: "User portal, mobile client, CDN caching, or DNS",
-            next: "supp_impact",
-          },
-        ],
-      },
-    ],
-  },
-
-  // ── Step 3 · List ──────────────────────────────────────────────────────────
-  {
-    kind: "list",
-    id: "supp_impact",
-    header: "Incident Severity",
-    body:
-      "Severity determines dispatch priority and SLA response time.\n\n" +
-      "Select current operational impact:",
-    footer: "Step 3 of 5",
-    button: "Select Severity",
-    sections: [
-      {
-        title: "Severity Level",
-        rows: [
-          {
-            id: "sev_crit",
-            title: "Critical Outage (P1)",
-            description: "Total production disruption, customer operations blocked",
-            next: "supp_channel",
-          },
-          {
-            id: "sev_high",
-            title: "High Degradation (P2)",
-            description: "Core service impaired with workaround in place",
-            next: "supp_channel",
-          },
-          {
-            id: "sev_norm",
-            title: "Standard Issue (P3)",
-            description: "Non-critical bug, configuration query, or notice",
-            next: "supp_channel",
-          },
-        ],
-      },
-    ],
-  },
-
-  // ── Step 4 · Buttons ────────────────────────────────────────────────────────
-  {
-    kind: "buttons",
-    id: "supp_channel",
-    header: "Response Channel",
-    body:
-      "Incident classified.\n\n" +
-      "Select how you want engineering to coordinate with your team:",
-    footer: "Step 4 of 5",
-    buttons: [
-      { id: "p1_call_btn", title: "Emergency Hotline", next: "supp_confirm" },
-      { id: "p1_status_btn", title: "Status Dashboard", next: "supp_confirm" },
-      { id: "bug_sla_btn", title: "SLA Ticket Queue", next: "supp_confirm" },
-    ],
-  },
-
-  // ── Step 5 · Buttons ────────────────────────────────────────────────────────
-  {
-    kind: "buttons",
-    id: "supp_confirm",
-    header: "Dispatch Confirmation",
-    body:
-      "Confirm your dispatch action to notify the on-call team and open the ticket:",
-    footer: "Step 5 of 5",
-    buttons: [
-      { id: "conf_ticket", title: "Log Ticket Now", next: "supp_ticket_intake" },
-      { id: "conf_lead", title: "Page Duty Lead", next: "speak_lead" },
-      { id: "conf_hotline", title: "Direct Hotline", next: "hotline_info" },
-    ],
-  },
-
-  // ── Terminal steps ──────────────────────────────────────────────────────────
-  {
-    kind: "text",
-    id: "supp_ticket_intake",
-    body:
-      "*Incident Ticket Registration*\n\n" +
-      "Reply with the following in one message:\n\n" +
-      "1. *Affected URL / Host* — failing endpoint or service\n" +
-      "2. *Environment* — production, staging, or specific region\n" +
-      "3. *Timestamp* — when the issue began\n" +
-      "4. *Error Details* — HTTP status, stack trace, or log snippet\n\n" +
-      "A ticket ID will be generated upon receipt.",
-  },
-  {
-    kind: "text",
-    id: "check_ticket",
-    body:
-      "*Ticket Status Lookup*\n\n" +
-      "Reply with your Ticket Reference ID (e.g. *TMI-SUP-88214*).\n\n" +
-      "Live SLA countdown and updates are available at:\n" +
-      "https://support.tauqeermustafa.tech/ticket",
-  },
-  {
-    kind: "text",
-    id: "speak_lead",
-    body:
-      "*Duty Lead Notified.*\n\n" +
-      "The on-call incident commander has been paged.\n\n" +
-      "Send your logs, terminal output, or screenshot now — they will be reviewed " +
-      "the moment the lead opens this thread.\n\n" +
-      "Active monitoring: 24/7 for P1/P2 · 08:00–22:00 PKT for P3/P4.",
-  },
-  {
-    kind: "text",
-    id: "hotline_info",
-    body:
-      "*24/7 Emergency Dispatch Desk:*\n\n" +
-      "Phone: *+92 335 6701199*\n" +
-      "Email: support@tauqeermustafa.tech\n\n" +
-      "Available 24/7/365 for active retainer accounts with critical outages.",
-  },
-  {
-    kind: "text",
-    id: "status_hub",
-    body:
-      "*System Status & Telemetry:*\n\n" +
-      "Real-time uptime, API latency, and operational health metrics:\n" +
-      "https://support.tauqeermustafa.tech/status",
-  },
-  {
-    kind: "text",
-    id: "sla_info",
-    body:
-      "*Guaranteed SLA Response Windows:*\n\n" +
-      "• *P1 (Critical Outage):* 15–30 min response\n" +
-      "• *P2 (High Severity):* Under 2 hours response\n" +
-      "• *P3 (Standard Issue):* Under 24 hours turnaround\n" +
-      "• *P4 (General Request):* Under 48 hours\n\n" +
-      "SLA windows apply to active retainer accounts during contracted hours.",
-  },
-];
-
-export function getFlowKey(department?: "general" | "support" | "direct"): string {
-  if (department === "direct") return `${KEYS.flow}:direct`;
-  return department === "support" ? `${KEYS.flow}:support` : KEYS.flow;
-}
-
-export function getDefaultSteps(department?: "general" | "support" | "direct"): FlowStep[] {
-  return department === "support" ? DEFAULT_SUPPORT_STEPS : DEFAULT_STEPS;
-}
-
-/** Fetches flow steps honoring department sandbox and KV custom copy. */
-export async function getFlowSteps(department?: "general" | "support" | "direct"): Promise<FlowStep[]> {
-  const kv = getKV();
-  const key = getFlowKey(department);
-  if (kv) {
-    try {
-      const custom = await kv.get<FlowStep[]>(key);
-      if (Array.isArray(custom) && custom.length > 0) {
-        return custom;
-      }
-    } catch (e) {
-      console.error(`[wa-flow] Failed to load custom flow from KV (${key}):`, e);
-    }
-  }
-  return [...getDefaultSteps(department)];
-}
-
-/** Saves customized flow steps into Upstash KV under departmental key. */
-export async function saveFlowSteps(steps: FlowStep[], department?: "general" | "support" | "direct"): Promise<boolean> {
-  const kv = getKV();
-  if (!kv) return false;
-  const key = getFlowKey(department);
-  try {
-    await kv.set(key, steps);
-    return true;
-  } catch (e) {
-    console.error(`[wa-flow] Failed to save custom flow to KV (${key}):`, e);
-    return false;
-  }
-}
-
-/** Resets custom flow in Upstash KV back to departmental built-in defaults. */
-export async function resetFlowSteps(department?: "general" | "support" | "direct"): Promise<boolean> {
-  const kv = getKV();
-  if (!kv) return false;
-  const key = getFlowKey(department);
-  try {
-    await kv.del(key);
-    return true;
-  } catch (e) {
-    console.error(`[wa-flow] Failed to reset flow in KV (${key}):`, e);
-    return false;
-  }
-}
-
-/** Fetches a single step by ID, honoring departmental defaults and KV copy. */
-export async function getEffectiveFlowStep(id?: string | null, department?: "general" | "support" | "direct"): Promise<FlowStep | null> {
-  if (!id) return null;
-  const steps = await getFlowSteps(department);
-  return steps.find((s) => s.id === id) ?? (department === "support" ? DEFAULT_SUPPORT_STEPS.find((s) => s.id === id) : flowStep(id)) ?? null;
-}
-
-/** Helper to locate a choice within an array of flow steps */
-function findChoiceTarget(steps: FlowStep[], choiceId: string): FlowStep | null {
-  for (const step of steps) {
-    const choices =
-      step.kind === "list"
-        ? step.sections.flatMap((s) => s.rows)
-        : step.kind === "buttons"
-        ? step.buttons
-        : [];
-    const choice = choices.find((c) => c.id === choiceId);
-    if (choice) {
-      return steps.find((s) => s.id === choice.next) ?? null;
-    }
-  }
-  return null;
-}
-
-/** Resolves the step a choice tap leads to, honoring departmental sandbox with cross-fallback. */
-export async function resolveEffectiveChoice(
-  choiceId?: string | null,
-  department?: "general" | "support" | "direct"
-): Promise<FlowStep | null> {
-  if (!choiceId) return null;
-
-  const primaryDept = department || "general";
-  const secondaryDept = primaryDept === "support" ? "general" : primaryDept === "direct" ? "general" : "support";
-
-  // 1. Check primary department custom / KV steps
-  const primarySteps = await getFlowSteps(primaryDept);
-  let matched = findChoiceTarget(primarySteps, choiceId);
-  if (matched) return matched;
-
-  // 2. Check primary department built-in defaults
-  matched = findChoiceTarget(getDefaultSteps(primaryDept), choiceId);
-  if (matched) return matched;
-
-  // 3. Cross-fallback: check secondary department custom steps
-  const secondarySteps = await getFlowSteps(secondaryDept);
-  matched = findChoiceTarget(secondarySteps, choiceId);
-  if (matched) return matched;
-
-  // 4. Cross-fallback: check secondary department built-in defaults
-  matched = findChoiceTarget(getDefaultSteps(secondaryDept), choiceId);
-  if (matched) return matched;
-
-  // 5. Legacy mappings for backwards compatibility
-  const legacyMap: Record<string, string> = {
-    svc_security: "scope_security",
-    svc_compliance: "scope_compliance",
-    svc_seo: "scope_seo",
-    svc_client: "scope_client",
-    svc_careers: "scope_general",
-    svc_human: "human",
-    security: "scope_security",
-    compliance: "scope_compliance",
-    seo: "scope_seo",
-    client: "scope_client",
-    careers: "scope_general",
-    sec_review: "step3_scale",
-    sec_incident: "urgent",
-    sec_talk: "human",
-    fin_controls: "step3_scale",
-    fin_audit: "step3_scale",
-    fin_talk: "human",
-    seo_traffic: "step3_scale",
-    seo_ads: "step3_scale",
-    seo_talk: "human",
-    cli_status: "step3_scale",
-    cli_billing: "step3_scale",
-    cli_talk: "human",
-    job_apply: "apply",
-    job_status: "details",
-    job_talk: "human",
-    supp_p1: "supp_scope",
-    supp_bug: "supp_scope",
-    supp_ticket: "check_ticket",
-    supp_lead: "supp_scope",
-    comp_prod: "supp_impact",
-    comp_api: "supp_impact",
-    comp_client: "supp_impact",
-    sev_crit: "supp_channel",
-    sev_high: "supp_channel",
-    sev_norm: "supp_channel",
-    p1_call_btn: "supp_confirm",
-    p1_status_btn: "supp_confirm",
-    bug_sla_btn: "supp_confirm",
-    conf_ticket: "supp_ticket_intake",
-    conf_lead: "speak_lead",
-    conf_hotline: "hotline_info",
-  };
-
-  const fallbackStepId = legacyMap[choiceId];
-  if (fallbackStepId) {
-    return (
-      (await getEffectiveFlowStep(fallbackStepId, primaryDept)) ??
-      (await getEffectiveFlowStep(fallbackStepId, secondaryDept))
-    );
-  }
-
-  return null;
-}
-
-/** Resolves a plain text reply (e.g. typing a choice title) to the matching next step. */
-export async function resolveChoiceFromText(
-  text: string,
-  department?: "general" | "support" | "direct"
-): Promise<FlowStep | null> {
-  const clean = (text || "").trim().toLowerCase();
-  if (!clean) return null;
-
-  const steps = await getFlowSteps(department);
-  for (const step of steps) {
-    const choices =
-      step.kind === "list"
-        ? step.sections.flatMap((s) => s.rows)
-        : step.kind === "buttons"
-        ? step.buttons
-        : [];
-
-    for (const choice of choices) {
-      const title = choice.title.trim().toLowerCase();
-      if (
-        clean === title ||
-        (clean.length > 3 && title.includes(clean)) ||
-        (title.length > 3 && clean.includes(title))
-      ) {
-        return (
-          steps.find((s) => s.id === choice.next) ??
-          (await getEffectiveFlowStep(choice.next, department))
-        );
-      }
-    }
-  }
-  return null;
-}
-
-// ─── Rendering ───────────────────────────────────────────────────────────────
-
-const cut = (s: string, n: number) => (s.length > n ? s.slice(0, n) : s);
-
-/**
- * Graph payload for one step. Meta rejects the whole message on any overlong
- * field, so every limit is enforced here rather than trusted to the copy above.
- */
 export function stepPayload(step: FlowStep, to: string): Record<string, unknown> {
   const base = { messaging_product: "whatsapp", to, recipient_type: "individual" };
+  const cut = (s: string, n: number) => (s.length > n ? s.slice(0, n) : s);
 
   if (step.kind === "text") {
     return { ...base, type: "text", text: { body: cut(step.body, 4096), preview_url: false } };
@@ -956,7 +627,6 @@ export function stepPayload(step: FlowStep, to: string): Record<string, unknown>
     };
   }
 
-  // A list may hold ten rows in total, across at most ten sections.
   let budget = 10;
   const sections = step.sections
     .map((sec) => {
@@ -981,21 +651,115 @@ export function stepPayload(step: FlowStep, to: string): Record<string, unknown>
   };
 }
 
-/**
- * What the step looks like in the admin inbox. The interactive part of a message
- * is not readable back from Meta, so the choices are spelled out here — otherwise
- * an admin reading the thread sees a question with no visible options and cannot
- * tell what the customer was offered.
- */
-export function stepTranscript(step: FlowStep): string {
-  if (step.kind === "text") return step.body;
+export const DEFAULT_STEPS: FlowStep[] = [
+  {
+    kind: "list",
+    id: "start",
+    header: "Tauqeer Mustafa Inc",
+    body:
+      "You have reached Tauqeer Mustafa Inc.\n" +
+      "Tell us which practice area your enquiry is for:\n\n" +
+      "• Web Development — platforms, portals, dashboards\n" +
+      "• Cybersecurity — security posture, incident response\n" +
+      "• AI Solutions — workflow automation, copilots\n" +
+      "• Cloud Engineering — AWS/Azure/GCP, CI/CD\n" +
+      "• UI/UX & Design — user research, interface systems\n" +
+      "• Client Services — active accounts, billing\n" +
+      "• Careers — open roles\n" +
+      "• Speak with a Human — general enquiry",
+    footer: "Monday to Saturday, 09:00 to 18:00 (PKT)",
+    button: "Choose a service",
+    sections: [
+      {
+        title: "Practice Areas",
+        rows: [
+          { id: "web", title: "Web Development", description: "Platforms, portals, dashboards", next: "scope_web" },
+          { id: "cybersecurity", title: "Cybersecurity", description: "Posture audits, incident response", next: "scope_security" },
+          { id: "ai", title: "AI Solutions", description: "Automation, assistants, RAG", next: "scope_ai" },
+          { id: "cloud", title: "Cloud Engineering", description: "Architecture, CI/CD, IaC", next: "scope_cloud" },
+          { id: "uiux", title: "UI/UX Design", description: "Research, interface design", next: "scope_uiux" },
+          { id: "client_services", title: "Client Services", description: "Accounts, retainers, billing", next: "scope_client" },
+          { id: "careers", title: "Careers & Hiring", description: "Open roles", next: "scope_careers" },
+          { id: "human", title: "Speak to Human", description: "General enquiry or briefing", next: "human" },
+        ],
+      },
+    ],
+  },
+];
 
-  const choices =
-    step.kind === "buttons"
-      ? step.buttons.map((b) => `- ${b.title}`)
-      : step.sections.flatMap((s) => s.rows.map((r) => `- ${r.title}`));
+export function getFlowKey(department?: string): string {
+  if (department === "support") return "whatsapp:flow:support";
+  if (department === "direct") return "whatsapp:flow:direct";
+  return "whatsapp:flow";
+}
 
-  return [step.header, step.body, step.footer, `[${step.kind === "list" ? step.button : "Buttons"}]`, ...choices]
-    .filter(Boolean)
-    .join("\n");
+export function getDefaultSteps(department?: string): FlowStep[] {
+  return DEFAULT_STEPS;
+}
+
+export async function getFlowSteps(department?: string): Promise<FlowStep[]> {
+  const kv = getKV();
+  if (!kv) return getDefaultSteps(department);
+  try {
+    const key = getFlowKey(department);
+    const steps = await kv.get<FlowStep[]>(key);
+    return Array.isArray(steps) && steps.length > 0 ? steps : getDefaultSteps(department);
+  } catch {
+    return getDefaultSteps(department);
+  }
+}
+
+export async function saveFlowSteps(steps: FlowStep[], department?: string): Promise<boolean> {
+  const kv = getKV();
+  if (!kv) return false;
+  try {
+    const key = getFlowKey(department);
+    await kv.set(key, steps);
+    return true;
+  } catch (err) {
+    console.error("[wa-flow] Error saving flow steps:", err);
+    return false;
+  }
+}
+
+export async function resetFlowSteps(department?: string): Promise<FlowStep[]> {
+  const kv = getKV();
+  const defaults = getDefaultSteps(department);
+  if (kv) {
+    try {
+      const key = getFlowKey(department);
+      await kv.del(key);
+    } catch {}
+  }
+  return defaults;
+}
+
+export function flowStep(id: string, department?: string): FlowStep | null {
+  const defaults = getDefaultSteps(department);
+  return defaults.find((s) => s.id === id) ?? null;
+}
+
+export async function getEffectiveFlowStep(stepId: string, department?: string): Promise<FlowStep | null> {
+  const steps = await getFlowSteps(department);
+  return steps.find((s) => s.id === stepId) ?? null;
+}
+
+export async function resolveEffectiveChoice(choiceId: string, department?: string): Promise<FlowStep | null> {
+  const steps = await getFlowSteps(department);
+  for (const s of steps) {
+    if (s.kind === "list") {
+      for (const sec of s.sections) {
+        const found = sec.rows.find((r) => r.id === choiceId);
+        if (found) return steps.find((step) => step.id === found.next) ?? null;
+      }
+    } else if (s.kind === "buttons") {
+      const found = s.buttons.find((b) => b.id === choiceId);
+      if (found) return steps.find((step) => step.id === found.next) ?? null;
+    }
+  }
+  return null;
+}
+
+export async function resolveChoiceFromText(text: string, department?: string): Promise<FlowStep | null> {
+  return null;
 }

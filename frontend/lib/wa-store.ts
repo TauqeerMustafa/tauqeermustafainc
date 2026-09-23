@@ -184,6 +184,71 @@ export async function deleteConversationMessages(number: string): Promise<number
   return messages.length - kept.length;
 }
 
+/* ── Conversation State Machine Sessions ───────────────────────────────── */
+
+export type FlowStage =
+  | "welcome"
+  | "menu"
+  | "scope"
+  | "timeline"
+  | "intake"
+  | "handoff";
+
+export type ServiceKey =
+  | "web"
+  | "cybersecurity"
+  | "ai"
+  | "cloud"
+  | "uiux"
+  | "client_services"
+  | "careers"
+  | "human";
+
+export interface Session {
+  stage: FlowStage;
+  service?: ServiceKey;
+  scope?: string;
+  timeline?: string;
+  startedAt: number;
+}
+
+const memorySessions = new Map<string, Session>();
+
+export async function getSession(from: string): Promise<Session | null> {
+  const clean = from.replace(/[^0-9]/g, "");
+  const kv = getKV();
+  if (!kv) return memorySessions.get(clean) ?? null;
+  try {
+    const s = await kv.get<Session>(`wa:session:${clean}`);
+    return s ?? memorySessions.get(clean) ?? null;
+  } catch {
+    return memorySessions.get(clean) ?? null;
+  }
+}
+
+export async function setSession(from: string, session: Session): Promise<void> {
+  const clean = from.replace(/[^0-9]/g, "");
+  memorySessions.set(clean, session);
+  const kv = getKV();
+  if (!kv) return;
+  try {
+    // Session TTL of 24 hours (86400 seconds)
+    await kv.set(`wa:session:${clean}`, session, { ex: 86400 });
+  } catch (err) {
+    console.error("[wa-store] Error setting session in KV:", err);
+  }
+}
+
+export async function clearSession(from: string): Promise<void> {
+  const clean = from.replace(/[^0-9]/g, "");
+  memorySessions.delete(clean);
+  const kv = getKV();
+  if (!kv) return;
+  try {
+    await kv.del(`wa:session:${clean}`);
+  } catch {}
+}
+
 /* ── Auto-reply rules ──────────────────────────────────────────────────── */
 
 /**
