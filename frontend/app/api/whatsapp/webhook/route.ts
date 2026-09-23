@@ -35,6 +35,7 @@ import { accountAt, appSecrets } from "@/lib/wa-accounts";
 import { createHmac, timingSafeEqual } from "node:crypto";
 import { getChannelDepartment, isKnownNumber, primaryNumberId, registerKnownNumbers, waNumbers } from "@/lib/wa-numbers";
 import { FLOW_ENTRY, getEffectiveFlowStep, resolveEffectiveChoice, resolveChoiceFromText, stepPayload, stepTranscript, type FlowStep } from "@/lib/wa-flow";
+import { isAdminSender, isCommand, executePortalCommand } from "@/lib/wa-commands";
 import {
   appendMessage,
   updateMessageStatus,
@@ -421,6 +422,15 @@ async function handleAutoReply(
   }
 
   try {
+    // 4.5. Admin Executive Command Dispatcher (e.g. /ticket, /email, /status, /tasks)
+    if (!choiceId && incomingText && (isAdminSender(to) || isCommand(incomingText))) {
+      const cmdResult = await executePortalCommand(to, incomingText);
+      if (cmdResult.handled && cmdResult.replyText) {
+        await sendText(token, phoneNumberId, to, cmdResult.replyText, msgId, dept);
+        return;
+      }
+    }
+
     // 5. Interactive tap resolution (works across custom KV and built-in defaults)
     if (choiceId) {
       const next = await resolveEffectiveChoice(choiceId, dept);
