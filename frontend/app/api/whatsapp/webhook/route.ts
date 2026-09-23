@@ -422,12 +422,19 @@ async function handleAutoReply(
   }
 
   try {
-    // 4.5. Admin Executive Command Dispatcher (e.g. /ticket, /email, /status, /tasks)
-    if (!choiceId && incomingText && (isAdminSender(to) || isCommand(incomingText))) {
-      const cmdResult = await executePortalCommand(to, incomingText);
-      if (cmdResult.handled && cmdResult.replyText) {
-        await sendText(token, phoneNumberId, to, cmdResult.replyText, msgId, dept);
-        return;
+    // 4.5. Admin Executive Command Dispatcher (e.g. /ticket, /email, /status, /tasks, /menu, button taps)
+    if ((choiceId && choiceId.startsWith("cmd_")) || (incomingText && (isAdminSender(to) || isCommand(incomingText)))) {
+      const commandInput = choiceId || incomingText;
+      const cmdResult = await executePortalCommand(to, commandInput);
+      if (cmdResult.handled) {
+        if (cmdResult.flowStep) {
+          await sendFlowStep(token, phoneNumberId, to, cmdResult.flowStep, msgId, dept);
+          return;
+        }
+        if (cmdResult.replyText) {
+          await sendText(token, phoneNumberId, to, cmdResult.replyText, msgId, dept);
+          return;
+        }
       }
     }
 
