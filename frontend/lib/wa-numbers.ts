@@ -63,17 +63,20 @@ export const ALIAS_PK_ID = "1363415125370805";
 /**
  * Line 2: Tauqeer Mustafa Inc | SL (+386 65 743 712 - Slovenia)
  */
-export const DEFAULT_SL_ID = "1485319076722009";
+export const DEFAULT_SL_ID = "1245811661959729";
+export const ALIAS_SL_ID = "1485319076722009";
 
 /**
  * Line 3: Tauqeer Mustafa Inc | NL (+31 97058026144 - Netherlands 1)
  */
-export const DEFAULT_NL_PRIMARY_ID = "2663451950739498";
+export const DEFAULT_NL_PRIMARY_ID = "1401823986336958";
+export const ALIAS_NL_PRIMARY_ID = "2663451950739498";
 
 /**
  * Line 4: Tauqeer Mustafa Inc | NL (+31 97058026143 - Netherlands 2)
  */
-export const DEFAULT_NL_SECONDARY_ID = "1739099617324219";
+export const DEFAULT_NL_SECONDARY_ID = "1339948289200329";
+export const ALIAS_NL_SECONDARY_ID = "1739099617324219";
 
 /**
  * Line 5: Tauqeer Mustafa Inc | US (+1 555-431-6671 - United States 1)
@@ -84,7 +87,8 @@ export const ALIAS_US_PRIMARY_ID = "1083562997861778";
 /**
  * Line 6: Tauqeer Mustafa Inc | US (+1 555-434-0459 - United States 2)
  */
-export const DEFAULT_US_SECONDARY_ID = "1034864159583818";
+export const DEFAULT_US_SECONDARY_ID = "1291624014041103";
+export const ALIAS_US_SECONDARY_ID = "1034864159583818";
 
 // Backwards compatibility aliases
 export const DEFAULT_PRIMARY_ID = DEFAULT_PK_ID;
@@ -269,10 +273,15 @@ export function isKnownNumber(id: string | null | undefined): boolean {
     value === "1363415125370805" ||
     value === "1239592269240963" ||
     value === "1485319076722009" ||
+    value === "1245811661959729" ||
     value === "2663451950739498" ||
+    value === "1401823986336958" ||
     value === "1739099617324219" ||
+    value === "1339948289200329" ||
     value === "1083562997861778" ||
-    value === "1034864159583818"
+    value === "1385974501255442" ||
+    value === "1034864159583818" ||
+    value === "1291624014041103"
   ) {
     return true;
   }
@@ -309,21 +318,27 @@ export function resolveNumberId(requested?: string | null): ResolvedNumber {
   const wanted = (requested ?? "").trim();
   if (!wanted) return { ok: true, id: primaryNumberId() as string };
 
+  // Map any incoming WABA ID to its canonical sending Phone Number ID
+  if (wanted === "1363415125370805") return { ok: true, id: "1239592269240963" };
+  if (wanted === "1485319076722009") return { ok: true, id: "1245811661959729" };
+  if (wanted === "2663451950739498") return { ok: true, id: "1401823986336958" };
+  if (wanted === "1739099617324219") return { ok: true, id: "1339948289200329" };
+  if (wanted === "1083562997861778") return { ok: true, id: "1385974501255442" };
+  if (wanted === "1034864159583818") return { ok: true, id: "1291624014041103" };
+
   if (
     wanted === DEFAULT_PK_ID ||
-    wanted === ALIAS_PK_ID ||
     wanted === DEFAULT_SL_ID ||
     wanted === DEFAULT_NL_PRIMARY_ID ||
     wanted === DEFAULT_NL_SECONDARY_ID ||
     wanted === DEFAULT_US_PRIMARY_ID ||
     wanted === DEFAULT_US_SECONDARY_ID ||
-    wanted === "1363415125370805" ||
     wanted === "1239592269240963" ||
-    wanted === "1485319076722009" ||
-    wanted === "2663451950739498" ||
-    wanted === "1739099617324219" ||
-    wanted === "1083562997861778" ||
-    wanted === "1034864159583818"
+    wanted === "1245811661959729" ||
+    wanted === "1401823986336958" ||
+    wanted === "1339948289200329" ||
+    wanted === "1385974501255442" ||
+    wanted === "1291624014041103"
   ) {
     return { ok: true, id: wanted };
   }

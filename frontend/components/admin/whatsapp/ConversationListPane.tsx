@@ -121,34 +121,39 @@ export function ConversationListPane({
     if (
       currentDepartment === "support" ||
       currentDepartment === "1485319076722009" ||
+      currentDepartment === "1245811661959729" ||
       currentDepartment === "line2"
     ) {
-      return conv.channel === "1485319076722009";
+      return conv.channel === "1485319076722009" || conv.channel === "1245811661959729";
     }
     if (
       currentDepartment === "2663451950739498" ||
+      currentDepartment === "1401823986336958" ||
       currentDepartment === "line3"
     ) {
-      return conv.channel === "2663451950739498";
+      return conv.channel === "2663451950739498" || conv.channel === "1401823986336958";
     }
     if (
       currentDepartment === "1739099617324219" ||
+      currentDepartment === "1339948289200329" ||
       currentDepartment === "line4"
     ) {
-      return conv.channel === "1739099617324219";
+      return conv.channel === "1739099617324219" || conv.channel === "1339948289200329";
     }
     if (
       currentDepartment === "1083562997861778" ||
+      currentDepartment === "1385974501255442" ||
       currentDepartment === "line5"
     ) {
-      return conv.channel === "1083562997861778";
+      return conv.channel === "1083562997861778" || conv.channel === "1385974501255442";
     }
     if (
       currentDepartment === "direct" ||
       currentDepartment === "1034864159583818" ||
+      currentDepartment === "1291624014041103" ||
       currentDepartment === "line6"
     ) {
-      return conv.channel === "1034864159583818";
+      return conv.channel === "1034864159583818" || conv.channel === "1291624014041103";
     }
     return conv.channel === currentDepartment || conv.department === currentDepartment;
   });
@@ -459,11 +464,11 @@ export function ConversationListPane({
             const isOutbound = last?.direction === "outbound";
             const lastText = last?.body || (last?.type ? `[${last.type}]` : "No messages");
 
-            const isLine6 = conv.channel === "1034864159583818";
-            const isLine5 = conv.channel === "1083562997861778";
-            const isLine4 = conv.channel === "1739099617324219";
-            const isLine3 = conv.channel === "2663451950739498";
-            const isLine2 = conv.channel === "1485319076722009";
+            const isLine6 = conv.channel === "1034864159583818" || conv.channel === "1291624014041103";
+            const isLine5 = conv.channel === "1083562997861778" || conv.channel === "1385974501255442";
+            const isLine4 = conv.channel === "1739099617324219" || conv.channel === "1339948289200329";
+            const isLine3 = conv.channel === "2663451950739498" || conv.channel === "1401823986336958";
+            const isLine2 = conv.channel === "1485319076722009" || conv.channel === "1245811661959729";
             const isLine1 =
               conv.channel === "1363415125370805" ||
               conv.channel === "1239592269240963" ||

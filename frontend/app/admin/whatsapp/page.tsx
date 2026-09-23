@@ -201,46 +201,56 @@ function messageDirectlyMatchesNumber(m: WAMessage, numberInfo: WANumberInfo): b
   if (toDigits && idDigits && toDigits === idDigits) return true;
   if (toDigits && displayDigits && toDigits === displayDigits) return true;
 
-  if (numberInfo.slot === 6 || numberInfo.id === "1034864159583818") {
+  if (numberInfo.slot === 6 || numberInfo.id === "1034864159583818" || numberInfo.id === "1291624014041103") {
     if (
       ch === "1034864159583818" ||
+      ch === "1291624014041103" ||
       toDigits === "1034864159583818" ||
+      toDigits === "1291624014041103" ||
       toDigits === "15554340459" ||
       chDigits === "15554340459"
     ) return true;
   }
 
-  if (numberInfo.slot === 5 || numberInfo.id === "1083562997861778") {
+  if (numberInfo.slot === 5 || numberInfo.id === "1083562997861778" || numberInfo.id === "1385974501255442") {
     if (
       ch === "1083562997861778" ||
+      ch === "1385974501255442" ||
       toDigits === "1083562997861778" ||
+      toDigits === "1385974501255442" ||
       toDigits === "15554316671" ||
       chDigits === "15554316671"
     ) return true;
   }
 
-  if (numberInfo.slot === 4 || numberInfo.id === "1739099617324219") {
+  if (numberInfo.slot === 4 || numberInfo.id === "1739099617324219" || numberInfo.id === "1339948289200329") {
     if (
       ch === "1739099617324219" ||
+      ch === "1339948289200329" ||
       toDigits === "1739099617324219" ||
+      toDigits === "1339948289200329" ||
       toDigits === "3197058026143" ||
       chDigits === "3197058026143"
     ) return true;
   }
 
-  if (numberInfo.slot === 3 || numberInfo.id === "2663451950739498") {
+  if (numberInfo.slot === 3 || numberInfo.id === "2663451950739498" || numberInfo.id === "1401823986336958") {
     if (
       ch === "2663451950739498" ||
+      ch === "1401823986336958" ||
       toDigits === "2663451950739498" ||
+      toDigits === "1401823986336958" ||
       toDigits === "3197058026144" ||
       chDigits === "3197058026144"
     ) return true;
   }
 
-  if (numberInfo.slot === 2 || numberInfo.id === "1485319076722009") {
+  if (numberInfo.slot === 2 || numberInfo.id === "1485319076722009" || numberInfo.id === "1245811661959729") {
     if (
       ch === "1485319076722009" ||
+      ch === "1245811661959729" ||
       toDigits === "1485319076722009" ||
+      toDigits === "1245811661959729" ||
       toDigits === "38665743712" ||
       chDigits === "38665743712"
     ) return true;
@@ -1063,11 +1073,11 @@ function InboxTab({
       c.channel === "1239592269240963" ||
       (!c.channel && c.department === "general")
   );
-  const line2Convs = allConversations.filter((c) => c.channel === "1485319076722009");
-  const line3Convs = allConversations.filter((c) => c.channel === "2663451950739498");
-  const line4Convs = allConversations.filter((c) => c.channel === "1739099617324219");
-  const line5Convs = allConversations.filter((c) => c.channel === "1083562997861778");
-  const line6Convs = allConversations.filter((c) => c.channel === "1034864159583818");
+  const line2Convs = allConversations.filter((c) => c.channel === "1485319076722009" || c.channel === "1245811661959729");
+  const line3Convs = allConversations.filter((c) => c.channel === "2663451950739498" || c.channel === "1401823986336958");
+  const line4Convs = allConversations.filter((c) => c.channel === "1739099617324219" || c.channel === "1339948289200329");
+  const line5Convs = allConversations.filter((c) => c.channel === "1083562997861778" || c.channel === "1385974501255442");
+  const line6Convs = allConversations.filter((c) => c.channel === "1034864159583818" || c.channel === "1291624014041103");
 
   const unreadCounts = {
     general: generalConvs.reduce((acc, c) => acc + (unreadCount(c, metaMap[c.key] || metaMap[c.number]) > 0 ? 1 : 0), 0),
