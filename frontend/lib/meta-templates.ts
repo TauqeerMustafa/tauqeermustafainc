@@ -68,48 +68,42 @@ export const META_TEMPLATES: MetaTemplateDef[] = [
     department: "general",
     header: "Welcome to Tauqeer Mustafa Inc",
     body:
-      "Hi {{1}}, thanks for getting in touch.\n\n" +
-      "We work in three areas: cybersecurity, financial compliance, and SEO and AdSense " +
-      "management.\n\n" +
-      "Reply with whichever is closest to why you are here and this reaches whoever handles it.",
+      "Hi {{1}}, thanks for connecting with Tauqeer Mustafa Inc.\n\n" +
+      "We design and engineer high-performance web platforms, cloud systems, AI workflows, and cybersecurity.\n\n" +
+      "Reply with what you are building or solving and we will connect you directly with the right lead engineer.",
     bodyExample: ["there"],
-    footer: "Mon to Sat, 09:00 to 18:00 Pakistan time",
-    buttons: ["Cybersecurity", "Financial compliance", "SEO and AdSense"],
+    footer: "Mon to Sat, 09:00 to 18:00 PKT",
+    buttons: ["Web Platforms", "Cybersecurity", "AI & Cloud"],
   },
   {
     name: "services_overview",
     category: "MARKETING",
     language: "en_US",
     department: "general",
-    header: "What we work on",
+    header: "Engineering Capabilities",
     body:
-      "Hi {{1}}, here is the short version.\n\n" +
-      "Cybersecurity: we map how customer and payment data moves through your business, name what " +
-      "is exposed, and hand back a fix list in priority order.\n\n" +
-      "Financial compliance: the controls, records and reporting a growing business is expected to " +
-      "have, written down rather than held in one person's head.\n\n" +
-      "SEO and AdSense: work on the traffic you already have and the spend you already make, " +
-      "reported in enquiries rather than impressions.\n\n" +
-      "Which one is closest?",
+      "Hi {{1}}, here is how our engineering team helps businesses build and scale:\n\n" +
+      "Web & Platforms: Modern scalable portals, SaaS web apps, and API backends.\n" +
+      "Cybersecurity: Posture audits, infrastructure hardening, and rapid incident response.\n" +
+      "AI & Cloud: Automated AI workflows, internal copilots, and cloud architecture.\n\n" +
+      "Which area is closest to your current priorities?",
     bodyExample: ["there"],
-    footer: "Ask for a case study on any of them",
-    buttons: ["Cybersecurity", "Financial compliance", "SEO and AdSense"],
+    footer: "Engineering & Advisory",
+    buttons: ["Web Platforms", "Cybersecurity", "AI & Cloud"],
   },
   {
     name: "pricing_info",
     category: "MARKETING",
     language: "en_US",
     department: "general",
-    header: "What it costs",
+    header: "Project Investment",
     body:
-      "Fair question, {{1}}. What the work costs depends on scope, so we do not put a number on it " +
-      "before we understand the work.\n\n" +
-      "Send your company name and website, which of the three services you need, and the outcome " +
-      "you want. You get back a written proposal with a fixed price.\n\n" +
-      "If the job is smaller than you expect, we say so.",
+      "Hi {{1}}, project investment depends directly on your technical scope and milestones.\n\n" +
+      "Send a quick summary of what you need built or secured, and we will prepare a clear, fixed-price proposal with defined deliverables.\n\n" +
+      "Transparent pricing, no surprises.",
     bodyExample: ["there"],
-    footer: "A proposal, not an estimate",
-    buttons: ["Send the details", "Talk it through first"],
+    footer: "Fixed-Price Proposals",
+    buttons: ["Share Project Scope", "Schedule a Call"],
   },
   {
     name: "quote_ready",
@@ -203,46 +197,42 @@ export const META_TEMPLATES: MetaTemplateDef[] = [
     category: "MARKETING",
     language: "en_US",
     department: "general",
-    header: "Following up",
+    header: "Checking In",
     body:
-      "Hi {{1}}, following up on the enquiry you sent us.\n\n" +
-      "If it is still live, tell us what you want to be different and we will send a scope and a " +
-      "fixed price. If the timing has moved, say so and we will leave it with you.\n\n" +
-      "Either answer is a useful one.",
+      "Hi {{1}}, checking in regarding your conversation with our team.\n\n" +
+      "If you would like to move forward on your project, we are ready to share a delivery roadmap and scope. If timing has shifted, no problem at all.\n\n" +
+      "Let us know how you would like to proceed.",
     bodyExample: ["there"],
-    footer: "Say the word and we stop writing",
-    buttons: ["Still interested", "Not right now", "Send a proposal"],
+    footer: "Tauqeer Mustafa Inc",
+    buttons: ["Ready to proceed", "Need more time", "Schedule a call"],
   },
   {
     name: "feedback_request",
     category: "UTILITY",
     language: "en_US",
     department: "general",
-    header: "How did we do",
+    header: "Project Feedback",
     body:
-      "Hi {{1}}, now that {{2}} is finished, we would like to know how it went, including the parts " +
-      "that did not go well.\n\n" +
-      "Two lines is plenty: what was worth the money, and what we should do differently next " +
-      "time.\n\n" +
-      "Every one of these is read.",
+      "Hi {{1}}, now that {{2}} is deployed, we would love your candid feedback.\n\n" +
+      "How did the delivery go, and how can our engineering team support you further?\n\n" +
+      "Your feedback directly shapes our standards.",
     bodyExample: ["John", "your recent project"],
-    footer: "Two lines is plenty",
-    buttons: ["Send feedback", "Leave a review"],
+    footer: "Engineering Quality",
+    buttons: ["Share Feedback", "Leave a Review"],
   },
   {
     name: "reengagement",
     category: "MARKETING",
     language: "en_US",
     department: "general",
-    header: "Picking this back up",
+    header: "Reconnecting",
     body:
-      "Hi {{1}}, it has been a while since we last spoke.\n\n" +
-      "If the work you were weighing up is still on the list, we can pick it up from where it " +
-      "stopped. Nothing needs to start again.\n\n" +
-      "If it is not, reply once and we will take you off this list.",
+      "Hi {{1}}, we are revisiting our engineering roadmap and wanted to check in.\n\n" +
+      "If you still have upcoming software, cloud, or security milestones, we would be glad to resume right where we left off.\n\n" +
+      "Feel free to reply here anytime.",
     bodyExample: ["there"],
-    footer: "Say the word and we stop writing",
-    buttons: ["Pick it back up", "Send a proposal", "Stop writing"],
+    footer: "Tauqeer Mustafa Inc",
+    buttons: ["Resume discussion", "Not right now", "Schedule a call"],
   },
   // ─── Technical & Client Support Templates ────────────────────────────
   {

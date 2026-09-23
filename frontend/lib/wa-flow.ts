@@ -27,47 +27,47 @@ export const SERVICES: Record<
   { label: string; desc: string; subOptions: { id: string; label: string }[] }
 > = {
   web: {
-    label: "Web Development",
-    desc: "Secure web platforms, portals, dashboards, product systems",
+    label: "Web & Platforms",
+    desc: "Modern web platforms, portals, apps & APIs",
     subOptions: [
-      { id: "web_new", label: "New Platform / Portal Build" },
-      { id: "web_migration", label: "Rebuild or Migration" },
-      { id: "web_perf", label: "Performance / Core Web Vitals" },
+      { id: "web_new", label: "New Project / MVP" },
+      { id: "web_migration", label: "Rebuild / Upgrade" },
+      { id: "web_perf", label: "Speed & Performance" },
     ],
   },
   cybersecurity: {
     label: "Cybersecurity",
-    desc: "Security reviews, hardening, governance, incident response",
+    desc: "Defense, audits, posture & crisis response",
     subOptions: [
-      { id: "sec_audit", label: "Security Posture Review / Audit" },
-      { id: "sec_incident", label: "Active Incident / Breach Response" },
-      { id: "sec_access", label: "Access Control & Identity Governance" },
+      { id: "sec_audit", label: "Security Review" },
+      { id: "sec_incident", label: "Incident Response" },
+      { id: "sec_access", label: "Access & Identity" },
     ],
   },
   ai: {
-    label: "AI Solutions",
-    desc: "Copilots, automation workflows, data-enabled tools",
+    label: "AI & Automation",
+    desc: "Workflows, copilots & custom integrations",
     subOptions: [
       { id: "ai_automation", label: "Workflow Automation" },
-      { id: "ai_copilot", label: "Internal Assistant / Copilot" },
-      { id: "ai_rag", label: "Document Search / RAG System" },
+      { id: "ai_copilot", label: "Custom AI Copilot" },
+      { id: "ai_rag", label: "Knowledge Search / RAG" },
     ],
   },
   cloud: {
-    label: "Cloud Engineering",
-    desc: "Cloud infrastructure, CI/CD, deployment systems",
+    label: "Cloud & DevOps",
+    desc: "Cloud architecture, CI/CD & scaling",
     subOptions: [
-      { id: "cloud_arch", label: "Cloud Architecture (AWS/Azure/GCP)" },
-      { id: "cloud_cicd", label: "CI/CD Pipeline Setup" },
-      { id: "cloud_iac", label: "Infrastructure as Code" },
+      { id: "cloud_arch", label: "Cloud Architecture" },
+      { id: "cloud_cicd", label: "CI/CD & DevOps" },
+      { id: "cloud_iac", label: "Terraform & IaC" },
     ],
   },
   uiux: {
-    label: "UI/UX & Product Design",
-    desc: "Research-informed interface and product design",
+    label: "UI/UX & Product",
+    desc: "Product design, user flows & systems",
     subOptions: [
-      { id: "ux_research", label: "User Research & Journey Mapping" },
-      { id: "ux_design", label: "Interface Design / Design System" },
+      { id: "ux_research", label: "User Research" },
+      { id: "ux_design", label: "UI & Design System" },
     ],
   },
 };
@@ -273,10 +273,9 @@ export async function handleInboundMessage(
 async function sendWelcome(to: string, channelId?: string, msgId?: string) {
   await sendMessage(
     to,
-    `Hello, and thank you for contacting *${COMPANY_NAME}*.\n\n` +
-      `We're a security-first engineering team delivering web platforms, ` +
-      `cybersecurity, AI automation, cloud infrastructure, and product design.\n\n` +
-      `Reply with anything to see how we can help.`,
+    `Welcome to *${COMPANY_NAME}*.\n\n` +
+      `We build high-performance software, cloud infrastructure, AI systems, and cybersecurity defenses.\n\n` +
+      `Let’s connect you with the right engineering team.`,
     channelId,
     msgId
   );
@@ -292,24 +291,18 @@ async function sendServiceMenu(to: string, session: Session, channelId?: string,
     {
       header: COMPANY_NAME,
       body:
-        `Please tell us which area your enquiry concerns:\n\n` +
-        Object.values(SERVICES)
-          .map((s) => `• ${s.label} — ${s.desc}`)
-          .join("\n") +
-        `\n• Client Services — active accounts, billing, portal access\n` +
-        `• Careers — open roles\n` +
-        `• Speak with a Human — general enquiry`,
+        `How can our team help you today?\nSelect what you're looking to explore or build:`,
       footer: `${HOURS}`,
-      buttonText: "Choose a service",
+      buttonText: "Explore areas",
       rows: [
         ...Object.entries(SERVICES).map(([key, s]) => ({
           id: key,
           title: s.label,
           description: s.desc,
         })),
-        { id: "client_services", title: "Client Services", description: "Accounts, retainers, billing" },
-        { id: "careers", title: "Careers & Hiring", description: "Open roles" },
-        { id: "human", title: "Speak to Human", description: "General enquiry or confidential briefing" },
+        { id: "client_services", title: "Client Desk", description: "Active projects, billing & support" },
+        { id: "careers", title: "Careers", description: "Open roles & joining our team" },
+        { id: "human", title: "Talk to Specialist", description: "Direct consultation with a lead engineer" },
       ],
     },
     channelId,
@@ -329,14 +322,14 @@ async function handleMenuSelection(
   const key = normalizeSelection(selection);
 
   if (key === "human" || key === "cat_human") {
-    return escalateToHuman(to, session, "General enquiry (requested human directly)", channelId, msgId);
+    return escalateToHuman(to, session, "Direct specialist consultation requested", channelId, msgId);
   }
 
   if (key === "client_services" || key === "cat_cli") {
     await sendMessage(
       to,
-      `Client Services desk.\nFor account status, invoicing, or retainer changes, ` +
-        `a representative will confirm your account details shortly.`,
+      `You're connected with our Client Desk.\n\n` +
+        `A dedicated team member will assist you with your active project, invoice, or portal access shortly.`,
       channelId,
       msgId
     );
@@ -346,7 +339,10 @@ async function handleMenuSelection(
   if (key === "careers" || key === "cat_gen") {
     await sendMessage(
       to,
-      `Careers at ${COMPANY_NAME}.\nOpen roles and applications are handled at:\n${WEBSITE}/careers`,
+      `We're always looking for exceptional talent.\n\n` +
+        `Explore our open engineering and design roles at:\n` +
+        `${WEBSITE}/careers\n\n` +
+        `Our hiring team reviews every application directly.`,
       channelId,
       msgId
     );
@@ -365,7 +361,7 @@ async function handleMenuSelection(
   }
 
   // Unrecognized input — re-show menu
-  await sendMessage(to, `Please choose an option from the menu below.`, channelId, msgId);
+  await sendMessage(to, `Please pick an option from the menu below to get started.`, channelId, msgId);
   return sendServiceMenu(to, session, channelId, msgId);
 }
 
@@ -379,8 +375,8 @@ async function sendScopeOptions(to: string, session: Session, channelId?: string
   if (session.service === "cybersecurity") {
     await sendMessage(
       to,
-      `⚠️ If this is an *active breach or production outage*, reply *incident* now ` +
-        `to be connected immediately, or call our hotline directly: ${HOTLINE}.`,
+      `🚨 *Critical Outage or Breach?*\n` +
+        `Reply *urgent* immediately to bypass the queue, or call our 24/7 hotline: ${HOTLINE}.`,
       channelId,
       msgId
     );
@@ -389,7 +385,7 @@ async function sendScopeOptions(to: string, session: Session, channelId?: string
   await sendButtonMessage(
     to,
     {
-      body: `${service.label} practice.\nSelect the type of work you require:`,
+      body: `${service.label}\nSelect your primary objective:`,
       buttons: service.subOptions.map((o) => ({ id: o.id, title: o.label })),
     },
     channelId,
@@ -406,8 +402,8 @@ async function handleScopeSelection(
 ) {
   const normalized = selection.toLowerCase().trim();
 
-  if (normalized === "incident" && session.service === "cybersecurity") {
-    return escalateToHuman(to, session, "Active security incident — critical priority", channelId, msgId);
+  if ((normalized === "incident" || normalized === "urgent") && session.service === "cybersecurity") {
+    return escalateToHuman(to, session, "Active security incident / critical emergency", channelId, msgId);
   }
 
   const service = SERVICES[session.service as keyof typeof SERVICES];
@@ -416,7 +412,7 @@ async function handleScopeSelection(
   );
 
   if (!match) {
-    await sendMessage(to, `Please select one of the options shown above.`, channelId, msgId);
+    await sendMessage(to, `Please tap one of the options above so we can guide you accurately.`, channelId, msgId);
     return sendScopeOptions(to, session, channelId, msgId);
   }
 
@@ -432,15 +428,11 @@ async function sendTimelineOptions(to: string, channelId?: string, msgId?: strin
   await sendButtonMessage(
     to,
     {
-      body:
-        `Understood. What is the scope and timeline for this engagement?\n\n` +
-        `• Immediate (Under 2 weeks) — urgent kick-off or critical need\n` +
-        `• Planned (1–3 months) — structured engagement\n` +
-        `• Exploration — requirements gathering, feasibility`,
+      body: `Got it. What timeline are you aiming for on this?`,
       buttons: [
-        { id: "immediate", title: "Immediate (< 2 wks)" },
-        { id: "planned", title: "Planned (1–3 mos)" },
-        { id: "exploration", title: "Exploration" },
+        { id: "immediate", title: "ASAP (< 2 weeks)" },
+        { id: "planned", title: "Next 1–3 months" },
+        { id: "exploration", title: "Just exploring" },
       ],
     },
     channelId,
@@ -458,10 +450,10 @@ async function handleTimelineSelection(
   const map: Record<string, string> = {
     immediate: "Immediate (< 2 weeks)",
     planned: "Planned (1–3 months)",
-    exploration: "Exploration",
+    exploration: "Exploration / Discovery",
   };
   const normalized = selection.toLowerCase().trim();
-  const timeline = map[normalized] || (normalized.includes("2") ? map.immediate : normalized.includes("plan") ? map.planned : map.exploration);
+  const timeline = map[normalized] || (normalized.includes("2") || normalized.includes("asap") ? map.immediate : normalized.includes("plan") || normalized.includes("month") ? map.planned : map.exploration);
 
   session.timeline = timeline;
   session.stage = "intake";
@@ -469,12 +461,10 @@ async function handleTimelineSelection(
 
   await sendMessage(
     to,
-    `Thank you. One last thing before we connect you with our team — please send, ` +
-      `in a single message:\n\n` +
-      `1. *Company* — name and website\n` +
-      `2. *You* — your name and role\n` +
-      `3. *Outcome* — what you want to accomplish\n\n` +
-      `A voice note is also welcome if that's quicker.`,
+    `Perfect. To pair you with the best lead specialist, please reply with a quick message sharing:\n\n` +
+      `• Your name & company\n` +
+      `• A brief overview of what you want to build or achieve\n\n` +
+      `(A short voice note is also great!)`,
     channelId,
     msgId
   );
@@ -486,8 +476,7 @@ async function handleIntake(to: string, session: Session, text: string, channelI
   if (!text || text.trim().length < 5) {
     await sendMessage(
       to,
-      `Just need a short summary (company, your name/role, and desired outcome) ` +
-        `before we bring in the team.`,
+      `Please drop a quick line with your name, company, and goals so our team has the right context to assist you.`,
       channelId,
       msgId
     );
@@ -519,9 +508,8 @@ async function escalateToHuman(
 
   await sendMessage(
     to,
-    `Thank you — your enquiry has been reviewed and handed to our team. ` +
-      `A representative will follow up shortly during business hours (${HOURS}).\n\n` +
-      `Reference: ${to.slice(-6)}-${Date.now().toString().slice(-4)}`,
+    `Thank you! Your briefing is in our direct queue.\n\n` +
+      `A lead engineer will review your notes and respond here shortly during business hours (${HOURS}).`,
     channelId,
     msgId
   );
@@ -657,30 +645,22 @@ export const DEFAULT_STEPS: FlowStep[] = [
     id: "start",
     header: "Tauqeer Mustafa Inc",
     body:
-      "You have reached Tauqeer Mustafa Inc.\n" +
-      "Tell us which practice area your enquiry is for:\n\n" +
-      "• Web Development — platforms, portals, dashboards\n" +
-      "• Cybersecurity — security posture, incident response\n" +
-      "• AI Solutions — workflow automation, copilots\n" +
-      "• Cloud Engineering — AWS/Azure/GCP, CI/CD\n" +
-      "• UI/UX & Design — user research, interface systems\n" +
-      "• Client Services — active accounts, billing\n" +
-      "• Careers — open roles\n" +
-      "• Speak with a Human — general enquiry",
+      "Welcome to Tauqeer Mustafa Inc.\n" +
+      "Select what you're looking to explore or build:",
     footer: "Monday to Saturday, 09:00 to 18:00 (PKT)",
-    button: "Choose a service",
+    button: "Explore areas",
     sections: [
       {
-        title: "Practice Areas",
+        title: "Capabilities & Support",
         rows: [
-          { id: "web", title: "Web Development", description: "Platforms, portals, dashboards", next: "scope_web" },
-          { id: "cybersecurity", title: "Cybersecurity", description: "Posture audits, incident response", next: "scope_security" },
-          { id: "ai", title: "AI Solutions", description: "Automation, assistants, RAG", next: "scope_ai" },
-          { id: "cloud", title: "Cloud Engineering", description: "Architecture, CI/CD, IaC", next: "scope_cloud" },
-          { id: "uiux", title: "UI/UX Design", description: "Research, interface design", next: "scope_uiux" },
-          { id: "client_services", title: "Client Services", description: "Accounts, retainers, billing", next: "scope_client" },
-          { id: "careers", title: "Careers & Hiring", description: "Open roles", next: "scope_careers" },
-          { id: "human", title: "Speak to Human", description: "General enquiry or briefing", next: "human" },
+          { id: "web", title: "Web & Platforms", description: "Platforms, portals, apps & APIs", next: "scope_web" },
+          { id: "cybersecurity", title: "Cybersecurity", description: "Defense, audits & crisis response", next: "scope_security" },
+          { id: "ai", title: "AI & Automation", description: "Agents, custom models & workflows", next: "scope_ai" },
+          { id: "cloud", title: "Cloud & DevOps", description: "Architecture, CI/CD & scaling", next: "scope_cloud" },
+          { id: "uiux", title: "UI/UX & Product", description: "Product design & interface systems", next: "scope_uiux" },
+          { id: "client_services", title: "Client Desk", description: "Active projects, billing & support", next: "scope_client" },
+          { id: "careers", title: "Careers", description: "Open engineering & design roles", next: "scope_careers" },
+          { id: "human", title: "Talk to Specialist", description: "Direct consultation with a lead", next: "human" },
         ],
       },
     ],
