@@ -92,53 +92,55 @@ const DETAILS_ASK =
   "A voice note is fine if that is quicker.";
 
 export const DEFAULT_STEPS: FlowStep[] = [
-  // ── 1. Message 1 (List): Inquiry Category ──────────────────────────────────
+
+  // ── Step 1 · List ──────────────────────────────────────────────────────────
   {
     kind: "list",
     id: "start",
     header: "Tauqeer Mustafa Inc",
     body:
-      "Welcome to Tauqeer Mustafa Inc — Enterprise Technology, AI & Advisory Solutions.\n\n" +
-      "Select your objective below to immediately route your request to our dedicated practice lead:",
-    footer: "Mon–Sat · 09:00–18:00 PKT | Global SLA",
-    button: "Select Category",
+      "We specialise in AI systems, cybersecurity, cloud engineering, and " +
+      "enterprise advisory.\n\n" +
+      "Select a category to route your enquiry to the right practice team:",
+    footer: "Mon–Sat · 09:00–18:00 PKT",
+    button: "Get Started",
     sections: [
       {
-        title: "Technology & Advisory",
+        title: "Services",
         rows: [
           {
             id: "cat_sec",
             title: "Cybersecurity & Defense",
-            description: "Pen testing, threat mitigation & infrastructure audit",
+            description: "Penetration testing, threat defense & risk audits",
             next: "scope_security",
           },
           {
             id: "cat_fin",
-            title: "Governance & Compliance",
-            description: "Statutory audit readiness, risk controls & policy",
+            title: "Compliance & Governance",
+            description: "Internal controls, audit readiness & policy",
             next: "scope_compliance",
           },
           {
             id: "cat_seo",
-            title: "AI, Web & Growth",
-            description: "Custom AI models, enterprise web & performance SEO",
+            title: "Growth & Digital",
+            description: "AI solutions, enterprise web & SEO",
             next: "scope_seo",
           },
         ],
       },
       {
-        title: "Accounts & Leadership",
+        title: "Accounts",
         rows: [
           {
             id: "cat_cli",
-            title: "Client Retainer Desk",
-            description: "Active deliverable tracking, SLA & billing inquiries",
+            title: "Existing Client",
+            description: "Project delivery, billing & technical queries",
             next: "scope_client",
           },
           {
             id: "cat_gen",
-            title: "Executive & Careers",
-            description: "Strategic partnerships, executive briefing & hiring",
+            title: "Careers & Partnerships",
+            description: "Roles, internships & executive advisory",
             next: "scope_general",
           },
         ],
@@ -146,36 +148,34 @@ export const DEFAULT_STEPS: FlowStep[] = [
     ],
   },
 
-  // ── 2. Message 2 (List): Practice Scope ────────────────────────────────────
+  // ── Step 2 · Lists (one per category) ──────────────────────────────────────
   {
     kind: "list",
     id: "scope_security",
-    header: "Cybersecurity Advisory",
-    body:
-      "Our offensive & defensive security specialists protect critical infrastructure across EMEA & US.\n\n" +
-      "Please designate your primary security objective:",
-    footer: "Step 2 of 5: Engagement Scope",
-    button: "Choose Scope",
+    header: "Cybersecurity",
+    body: "Select the engagement type that applies to your requirement:",
+    footer: "Step 2 of 5",
+    button: "Select Scope",
     sections: [
       {
-        title: "Security Capabilities",
+        title: "Security Engagements",
         rows: [
           {
             id: "sec_review",
-            title: "Vulnerability Audit",
-            description: "Full stack pen-testing, cloud & network risk assessment",
+            title: "Vulnerability Assessment",
+            description: "Network, cloud & application risk audit",
             next: "step3_scale",
           },
           {
             id: "sec_incident",
             title: "Incident Response",
-            description: "Active threat containment, forensic analysis & triage",
+            description: "Active breach: containment & forensics",
             next: "step3_scale",
           },
           {
             id: "sec_defense",
-            title: "Zero-Trust Architecture",
-            description: "System hardening, IAM & perimeter defense controls",
+            title: "System Hardening",
+            description: "Zero-trust design & perimeter controls",
             next: "step3_scale",
           },
         ],
@@ -187,31 +187,29 @@ export const DEFAULT_STEPS: FlowStep[] = [
     kind: "list",
     id: "scope_compliance",
     header: "Compliance & Governance",
-    body:
-      "Ensure regulatory alignment, mitigate operational vulnerabilities, and pass statutory inspections.\n\n" +
-      "Select your compliance requirement:",
-    footer: "Step 2 of 5: Compliance Scope",
-    button: "Choose Scope",
+    body: "Select your primary compliance objective:",
+    footer: "Step 2 of 5",
+    button: "Select Scope",
     sections: [
       {
-        title: "Regulatory Practice",
+        title: "Compliance Engagements",
         rows: [
           {
             id: "fin_controls",
-            title: "Internal Risk Controls",
-            description: "Framework development, operational SOPs & fraud checks",
+            title: "Internal Controls",
+            description: "Risk framework & control architecture",
             next: "step3_scale",
           },
           {
             id: "fin_audit",
-            title: "Pre-Audit Readiness",
-            description: "Mock audits, gap mitigation & compliance certification",
+            title: "Audit Readiness",
+            description: "Pre-audit records & statutory review",
             next: "step3_scale",
           },
           {
             id: "fin_governance",
             title: "Corporate Governance",
-            description: "Board advisory, reporting policies & risk management",
+            description: "Policy design, board reporting & governance",
             next: "step3_scale",
           },
         ],
@@ -222,32 +220,30 @@ export const DEFAULT_STEPS: FlowStep[] = [
   {
     kind: "list",
     id: "scope_seo",
-    header: "AI, Web & Digital Growth",
-    body:
-      "We design resilient web ecosystems, custom AI workflows, and high-conversion digital assets.\n\n" +
-      "Select your core deliverable:",
-    footer: "Step 2 of 5: Growth Scope",
-    button: "Choose Objective",
+    header: "Growth & Digital",
+    body: "Select your primary growth objective:",
+    footer: "Step 2 of 5",
+    button: "Select Scope",
     sections: [
       {
-        title: "Growth & Architecture",
+        title: "Growth Engagements",
         rows: [
           {
             id: "seo_growth",
-            title: "Enterprise Web & SEO",
-            description: "High-performance architecture & top-tier ranking engine",
+            title: "Search Optimisation",
+            description: "Rankings, Core Web Vitals & technical SEO",
             next: "step3_scale",
           },
           {
             id: "seo_adsense",
-            title: "Monetization & Yield",
-            description: "Ad revenue maximization, CPM optimization & analytics",
+            title: "AdSense Optimisation",
+            description: "Ad yield, placement strategy & revenue uplift",
             next: "step3_scale",
           },
           {
             id: "seo_funnel",
-            title: "AI Workflows & Funnels",
-            description: "Automated agent funnels & client acquisition systems",
+            title: "Conversion Strategy",
+            description: "Traffic-to-lead funnel design & automation",
             next: "step3_scale",
           },
         ],
@@ -258,32 +254,30 @@ export const DEFAULT_STEPS: FlowStep[] = [
   {
     kind: "list",
     id: "scope_client",
-    header: "Client Operations",
-    body:
-      "Direct account coordination for active contracts and retained engagements.\n\n" +
-      "Select your inquiry area:",
-    footer: "Step 2 of 5: Account Services",
-    button: "Select Request",
+    header: "Client Services",
+    body: "Select the area where you need assistance:",
+    footer: "Step 2 of 5",
+    button: "Select Area",
     sections: [
       {
-        title: "Client Portal",
+        title: "Client Account",
         rows: [
           {
             id: "cli_milestone",
-            title: "Milestone Deliverables",
-            description: "Review current release cycle, test logs & sprint signoff",
+            title: "Delivery & Milestones",
+            description: "Progress updates, deliverables & sign-off",
             next: "step3_scale",
           },
           {
             id: "cli_invoice",
-            title: "Retainer & Invoicing",
-            description: "Statements of work, invoice records & payment gateway",
+            title: "Billing & Invoices",
+            description: "Retainer statements, payments & receipts",
             next: "step3_scale",
           },
           {
             id: "cli_technical",
-            title: "Priority Tech Support",
-            description: "Direct escalation on deployed client infrastructure",
+            title: "Technical Support",
+            description: "Priority query on a live deliverable",
             next: "step3_scale",
           },
         ],
@@ -294,32 +288,30 @@ export const DEFAULT_STEPS: FlowStep[] = [
   {
     kind: "list",
     id: "scope_general",
-    header: "Executive & Careers",
-    body:
-      "Explore executive advisory consultations or apply to join our global engineering team.\n\n" +
-      "Select an option to proceed:",
-    footer: "Step 2 of 5: Executive Desk",
+    header: "Careers & Partnerships",
+    body: "Select your area of interest:",
+    footer: "Step 2 of 5",
     button: "Select Option",
     sections: [
       {
-        title: "Consultation & Careers",
+        title: "Talent & Advisory",
         rows: [
           {
             id: "gen_careers",
-            title: "Engineering Positions",
-            description: "Full-time technical roles across AI, cloud & security",
+            title: "Professional Roles",
+            description: "Full-time positions in engineering & advisory",
             next: "step3_scale",
           },
           {
             id: "gen_intern",
-            title: "Talent Incubator",
-            description: "Structured paid internship & engineering evaluations",
+            title: "Paid Internship",
+            description: "Structured programme, performance-evaluated",
             next: "step3_scale",
           },
           {
             id: "gen_exec",
-            title: "Strategic Advisory",
-            description: "Direct consultation with executive leadership",
+            title: "Executive Advisory",
+            description: "Strategic collaboration or senior consulting",
             next: "step3_scale",
           },
         ],
@@ -327,46 +319,48 @@ export const DEFAULT_STEPS: FlowStep[] = [
     ],
   },
 
-  // ── 3. Message 3 (List): Scale & Timeline ──────────────────────────────────
+  // ── Step 3 · List ──────────────────────────────────────────────────────────
   {
     kind: "list",
     id: "step3_scale",
-    header: "Engagement Profile",
+    header: "Organisation & Timeline",
     body:
-      "To allocate senior resources and tailor delivery roadmaps, please specify your organization scale and timeline:",
-    footer: "Step 3 of 5: Engagement Scale",
+      "Two quick details help us assign the right resource and set accurate " +
+      "expectations.\n\n" +
+      "Select the profile that best fits your situation:",
+    footer: "Step 3 of 5",
     button: "Select Profile",
     sections: [
       {
-        title: "Organizational Size",
+        title: "Organisation Size",
         rows: [
           {
             id: "scale_ent",
-            title: "Enterprise / Institution",
-            description: "100+ team members, multi-departmental or corporate",
+            title: "Enterprise (100+ staff)",
+            description: "Multi-site, complex org or regulated sector",
             next: "step4_format",
           },
           {
             id: "scale_sme",
-            title: "High-Growth Venture",
-            description: "Fast-moving SME, funded startup or boutique agency",
+            title: "Growth Business",
+            description: "Scaling team with defined milestones",
             next: "step4_format",
           },
         ],
       },
       {
-        title: "Deployment Timeline",
+        title: "Project Timeline",
         rows: [
           {
             id: "scale_urgent",
-            title: "Immediate Deployment",
-            description: "High-priority kickoff required within 1–7 business days",
+            title: "Urgent (Within 7 Days)",
+            description: "Active risk, breach, or hard deadline",
             next: "step4_format",
           },
           {
             id: "scale_quarter",
-            title: "Quarterly Roadmap",
-            description: "Planned strategic initiative for the upcoming quarter",
+            title: "Planned Initiative",
+            description: "Roadmap item with a defined start window",
             next: "step4_format",
           },
         ],
@@ -374,91 +368,94 @@ export const DEFAULT_STEPS: FlowStep[] = [
     ],
   },
 
-  // ── 4. Message 4 (Buttons): Consultation Preference ────────────────────────
+  // ── Step 4 · Buttons ────────────────────────────────────────────────────────
   {
     kind: "buttons",
     id: "step4_format",
-    header: "Consultation Mode",
+    header: "How Should We Connect?",
     body:
-      "We respect your time. How would you prefer our practice leadership to coordinate your engagement?",
-    footer: "Step 4 of 5: Consultation Mode",
+      "We keep first conversations short and focused — no lengthy forms, " +
+      "no generic calls.\n\n" +
+      "Choose your preferred format:",
+    footer: "Step 4 of 5",
     buttons: [
-      { id: "btn_call", title: "Schedule Call", next: "step5_action" },
-      { id: "btn_brief", title: "Detailed Scope Doc", next: "step5_action" },
-      { id: "btn_direct", title: "Dedicated Lead", next: "step5_action" },
+      { id: "btn_call", title: "Book Discovery Call", next: "step5_action" },
+      { id: "btn_brief", title: "Request a Proposal", next: "step5_action" },
+      { id: "btn_direct", title: "Brief Practice Lead", next: "step5_action" },
     ],
   },
 
-  // ── 5. Message 5 (Buttons): Confirmation & Action ──────────────────────────
+  // ── Step 5 · Buttons ────────────────────────────────────────────────────────
   {
     kind: "buttons",
     id: "step5_action",
-    header: "Confirmation",
+    header: "One Last Step",
     body:
-      "Your specifications have been classified.\n\n" +
-      "Select your preferred next step to finalize routing:",
-    footer: "Step 5 of 5: Final Confirmation",
+      "Your message goes directly to a practice lead — not a shared queue.\n\n" +
+      "Choose how to proceed:",
+    footer: "Step 5 of 5",
     buttons: [
-      { id: "act_details", title: "Submit Brief", next: "details" },
-      { id: "act_deck", title: "Request Deck", next: "briefing" },
-      { id: "act_agent", title: "Connect Advisor", next: "human" },
+      { id: "act_details", title: "Share Project Brief", next: "details" },
+      { id: "act_deck", title: "Send Company Info", next: "briefing" },
+      { id: "act_agent", title: "Connect Me Now", next: "human" },
     ],
   },
 
-  // ── 6. Continue Steps: Intake & Protocols ──────────────────────────────────
+  // ── Terminal steps ──────────────────────────────────────────────────────────
   {
     kind: "text",
     id: "details",
     body:
-      "*Brief Intake Confirmed*\n\n" +
-      "Your project ticket has been flagged with senior priority.\n\n" +
-      "Please provide the following details in a single reply:\n" +
-      "1. *Company / Entity Name & Website*\n" +
-      "2. *Your Name & Title*\n" +
-      "3. *Core Objective or Problem Statement*\n\n" +
-      "💡 *Tip:* Voice notes or document attachments are fully supported.",
+      "*Your brief is received.*\n\n" +
+      "Reply in one message:\n\n" +
+      "1. *Company* — name and website\n" +
+      "2. *You* — name and role\n" +
+      "3. *Outcome* — what needs to change after this engagement\n\n" +
+      "A voice note works just as well.",
   },
 
   {
     kind: "text",
     id: "briefing",
     body:
-      "*Corporate Briefing Request Logged*\n\n" +
-      "Please reply with your work email and organization website.\n\n" +
-      "Our practice team will transmit our credentials deck, engagement frameworks, and case studies to your inbox promptly.\n\n" +
-      `Official Advisory Hours: ${HOURS}.`,
+      "*Noted.*\n\n" +
+      "Reply with your work email and company website.\n\n" +
+      "A practice lead will send relevant case studies and an approach note " +
+      "within one business day.\n\n" +
+      `Hours: ${HOURS}.`,
   },
 
   {
     kind: "text",
     id: "urgent",
     body:
-      "🚨 *Priority Escalation Activated*\n\n" +
-      "Your incident has been routed to our on-call leadership.\n\n" +
-      "Please reply immediately with:\n" +
-      "1. *Incident Description* — nature of outage or threat\n" +
-      "2. *Affected Assets* — domains, servers, or endpoints\n" +
-      "3. *Direct Phone Number* for voice conference\n\n" +
-      "Standby for engineer dispatch.",
+      "*Urgent escalation logged.*\n\n" +
+      "Reply with:\n\n" +
+      "1. *What occurred* — and when it started\n" +
+      "2. *Systems affected* — endpoints, infrastructure, or data scope\n" +
+      "3. *Direct contact number* — for immediate coordination\n\n" +
+      "The on-call lead will respond on this channel.",
   },
 
   {
     kind: "text",
     id: "apply",
     body:
-      "*Talent Acquisition Desk*\n\n" +
-      "Please send your CV or resume as a PDF attachment.\n\n" +
-      "Kindly mention your target specialization, technical stack, and current timezone. Our hiring board reviews all submissions directly.",
+      "*Thank you for your interest.*\n\n" +
+      "Send your CV as a PDF and include:\n" +
+      "— The role or area you are applying for\n" +
+      "— Your location and current availability\n\n" +
+      "A portfolio or writing sample is welcome but not required.",
   },
 
   {
     kind: "text",
     id: "human",
     body:
-      "👨‍💼 *Practice Lead Assigned*\n\n" +
-      "A dedicated advisor has been connected to this secure WhatsApp session.\n\n" +
-      "Please feel free to send any project notes, architectural diagrams, or initial questions. We will reply during active advisory hours.\n\n" +
-      `Business Hours: ${HOURS}`,
+      "*Connecting you to a practice lead.*\n\n" +
+      "Your message has been flagged for direct review.\n\n" +
+      "Send any files, notes, or context now — they will be waiting when the " +
+      "lead opens this thread. No automated replies from this point.",
   },
 ];
 
@@ -506,42 +503,44 @@ export function isFlowChoice(choiceId?: string | null): boolean {
  * or falls back to built-in DEFAULT_STEPS.
  */
 export const DEFAULT_SUPPORT_STEPS: FlowStep[] = [
-  // ── 1. Message 1 (List): Support Category ──────────────────────────────────
+
+  // ── Step 1 · List ──────────────────────────────────────────────────────────
   {
     kind: "list",
     id: "start",
-    header: "Technical Incident Command",
+    header: "Technical Support",
     body:
-      "Tauqeer Mustafa Inc — 24/7 Global Technical Incident & Support Operations.\n\n" +
-      "Select your issue classification below for immediate triage and engineer dispatch:",
-    footer: "P1 Outage: 15–30 Min Response SLA",
-    button: "Select Triage",
+      "You have reached the *Tauqeer Mustafa Inc* 24/7 Technical Incident " +
+      "& Support Desk.\n\n" +
+      "Select your issue category to begin triage and route to on-call engineering:",
+    footer: "P1 Critical · 15–30 min SLA",
+    button: "Begin Triage",
     sections: [
       {
         title: "Incident Triage",
         rows: [
           {
             id: "supp_p1",
-            title: "P1 Mission-Critical",
-            description: "System offline, security compromise, or critical data loss",
+            title: "P1 Critical Incident",
+            description: "Production down, breach active, or critical data loss",
             next: "supp_scope",
           },
           {
             id: "supp_bug",
-            title: "P2/P3 Performance Issue",
-            description: "Degraded functionality, recurrent errors or API timeouts",
+            title: "P2/P3 Service Issue",
+            description: "Degraded performance, error loop, or broken feature",
             next: "supp_scope",
           },
           {
             id: "supp_ticket",
-            title: "Track Open Ticket",
-            description: "Query real-time resolution state by reference ID",
+            title: "Check Ticket Status",
+            description: "Track resolution progress by TMI-SUP reference ID",
             next: "check_ticket",
           },
           {
             id: "supp_lead",
-            title: "Escalate to Duty Lead",
-            description: "Direct paging of senior infrastructure incident commander",
+            title: "Duty Lead Escalation",
+            description: "Direct escalation — requires active retainer account",
             next: "supp_scope",
           },
         ],
@@ -549,34 +548,36 @@ export const DEFAULT_SUPPORT_STEPS: FlowStep[] = [
     ],
   },
 
-  // ── 2. Message 2 (List): Affected System ───────────────────────────────────
+  // ── Step 2 · List ──────────────────────────────────────────────────────────
   {
     kind: "list",
     id: "supp_scope",
-    header: "Impacted Environment",
-    body: "Specify the primary architectural tier experiencing anomalies:",
-    footer: "Step 2 of 5: System Tier",
-    button: "Choose Component",
+    header: "Affected System Layer",
+    body:
+      "Pinpointing the affected component routes your ticket to the right engineer.\n\n" +
+      "Select the primary layer experiencing issues:",
+    footer: "Step 2 of 5",
+    button: "Select Component",
     sections: [
       {
-        title: "Infrastructure Layer",
+        title: "Infrastructure Tier",
         rows: [
           {
             id: "comp_prod",
-            title: "Cloud & Compute Hosts",
-            description: "Production clusters, Kubernetes pods, VMs or database servers",
+            title: "Compute & Database",
+            description: "Backend servers, cloud compute, VMs or database host",
             next: "supp_impact",
           },
           {
             id: "comp_api",
-            title: "APIs & Core Backend",
-            description: "REST/GraphQL endpoints, integration webhooks or queue workers",
+            title: "API & Integrations",
+            description: "REST/GraphQL endpoints, webhooks, or queue workers",
             next: "supp_impact",
           },
           {
             id: "comp_client",
-            title: "Web Portal & Edge CDN",
-            description: "User portal interface, DNS records, mobile app or CDN caching",
+            title: "Web Portal & CDN",
+            description: "User portal, mobile client, CDN caching, or DNS",
             next: "supp_impact",
           },
         ],
@@ -584,34 +585,36 @@ export const DEFAULT_SUPPORT_STEPS: FlowStep[] = [
     ],
   },
 
-  // ── 3. Message 3 (List): Severity & Environment ────────────────────
+  // ── Step 3 · List ──────────────────────────────────────────────────────────
   {
     kind: "list",
     id: "supp_impact",
-    header: "Severity & Environment",
-    body: "Designate the operational severity level and client environment affected:",
-    footer: "Step 3 of 5: Severity Matrix",
+    header: "Incident Severity",
+    body:
+      "Severity determines dispatch priority and SLA response time.\n\n" +
+      "Select current operational impact:",
+    footer: "Step 3 of 5",
     button: "Select Severity",
     sections: [
       {
-        title: "Severity Classification",
+        title: "Severity Level",
         rows: [
           {
             id: "sev_crit",
             title: "Critical Outage (P1)",
-            description: "Complete loss of service; customer-facing operations blocked",
+            description: "Total production disruption, customer operations blocked",
             next: "supp_channel",
           },
           {
             id: "sev_high",
-            title: "High Severity (P2)",
-            description: "Key features impaired; operational workaround in effect",
+            title: "High Degradation (P2)",
+            description: "Core service impaired with workaround in place",
             next: "supp_channel",
           },
           {
             id: "sev_norm",
             title: "Standard Issue (P3)",
-            description: "Non-critical defect, telemetry notice or configuration request",
+            description: "Non-critical bug, configuration query, or notice",
             next: "supp_channel",
           },
         ],
@@ -619,89 +622,96 @@ export const DEFAULT_SUPPORT_STEPS: FlowStep[] = [
     ],
   },
 
-  // ── 4. Message 4 (Buttons): Dispatch Channel ───────────────────────────────
+  // ── Step 4 · Buttons ────────────────────────────────────────────────────────
   {
     kind: "buttons",
     id: "supp_channel",
-    header: "Dispatch Protocol",
-    body: "How should our on-call engineers establish coordination with your team?",
-    footer: "Step 4 of 5: Dispatch Channel",
+    header: "Response Channel",
+    body:
+      "Incident classified.\n\n" +
+      "Select how you want engineering to coordinate with your team:",
+    footer: "Step 4 of 5",
     buttons: [
       { id: "p1_call_btn", title: "Emergency Hotline", next: "supp_confirm" },
-      { id: "p1_status_btn", title: "Live Status Hub", next: "supp_confirm" },
-      { id: "bug_sla_btn", title: "SLA Response Queue", next: "supp_confirm" },
+      { id: "p1_status_btn", title: "Status Dashboard", next: "supp_confirm" },
+      { id: "bug_sla_btn", title: "SLA Ticket Queue", next: "supp_confirm" },
     ],
   },
 
-  // ── 5. Message 5 (Buttons): Confirmation & Readiness ───────────────────────
+  // ── Step 5 · Buttons ────────────────────────────────────────────────────────
   {
     kind: "buttons",
     id: "supp_confirm",
-    header: "Confirm Incident Logging",
-    body: "Acknowledge selection to instantly notify the engineering team:",
-    footer: "Step 5 of 5: Final Dispatch",
+    header: "Dispatch Confirmation",
+    body:
+      "Confirm your dispatch action to notify the on-call team and open the ticket:",
+    footer: "Step 5 of 5",
     buttons: [
-      { id: "conf_ticket", title: "Register Incident", next: "supp_ticket_intake" },
+      { id: "conf_ticket", title: "Log Ticket Now", next: "supp_ticket_intake" },
       { id: "conf_lead", title: "Page Duty Lead", next: "speak_lead" },
-      { id: "conf_hotline", title: "View Hotline", next: "hotline_info" },
+      { id: "conf_hotline", title: "Direct Hotline", next: "hotline_info" },
     ],
   },
 
-  // ── 6. Continue Steps: Protocols & Hotlines ────────────────────────────────
+  // ── Terminal steps ──────────────────────────────────────────────────────────
   {
     kind: "text",
     id: "supp_ticket_intake",
     body:
-      "🛠️ *Incident Intake Protocol*\n\n" +
-      "Please provide the incident profile in a single message:\n\n" +
-      "1. *Target Domain / Host / Endpoint*\n" +
-      "2. *Timestamp of Occurrence* (with timezone)\n" +
-      "3. *HTTP Status Codes / Log Output*\n\n" +
-      "Your incident reference ID will be generated upon message arrival.",
+      "*Incident Ticket Registration*\n\n" +
+      "Reply with the following in one message:\n\n" +
+      "1. *Affected URL / Host* — failing endpoint or service\n" +
+      "2. *Environment* — production, staging, or specific region\n" +
+      "3. *Timestamp* — when the issue began\n" +
+      "4. *Error Details* — HTTP status, stack trace, or log snippet\n\n" +
+      "A ticket ID will be generated upon receipt.",
   },
   {
     kind: "text",
     id: "check_ticket",
     body:
-      "🔍 *Incident Telemetry Tracker*\n\n" +
-      "Reply with your Ticket Reference ID (e.g., *TMI-SUP-88214*).\n\n" +
-      "You can also monitor live diagnostics and SLAs at:\n" +
-      "👉 https://support.tauqeermustafa.tech/ticket",
+      "*Ticket Status Lookup*\n\n" +
+      "Reply with your Ticket Reference ID (e.g. *TMI-SUP-88214*).\n\n" +
+      "Live SLA countdown and updates are available at:\n" +
+      "https://support.tauqeermustafa.tech/ticket",
   },
   {
     kind: "text",
     id: "speak_lead",
     body:
-      "🚨 *Incident Commander Paged*\n\n" +
-      "The engineering duty lead has received your emergency alert.\n\n" +
-      "This channel is actively monitored 24/7/365 for high-severity issues. Please send relevant stack traces, terminal logs, or error screenshots now.",
+      "*Duty Lead Notified.*\n\n" +
+      "The on-call incident commander has been paged.\n\n" +
+      "Send your logs, terminal output, or screenshot now — they will be reviewed " +
+      "the moment the lead opens this thread.\n\n" +
+      "Active monitoring: 24/7 for P1/P2 · 08:00–22:00 PKT for P3/P4.",
   },
   {
     kind: "text",
     id: "hotline_info",
     body:
-      "📞 *Emergency Incident Hotline*\n\n" +
-      "Direct Line: *+92 335 6701199*\n" +
-      "Central Dispatch: support@tauqeermustafa.tech\n\n" +
-      "Priority telephone response is live 24/7 for contracted SLA accounts.",
+      "*24/7 Emergency Dispatch Desk:*\n\n" +
+      "Phone: *+92 335 6701199*\n" +
+      "Email: support@tauqeermustafa.tech\n\n" +
+      "Available 24/7/365 for active retainer accounts with critical outages.",
   },
   {
     kind: "text",
     id: "status_hub",
     body:
-      "📊 *Global Telemetry & Status Hub*\n\n" +
-      "Review operational uptime, API latency, and regional health indicators live at:\n" +
-      "👉 https://support.tauqeermustafa.tech/status",
+      "*System Status & Telemetry:*\n\n" +
+      "Real-time uptime, API latency, and operational health metrics:\n" +
+      "https://support.tauqeermustafa.tech/status",
   },
   {
     kind: "text",
     id: "sla_info",
     body:
-      "⏱️ *Contracted SLA Windows*\n\n" +
-      "• *P1 (Critical Outage):* 15–30 min immediate engagement\n" +
-      "• *P2 (High Severity):* < 2 hours response time\n" +
-      "• *P3 (Standard Issue):* < 24 hours turnaround\n" +
-      "• *P4 (General Request):* < 48 hours resolution",
+      "*Guaranteed SLA Response Windows:*\n\n" +
+      "• *P1 (Critical Outage):* 15–30 min response\n" +
+      "• *P2 (High Severity):* Under 2 hours response\n" +
+      "• *P3 (Standard Issue):* Under 24 hours turnaround\n" +
+      "• *P4 (General Request):* Under 48 hours\n\n" +
+      "SLA windows apply to active retainer accounts during contracted hours.",
   },
 ];
 
