@@ -57,8 +57,8 @@ export type WANumber = {
 /**
  * Line 1: Tauqeer Mustafa Inc | PK (+92 335 6701199)
  */
-export const DEFAULT_PK_ID = "1363415125370805";
-export const ALIAS_PK_ID = "1239592269240963";
+export const DEFAULT_PK_ID = "1239592269240963";
+export const ALIAS_PK_ID = "1363415125370805";
 
 /**
  * Line 2: Tauqeer Mustafa Inc | SL (+386 65 743 712 - Slovenia)
@@ -78,7 +78,8 @@ export const DEFAULT_NL_SECONDARY_ID = "1739099617324219";
 /**
  * Line 5: Tauqeer Mustafa Inc | US (+1 555-431-6671 - United States 1)
  */
-export const DEFAULT_US_PRIMARY_ID = "1083562997861778";
+export const DEFAULT_US_PRIMARY_ID = "1385974501255442";
+export const ALIAS_US_PRIMARY_ID = "1083562997861778";
 
 /**
  * Line 6: Tauqeer Mustafa Inc | US (+1 555-434-0459 - United States 2)

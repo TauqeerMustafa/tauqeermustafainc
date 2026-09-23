@@ -504,7 +504,20 @@ async function sendFlowStep(
 ) {
   await markRead(token, phoneNumberId, msgId);
 
-  const res = await fetch(`${GRAPH_URL}/${phoneNumberId}/messages`, {
+  let actualPhoneId = phoneNumberId;
+  if (actualPhoneId === "1363415125370805") actualPhoneId = "1239592269240963";
+  if (actualPhoneId === "1083562997861778") actualPhoneId = "1385974501255442";
+  if (["1485319076722009", "2663451950739498", "1739099617324219", "1034864159583818"].includes(actualPhoneId)) {
+    try {
+      const pnRes = await fetch(`${GRAPH_URL}/${actualPhoneId}/phone_numbers?fields=id&access_token=${token}`, { cache: "no-store" });
+      const pnJson = await pnRes.json();
+      if (pnJson?.data?.[0]?.id) actualPhoneId = String(pnJson.data[0].id);
+    } catch (err) {
+      console.warn(`[webhook] Could not resolve phone ID for WABA ${actualPhoneId}:`, err);
+    }
+  }
+
+  const res = await fetch(`${GRAPH_URL}/${actualPhoneId}/messages`, {
     method: "POST",
     headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
     body: JSON.stringify(stepPayload(step, to)),

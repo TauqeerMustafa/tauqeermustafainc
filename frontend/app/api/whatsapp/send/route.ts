@@ -103,12 +103,26 @@ export async function POST(request: Request) {
       const status = from || requestedPhoneNumberId ? 400 : 500;
       return NextResponse.json({ success: false, error: sender.error }, { status });
     }
-    const phoneNumberId = sender.id;
-
+    let phoneNumberId = sender.id;
+    if (phoneNumberId === "1363415125370805") phoneNumberId = "1239592269240963";
+    if (phoneNumberId === "1083562997861778") phoneNumberId = "1385974501255442";
 
     const numberDef = waNumbers().find((n) => n.id === phoneNumberId);
     const account = accountAt(numberDef?.slot ?? 1);
     const token = account.token || accountAt(1).token;
+
+    // Dynamically resolve WABA ID to active Phone Number ID if needed
+    if (["1485319076722009", "2663451950739498", "1739099617324219", "1034864159583818"].includes(phoneNumberId) && token) {
+      try {
+        const pnRes = await fetch(`${GRAPH_URL}/${phoneNumberId}/phone_numbers?fields=id&access_token=${token}`, { cache: "no-store" });
+        const pnData = await pnRes.json();
+        if (pnData?.data?.[0]?.id) {
+          phoneNumberId = String(pnData.data[0].id);
+        }
+      } catch (e) {
+        console.warn(`[send] Could not resolve phone ID for WABA ${phoneNumberId}:`, e);
+      }
+    }
 
     if (!token) {
       return NextResponse.json(

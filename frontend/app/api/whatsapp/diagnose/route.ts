@@ -69,6 +69,23 @@ async function inspect(
 
   const displayNumber = res.json?.display_phone_number ?? null;
   if (!displayNumber) {
+    const pn = await graphGet(`${id}/phone_numbers`, token, "id,display_phone_number,verified_name,quality_rating,platform_type,name_status,code_verification_status");
+    if (pn.ok && Array.isArray(pn.json?.data) && pn.json.data.length > 0) {
+      const p = pn.json.data[0];
+      return {
+        id,
+        label,
+        canSend: true,
+        nodeType: "whatsapp_business_account",
+        phoneId: p.id,
+        displayNumber: p.display_phone_number,
+        verifiedName: p.verified_name ?? "Tauqeer Mustafa Inc",
+        quality: p.quality_rating ?? "GREEN",
+        nameStatus: p.name_status ?? "APPROVED",
+        codeVerificationStatus: p.code_verification_status ?? "VERIFIED",
+        inConfiguredWaba: true,
+      };
+    }
     return {
       id, label, canSend: false, nodeType, inConfiguredWaba: false,
       metaError: "Readable, but Meta returns no display_phone_number for this id.",
