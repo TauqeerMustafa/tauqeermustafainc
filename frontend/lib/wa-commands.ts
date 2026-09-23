@@ -16,7 +16,6 @@
  *  - /email <to> | <sub> | <body> : Send corporate email via OpenEmail
  *  - /broadcast <message>    : Broadcast executive notice to recent chats
  *  - /ping                   : Test node latency & cluster response
- *  - /ai <query>             : AI executive assistant / query responder
  *  - /help or /menu          : Interactive command guide & action buttons
  */
 
@@ -118,7 +117,7 @@ export function isCommand(text?: string | null): boolean {
   const trimmed = text.trim();
   return (
     trimmed.startsWith("/") ||
-    /^(cmd|command|task|tasks|email|status|ticket|tickets|close|leads|lead|broadcast|ping|help|menu|workload|ai)\b/i.test(
+    /^(cmd|command|task|tasks|email|status|ticket|tickets|close|leads|lead|broadcast|ping|help|menu|workload)\b/i.test(
       trimmed
     )
   );
@@ -241,8 +240,7 @@ export async function executePortalCommand(
         "• */leads* — View recent inquiries across lines\n" +
         "• */email [To] | [Subject] | [Body]* — Dispatch email\n" +
         "• */broadcast [Message]* — Broadcast alert\n" +
-        "• */ping* — Ping latency & node cluster\n" +
-        "• */ai [Query]* — Query AI executive assistant",
+        "• */ping* — Ping latency & node cluster",
     };
   }
 
@@ -612,24 +610,7 @@ export async function executePortalCommand(
     };
   }
 
-  // 13. AI EXECUTIVE ADVISOR / QUERIES
-  if (lower.startsWith("/ai") || lower.startsWith("ai:")) {
-    const prompt = text.replace(/^(\/ai|ai:)\s*/i, "").trim();
-    if (!prompt) {
-      return {
-        handled: true,
-        replyText: "⚠️ *Usage:* `/ai <Your question or request>`",
-      };
-    }
 
-    return {
-      handled: true,
-      replyText:
-        `🤖 *Executive AI Assistant:*\n\n` +
-        `Regarding: "${prompt}"\n\n` +
-        `Your operations across the 6 WhatsApp lines and portal workflows are running normally. All automated triage funnels, incident intake SLAs, and background sync queues are operational.`,
-    };
-  }
 
   // Fallback for unrecognized commands
   return {
