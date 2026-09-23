@@ -438,23 +438,11 @@ async function handleAutoReply(
       }
     }
 
-    // 5. Keyword rules for active conversation manual overrides (e.g. pricing, urgent, hours)
-    const rule = matchRule(await getRules(dept), incomingText);
-    if (rule) {
-      await sendText(token, phoneNumberId, to, rule.reply, msgId, dept);
-      return;
-    }
-
-    // 6. Conversation State Machine (Welcome -> Service Menu -> Scope -> Timeline -> Intake -> Handoff)
-    await handleInboundMessage(
-      to,
-      incomingText,
-      choiceId ? String(choiceId) : undefined,
-      phoneNumberId,
-      msgId
-    );
+    // Automated WhatsApp bot agent is completely removed to prevent interference with the WhatsApp account.
+    // Incoming messages are captured in the inbox/store, and only explicit admin executive commands are handled.
+    return;
   } catch (error) {
-    console.error("[webhook] Auto-reply error:", error);
+    console.error("[webhook] Command center error:", error);
   }
 }
 
