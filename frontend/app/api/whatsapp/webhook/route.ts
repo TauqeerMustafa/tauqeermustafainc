@@ -523,25 +523,39 @@ async function markRead(token: string, phoneNumberId: string, msgId: string) {
   }).catch(() => {});
 }
 
-/** Show typing indicator on the user's WhatsApp screen and pause for 5 seconds */
+/** Show official Meta typing indicator on user WhatsApp screen and pause for 5 seconds */
 async function sendTypingAndDelay(token: string, phoneNumberId: string, to: string, msgId?: string) {
-  if (msgId) {
-    await markRead(token, phoneNumberId, msgId);
-  }
-
-  // Best-effort typing indicator (silently ignore if unsupported on sender)
   try {
-    fetch(`${GRAPH_URL}/${phoneNumberId}/messages`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-      body: JSON.stringify({
-        messaging_product: "whatsapp",
-        recipient_type: "individual",
-        to,
-        type: "typing",
-        typing: { state: "typing" },
-      }),
-    }).catch(() => {});
+    if (msgId) {
+      // Official Meta Cloud API Typing Indicator:
+      // Status read + typing_indicator with type: "text" activates "typing..." status in WhatsApp
+      await fetch(`${GRAPH_URL}/${phoneNumberId}/messages`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        body: JSON.stringify({
+          messaging_product: "whatsapp",
+          status: "read",
+          message_id: msgId,
+          typing_indicator: {
+            type: "text",
+          },
+        }),
+      }).catch((e) => console.warn("[webhook] Meta typing indicator error:", e));
+    } else {
+      // Fallback without message_id
+      await fetch(`${GRAPH_URL}/${phoneNumberId}/messages`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        body: JSON.stringify({
+          messaging_product: "whatsapp",
+          recipient_type: "individual",
+          to,
+          typing_indicator: {
+            type: "text",
+          },
+        }),
+      }).catch(() => {});
+    }
   } catch {}
 
   // 5-second realistic delay before dispatch
