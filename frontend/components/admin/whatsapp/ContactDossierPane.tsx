@@ -107,13 +107,16 @@ export function ContactDossierPane({
     onSaveMeta({ tags: tags.filter((t) => t !== tagToRemove) });
   };
 
+  const isLine7 = channelId === "1964540454233744";
   const isLine6 = channelId === "1034864159583818" || channelId === "1291624014041103";
   const isLine5 = channelId === "1083562997861778" || channelId === "1385974501255442";
   const isLine4 = channelId === "1739099617324219" || channelId === "1339948289200329";
   const isLine3 = channelId === "2663451950739498" || channelId === "1401823986336958";
   const isLine2 = channelId === "1485319076722009" || channelId === "1245811661959729";
 
-  const themeColor = isLine6
+  const themeColor = isLine7
+    ? "#ec4899"
+    : isLine6
     ? "#7c3aed"
     : isLine5
     ? "#6366f1"

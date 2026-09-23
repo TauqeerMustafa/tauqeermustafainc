@@ -90,6 +90,11 @@ export const ALIAS_US_PRIMARY_ID = "1083562997861778";
 export const DEFAULT_US_SECONDARY_ID = "1291624014041103";
 export const ALIAS_US_SECONDARY_ID = "1034864159583818";
 
+/**
+ * Line 7: Tauqeer Mustafa Inc | Line 7
+ */
+export const DEFAULT_LINE7_ID = "1964540454233744";
+
 // Backwards compatibility aliases
 export const DEFAULT_PRIMARY_ID = DEFAULT_PK_ID;
 export const DEFAULT_SECOND_ID = DEFAULT_SL_ID;
@@ -152,6 +157,7 @@ function build(): WANumber[] {
   const line4Id = clean(process.env.WHATSAPP_PHONE_NUMBER_ID_4) || DEFAULT_NL_SECONDARY_ID;
   const line5Id = clean(process.env.WHATSAPP_PHONE_NUMBER_ID_5) || DEFAULT_US_PRIMARY_ID;
   const line6Id = clean(process.env.WHATSAPP_PHONE_NUMBER_ID_6) || DEFAULT_US_SECONDARY_ID;
+  const line7Id = clean(process.env.WHATSAPP_PHONE_NUMBER_ID_7) || DEFAULT_LINE7_ID;
 
   const numbers: WANumber[] = [
     {
@@ -201,6 +207,14 @@ function build(): WANumber[] {
       slot: 6,
       department: "general",
       displayNumber: clean(process.env.WHATSAPP_DISPLAY_NUMBER_6) || "+1 555-434-0459",
+    },
+    {
+      id: line7Id,
+      label: clean(process.env.WHATSAPP_PHONE_LABEL_7) || "Line 7",
+      primary: false,
+      slot: 7,
+      department: "general",
+      displayNumber: clean(process.env.WHATSAPP_DISPLAY_NUMBER_7) || null,
     },
   ];
 
@@ -270,6 +284,8 @@ export function isKnownNumber(id: string | null | undefined): boolean {
     value === DEFAULT_NL_SECONDARY_ID ||
     value === DEFAULT_US_PRIMARY_ID ||
     value === DEFAULT_US_SECONDARY_ID ||
+    value === DEFAULT_LINE7_ID ||
+    value === "1964540454233744" ||
     value === "1363415125370805" ||
     value === "1239592269240963" ||
     value === "1485319076722009" ||
@@ -333,6 +349,8 @@ export function resolveNumberId(requested?: string | null): ResolvedNumber {
     wanted === DEFAULT_NL_SECONDARY_ID ||
     wanted === DEFAULT_US_PRIMARY_ID ||
     wanted === DEFAULT_US_SECONDARY_ID ||
+    wanted === DEFAULT_LINE7_ID ||
+    wanted === "1964540454233744" ||
     wanted === "1239592269240963" ||
     wanted === "1245811661959729" ||
     wanted === "1401823986336958" ||

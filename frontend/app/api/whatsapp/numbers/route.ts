@@ -254,6 +254,14 @@ export async function GET(request: Request) {
         digits.includes("15554340459") ||
         n.slot === 6);
 
+    const isLine7 =
+      !isLine2 &&
+      !isLine3 &&
+      !isLine4 &&
+      !isLine5 &&
+      !isLine6 &&
+      (n.id === "1964540454233744" || n.slot === 7);
+
     if (isLine2) {
       n.department = "general";
       n.slot = 2;
@@ -279,6 +287,10 @@ export async function GET(request: Request) {
       n.slot = 6;
       n.label = conf?.label || "Line 6 (US 2)";
       if (!n.displayNumber) n.displayNumber = "+1 555-434-0459";
+    } else if (isLine7) {
+      n.department = "general";
+      n.slot = 7;
+      n.label = conf?.label || "Line 7";
     } else {
       n.department = "general";
       n.label = conf?.label || `Line ${resultList.indexOf(n) + 1}`;
@@ -315,6 +327,8 @@ export async function GET(request: Request) {
           ? "+1 555-431-6671"
           : n.id === "1034864159583818"
           ? "+1 555-434-0459"
+          : n.id === "1964540454233744"
+          ? n.displayNumber || null
           : null),
       verifiedName: "Tauqeer Mustafa Inc",
       nameStatus: "APPROVED",

@@ -155,6 +155,12 @@ export function ConversationListPane({
     ) {
       return conv.channel === "1034864159583818" || conv.channel === "1291624014041103";
     }
+    if (
+      currentDepartment === "1964540454233744" ||
+      currentDepartment === "line7"
+    ) {
+      return conv.channel === "1964540454233744";
+    }
     return conv.channel === currentDepartment || conv.department === currentDepartment;
   });
 
@@ -377,6 +383,27 @@ export function ConversationListPane({
               </span>
             )}
           </button>
+
+          {/* Line 7 */}
+          <button
+            type="button"
+            onClick={() => onDepartmentChange("line7")}
+            className={`flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1 text-[11px] font-bold transition ${
+              currentDepartment === "line7" ||
+              currentDepartment === "1964540454233744"
+                ? "bg-pink-600 text-white shadow-sm"
+                : "bg-adm-surface-2 text-adm-text-2 border border-adm-border hover:border-adm-text-3 hover:text-adm-text"
+            }`}
+            title="Line 7 (ID: 1964540454233744)"
+          >
+            <span className="h-1.5 w-1.5 rounded-full bg-pink-400" />
+            <span>Line 7</span>
+            {(unreadCounts.line7 ?? 0) > 0 && (
+              <span className="flex h-4 min-w-[16px] items-center justify-center rounded-full bg-pink-500 px-1 text-[9px] font-bold text-white">
+                {unreadCounts.line7}
+              </span>
+            )}
+          </button>
         </div>
 
         {/* Search Input */}
@@ -464,6 +491,7 @@ export function ConversationListPane({
             const isOutbound = last?.direction === "outbound";
             const lastText = last?.body || (last?.type ? `[${last.type}]` : "No messages");
 
+            const isLine7 = conv.channel === "1964540454233744";
             const isLine6 = conv.channel === "1034864159583818" || conv.channel === "1291624014041103";
             const isLine5 = conv.channel === "1083562997861778" || conv.channel === "1385974501255442";
             const isLine4 = conv.channel === "1739099617324219" || conv.channel === "1339948289200329";
@@ -474,7 +502,9 @@ export function ConversationListPane({
               conv.channel === "1239592269240963" ||
               (!conv.channel && conv.department === "general");
 
-            const lineThemeColor = isLine6
+            const lineThemeColor = isLine7
+              ? "#ec4899"
+              : isLine6
               ? "#7c3aed"
               : isLine5
               ? "#6366f1"
@@ -547,7 +577,9 @@ export function ConversationListPane({
                       {/* Department Line indicator */}
                       <span
                         className={`rounded px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider ${
-                          isLine6
+                          isLine7
+                            ? "bg-pink-500/10 text-pink-600 dark:text-pink-400 border border-pink-500/20"
+                            : isLine6
                             ? "bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/20"
                             : isLine5
                             ? "bg-violet-500/10 text-violet-600 dark:text-violet-400 border border-violet-500/20"
@@ -560,7 +592,9 @@ export function ConversationListPane({
                             : "bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20"
                         }`}
                       >
-                        {isLine6
+                        {isLine7
+                          ? "Line 7"
+                          : isLine6
                           ? "Line 6"
                           : isLine5
                           ? "Line 5"

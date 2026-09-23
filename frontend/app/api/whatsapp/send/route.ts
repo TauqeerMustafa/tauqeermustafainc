@@ -112,7 +112,7 @@ export async function POST(request: Request) {
     const token = account.token || accountAt(1).token;
 
     // Dynamically resolve WABA ID to active Phone Number ID if needed
-    if (["1485319076722009", "2663451950739498", "1739099617324219", "1034864159583818"].includes(phoneNumberId) && token) {
+    if (["1485319076722009", "2663451950739498", "1739099617324219", "1034864159583818", "1964540454233744"].includes(phoneNumberId) && token) {
       try {
         const pnRes = await fetch(`${GRAPH_URL}/${phoneNumberId}/phone_numbers?fields=id&access_token=${token}`, { cache: "no-store" });
         const pnData = await pnRes.json();

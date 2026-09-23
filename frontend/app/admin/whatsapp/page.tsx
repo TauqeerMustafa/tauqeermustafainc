@@ -201,6 +201,14 @@ function messageDirectlyMatchesNumber(m: WAMessage, numberInfo: WANumberInfo): b
   if (toDigits && idDigits && toDigits === idDigits) return true;
   if (toDigits && displayDigits && toDigits === displayDigits) return true;
 
+  if (numberInfo.slot === 7 || numberInfo.id === "1964540454233744") {
+    if (
+      ch === "1964540454233744" ||
+      toDigits === "1964540454233744" ||
+      chDigits === "1964540454233744"
+    ) return true;
+  }
+
   if (numberInfo.slot === 6 || numberInfo.id === "1034864159583818" || numberInfo.id === "1291624014041103") {
     if (
       ch === "1034864159583818" ||
@@ -1078,6 +1086,7 @@ function InboxTab({
   const line4Convs = allConversations.filter((c) => c.channel === "1739099617324219" || c.channel === "1339948289200329");
   const line5Convs = allConversations.filter((c) => c.channel === "1083562997861778" || c.channel === "1385974501255442");
   const line6Convs = allConversations.filter((c) => c.channel === "1034864159583818" || c.channel === "1291624014041103");
+  const line7Convs = allConversations.filter((c) => c.channel === "1964540454233744");
 
   const unreadCounts = {
     general: generalConvs.reduce((acc, c) => acc + (unreadCount(c, metaMap[c.key] || metaMap[c.number]) > 0 ? 1 : 0), 0),
@@ -1089,6 +1098,7 @@ function InboxTab({
     line4: line4Convs.reduce((acc, c) => acc + (unreadCount(c, metaMap[c.key] || metaMap[c.number]) > 0 ? 1 : 0), 0),
     line5: line5Convs.reduce((acc, c) => acc + (unreadCount(c, metaMap[c.key] || metaMap[c.number]) > 0 ? 1 : 0), 0),
     line6: line6Convs.reduce((acc, c) => acc + (unreadCount(c, metaMap[c.key] || metaMap[c.number]) > 0 ? 1 : 0), 0),
+    line7: line7Convs.reduce((acc, c) => acc + (unreadCount(c, metaMap[c.key] || metaMap[c.number]) > 0 ? 1 : 0), 0),
     total: allConversations.reduce((acc, c) => acc + (unreadCount(c, metaMap[c.key] || metaMap[c.number]) > 0 ? 1 : 0), 0),
   };
 
