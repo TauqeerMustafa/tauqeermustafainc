@@ -65,14 +65,18 @@ export type WAAccount = {
  * injects it. Verbose, but it cannot silently read undefined.
  */
 function readSlot(slot: number): WAAccount {
-  const primaryToken = process.env.WHATSAPP_TOKEN;
-  const primarySecret = process.env.WHATSAPP_APP_SECRET;
+  const primaryToken =
+    process.env.WHATSAPP_TOKEN ||
+    process.env.WHATSAPP_ACCESS_TOKEN ||
+    process.env.META_ACCESS_TOKEN ||
+    process.env.WHATSAPP_SYSTEM_USER_TOKEN;
+  const primarySecret = process.env.WHATSAPP_APP_SECRET || process.env.META_APP_SECRET;
 
   const raw =
     slot === 1
       ? {
-          token: process.env.WHATSAPP_TOKEN,
-          appSecret: process.env.WHATSAPP_APP_SECRET,
+          token: primaryToken,
+          appSecret: primarySecret,
           wabaId: process.env.WHATSAPP_BUSINESS_ACCOUNT_ID || "1363415125370805",
           verifyToken: process.env.WEBHOOK_VERIFY_TOKEN,
           label: process.env.WHATSAPP_APP_LABEL || "Line 1 (PK)",

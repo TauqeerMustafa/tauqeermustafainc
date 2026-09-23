@@ -101,12 +101,17 @@ const MAX_MESSAGES = 1000;
 
 export const isStoreReady = checkKVConfigured;
 
-/* ── Messages ──────────────────────────────────────────────────────────── */
+const memoryMessages: WAMessage[] = [];
 
 export async function getMessages(): Promise<WAMessage[]> {
   const kv = getKV();
-  if (!kv) return [];
-  return (await kv.get<WAMessage[]>(KEYS.messages)) ?? [];
+  if (!kv) return memoryMessages;
+  try {
+    const fromKv = (await kv.get<WAMessage[]>(KEYS.messages)) ?? [];
+    return fromKv.length > 0 ? fromKv : memoryMessages;
+  } catch {
+    return memoryMessages;
+  }
 }
 
 /**
@@ -115,14 +120,24 @@ export async function getMessages(): Promise<WAMessage[]> {
  */
 export async function appendMessage(message: WAMessage): Promise<boolean> {
   const kv = getKV();
-  if (!kv) return false;
-
   const messages = await getMessages();
   if (message.id && messages.some((m) => m.id === message.id)) return false;
 
   messages.push(message);
-  await kv.set(KEYS.messages, messages.slice(-MAX_MESSAGES));
-  return true;
+  if (!kv) {
+    if (messages.length > MAX_MESSAGES) {
+      messages.splice(0, messages.length - MAX_MESSAGES);
+    }
+    return true;
+  }
+
+  try {
+    await kv.set(KEYS.messages, messages.slice(-MAX_MESSAGES));
+    return true;
+  } catch (err) {
+    console.error("[wa-store] KV set failed, saved in memory:", err);
+    return true;
+  }
 }
 
 /**

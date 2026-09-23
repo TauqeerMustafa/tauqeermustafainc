@@ -522,21 +522,35 @@ async function sendTypingAndDelay(token: string, phoneNumberId: string, to: stri
     await markRead(token, phoneNumberId, msgId);
   }
 
-  // Send typing indicator / presence if supported
-  await fetch(`${GRAPH_URL}/${phoneNumberId}/messages`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-    body: JSON.stringify({
-      messaging_product: "whatsapp",
-      recipient_type: "individual",
-      to,
-      type: "typing",
-      typing: { state: "typing" },
-    }),
-  }).catch(() => {});
+  // Best-effort typing indicator (silently ignore if unsupported on sender)
+  try {
+    fetch(`${GRAPH_URL}/${phoneNumberId}/messages`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+      body: JSON.stringify({
+        messaging_product: "whatsapp",
+        recipient_type: "individual",
+        to,
+        type: "typing",
+        typing: { state: "typing" },
+      }),
+    }).catch(() => {});
+  } catch {}
 
-  // Wait 5 seconds to simulate real agent / natural response time
+  // 5-second realistic delay before dispatch
   await sleep(5000);
+}
+
+/** Helper to resolve sending Phone Number ID */
+function resolveSendingId(id: string): string {
+  let actual = id;
+  if (actual === "1363415125370805") return "1239592269240963";
+  if (actual === "1485319076722009") return "1245811661959729";
+  if (actual === "2663451950739498") return "1401823986336958";
+  if (actual === "1739099617324219") return "1339948289200329";
+  if (actual === "1083562997861778") return "1385974501255442";
+  if (actual === "1034864159583818") return "1291624014041103";
+  return actual;
 }
 
 /** Send one step of the scripted flow and record it in the inbox (with plain text fallback). */
@@ -548,20 +562,8 @@ async function sendFlowStep(
   msgId: string,
   dept: "general" | "support" | "direct" = "general"
 ) {
-  await sendTypingAndDelay(token, phoneNumberId, to, msgId);
-
-  let actualPhoneId = phoneNumberId;
-  if (actualPhoneId === "1363415125370805") actualPhoneId = "1239592269240963";
-  if (actualPhoneId === "1083562997861778") actualPhoneId = "1385974501255442";
-  if (["1485319076722009", "2663451950739498", "1739099617324219", "1034864159583818"].includes(actualPhoneId)) {
-    try {
-      const pnRes = await fetch(`${GRAPH_URL}/${actualPhoneId}/phone_numbers?fields=id&access_token=${token}`, { cache: "no-store" });
-      const pnJson = await pnRes.json();
-      if (pnJson?.data?.[0]?.id) actualPhoneId = String(pnJson.data[0].id);
-    } catch (err) {
-      console.warn(`[webhook] Could not resolve phone ID for WABA ${actualPhoneId}:`, err);
-    }
-  }
+  const actualPhoneId = resolveSendingId(phoneNumberId);
+  await sendTypingAndDelay(token, actualPhoneId, to, msgId);
 
   const res = await fetch(`${GRAPH_URL}/${actualPhoneId}/messages`, {
     method: "POST",
@@ -577,7 +579,7 @@ async function sendFlowStep(
       `[webhook] Flow step "${step.id}" failed (${data?.error?.message ?? JSON.stringify(data)}). Falling back to plain text send.`
     );
     const fallbackText = stepTranscript(step);
-    const fbRes = await fetch(`${GRAPH_URL}/${phoneNumberId}/messages`, {
+    const fbRes = await fetch(`${GRAPH_URL}/${actualPhoneId}/messages`, {
       method: "POST",
       headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
       body: JSON.stringify({
@@ -590,12 +592,12 @@ async function sendFlowStep(
     });
     const fbData = await fbRes.json();
     let fbId = fbData?.messages?.[0]?.id;
-    let finalSender = phoneNumberId;
+    let finalSender = actualPhoneId;
 
-    // If sending from phoneNumberId failed, try via primary line to ensure user is answered
+    // If sending from actualPhoneId failed, try via primary line to ensure user is answered
     if (!fbId) {
       const primary = primaryNumberId();
-      if (primary && primary !== phoneNumberId) {
+      if (primary && primary !== actualPhoneId) {
         console.warn(`[webhook] Retrying auto-reply step via primary line ${primary}`);
         const priRes = await fetch(`${GRAPH_URL}/${primary}/messages`, {
           method: "POST",
@@ -636,7 +638,7 @@ async function sendFlowStep(
 
   await appendMessage({
     id: messageId,
-    from: phoneNumberId,
+    from: actualPhoneId,
     to,
     jid: `${to}@s.whatsapp.net`,
     channel: phoneNumberId,
@@ -659,10 +661,11 @@ async function sendText(
   dept: "general" | "support" | "direct" = "general"
 ) {
   try {
-    await sendTypingAndDelay(token, phoneNumberId, to, msgId);
+    const actualPhoneId = resolveSendingId(phoneNumberId);
+    await sendTypingAndDelay(token, actualPhoneId, to, msgId);
 
     // Send the reply
-    const res = await fetch(`${GRAPH_URL}/${phoneNumberId}/messages`, {
+    const res = await fetch(`${GRAPH_URL}/${actualPhoneId}/messages`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -677,11 +680,11 @@ async function sendText(
     });
     const data = await res.json();
     let messageId = data?.messages?.[0]?.id;
-    let finalSender = phoneNumberId;
+    let finalSender = actualPhoneId;
 
     if (!messageId) {
       const primary = primaryNumberId();
-      if (primary && primary !== phoneNumberId) {
+      if (primary && primary !== actualPhoneId) {
         console.warn(`[webhook] Retrying text auto-reply via primary line ${primary}`);
         const priRes = await fetch(`${GRAPH_URL}/${primary}/messages`, {
           method: "POST",
