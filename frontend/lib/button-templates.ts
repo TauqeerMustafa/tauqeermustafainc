@@ -3,41 +3,18 @@
  *
  * WHAT THESE ARE
  * ──────────────
- * Not automation. A person picks one from a dropdown in the Send tab, it loads
- * the header, body, footer and up to three button titles into the form, and they
- * edit it before it goes anywhere. So the copy here has to be worth sending
- * as-is, and has to be honest about what the business will actually do.
+ * Hand-picked presets for the admin Send tab. A team member selects one from
+ * the dropdown, which pre-populates header, body, footer, and interactive buttons.
  *
- * WHAT WAS WRONG WITH THE SET THIS REPLACES
- * ─────────────────────────────────────────
- * It described a web and mobile app studio, which is the wrong business
- * entirely, in emoji-covered copy. It quoted prices nobody charges ("Mobile Apps
- * - From $5,000"), invented a reputation ("Trusted by 100+ clients worldwide"),
- * and promised reply times no one had agreed to keep ("within 2-4 hours", "High
- * Priority: 2-4 hours"). Every line of that would have had to be walked back by
- * whoever pressed send.
- *
- * HOUSE RULES — the same three as lib/wa-flow and the auto-reply rules
- * ───────────────────────────────────────────────────────────────────
- * 1. No emojis. Decorative characters read as noise on a business number, and
- *    several still render as boxes on older Androids.
- * 2. No prices. What the work costs depends on scope. A number sent from a
- *    preset is one somebody then has to argue their way out of.
- * 3. No promise a person has to keep. Working hours are a fact and can be
- *    stated. A reply time is a guess, and a missed one costs more than the vague
- *    version was ever worth. Describe the work; do not rank it.
- *
- * FORMATTING AND LIMITS
- * ─────────────────────
- * Meta rejects the whole message on any overlong field: header 60, footer 60,
- * body 1024, button title 20, at most three buttons. `*bold*` renders in the
- * body; it does NOT render in button titles or in the header (which WhatsApp
- * bolds by itself), so those stay plain.
- *
- * `header` doubles as the label in the composer's dropdown, which is why each
- * one reads as a description of the situation rather than a slogan.
- *
- * [SQUARE_BRACKETS] mark the one or two things the sender fills in.
+ * HOUSE RULES
+ * ───────────
+ * 1. Professional, crisp executive engineering voice (BMW-clean aesthetic).
+ * 2. Meta character limits:
+ *    • header: ≤ 60 chars
+ *    • body: ≤ 1024 chars (*bold* allowed)
+ *    • footer: ≤ 60 chars
+ *    • buttons: ≤ 20 chars each, max 3
+ * 3. Transparent, scope-based engagements with fixed-price delivery.
  */
 
 export type ButtonTemplate = {
@@ -49,136 +26,142 @@ export type ButtonTemplate = {
   body: string;
   /** Max 60, plain text. Required so the composer always has something to load. */
   footer: string;
-  /** Meta accepts three; the composer takes the first three. Max 20 each. */
+  /** Meta accepts up to three; max 20 chars each. */
   buttons: string[];
 };
 
 export const BUTTON_TEMPLATES: ButtonTemplate[] = [
   {
     name: "route_enquiry",
-    header: "Which service is this about",
+    header: "Engineering & Advisory Desk",
     body:
-      "Thanks for writing in.\n\n" +
-      "So this reaches whoever handles it, which of the three is closest?\n\n" +
-      "1. *Cybersecurity* — where customer and payment data is exposed\n" +
-      "2. *Financial compliance* — controls, records and reporting\n" +
-      "3. *SEO and AdSense* — traffic and spend that is not producing enquiries\n\n" +
-      "Nothing is lost if you pick the wrong one.",
-    footer: "Mon to Sat, 09:00 to 18:00 Pakistan time",
-    buttons: ["Cybersecurity", "Compliance", "SEO and AdSense"],
+      "Welcome to *Tauqeer Mustafa Inc.*\n\n" +
+      "To connect you directly with the appropriate engineering team, please select your primary focus:\n\n" +
+      "1. *Web & Platforms* — Cloud portals, enterprise SaaS & microservices\n" +
+      "2. *Cybersecurity* — Posture audits, zero-trust & incident defense\n" +
+      "3. *AI & Cloud* — Workflow automation, custom LLM copilots & DevOps\n\n" +
+      "Our technical leadership will review your inquiry immediately.",
+    footer: "Mon to Sat, 09:00 to 18:00 PKT",
+    buttons: ["Web & Platforms", "Cybersecurity", "AI & Cloud Systems"],
+  },
+  {
+    name: "web_platform_start",
+    header: "Web & Cloud Platforms",
+    body:
+      "We engineer resilient, high-throughput web applications, cloud-native portals, and scalable API architectures.\n\n" +
+      "Which milestone best describes your current project?",
+    footer: "Technical Architecture Consultation",
+    buttons: ["New Platform / MVP", "System Rebuild", "Architecture Review"],
   },
   {
     name: "security_review_start",
-    header: "Cybersecurity review",
+    header: "Cybersecurity Review",
     body:
-      "We map how customer and payment data actually moves through your business, name what is " +
-      "exposed, and hand back a fix list in priority order. Nothing in it is tooling you have to " +
-      "buy from us.\n\n" +
-      "Which of these is closest?",
-    footer: "One tap, then a few details",
-    buttons: ["Want a review", "Something happened", "Talk to someone"],
+      "We conduct end-to-end security assessments: mapping data flows, identifying attack surfaces, testing perimeter defense, and delivering a prioritized remediation matrix.\n\n" +
+      "Which engagement fits your timeline?",
+    footer: "Zero-Trust & Threat Modeling",
+    buttons: ["Security Audit", "Active Incident", "Compliance Review"],
   },
   {
-    name: "compliance_start",
-    header: "Financial compliance",
+    name: "ai_automation_start",
+    header: "AI & Workflow Automation",
     body:
-      "We put in place the controls, records and reporting a business your size is expected to " +
-      "have, so that when an auditor, a bank or an investor asks, the answer is already written " +
-      "down.\n\n" +
-      "Which of these is closest?",
-    footer: "One tap, then a few details",
-    buttons: ["Set up controls", "Audit is coming", "Talk to someone"],
+      "We design and deploy autonomous AI agents, enterprise RAG knowledge search, and custom copilots that integrate directly into your production databases and workflows.\n\n" +
+      "What is your primary AI objective?",
+    footer: "Production-Grade AI Systems",
+    buttons: ["Workflow Automation", "Custom AI Copilot", "RAG Knowledge Base"],
   },
   {
-    name: "seo_start",
-    header: "SEO and AdSense",
+    name: "cloud_devops_start",
+    header: "Cloud & DevOps Architecture",
     body:
-      "We start with the traffic you already have and the spend you already make, and report in " +
-      "enquiries rather than impressions. If the figures say a campaign is not worth keeping, that " +
-      "is what the report says.\n\n" +
-      "Which of these is closest?",
-    footer: "One tap, then a few details",
-    buttons: ["Grow the traffic", "Fix the ad spend", "Talk to someone"],
+      "We design scalable multi-cloud infrastructure, Kubernetes orchestration, CI/CD automation pipelines, and Terraform IaC to ensure high availability and zero-downtime deployments.\n\n" +
+      "What is your current infrastructure priority?",
+    footer: "AWS, GCP & Azure Multi-Cloud",
+    buttons: ["Cloud Migration", "Kubernetes & CI/CD", "Infrastructure IaC"],
+  },
+  {
+    name: "incident_response_start",
+    header: "Emergency Incident Triage",
+    body:
+      "Our on-call incident response team is standing by to assist with active outages, data breaches, or suspicious infrastructure activity.\n\n" +
+      "• *Direct Hotline:* +92 335 6701199\n" +
+      "• Please reply with affected endpoints or symptoms.",
+    footer: "24/7 Rapid Emergency Response",
+    buttons: ["System Outage", "Security Breach", "Speak with Lead"],
   },
   {
     name: "details_needed",
-    header: "A few details",
+    header: "Technical Discovery Intake",
     body:
-      "To put this in front of the right person, three lines in one message:\n\n" +
-      "1. *Company* — name and website\n" +
-      "2. *You* — name and role\n" +
-      "3. *Outcome* — what you want to be different\n\n" +
-      "A voice note is fine if that is quicker.",
-    footer: "Send it whenever suits you",
-    buttons: ["Sending now", "Rather have a call", "Talk to someone"],
+      "To prepare an accurate technical scope and proposal, please share:\n\n" +
+      "1. *Organization* — Company name and primary website\n" +
+      "2. *Contact* — Your full name and role\n" +
+      "3. *Objective* — What you want to build, upgrade, or defend\n\n" +
+      "A brief text or voice note is welcome.",
+    footer: "Tauqeer Mustafa Inc",
+    buttons: ["Sending Details", "Request Voice Call", "Technical Sync"],
   },
   {
     name: "arrange_call",
-    header: "Arrange a call",
+    header: "Technical Discovery Call",
     body:
-      "Happy to talk it through.\n\n" +
-      "Send a number to ring and *two times* that work for you, and we will confirm one of them.\n\n" +
-      "There is nothing to prepare. We will ask what you want to be different, and say plainly " +
-      "whether we are the right people for it.",
-    footer: "Mon to Sat, 09:00 to 18:00 Pakistan time",
-    buttons: ["Send my times", "Call me instead", "Keep it on chat"],
+      "We would be glad to schedule an architecture sync with our technical leadership.\n\n" +
+      "Please share your direct phone number and two preferred time windows (Monday to Saturday, 09:00 to 18:00 PKT). We will confirm your calendar invite.",
+    footer: "Principal Engineer Consultation",
+    buttons: ["Send Call Times", "Call Me Direct", "Continue on Chat"],
   },
   {
     name: "proposal_sent",
-    header: "Your proposal",
+    header: "Engineering Proposal Delivered",
     body:
-      "The proposal for *[SCOPE]* has been sent to [EMAIL].\n\n" +
-      "It sets out what is included, what is not, the order the work runs in, and a fixed price.\n\n" +
-      "Read it and come back with anything that looks wrong. Scope is easier to change now than " +
-      "halfway through.",
-    footer: "Valid for 30 days",
-    buttons: ["I have questions", "Happy to proceed", "Send it again"],
+      "The formal engineering proposal for *[SCOPE]* has been dispatched to [EMAIL].\n\n" +
+      "It outlines technical architecture, milestones, deliverables schedule, and a transparent fixed price.\n\n" +
+      "Our team is available to walk through any architectural questions with you.",
+    footer: "Fixed-Scope Engineering Agreement",
+    buttons: ["Review Proposal", "Schedule Review", "Approved to Start"],
   },
   {
     name: "invoice_due",
-    header: "An invoice is due",
+    header: "Milestone Invoice",
     body:
-      "Invoice *[NUMBER]* is due on *[DATE]*.\n\n" +
-      "The amount and the payment details are on the invoice itself.\n\n" +
-      "If anything on it does not match what we agreed, say so and we will reissue it rather than " +
-      "leave it to be argued about later.",
-    footer: "Bank transfer or card",
-    buttons: ["Paid already", "Send the invoice", "Question on it"],
+      "Invoice *[NUMBER]* for *[MILESTONE]* is now due for settlement on *[DATE]*.\n\n" +
+      "Banking details and wire instructions are attached to the invoice sent to [EMAIL].\n\n" +
+      "For billing questions or corporate vendor onboarding, reply directly to this thread.",
+    footer: "Finance & Accounts Desk",
+    buttons: ["Payment Dispatched", "Resend Invoice", "Billing Query"],
   },
   {
     name: "work_complete",
-    header: "Work is complete",
+    header: "Milestone Complete & Handed Over",
     body:
-      "*[SCOPE]* is finished and handed over.\n\n" +
-      "What you have now: [DELIVERABLES].\n\n" +
-      "Have a look and tell us what needs another pass. Changes inside the agreed scope are part " +
-      "of the job, not a new one.",
-    footer: "Support runs for 30 days",
-    buttons: ["Looks right", "Needs a change", "Question on it"],
+      "Deployment of *[SCOPE]* is successfully completed and operational in production.\n\n" +
+      "Delivered artifacts: [DELIVERABLES].\n\n" +
+      "Includes 30 days of complimentary hypercare and deployment support.",
+    footer: "Production Deployment Verified",
+    buttons: ["Verify & Sign Off", "Request Hypercare", "Technical Question"],
   },
   {
     name: "careers_reply",
-    header: "Working with us",
+    header: "Engineering Careers at TMI",
     body:
-      "Interns and staff both start on a paid trial engagement: a fixed period of real work, with " +
-      "the terms, the targets and the pay written down before the first day.\n\n" +
-      "To apply, send:\n\n" +
-      "1. *Your CV* as a PDF\n" +
-      "2. *The role* you are applying for\n" +
-      "3. *The city* you are in\n\n" +
-      "Written work or a portfolio helps if you have any.",
-    footer: "Every application gets an answer",
-    buttons: ["Sending my CV", "Ask about a role", "Talk to someone"],
+      "We are actively recruiting exceptional software engineers, security researchers, and systems architects.\n\n" +
+      "To apply, please submit:\n" +
+      "1. Your CV / resume (PDF)\n" +
+      "2. GitHub profile or portfolio link\n" +
+      "3. Summary of a complex system you engineered\n\n" +
+      "Our engineering leads review every submission.",
+    footer: "tauqeermustafa.tech/careers",
+    buttons: ["Sending Resume", "View Open Roles", "Speak with Lead"],
   },
   {
     name: "not_a_fit",
-    header: "Not the right fit",
+    header: "Project Evaluation",
     body:
-      "Thanks for the detail. This is not work we should take on: [REASON]\n\n" +
-      "We would rather say so now than bill you to find out.\n\n" +
-      "If the scope changes, or you want the name of someone who does this properly, ask and we " +
-      "will send one.",
-    footer: "The door stays open",
-    buttons: ["Suggest someone", "Different project", "Understood"],
+      "Thank you for sharing your project specifications. After technical review, we have concluded this specific engagement is outside our core architectural focus: [REASON].\n\n" +
+      "We prioritize taking on only work where we can guarantee world-class execution.\n\n" +
+      "If you would like a vetted industry referral, let us know and we will be happy to connect you.",
+    footer: "Engineering Standards First",
+    buttons: ["Request Referral", "Different Scope", "Understood"],
   },
 ];

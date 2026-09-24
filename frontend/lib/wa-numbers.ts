@@ -382,3 +382,118 @@ export function getChannelDepartment(
 ): WADepartment {
   return "general";
 }
+
+export type LineIdentifier = {
+  lineKey: "line1" | "line2" | "line3" | "line4" | "line5" | "line6" | "line7";
+  canonicalId: string;
+  label: string;
+  flag: string;
+  displayNumber: string;
+};
+
+export const KNOWN_LINES: Record<string, LineIdentifier> = {
+  line1: {
+    lineKey: "line1",
+    canonicalId: DEFAULT_PK_ID,
+    label: "Line 1 (PK)",
+    flag: "🇵🇰",
+    displayNumber: "+92 335 6701199",
+  },
+  line2: {
+    lineKey: "line2",
+    canonicalId: DEFAULT_SL_ID,
+    label: "Line 2 (SL)",
+    flag: "🇸🇮",
+    displayNumber: "+386 65 743 712",
+  },
+  line3: {
+    lineKey: "line3",
+    canonicalId: DEFAULT_NL_PRIMARY_ID,
+    label: "Line 3 (NL 1)",
+    flag: "🇳🇱",
+    displayNumber: "+31 97058026144",
+  },
+  line4: {
+    lineKey: "line4",
+    canonicalId: DEFAULT_NL_SECONDARY_ID,
+    label: "Line 4 (NL 2)",
+    flag: "🇳🇱",
+    displayNumber: "+31 97058026143",
+  },
+  line5: {
+    lineKey: "line5",
+    canonicalId: DEFAULT_US_PRIMARY_ID,
+    label: "Line 5 (US 1)",
+    flag: "🇺🇸",
+    displayNumber: "+1 555-431-6671",
+  },
+  line6: {
+    lineKey: "line6",
+    canonicalId: DEFAULT_US_SECONDARY_ID,
+    label: "Line 6 (US 2)",
+    flag: "🇺🇸",
+    displayNumber: "+1 555-434-0459",
+  },
+  line7: {
+    lineKey: "line7",
+    canonicalId: DEFAULT_LINE7_ID,
+    label: "Line 7",
+    flag: "📱",
+    displayNumber: "Line 7",
+  },
+};
+
+export function identifyMessageLine(
+  m: { channel?: string; from?: string; to?: string; direction?: string },
+  customNumbers?: WANumber[]
+): LineIdentifier {
+  const ch = (m.channel || "").trim();
+  const chDigits = ch.replace(/[^0-9]/g, "");
+
+  const bizSide = (m.direction === "inbound" ? m.to : m.from) || "";
+  const bizDigits = (bizSide || "").replace(/[^0-9]/g, "");
+
+  const candidates = [
+    ch,
+    chDigits,
+    bizSide,
+    bizDigits,
+    (m.to || "").replace(/[^0-9]/g, ""),
+    (m.from || "").replace(/[^0-9]/g, ""),
+  ].filter(Boolean);
+
+  const matchesAny = (set: string[]) => candidates.some((c) => set.includes(c));
+
+  if (matchesAny(["1964540454233744"])) return KNOWN_LINES.line7;
+  if (matchesAny(["1034864159583818", "1291624014041103", "15554340459"])) return KNOWN_LINES.line6;
+  if (matchesAny(["1083562997861778", "1385974501255442", "15554316671"])) return KNOWN_LINES.line5;
+  if (matchesAny(["1739099617324219", "1339948289200329", "3197058026143"])) return KNOWN_LINES.line4;
+  if (matchesAny(["2663451950739498", "1401823986336958", "3197058026144"])) return KNOWN_LINES.line3;
+  if (matchesAny(["1485319076722009", "1245811661959729", "38665743712"])) return KNOWN_LINES.line2;
+  if (matchesAny(["1363415125370805", "1239592269240963", "923356701199"])) return KNOWN_LINES.line1;
+
+  if (customNumbers && customNumbers.length > 0) {
+    for (const num of customNumbers) {
+      const numDigits = (num.id || "").replace(/[^0-9]/g, "");
+      const dispDigits = (num.displayNumber || "").replace(/[^0-9]/g, "");
+      if (
+        candidates.some(
+          (c) => c === num.id || (numDigits && c === numDigits) || (dispDigits && c === dispDigits)
+        )
+      ) {
+        const slotKey = `line${num.slot || 1}`;
+        if (KNOWN_LINES[slotKey]) return KNOWN_LINES[slotKey];
+        return {
+          lineKey: (slotKey as any) || "line1",
+          canonicalId: num.id,
+          label: num.label || `Line ${num.slot || 1}`,
+          flag: "📱",
+          displayNumber: num.displayNumber || num.id,
+        };
+      }
+    }
+  }
+
+  // Default to Line 1 (primary)
+  return KNOWN_LINES.line1;
+}

@@ -755,7 +755,7 @@ export const DEFAULT_STEPS: FlowStep[] = [
     id: "start",
     header: "Tauqeer Mustafa Inc",
     body:
-      "Tauqeer Mustafa Inc. — Engineering & Advisory\n\n" +
+      "*Tauqeer Mustafa Inc.* — Engineering & Advisory\n\n" +
       "Select a focus area below to route your request to the appropriate engineering desk:",
     footer: "Monday to Saturday, 09:00 to 18:00 (PKT)",
     button: "Explore Solutions",
@@ -785,6 +785,179 @@ export const DEFAULT_STEPS: FlowStep[] = [
         ],
       },
     ],
+  },
+  {
+    kind: "buttons",
+    id: "scope_web",
+    header: "Web & Platforms Practice",
+    body:
+      "*Web & Cloud Platforms*\n\n" +
+      "We engineer resilient, high-availability web applications, enterprise SaaS portals, and scalable API microservices.\n\n" +
+      "Select your primary project milestone:",
+    footer: "Next: Target Timeline",
+    buttons: [
+      { id: "web_new", title: "New Project / MVP", next: "timeline" },
+      { id: "web_rebuild", title: "Rebuild / Upgrade", next: "timeline" },
+      { id: "web_perf", title: "Performance & Scale", next: "timeline" },
+    ],
+  },
+  {
+    kind: "buttons",
+    id: "scope_ai",
+    header: "AI & Automation Practice",
+    body:
+      "*AI & Workflow Automation*\n\n" +
+      "We design autonomous AI agents, enterprise RAG knowledge search, and custom copilots that connect to your production systems.\n\n" +
+      "Select your primary AI focus:",
+    footer: "Next: Target Timeline",
+    buttons: [
+      { id: "ai_workflow", title: "Workflow Automation", next: "timeline" },
+      { id: "ai_copilot", title: "Custom AI Copilot", next: "timeline" },
+      { id: "ai_rag", title: "RAG Knowledge Base", next: "timeline" },
+    ],
+  },
+  {
+    kind: "buttons",
+    id: "scope_cloud",
+    header: "Cloud & DevOps Practice",
+    body:
+      "*Cloud Architecture & DevOps*\n\n" +
+      "We design scalable multi-cloud infrastructure across AWS, GCP, and Azure with Kubernetes orchestration and automated CI/CD.\n\n" +
+      "Select your infrastructure goal:",
+    footer: "Next: Target Timeline",
+    buttons: [
+      { id: "cloud_arch", title: "Multi-Cloud Design", next: "timeline" },
+      { id: "cloud_k8s", title: "Kubernetes & CI/CD", next: "timeline" },
+      { id: "cloud_iac", title: "Terraform & IaC", next: "timeline" },
+    ],
+  },
+  {
+    kind: "buttons",
+    id: "scope_security",
+    header: "Cybersecurity Practice",
+    body:
+      "*Cybersecurity & Threat Defense*\n\n" +
+      "We deliver comprehensive perimeter audits, threat modeling, zero-trust infrastructure, and rapid incident response.\n\n" +
+      "Select your security requirement:",
+    footer: "Next: Target Timeline",
+    buttons: [
+      { id: "sec_audit", title: "Security Review", next: "timeline" },
+      { id: "sec_pentest", title: "Penetration Testing", next: "timeline" },
+      { id: "sec_hardening", title: "Posture Hardening", next: "timeline" },
+    ],
+  },
+  {
+    kind: "buttons",
+    id: "incident",
+    header: "Emergency Incident Alert",
+    body:
+      "🚨 *EMERGENCY OUTAGE / BREACH ALERT*\n\n" +
+      "Your alert has been escalated to our on-call Incident Response team.\n\n" +
+      "• *Direct 24/7 Hotline:* +92 335 6701199\n" +
+      "• *Incident Commander:* Standing by for briefing\n\n" +
+      "Please reply with affected endpoints or symptoms.",
+    footer: "24/7 Emergency Dispatch",
+    buttons: [
+      { id: "inc_outage", title: "Service Down", next: "intake" },
+      { id: "inc_breach", title: "Data Breach", next: "intake" },
+      { id: "inc_call", title: "Request Phone Call", next: "intake" },
+    ],
+  },
+  {
+    kind: "buttons",
+    id: "scope_uiux",
+    header: "UI/UX & Product Design",
+    body:
+      "*Product Design & Design Systems*\n\n" +
+      "We craft high-conversion user interfaces, scalable design systems, and rapid interactive prototypes for enterprise platforms.\n\n" +
+      "Select your primary objective:",
+    footer: "Next: Target Timeline",
+    buttons: [
+      { id: "ux_research", title: "User Research & Flow", next: "timeline" },
+      { id: "ux_design", title: "UI & Design System", next: "timeline" },
+      { id: "ux_proto", title: "Interactive Proto", next: "timeline" },
+    ],
+  },
+  {
+    kind: "buttons",
+    id: "client_services",
+    header: "Client Account Desk",
+    body:
+      "*Active Client & Account Services*\n\n" +
+      "You are connected with our dedicated Client Services Desk. A representative will assist you with active retainers, deliverables, invoices, or portal access.",
+    footer: "Mon to Sat, 09:00 to 18:00 PKT",
+    buttons: [
+      { id: "cli_retainer", title: "Retainer Support", next: "intake" },
+      { id: "cli_billing", title: "Invoice & Billing", next: "intake" },
+      { id: "cli_lead", title: "Speak with Lead", next: "human" },
+    ],
+  },
+  {
+    kind: "buttons",
+    id: "careers",
+    header: "Engineering Careers at TMI",
+    body:
+      "*Careers & Recruitment*\n\n" +
+      "We actively recruit top-tier software engineers, security researchers, and systems architects.\n\n" +
+      "Explore our open positions and submit your profile at:\n" +
+      "https://tauqeermustafa.tech/careers\n\n" +
+      "Our technical leadership reviews all submissions directly.",
+    footer: "tauqeermustafa.tech/careers",
+    buttons: [
+      { id: "car_apply", title: "Submit Resume", next: "intake" },
+      { id: "car_roles", title: "View Open Roles", next: "start" },
+      { id: "car_lead", title: "Speak with Lead", next: "human" },
+    ],
+  },
+  {
+    kind: "buttons",
+    id: "human",
+    header: "Principal Consultation",
+    body:
+      "*Direct Principal Consultation*\n\n" +
+      "You have requested direct consultation with a lead engineer or practice partner.\n\n" +
+      "Please share your project summary and availability, or connect directly via our hotline:\n" +
+      "• +92 335 6701199",
+    footer: "Engineering Leadership",
+    buttons: [
+      { id: "hum_brief", title: "Share Brief Now", next: "intake" },
+      { id: "hum_call", title: "Schedule Call", next: "intake" },
+      { id: "hum_back", title: "Back to Menu", next: "start" },
+    ],
+  },
+  {
+    kind: "buttons",
+    id: "timeline",
+    header: "Target Delivery Timeline",
+    body:
+      "*Delivery Schedule*\n\n" +
+      "What target delivery timeframe or milestone are you aiming for?",
+    footer: "Step 2 of 3",
+    buttons: [
+      { id: "time_immediate", title: "Immediate (< 2 wks)", next: "intake" },
+      { id: "time_quarterly", title: "Quarterly (1–3 mos)", next: "intake" },
+      { id: "time_advisory", title: "Advisory / Scoping", next: "intake" },
+    ],
+  },
+  {
+    kind: "text",
+    id: "intake",
+    body:
+      "*Technical Assessment Intake*\n\n" +
+      "To prepare an accurate scope assessment and proposal, please reply with:\n\n" +
+      "1. *Organization* — Company name and website\n" +
+      "2. *Contact* — Your full name and role\n" +
+      "3. *Objective* — What you want to build or solve\n\n" +
+      "💡 _You may also share a voice brief or paste an existing scope document/link._",
+  },
+  {
+    kind: "text",
+    id: "handoff",
+    body:
+      "*Briefing Received & Assigned*\n\n" +
+      "Thank you. Your requirements have been routed to our Technical Advisory Desk. A principal engineer will review your specifications and reply directly in this thread.\n\n" +
+      "• *Operating Hours:* Monday to Saturday, 09:00 to 18:00 (PKT)\n" +
+      "• *Direct Hotline:* +92 335 6701199",
   },
 ];
 

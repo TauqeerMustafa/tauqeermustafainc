@@ -7,16 +7,21 @@
  */
 import { NextResponse } from "next/server";
 import { isStoreReady, getMessages, type WAMessage } from "@/lib/wa-store";
+import { identifyMessageLine } from "@/lib/wa-numbers";
 
 export type Conversation = {
   jid: string;
   name: string;
+  number: string;
+  channel: string;
+  lineKey: string;
+  lineLabel: string;
   lastMessage: string;
   lastTimestamp: string;
   unreadCount: number;
 };
 
-export async function GET() {
+export async function GET(request: Request) {
   if (!isStoreReady()) {
     return NextResponse.json({
       success: true,
@@ -26,47 +31,77 @@ export async function GET() {
   }
 
   try {
+    const { searchParams } = new URL(request.url);
+    const channelParam = (searchParams.get("channel") || searchParams.get("line") || "").trim();
+
     const messages = await getMessages();
 
-    // Group messages by customer number
-    const convMap = new Map<string, { name: string; messages: WAMessage[] }>();
+    // Group messages strictly by respective WhatsApp line + customer number
+    const convMap = new Map<
+      string,
+      {
+        name: string;
+        customerNumber: string;
+        channel: string;
+        lineKey: string;
+        lineLabel: string;
+        messages: WAMessage[];
+      }
+    >();
 
     for (const msg of messages) {
+      const line = identifyMessageLine(msg);
+
+      if (channelParam && channelParam !== "all") {
+        if (channelParam.startsWith("line")) {
+          if (line.lineKey !== channelParam) continue;
+        } else if (line.canonicalId !== channelParam && msg.channel !== channelParam) {
+          continue;
+        }
+      }
+
       // Determine the customer number (not our own phone number id)
       const customerNumber =
-        msg.direction === "inbound" ? msg.from : msg.to;
-      const jid = msg.jid || `${customerNumber}@s.whatsapp.net`;
-      const key = customerNumber.replace(/[^0-9]/g, "");
+        (msg.direction === "inbound" ? msg.from : msg.to) || "";
+      const cleanCustomer = customerNumber.replace(/[^0-9]/g, "");
+      if (!cleanCustomer) continue;
 
-      if (!key) continue;
+      const groupKey = `${line.lineKey}_${cleanCustomer}`;
 
-      if (!convMap.has(key)) {
-        convMap.set(key, {
-          name: msg.name || key,
+      if (!convMap.has(groupKey)) {
+        convMap.set(groupKey, {
+          name: msg.name || cleanCustomer,
+          customerNumber: cleanCustomer,
+          channel: line.canonicalId,
+          lineKey: line.lineKey,
+          lineLabel: line.label,
           messages: [],
         });
       }
 
-      const conv = convMap.get(key)!;
+      const conv = convMap.get(groupKey)!;
       conv.messages.push(msg);
-      // Use the most informative name available
-      if (msg.name && msg.name !== key) {
+      if (msg.name && msg.name !== cleanCustomer) {
         conv.name = msg.name;
       }
     }
 
     // Build conversation list sorted by last activity
     const conversations: Conversation[] = [];
-    for (const [key, conv] of convMap) {
+    for (const [, conv] of convMap) {
       const sorted = conv.messages.sort(
         (a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
       );
       const last = sorted[0];
       conversations.push({
-        jid: `${key}@s.whatsapp.net`,
+        jid: `${conv.customerNumber}@s.whatsapp.net`,
         name: conv.name,
-        lastMessage: last.body || `[${last.type}]`,
-        lastTimestamp: last.timestamp,
+        number: conv.customerNumber,
+        channel: conv.channel,
+        lineKey: conv.lineKey,
+        lineLabel: conv.lineLabel,
+        lastMessage: last?.body || `[${last?.type || "message"}]`,
+        lastTimestamp: last?.timestamp || new Date().toISOString(),
         unreadCount: 0,
       });
     }

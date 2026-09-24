@@ -17,10 +17,12 @@ import {
   type WAMessage,
 } from "@/lib/wa-store";
 
+import { identifyMessageLine } from "@/lib/wa-numbers";
+
 // Re-exported for callers that still import the type from here.
 export type { WAMessage };
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
     if (!isStoreReady()) {
       return NextResponse.json({
@@ -31,7 +33,21 @@ export async function GET() {
       });
     }
 
-    const messages = await getMessages();
+    const { searchParams } = new URL(request.url);
+    const channelParam = (searchParams.get("channel") || searchParams.get("line") || "").trim();
+
+    let messages = await getMessages();
+
+    if (channelParam && channelParam !== "all") {
+      messages = messages.filter((m) => {
+        const line = identifyMessageLine(m);
+        if (channelParam.startsWith("line")) {
+          return line.lineKey === channelParam;
+        }
+        return line.canonicalId === channelParam || m.channel === channelParam;
+      });
+    }
+
     return NextResponse.json({
       success: true,
       data: messages,
@@ -105,11 +121,12 @@ export async function DELETE(request: Request) {
 
     const { searchParams } = new URL(request.url);
     const number = (searchParams.get("number") || "").replace(/[^0-9]/g, "");
+    const channel = searchParams.get("channel") || undefined;
     if (!number) {
       return NextResponse.json({ success: false, error: "number is required" }, { status: 400 });
     }
 
-    const deleted = await deleteConversationMessages(number);
+    const deleted = await deleteConversationMessages(number, channel);
     return NextResponse.json({ success: true, deleted });
   } catch (error) {
     console.error("[messages] DELETE error:", error);

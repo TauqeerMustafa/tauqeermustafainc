@@ -172,13 +172,19 @@ function customerOf(m: WAMessage): string {
   return (raw || "").replace(/[^0-9]/g, "");
 }
 
-export async function deleteConversationMessages(number: string): Promise<number> {
+export async function deleteConversationMessages(number: string, channel?: string): Promise<number> {
   const kv = getKV();
   if (!kv) return 0;
 
   const digits = number.replace(/[^0-9]/g, "");
   const messages = await getMessages();
-  const kept = messages.filter((m) => customerOf(m) !== digits);
+  const kept = messages.filter((m) => {
+    if (customerOf(m) !== digits) return true;
+    if (!channel) return false;
+    const mChan = (m.channel || (m.direction === "inbound" ? m.to : m.from) || "").replace(/[^0-9]/g, "");
+    const targetChan = channel.replace(/[^0-9]/g, "");
+    return mChan !== targetChan;
+  });
 
   await kv.set(KEYS.messages, kept);
   return messages.length - kept.length;
@@ -255,7 +261,7 @@ export async function clearSession(from: string): Promise<void> {
  * Bumped whenever the shipped rules below change in a way a live deployment
  * should pick up. See `getRules` for what "should pick up" means.
  */
-const RULES_VERSION = 3;
+const RULES_VERSION = 4;
 
 /**
  * Keyword replies for contacts already in a conversation.
@@ -283,14 +289,13 @@ export const DEFAULT_GENERAL_RULES: AutoReplyRule[] = [
     mode: "contains",
     department: "general",
     reply:
-      "We work in three areas:\n\n" +
-      "1. *Cybersecurity* — we map how customer and payment data moves through your business, " +
-      "name what is exposed, and hand back a fix list in priority order.\n\n" +
-      "2. *Financial compliance* — the controls, records and reporting a growing business is " +
-      "expected to have, written down rather than held in one person's head.\n\n" +
-      "3. *SEO and AdSense* — work on the traffic you already have and the spend you already " +
-      "make, reported in enquiries rather than impressions.\n\n" +
-      "Reply with whichever is closest, plus your company name.",
+      "*Tauqeer Mustafa Inc.* — Engineering & Advisory Practices:\n\n" +
+      "1. *Web & Cloud Platforms* — Resilient cloud portals, enterprise SaaS, and high-throughput APIs.\n\n" +
+      "2. *Cybersecurity & Audits* — Infrastructure hardening, vulnerability assessments, and zero-trust.\n\n" +
+      "3. *AI & Automation* — Autonomous agent workflows, enterprise RAG, and custom copilots.\n\n" +
+      "4. *Cloud & DevOps* — Multi-cloud architecture (AWS/GCP/Azure), Kubernetes, and Terraform IaC.\n\n" +
+      "5. *Product & UI/UX* — Enterprise design systems, user flows, and product prototyping.\n\n" +
+      "Reply with the practice area that matches your project, or share your core objective.",
     enabled: true,
   },
   {
@@ -299,12 +304,12 @@ export const DEFAULT_GENERAL_RULES: AutoReplyRule[] = [
     mode: "contains",
     department: "general",
     reply:
-      "It depends on scope, so we do not put a number on it before we understand the work.\n\n" +
-      "Send these three and you get a written proposal with a fixed price:\n\n" +
-      "1. *Company* — name and website\n" +
-      "2. *Service* — which of the three you need\n" +
-      "3. *Outcome* — what you want, and any deadline you are working to\n\n" +
-      "If the job turns out to be smaller than you expect, we say so.",
+      "All engagements at *Tauqeer Mustafa Inc.* are scoped with transparent, fixed-price milestones — no hidden fees or open-ended hourly billing.\n\n" +
+      "To receive an accurate technical proposal and timeline, please share:\n\n" +
+      "1. *Organization* — Company name and primary website\n" +
+      "2. *Practice Area* — Web, Cloud, AI, Cybersecurity, or UI/UX\n" +
+      "3. *Objective* — What you want to build or solve, and your target completion date\n\n" +
+      "Our technical leadership will evaluate your scope and deliver a clear written proposal.",
     enabled: true,
   },
   {
@@ -313,9 +318,10 @@ export const DEFAULT_GENERAL_RULES: AutoReplyRule[] = [
     mode: "contains",
     department: "general",
     reply:
-      "*Monday to Saturday, 09:00 to 18:00 Pakistan time.* Closed Sunday.\n\n" +
-      "Anything sent outside those hours waits until the next working day.\n\n" +
-      "If it cannot wait, send the word urgent and it is flagged in this inbox.",
+      "*Business Operating Hours:*\n" +
+      "Monday to Saturday, 09:00 to 18:00 Pakistan time (PKT). Closed Sunday.\n\n" +
+      "Inquiries submitted outside operating hours are reviewed first thing the following morning.\n\n" +
+      "For critical production outages or urgent security incidents, reply *urgent* or call our 24/7 hotline directly: +92 335 6701199.",
     enabled: true,
   },
   {
@@ -324,9 +330,11 @@ export const DEFAULT_GENERAL_RULES: AutoReplyRule[] = [
     mode: "contains",
     department: "general",
     reply:
-      "You are in the right place. This inbox is read Monday to Saturday, 09:00 to 18:00 Pakistan time.\n\n" +
-      "If a call suits you better, send a number and two times that work for you.\n\n" +
-      "By email: contact@tauqeermustafa.tech",
+      "You are connected with the *Tauqeer Mustafa Inc.* Technical Inbound Desk.\n\n" +
+      "• *Direct Hotline:* +92 335 6701199\n" +
+      "• *Email:* contact@tauqeermustafa.tech\n" +
+      "• *Operating Hours:* Monday to Saturday, 09:00 to 18:00 (PKT)\n\n" +
+      "If you would like to arrange an architecture sync, share your phone number and two convenient times.",
     enabled: true,
   },
   {
@@ -335,9 +343,9 @@ export const DEFAULT_GENERAL_RULES: AutoReplyRule[] = [
     mode: "contains",
     department: "general",
     reply:
-      "Our work and written case studies are at tauqeermustafa.tech.\n\n" +
-      "Tell me which of the three services you are weighing up and I will send the closest " +
-      "comparable engagement, and what changed as a result of it.",
+      "Explore our software engineering architecture, case studies, and capabilities at:\n" +
+      "https://tauqeermustafa.tech\n\n" +
+      "Tell us your target technical stack or industry, and we will share relevant architecture case studies and deliverables.",
     enabled: true,
   },
   {
@@ -346,13 +354,13 @@ export const DEFAULT_GENERAL_RULES: AutoReplyRule[] = [
     mode: "contains",
     department: "general",
     reply:
-      "Flagged as urgent.\n\n" +
-      "Send what you have, even if it is incomplete:\n\n" +
-      "1. *What you are seeing*, and when it started\n" +
-      "2. *What is affected* — and whether customer or payment data is involved\n" +
-      "3. *A number* we can call you on\n\n" +
-      "Keep the logs and alerts you already have. Do not wipe or rebuild anything before we have " +
-      "spoken, unless something is still actively spreading.",
+      "🚨 *HIGH PRIORITY ALERT LOGGED*\n\n" +
+      "This thread has been flagged directly to our on-call Incident Response team.\n\n" +
+      "Please share immediately:\n" +
+      "1. *Affected Systems* — Domain, endpoint URLs, or infrastructure components\n" +
+      "2. *Symptoms* — Observed errors, outage onset time, or unusual behavior\n" +
+      "3. *Emergency Phone* — Number we can reach your team on right now\n\n" +
+      "24/7 Emergency Bridge: *+92 335 6701199*.",
     enabled: true,
   },
   {
@@ -360,7 +368,7 @@ export const DEFAULT_GENERAL_RULES: AutoReplyRule[] = [
     keyword: "thank, thanks, shukriya, appreciate, grateful",
     mode: "contains",
     department: "general",
-    reply: "Glad to help. Anything else, send it here.",
+    reply: "You are very welcome. Our engineering team is here whenever you need assistance.",
     enabled: true,
   },
 ];
@@ -462,6 +470,9 @@ const SHIPPED_RULE_IDS = new Set([
  */
 const SEED_TELLS: RegExp[] = [
   /[\u{1F000}-\u{1FAFF}\u{2190}-\u{2BFF}\u{FE0F}\u{2600}-\u{27BF}]/u,
+  /financial compliance/i,
+  /SEO and AdSense/i,
+  /controls, records and reporting/i,
   /inside two working days/i,
   /usually answered within a few hours/i,
   /ahead of everything else in this inbox/i,

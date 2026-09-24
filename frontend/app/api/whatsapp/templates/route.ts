@@ -12,58 +12,61 @@ import { getKV, checkKVConfigured, KEYS } from "@/lib/kv";
  *
  * House rules for this copy: no emojis, no invented prices, and no promise the
  * business does not keep. They are about the three things we actually sell —
- * cybersecurity consulting, financial compliance, and SEO and AdSense management
- * — not the web-and-app-studio wording that used to sit here. Square brackets
- * mark what the sender fills in before sending.
+ * cybersecurity consulting, cloud systems, web platforms, and AI automation.
+ * Square brackets mark what the sender fills in before sending.
  */
 const DEFAULT_TEMPLATES = [
   {
     name: "qualify_new_lead",
-    text: "Thanks for getting in touch.\n\nSo this reaches the right person first time, send these three lines in one message:\n\n1. Company name and website\n2. Your name and role\n3. The outcome you want, in your own words\n\nA voice note is fine if it is quicker. Once I have those I will come back with what the work would involve.",
+    text: "Welcome to Tauqeer Mustafa Inc.\n\nTo connect you with the appropriate technical practice, please share three details in one message:\n\n1. Company name and primary website\n2. Your name and role\n3. The core objective or milestone you need engineered\n\nA text or voice brief works equally well. Our technical leads review every submission.",
+  },
+  {
+    name: "web_platform_scope",
+    text: "Here is an overview of our Web & Cloud Platform practice.\n\nWe engineer modern cloud-native web portals, SaaS platforms, and high-throughput API microservices with robust security, automated testing, and CI/CD.\n\nTo prepare a technical architecture proposal, please share:\n• Target user personas and scale\n• Key integrations and existing database tech stack\n• Desired launch window or MVP milestone",
   },
   {
     name: "security_review_scope",
-    text: "Here is what a security review covers.\n\nWe map how customer and payment data actually moves through your business, find where it is exposed, and hand back a fix list in priority order. You get a written report and a walkthrough call. There is no tooling to buy from us.\n\nTo scope it I need: roughly how many staff handle customer data, whether you take payments online, and who owns IT decisions.\n\nTypical review runs [DURATION] once we start.",
+    text: "Here is what our Cybersecurity Assessment covers.\n\nWe map your end-to-end data and transaction flows, identify vulnerabilities and misconfigurations across your perimeter, and provide an actionable, prioritized remediation matrix with direct remediation guidance.\n\nTo scope this engagement: roughly how many users/endpoints are in scope, whether customer or financial data is stored, and any specific compliance standards required (e.g. SOC 2, ISO 27001).",
   },
   {
-    name: "compliance_review_scope",
-    text: "Here is what the compliance work covers.\n\nWe put the controls, records and reporting in place that a business your size is expected to have, so that when an auditor, a bank or an investor asks, the answer is already written down. You get the control set written down, the gaps named, and a plan with dates.\n\nTo scope it I need: your financial year end, who keeps the books today, and whether any audit or filing deadline is already fixed.",
+    name: "ai_automation_scope",
+    text: "Here is what our AI & Automation practice covers.\n\nWe architect and deploy production-grade AI systems: autonomous agent workflows, enterprise RAG knowledge search, and custom copilots integrated directly into your production databases and tools.\n\nTo scope your AI initiative: what repetitive workflow or data repository are you looking to automate, and what existing software tools need to be connected?",
   },
   {
-    name: "seo_audit_scope",
-    text: "Here is what the SEO and AdSense work covers.\n\nWe start with the traffic you already have and the spend you already make. You get a written audit that names what is worth keeping, what to stop, and what to fix first, then monthly management reported in enquiries rather than impressions.\n\nTo scope it I need: your website, read access to Analytics and Search Console, and your current monthly ad spend if any.\n\nIf the numbers say the spend is not worth keeping, we will say so.",
+    name: "cloud_devops_scope",
+    text: "Here is what our Cloud Architecture & DevOps practice covers.\n\nWe design, migrate, and optimize resilient multi-cloud infrastructure on AWS, GCP, and Azure. Deliverables include Kubernetes cluster orchestration, Terraform IaC, automated zero-downtime deployment pipelines, and observability telemetry.\n\nTo scope your infrastructure: what cloud provider do you currently use, and what is your target uptime or scaling requirement?",
   },
   {
     name: "proposal_sent",
-    text: "Your proposal is sent.\n\nIt is with [EMAIL] and covers scope, what you get, the price, and the dates. Please check the spam folder if it is not in the inbox.\n\nThe price holds for [VALIDITY]. If anything in the scope reads wrong, say which line and I will redo it rather than argue it.\n\nHappy to walk through it on a call if that is easier.",
+    text: "Your engineering proposal for [SCOPE] has been sent to [EMAIL].\n\nIt sets out technical architecture, phased milestones, deliverables schedule, and a fixed investment price. Scope is defined clearly with no hidden fees.\n\nOur principal engineers are standing by if you would like to schedule an architecture walkthrough call.",
   },
   {
     name: "follow_up",
-    text: "Following up on [SUBJECT].\n\nIs this still something you want to move on? A yes or a no both help me plan.\n\nIf it is a matter of timing, tell me the month that works and I will come back to you then instead of chasing.",
+    text: "Following up regarding [SUBJECT].\n\nIf you are ready to proceed with your engineering milestones, we can confirm resource availability and kickoff dates. If your timeline has shifted, no problem at all — let us know when it makes sense to reconnect.",
   },
   {
     name: "meeting_confirmed",
-    text: "Call confirmed for [DATE] at [TIME] Pakistan time.\n\nJoining link: [LINK]\n\nWhat we will get through:\n\n1. Where you are now and what is going wrong\n2. What the work would cover, and what it would not\n3. Dates and price\n\nIf something comes up, send a message here and we will move it. No need to apologise for it.",
+    text: "Technical Discovery Call confirmed for [DATE] at [TIME] Pakistan time.\n\nMeeting link: [LINK]\n\nAgenda:\n1. Technical scope, current architecture, and constraints\n2. Proposed solution approach and milestone roadmap\n3. Budget, timeline, and deliverables\n\nIf your schedule changes, simply reply here and we will coordinate an alternative time.",
   },
   {
     name: "careers_reply",
-    text: "Thanks for applying.\n\nApplications are read here, not by a filter. Send these in one message and it goes into the queue properly:\n\n1. Your name, city, and the role you are after\n2. Your CV as a PDF\n3. One thing you have built, fixed or written, and what your part in it was\n\nWe take interns and paid staff. The written terms for both are on the site.\n\nYou will hear back either way.",
+    text: "Thank you for your interest in joining Tauqeer Mustafa Inc.\n\nOur engineering leadership evaluates all applications directly. Please provide:\n1. Your name, city, and primary role/focus\n2. Your CV / resume (PDF format)\n3. A link to your GitHub profile, portfolio, or a complex system you built\n\nWe will review your background and respond directly.",
   },
   {
     name: "payment_due",
-    text: "Invoice [INVOICE_NUMBER] for [PERIOD] is now due.\n\nAmount and payment details are on the invoice sent to [EMAIL]. Due date is [DATE].\n\nIf a date further out works better for your cash flow, say so and we will set one rather than send reminders.\n\nWork carries on as normal in the meantime.",
+    text: "Milestone invoice [INVOICE_NUMBER] for [MILESTONE] is due for settlement on [DATE].\n\nBanking details and payment wire instructions are attached to the invoice sent to [EMAIL].\n\nIf you have any questions or require vendor onboarding paperwork, reply directly to this thread.",
   },
   {
     name: "engagement_complete",
-    text: "That completes the work on [ENGAGEMENT].\n\nWhat you now have: [DELIVERABLES]. Everything is written down so it does not live in one person's head.\n\nWe are on hand for questions on it until [SUPPORT_UNTIL]. After that, ongoing work is a separate arrangement, and only worth it if there is something to do.\n\nIf the results were useful, a written line about it helps us more than anything else. Either way, thank you for the work.",
+    text: "Production handover for [ENGAGEMENT] is complete.\n\nDelivered artifacts: [DELIVERABLES]. All code repositories, infrastructure configurations, and architectural documentation have been transferred to your team.\n\nYour 30-day post-launch warranty and hypercare period is now active. Thank you for your partnership.",
   },
   {
     name: "hours",
-    text: "Monday to Saturday, 09:00 to 18:00 Pakistan time. Sunday is closed.\n\nAnything sent outside those hours waits until the next working day.\n\nIf it cannot wait, send the word urgent and it is flagged in this inbox.",
+    text: "Operating hours: Monday to Saturday, 09:00 to 18:00 Pakistan time (PKT).\n\nInquiries received outside business hours are prioritized on the next business morning.\n\nFor critical outages or active security incidents, reply 'urgent' to alert our on-call response team.",
   },
   {
     name: "not_a_fit",
-    text: "Having read what you sent, this is not work we should take on.\n\n[REASON]\n\nRather than stretch to fit it, here is what I would do in your position: [SUGGESTION]\n\nIf the situation changes, or another piece of it comes up, write here and I will look again.",
+    text: "Thank you for sharing your project specifications. After technical review, we have determined that this specific requirement falls outside our core architectural focus: [REASON].\n\nWe commit exclusively to engagements where our team can deliver exceptional, world-class execution.\n\nIf you would like a referral to a vetted specialist in this domain, we are happy to introduce you.",
   },
 ];
 
@@ -71,12 +74,13 @@ const DEFAULT_TEMPLATES = [
  * Bumped when the shipped templates above change in a way a running deployment
  * should pick up. See `currentTemplates` for what "should" means here.
  */
-const TEMPLATES_VERSION = 3;
+const TEMPLATES_VERSION = 4;
 
 /** Every template name this file has ever seeded, for the upgrade check below. */
 const SHIPPED_NAMES = new Set([
   ...DEFAULT_TEMPLATES.map((t) => t.name),
-  // The first seed: emoji-covered copy for a web-and-app studio we are not.
+  "compliance_review_scope",
+  "seo_audit_scope",
   "welcome_new_lead",
   "quote_sent",
   "project_started",
@@ -91,13 +95,13 @@ const SHIPPED_NAMES = new Set([
 
 /**
  * Marks only a seeded set carries, for deployments seeded before the fingerprint
- * key below existed. The emoji pattern catches the first seed; the phrases catch
- * the second, which had no emojis at all — which is exactly why an emoji-only
- * check could never fire on a v2 to v3 bump, and why the stored copy would have
- * stayed stale.
+ * key below existed.
  */
 const SEED_TELLS: RegExp[] = [
   /[\u{1F000}-\u{1FAFF}\u{2190}-\u{2BFF}\u{FE0F}\u{2600}-\u{27BF}]/u,
+  /financial compliance/i,
+  /SEO and AdSense/i,
+  /controls, records and reporting/i,
   /in the order that reduces risk fastest/i,
   /routine rather than a scramble/i,
   /usually answered within a few hours/i,
