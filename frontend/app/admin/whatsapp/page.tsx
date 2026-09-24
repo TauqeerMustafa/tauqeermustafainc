@@ -105,6 +105,7 @@ import { ContactDossierPane } from "@/components/admin/whatsapp/ContactDossierPa
 import { ConversationListPane } from "@/components/admin/whatsapp/ConversationListPane";
 import { BUTTON_TEMPLATES } from "@/lib/button-templates";
 import { countVariables } from "@/lib/meta-templates";
+import { identifyMessageLine, KNOWN_LINES } from "@/lib/wa-numbers";
 
 type MessageType = "text" | "media" | "buttons" | "list" | "template";
 type TabKey = "inbox" | "pipeline" | "send" | "templates" | "rules" | "flow" | "stats" | "numbers";
@@ -147,6 +148,7 @@ type Conversation = {
   name: string;
   messages: WAMessage[];
   channel?: string;
+  lineKey?: string;
   department: "general" | "support" | "direct";
   dealStatus?: DealStatus;
   notes?: string;
@@ -179,121 +181,37 @@ function cleanDigits(s?: string | null): string {
  * onto Line 1, so there is intentionally none of it here.
  */
 function messageDirectlyMatchesNumber(m: WAMessage, numberInfo: WANumberInfo): boolean {
-  // If message has an explicit department stamped and it matches this line's department
-  if (m.department && numberInfo.department && m.department === numberInfo.department) {
-    return true;
-  }
+  const line = identifyMessageLine(m);
+  if (numberInfo.slot && `line${numberInfo.slot}` === line.lineKey) return true;
+  if (numberInfo.id === line.canonicalId) return true;
 
   const ch = channelOf(m);
-  if (!ch) return false;
-  if (ch === numberInfo.id) return true;
+  if (ch && (ch === numberInfo.id || cleanDigits(ch) === cleanDigits(numberInfo.id))) return true;
+  if (numberInfo.displayNumber && cleanDigits(ch) === cleanDigits(numberInfo.displayNumber)) return true;
 
-  const chDigits = cleanDigits(ch);
-  const idDigits = cleanDigits(numberInfo.id);
-  if (chDigits && idDigits && chDigits === idDigits) return true;
-
-  const displayDigits = cleanDigits(numberInfo.displayNumber);
-  if (chDigits && displayDigits && chDigits === displayDigits) return true;
-  if (numberInfo.displayNumber && ch === numberInfo.displayNumber) return true;
-
-  // Also check m.to / m.from against numberInfo
   const toDigits = cleanDigits(m.to);
-  if (toDigits && idDigits && toDigits === idDigits) return true;
-  if (toDigits && displayDigits && toDigits === displayDigits) return true;
+  const fromDigits = cleanDigits(m.from);
+  const idDigits = cleanDigits(numberInfo.id);
+  const displayDigits = cleanDigits(numberInfo.displayNumber);
 
-  if (numberInfo.slot === 7 || numberInfo.id === "1964540454233744") {
-    if (
-      ch === "1964540454233744" ||
-      toDigits === "1964540454233744" ||
-      chDigits === "1964540454233744"
-    ) return true;
+  if (m.direction === "inbound") {
+    if (toDigits && idDigits && toDigits === idDigits) return true;
+    if (toDigits && displayDigits && toDigits === displayDigits) return true;
+  } else {
+    if (fromDigits && idDigits && fromDigits === idDigits) return true;
+    if (fromDigits && displayDigits && fromDigits === displayDigits) return true;
   }
 
-  if (numberInfo.slot === 6 || numberInfo.id === "1034864159583818" || numberInfo.id === "1291624014041103") {
-    if (
-      ch === "1034864159583818" ||
-      ch === "1291624014041103" ||
-      toDigits === "1034864159583818" ||
-      toDigits === "1291624014041103" ||
-      toDigits === "15554340459" ||
-      chDigits === "15554340459"
-    ) return true;
-  }
-
-  if (numberInfo.slot === 5 || numberInfo.id === "1083562997861778" || numberInfo.id === "1385974501255442") {
-    if (
-      ch === "1083562997861778" ||
-      ch === "1385974501255442" ||
-      toDigits === "1083562997861778" ||
-      toDigits === "1385974501255442" ||
-      toDigits === "15554316671" ||
-      chDigits === "15554316671"
-    ) return true;
-  }
-
-  if (numberInfo.slot === 4 || numberInfo.id === "1739099617324219" || numberInfo.id === "1339948289200329") {
-    if (
-      ch === "1739099617324219" ||
-      ch === "1339948289200329" ||
-      toDigits === "1739099617324219" ||
-      toDigits === "1339948289200329" ||
-      toDigits === "3197058026143" ||
-      chDigits === "3197058026143"
-    ) return true;
-  }
-
-  if (numberInfo.slot === 3 || numberInfo.id === "2663451950739498" || numberInfo.id === "1401823986336958") {
-    if (
-      ch === "2663451950739498" ||
-      ch === "1401823986336958" ||
-      toDigits === "2663451950739498" ||
-      toDigits === "1401823986336958" ||
-      toDigits === "3197058026144" ||
-      chDigits === "3197058026144"
-    ) return true;
-  }
-
-  if (numberInfo.slot === 2 || numberInfo.id === "1485319076722009" || numberInfo.id === "1245811661959729") {
-    if (
-      ch === "1485319076722009" ||
-      ch === "1245811661959729" ||
-      toDigits === "1485319076722009" ||
-      toDigits === "1245811661959729" ||
-      toDigits === "38665743712" ||
-      chDigits === "38665743712"
-    ) return true;
-  }
   return false;
 }
 
 function messageBelongsToChannel(
   m: WAMessage,
   numberInfo: WANumberInfo | undefined,
-  allNumbers: WANumberInfo[]
+  _allNumbers: WANumberInfo[] = []
 ): boolean {
   if (!numberInfo) return true;
-
-  // 0. Explicit stamped department check
-  if (m.department && numberInfo.department) {
-    return m.department === numberInfo.department;
-  }
-
-  // 1. Check if directly matches target line
-  if (messageDirectlyMatchesNumber(m, numberInfo)) return true;
-
-  // 2. If it directly matches ANY OTHER configured line, it does not belong here
-  const matchesAnotherLine = allNumbers.some((other) => {
-    if (other.id === numberInfo.id) return false;
-    return messageDirectlyMatchesNumber(m, other);
-  });
-
-  if (matchesAnotherLine) return false;
-
-  // 3. Fallback: only legacy/unlabelled messages without distinct channel belong to primary
-  const ch = channelOf(m);
-  if (!ch || ch === "unknown") return !!numberInfo.primary;
-
-  return !!numberInfo.primary;
+  return messageDirectlyMatchesNumber(m, numberInfo);
 }
 
 
@@ -410,67 +328,80 @@ function getMessageDepartment(m: WAMessage, allNumbers: WANumberInfo[] = []): "g
  * Meta Phone Number ID, display number, or explicit channel metadata.
  */
 function getLineForMessage(m: WAMessage, allNumbers: WANumberInfo[] = []): WANumberInfo | undefined {
-  const directMatch = allNumbers.find((n) => messageDirectlyMatchesNumber(m, n));
-  if (directMatch) return directMatch;
-
-  const dept = getMessageDepartment(m, allNumbers);
-  if (dept === "direct") {
-    return (
-      allNumbers.find((n) => n.id === "1034864159583818" || n.id === "1083562997861778" || n.slot === 3 || n.department === "direct") ||
-      allNumbers.find((n) => n.department === "direct")
-    );
-  }
-  if (dept === "support") {
-    return (
-      allNumbers.find((n) => n.id === "1318810581311680" || n.slot === 2 || (n.department === "support" && n.id !== "1291624014041103" && n.id !== "1034864159583818" && n.id !== "1083562997861778")) ||
-      allNumbers.find((n) => n.department === "support") ||
-      allNumbers.find((n) => !n.primary)
-    );
-  }
-  return allNumbers.find((n) => n.primary || n.id === "1239592269240963") || allNumbers[0];
+  const line = identifyMessageLine(m);
+  const matched = allNumbers.find(
+    (n) => (n.slot && `line${n.slot}` === line.lineKey) || n.id === line.canonicalId || messageDirectlyMatchesNumber(m, n)
+  );
+  if (matched) return matched;
+  return allNumbers.find((n) => n.id === line.canonicalId) || allNumbers.find((n) => n.primary) || allNumbers[0];
 }
 
 /**
- * Multi-line conversation grouper: groups messages into distinct conversations keyed by (department + customer number),
- * ensuring General Inquiries, Client Support, and Executive Desk never bleed messages, notes, or deal stages.
+ * WhatsApp conversation grouper: groups messages strictly by respective WhatsApp line and customer number.
+ * Each WhatsApp line has its own dedicated inbox, ensuring messages and conversations are never mixed.
  */
 function groupConversations(
   messages: WAMessage[],
   allNumbers: WANumberInfo[] = [],
-  filterDepartment?: "general" | "support" | "direct"
+  filterLineOrDept?: string
 ): Conversation[] {
   const safeMessages = Array.isArray(messages) ? messages : [];
   const safeNumbers = Array.isArray(allNumbers) ? allNumbers : [];
   const byKey = new Map<string, Conversation>();
+
   for (const m of safeMessages) {
     if (!m) continue;
-    const dept = getMessageDepartment(m, safeNumbers);
-    if (filterDepartment && dept !== filterDepartment) continue;
+    const line = identifyMessageLine(m);
+    const lineKey = line.lineKey;
+    const lineInfo = getLineForMessage(m, safeNumbers);
+    const dept: "general" | "support" | "direct" =
+      lineKey === "line2" ? "support" : lineKey === "line6" ? "direct" : "general";
+
+    if (filterLineOrDept && filterLineOrDept !== "all") {
+      if (filterLineOrDept.startsWith("line")) {
+        if (lineKey !== filterLineOrDept) continue;
+      } else if (
+        filterLineOrDept === "general" ||
+        filterLineOrDept === "support" ||
+        filterLineOrDept === "direct"
+      ) {
+        if (dept !== filterLineOrDept) continue;
+      } else {
+        if (line.canonicalId !== filterLineOrDept && m.channel !== filterLineOrDept) {
+          continue;
+        }
+      }
+    }
+
     const number = numberOf(m);
-    const key = `${dept}_${number}`;
+    // Distinct conversation key per WhatsApp line: Keeps all messages in their respective WhatsApp!
+    const key = `${lineKey}_${number}`;
+
     let conv = byKey.get(key);
     if (!conv) {
       conv = {
         key,
+        lineKey,
         number,
         name: number,
         messages: [],
         department: dept,
+        channel: lineInfo?.id || line.canonicalId,
         dealStatus: "new",
         notes: "",
         tags: [],
       };
       byKey.set(key, conv);
     }
-    if (m.direction === "inbound" && m.name && m.name !== number) conv.name = m.name;
+    if (m.direction === "inbound" && m.name && m.name !== number) {
+      conv.name = m.name;
+    }
     conv.messages.push(m);
   }
+
   const convos = [...byKey.values()];
   for (const c of convos) {
     c.messages.sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
-    const last = c.messages.at(-1);
-    const line = last ? getLineForMessage(last, safeNumbers) : undefined;
-    c.channel = line?.id || (last ? channelOf(last) : undefined) || undefined;
   }
   convos.sort((a, b) => {
     const at = a.messages.at(-1) ? new Date(a.messages.at(-1)!.timestamp).getTime() : 0;
@@ -1052,7 +983,7 @@ function InboxTab({
   const metaMap = (metaData?.data && typeof metaData.data === "object" && !Array.isArray(metaData.data)) ? metaData.data : {};
   const apiNumbers = Array.isArray(numbersData?.data) ? numbersData.data : [];
 
-  const [lineFilter, setLineFilter] = useState<string>("all");
+  const [lineFilter, setLineFilter] = useState<string>("line1");
   const [selected, setSelected] = useState<string | null>(selectedRecipient || null);
 
   useEffect(() => {
@@ -1076,34 +1007,43 @@ function InboxTab({
   const directConvs = groupConversations(allMessages, numbers, "direct");
 
   const line1Convs = allConversations.filter(
-    (c) =>
-      c.channel === "1363415125370805" ||
-      c.channel === "1239592269240963" ||
-      (!c.channel && c.department === "general")
+    (c) => c.lineKey === "line1" || c.channel === "1363415125370805" || c.channel === "1239592269240963"
   );
-  const line2Convs = allConversations.filter((c) => c.channel === "1485319076722009" || c.channel === "1245811661959729");
-  const line3Convs = allConversations.filter((c) => c.channel === "2663451950739498" || c.channel === "1401823986336958");
-  const line4Convs = allConversations.filter((c) => c.channel === "1739099617324219" || c.channel === "1339948289200329");
-  const line5Convs = allConversations.filter((c) => c.channel === "1083562997861778" || c.channel === "1385974501255442");
-  const line6Convs = allConversations.filter((c) => c.channel === "1034864159583818" || c.channel === "1291624014041103");
-  const line7Convs = allConversations.filter((c) => c.channel === "1964540454233744");
+  const line2Convs = allConversations.filter(
+    (c) => c.lineKey === "line2" || c.channel === "1485319076722009" || c.channel === "1245811661959729"
+  );
+  const line3Convs = allConversations.filter(
+    (c) => c.lineKey === "line3" || c.channel === "2663451950739498" || c.channel === "1401823986336958"
+  );
+  const line4Convs = allConversations.filter(
+    (c) => c.lineKey === "line4" || c.channel === "1739099617324219" || c.channel === "1339948289200329"
+  );
+  const line5Convs = allConversations.filter(
+    (c) => c.lineKey === "line5" || c.channel === "1083562997861778" || c.channel === "1385974501255442"
+  );
+  const line6Convs = allConversations.filter(
+    (c) => c.lineKey === "line6" || c.channel === "1034864159583818" || c.channel === "1291624014041103"
+  );
+  const line7Convs = allConversations.filter(
+    (c) => c.lineKey === "line7" || c.channel === "1964540454233744"
+  );
 
   const unreadCounts = {
-    general: generalConvs.reduce((acc, c) => acc + (unreadCount(c, metaMap[c.key] || metaMap[c.number]) > 0 ? 1 : 0), 0),
-    support: supportConvs.reduce((acc, c) => acc + (unreadCount(c, metaMap[c.key] || metaMap[c.number]) > 0 ? 1 : 0), 0),
-    direct: directConvs.reduce((acc, c) => acc + (unreadCount(c, metaMap[c.key] || metaMap[c.number]) > 0 ? 1 : 0), 0),
-    line1: line1Convs.reduce((acc, c) => acc + (unreadCount(c, metaMap[c.key] || metaMap[c.number]) > 0 ? 1 : 0), 0),
-    line2: line2Convs.reduce((acc, c) => acc + (unreadCount(c, metaMap[c.key] || metaMap[c.number]) > 0 ? 1 : 0), 0),
-    line3: line3Convs.reduce((acc, c) => acc + (unreadCount(c, metaMap[c.key] || metaMap[c.number]) > 0 ? 1 : 0), 0),
-    line4: line4Convs.reduce((acc, c) => acc + (unreadCount(c, metaMap[c.key] || metaMap[c.number]) > 0 ? 1 : 0), 0),
-    line5: line5Convs.reduce((acc, c) => acc + (unreadCount(c, metaMap[c.key] || metaMap[c.number]) > 0 ? 1 : 0), 0),
-    line6: line6Convs.reduce((acc, c) => acc + (unreadCount(c, metaMap[c.key] || metaMap[c.number]) > 0 ? 1 : 0), 0),
-    line7: line7Convs.reduce((acc, c) => acc + (unreadCount(c, metaMap[c.key] || metaMap[c.number]) > 0 ? 1 : 0), 0),
-    total: allConversations.reduce((acc, c) => acc + (unreadCount(c, metaMap[c.key] || metaMap[c.number]) > 0 ? 1 : 0), 0),
+    line1: line1Convs.reduce((acc, c) => acc + (unreadCount(c, metaMap[c.key] || metaMap[`${c.department}_${c.number}`] || metaMap[c.number]) > 0 ? 1 : 0), 0),
+    line2: line2Convs.reduce((acc, c) => acc + (unreadCount(c, metaMap[c.key] || metaMap[`${c.department}_${c.number}`] || metaMap[c.number]) > 0 ? 1 : 0), 0),
+    line3: line3Convs.reduce((acc, c) => acc + (unreadCount(c, metaMap[c.key] || metaMap[`${c.department}_${c.number}`] || metaMap[c.number]) > 0 ? 1 : 0), 0),
+    line4: line4Convs.reduce((acc, c) => acc + (unreadCount(c, metaMap[c.key] || metaMap[`${c.department}_${c.number}`] || metaMap[c.number]) > 0 ? 1 : 0), 0),
+    line5: line5Convs.reduce((acc, c) => acc + (unreadCount(c, metaMap[c.key] || metaMap[`${c.department}_${c.number}`] || metaMap[c.number]) > 0 ? 1 : 0), 0),
+    line6: line6Convs.reduce((acc, c) => acc + (unreadCount(c, metaMap[c.key] || metaMap[`${c.department}_${c.number}`] || metaMap[c.number]) > 0 ? 1 : 0), 0),
+    line7: line7Convs.reduce((acc, c) => acc + (unreadCount(c, metaMap[c.key] || metaMap[`${c.department}_${c.number}`] || metaMap[c.number]) > 0 ? 1 : 0), 0),
+    general: line1Convs.reduce((acc, c) => acc + (unreadCount(c, metaMap[c.key] || metaMap[`${c.department}_${c.number}`] || metaMap[c.number]) > 0 ? 1 : 0), 0),
+    support: line2Convs.reduce((acc, c) => acc + (unreadCount(c, metaMap[c.key] || metaMap[`${c.department}_${c.number}`] || metaMap[c.number]) > 0 ? 1 : 0), 0),
+    direct: line6Convs.reduce((acc, c) => acc + (unreadCount(c, metaMap[c.key] || metaMap[`${c.department}_${c.number}`] || metaMap[c.number]) > 0 ? 1 : 0), 0),
+    total: allConversations.reduce((acc, c) => acc + (unreadCount(c, metaMap[c.key] || metaMap[`${c.department}_${c.number}`] || metaMap[c.number]) > 0 ? 1 : 0), 0),
   };
 
   const withMeta = allConversations.map((conv) => {
-    const meta = metaMap[conv.key] || (conv.department === "general" ? metaMap[conv.number] : undefined);
+    const meta = metaMap[conv.key] || metaMap[`${conv.department}_${conv.number}`] || metaMap[conv.number];
     return { conv, meta, unread: unreadCount(conv, meta) };
   });
 
@@ -1114,9 +1054,9 @@ function InboxTab({
   const patch = (key: string, p: Partial<ConvMeta>) =>
     updateMeta.mutate({ key, patch: p });
 
-  const handleDelete = (number: string, key: string) => {
+  const handleDelete = (number: string, key: string, channel?: string) => {
     if (!confirm("Delete this entire conversation? This removes its messages from your inbox.")) return;
-    deleteConv.mutate({ number, key });
+    deleteConv.mutate({ number, key, channel });
     if (selected === key || selected === number) setSelected(null);
   };
 
@@ -1166,7 +1106,7 @@ function InboxTab({
               patch(selectedConv.conv.key, { archived: !selectedConv.meta?.archived });
               setSelected(null);
             }}
-            onDelete={() => handleDelete(selectedConv.conv.number, selectedConv.conv.key)}
+            onDelete={() => handleDelete(selectedConv.conv.number, selectedConv.conv.key, selectedConv.conv.channel)}
             onSaveMeta={(p) => patch(selectedConv.conv.key, p)}
             onTemplate={() => onReply(selectedConv.conv.number)}
             onRefresh={() => refetch()}
@@ -1577,47 +1517,48 @@ function ChatView({
             className="flex min-w-0 flex-1 items-center gap-3 text-left"
             title={showDossier ? "Click to toggle contact dossier" : "Click to view contact dossier"}
           >
-            <div
-              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-sm font-medium text-white shadow-sm"
-              style={{
-                background:
-                  (conv.department || department) === "direct"
-                    ? "#7c3aed"
-                    : (conv.department || department) === "support"
-                    ? "#059669"
-                    : "var(--adm-blue)",
-              }}
-            >
-              {initials(name)}
-            </div>
-            <div className="min-w-0 flex-1">
-              <p className="truncate text-[15px] font-bold" style={{ color: WA.text }}>
-                {name}
-              </p>
-              <p className="truncate text-[12px]" style={{ color: WA.sub }}>
-                {conv.channel === "1291624014041103" ? (
-                  <span className="inline-flex items-center gap-1 font-semibold text-amber-600 dark:text-amber-400">
-                    <span className="h-1.5 w-1.5 rounded-full bg-amber-500 inline-block" />
-                    Line 4
-                  </span>
-                ) : (conv.department || department) === "direct" || conv.channel === "1034864159583818" || conv.channel === "1083562997861778" ? (
-                  <span className="inline-flex items-center gap-1 font-semibold text-purple-600 dark:text-purple-400">
-                    <span className="h-1.5 w-1.5 rounded-full bg-purple-500 inline-block" />
-                    Line 3
-                  </span>
-                ) : (conv.department || department) === "support" || conv.channel === "1318810581311680" ? (
-                  <span className="inline-flex items-center gap-1 font-semibold text-emerald-600 dark:text-emerald-400">
-                    <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 inline-block" />
-                    Line 2
-                  </span>
-                ) : (
-                  <span className="inline-flex items-center gap-1 font-semibold text-adm-blue">
-                    <span className="h-1.5 w-1.5 rounded-full bg-adm-blue inline-block" />
-                    Line 1
-                  </span>
-                )}
-              </p>
-            </div>
+            {(() => {
+              const isLine7 = conv.lineKey === "line7" || conv.channel === "1964540454233744";
+              const isLine6 = conv.lineKey === "line6" || conv.channel === "1034864159583818" || conv.channel === "1291624014041103";
+              const isLine5 = conv.lineKey === "line5" || conv.channel === "1083562997861778" || conv.channel === "1385974501255442";
+              const isLine4 = conv.lineKey === "line4" || conv.channel === "1739099617324219" || conv.channel === "1339948289200329";
+              const isLine3 = conv.lineKey === "line3" || conv.channel === "2663451950739498" || conv.channel === "1401823986336958";
+              const isLine2 = conv.lineKey === "line2" || conv.channel === "1485319076722009" || conv.channel === "1245811661959729";
+
+              const lineTheme = isLine7
+                ? { color: "#ec4899", dot: "bg-pink-500", label: "Line 7" }
+                : isLine6
+                ? { color: "#7c3aed", dot: "bg-purple-500", label: "🇺🇸 Line 6 (US 2 · +1 555-434-0459)" }
+                : isLine5
+                ? { color: "#6366f1", dot: "bg-violet-500", label: "🇺🇸 Line 5 (US 1 · +1 555-431-6671)" }
+                : isLine4
+                ? { color: "#0891b2", dot: "bg-cyan-500", label: "🇳🇱 Line 4 (NL 2 · +31 97058026143)" }
+                : isLine3
+                ? { color: "#4f46e5", dot: "bg-indigo-500", label: "🇳🇱 Line 3 (NL 1 · +31 97058026144)" }
+                : isLine2
+                ? { color: "#059669", dot: "bg-emerald-500", label: "🇸🇮 Line 2 (SL · +386 65 743 712)" }
+                : { color: "var(--adm-blue)", dot: "bg-blue-500", label: "🇵🇰 Line 1 (PK · +92 335 6701199)" };
+
+              return (
+                <>
+                  <div
+                    className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-sm font-medium text-white shadow-sm"
+                    style={{ background: lineTheme.color }}
+                  >
+                    {initials(name)}
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-[15px] font-bold" style={{ color: WA.text }}>
+                      {name}
+                    </p>
+                    <p className="truncate text-[12px] flex items-center gap-1.5" style={{ color: WA.sub }}>
+                      <span className={`h-2 w-2 rounded-full ${lineTheme.dot} inline-block shrink-0`} />
+                      <span className="font-semibold" style={{ color: lineTheme.color }}>{lineTheme.label}</span>
+                    </p>
+                  </div>
+                </>
+              );
+            })()}
           </button>
           <div className="flex items-center gap-1.5" style={{ color: WA.icon }}>
             <button

@@ -119,10 +119,10 @@ export type MediaKind = "image" | "video" | "audio" | "document" | "sticker";
 
 // ── Messages ─────────────────────────────────────────────────────────────────
 
-export function useWhatsAppMessages() {
+export function useWhatsAppMessages(channel?: string) {
   return useQuery<{ success: boolean; data: WAMessage[]; count: number }>({
-    queryKey: ["whatsapp-messages"],
-    queryFn: () => getJSON("/messages"),
+    queryKey: ["whatsapp-messages", channel || "all"],
+    queryFn: () => getJSON(`/messages${channel ? `?channel=${encodeURIComponent(channel)}` : ""}`),
     refetchInterval: 5000,
   });
 }
@@ -538,8 +538,9 @@ export function useUpdateConversationMeta() {
 export function useDeleteConversation() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async ({ number, key }: { number: string; key: string }) => {
+    mutationFn: async ({ number, key, channel }: { number: string; key: string; channel?: string }) => {
       const params = new URLSearchParams({ number });
+      if (channel) params.set("channel", channel);
       await fetch(`${API_BASE}/messages?${params.toString()}`, { method: "DELETE", headers: authHeaders() });
       await fetch(`${API_BASE}/conversation-meta?key=${encodeURIComponent(key)}`, { method: "DELETE", headers: authHeaders() });
       return { success: true };

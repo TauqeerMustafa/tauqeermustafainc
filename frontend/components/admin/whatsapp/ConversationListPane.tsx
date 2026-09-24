@@ -25,6 +25,7 @@ export type ConversationItem = {
   name: string;
   messages: WAMessage[];
   channel?: string;
+  lineKey?: string;
   department: "general" | "support" | "direct";
 };
 
@@ -105,63 +106,83 @@ export function ConversationListPane({
 
   // Filter by line/department
   const lineFiltered = withDetails.filter(({ conv }) => {
-    if (currentDepartment === "all") return true;
+    if (!currentDepartment || currentDepartment === "all") return true;
     if (
-      currentDepartment === "general" ||
+      currentDepartment === "line1" ||
       currentDepartment === "1363415125370805" ||
       currentDepartment === "1239592269240963" ||
-      currentDepartment === "line1"
+      currentDepartment === "general"
     ) {
       return (
+        conv.lineKey === "line1" ||
         conv.channel === "1363415125370805" ||
-        conv.channel === "1239592269240963" ||
-        (!conv.channel && conv.department === "general")
+        conv.channel === "1239592269240963"
       );
     }
     if (
-      currentDepartment === "support" ||
+      currentDepartment === "line2" ||
       currentDepartment === "1485319076722009" ||
       currentDepartment === "1245811661959729" ||
-      currentDepartment === "line2"
+      currentDepartment === "support"
     ) {
-      return conv.channel === "1485319076722009" || conv.channel === "1245811661959729";
+      return (
+        conv.lineKey === "line2" ||
+        conv.channel === "1485319076722009" ||
+        conv.channel === "1245811661959729"
+      );
     }
     if (
+      currentDepartment === "line3" ||
       currentDepartment === "2663451950739498" ||
-      currentDepartment === "1401823986336958" ||
-      currentDepartment === "line3"
+      currentDepartment === "1401823986336958"
     ) {
-      return conv.channel === "2663451950739498" || conv.channel === "1401823986336958";
+      return (
+        conv.lineKey === "line3" ||
+        conv.channel === "2663451950739498" ||
+        conv.channel === "1401823986336958"
+      );
     }
     if (
+      currentDepartment === "line4" ||
       currentDepartment === "1739099617324219" ||
-      currentDepartment === "1339948289200329" ||
-      currentDepartment === "line4"
+      currentDepartment === "1339948289200329"
     ) {
-      return conv.channel === "1739099617324219" || conv.channel === "1339948289200329";
+      return (
+        conv.lineKey === "line4" ||
+        conv.channel === "1739099617324219" ||
+        conv.channel === "1339948289200329"
+      );
     }
     if (
+      currentDepartment === "line5" ||
       currentDepartment === "1083562997861778" ||
-      currentDepartment === "1385974501255442" ||
-      currentDepartment === "line5"
+      currentDepartment === "1385974501255442"
     ) {
-      return conv.channel === "1083562997861778" || conv.channel === "1385974501255442";
+      return (
+        conv.lineKey === "line5" ||
+        conv.channel === "1083562997861778" ||
+        conv.channel === "1385974501255442"
+      );
     }
     if (
-      currentDepartment === "direct" ||
+      currentDepartment === "line6" ||
       currentDepartment === "1034864159583818" ||
       currentDepartment === "1291624014041103" ||
-      currentDepartment === "line6"
+      currentDepartment === "direct"
     ) {
-      return conv.channel === "1034864159583818" || conv.channel === "1291624014041103";
+      return (
+        conv.lineKey === "line6" ||
+        conv.channel === "1034864159583818" ||
+        conv.channel === "1291624014041103"
+      );
     }
     if (
-      currentDepartment === "1964540454233744" ||
-      currentDepartment === "line7"
+      currentDepartment === "line7" ||
+      currentDepartment === "1964540454233744"
     ) {
-      return conv.channel === "1964540454233744";
+      return conv.lineKey === "line7" || conv.channel === "1964540454233744";
     }
-    return conv.channel === currentDepartment || conv.department === currentDepartment;
+    return conv.lineKey === currentDepartment || conv.channel === currentDepartment;
   });
 
   // Filter by search query
@@ -235,28 +256,6 @@ export function ConversationListPane({
       >
         {/* Line selection tabs */}
         <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
-          {/* All Lines */}
-          <button
-            type="button"
-            onClick={() => onDepartmentChange("all")}
-            className={`flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1 text-[11px] font-bold transition ${
-              currentDepartment === "all"
-                ? "bg-adm-text text-adm-bg shadow-sm"
-                : "bg-adm-surface-2 text-adm-text-2 border border-adm-border hover:border-adm-text-3 hover:text-adm-text"
-            }`}
-          >
-            <span>All</span>
-            <span
-              className={`rounded-full px-1.5 py-0.2 text-[10px] font-semibold ${
-                currentDepartment === "all"
-                  ? "bg-adm-bg/20 text-adm-bg"
-                  : "bg-adm-surface text-adm-text-3"
-              }`}
-            >
-              {unreadCounts.total}
-            </span>
-          </button>
-
           {/* Line 1: PK */}
           <button
             type="button"
@@ -264,8 +263,7 @@ export function ConversationListPane({
             className={`flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1 text-[11px] font-bold transition ${
               currentDepartment === "line1" ||
               currentDepartment === "1363415125370805" ||
-              currentDepartment === "1239592269240963" ||
-              currentDepartment === "general"
+              currentDepartment === "1239592269240963"
                 ? "bg-blue-600 text-white shadow-sm"
                 : "bg-adm-surface-2 text-adm-text-2 border border-adm-border hover:border-adm-text-3 hover:text-adm-text"
             }`}
@@ -287,7 +285,7 @@ export function ConversationListPane({
             className={`flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1 text-[11px] font-bold transition ${
               currentDepartment === "line2" ||
               currentDepartment === "1485319076722009" ||
-              currentDepartment === "support"
+              currentDepartment === "1245811661959729"
                 ? "bg-emerald-600 text-white shadow-sm"
                 : "bg-adm-surface-2 text-adm-text-2 border border-adm-border hover:border-adm-text-3 hover:text-adm-text"
             }`}
@@ -307,7 +305,7 @@ export function ConversationListPane({
             type="button"
             onClick={() => onDepartmentChange("line3")}
             className={`flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1 text-[11px] font-bold transition ${
-              currentDepartment === "line3" || currentDepartment === "2663451950739498"
+              currentDepartment === "line3" || currentDepartment === "2663451950739498" || currentDepartment === "1401823986336958"
                 ? "bg-indigo-600 text-white shadow-sm"
                 : "bg-adm-surface-2 text-adm-text-2 border border-adm-border hover:border-adm-text-3 hover:text-adm-text"
             }`}
@@ -327,7 +325,7 @@ export function ConversationListPane({
             type="button"
             onClick={() => onDepartmentChange("line4")}
             className={`flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1 text-[11px] font-bold transition ${
-              currentDepartment === "line4" || currentDepartment === "1739099617324219"
+              currentDepartment === "line4" || currentDepartment === "1739099617324219" || currentDepartment === "1339948289200329"
                 ? "bg-cyan-600 text-white shadow-sm"
                 : "bg-adm-surface-2 text-adm-text-2 border border-adm-border hover:border-adm-text-3 hover:text-adm-text"
             }`}
@@ -347,7 +345,7 @@ export function ConversationListPane({
             type="button"
             onClick={() => onDepartmentChange("line5")}
             className={`flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1 text-[11px] font-bold transition ${
-              currentDepartment === "line5" || currentDepartment === "1083562997861778"
+              currentDepartment === "line5" || currentDepartment === "1083562997861778" || currentDepartment === "1385974501255442"
                 ? "bg-violet-600 text-white shadow-sm"
                 : "bg-adm-surface-2 text-adm-text-2 border border-adm-border hover:border-adm-text-3 hover:text-adm-text"
             }`}
@@ -369,7 +367,7 @@ export function ConversationListPane({
             className={`flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1 text-[11px] font-bold transition ${
               currentDepartment === "line6" ||
               currentDepartment === "1034864159583818" ||
-              currentDepartment === "direct"
+              currentDepartment === "1291624014041103"
                 ? "bg-purple-600 text-white shadow-sm"
                 : "bg-adm-surface-2 text-adm-text-2 border border-adm-border hover:border-adm-text-3 hover:text-adm-text"
             }`}
@@ -403,6 +401,28 @@ export function ConversationListPane({
                 {unreadCounts.line7}
               </span>
             )}
+          </button>
+
+          {/* All Lines */}
+          <button
+            type="button"
+            onClick={() => onDepartmentChange("all")}
+            className={`flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1 text-[11px] font-bold transition ${
+              currentDepartment === "all"
+                ? "bg-adm-text text-adm-bg shadow-sm"
+                : "bg-adm-surface-2 text-adm-text-2 border border-adm-border hover:border-adm-text-3 hover:text-adm-text"
+            }`}
+          >
+            <span>All Lines</span>
+            <span
+              className={`rounded-full px-1.5 py-0.2 text-[10px] font-semibold ${
+                currentDepartment === "all"
+                  ? "bg-adm-bg/20 text-adm-bg"
+                  : "bg-adm-surface text-adm-text-3"
+              }`}
+            >
+              {unreadCounts.total}
+            </span>
           </button>
         </div>
 
@@ -491,16 +511,17 @@ export function ConversationListPane({
             const isOutbound = last?.direction === "outbound";
             const lastText = last?.body || (last?.type ? `[${last.type}]` : "No messages");
 
-            const isLine7 = conv.channel === "1964540454233744";
-            const isLine6 = conv.channel === "1034864159583818" || conv.channel === "1291624014041103";
-            const isLine5 = conv.channel === "1083562997861778" || conv.channel === "1385974501255442";
-            const isLine4 = conv.channel === "1739099617324219" || conv.channel === "1339948289200329";
-            const isLine3 = conv.channel === "2663451950739498" || conv.channel === "1401823986336958";
-            const isLine2 = conv.channel === "1485319076722009" || conv.channel === "1245811661959729";
+            const isLine7 = conv.lineKey === "line7" || conv.channel === "1964540454233744";
+            const isLine6 = conv.lineKey === "line6" || conv.channel === "1034864159583818" || conv.channel === "1291624014041103";
+            const isLine5 = conv.lineKey === "line5" || conv.channel === "1083562997861778" || conv.channel === "1385974501255442";
+            const isLine4 = conv.lineKey === "line4" || conv.channel === "1739099617324219" || conv.channel === "1339948289200329";
+            const isLine3 = conv.lineKey === "line3" || conv.channel === "2663451950739498" || conv.channel === "1401823986336958";
+            const isLine2 = conv.lineKey === "line2" || conv.channel === "1485319076722009" || conv.channel === "1245811661959729";
             const isLine1 =
+              conv.lineKey === "line1" ||
               conv.channel === "1363415125370805" ||
               conv.channel === "1239592269240963" ||
-              (!conv.channel && conv.department === "general");
+              (!isLine7 && !isLine6 && !isLine5 && !isLine4 && !isLine3 && !isLine2);
 
             const lineThemeColor = isLine7
               ? "#ec4899"
