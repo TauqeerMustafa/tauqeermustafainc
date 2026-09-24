@@ -180,7 +180,8 @@ export async function GET(request: Request) {
     const line4Direct = await inspect("1739099617324219", "Line 4 (NL 2: +31 97058026143)", token, visibleIds, wabaId);
     const line5Direct = await inspect("1083562997861778", "Line 5 (US 1: +1 555-431-6671)", token, visibleIds, wabaId);
     const line6Direct = await inspect("1034864159583818", "Line 6 (US 2: +1 555-434-0459)", token, visibleIds, wabaId);
-    const line7Direct = await inspect("1964540454233744", "Line 7 (ID: 1964540454233744)", token, visibleIds, wabaId);
+    const line7Direct = await inspect("1964540454233744", "Line 7 (UK WABA: 1964540454233744)", token, visibleIds, wabaId);
+    const line7PhoneDirect = await inspect("1318810581311680", "Line 7 (UK Phone: +44 7575 376078)", token, visibleIds, wabaId);
 
     slotsReport.push({
       slot: account.slot,
@@ -197,6 +198,7 @@ export async function GET(request: Request) {
       line5Direct,
       line6Direct,
       line7Direct,
+      line7PhoneDirect,
     });
   }
 

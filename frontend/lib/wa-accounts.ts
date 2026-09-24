@@ -131,11 +131,11 @@ function readSlot(slot: number): WAAccount {
           }
       : slot === 7
         ? {
-            token: process.env.WHATSAPP_TOKEN_7 || primaryToken,
-            appSecret: process.env.WHATSAPP_APP_SECRET_7 || primarySecret,
+            token: process.env.WHATSAPP_TOKEN_7 || process.env.WHATSAPP_TOKEN_2 || primaryToken,
+            appSecret: process.env.WHATSAPP_APP_SECRET_7 || process.env.WHATSAPP_APP_SECRET_2 || primarySecret,
             wabaId: process.env.WHATSAPP_BUSINESS_ACCOUNT_ID_7 || "1964540454233744",
             verifyToken: process.env.WEBHOOK_VERIFY_TOKEN_7,
-            label: process.env.WHATSAPP_APP_LABEL_7 || "Line 7",
+            label: process.env.WHATSAPP_APP_LABEL_7 || "Line 7 (UK)",
           }
         : {
             token: process.env.WHATSAPP_TOKEN_8 || primaryToken,

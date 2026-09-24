@@ -91,9 +91,11 @@ export const DEFAULT_US_SECONDARY_ID = "1291624014041103";
 export const ALIAS_US_SECONDARY_ID = "1034864159583818";
 
 /**
- * Line 7: Tauqeer Mustafa Inc | Line 7
+ * Line 7: Tauqeer Mustafa Inc | UK (+44 7575 376078)
  */
 export const DEFAULT_LINE7_ID = "1964540454233744";
+export const ALIAS_UK_ID = "1318810581311680";
+export const UK_WABA_ID = "1854430365722527";
 
 // Backwards compatibility aliases
 export const DEFAULT_PRIMARY_ID = DEFAULT_PK_ID;
@@ -210,11 +212,11 @@ function build(): WANumber[] {
     },
     {
       id: line7Id,
-      label: clean(process.env.WHATSAPP_PHONE_LABEL_7) || "Line 7",
+      label: clean(process.env.WHATSAPP_PHONE_LABEL_7) || "Line 7 (UK)",
       primary: false,
       slot: 7,
       department: "general",
-      displayNumber: clean(process.env.WHATSAPP_DISPLAY_NUMBER_7) || null,
+      displayNumber: clean(process.env.WHATSAPP_DISPLAY_NUMBER_7) || "+44 7575 376078",
     },
   ];
 
@@ -285,7 +287,11 @@ export function isKnownNumber(id: string | null | undefined): boolean {
     value === DEFAULT_US_PRIMARY_ID ||
     value === DEFAULT_US_SECONDARY_ID ||
     value === DEFAULT_LINE7_ID ||
+    value === ALIAS_UK_ID ||
+    value === UK_WABA_ID ||
     value === "1964540454233744" ||
+    value === "1318810581311680" ||
+    value === "1854430365722527" ||
     value === "1363415125370805" ||
     value === "1239592269240963" ||
     value === "1485319076722009" ||
@@ -341,6 +347,7 @@ export function resolveNumberId(requested?: string | null): ResolvedNumber {
   if (wanted === "1739099617324219") return { ok: true, id: "1339948289200329" };
   if (wanted === "1083562997861778") return { ok: true, id: "1385974501255442" };
   if (wanted === "1034864159583818") return { ok: true, id: "1291624014041103" };
+  if (wanted === "1854430365722527") return { ok: true, id: "1318810581311680" };
 
   if (
     wanted === DEFAULT_PK_ID ||
@@ -350,7 +357,11 @@ export function resolveNumberId(requested?: string | null): ResolvedNumber {
     wanted === DEFAULT_US_PRIMARY_ID ||
     wanted === DEFAULT_US_SECONDARY_ID ||
     wanted === DEFAULT_LINE7_ID ||
+    wanted === ALIAS_UK_ID ||
+    wanted === UK_WABA_ID ||
     wanted === "1964540454233744" ||
+    wanted === "1318810581311680" ||
+    wanted === "1854430365722527" ||
     wanted === "1239592269240963" ||
     wanted === "1245811661959729" ||
     wanted === "1401823986336958" ||
@@ -437,9 +448,9 @@ export const KNOWN_LINES: Record<string, LineIdentifier> = {
   line7: {
     lineKey: "line7",
     canonicalId: DEFAULT_LINE7_ID,
-    label: "Line 7",
-    flag: "📱",
-    displayNumber: "Line 7",
+    label: "Line 7 (UK)",
+    flag: "🇬🇧",
+    displayNumber: "+44 7575 376078",
   },
 };
 
@@ -464,7 +475,7 @@ export function identifyMessageLine(
 
   const matchesAny = (set: string[]) => candidates.some((c) => set.includes(c));
 
-  if (matchesAny(["1964540454233744"])) return KNOWN_LINES.line7;
+  if (matchesAny(["1964540454233744", "1318810581311680", "1854430365722527", "447575376078"])) return KNOWN_LINES.line7;
   if (matchesAny(["1034864159583818", "1291624014041103", "15554340459"])) return KNOWN_LINES.line6;
   if (matchesAny(["1083562997861778", "1385974501255442", "15554316671"])) return KNOWN_LINES.line5;
   if (matchesAny(["1739099617324219", "1339948289200329", "3197058026143"])) return KNOWN_LINES.line4;

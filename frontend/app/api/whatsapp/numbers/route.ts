@@ -260,7 +260,10 @@ export async function GET(request: Request) {
       !isLine4 &&
       !isLine5 &&
       !isLine6 &&
-      (n.id === "1964540454233744" || n.slot === 7);
+      (n.id === "1964540454233744" ||
+        n.id === "1318810581311680" ||
+        digits.includes("447575376078") ||
+        n.slot === 7);
 
     if (isLine2) {
       n.department = "general";
@@ -290,7 +293,8 @@ export async function GET(request: Request) {
     } else if (isLine7) {
       n.department = "general";
       n.slot = 7;
-      n.label = conf?.label || "Line 7";
+      n.label = conf?.label || "Line 7 (UK)";
+      if (!n.displayNumber) n.displayNumber = conf?.displayNumber || "+44 7575 376078";
     } else {
       n.department = "general";
       n.label = conf?.label || `Line ${resultList.indexOf(n) + 1}`;
@@ -327,8 +331,8 @@ export async function GET(request: Request) {
           ? "+1 555-431-6671"
           : n.id === "1034864159583818"
           ? "+1 555-434-0459"
-          : n.id === "1964540454233744"
-          ? n.displayNumber || null
+          : n.id === "1964540454233744" || n.id === "1318810581311680"
+          ? n.displayNumber || "+44 7575 376078"
           : null),
       verifiedName: "Tauqeer Mustafa Inc",
       nameStatus: "APPROVED",

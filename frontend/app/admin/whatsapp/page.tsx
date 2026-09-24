@@ -1025,7 +1025,11 @@ function InboxTab({
     (c) => c.lineKey === "line6" || c.channel === "1034864159583818" || c.channel === "1291624014041103"
   );
   const line7Convs = allConversations.filter(
-    (c) => c.lineKey === "line7" || c.channel === "1964540454233744"
+    (c) =>
+      c.lineKey === "line7" ||
+      c.channel === "1964540454233744" ||
+      c.channel === "1318810581311680" ||
+      c.channel === "1854430365722527"
   );
 
   const unreadCounts = {
@@ -1302,19 +1306,41 @@ function ChatView({
   // Determine sender line ID strictly scoped to this conversation's department
   const defaultSenderId = useMemo(() => {
     if (channelId && numbers.some((n) => n.id === channelId)) return channelId;
+    if (conv.lineKey === "line7" || conv.channel === "1964540454233744" || conv.channel === "1318810581311680" || conv.channel === "1854430365722527") {
+      const l7 = numbers.find((n) => n.id === "1964540454233744" || n.id === "1318810581311680" || n.slot === 7);
+      if (l7) return l7.id;
+      return channelId || "1964540454233744";
+    }
+    if (conv.lineKey === "line6" || conv.channel === "1034864159583818" || conv.channel === "1291624014041103") {
+      const l6 = numbers.find((n) => n.id === "1034864159583818" || n.id === "1291624014041103" || n.slot === 6);
+      if (l6) return l6.id;
+      return "1291624014041103";
+    }
+    if (conv.lineKey === "line5" || conv.channel === "1083562997861778" || conv.channel === "1385974501255442") {
+      const l5 = numbers.find((n) => n.id === "1083562997861778" || n.id === "1385974501255442" || n.slot === 5);
+      if (l5) return l5.id;
+      return "1385974501255442";
+    }
+    if (conv.lineKey === "line4" || conv.channel === "1739099617324219" || conv.channel === "1339948289200329") {
+      const l4 = numbers.find((n) => n.id === "1739099617324219" || n.id === "1339948289200329" || n.slot === 4);
+      if (l4) return l4.id;
+      return "1339948289200329";
+    }
+    if (conv.lineKey === "line3" || conv.channel === "2663451950739498" || conv.channel === "1401823986336958") {
+      const l3 = numbers.find((n) => n.id === "2663451950739498" || n.id === "1401823986336958" || n.slot === 3);
+      if (l3) return l3.id;
+      return "1401823986336958";
+    }
+    if (conv.lineKey === "line2" || conv.channel === "1485319076722009" || conv.channel === "1245811661959729") {
+      const l2 = numbers.find((n) => n.id === "1485319076722009" || n.id === "1245811661959729" || n.slot === 2);
+      if (l2) return l2.id;
+      return "1245811661959729";
+    }
     const currentDept = conv.department || department;
     const deptLine = numbers.find((n) => n.department === currentDept);
     if (deptLine) return deptLine.id;
-    if (currentDept === "direct") {
-      const d = numbers.find((n) => n.id === "1034864159583818" || n.id === "1083562997861778" || n.slot === 3 || n.department === "direct");
-      if (d) return d.id;
-    }
-    if (currentDept === "support") {
-      const s = numbers.find((n) => n.id === "1318810581311680" || n.slot === 2 || n.department === "support") || numbers.find((n) => !n.primary) || numbers[0];
-      return s?.id || "";
-    }
     return numbers.find((n) => n.primary)?.id || numbers[0]?.id || "";
-  }, [channelId, conv.department, department, numbers]);
+  }, [channelId, conv.department, conv.lineKey, conv.channel, department, numbers]);
 
   const [activeSenderId, setActiveSenderId] = useState<string>(defaultSenderId);
 
@@ -1518,7 +1544,11 @@ function ChatView({
             title={showDossier ? "Click to toggle contact dossier" : "Click to view contact dossier"}
           >
             {(() => {
-              const isLine7 = conv.lineKey === "line7" || conv.channel === "1964540454233744";
+              const isLine7 =
+                conv.lineKey === "line7" ||
+                conv.channel === "1964540454233744" ||
+                conv.channel === "1318810581311680" ||
+                conv.channel === "1854430365722527";
               const isLine6 = conv.lineKey === "line6" || conv.channel === "1034864159583818" || conv.channel === "1291624014041103";
               const isLine5 = conv.lineKey === "line5" || conv.channel === "1083562997861778" || conv.channel === "1385974501255442";
               const isLine4 = conv.lineKey === "line4" || conv.channel === "1739099617324219" || conv.channel === "1339948289200329";
@@ -1526,7 +1556,7 @@ function ChatView({
               const isLine2 = conv.lineKey === "line2" || conv.channel === "1485319076722009" || conv.channel === "1245811661959729";
 
               const lineTheme = isLine7
-                ? { color: "#ec4899", dot: "bg-pink-500", label: "Line 7" }
+                ? { color: "#ec4899", dot: "bg-pink-500", label: "🇬🇧 Line 7 (UK · +44 7575 376078)" }
                 : isLine6
                 ? { color: "#7c3aed", dot: "bg-purple-500", label: "🇺🇸 Line 6 (US 2 · +1 555-434-0459)" }
                 : isLine5

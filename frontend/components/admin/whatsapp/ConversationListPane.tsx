@@ -178,9 +178,16 @@ export function ConversationListPane({
     }
     if (
       currentDepartment === "line7" ||
-      currentDepartment === "1964540454233744"
+      currentDepartment === "1964540454233744" ||
+      currentDepartment === "1318810581311680" ||
+      currentDepartment === "1854430365722527"
     ) {
-      return conv.lineKey === "line7" || conv.channel === "1964540454233744";
+      return (
+        conv.lineKey === "line7" ||
+        conv.channel === "1964540454233744" ||
+        conv.channel === "1318810581311680" ||
+        conv.channel === "1854430365722527"
+      );
     }
     return conv.lineKey === currentDepartment || conv.channel === currentDepartment;
   });
@@ -382,20 +389,21 @@ export function ConversationListPane({
             )}
           </button>
 
-          {/* Line 7 */}
+          {/* Line 7 (UK) */}
           <button
             type="button"
             onClick={() => onDepartmentChange("line7")}
             className={`flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1 text-[11px] font-bold transition ${
               currentDepartment === "line7" ||
-              currentDepartment === "1964540454233744"
+              currentDepartment === "1964540454233744" ||
+              currentDepartment === "1318810581311680"
                 ? "bg-pink-600 text-white shadow-sm"
                 : "bg-adm-surface-2 text-adm-text-2 border border-adm-border hover:border-adm-text-3 hover:text-adm-text"
             }`}
-            title="Line 7 (ID: 1964540454233744)"
+            title="Line 7 (UK: +44 7575 376078)"
           >
             <span className="h-1.5 w-1.5 rounded-full bg-pink-400" />
-            <span>Line 7</span>
+            <span>Line 7 (UK)</span>
             {(unreadCounts.line7 ?? 0) > 0 && (
               <span className="flex h-4 min-w-[16px] items-center justify-center rounded-full bg-pink-500 px-1 text-[9px] font-bold text-white">
                 {unreadCounts.line7}
@@ -511,7 +519,11 @@ export function ConversationListPane({
             const isOutbound = last?.direction === "outbound";
             const lastText = last?.body || (last?.type ? `[${last.type}]` : "No messages");
 
-            const isLine7 = conv.lineKey === "line7" || conv.channel === "1964540454233744";
+            const isLine7 =
+              conv.lineKey === "line7" ||
+              conv.channel === "1964540454233744" ||
+              conv.channel === "1318810581311680" ||
+              conv.channel === "1854430365722527";
             const isLine6 = conv.lineKey === "line6" || conv.channel === "1034864159583818" || conv.channel === "1291624014041103";
             const isLine5 = conv.lineKey === "line5" || conv.channel === "1083562997861778" || conv.channel === "1385974501255442";
             const isLine4 = conv.lineKey === "line4" || conv.channel === "1739099617324219" || conv.channel === "1339948289200329";
@@ -614,7 +626,7 @@ export function ConversationListPane({
                         }`}
                       >
                         {isLine7
-                          ? "Line 7"
+                          ? "Line 7 (UK)"
                           : isLine6
                           ? "Line 6"
                           : isLine5

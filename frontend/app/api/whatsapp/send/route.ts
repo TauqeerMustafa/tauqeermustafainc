@@ -24,7 +24,7 @@ import { NextResponse } from "next/server";
 import { META_TEMPLATES, buildSendComponents } from "@/lib/meta-templates";
 import { flowStep, stepPayload, stepTranscript } from "@/lib/wa-flow";
 import { resolveNumberId, waNumbers, getChannelDepartment } from "@/lib/wa-numbers";
-import { accountAt } from "@/lib/wa-accounts";
+import { accountAt, usableAccounts } from "@/lib/wa-accounts";
 import { appendMessage, type WAMessage } from "@/lib/wa-store";
 
 const GRAPH_URL = "https://graph.facebook.com/v20.0";
@@ -106,21 +106,28 @@ export async function POST(request: Request) {
     let phoneNumberId = sender.id;
     if (phoneNumberId === "1363415125370805") phoneNumberId = "1239592269240963";
     if (phoneNumberId === "1083562997861778") phoneNumberId = "1385974501255442";
+    if (phoneNumberId === "1854430365722527") phoneNumberId = "1318810581311680";
 
     const numberDef = waNumbers().find((n) => n.id === phoneNumberId);
     const account = accountAt(numberDef?.slot ?? 1);
-    const token = account.token || accountAt(1).token;
+    let token = account.token || accountAt(1).token;
 
-    // Dynamically resolve WABA ID to active Phone Number ID if needed
-    if (["1485319076722009", "2663451950739498", "1739099617324219", "1034864159583818", "1964540454233744"].includes(phoneNumberId) && token) {
-      try {
-        const pnRes = await fetch(`${GRAPH_URL}/${phoneNumberId}/phone_numbers?fields=id&access_token=${token}`, { cache: "no-store" });
-        const pnData = await pnRes.json();
-        if (pnData?.data?.[0]?.id) {
-          phoneNumberId = String(pnData.data[0].id);
+    // Dynamically resolve WABA ID to active Phone Number ID if needed across all configured accounts
+    if (["1485319076722009", "2663451950739498", "1739099617324219", "1034864159583818", "1964540454233744", "1854430365722527"].includes(phoneNumberId)) {
+      const candidateAccounts = [account, ...usableAccounts().filter((a) => a.slot !== account.slot)];
+      for (const cand of candidateAccounts) {
+        if (!cand.token) continue;
+        try {
+          const pnRes = await fetch(`${GRAPH_URL}/${phoneNumberId}/phone_numbers?fields=id,display_phone_number&access_token=${cand.token}`, { cache: "no-store" });
+          const pnData = await pnRes.json();
+          if (pnData?.data?.[0]?.id) {
+            phoneNumberId = String(pnData.data[0].id);
+            token = cand.token;
+            break;
+          }
+        } catch (e) {
+          console.warn(`[send] Could not resolve phone ID for WABA ${phoneNumberId}:`, e);
         }
-      } catch (e) {
-        console.warn(`[send] Could not resolve phone ID for WABA ${phoneNumberId}:`, e);
       }
     }
 
@@ -390,7 +397,24 @@ export async function POST(request: Request) {
       payload.context = { message_id: String(replyTo) };
     }
 
-    const { ok, status, json: data } = await graphPost(phoneNumberId, token, payload);
+    let { ok, status, json: data } = await graphPost(phoneNumberId, token, payload);
+
+    // If Meta rejected with a permission or invalid ID error (code 100, 190, 200, 131030),
+    // automatically retry across other configured account tokens (e.g. Account 2 token)
+    if (!ok && (data?.error?.code === 100 || data?.error?.code === 190 || data?.error?.code === 200 || data?.error?.code === 131030)) {
+      const candidates = usableAccounts().filter((a) => a.token && a.token !== token);
+      for (const altAcc of candidates) {
+        if (!altAcc.token) continue;
+        const retry = await graphPost(phoneNumberId, altAcc.token, payload);
+        if (retry.ok) {
+          ok = true;
+          status = retry.status;
+          data = retry.json;
+          token = altAcc.token;
+          break;
+        }
+      }
+    }
 
     if (!ok) {
       const errMsg = data?.error?.message || "Meta API error";

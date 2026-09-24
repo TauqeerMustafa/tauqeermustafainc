@@ -107,7 +107,7 @@ export function ContactDossierPane({
     onSaveMeta({ tags: tags.filter((t) => t !== tagToRemove) });
   };
 
-  const isLine7 = channelId === "1964540454233744";
+  const isLine7 = channelId === "1964540454233744" || channelId === "1318810581311680" || channelId === "1854430365722527";
   const isLine6 = channelId === "1034864159583818" || channelId === "1291624014041103";
   const isLine5 = channelId === "1083562997861778" || channelId === "1385974501255442";
   const isLine4 = channelId === "1739099617324219" || channelId === "1339948289200329";
