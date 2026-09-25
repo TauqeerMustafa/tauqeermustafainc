@@ -153,6 +153,9 @@ class AdminUserCreate(CamelModel):
 
 
 class UpdateUserRequest(CamelModel):
+    name: str | None = Field(default=None, max_length=200)
+    phone: str | None = Field(default=None, max_length=40)
+    email: EmailStr | None = None
     role_slug: str | None = Field(default=None, max_length=60)
     team_id: uuid.UUID | None = None
     status: UserStatus | None = None

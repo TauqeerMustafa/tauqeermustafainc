@@ -389,6 +389,21 @@ def update_user(
             detail="You cannot deactivate your own admin account",
         )
 
+    if payload.name is not None:
+        first_name, last_name = _split_name(payload.name)
+        user.first_name = first_name
+        user.last_name = last_name
+    if payload.phone is not None:
+        user.phone = payload.phone
+    if payload.email is not None:
+        clean_email = payload.email.strip().lower()
+        existing = db.scalar(select(User).where(func.lower(User.email) == clean_email, User.id != user.id))
+        if existing:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="An account with this email already exists",
+            )
+        user.email = clean_email
     if payload.role_slug is not None:
         role = _get_role(db, payload.role_slug)
         user.role_id = role.id

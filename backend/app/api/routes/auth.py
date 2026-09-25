@@ -3,7 +3,7 @@ import uuid
 from pathlib import Path
 from fastapi import APIRouter, File, HTTPException, UploadFile, status
 from fastapi.responses import FileResponse
-from sqlalchemy import select
+from sqlalchemy import func, select
 
 from app.api.deps import CurrentUser, DatabaseSession
 from app.core.rbac import get_user_permissions
@@ -92,7 +92,8 @@ def register(payload: RegisterRequest, db: DatabaseSession) -> ApiResponse[UserR
 
 @router.post("/login", response_model=ApiResponse[LoginResponse])
 def login(payload: LoginRequest, db: DatabaseSession) -> ApiResponse[LoginResponse]:
-    user = db.scalar(select(User).where(User.email == payload.email))
+    clean_email = payload.email.strip().lower()
+    user = db.scalar(select(User).where(func.lower(User.email) == clean_email))
 
     if user is None or not verify_password(payload.password, user.password_hash):
         raise HTTPException(
