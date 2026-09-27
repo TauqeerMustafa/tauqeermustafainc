@@ -93,8 +93,8 @@ export const ALIAS_US_SECONDARY_ID = "1034864159583818";
 /**
  * Line 7: Tauqeer Mustafa Inc | UK (+44 7575 376078)
  */
-export const DEFAULT_LINE7_ID = "1964540454233744";
-export const ALIAS_UK_ID = "1318810581311680";
+export const DEFAULT_LINE7_ID = "1318810581311680";
+export const ALIAS_UK_ID = "1964540454233744";
 export const UK_WABA_ID = "1854430365722527";
 
 // Backwards compatibility aliases
@@ -278,7 +278,16 @@ export function primaryNumberId(): string | null {
 export function isKnownNumber(id: string | null | undefined): boolean {
   const value = (id ?? "").trim();
   if (!value) return false;
+  const digits = value.replace(/[^0-9]/g, "");
+
   if (
+    digits === "923356701199" ||
+    digits === "38665743712" ||
+    digits === "3197058026144" ||
+    digits === "3197058026143" ||
+    digits === "15554316671" ||
+    digits === "15554340459" ||
+    digits === "447575376078" ||
     value === DEFAULT_PK_ID ||
     value === ALIAS_PK_ID ||
     value === DEFAULT_SL_ID ||
@@ -307,13 +316,15 @@ export function isKnownNumber(id: string | null | undefined): boolean {
   ) {
     return true;
   }
-  return waNumbers().some((n) => n.id === value);
+  return waNumbers().some((n) => n.id === value || (n.displayNumber && n.displayNumber.replace(/[^0-9]/g, "") === digits));
 }
 
 /** Label for an id — falls back to the id so the UI never renders blank. */
 export function labelFor(id: string | null | undefined): string {
   const value = (id ?? "").trim();
-  return waNumbers().find((n) => n.id === value)?.label ?? value ?? "";
+  const digits = value.replace(/[^0-9]/g, "");
+  const found = waNumbers().find((n) => n.id === value || (n.displayNumber && n.displayNumber.replace(/[^0-9]/g, "") === digits));
+  return found?.label ?? value ?? "";
 }
 
 export type ResolvedNumber =
@@ -340,46 +351,34 @@ export function resolveNumberId(requested?: string | null): ResolvedNumber {
   const wanted = (requested ?? "").trim();
   if (!wanted) return { ok: true, id: primaryNumberId() as string };
 
-  // Map any incoming WABA ID to its canonical sending Phone Number ID
-  if (wanted === "1363415125370805") return { ok: true, id: "1239592269240963" };
-  if (wanted === "1485319076722009") return { ok: true, id: "1245811661959729" };
-  if (wanted === "2663451950739498") return { ok: true, id: "1401823986336958" };
-  if (wanted === "1739099617324219") return { ok: true, id: "1339948289200329" };
-  if (wanted === "1083562997861778") return { ok: true, id: "1385974501255442" };
-  if (wanted === "1034864159583818") return { ok: true, id: "1291624014041103" };
-  if (wanted === "1854430365722527") return { ok: true, id: "1318810581311680" };
+  const digits = wanted.replace(/[^0-9]/g, "");
 
-  if (
-    wanted === DEFAULT_PK_ID ||
-    wanted === DEFAULT_SL_ID ||
-    wanted === DEFAULT_NL_PRIMARY_ID ||
-    wanted === DEFAULT_NL_SECONDARY_ID ||
-    wanted === DEFAULT_US_PRIMARY_ID ||
-    wanted === DEFAULT_US_SECONDARY_ID ||
-    wanted === DEFAULT_LINE7_ID ||
-    wanted === ALIAS_UK_ID ||
-    wanted === UK_WABA_ID ||
-    wanted === "1964540454233744" ||
-    wanted === "1318810581311680" ||
-    wanted === "1854430365722527" ||
-    wanted === "1239592269240963" ||
-    wanted === "1245811661959729" ||
-    wanted === "1401823986336958" ||
-    wanted === "1339948289200329" ||
-    wanted === "1385974501255442" ||
-    wanted === "1291624014041103"
-  ) {
-    return { ok: true, id: wanted };
-  }
+  // 1. Direct digits matching
+  if (digits === "923356701199") return { ok: true, id: DEFAULT_PK_ID };
+  if (digits === "38665743712") return { ok: true, id: DEFAULT_SL_ID };
+  if (digits === "3197058026144") return { ok: true, id: DEFAULT_NL_PRIMARY_ID };
+  if (digits === "3197058026143") return { ok: true, id: DEFAULT_NL_SECONDARY_ID };
+  if (digits === "15554316671") return { ok: true, id: DEFAULT_US_PRIMARY_ID };
+  if (digits === "15554340459") return { ok: true, id: DEFAULT_US_SECONDARY_ID };
+  if (digits === "447575376078") return { ok: true, id: DEFAULT_LINE7_ID };
 
-  if (!isKnownNumber(wanted)) {
-    return {
-      ok: false,
-      error: `Unknown sender number: ${wanted}. Configured numbers are ${numbers
-        .map((n) => n.id)
-        .join(", ")}.`,
-    };
-  }
+  // 2. Map any incoming WABA ID to its canonical sending Phone Number ID
+  if (wanted === "1363415125370805" || wanted === DEFAULT_PK_ID) return { ok: true, id: DEFAULT_PK_ID };
+  if (wanted === "1485319076722009" || wanted === DEFAULT_SL_ID) return { ok: true, id: DEFAULT_SL_ID };
+  if (wanted === "2663451950739498" || wanted === DEFAULT_NL_PRIMARY_ID) return { ok: true, id: DEFAULT_NL_PRIMARY_ID };
+  if (wanted === "1739099617324219" || wanted === DEFAULT_NL_SECONDARY_ID) return { ok: true, id: DEFAULT_NL_SECONDARY_ID };
+  if (wanted === "1083562997861778" || wanted === DEFAULT_US_PRIMARY_ID) return { ok: true, id: DEFAULT_US_PRIMARY_ID };
+  if (wanted === "1034864159583818" || wanted === DEFAULT_US_SECONDARY_ID) return { ok: true, id: DEFAULT_US_SECONDARY_ID };
+  if (wanted === "1854430365722527" || wanted === "1964540454233744" || wanted === DEFAULT_LINE7_ID) return { ok: true, id: DEFAULT_LINE7_ID };
+
+  // 3. Check against configured numbers in waNumbers()
+  const matched = numbers.find((n) => {
+    if (n.id === wanted || n.id === digits) return true;
+    if (n.displayNumber && n.displayNumber.replace(/[^0-9]/g, "") === digits) return true;
+    return false;
+  });
+  if (matched) return { ok: true, id: matched.id };
+
   return { ok: true, id: wanted };
 }
 

@@ -5,8 +5,8 @@
  */
 
 import { getKV } from "@/lib/kv";
-import { getSession, setSession, clearSession, type Session, type FlowStage, type ServiceKey } from "@/lib/wa-store";
-import { primaryNumberId, waNumbers } from "@/lib/wa-numbers";
+import { getSession, setSession, clearSession, appendMessage, type Session, type FlowStage, type ServiceKey, type WAMessage } from "@/lib/wa-store";
+import { primaryNumberId, waNumbers, resolveNumberId, getChannelDepartment, DEFAULT_PK_ID } from "@/lib/wa-numbers";
 import { accountAt } from "@/lib/wa-accounts";
 import { notify } from "@/lib/wa-notify";
 
@@ -74,29 +74,19 @@ export const SERVICES: Record<
 
 // ---------- Meta Graph API Sending Helpers ----------
 
-function resolveSendingId(id: string): string {
-  let actual = id;
-  if (actual === "1363415125370805") return "1239592269240963";
-  if (actual === "1485319076722009") return "1245811661959729";
-  if (actual === "2663451950739498") return "1401823986336958";
-  if (actual === "1739099617324219") return "1339948289200329";
-  if (actual === "1083562997861778") return "1385974501255442";
-  if (actual === "1034864159583818") return "1291624014041103";
-  return actual;
-}
-
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 async function getSenderCredentials(channelId?: string) {
-  const phoneId = channelId || primaryNumberId() || "1239592269240963";
-  const actualPhoneId = resolveSendingId(phoneId);
-  const numberDef = waNumbers().find((n) => n.id === phoneId || n.id === actualPhoneId);
-  const account = accountAt(numberDef?.slot ?? 1);
+  const resolved = resolveNumberId(channelId);
+  const actualPhoneId = resolved.ok ? resolved.id : (primaryNumberId() || DEFAULT_PK_ID);
+  const numberDef = waNumbers().find((n) => n.id === actualPhoneId || n.id === channelId);
+  const slot = numberDef?.slot ?? 1;
+  const account = accountAt(slot);
   const token = account.token || accountAt(1).token;
-  return { actualPhoneId, token: token ?? "" };
+  return { actualPhoneId, token: token ?? "", slot };
 }
 
-/** Show official Meta typing indicator on recipient's screen and pause for 5 seconds */
+/** Show official Meta typing indicator on recipient's screen and pause briefly */
 async function sendTypingAndDelay(to: string, msgId?: string, channelId?: string) {
   const { actualPhoneId, token } = await getSenderCredentials(channelId);
   if (!token) return;
@@ -116,16 +106,19 @@ async function sendTypingAndDelay(to: string, msgId?: string, channelId?: string
     }
   } catch {}
 
-  await sleep(5000);
+  await sleep(1200);
 }
 
 export async function sendMessage(to: string, bodyText: string, channelId?: string, msgId?: string) {
   const { actualPhoneId, token } = await getSenderCredentials(channelId);
-  if (!token) return;
+  if (!token) {
+    console.warn(`[wa-flow] Missing token for sender ${actualPhoneId}`);
+    return;
+  }
 
   await sendTypingAndDelay(to, msgId, channelId);
 
-  await fetch(`${GRAPH_URL}/${actualPhoneId}/messages`, {
+  const res = await fetch(`${GRAPH_URL}/${actualPhoneId}/messages`, {
     method: "POST",
     headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
     body: JSON.stringify({
@@ -135,7 +128,28 @@ export async function sendMessage(to: string, bodyText: string, channelId?: stri
       type: "text",
       text: { body: bodyText, preview_url: false },
     }),
-  }).catch((e) => console.error("[wa-flow] sendMessage error:", e));
+  }).catch((e) => {
+    console.error("[wa-flow] sendMessage network error:", e);
+    return null;
+  });
+
+  const json = res ? await res.json().catch(() => null) : null;
+  const sentId = json?.messages?.[0]?.id || `bot_${Date.now()}`;
+
+  // Log outbound message to store for dashboard visibility
+  await appendMessage({
+    id: sentId,
+    from: actualPhoneId,
+    to,
+    jid: `${to}@s.whatsapp.net`,
+    channel: channelId || actualPhoneId,
+    department: getChannelDepartment(actualPhoneId),
+    type: "text",
+    body: bodyText,
+    timestamp: new Date().toISOString(),
+    direction: "outbound",
+    status: res?.ok ? "sent" : "failed",
+  }).catch(() => {});
 }
 
 export async function sendListMessage(
@@ -152,7 +166,10 @@ export async function sendListMessage(
   msgId?: string
 ) {
   const { actualPhoneId, token } = await getSenderCredentials(channelId);
-  if (!token) return;
+  if (!token) {
+    console.warn(`[wa-flow] Missing token for sender ${actualPhoneId}`);
+    return;
+  }
 
   await sendTypingAndDelay(to, msgId, channelId);
 
@@ -195,11 +212,31 @@ export async function sendListMessage(
     },
   };
 
-  await fetch(`${GRAPH_URL}/${actualPhoneId}/messages`, {
+  const res = await fetch(`${GRAPH_URL}/${actualPhoneId}/messages`, {
     method: "POST",
     headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
     body: JSON.stringify(listPayload),
-  }).catch((e) => console.error("[wa-flow] sendListMessage error:", e));
+  }).catch((e) => {
+    console.error("[wa-flow] sendListMessage error:", e);
+    return null;
+  });
+
+  const json = res ? await res.json().catch(() => null) : null;
+  const sentId = json?.messages?.[0]?.id || `bot_list_${Date.now()}`;
+
+  await appendMessage({
+    id: sentId,
+    from: actualPhoneId,
+    to,
+    jid: `${to}@s.whatsapp.net`,
+    channel: channelId || actualPhoneId,
+    department: getChannelDepartment(actualPhoneId),
+    type: "interactive",
+    body: `📋 ${payload.body}`,
+    timestamp: new Date().toISOString(),
+    direction: "outbound",
+    status: res?.ok ? "sent" : "failed",
+  }).catch(() => {});
 }
 
 export async function sendButtonMessage(
@@ -214,7 +251,10 @@ export async function sendButtonMessage(
   msgId?: string
 ) {
   const { actualPhoneId, token } = await getSenderCredentials(channelId);
-  if (!token) return;
+  if (!token) {
+    console.warn(`[wa-flow] Missing token for sender ${actualPhoneId}`);
+    return;
+  }
 
   await sendTypingAndDelay(to, msgId, channelId);
 
@@ -239,11 +279,31 @@ export async function sendButtonMessage(
     },
   };
 
-  await fetch(`${GRAPH_URL}/${actualPhoneId}/messages`, {
+  const res = await fetch(`${GRAPH_URL}/${actualPhoneId}/messages`, {
     method: "POST",
     headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
     body: JSON.stringify(buttonPayload),
-  }).catch((e) => console.error("[wa-flow] sendButtonMessage error:", e));
+  }).catch((e) => {
+    console.error("[wa-flow] sendButtonMessage error:", e);
+    return null;
+  });
+
+  const json = res ? await res.json().catch(() => null) : null;
+  const sentId = json?.messages?.[0]?.id || `bot_btn_${Date.now()}`;
+
+  await appendMessage({
+    id: sentId,
+    from: actualPhoneId,
+    to,
+    jid: `${to}@s.whatsapp.net`,
+    channel: channelId || actualPhoneId,
+    department: getChannelDepartment(actualPhoneId),
+    type: "interactive",
+    body: `🔘 ${payload.body}`,
+    timestamp: new Date().toISOString(),
+    direction: "outbound",
+    status: res?.ok ? "sent" : "failed",
+  }).catch(() => {});
 }
 
 // ---------- Entry point: called on inbound WhatsApp message ----------
@@ -265,6 +325,13 @@ export async function handleInboundMessage(
   ) {
     await setSession(from, { stage: "handoff", service: "cybersecurity", startedAt: Date.now() });
     return escalateToEmergency(from, channelId, msgId);
+  }
+
+  // Reset trigger: allow restarting lead triage flow at any time
+  if (/^(menu|reset|restart|start|help)$/i.test(clean)) {
+    session = { stage: "welcome", startedAt: Date.now() };
+    await setSession(from, session);
+    return sendWelcome(from, channelId, msgId);
   }
 
   let session = await getSession(from);
@@ -317,7 +384,12 @@ export async function handleInboundMessage(
     case "intake":
       return handleIntake(from, session, text, channelId, msgId);
     case "handoff":
-      // Already handed off — bot stays silent, representative owns thread
+      // If user greets again after 12 hours, start a fresh triage
+      if (Date.now() - session.startedAt > 12 * 3600 * 1000 && /^(hi|hello|hey|salam|hola)/i.test(clean)) {
+        session = { stage: "welcome", startedAt: Date.now() };
+        await setSession(from, session);
+        return sendWelcome(from, channelId, msgId);
+      }
       return;
   }
 }

@@ -37,8 +37,11 @@ import { getChannelDepartment } from "@/lib/wa-numbers";
 import {
   appendMessage,
   updateMessageStatus,
+  getRules,
+  matchRule,
   type WAMessage,
 } from "@/lib/wa-store";
+import { handleInboundMessage, sendMessage } from "@/lib/wa-flow";
 
 const GRAPH_URL = "https://graph.facebook.com/v20.0";
 
@@ -283,6 +286,28 @@ export async function POST(request: Request) {
 
           // Persist directly to the store for inbox viewing.
           await appendMessage(storedMessage);
+
+          // 🤖 Trigger Lead Triage Flow & Keyword Auto-Replies
+          if (from && msgType !== "unsupported" && msgType !== "system") {
+            const replyChannel = phoneId || channel || displayPhone;
+            // Fire-and-forget in background to guarantee instant 200 OK response to Meta
+            (async () => {
+              try {
+                // 1. Check custom keyword auto-reply rules first
+                const rules = await getRules(dept);
+                const matched = matchRule(rules, text);
+                if (matched && matched.enabled) {
+                  await sendMessage(from, matched.reply, replyChannel, msgId);
+                  return;
+                }
+
+                // 2. Execute Lead Triage / Interactive bot flow
+                await handleInboundMessage(from, text, choiceId ?? undefined, replyChannel, msgId);
+              } catch (flowErr) {
+                console.error(`[webhook] Auto-reply dispatch failed for ${from} on ${replyChannel}:`, flowErr);
+              }
+            })();
+          }
         }
 
         // Delivery / read receipts for our OUTBOUND messages → drive tick status.
