@@ -109,28 +109,25 @@ export default function PortalHeader({ portal, onMenuClick }: Props) {
     [visible, readSet],
   );
 
-  // Persist read/dismissed state.
+  // Persist read/dismissed state, pruning ids no longer in the feed so
+  // localStorage can't grow without bound. While the feed is still empty
+  // (initial load, queries unresolved) we persist as-is — pruning against an
+  // empty feed would wipe saved read/dismissed state on the next mount.
   useEffect(() => {
+    let toPersist = state;
+    if (derived.length > 0) {
+      const ids = new Set(derived.map((n) => n.id));
+      toPersist = {
+        read: state.read.filter((id) => ids.has(id)),
+        dismissed: state.dismissed.filter((id) => ids.has(id)),
+      };
+    }
     try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(toPersist));
     } catch {
       // Private mode or quota — read/dismissed state just won't persist.
     }
-  }, [state]);
-
-  // Prune ids no longer in the feed so localStorage can't grow without bound.
-  useEffect(() => {
-    const ids = new Set((derived ?? []).map((n) => n.id));
-    setState((prev) => {
-      const prevRead = prev?.read ?? [];
-      const prevDismissed = prev?.dismissed ?? [];
-      const read = prevRead.filter((id) => ids.has(id));
-      const dismissed = prevDismissed.filter((id) => ids.has(id));
-      return read.length === prevRead.length && dismissed.length === prevDismissed.length
-        ? prev
-        : { read, dismissed };
-    });
-  }, [derived]);
+  }, [state, derived]);
 
   // Global ⌘K / Ctrl-K toggles the palette.
   useEffect(() => {

@@ -14,7 +14,7 @@ Where the work happens:
 
 | Who | Portal | Page |
 | --- | --- | --- |
-| Intern / employee | `portals.tauqeermustafa.tech/employees` | **My Pipeline** (own leads only) |
+| Intern / employee | `portals.tauqeermustafa.com/employees` | **My Pipeline** (own leads only) |
 | Exec / team lead | `.../management` | **Pipeline** (own + team) |
 | Admin | `.../admin` | **Client CRM** (everything) |
 

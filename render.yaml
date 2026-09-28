@@ -40,9 +40,9 @@ services:
         sync: false
       # Comma-separated, exact scheme+host, no trailing slash, no spaces.
       - key: CORS_ORIGINS
-        value: https://tauqeermustafa.tech,https://www.tauqeermustafa.tech,https://tauqeermustafainc.vercel.app,https://community.tauqeermustafa.tech,https://portals.tauqeermustafa.tech,https://support.tauqeermustafa.tech,https://billing.tauqeermustafa.tech
+        value: https://tauqeermustafa.com,https://www.tauqeermustafa.com,https://community.tauqeermustafa.com,https://portals.tauqeermustafa.com,https://support.tauqeermustafa.com,https://billing.tauqeermustafa.com,https://tauqeermustafa.tech,https://www.tauqeermustafa.tech,https://tauqeermustafainc.vercel.app,https://community.tauqeermustafa.tech,https://portals.tauqeermustafa.tech,https://support.tauqeermustafa.tech,https://billing.tauqeermustafa.tech
       - key: CLIENT_PORTAL_URL
-        value: https://portals.tauqeermustafa.tech
+        value: https://portals.tauqeermustafa.com
       - key: VERIFICATION_CODE_TTL_MINUTES
         value: "10"
       - key: SMTP_HOST
@@ -62,4 +62,4 @@ services:
       - key: GOOGLE_CLIENT_SECRET
         sync: false
       - key: GOOGLE_REDIRECT_URI
-        value: https://api.tauqeermustafa.tech/auth/client/google/callback
+        value: https://api.tauqeermustafa.com/auth/client/google/callback

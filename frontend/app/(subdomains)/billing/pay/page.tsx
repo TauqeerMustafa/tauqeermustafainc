@@ -35,10 +35,10 @@ export default function SubdomainPayPage() {
             <p>
               Billing Desk:{" "}
               <a
-                href="mailto:billing@tauqeermustafa.tech"
+                href="mailto:billing@tauqeermustafa.com"
                 className="text-action hover:underline font-semibold"
               >
-                billing@tauqeermustafa.tech
+                billing@tauqeermustafa.com
               </a>
             </p>
           </div>

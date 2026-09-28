@@ -332,7 +332,7 @@ export const DEFAULT_GENERAL_RULES: AutoReplyRule[] = [
     reply:
       "You are connected with the *Tauqeer Mustafa Inc.* Technical Inbound Desk.\n\n" +
       "• *Direct Hotline:* +92 335 6701199\n" +
-      "• *Email:* contact@tauqeermustafa.tech\n" +
+      "• *Email:* contact@tauqeermustafa.com\n" +
       "• *Operating Hours:* Monday to Saturday, 09:00 to 18:00 (PKT)\n\n" +
       "If you would like to arrange an architecture sync, share your phone number and two convenient times.",
     enabled: true,
@@ -344,7 +344,7 @@ export const DEFAULT_GENERAL_RULES: AutoReplyRule[] = [
     department: "general",
     reply:
       "Explore our software engineering architecture, case studies, and capabilities at:\n" +
-      "https://tauqeermustafa.tech\n\n" +
+      "https://tauqeermustafa.com\n\n" +
       "Tell us your target technical stack or industry, and we will share relevant architecture case studies and deliverables.",
     enabled: true,
   },
@@ -382,7 +382,7 @@ export const DEFAULT_SUPPORT_RULES: AutoReplyRule[] = [
     reply:
       "*Tauqeer Mustafa Inc. Technical Support Desk*\n\n" +
       "To check ticket status or submit diagnostic logs:\n" +
-      "1. Live SLA Tracker: https://support.tauqeermustafa.tech/ticket\n" +
+      "1. Live SLA Tracker: https://support.tauqeermustafa.com/ticket\n" +
       "2. Or reply directly with your Ticket Reference ID (e.g. *TMI-SUP-XXXXX*).\n\n" +
       "An on-call incident engineer evaluates every report.",
     enabled: true,
@@ -412,7 +412,7 @@ export const DEFAULT_SUPPORT_RULES: AutoReplyRule[] = [
       "• *P2 High Severity:* < 4 hours response\n" +
       "• *P3 Standard Issue:* < 24 hours turnaround\n" +
       "• *P4 General Request:* < 48 hours\n\n" +
-      "Live telemetry: https://support.tauqeermustafa.tech/status",
+      "Live telemetry: https://support.tauqeermustafa.com/status",
     enabled: true,
   },
   {
@@ -435,7 +435,7 @@ export const DEFAULT_SUPPORT_RULES: AutoReplyRule[] = [
       "*Support Desk Coverage:*\n" +
       "• *Critical Incidents (P1):* 24/7/365 continuous coverage\n" +
       "• *Standard Support (P2-P4):* Monday to Saturday, 08:00 to 22:00 Pakistan time\n\n" +
-      "Email escalation: support@tauqeermustafa.tech",
+      "Email escalation: support@tauqeermustafa.com",
     enabled: true,
   },
   {

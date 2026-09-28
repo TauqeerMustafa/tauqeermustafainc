@@ -25,7 +25,7 @@ export function onboardHref(name: string, personalEmail: string): string {
  * provisions the mailbox at. Falls back to blank if the name yields nothing.
  */
 export function suggestCompanyEmail(name: string): string {
-  let host = "tauqeermustafa.tech";
+  let host = "tauqeermustafa.com";
   try {
     host = new URL(appConfig.siteUrl).host;
   } catch {

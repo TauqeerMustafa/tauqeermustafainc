@@ -7,7 +7,7 @@ import { ALL_DOCS } from "@/data/docs-registry";
 export default function sitemap(): MetadataRoute.Sitemap {
   const now = new Date();
 
-  // 1. Primary Corporate Domain Routes (tauqeermustafa.tech)
+  // 1. Primary Corporate Domain Routes (tauqeermustafa.com)
   const mainRoutes = [
     { url: "", changeFrequency: "weekly", priority: 1.0 },
     { url: "/about", changeFrequency: "monthly", priority: 0.8 },
@@ -55,10 +55,10 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: 0.6,
   }));
 
-  // 3. Documentation & Policy Portal (docs.tauqeermustafa.tech)
+  // 3. Documentation & Policy Portal (docs.tauqeermustafa.com)
   const docsHubRoute: MetadataRoute.Sitemap = [
     {
-      url: "https://docs.tauqeermustafa.tech",
+      url: "https://docs.tauqeermustafa.com",
       lastModified: now,
       changeFrequency: "weekly",
       priority: 0.8,
@@ -66,33 +66,33 @@ export default function sitemap(): MetadataRoute.Sitemap {
   ];
 
   const docDetailRoutes: MetadataRoute.Sitemap = ALL_DOCS.map((doc) => ({
-    url: `https://docs.tauqeermustafa.tech/${doc.slug}`,
+    url: `https://docs.tauqeermustafa.com/${doc.slug}`,
     lastModified: now,
     changeFrequency: "monthly",
     priority: 0.7,
   }));
 
-  // 4. Billing & Treasury Suite (billing.tauqeermustafa.tech)
+  // 4. Billing & Treasury Suite (billing.tauqeermustafa.com)
   const billingRoutes: MetadataRoute.Sitemap = [
-    { url: "https://billing.tauqeermustafa.tech", lastModified: now, changeFrequency: "monthly", priority: 0.8 },
-    { url: "https://billing.tauqeermustafa.tech/pay", lastModified: now, changeFrequency: "monthly", priority: 0.8 },
-    { url: "https://billing.tauqeermustafa.tech/payouts", lastModified: now, changeFrequency: "monthly", priority: 0.7 },
-    { url: "https://billing.tauqeermustafa.tech/policies", lastModified: now, changeFrequency: "monthly", priority: 0.6 },
+    { url: "https://billing.tauqeermustafa.com", lastModified: now, changeFrequency: "monthly", priority: 0.8 },
+    { url: "https://billing.tauqeermustafa.com/pay", lastModified: now, changeFrequency: "monthly", priority: 0.8 },
+    { url: "https://billing.tauqeermustafa.com/payouts", lastModified: now, changeFrequency: "monthly", priority: 0.7 },
+    { url: "https://billing.tauqeermustafa.com/policies", lastModified: now, changeFrequency: "monthly", priority: 0.6 },
   ];
 
-  // 5. Customer Support & Helpdesk Hub (support.tauqeermustafa.tech)
+  // 5. Customer Support & Helpdesk Hub (support.tauqeermustafa.com)
   const supportRoutes: MetadataRoute.Sitemap = [
-    { url: "https://support.tauqeermustafa.tech", lastModified: now, changeFrequency: "daily", priority: 0.8 },
-    { url: "https://support.tauqeermustafa.tech/ticket", lastModified: now, changeFrequency: "monthly", priority: 0.7 },
-    { url: "https://support.tauqeermustafa.tech/status", lastModified: now, changeFrequency: "always", priority: 0.8 },
-    { url: "https://support.tauqeermustafa.tech/faq", lastModified: now, changeFrequency: "weekly", priority: 0.7 },
-    { url: "https://support.tauqeermustafa.tech/contact", lastModified: now, changeFrequency: "monthly", priority: 0.7 },
+    { url: "https://support.tauqeermustafa.com", lastModified: now, changeFrequency: "daily", priority: 0.8 },
+    { url: "https://support.tauqeermustafa.com/ticket", lastModified: now, changeFrequency: "monthly", priority: 0.7 },
+    { url: "https://support.tauqeermustafa.com/status", lastModified: now, changeFrequency: "always", priority: 0.8 },
+    { url: "https://support.tauqeermustafa.com/faq", lastModified: now, changeFrequency: "weekly", priority: 0.7 },
+    { url: "https://support.tauqeermustafa.com/contact", lastModified: now, changeFrequency: "monthly", priority: 0.7 },
   ];
 
   // 6. Portals & Community
   const networkRoutes: MetadataRoute.Sitemap = [
-    { url: "https://portals.tauqeermustafa.tech", lastModified: now, changeFrequency: "monthly", priority: 0.7 },
-    { url: "https://community.tauqeermustafa.tech", lastModified: now, changeFrequency: "weekly", priority: 0.7 },
+    { url: "https://portals.tauqeermustafa.com", lastModified: now, changeFrequency: "monthly", priority: 0.7 },
+    { url: "https://community.tauqeermustafa.com", lastModified: now, changeFrequency: "weekly", priority: 0.7 },
   ];
 
   return [

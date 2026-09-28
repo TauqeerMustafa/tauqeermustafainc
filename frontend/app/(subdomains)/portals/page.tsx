@@ -92,7 +92,7 @@ export default function PortalsPage() {
               <p className="text-xs text-ink-muted mt-0.5 font-light">Direct Card/Paddle payments & Raast instant settlement.</p>
             </div>
             <a
-              href="https://billing.tauqeermustafa.tech"
+              href="https://billing.tauqeermustafa.com"
               className="inline-flex items-center gap-1.5 bg-action px-5 py-2.5 font-mono text-xs font-bold uppercase tracking-wider text-on-action transition hover:bg-action-strong shrink-0"
             >
               <span>Billing Portal</span>
@@ -110,7 +110,7 @@ export default function PortalsPage() {
               <p className="text-xs text-ink-muted mt-0.5 font-light">Open an enterprise ticket or check real-time uptime.</p>
             </div>
             <a
-              href="https://support.tauqeermustafa.tech"
+              href="https://support.tauqeermustafa.com"
               className="inline-flex items-center gap-1.5 border border-line bg-surface px-5 py-2.5 font-mono text-xs font-bold uppercase tracking-wider text-ink transition hover:border-action hover:text-action shrink-0"
             >
               <span>Helpdesk</span>

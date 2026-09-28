@@ -109,7 +109,7 @@ export default function BankDetailsCard() {
           </div>
 
           <BankDetailItem label="Raast ID (Phone)" value="+923356701199" />
-          <BankDetailItem label="Raast ID (Email)" value="billing@tauqeermustafa.tech" />
+          <BankDetailItem label="Raast ID (Email)" value="billing@tauqeermustafa.com" />
           <BankDetailItem label="Registered Account Title" value="Tauqeer Mustafa Inc." />
           <BankDetailItem label="Associated Bank" value="Meezan Bank Limited" copyable={false} />
           <BankDetailItem label="Associated IBAN" value="PK64MEZN0001090108421092" />
@@ -140,7 +140,7 @@ export default function BankDetailsCard() {
         <p className="leading-relaxed">
           <strong>Security Notice:</strong> Tauqeer Mustafa Inc. conducts commercial banking solely
           through the corporate credentials displayed above. Official invoices are dispatched
-          exclusively from <code className="font-mono text-action font-bold">@tauqeermustafa.tech</code>.
+          exclusively from <code className="font-mono text-action font-bold">@tauqeermustafa.com</code>.
         </p>
       </div>
     </div>

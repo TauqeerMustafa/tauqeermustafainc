@@ -66,7 +66,7 @@ ${data.coverLetter}
       reset();
     } catch (error) {
       console.error("Application submission error:", error);
-      alert("Failed to submit application. Please try again or email us directly at careers@tauqeermustafa.tech");
+      alert("Failed to submit application. Please try again or email us directly at careers@tauqeermustafa.com");
     }
   }
 

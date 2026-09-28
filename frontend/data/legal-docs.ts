@@ -1,4 +1,4 @@
-﻿export interface LegalSection {
+export interface LegalSection {
   heading: string;
   body: string[];
 }
@@ -561,7 +561,7 @@ export const legalDocs: LegalDoc[] = [
       {
         heading: "9. Billing Contact",
         body: [
-          "Questions about an invoice, a payment method, or a payment that has not appeared on your account should be sent to our billing team at billing@tauqeermustafa.tech. Please quote the invoice number in your message.",
+          "Questions about an invoice, a payment method, or a payment that has not appeared on your account should be sent to our billing team at billing@tauqeermustafa.com. Please quote the invoice number in your message.",
         ],
       },
     ],
@@ -622,7 +622,7 @@ export const legalDocs: LegalDoc[] = [
       {
         heading: "7. How to Request a Refund",
         body: [
-          "Send a written request to billing@tauqeermustafa.tech, including the invoice number, the amount in question, and a short description of the reason.",
+          "Send a written request to billing@tauqeermustafa.com, including the invoice number, the amount in question, and a short description of the reason.",
           "We acknowledge every refund request within 2 business days and give a written decision within 7 business days of receiving the information needed to assess it.",
           "Approved refunds are issued to the original payment method within 10 business days of approval. Where the original method cannot receive a refund, we issue it by bank transfer to an account in the paying party's name. Bank charges on international refunds are deducted from the refunded amount.",
         ],
@@ -695,7 +695,7 @@ export const legalDocs: LegalDoc[] = [
       {
         heading: "7. How to Raise a Return or Rework Request",
         body: [
-          "Send your request to support@tauqeermustafa.tech, including the project name, the relevant invoice or delivery note number, and a clear description of the problem, with screenshots or reproduction steps where applicable.",
+          "Send your request to support@tauqeermustafa.com, including the project name, the relevant invoice or delivery note number, and a clear description of the problem, with screenshots or reproduction steps where applicable.",
           "We acknowledge requests within 2 business days and confirm the remedy â€” rework, replacement, return authorisation, or refund â€” within 5 business days.",
         ],
       },

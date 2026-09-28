@@ -58,9 +58,9 @@ export default async function BlogDetailPage({
   });
 
   const breadcrumbs = breadcrumbSchema([
-    { name: "Home", url: "https://tauqeermustafa.tech" },
-    { name: "Blog", url: "https://tauqeermustafa.tech/blog" },
-    { name: post.title, url: `https://tauqeermustafa.tech/blog/${post.slug}` },
+    { name: "Home", url: "https://tauqeermustafa.com" },
+    { name: "Blog", url: "https://tauqeermustafa.com/blog" },
+    { name: post.title, url: `https://tauqeermustafa.com/blog/${post.slug}` },
   ]);
 
   return (

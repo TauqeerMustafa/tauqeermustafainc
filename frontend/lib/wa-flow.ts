@@ -15,12 +15,12 @@ const GRAPH_URL = "https://graph.facebook.com/v20.0";
 // ---------- Constants & Company Info ----------
 
 const COMPANY_NAME = "Tauqeer Mustafa Inc";
-const WEBSITE = "https://tauqeermustafa.tech";
+const WEBSITE = "https://tauqeermustafa.com";
 const HOURS = "Monday to Saturday, 09:00 to 18:00 (PKT)";
 const HOTLINE = "+92 335 6701199";
 const REP_QUEUE_CHANNEL = process.env.REP_QUEUE_CHANNEL ?? "#leads-inbound";
 
-// ---------- Service catalogue (mirrors tauqeermustafa.tech/services) ----------
+// ---------- Service catalogue (mirrors tauqeermustafa.com/services) ----------
 
 export const SERVICES: Record<
   Exclude<ServiceKey, "client_services" | "careers" | "human">,
@@ -972,9 +972,9 @@ export const DEFAULT_STEPS: FlowStep[] = [
       "*Careers & Recruitment*\n\n" +
       "We actively recruit top-tier software engineers, security researchers, and systems architects.\n\n" +
       "Explore our open positions and submit your profile at:\n" +
-      "https://tauqeermustafa.tech/careers\n\n" +
+      "https://tauqeermustafa.com/careers\n\n" +
       "Our technical leadership reviews all submissions directly.",
-    footer: "tauqeermustafa.tech/careers",
+    footer: "tauqeermustafa.com/careers",
     buttons: [
       { id: "car_apply", title: "Submit Resume", next: "intake" },
       { id: "car_roles", title: "View Open Roles", next: "start" },

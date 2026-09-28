@@ -151,7 +151,7 @@ export const BUTTON_TEMPLATES: ButtonTemplate[] = [
       "2. GitHub profile or portfolio link\n" +
       "3. Summary of a complex system you engineered\n\n" +
       "Our engineering leads review every submission.",
-    footer: "tauqeermustafa.tech/careers",
+    footer: "tauqeermustafa.com/careers",
     buttons: ["Sending Resume", "View Open Roles", "Speak with Lead"],
   },
   {

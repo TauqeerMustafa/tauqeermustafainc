@@ -97,7 +97,7 @@ const ADDITIONAL_DOCS: UnifiedDoc[] = [
       {
         heading: '4. Your Rights and Contact',
         body: [
-          'You may request access to, correction of, or deletion of your personal data by contacting our privacy compliance desk at privacy@tauqeermustafa.tech.'
+          'You may request access to, correction of, or deletion of your personal data by contacting our privacy compliance desk at privacy@tauqeermustafa.com.'
         ]
       }
     ]
@@ -198,7 +198,7 @@ const ADDITIONAL_DOCS: UnifiedDoc[] = [
       {
         heading: '3. Feedback & Assistance',
         body: [
-          'If you encounter an accessibility barrier on any TMI digital surface, please contact accessibility@tauqeermustafa.tech and our engineering team will respond within 48 hours.'
+          'If you encounter an accessibility barrier on any TMI digital surface, please contact accessibility@tauqeermustafa.com and our engineering team will respond within 48 hours.'
         ]
       }
     ]

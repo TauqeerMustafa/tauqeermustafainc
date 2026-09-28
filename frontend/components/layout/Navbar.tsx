@@ -33,47 +33,47 @@ const primaryNav = [
   { name: "Contact", href: "/contact" },
 ];
 
-/** Official company subdomains only (*.tauqeermustafa.tech) */
+/** Official company subdomains only (*.tauqeermustafa.com) */
 const companySubdomains = [
   {
     name: "Portals",
-    host: "portals.tauqeermustafa.tech",
-    href: "https://portals.tauqeermustafa.tech",
+    host: "portals.tauqeermustafa.com",
+    href: "https://portals.tauqeermustafa.com",
     description: "Secure client, employee & management workspaces",
     icon: ShieldCheck,
   },
   {
     name: "Portals App",
-    host: "app.tauqeermustafa.tech",
-    href: "https://app.tauqeermustafa.tech",
+    host: "app.tauqeermustafa.com",
+    href: "https://app.tauqeermustafa.com",
     description: "Android APK & installable mobile portal suite",
     icon: Smartphone,
   },
   {
     name: "Community",
-    host: "community.tauqeermustafa.tech",
-    href: "https://community.tauqeermustafa.tech",
+    host: "community.tauqeermustafa.com",
+    href: "https://community.tauqeermustafa.com",
     description: "Developer hub, open forum & technical discussions",
     icon: Users,
   },
   {
     name: "Documentation",
-    host: "docs.tauqeermustafa.tech",
-    href: "https://docs.tauqeermustafa.tech",
+    host: "docs.tauqeermustafa.com",
+    href: "https://docs.tauqeermustafa.com",
     description: "Official guidelines, company policies, specs & SLAs",
     icon: FileText,
   },
   {
     name: "Support",
-    host: "support.tauqeermustafa.tech",
-    href: "https://support.tauqeermustafa.tech",
+    host: "support.tauqeermustafa.com",
+    href: "https://support.tauqeermustafa.com",
     description: "24/7 client helpdesk, ticketing & incident status",
     icon: LifeBuoy,
   },
   {
     name: "Billing",
-    host: "billing.tauqeermustafa.tech",
-    href: "https://billing.tauqeermustafa.tech",
+    host: "billing.tauqeermustafa.com",
+    href: "https://billing.tauqeermustafa.com",
     description: "Treasury management, invoices & payment processing",
     icon: CreditCard,
   },

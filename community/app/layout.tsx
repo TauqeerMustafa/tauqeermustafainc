@@ -5,13 +5,13 @@ export const metadata: Metadata = {
   title: "Community | Make your own line",
   description:
     "A precise, generous space for curious people to exchange ideas, sharpen their craft, and build momentum together.",
-  metadataBase: new URL("https://community.tauqeermustafa.tech"),
+  metadataBase: new URL("https://community.tauqeermustafa.com"),
   alternates: { canonical: "/" },
   openGraph: {
     title: "Community | Make your own line",
     description:
       "A precise, generous space for curious people to exchange ideas, sharpen their craft, and build momentum together.",
-    url: "https://community.tauqeermustafa.tech",
+    url: "https://community.tauqeermustafa.com",
     siteName: "Community",
     type: "website",
   },

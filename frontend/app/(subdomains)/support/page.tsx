@@ -31,11 +31,11 @@ export default async function SupportPage({
             name: "Tauqeer Mustafa Inc. Support & Helpdesk",
             description:
               "Official corporate support, ticket tracking, emergency incident response, and live system status.",
-            url: "https://support.tauqeermustafa.tech",
+            url: "https://support.tauqeermustafa.com",
             mainEntity: {
               "@type": "CustomerService",
               telephone: "+92 335 6701199",
-              email: "support@tauqeermustafa.tech",
+              email: "support@tauqeermustafa.com",
               contactType: "technical support",
               availableLanguage: ["English", "Urdu"],
             },

@@ -137,7 +137,7 @@ export async function generateBrandKitZip(): Promise<void> {
 - **Full Legal Name:** Tauqeer Mustafa Inc.
 - **Short Name:** TMI
 - **Tagline:** Engineering that ships. Security that holds.
-- **Primary Website:** https://tauqeermustafa.tech
+- **Primary Website:** https://tauqeermustafa.com
 
 ## 2. Color Palette
 - **Obsidian Dark (Canvas / Hero):** \`#0D1117\` (RGB: 13, 17, 23)
@@ -157,7 +157,7 @@ export async function generateBrandKitZip(): Promise<void> {
 
 ## 5. Media Contact
 For press inquiries, brand permissions, or high-res photography requests:
-Email: marketing@tauqeermustafa.tech / contact@tauqeermustafa.tech
+Email: marketing@tauqeermustafa.com / contact@tauqeermustafa.com
 `;
 
   // 5. Company Facts Markdown
@@ -170,8 +170,8 @@ Email: marketing@tauqeermustafa.tech / contact@tauqeermustafa.tech
 - **Deliveries:** 45+ Production Systems
 - **SLA Uptime:** 99.98% Maintained
 - **Direct Contacts:**
-  - Sales & Proposals: sales@tauqeermustafa.tech
-  - Support & Helpdesk: support@tauqeermustafa.tech
+  - Sales & Proposals: sales@tauqeermustafa.com
+  - Support & Helpdesk: support@tauqeermustafa.com
   - WhatsApp Line: +92 335 6701199
 `;
 

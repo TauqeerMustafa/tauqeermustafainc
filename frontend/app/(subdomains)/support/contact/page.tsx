@@ -23,25 +23,25 @@ export const metadata: Metadata = {
 const DEPARTMENTS = [
   {
     name: "Technical Support & Engineering",
-    email: "support@tauqeermustafa.tech",
+    email: "support@tauqeermustafa.com",
     sla: "< 1-4 hours",
     desc: "System troubleshooting, bug triage, API webhooks, and cloud infrastructure.",
   },
   {
     name: "Corporate Billing & Treasury",
-    email: "billing@tauqeermustafa.tech",
+    email: "billing@tauqeermustafa.com",
     sla: "< 12 hours",
     desc: "Invoice settlement, IBFT wire confirmations, Raast transfers, and contractor payouts.",
   },
   {
     name: "Client Account Management",
-    email: "clients@tauqeermustafa.tech",
+    email: "clients@tauqeermustafa.com",
     sla: "< 24 hours",
     desc: "Portal onboarding, active project deliverables, contract scope, and sprint reviews.",
   },
   {
     name: "Legal, Privacy & Compliance",
-    email: "legal@tauqeermustafa.tech",
+    email: "legal@tauqeermustafa.com",
     sla: "< 48 hours",
     desc: "Mutual NDAs, Data Processing Agreements (GDPR), SOC2 reports, and corporate governance.",
   },

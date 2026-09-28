@@ -40,18 +40,18 @@ export const company = {
     },
   ],
 
-  email: "contact@tauqeermustafa.tech",
+  email: "contact@tauqeermustafa.com",
 
   emails: {
-    general: "info@tauqeermustafa.tech",
-    contact: "contact@tauqeermustafa.tech",
-    support: "support@tauqeermustafa.tech",
-    sales: "sales@tauqeermustafa.tech",
-    marketing: "marketing@tauqeermustafa.tech",
-    legal: "legal@tauqeermustafa.tech",
-    careers: "careers@tauqeermustafa.tech",
-    business: "business@tauqeermustafa.tech",
-    billing: "billing@tauqeermustafa.tech",
+    general: "info@tauqeermustafa.com",
+    contact: "contact@tauqeermustafa.com",
+    support: "support@tauqeermustafa.com",
+    sales: "sales@tauqeermustafa.com",
+    marketing: "marketing@tauqeermustafa.com",
+    legal: "legal@tauqeermustafa.com",
+    careers: "careers@tauqeermustafa.com",
+    business: "business@tauqeermustafa.com",
+    billing: "billing@tauqeermustafa.com",
   },
 
   mapEmbedUrl:
@@ -93,7 +93,7 @@ export const company = {
     },
   },
 
-  website: "https://tauqeermustafa.tech",
+  website: "https://tauqeermustafa.com",
 
   workingHours: "Monday - Friday | 9:00 AM - 6:00 PM",
 

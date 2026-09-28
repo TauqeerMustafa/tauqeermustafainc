@@ -96,7 +96,7 @@ export default function WorkProfilePrompt() {
       window.location.href = "tmi://provision-work-profile";
       setTimeout(() => {
         // Fallback: If not opened within 1.5s, direct to official app portal
-        window.location.href = "https://app.tauqeermustafa.tech";
+        window.location.href = "https://app.tauqeermustafa.com";
       }, 1500);
     }
   };
@@ -251,11 +251,11 @@ export default function WorkProfilePrompt() {
                     <span>Launch Work Setup</span>
                   </button>
                   <a
-                    href="https://app.tauqeermustafa.tech"
+                    href="https://app.tauqeermustafa.com"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="inline-flex items-center justify-center gap-1.5 border border-adm-border bg-adm-surface px-3 py-2.5 font-mono text-xs font-bold uppercase tracking-wider text-adm-text transition hover:border-adm-blue hover:text-adm-blue shrink-0"
-                    title="Get App on app.tauqeermustafa.tech"
+                    title="Get App on app.tauqeermustafa.com"
                   >
                     <span>Get App</span>
                   </a>

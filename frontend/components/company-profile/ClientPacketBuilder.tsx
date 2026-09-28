@@ -44,7 +44,7 @@ Here is the customized Tauqeer Mustafa Inc. (TMI) technical capabilities and col
 ═══════════════════════════════════════════════════════
 TAUQEER MUSTAFA INC. — TECHNICAL PROFILE & CAPABILITIES
 "Engineering that ships. Security that holds."
-Official Website: https://tauqeermustafa.tech
+Official Website: https://tauqeermustafa.com
 ═══════════════════════════════════════════════════════`);
 
     sections.push(`1. EXECUTIVE SUMMARY & CREDENTIALS
@@ -80,10 +80,10 @@ Official Website: https://tauqeermustafa.tech
 
     if (includeLegal) {
       sections.push(`4. GOVERNANCE, SECURITY & LEGAL COMPLIANCE
-• Mutual NDA: https://tauqeermustafa.tech/documents/nda
-• Information Security Policy: https://tauqeermustafa.tech/documents/security-policy
-• Service Level Agreement (SLA): https://tauqeermustafa.tech/documents/sla
-• GDPR & Privacy Terms: https://tauqeermustafa.tech/documents/gdpr`);
+• Mutual NDA: https://tauqeermustafa.com/documents/nda
+• Information Security Policy: https://tauqeermustafa.com/documents/security-policy
+• Service Level Agreement (SLA): https://tauqeermustafa.com/documents/sla
+• GDPR & Privacy Terms: https://tauqeermustafa.com/documents/gdpr`);
     }
 
     if (includeWhatsApp) {
@@ -100,7 +100,7 @@ Looking forward to connecting with your team.
 
 Best regards,
 ${sender}
-Tauqeer Mustafa Inc. | https://tauqeermustafa.tech`);
+Tauqeer Mustafa Inc. | https://tauqeermustafa.com`);
 
     return sections.join("\n\n");
   };

@@ -55,9 +55,9 @@ const KNOWLEDGE_ARTICLES = [
     category: "Client Portals",
     title: "How to access your dedicated Client Portal & deliverables",
     summary:
-      "Step-by-step instructions for logging in at portals.tauqeermustafa.tech, viewing project boards, downloading assets, and reviewing sprint milestones.",
+      "Step-by-step instructions for logging in at portals.tauqeermustafa.com, viewing project boards, downloading assets, and reviewing sprint milestones.",
     steps: [
-      "Navigate to https://portals.tauqeermustafa.tech and select the Client Portal tile.",
+      "Navigate to https://portals.tauqeermustafa.com and select the Client Portal tile.",
       "Enter your organization email address and initial password provided during client onboarding.",
       "Complete 2FA email code verification when prompted.",
       "Under 'My Projects', select your active contract to inspect deliverables, code repositories, and milestone approvals.",
@@ -70,7 +70,7 @@ const KNOWLEDGE_ARTICLES = [
     summary:
       "Settle invoices via Credit Card, Meezan Bank, or Raast instant settlement, and download verified payment receipts.",
     steps: [
-      "Access the Billing Terminal at https://billing.tauqeermustafa.tech/pay or via /billing.",
+      "Access the Billing Terminal at https://billing.tauqeermustafa.com/pay or via /billing.",
       "Enter your Invoice Number (format: TMI-INV-XXXX) or choose Custom Milestone Deposit.",
       "Choose your settlement method: Instant Card (Stripe), Meezan Bank Corporate Account, or State Bank Raast P2M QR.",
       "Upon completion, download the cryptographically stamped PDF receipt for accounting.",
@@ -83,7 +83,7 @@ const KNOWLEDGE_ARTICLES = [
     summary:
       "Track your pending payout status, bank clearance timelines, and view remittance advice.",
     steps: [
-      "Visit https://billing.tauqeermustafa.tech/payouts.",
+      "Visit https://billing.tauqeermustafa.com/payouts.",
       "Use the net payout calculator to forecast gross amounts and currency conversions.",
       "Disbursements run every Friday at 17:00 PKT via IBFT and Raast.",
       "Submit an expedited disbursement request using the contractor payout request form.",
@@ -99,7 +99,7 @@ const KNOWLEDGE_ARTICLES = [
       "Call the direct 24/7 emergency dispatch desk at +92 335 6701199.",
       "Submit a support ticket tagged with severity 'P1 - Critical Outage'.",
       "Our incident commander responds within 15 to 60 minutes with a dedicated bridge link.",
-      "Live status will be broadcasted on https://support.tauqeermustafa.tech/status.",
+      "Live status will be broadcasted on https://support.tauqeermustafa.com/status.",
     ],
   },
   {
@@ -122,9 +122,9 @@ const KNOWLEDGE_ARTICLES = [
     summary:
       "Access compliance documentation, vulnerability disclosure policies, and data processing agreements.",
     steps: [
-      "Review official policies at https://docs.tauqeermustafa.tech/security-policy.",
-      "To report a discovered vulnerability, email security@tauqeermustafa.tech with encrypted PGP logs.",
-      "Request signed copies of standard Mutual NDAs or Data Processing Agreements via legal@tauqeermustafa.tech.",
+      "Review official policies at https://docs.tauqeermustafa.com/security-policy.",
+      "To report a discovered vulnerability, email security@tauqeermustafa.com with encrypted PGP logs.",
+      "Request signed copies of standard Mutual NDAs or Data Processing Agreements via legal@tauqeermustafa.com.",
     ],
   },
 ];
@@ -136,7 +136,7 @@ const FAQS = [
   },
   {
     q: "How do I reset my password for the Client or Employee Portal?",
-    a: "On the respective portal login screen (https://portals.tauqeermustafa.tech), click 'Forgot Password' and provide your authorized corporate email. A one-time 6-digit cryptographic verification code will be dispatched to your inbox within 60 seconds.",
+    a: "On the respective portal login screen (https://portals.tauqeermustafa.com), click 'Forgot Password' and provide your authorized corporate email. A one-time 6-digit cryptographic verification code will be dispatched to your inbox within 60 seconds.",
   },
   {
     q: "Can I communicate directly with your engineering leads via WhatsApp?",
@@ -609,10 +609,10 @@ export default function SupportHubClient({ initialTab = "overview" }: { initialT
                 <h4 className="text-sm font-bold text-ink uppercase">Client Workspace</h4>
                 <p className="text-xs text-ink-muted mt-1">Direct project delivery, milestone inspection, and code approvals.</p>
                 <a
-                  href="https://portals.tauqeermustafa.tech"
+                  href="https://portals.tauqeermustafa.com"
                   className="mt-2 inline-flex items-center gap-1 font-mono text-xs text-action hover:underline"
                 >
-                  <span>portals.tauqeermustafa.tech</span>
+                  <span>portals.tauqeermustafa.com</span>
                   <ExternalLink size={11} />
                 </a>
               </div>
@@ -624,10 +624,10 @@ export default function SupportHubClient({ initialTab = "overview" }: { initialT
                 <h4 className="text-sm font-bold text-ink uppercase">Billing & Settlement</h4>
                 <p className="text-xs text-ink-muted mt-1">Online card checkout, Meezan IBFT, and Raast instant wire settlement.</p>
                 <a
-                  href="https://billing.tauqeermustafa.tech/pay"
+                  href="https://billing.tauqeermustafa.com/pay"
                   className="mt-2 inline-flex items-center gap-1 font-mono text-xs text-action hover:underline"
                 >
-                  <span>billing.tauqeermustafa.tech</span>
+                  <span>billing.tauqeermustafa.com</span>
                   <ExternalLink size={11} />
                 </a>
               </div>
@@ -639,10 +639,10 @@ export default function SupportHubClient({ initialTab = "overview" }: { initialT
                 <h4 className="text-sm font-bold text-ink uppercase">Corporate Policies</h4>
                 <p className="text-xs text-ink-muted mt-1">Official SLAs, security compliance disclosures, and refund protocols.</p>
                 <a
-                  href="https://docs.tauqeermustafa.tech"
+                  href="https://docs.tauqeermustafa.com"
                   className="mt-2 inline-flex items-center gap-1 font-mono text-xs text-action hover:underline"
                 >
-                  <span>docs.tauqeermustafa.tech</span>
+                  <span>docs.tauqeermustafa.com</span>
                   <ExternalLink size={11} />
                 </a>
               </div>
@@ -995,7 +995,7 @@ export default function SupportHubClient({ initialTab = "overview" }: { initialT
               <div className="p-4 bg-surface border border-line flex items-center justify-between text-xs">
                 <span className="text-ink-muted">Need to expedite or provide supplementary logs?</span>
                 <a
-                  href={`mailto:support@tauqeermustafa.tech?subject=Update%20for%20Ticket%20${lookupResult.ticketId}`}
+                  href={`mailto:support@tauqeermustafa.com?subject=Update%20for%20Ticket%20${lookupResult.ticketId}`}
                   className="font-mono text-xs font-bold text-action hover:underline"
                 >
                   Email Triage Lead &rarr;

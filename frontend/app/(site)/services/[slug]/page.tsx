@@ -1,4 +1,4 @@
-﻿import type { Metadata } from "next";
+import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { CheckCircle2 } from "lucide-react";
@@ -66,9 +66,9 @@ export default async function ServiceDetailPage({
   });
 
   const breadcrumbs = breadcrumbSchema([
-    { name: "Home", url: "https://tauqeermustafa.tech" },
-    { name: "Services", url: "https://tauqeermustafa.tech/services" },
-    { name: service.title, url: `https://tauqeermustafa.tech/services/${service.slug}` },
+    { name: "Home", url: "https://tauqeermustafa.com" },
+    { name: "Services", url: "https://tauqeermustafa.com/services" },
+    { name: service.title, url: `https://tauqeermustafa.com/services/${service.slug}` },
   ]);
 
   // Convert service FAQs to schema format if they exist

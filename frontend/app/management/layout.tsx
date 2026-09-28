@@ -4,7 +4,7 @@ import PortalShell from "@/components/portal/PortalShell";
 import { PORTAL } from "@/lib/rbac";
 
 /**
- * The management portal lives at `/management` on portals.tauqeermustafa.tech,
+ * The management portal lives at `/management` on portals.tauqeermustafa.com,
  * as a sibling of /admin and /employees rather than inside the `(subdomains)`
  * group — that group wraps its children in the marketing header, which would
  * stack a second chrome on top of PortalShell's sidebar and header.

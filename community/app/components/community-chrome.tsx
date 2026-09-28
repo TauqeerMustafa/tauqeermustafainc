@@ -65,7 +65,7 @@ export function CommunityChrome({ children }: { children: React.ReactNode }) {
         </nav>
       </header>
       {children}
-      <footer className="site-footer"><Link className="wordmark" href="/"><span className="wordmark-mark" aria-hidden="true">C</span><span>COMMUNITY</span></Link><p>MAKE SPACE. SHARE GENEROUSLY.</p><div className="footer-links"><Link href="/capabilities">CAPABILITIES</Link><Link href="/sessions">SESSIONS</Link><a href="mailto:hello@community.tauqeermustafa.tech">CONTACT</a></div></footer>
+      <footer className="site-footer"><Link className="wordmark" href="/"><span className="wordmark-mark" aria-hidden="true">C</span><span>COMMUNITY</span></Link><p>MAKE SPACE. SHARE GENEROUSLY.</p><div className="footer-links"><Link href="/capabilities">CAPABILITIES</Link><Link href="/sessions">SESSIONS</Link><a href="mailto:hello@community.tauqeermustafa.com">CONTACT</a></div></footer>
     </main>
   );
 }

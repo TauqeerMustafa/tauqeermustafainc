@@ -89,7 +89,7 @@ export const profileSlides: ProfileSlide[] = [
       { label: "Entity", value: "Tauqeer Mustafa Inc." },
       { label: "Founded", value: "2023" },
       { label: "HQ", value: "London / Harrow, UK" },
-      { label: "Website", value: "tauqeermustafa.tech" },
+      { label: "Website", value: "tauqeermustafa.com" },
     ],
   },
   {
@@ -253,16 +253,16 @@ export const profileSlides: ProfileSlide[] = [
     title: "Let's Build Together",
     subtitle: "Direct technical consultations with our leadership team.",
     bullets: [
-      "Website: https://tauqeermustafa.tech",
-      "Direct Sales & Proposal Inquiries: sales@tauqeermustafa.tech / contact@tauqeermustafa.tech",
+      "Website: https://tauqeermustafa.com",
+      "Direct Sales & Proposal Inquiries: sales@tauqeermustafa.com / contact@tauqeermustafa.com",
       "WhatsApp Sales Channel: +92 335 6701199 (Direct WhatsApp Chat)",
-      "24/7 Client Technical Support: support@tauqeermustafa.tech / wa.me/message/TJILSTIMLJHVK1",
+      "24/7 Client Technical Support: support@tauqeermustafa.com / wa.me/message/TJILSTIMLJHVK1",
       "Executive & Direct Desk: WhatsApp Priority Hotline",
       "Founder GitHub: github.com/tauqeermustafa | LinkedIn: linkedin.com/in/tauqeermustafa",
     ],
     keyHighlights: [
-      { label: "General Email", value: "info@tauqeermustafa.tech" },
-      { label: "Sales Email", value: "sales@tauqeermustafa.tech" },
+      { label: "General Email", value: "info@tauqeermustafa.com" },
+      { label: "Sales Email", value: "sales@tauqeermustafa.com" },
       { label: "WhatsApp", value: "+92 335 6701199" },
       { label: "Executive Desk", value: "Priority WhatsApp Line" },
       { label: "Support", value: "24/7 Live Desk" },
@@ -297,8 +297,8 @@ export const clientSources: ClientSourceItem[] = [
     title: "Official Web Domain",
     category: "entity",
     description: "Verified primary domain with TLS 1.3 security and DNSSEC",
-    displayValue: "https://tauqeermustafa.tech",
-    link: "https://tauqeermustafa.tech",
+    displayValue: "https://tauqeermustafa.com",
+    link: "https://tauqeermustafa.com",
     verified: true,
     actionLabel: "Visit Website",
   },
@@ -369,7 +369,7 @@ export const clientSources: ClientSourceItem[] = [
     title: "Responsible Vulnerability Disclosure",
     category: "security",
     description: "Vulnerability reporting program and security contact SLA",
-    displayValue: "security@tauqeermustafa.tech",
+    displayValue: "security@tauqeermustafa.com",
     link: "/documents/responsible-disclosure",
     verified: true,
     actionLabel: "View Disclosure Terms",
@@ -470,7 +470,7 @@ Would you be open for a brief 15-minute technical discovery call this week to re
 
 Best regards,
 [EmployeeName]
-Tauqeer Mustafa Inc. | https://tauqeermustafa.tech`,
+Tauqeer Mustafa Inc. | https://tauqeermustafa.com`,
     variables: ["[ClientName]", "[EmployeeName]"],
   },
   {
@@ -502,8 +502,8 @@ Sincerely,
 [EmployeeName]
 Technical Partnerships Lead
 Tauqeer Mustafa Inc.
-Website: https://tauqeermustafa.tech
-Direct Sales: sales@tauqeermustafa.tech
+Website: https://tauqeermustafa.com
+Direct Sales: sales@tauqeermustafa.com
 WhatsApp: +92 335 6701199`,
     variables: ["[ClientName]", "[EmployeeName]", "[SuggestedDate]"],
   },
@@ -518,10 +518,10 @@ WhatsApp: +92 335 6701199`,
 • Security Philosophy: Zero-Trust by default; OWASP Top 10 mitigation embedded in development sprints.
 • Data Protection: TLS 1.3 encryption in transit; AES-256 at rest; strict RBAC and least-privilege policies.
 • Legal & Governance:
-  - Mutual NDA: https://tauqeermustafa.tech/documents/nda
-  - Privacy & GDPR: https://tauqeermustafa.tech/documents/gdpr
-  - Information Security Policy: https://tauqeermustafa.tech/documents/security-policy
-  - SLA Commitments: https://tauqeermustafa.tech/documents/sla
+  - Mutual NDA: https://tauqeermustafa.com/documents/nda
+  - Privacy & GDPR: https://tauqeermustafa.com/documents/gdpr
+  - Information Security Policy: https://tauqeermustafa.com/documents/security-policy
+  - SLA Commitments: https://tauqeermustafa.com/documents/sla
 • IP Ownership: 100% intellectual property transfer upon milestone completion with zero vendor lock-in.
 • Support SLA: 24/7 dedicated escalation desk with guaranteed response times.`,
     variables: [],

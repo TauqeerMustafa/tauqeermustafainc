@@ -71,7 +71,7 @@ export default function AppPortalView() {
   };
 
   const handleCopyEmail = () => {
-    navigator.clipboard.writeText("app@tauqeermustafa.tech");
+    navigator.clipboard.writeText("app@tauqeermustafa.com");
     setCopiedEmail(true);
     setTimeout(() => setCopiedEmail(false), 2000);
   };
@@ -148,7 +148,7 @@ export default function AppPortalView() {
 
               {/* Online Portals Link */}
               <a
-                href="https://portals.tauqeermustafa.tech"
+                href="https://portals.tauqeermustafa.com"
                 className="inline-flex w-full items-center justify-center gap-2 px-6 py-4 font-mono text-[13px] font-bold uppercase tracking-[0.08em] text-ink/70 transition-colors hover:text-ink sm:w-auto"
               >
                 <span>Launch in Browser</span>
@@ -175,7 +175,7 @@ export default function AppPortalView() {
               <span className="hidden sm:inline text-ink/20">•</span>
               <div className="flex items-center gap-2">
                 <Mail className="h-3.5 w-3.5 text-action" />
-                <span>SUPPORT: <strong className="text-ink">app@tauqeermustafa.tech</strong></span>
+                <span>SUPPORT: <strong className="text-ink">app@tauqeermustafa.com</strong></span>
               </div>
             </motion.div>
           </div>
@@ -340,7 +340,7 @@ export default function AppPortalView() {
 
             <div className="mt-8 pt-6 border-t border-ink/10">
               <a
-                href="https://portals.tauqeermustafa.tech/admin/dashboard"
+                href="https://portals.tauqeermustafa.com/admin/dashboard"
                 className="inline-flex w-full items-center justify-between bg-surface px-5 py-3 font-mono text-xs font-bold uppercase tracking-wider text-ink border border-ink/15 transition hover:bg-action hover:text-on-action hover:border-action"
               >
                 <span>Launch Admin Desk</span>
@@ -389,7 +389,7 @@ export default function AppPortalView() {
 
             <div className="mt-8 pt-6 border-t border-ink/10">
               <a
-                href="https://portals.tauqeermustafa.tech/employees/dashboard"
+                href="https://portals.tauqeermustafa.com/employees/dashboard"
                 className="inline-flex w-full items-center justify-between bg-surface px-5 py-3 font-mono text-xs font-bold uppercase tracking-wider text-ink border border-ink/15 transition hover:bg-action hover:text-on-action hover:border-action"
               >
                 <span>Launch Employee Desk</span>
@@ -438,7 +438,7 @@ export default function AppPortalView() {
 
             <div className="mt-8 pt-6 border-t border-ink/10">
               <a
-                href="https://portals.tauqeermustafa.tech/management/dashboard"
+                href="https://portals.tauqeermustafa.com/management/dashboard"
                 className="inline-flex w-full items-center justify-between bg-surface px-5 py-3 font-mono text-xs font-bold uppercase tracking-wider text-ink border border-ink/15 transition hover:bg-action hover:text-on-action hover:border-action"
               >
                 <span>Launch Management Desk</span>
@@ -602,7 +602,7 @@ export default function AppPortalView() {
                     </span>
                     <h4 className="mt-4 font-bold uppercase text-sm text-ink">Open in Safari</h4>
                     <p className="mt-2 text-xs leading-relaxed text-ink/70">
-                      Ensure you are viewing <code className="bg-ink/5 px-1 py-0.5 rounded text-action">https://app.tauqeermustafa.tech</code> in Apple Safari.
+                      Ensure you are viewing <code className="bg-ink/5 px-1 py-0.5 rounded text-action">https://app.tauqeermustafa.com</code> in Apple Safari.
                     </p>
                   </div>
 
@@ -776,10 +776,10 @@ export default function AppPortalView() {
                   <Mail className="h-4 w-4 text-action" />
                   <span className="text-ink/60">Official Support Mail:</span>
                   <a
-                    href="mailto:app@tauqeermustafa.tech"
+                    href="mailto:app@tauqeermustafa.com"
                     className="font-bold text-ink hover:text-action transition underline"
                   >
-                    app@tauqeermustafa.tech
+                    app@tauqeermustafa.com
                   </a>
                   <button
                     type="button"
@@ -803,7 +803,7 @@ export default function AppPortalView() {
 
             <div className="flex flex-col sm:flex-row lg:flex-col gap-3 shrink-0">
               <a
-                href="https://support.tauqeermustafa.tech/ticket"
+                href="https://support.tauqeermustafa.com/ticket"
                 className="inline-flex items-center justify-center gap-2 bg-action px-6 py-3.5 font-mono text-xs font-bold uppercase tracking-wider text-on-action hover:bg-action-strong transition shadow-sm"
               >
                 <span>Open Enterprise Ticket</span>
