@@ -41,7 +41,8 @@ import {
   matchRule,
   type WAMessage,
 } from "@/lib/wa-store";
-import { handleInboundMessage, sendMessage } from "@/lib/wa-flow";
+import { handleInboundMessage, sendMessage, sendButtonMessage, sendListMessage } from "@/lib/wa-flow";
+import { resolveStaffOrCustomerQuery, handleButtonClick } from "@/lib/omni-resolver";
 
 const GRAPH_URL = "https://graph.facebook.com/v20.0";
 
@@ -293,7 +294,25 @@ export async function POST(request: Request) {
             // Fire-and-forget in background to guarantee instant 200 OK response to Meta
             (async () => {
               try {
-                // 1. Check custom keyword auto-reply rules first
+                // 1. Check if user tapped an interactive quick-action button
+                if (choiceId) {
+                  const buttonRes = handleButtonClick(choiceId, name || from);
+                  if (buttonRes) {
+                    if (buttonRes.buttons && buttonRes.buttons.length > 0) {
+                      await sendButtonMessage(
+                        from,
+                        { body: buttonRes.replyText, buttons: buttonRes.buttons },
+                        replyChannel,
+                        msgId
+                      );
+                    } else {
+                      await sendMessage(from, buttonRes.replyText, replyChannel, msgId);
+                    }
+                    return;
+                  }
+                }
+
+                // 2. Check custom keyword auto-reply rules
                 const rules = await getRules(dept);
                 const matched = matchRule(rules, text);
                 if (matched && matched.enabled) {
@@ -301,7 +320,49 @@ export async function POST(request: Request) {
                   return;
                 }
 
-                // 2. Execute Lead Triage / Interactive bot flow
+                // 3. Intelligent Humanized Auto-Resolver (e.g. email bounce, credentials, tasks)
+                const analysis = await resolveStaffOrCustomerQuery({
+                  text,
+                  senderName: name || from,
+                  channel: "whatsapp",
+                });
+
+                if (analysis.category !== "UNKNOWN") {
+                  console.log(`[webhook] Humanized Dispatch (${analysis.category}) to ${from} on line ${replyChannel}`);
+
+                  // If interactive buttons are configured, dispatch them
+                  if (analysis.buttons && analysis.buttons.length > 0) {
+                    await sendButtonMessage(
+                      from,
+                      { body: analysis.replyText, buttons: analysis.buttons },
+                      replyChannel,
+                      msgId
+                    );
+                    return;
+                  }
+
+                  // If interactive list menu is configured, dispatch it
+                  if (analysis.list) {
+                    await sendListMessage(
+                      from,
+                      {
+                        header: analysis.list.header,
+                        body: analysis.replyText,
+                        buttonText: analysis.list.buttonText,
+                        rows: analysis.list.rows,
+                      },
+                      replyChannel,
+                      msgId
+                    );
+                    return;
+                  }
+
+                  // Fallback plain text
+                  await sendMessage(from, analysis.replyText, replyChannel, msgId);
+                  return;
+                }
+
+                // 4. Fallback to Lead Triage flow
                 await handleInboundMessage(from, text, choiceId ?? undefined, replyChannel, msgId);
               } catch (flowErr) {
                 console.error(`[webhook] Auto-reply dispatch failed for ${from} on ${replyChannel}:`, flowErr);

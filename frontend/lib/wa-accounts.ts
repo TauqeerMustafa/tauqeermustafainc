@@ -30,8 +30,8 @@
  * arrived on. Which numbers belong to which slot is `lib/wa-numbers`' business.
  */
 
-/** Slots scanned for credentials. Supports multi-region & multi-line expansion. */
-export const MAX_ACCOUNTS = 8;
+/** Slots scanned for credentials. Supports multi-region & multi-line expansion up to 16 slots. */
+export const MAX_ACCOUNTS = 16;
 
 /** Vercel masks sensitive values in some contexts; the sentinel means "unset". */
 const SENTINEL = "[SENSITIVE]";

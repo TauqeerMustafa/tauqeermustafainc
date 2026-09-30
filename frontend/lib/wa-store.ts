@@ -190,6 +190,52 @@ export async function deleteConversationMessages(number: string, channel?: strin
   return messages.length - kept.length;
 }
 
+export async function deleteMessageById(id: string): Promise<boolean> {
+  const kv = getKV();
+  if (!kv) return false;
+
+  const messages = await getMessages();
+  const kept = messages.filter((m) => m.id !== id);
+  if (kept.length === messages.length) return false;
+
+  await kv.set(KEYS.messages, kept);
+  return true;
+}
+
+export async function deleteMessagesByIds(ids: string[]): Promise<number> {
+  const kv = getKV();
+  if (!kv) return 0;
+
+  const idSet = new Set(ids);
+  const messages = await getMessages();
+  const kept = messages.filter((m) => !idSet.has(m.id));
+  const removedCount = messages.length - kept.length;
+  if (removedCount === 0) return 0;
+
+  await kv.set(KEYS.messages, kept);
+  return removedCount;
+}
+
+export async function purgeMessages(opts?: { failedOnly?: boolean; olderThanMs?: number }): Promise<number> {
+  const kv = getKV();
+  if (!kv) return 0;
+
+  const messages = await getMessages();
+  const now = Date.now();
+  const kept = messages.filter((m) => {
+    if (opts?.failedOnly && m.status !== "failed") return true;
+    if (opts?.olderThanMs) {
+      const msgTime = new Date(m.timestamp).getTime();
+      if (!isNaN(msgTime) && now - msgTime < opts.olderThanMs) return true;
+    }
+    return false;
+  });
+
+  const removedCount = messages.length - kept.length;
+  await kv.set(KEYS.messages, kept);
+  return removedCount;
+}
+
 /* ── Conversation State Machine Sessions ───────────────────────────────── */
 
 export type FlowStage =

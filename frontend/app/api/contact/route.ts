@@ -1,6 +1,9 @@
 import { NextResponse } from "next/server";
-
 import { appConfig } from "@/config/app";
+import { resolveStaffOrCustomerQuery } from "@/lib/omni-resolver";
+import { sendOpenEmailMessage } from "@/lib/openemail";
+
+const NOTIFICATIONS_MAILBOX_ID = "01M1TEFW41Y9FDR3SHCY0053CS"; // notifications@tauqeermustafa.tech
 
 const API_BASE_URL = appConfig.apiBaseUrl;
 
@@ -47,6 +50,31 @@ export async function POST(request: Request) {
         { status: response.status },
       );
     }
+
+    // 🤖 Trigger OmniAssistant Auto-Reply & Resolution in background
+    (async () => {
+      try {
+        if (payload.email && typeof payload.email === "string") {
+          const analysis = await resolveStaffOrCustomerQuery({
+            text: String(body.message || ""),
+            senderName: String(body.fullName || ""),
+            channel: "contact_form",
+            extraData: { service: body.service },
+          });
+
+          await sendOpenEmailMessage(NOTIFICATIONS_MAILBOX_ID, {
+            from: "notifications@tauqeermustafa.tech",
+            fromName: "Tauqeer Mustafa Inc",
+            to: [payload.email],
+            subject: `We have received your inquiry: ${body.service || "General Inquiry"}`,
+            text: analysis.replyText,
+          });
+          console.log(`[contact] Auto-reply dispatched to ${payload.email}`);
+        }
+      } catch (autoErr) {
+        console.error("[contact] Failed to dispatch auto-reply email:", autoErr);
+      }
+    })();
 
     return NextResponse.json(
       {

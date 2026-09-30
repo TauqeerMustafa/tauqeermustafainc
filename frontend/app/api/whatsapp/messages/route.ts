@@ -14,6 +14,9 @@ import {
   appendMessage,
   updateMessageStatus,
   deleteConversationMessages,
+  deleteMessageById,
+  deleteMessagesByIds,
+  purgeMessages,
   type WAMessage,
 } from "@/lib/wa-store";
 
@@ -110,8 +113,12 @@ export async function PATCH(request: Request) {
 }
 
 /**
- * DELETE /api/whatsapp/messages?number=<customer>
- * Remove all messages of a conversation, identified by the customer number.
+ * DELETE /api/whatsapp/messages
+ * Programmatic deletion:
+ *  - Delete single message: ?id=<msgId> or body { id }
+ *  - Delete bulk messages: ?ids=<id1,id2> or body { ids: [...] }
+ *  - Delete conversation: ?number=<customer> or body { number }
+ *  - Purge failed/old: ?purge=failed
  */
 export async function DELETE(request: Request) {
   try {
@@ -120,14 +127,54 @@ export async function DELETE(request: Request) {
     }
 
     const { searchParams } = new URL(request.url);
-    const number = (searchParams.get("number") || "").replace(/[^0-9]/g, "");
-    const channel = searchParams.get("channel") || undefined;
-    if (!number) {
-      return NextResponse.json({ success: false, error: "number is required" }, { status: 400 });
+    let body: Record<string, any> = {};
+    try {
+      body = await request.json();
+    } catch {}
+
+    const id = (searchParams.get("id") || body.id || "").trim();
+    const idsParam = searchParams.get("ids");
+    const ids: string[] = Array.isArray(body.ids)
+      ? body.ids.map(String)
+      : idsParam
+      ? idsParam.split(",").map((s) => s.trim()).filter(Boolean)
+      : [];
+
+    const number = (searchParams.get("number") || body.number || "").replace(/[^0-9]/g, "");
+    const channel = searchParams.get("channel") || body.channel || undefined;
+    const purge = (searchParams.get("purge") || body.purge || "").trim();
+
+    // 1. Single message deletion
+    if (id) {
+      const deleted = await deleteMessageById(id);
+      return NextResponse.json({ success: true, mode: "single", id, deleted });
     }
 
-    const deleted = await deleteConversationMessages(number, channel);
-    return NextResponse.json({ success: true, deleted });
+    // 2. Bulk messages deletion
+    if (ids.length > 0) {
+      const count = await deleteMessagesByIds(ids);
+      return NextResponse.json({ success: true, mode: "bulk", count, requested: ids.length });
+    }
+
+    // 3. Purge failed messages
+    if (purge === "failed") {
+      const purged = await purgeMessages({ failedOnly: true });
+      return NextResponse.json({ success: true, mode: "purge_failed", purged });
+    }
+
+    // 4. Conversation deletion by phone number
+    if (number) {
+      const deleted = await deleteConversationMessages(number, channel);
+      return NextResponse.json({ success: true, mode: "conversation", number, deleted });
+    }
+
+    return NextResponse.json(
+      {
+        success: false,
+        error: "Missing delete criteria. Specify 'id', 'ids', 'number', or 'purge=failed'.",
+      },
+      { status: 400 }
+    );
   } catch (error) {
     console.error("[messages] DELETE error:", error);
     return NextResponse.json({ success: false, error: String(error) }, { status: 500 });
