@@ -342,11 +342,10 @@ export async function handleInboundMessage(
       await setSession(from, { stage: "handoff", service: "careers", startedAt: Date.now() });
       await sendMessage(
         from,
-        `*Careers at ${COMPANY_NAME}*\n\n` +
-          `We are actively recruiting exceptional software engineers, security researchers, and product designers.\n\n` +
-          `Explore our open positions and submit your profile directly at:\n` +
-          `${WEBSITE}/careers\n\n` +
-          `Our technical leadership reviews all submissions directly.`,
+        `We're actively hiring engineers and interns! 🚀\n\n` +
+          `Check open roles and apply here:\n` +
+          `👉 *${WEBSITE}/careers*\n\n` +
+          `Our technical team reviews all applications directly.`,
         channelId,
         msgId
       );
@@ -359,8 +358,9 @@ export async function handleInboundMessage(
       await setSession(from, session);
       await sendMessage(
         from,
-        `*Client Account Services*\n\n` +
-          `You are connected with our dedicated Client Desk. A team representative will assist you with your active retainer, invoicing, or portal access shortly.`,
+        `Welcome to our Client Desk!\n\n` +
+          `Drop your company name or project details here, and a team lead will help you with your retainer, invoice, or portal access right away.\n\n` +
+          `• *Hotline:* ${HOTLINE}`,
         channelId,
         msgId
       );
@@ -397,17 +397,9 @@ export async function handleInboundMessage(
 // ---------- Step 0: Welcome ----------
 
 async function sendWelcome(to: string, channelId?: string, msgId?: string) {
-  await sendMessage(
-    to,
-    `*${COMPANY_NAME}*\n` +
-      `Software Engineering · Cloud Systems · Cybersecurity\n\n` +
-      `Welcome. We engineer mission-critical web platforms, AI workflows, cloud architecture, and security defenses for modern enterprises.\n\n` +
-      `Let’s connect you with the right engineering team.`,
-    channelId,
-    msgId
-  );
-  await setSession(to, { stage: "menu", startedAt: Date.now() });
-  return sendServiceMenu(to, { stage: "menu", startedAt: Date.now() }, channelId, msgId);
+  const session: Session = { stage: "menu", startedAt: Date.now() };
+  await setSession(to, session);
+  return sendServiceMenu(to, session, channelId, msgId);
 }
 
 // ---------- Step 1: Service Menu ----------
@@ -418,33 +410,34 @@ async function sendServiceMenu(to: string, session: Session, channelId?: string,
     {
       header: COMPANY_NAME,
       body:
-        `*Tauqeer Mustafa Inc.* — Engineering & Advisory\n\n` +
-        `Select a focus area below to route your request to the appropriate engineering desk:`,
+        `Hi! Welcome to *Tauqeer Mustafa Inc*.\n\n` +
+        `We build high-performance software, custom AI systems, and cloud architecture.\n\n` +
+        `What can we help you build today?`,
       footer: `${HOURS}`,
-      buttonText: "Explore Solutions",
+      buttonText: "Explore Options",
       sections: [
         {
           title: "Engineering & Architecture",
           rows: [
-            { id: "web", title: "Web & Platforms", description: "Cloud-native portals, SaaS apps & APIs" },
-            { id: "ai", title: "AI & Automation", description: "Intelligent agents, RAG & custom copilots" },
-            { id: "cloud", title: "Cloud & DevOps", description: "Multi-cloud architecture, K8s & IaC" },
+            { id: "web", title: "Web & Platforms", description: "Web apps, SaaS portals & APIs" },
+            { id: "ai", title: "AI & Automation", description: "Copilots, agents & workflows" },
+            { id: "cloud", title: "Cloud & DevOps", description: "Cloud infrastructure, scaling & CI/CD" },
           ],
         },
         {
           title: "Security & Defense",
           rows: [
-            { id: "cybersecurity", title: "Cybersecurity & Audits", description: "Threat defense, audits & zero-trust" },
+            { id: "cybersecurity", title: "Cybersecurity", description: "Audits, posture & defense" },
             { id: "incident_fast", title: "Emergency Incident", description: "Rapid response for active outages / breaches" },
           ],
         },
         {
           title: "Product & Advisory",
           rows: [
-            { id: "uiux", title: "UI/UX & Product Design", description: "Research, design systems & product UX" },
-            { id: "client_services", title: "Client Account Desk", description: "Existing contracts, invoices & support" },
-            { id: "careers", title: "Careers & Hiring", description: "Open engineering & design roles" },
-            { id: "human", title: "Talk to a Principal", description: "Direct consultation with a lead engineer" },
+            { id: "uiux", title: "UI/UX & Product", description: "Product design & design systems" },
+            { id: "client_services", title: "Client Desk", description: "Retainers, billing & support" },
+            { id: "careers", title: "Careers & Internships", description: "Open roles & engineering positions" },
+            { id: "human", title: "Speak to Principal", description: "Direct consultation with lead engineer" },
           ],
         },
       ],
@@ -476,8 +469,9 @@ async function handleMenuSelection(
   if (key === "client_services" || key === "cat_cli") {
     await sendMessage(
       to,
-      `*Client Account Services*\n\n` +
-        `You are connected with our dedicated Client Desk. A team representative will assist you with your active retainer, invoicing, or portal access shortly.`,
+      `Welcome to our Client Desk!\n\n` +
+        `Drop your company name or project details here, and a team lead will help you with your retainer, invoice, or portal access right away.\n\n` +
+        `• *Hotline:* ${HOTLINE}`,
       channelId,
       msgId
     );
@@ -487,11 +481,10 @@ async function handleMenuSelection(
   if (key === "careers" || key === "cat_gen") {
     await sendMessage(
       to,
-      `*Careers at ${COMPANY_NAME}*\n\n` +
-        `We are actively seeking top-tier software engineers, security researchers, and product designers.\n\n` +
-        `View open positions and submit your profile at:\n` +
-        `${WEBSITE}/careers\n\n` +
-        `Our engineering leadership reviews all candidates directly.`,
+      `We're actively hiring engineers and interns! 🚀\n\n` +
+        `Check open roles and apply here:\n` +
+        `👉 *${WEBSITE}/careers*\n\n` +
+        `Our technical team reviews all applications directly.`,
       channelId,
       msgId
     );
@@ -525,7 +518,7 @@ async function sendScopeOptions(to: string, session: Session, channelId?: string
     await sendMessage(
       to,
       `🚨 *Active Threat or Outage?*\n` +
-        `Reply *urgent* immediately to bypass the queue, or call our 24/7 hotline directly: ${HOTLINE}.`,
+        `Reply *urgent* immediately or call our 24/7 hotline directly: ${HOTLINE}.`,
       channelId,
       msgId
     );
@@ -534,7 +527,7 @@ async function sendScopeOptions(to: string, session: Session, channelId?: string
   await sendButtonMessage(
     to,
     {
-      body: `*${service.label} Practice*\nSelect your primary objective or milestone:`,
+      body: `*${service.label}*\nSelect your primary objective:`,
       buttons: service.subOptions.map((o) => ({ id: o.id, title: o.label })),
     },
     channelId,
@@ -577,10 +570,10 @@ async function sendTimelineOptions(to: string, channelId?: string, msgId?: strin
   await sendButtonMessage(
     to,
     {
-      body: `Understood. What target delivery timeline are you aiming for?`,
+      body: `When are you planning to kick off?`,
       buttons: [
-        { id: "immediate", title: "Immediate (< 2 wks)" },
-        { id: "planned", title: "Quarterly (1–3 mos)" },
+        { id: "immediate", title: "< 2 Weeks" },
+        { id: "planned", title: "1–3 Months" },
         { id: "exploration", title: "Advisory / Scoping" },
       ],
     },
@@ -597,8 +590,8 @@ async function handleTimelineSelection(
   msgId?: string
 ) {
   const map: Record<string, string> = {
-    immediate: "Immediate (< 2 weeks)",
-    planned: "Quarterly (1–3 months)",
+    immediate: "< 2 Weeks",
+    planned: "1–3 Months",
     exploration: "Advisory / Scoping",
   };
   const normalized = selection.toLowerCase().trim();
@@ -616,11 +609,10 @@ async function handleTimelineSelection(
 
   await sendMessage(
     to,
-    `Excellent. To prepare an accurate technical assessment, please share a brief note covering:\n\n` +
-      `1. *Organization* — Company name & website\n` +
-      `2. *Contact* — Your name & role\n` +
-      `3. *Objective* — What you want to build or solve\n\n` +
-      `💡 _You may also share a voice brief or paste an existing scope document/link._`,
+    `Got it! To help us prepare your proposal, please share:\n\n` +
+      `1. *Company / Project Name*\n` +
+      `2. *What you need built or solved*\n\n` +
+      `Our Lead Engineer will review and reply in this thread!`,
     channelId,
     msgId
   );
@@ -629,10 +621,10 @@ async function handleTimelineSelection(
 // ---------- Step 4: Intake -> Handoff ----------
 
 async function handleIntake(to: string, session: Session, text: string, channelId?: string, msgId?: string) {
-  if (!text || text.trim().length < 5) {
+  if (!text || text.trim().length < 3) {
     await sendMessage(
       to,
-      `Please provide a short summary (organization, your name/role, and core objective) so our engineering leads have the context needed to assist you.`,
+      `Please share a brief note (company name and what you need built or solved) so our lead engineer can review and reply.`,
       channelId,
       msgId
     );
@@ -645,7 +637,7 @@ async function handleIntake(to: string, session: Session, text: string, channelI
     `Service: ${service}\n` +
     `Scope: ${session.scope ?? "—"}\n` +
     `Timeline: ${session.timeline ?? "—"}\n` +
-    `Contact details:\n${text}`;
+    `Details:\n${text}`;
 
   return escalateToHuman(to, session, summary, channelId, msgId);
 }
@@ -655,11 +647,10 @@ async function handleIntake(to: string, session: Session, text: string, channelI
 async function escalateToEmergency(to: string, channelId?: string, msgId?: string) {
   await sendMessage(
     to,
-    `🚨 *CRITICAL INCIDENT ALERT*\n\n` +
-      `Your emergency alert has been flagged with highest priority to our on-call Incident Response unit.\n\n` +
-      `• *Direct Hotline:* ${HOTLINE}\n` +
-      `• *Incident Commander:* Standing by for briefing\n\n` +
-      `Please reply with your affected system domain, IP ranges, or outage symptoms.`,
+    `🚨 *Emergency Alert*\n\n` +
+      `Our on-call incident team has been alerted.\n\n` +
+      `• *Direct 24/7 Hotline:* ${HOTLINE}\n\n` +
+      `Please share your affected website/IP and symptoms below:`,
     channelId,
     msgId
   );
@@ -669,7 +660,7 @@ async function escalateToEmergency(to: string, channelId?: string, msgId?: strin
     reason: "CRITICAL OUTAGE / SECURITY INCIDENT ALERT",
     service: "cybersecurity",
     scope: "Active Incident Response",
-    timeline: "Immediate (< 2 weeks)",
+    timeline: "< 2 Weeks",
     channel: REP_QUEUE_CHANNEL,
   });
 }
@@ -686,12 +677,10 @@ async function escalateToHuman(
 
   await sendMessage(
     to,
-    `*Briefing Received & Assigned*\n\n` +
-      `Thank you. Your project requirements have been routed to our Technical Advisory Desk. ` +
-      `A principal engineer or partner will review your specifications and reply directly in this thread.\n\n` +
+    `You're connected with our Technical Advisory Desk.\n\n` +
+      `A lead engineer will review your note and reply directly in this thread shortly.\n\n` +
       `• *Operating Hours:* ${HOURS}\n` +
-      `• *Direct Hotline:* ${HOTLINE}\n\n` +
-      `We look forward to collaborating with you.`,
+      `• *Direct Phone:* ${HOTLINE}`,
     channelId,
     msgId
   );
@@ -827,33 +816,34 @@ export const DEFAULT_STEPS: FlowStep[] = [
     id: "start",
     header: "Tauqeer Mustafa Inc",
     body:
-      "*Tauqeer Mustafa Inc.* — Engineering & Advisory\n\n" +
-      "Select a focus area below to route your request to the appropriate engineering desk:",
-    footer: "Monday to Saturday, 09:00 to 18:00 (PKT)",
-    button: "Explore Solutions",
+      "Hi! Welcome to *Tauqeer Mustafa Inc*.\n\n" +
+      "We build high-performance software, custom AI systems, and cloud architecture.\n\n" +
+      "What can we help you build today?",
+    footer: "Mon–Sat, 09:00–18:00 PKT",
+    button: "Explore Options",
     sections: [
       {
         title: "Engineering & Architecture",
         rows: [
-          { id: "web", title: "Web & Platforms", description: "Cloud-native portals, SaaS apps & APIs", next: "scope_web" },
-          { id: "ai", title: "AI & Automation", description: "Intelligent agents, RAG & custom copilots", next: "scope_ai" },
-          { id: "cloud", title: "Cloud & DevOps", description: "Multi-cloud architecture, K8s & IaC", next: "scope_cloud" },
+          { id: "web", title: "Web & Platforms", description: "Web apps, SaaS portals & APIs", next: "scope_web" },
+          { id: "ai", title: "AI & Automation", description: "Copilots, agents & workflows", next: "scope_ai" },
+          { id: "cloud", title: "Cloud & DevOps", description: "Cloud infrastructure, scaling & CI/CD", next: "scope_cloud" },
         ],
       },
       {
         title: "Security & Defense",
         rows: [
-          { id: "cybersecurity", title: "Cybersecurity & Audits", description: "Threat defense, audits & zero-trust", next: "scope_security" },
+          { id: "cybersecurity", title: "Cybersecurity", description: "Audits, posture & defense", next: "scope_security" },
           { id: "incident_fast", title: "Emergency Incident", description: "Rapid response for active outages / breaches", next: "incident" },
         ],
       },
       {
         title: "Product & Advisory",
         rows: [
-          { id: "uiux", title: "UI/UX & Product Design", description: "Research, design systems & product UX", next: "scope_uiux" },
-          { id: "client_services", title: "Client Account Desk", description: "Existing contracts, invoices & support", next: "client_services" },
-          { id: "careers", title: "Careers & Hiring", description: "Open engineering & design roles", next: "careers" },
-          { id: "human", title: "Talk to a Principal", description: "Direct consultation with a lead engineer", next: "human" },
+          { id: "uiux", title: "UI/UX & Product", description: "Product design & design systems", next: "scope_uiux" },
+          { id: "client_services", title: "Client Desk", description: "Retainers, billing & support", next: "client_services" },
+          { id: "careers", title: "Careers & Internships", description: "Open roles & engineering positions", next: "careers" },
+          { id: "human", title: "Speak to Principal", description: "Direct consultation with lead engineer", next: "human" },
         ],
       },
     ],
@@ -863,14 +853,12 @@ export const DEFAULT_STEPS: FlowStep[] = [
     id: "scope_web",
     header: "Web & Platforms Practice",
     body:
-      "*Web & Cloud Platforms*\n\n" +
-      "We engineer resilient, high-availability web applications, enterprise SaaS portals, and scalable API microservices.\n\n" +
-      "Select your primary project milestone:",
-    footer: "Next: Target Timeline",
+      "We build modern web apps, SaaS platforms, and APIs.\n\n" +
+      "When are you planning to kick off?",
     buttons: [
-      { id: "web_new", title: "New Project / MVP", next: "timeline" },
-      { id: "web_rebuild", title: "Rebuild / Upgrade", next: "timeline" },
-      { id: "web_perf", title: "Performance & Scale", next: "timeline" },
+      { id: "time_immediate", title: "< 2 Weeks", next: "intake" },
+      { id: "time_quarterly", title: "1–3 Months", next: "intake" },
+      { id: "human", title: "Talk to Engineer", next: "human" },
     ],
   },
   {
@@ -878,14 +866,12 @@ export const DEFAULT_STEPS: FlowStep[] = [
     id: "scope_ai",
     header: "AI & Automation Practice",
     body:
-      "*AI & Workflow Automation*\n\n" +
-      "We design autonomous AI agents, enterprise RAG knowledge search, and custom copilots that connect to your production systems.\n\n" +
-      "Select your primary AI focus:",
-    footer: "Next: Target Timeline",
+      "We build custom AI copilots, autonomous agents, and enterprise search workflows.\n\n" +
+      "What delivery timeline are you looking at?",
     buttons: [
-      { id: "ai_workflow", title: "Workflow Automation", next: "timeline" },
-      { id: "ai_copilot", title: "Custom AI Copilot", next: "timeline" },
-      { id: "ai_rag", title: "RAG Knowledge Base", next: "timeline" },
+      { id: "time_immediate", title: "< 2 Weeks", next: "intake" },
+      { id: "time_quarterly", title: "1–3 Months", next: "intake" },
+      { id: "human", title: "Talk to Engineer", next: "human" },
     ],
   },
   {
@@ -893,14 +879,12 @@ export const DEFAULT_STEPS: FlowStep[] = [
     id: "scope_cloud",
     header: "Cloud & DevOps Practice",
     body:
-      "*Cloud Architecture & DevOps*\n\n" +
-      "We design scalable multi-cloud infrastructure across AWS, GCP, and Azure with Kubernetes orchestration and automated CI/CD.\n\n" +
-      "Select your infrastructure goal:",
-    footer: "Next: Target Timeline",
+      "We design AWS/GCP cloud infrastructure, CI/CD pipelines, and Terraform setups.\n\n" +
+      "When do you need to start?",
     buttons: [
-      { id: "cloud_arch", title: "Multi-Cloud Design", next: "timeline" },
-      { id: "cloud_k8s", title: "Kubernetes & CI/CD", next: "timeline" },
-      { id: "cloud_iac", title: "Terraform & IaC", next: "timeline" },
+      { id: "time_immediate", title: "Right Away", next: "intake" },
+      { id: "time_quarterly", title: "1–3 Months", next: "intake" },
+      { id: "human", title: "Talk to Architect", next: "human" },
     ],
   },
   {
@@ -908,14 +892,12 @@ export const DEFAULT_STEPS: FlowStep[] = [
     id: "scope_security",
     header: "Cybersecurity Practice",
     body:
-      "*Cybersecurity & Threat Defense*\n\n" +
-      "We deliver comprehensive perimeter audits, threat modeling, zero-trust infrastructure, and rapid incident response.\n\n" +
-      "Select your security requirement:",
-    footer: "Next: Target Timeline",
+      "We handle penetration testing, security posture reviews, and incident defense.\n\n" +
+      "How urgent is your security review?",
     buttons: [
-      { id: "sec_audit", title: "Security Review", next: "timeline" },
-      { id: "sec_pentest", title: "Penetration Testing", next: "timeline" },
-      { id: "sec_hardening", title: "Posture Hardening", next: "timeline" },
+      { id: "time_immediate", title: "Urgent Review", next: "intake" },
+      { id: "time_quarterly", title: "1–3 Months", next: "intake" },
+      { id: "human", title: "Talk to Sec Lead", next: "human" },
     ],
   },
   {
@@ -923,16 +905,13 @@ export const DEFAULT_STEPS: FlowStep[] = [
     id: "incident",
     header: "Emergency Incident Alert",
     body:
-      "🚨 *EMERGENCY OUTAGE / BREACH ALERT*\n\n" +
-      "Your alert has been escalated to our on-call Incident Response team.\n\n" +
-      "• *Direct 24/7 Hotline:* +92 335 6701199\n" +
-      "• *Incident Commander:* Standing by for briefing\n\n" +
-      "Please reply with affected endpoints or symptoms.",
-    footer: "24/7 Emergency Dispatch",
+      "🚨 *Emergency Alert Received*\n\n" +
+      "Our on-call incident team has been alerted.\n\n" +
+      "• *Direct 24/7 Hotline:* +92 335 6701199\n\n" +
+      "Please share your affected website/IP and symptoms below:",
     buttons: [
-      { id: "inc_outage", title: "Service Down", next: "intake" },
-      { id: "inc_breach", title: "Data Breach", next: "intake" },
-      { id: "inc_call", title: "Request Phone Call", next: "intake" },
+      { id: "inc_call", title: "Call Hotline", next: "human" },
+      { id: "hum_back", title: "Main Menu", next: "start" },
     ],
   },
   {
@@ -940,14 +919,12 @@ export const DEFAULT_STEPS: FlowStep[] = [
     id: "scope_uiux",
     header: "UI/UX & Product Design",
     body:
-      "*Product Design & Design Systems*\n\n" +
-      "We craft high-conversion user interfaces, scalable design systems, and rapid interactive prototypes for enterprise platforms.\n\n" +
-      "Select your primary objective:",
-    footer: "Next: Target Timeline",
+      "We design intuitive user interfaces, design systems, and clickable prototypes.\n\n" +
+      "What timeline do you have in mind?",
     buttons: [
-      { id: "ux_research", title: "User Research & Flow", next: "timeline" },
-      { id: "ux_design", title: "UI & Design System", next: "timeline" },
-      { id: "ux_proto", title: "Interactive Proto", next: "timeline" },
+      { id: "time_immediate", title: "< 2 Weeks", next: "intake" },
+      { id: "time_quarterly", title: "1–3 Months", next: "intake" },
+      { id: "human", title: "Talk to Designer", next: "human" },
     ],
   },
   {
@@ -955,46 +932,38 @@ export const DEFAULT_STEPS: FlowStep[] = [
     id: "client_services",
     header: "Client Account Desk",
     body:
-      "*Active Client & Account Services*\n\n" +
-      "You are connected with our dedicated Client Services Desk. A representative will assist you with active retainers, deliverables, invoices, or portal access.",
-    footer: "Mon to Sat, 09:00 to 18:00 PKT",
+      "Welcome to our Client Desk! We assist with active retainers, deliverables, and invoices.\n\n" +
+      "• *Hotline:* +92 335 6701199\n\n" +
+      "Drop your company name or project details here and we'll help you right away.",
     buttons: [
-      { id: "cli_retainer", title: "Retainer Support", next: "intake" },
-      { id: "cli_billing", title: "Invoice & Billing", next: "intake" },
-      { id: "cli_lead", title: "Speak with Lead", next: "human" },
+      { id: "human", title: "Speak to Manager", next: "human" },
+      { id: "hum_back", title: "Main Menu", next: "start" },
     ],
   },
   {
     kind: "buttons",
     id: "careers",
-    header: "Engineering Careers at TMI",
+    header: "Careers at TMI",
     body:
-      "*Careers & Recruitment*\n\n" +
-      "We actively recruit top-tier software engineers, security researchers, and systems architects.\n\n" +
-      "Explore our open positions and submit your profile at:\n" +
-      "https://tauqeermustafa.com/careers\n\n" +
-      "Our technical leadership reviews all submissions directly.",
-    footer: "tauqeermustafa.com/careers",
+      "We're actively hiring engineers and interns! 🚀\n\n" +
+      "Check open roles and apply here:\n" +
+      "👉 *https://tauqeermustafa.com/careers*\n\n" +
+      "Our technical team reviews all applications directly.",
     buttons: [
-      { id: "car_apply", title: "Submit Resume", next: "intake" },
-      { id: "car_roles", title: "View Open Roles", next: "start" },
-      { id: "car_lead", title: "Speak with Lead", next: "human" },
+      { id: "human", title: "Message HR", next: "human" },
+      { id: "hum_back", title: "Main Menu", next: "start" },
     ],
   },
   {
     kind: "buttons",
     id: "human",
-    header: "Principal Consultation",
+    header: "Lead Engineering Desk",
     body:
-      "*Direct Principal Consultation*\n\n" +
-      "You have requested direct consultation with a lead engineer or practice partner.\n\n" +
-      "Please share your project summary and availability, or connect directly via our hotline:\n" +
-      "• +92 335 6701199",
-    footer: "Engineering Leadership",
+      "You're connected with our Lead Engineering desk.\n\n" +
+      "• *Direct Phone:* +92 335 6701199 (Mon–Sat, 09:00–18:00 PKT)\n\n" +
+      "Drop your project summary or question here, and our Principal will reply directly in this chat!",
     buttons: [
-      { id: "hum_brief", title: "Share Brief Now", next: "intake" },
-      { id: "hum_call", title: "Schedule Call", next: "intake" },
-      { id: "hum_back", title: "Back to Menu", next: "start" },
+      { id: "hum_back", title: "Main Menu", next: "start" },
     ],
   },
   {
@@ -1002,12 +971,10 @@ export const DEFAULT_STEPS: FlowStep[] = [
     id: "timeline",
     header: "Target Delivery Timeline",
     body:
-      "*Delivery Schedule*\n\n" +
-      "What target delivery timeframe or milestone are you aiming for?",
-    footer: "Step 2 of 3",
+      "When are you planning to kick off?",
     buttons: [
-      { id: "time_immediate", title: "Immediate (< 2 wks)", next: "intake" },
-      { id: "time_quarterly", title: "Quarterly (1–3 mos)", next: "intake" },
+      { id: "time_immediate", title: "< 2 Weeks", next: "intake" },
+      { id: "time_quarterly", title: "1–3 Months", next: "intake" },
       { id: "time_advisory", title: "Advisory / Scoping", next: "intake" },
     ],
   },
@@ -1015,21 +982,19 @@ export const DEFAULT_STEPS: FlowStep[] = [
     kind: "text",
     id: "intake",
     body:
-      "*Technical Assessment Intake*\n\n" +
-      "To prepare an accurate scope assessment and proposal, please reply with:\n\n" +
-      "1. *Organization* — Company name and website\n" +
-      "2. *Contact* — Your full name and role\n" +
-      "3. *Objective* — What you want to build or solve\n\n" +
-      "💡 _You may also share a voice brief or paste an existing scope document/link._",
+      "Got it! To help us prepare your proposal, please share:\n\n" +
+      "1. *Company / Project Name*\n" +
+      "2. *What you need built or solved*\n\n" +
+      "Our Lead Engineer will review and reply in this thread!",
   },
   {
     kind: "text",
     id: "handoff",
     body:
-      "*Briefing Received & Assigned*\n\n" +
-      "Thank you. Your requirements have been routed to our Technical Advisory Desk. A principal engineer will review your specifications and reply directly in this thread.\n\n" +
+      "You're connected with our Technical Advisory Desk.\n\n" +
+      "A lead engineer will review your note and reply directly in this thread shortly.\n\n" +
       "• *Operating Hours:* Monday to Saturday, 09:00 to 18:00 (PKT)\n" +
-      "• *Direct Hotline:* +92 335 6701199",
+      "• *Direct Phone:* +92 335 6701199",
   },
 ];
 

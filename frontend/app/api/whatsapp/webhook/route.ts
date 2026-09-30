@@ -305,6 +305,18 @@ export async function POST(request: Request) {
                         replyChannel,
                         msgId
                       );
+                    } else if (buttonRes.list) {
+                      await sendListMessage(
+                        from,
+                        {
+                          header: buttonRes.list.header,
+                          body: buttonRes.replyText,
+                          buttonText: buttonRes.list.buttonText,
+                          rows: buttonRes.list.rows,
+                        },
+                        replyChannel,
+                        msgId
+                      );
                     } else {
                       await sendMessage(from, buttonRes.replyText, replyChannel, msgId);
                     }
@@ -312,19 +324,12 @@ export async function POST(request: Request) {
                   }
                 }
 
-                // 2. Check custom keyword auto-reply rules
-                const rules = await getRules(dept);
-                const matched = matchRule(rules, text);
-                if (matched && matched.enabled) {
-                  await sendMessage(from, matched.reply, replyChannel, msgId);
-                  return;
-                }
-
-                // 3. Intelligent Humanized Auto-Resolver (e.g. email bounce, credentials, tasks)
+                // 2. Intelligent Humanized Auto-Resolver (e.g. greetings, capabilities, email bounce, credentials, tasks)
                 const analysis = await resolveStaffOrCustomerQuery({
                   text,
                   senderName: name || from,
                   channel: "whatsapp",
+                  allowFallback: false,
                 });
 
                 if (analysis.category !== "UNKNOWN") {
@@ -362,8 +367,33 @@ export async function POST(request: Request) {
                   return;
                 }
 
-                // 4. Fallback to Lead Triage flow
-                await handleInboundMessage(from, text, choiceId ?? undefined, replyChannel, msgId);
+                // 3. Check custom keyword auto-reply rules (pricing, hours, hotline, etc.)
+                const rules = await getRules(dept);
+                const matched = matchRule(rules, text);
+                if (matched && matched.enabled) {
+                  await sendMessage(from, matched.reply, replyChannel, msgId);
+                  return;
+                }
+
+                // 4. Clean humanized fallback with action buttons
+                const fallbackAnalysis = await resolveStaffOrCustomerQuery({
+                  text,
+                  senderName: name || from,
+                  channel: "whatsapp",
+                  allowFallback: true,
+                });
+
+                if (fallbackAnalysis.buttons && fallbackAnalysis.buttons.length > 0) {
+                  await sendButtonMessage(
+                    from,
+                    { body: fallbackAnalysis.replyText, buttons: fallbackAnalysis.buttons },
+                    replyChannel,
+                    msgId
+                  );
+                  return;
+                }
+
+                await sendMessage(from, fallbackAnalysis.replyText, replyChannel, msgId);
               } catch (flowErr) {
                 console.error(`[webhook] Auto-reply dispatch failed for ${from} on ${replyChannel}:`, flowErr);
               }

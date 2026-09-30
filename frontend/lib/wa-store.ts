@@ -307,26 +307,10 @@ export async function clearSession(from: string): Promise<void> {
  * Bumped whenever the shipped rules below change in a way a live deployment
  * should pick up. See `getRules` for what "should pick up" means.
  */
-const RULES_VERSION = 4;
+const RULES_VERSION = 5;
 
 /**
  * Keyword replies for contacts already in a conversation.
- *
- * A stranger's first message is NOT answered from here — the webhook opens the
- * scripted list in lib/wa-flow instead, because a tap beats asking someone to
- * type "services". These cover the words people send mid-conversation, and they
- * hand back to the flow rather than restating a menu in text.
- *
- * Three rules the copy follows, the same three as lib/wa-flow:
- *   1. No emojis.
- *   2. No prices. What we charge depends on scope, and a number sent by an
- *      auto-reply is one we then have to argue our way out of.
- *   3. No promise a person has to keep. Working hours are a fact and can be
- *      stated; "answered within a few hours", "top of this inbox" and the like
- *      are guesses this code cannot honour, so they are gone.
- *
- * Bold (*asterisks*) renders in WhatsApp, and these replies are long enough that
- * labelling the lines is the difference between skimmed and ignored.
  */
 export const DEFAULT_GENERAL_RULES: AutoReplyRule[] = [
   {
@@ -335,13 +319,13 @@ export const DEFAULT_GENERAL_RULES: AutoReplyRule[] = [
     mode: "contains",
     department: "general",
     reply:
-      "*Tauqeer Mustafa Inc.* — Engineering & Advisory Practices:\n\n" +
-      "1. *Web & Cloud Platforms* — Resilient cloud portals, enterprise SaaS, and high-throughput APIs.\n\n" +
-      "2. *Cybersecurity & Audits* — Infrastructure hardening, vulnerability assessments, and zero-trust.\n\n" +
-      "3. *AI & Automation* — Autonomous agent workflows, enterprise RAG, and custom copilots.\n\n" +
-      "4. *Cloud & DevOps* — Multi-cloud architecture (AWS/GCP/Azure), Kubernetes, and Terraform IaC.\n\n" +
-      "5. *Product & UI/UX* — Enterprise design systems, user flows, and product prototyping.\n\n" +
-      "Reply with the practice area that matches your project, or share your core objective.",
+      "We specialize in:\n\n" +
+      "• *Web & Platforms* — Web apps, SaaS portals & APIs\n" +
+      "• *AI & Automation* — Copilots, agents & workflows\n" +
+      "• *Cybersecurity* — Audits, posture & defense\n" +
+      "• *Cloud & DevOps* — Multi-cloud & CI/CD\n" +
+      "• *UI/UX* — Product design & systems\n\n" +
+      "Reply with what you need, or tap Menu to explore!",
     enabled: true,
   },
   {
@@ -350,12 +334,8 @@ export const DEFAULT_GENERAL_RULES: AutoReplyRule[] = [
     mode: "contains",
     department: "general",
     reply:
-      "All engagements at *Tauqeer Mustafa Inc.* are scoped with transparent, fixed-price milestones — no hidden fees or open-ended hourly billing.\n\n" +
-      "To receive an accurate technical proposal and timeline, please share:\n\n" +
-      "1. *Organization* — Company name and primary website\n" +
-      "2. *Practice Area* — Web, Cloud, AI, Cybersecurity, or UI/UX\n" +
-      "3. *Objective* — What you want to build or solve, and your target completion date\n\n" +
-      "Our technical leadership will evaluate your scope and deliver a clear written proposal.",
+      "All our engagements are scoped with transparent, fixed-price milestones — no hidden fees or open-ended hourly billing.\n\n" +
+      "Share your project summary and we'll deliver a tailored proposal within 24 hours!",
     enabled: true,
   },
   {
@@ -364,10 +344,8 @@ export const DEFAULT_GENERAL_RULES: AutoReplyRule[] = [
     mode: "contains",
     department: "general",
     reply:
-      "*Business Operating Hours:*\n" +
-      "Monday to Saturday, 09:00 to 18:00 Pakistan time (PKT). Closed Sunday.\n\n" +
-      "Inquiries submitted outside operating hours are reviewed first thing the following morning.\n\n" +
-      "For critical production outages or urgent security incidents, reply *urgent* or call our 24/7 hotline directly: +92 335 6701199.",
+      "• *Operating Hours:* Monday–Saturday, 09:00–18:00 PKT\n" +
+      "• *Urgent / Outages:* Available 24/7 at +92 335 6701199",
     enabled: true,
   },
   {
@@ -376,11 +354,11 @@ export const DEFAULT_GENERAL_RULES: AutoReplyRule[] = [
     mode: "contains",
     department: "general",
     reply:
-      "You are connected with the *Tauqeer Mustafa Inc.* Technical Inbound Desk.\n\n" +
-      "• *Direct Hotline:* +92 335 6701199\n" +
+      "Here is how to reach us directly:\n\n" +
+      "• *Phone / WhatsApp:* +92 335 6701199\n" +
       "• *Email:* contact@tauqeermustafa.com\n" +
-      "• *Operating Hours:* Monday to Saturday, 09:00 to 18:00 (PKT)\n\n" +
-      "If you would like to arrange an architecture sync, share your phone number and two convenient times.",
+      "• *Hours:* Mon–Sat, 09:00–18:00 PKT\n\n" +
+      "Drop your note here and our Principal will reply directly!",
     enabled: true,
   },
   {
@@ -389,9 +367,9 @@ export const DEFAULT_GENERAL_RULES: AutoReplyRule[] = [
     mode: "contains",
     department: "general",
     reply:
-      "Explore our software engineering architecture, case studies, and capabilities at:\n" +
-      "https://tauqeermustafa.com\n\n" +
-      "Tell us your target technical stack or industry, and we will share relevant architecture case studies and deliverables.",
+      "Explore our software engineering architecture and case studies at:\n" +
+      "👉 *https://tauqeermustafa.com*\n\n" +
+      "Tell us your target tech stack or industry, and we'll share relevant past deliverables!",
     enabled: true,
   },
   {
@@ -400,13 +378,10 @@ export const DEFAULT_GENERAL_RULES: AutoReplyRule[] = [
     mode: "contains",
     department: "general",
     reply:
-      "🚨 *HIGH PRIORITY ALERT LOGGED*\n\n" +
-      "This thread has been flagged directly to our on-call Incident Response team.\n\n" +
-      "Please share immediately:\n" +
-      "1. *Affected Systems* — Domain, endpoint URLs, or infrastructure components\n" +
-      "2. *Symptoms* — Observed errors, outage onset time, or unusual behavior\n" +
-      "3. *Emergency Phone* — Number we can reach your team on right now\n\n" +
-      "24/7 Emergency Bridge: *+92 335 6701199*.",
+      "🚨 *High Priority Alert Flagged*\n\n" +
+      "Our on-call incident team has been notified.\n\n" +
+      "• *24/7 Hotline:* +92 335 6701199\n\n" +
+      "Please share your affected website/domain and current error symptoms.",
     enabled: true,
   },
   {
@@ -414,7 +389,7 @@ export const DEFAULT_GENERAL_RULES: AutoReplyRule[] = [
     keyword: "thank, thanks, shukriya, appreciate, grateful",
     mode: "contains",
     department: "general",
-    reply: "You are very welcome. Our engineering team is here whenever you need assistance.",
+    reply: "You're very welcome! Let us know whenever you need anything.",
     enabled: true,
   },
 ];
@@ -426,11 +401,7 @@ export const DEFAULT_SUPPORT_RULES: AutoReplyRule[] = [
     mode: "contains",
     department: "support",
     reply:
-      "*Tauqeer Mustafa Inc. Technical Support Desk*\n\n" +
-      "To check ticket status or submit diagnostic logs:\n" +
-      "1. Live SLA Tracker: https://support.tauqeermustafa.com/ticket\n" +
-      "2. Or reply directly with your Ticket Reference ID (e.g. *TMI-SUP-XXXXX*).\n\n" +
-      "An on-call incident engineer evaluates every report.",
+      "To check your ticket status or submit logs, reply with your Ticket ID (e.g. *TMI-SUP-XXXXX*) or visit https://support.tauqeermustafa.com/ticket.",
     enabled: true,
   },
   {
@@ -439,12 +410,9 @@ export const DEFAULT_SUPPORT_RULES: AutoReplyRule[] = [
     mode: "contains",
     department: "support",
     reply:
-      "*CRITICAL P1 INCIDENT PROTOCOL ACTIVATED*\n\n" +
-      "Emergency voice bridge dispatch is active at *+92 335 6701199*.\n\n" +
-      "Our incident commander responds within 15 to 60 minutes. Please state:\n" +
-      "1. *Affected URL / service endpoint*\n" +
-      "2. *Time outage was detected*\n" +
-      "3. *Current HTTP error codes*",
+      "🚨 *Incident Response Activated*\n\n" +
+      "Our incident commander is responding. For emergency phone bridge call *+92 335 6701199*.\n" +
+      "Please state affected URL and error code.",
     enabled: true,
   },
   {
@@ -453,12 +421,10 @@ export const DEFAULT_SUPPORT_RULES: AutoReplyRule[] = [
     mode: "contains",
     department: "support",
     reply:
-      "*SLA Response Benchmarks:*\n" +
-      "• *P1 Critical Outage:* 15-60 min response\n" +
-      "• *P2 High Severity:* < 4 hours response\n" +
-      "• *P3 Standard Issue:* < 24 hours turnaround\n" +
-      "• *P4 General Request:* < 48 hours\n\n" +
-      "Live telemetry: https://support.tauqeermustafa.com/status",
+      "• *Critical P1:* 15–60 min response\n" +
+      "• *High P2:* < 4 hours\n" +
+      "• *Standard P3:* < 24 hours\n\n" +
+      "Status tracker: https://support.tauqeermustafa.com/status",
     enabled: true,
   },
   {
@@ -467,9 +433,8 @@ export const DEFAULT_SUPPORT_RULES: AutoReplyRule[] = [
     mode: "contains",
     department: "support",
     reply:
-      "*24/7 Production Hotline:*\n" +
-      "Direct emergency voice bridge: *+92 335 6701199*\n\n" +
-      "Available 24/7/365 for active retainer clients experiencing critical system degradation.",
+      "Direct 24/7 Emergency Bridge: *+92 335 6701199*\n\n" +
+      "Available 24/7 for active clients experiencing system outages.",
     enabled: true,
   },
   {
@@ -478,10 +443,9 @@ export const DEFAULT_SUPPORT_RULES: AutoReplyRule[] = [
     mode: "contains",
     department: "support",
     reply:
-      "*Support Desk Coverage:*\n" +
-      "• *Critical Incidents (P1):* 24/7/365 continuous coverage\n" +
-      "• *Standard Support (P2-P4):* Monday to Saturday, 08:00 to 22:00 Pakistan time\n\n" +
-      "Email escalation: support@tauqeermustafa.com",
+      "• *Critical Outages (P1):* 24/7 coverage\n" +
+      "• *Standard Support:* Mon–Sat, 08:00–22:00 PKT\n" +
+      "• *Email:* support@tauqeermustafa.com",
     enabled: true,
   },
   {
@@ -490,7 +454,7 @@ export const DEFAULT_SUPPORT_RULES: AutoReplyRule[] = [
     mode: "contains",
     department: "support",
     reply:
-      "Glad to hear your issue is resolved. The incident log will be archived. If you observe any further anomalies, send them here anytime.",
+      "Glad to hear it's resolved! Let us know if you observe any other issues.",
     enabled: true,
   },
 ];

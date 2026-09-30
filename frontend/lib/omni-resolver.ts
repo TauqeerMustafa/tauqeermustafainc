@@ -23,21 +23,10 @@ export interface TriageResult {
   };
 }
 
-/**
- * Friendly humanized greeting based on time of day and sender
- */
-function getHumanGreeting(name?: string): string {
-  const hour = new Date().getHours();
-  let timeSalutation = "Good day";
-  if (hour >= 5 && hour < 12) timeSalutation = "Good morning";
-  else if (hour >= 12 && hour < 17) timeSalutation = "Good afternoon";
-  else if (hour >= 17 && hour < 22) timeSalutation = "Good evening";
-
-  if (name && name.trim()) {
-    const cleanName = name.replace(/[^a-zA-Z\s]/g, "").trim().split(" ")[0] || name.trim();
-    return `Hi ${cleanName}! 😊 ${timeSalutation}.`;
-  }
-  return `Hello there! 😊 ${timeSalutation}.`;
+function getShortName(name?: string): string {
+  if (!name || !name.trim()) return "";
+  const cleaned = name.replace(/[^a-zA-Z\s]/g, "").trim().split(" ")[0];
+  return cleaned ? ` ${cleaned}` : "";
 }
 
 function extractEmails(text: string): string[] {
@@ -51,7 +40,7 @@ async function checkEmailDomains(emails: string[]) {
   for (const email of emails) {
     const domain = email.split("@")[1];
     if (!domain) {
-      results[email] = { valid: false, error: "Invalid email structure" };
+      results[email] = { valid: false, error: "Invalid domain" };
       continue;
     }
 
@@ -61,10 +50,10 @@ async function checkEmailDomains(emails: string[]) {
         records.sort((a, b) => a.priority - b.priority);
         results[email] = { valid: true, exchange: records[0].exchange };
       } else {
-        results[email] = { valid: false, error: "No MX records found for domain" };
+        results[email] = { valid: false, error: "No MX record" };
       }
     } catch (err: any) {
-      results[email] = { valid: false, error: err?.code || "Domain cannot receive mail" };
+      results[email] = { valid: false, error: err?.code || "Unreachable" };
     }
   }
 
@@ -72,100 +61,30 @@ async function checkEmailDomains(emails: string[]) {
 }
 
 /**
- * Handle quick interactive button taps
+ * Handle quick interactive button taps (Short, conversational, direct)
  */
 export function handleButtonClick(choiceId: string, name?: string): TriageResult | null {
-  const greeting = getHumanGreeting(name);
+  const shortName = getShortName(name);
 
   switch (choiceId) {
-    case "staff_tasks":
-    case "week2_tasks":
-      return {
-        category: "BUTTON_CLICK",
-        diagnosis: "Staff requested active task queue.",
-        actionTaken: "Shared task sheet protocol and assignment links.",
-        replyText:
-          `${greeting}\n\n` +
-          `Here is your active task briefing:\n` +
-          `• *Task Spreadsheet:* Please refer to your assigned B2B Tracker in the group description.\n` +
-          `• *Quota Target:* 30–50 verified outreaches daily.\n` +
-          `• *Submissions:* Log your daily completed entries by 6:00 PM PKT.\n\n` +
-          `What would you like to do next?`,
-        buttons: [
-          { id: "submit_progress", title: "Submit Report" },
-          { id: "staff_next_batch", title: "Request Leads" },
-          { id: "human", title: "Speak to Lead" },
-        ],
-      };
-
-    case "staff_next_batch":
-    case "submit_progress":
-      return {
-        category: "BUTTON_CLICK",
-        diagnosis: "Staff reporting progress or requesting next lead allocation.",
-        actionTaken: "Prompted for spreadsheet link and confirmation.",
-        replyText:
-          `${greeting}\n\n` +
-          `Great work keeping up the momentum! 🚀\n\n` +
-          `Please reply with your *Google Sheet link* and *number of verified emails sent today*.\n\n` +
-          `Our team will review your batch and allocate your next queue right away.`,
-        buttons: [
-          { id: "staff_tasks", title: "View Guidelines" },
-          { id: "human", title: "Talk with Lead" },
-        ],
-      };
-
-    case "open_webmail":
-      return {
-        category: "BUTTON_CLICK",
-        diagnosis: "Staff requested webmail link.",
-        actionTaken: "Provided direct portal link and guidance.",
-        replyText:
-          `${greeting}\n\n` +
-          `You can log into your official corporate inbox anytime here:\n` +
-          `🌐 *Webmail Portal:* https://webmail.tauqeermustafa.tech\n\n` +
-          `Use your full email (e.g. yourname@tauqeermustafa.tech) and your provided password.`,
-        buttons: [
-          { id: "reset_pw", title: "Reset Password" },
-          { id: "human", title: "Need IT Help" },
-        ],
-      };
-
-    case "reset_pw":
-      return {
-        category: "BUTTON_CLICK",
-        diagnosis: "User requested password reset assistance.",
-        actionTaken: "Provided password reset instructions.",
-        replyText:
-          `${greeting}\n\n` +
-          `No worries at all! Let's get your access restored.\n\n` +
-          `Please reply with your *Full Name* and *Employee/Intern ID*, and our IT desk will verify and send your temporary credentials directly to this chat.`,
-        buttons: [
-          { id: "open_webmail", title: "Try Login Again" },
-          { id: "human", title: "Talk to IT Lead" },
-        ],
-      };
-    // Service 1: AI & Automation
+    // ─── SERVICES ───────────────────────────────────────────────
     case "ai":
     case "ai_automation":
     case "ai_copilot":
       return {
         category: "BUTTON_CLICK",
         diagnosis: "Client selected AI & Automation.",
-        actionTaken: "Dispatched AI practice overview and timeline selector.",
+        actionTaken: "Shared AI scope options.",
         replyText:
-          `${greeting}\n\n` +
-          `*AI & Automation Practice*\n\n` +
-          `We engineer custom AI copilots, enterprise autonomous agents, and RAG knowledge search systems tailored to your business data.\n\n` +
-          `What target timeline are you aiming for to launch your AI solution?`,
+          `Hey${shortName}! We build custom AI copilots, autonomous agents, and enterprise search workflows.\n\n` +
+          `What delivery timeline are you looking at?`,
         buttons: [
-          { id: "time_immediate", title: "< 2 Wks (MVP)" },
+          { id: "time_immediate", title: "< 2 Weeks" },
           { id: "time_quarterly", title: "1–3 Months" },
-          { id: "human", title: "Speak to Engineer" },
+          { id: "human", title: "Talk to Engineer" },
         ],
       };
 
-    // Service 2: Web & Platforms
     case "web":
     case "web_new":
     case "web_migration":
@@ -173,20 +92,17 @@ export function handleButtonClick(choiceId: string, name?: string): TriageResult
       return {
         category: "BUTTON_CLICK",
         diagnosis: "Client selected Web & Platforms.",
-        actionTaken: "Dispatched Web practice overview and timeline selector.",
+        actionTaken: "Shared Web scope options.",
         replyText:
-          `${greeting}\n\n` +
-          `*Web Platforms & SaaS Engineering*\n\n` +
-          `We build high-performance web platforms, SaaS MVPs, client portals, and resilient backend microservices.\n\n` +
-          `What target delivery timeline are you planning for?`,
+          `Hey${shortName}! We build modern web apps, SaaS platforms, and APIs.\n\n` +
+          `When are you planning to kick off?`,
         buttons: [
-          { id: "time_immediate", title: "< 2 Wks (Immediate)" },
-          { id: "time_quarterly", title: "1–3 Months (Full)" },
-          { id: "human", title: "Speak to Engineer" },
+          { id: "time_immediate", title: "Immediately" },
+          { id: "time_quarterly", title: "1–3 Months" },
+          { id: "human", title: "Talk to Engineer" },
         ],
       };
 
-    // Service 3: Cybersecurity
     case "cybersecurity":
     case "sec_audit":
     case "sec_incident":
@@ -194,19 +110,16 @@ export function handleButtonClick(choiceId: string, name?: string): TriageResult
       return {
         category: "BUTTON_CLICK",
         diagnosis: "Client selected Cybersecurity.",
-        actionTaken: "Dispatched Cybersecurity defense options.",
+        actionTaken: "Shared security options.",
         replyText:
-          `${greeting}\n\n` +
-          `*Cybersecurity & Posture Defense*\n\n` +
-          `Our security engineering team conducts penetration audits, incident crisis response, and zero-trust identity architectures.\n\n` +
-          `What is the urgency of your security requirement?`,
+          `Hey${shortName}! We handle penetration testing, security posture reviews, and incident response.\n\n` +
+          `How urgent is your security review?`,
         buttons: [
-          { id: "time_immediate", title: "Urgent Audit" },
+          { id: "time_immediate", title: "Urgent Review" },
           { id: "human", title: "Talk to Sec Lead" },
         ],
       };
 
-    // Service 4: Cloud & DevOps
     case "cloud":
     case "cloud_arch":
     case "cloud_cicd":
@@ -214,109 +127,213 @@ export function handleButtonClick(choiceId: string, name?: string): TriageResult
       return {
         category: "BUTTON_CLICK",
         diagnosis: "Client selected Cloud & DevOps.",
-        actionTaken: "Dispatched Cloud architecture options.",
+        actionTaken: "Shared cloud options.",
         replyText:
-          `${greeting}\n\n` +
-          `*Cloud Systems & DevOps Engineering*\n\n` +
-          `We design scalable AWS/GCP cloud architectures, automated CI/CD pipelines, and Terraform IaC deployments.\n\n` +
-          `How soon do you need to begin?`,
+          `Hey${shortName}! We design AWS/GCP cloud infrastructure, CI/CD pipelines, and Terraform setups.\n\n` +
+          `When do you need to start?`,
         buttons: [
-          { id: "time_immediate", title: "Immediate Kickoff" },
-          { id: "human", title: "Consult Architect" },
+          { id: "time_immediate", title: "Right Away" },
+          { id: "human", title: "Talk to Architect" },
         ],
       };
 
-    // Service 5: UI/UX & Product Design
     case "uiux":
     case "ux_design":
     case "ux_research":
     case "ux_proto":
       return {
         category: "BUTTON_CLICK",
-        diagnosis: "Client selected UI/UX & Product Design.",
-        actionTaken: "Dispatched design systems overview.",
+        diagnosis: "Client selected UI/UX.",
+        actionTaken: "Shared UI/UX options.",
         replyText:
-          `${greeting}\n\n` +
-          `*Product Design & UI/UX Systems*\n\n` +
-          `We craft interactive prototypes, design systems, and user journeys that turn visitors into loyal users.\n\n` +
-          `What delivery timeframe are you aiming for?`,
+          `Hey${shortName}! We design intuitive user interfaces, design systems, and clickable prototypes.\n\n` +
+          `What timeline do you have in mind?`,
         buttons: [
-          { id: "time_immediate", title: "Design Sprint" },
-          { id: "human", title: "Speak to Designer" },
+          { id: "time_immediate", title: "< 2 Weeks" },
+          { id: "human", title: "Talk to Designer" },
         ],
       };
 
-    // Service 6: Client Desk
     case "client_services":
       return {
         category: "BUTTON_CLICK",
-        diagnosis: "Client selected Client Account Desk.",
-        actionTaken: "Routed to Client Services.",
+        diagnosis: "Client selected Client Desk.",
+        actionTaken: "Connected to Client Desk.",
         replyText:
-          `${greeting}\n\n` +
-          `*Client Account Desk*\n\n` +
-          `You are connected with our dedicated Client Services Desk. We assist with active retainers, deliverables, invoices, or portal access.\n\n` +
-          `• *Direct Hotline:* +92 335 6701199 (Mon–Sat, 09:00–18:00 PKT)\n\n` +
-          `Please share your account or contract reference here, and our desk manager will assist you promptly.`,
+          `Welcome to our Client Desk! We assist with active contracts, invoices, and portal access.\n\n` +
+          `• *Hotline:* +92 335 6701199\n\n` +
+          `Drop your company name or contract details here and we'll help you right away.`,
         buttons: [
-          { id: "human", title: "Call Manager" },
+          { id: "human", title: "Speak to Manager" },
           { id: "restart", title: "Main Menu" },
         ],
       };
 
-    // Service 7: Careers & Recruitment
     case "careers":
       return {
         category: "BUTTON_CLICK",
         diagnosis: "User selected Careers.",
-        actionTaken: "Provided careers portal and hiring link.",
+        actionTaken: "Shared careers link.",
         replyText:
-          `${greeting}\n\n` +
-          `*Engineering Careers at Tauqeer Mustafa Inc*\n\n` +
-          `We actively hire top-tier software engineers, AI researchers, and systems architects.\n\n` +
-          `Explore our open roles and submit your profile at:\n` +
-          `🌐 https://tauqeermustafa.com/careers\n\n` +
-          `Our technical leadership reviews all submissions directly.`,
+          `We're actively hiring engineers and interns! 🚀\n\n` +
+          `Check open roles and apply here:\n` +
+          `👉 *https://tauqeermustafa.com/careers*\n\n` +
+          `Our technical team reviews all applications directly.`,
         buttons: [
-          { id: "human", title: "Speak to HR" },
+          { id: "human", title: "Message HR" },
           { id: "restart", title: "Main Menu" },
         ],
       };
 
-    // Service 8: Speak to Principal / Lead
     case "human":
+    case "cat_human":
+    case "hum_brief":
+    case "hum_call":
+    case "hum_back":
       return {
         category: "BUTTON_CLICK",
-        diagnosis: "Direct Principal consultation requested.",
-        actionTaken: "Connected to Engineering Leadership.",
+        diagnosis: "Direct consultation requested.",
+        actionTaken: "Connected to Principal.",
         replyText:
-          `${greeting}\n\n` +
-          `*Direct Principal Consultation*\n\n` +
-          `You have requested direct consultation with our Lead Engineering & Advisory desk.\n\n` +
-          `• *Direct Hotline:* +92 335 6701199\n` +
-          `• *Operating Hours:* Monday to Saturday, 09:00 to 18:00 (PKT)\n\n` +
-          `Please drop your project summary or question here, and our Principal Engineer will respond directly in this thread!`,
+          `You're connected with our Lead Engineering desk.\n\n` +
+          `• *Direct Phone:* +92 335 6701199 (Mon–Sat, 09:00–18:00 PKT)\n\n` +
+          `Drop your project summary or question here, and our Principal will reply directly in this chat!`,
+        buttons: [
+          { id: "restart", title: "Main Menu" },
+        ],
       };
 
-    // Timeline selection follow-up
     case "time_immediate":
     case "time_quarterly":
+    case "time_advisory":
+    case "immediate":
+    case "planned":
+    case "exploration":
+    case "timeline":
       return {
         category: "BUTTON_CLICK",
-        diagnosis: "Client selected timeline milestone.",
-        actionTaken: "Prompted for project brief and contact info.",
+        diagnosis: "Timeline selected.",
+        actionTaken: "Prompted for project details.",
         replyText:
-          `${greeting}\n\n` +
-          `*Project Scoping Intake*\n\n` +
-          `To help our technical team prepare an accurate architecture scope and delivery estimate, please share:\n\n` +
+          `Got it! To help us prepare your proposal, please share:\n\n` +
           `1. *Company / Project Name*\n` +
-          `2. *Core Objectives / Key Features*\n\n` +
-          `💡 _You can also share a voice brief or paste an existing scope document link._\n\n` +
-          `Our Senior Technical Lead will review your specifications and reply right away!`,
+          `2. *What you need built or solved*\n\n` +
+          `Our Lead Engineer will review and reply in this thread!`,
         buttons: [
-          { id: "human", title: "Speak to Principal" },
+          { id: "human", title: "Call Principal" },
           { id: "restart", title: "Main Menu" },
         ],
+      };
+
+    case "incident":
+    case "incident_fast":
+    case "inc_outage":
+    case "inc_breach":
+    case "inc_call":
+      return {
+        category: "BUTTON_CLICK",
+        diagnosis: "Emergency incident alert.",
+        actionTaken: "Dispatched emergency contact instructions.",
+        replyText:
+          `🚨 *Emergency Alert Received*\n\n` +
+          `Our on-call incident team has been alerted.\n\n` +
+          `• *Direct 24/7 Hotline:* +92 335 6701199\n\n` +
+          `Please share your affected website/IP and symptoms below:`,
+        buttons: [
+          { id: "human", title: "Call Hotline" },
+          { id: "restart", title: "Main Menu" },
+        ],
+      };
+
+    // ─── STAFF ACTIONS ──────────────────────────────────────────
+    case "staff_tasks":
+    case "week2_tasks":
+      return {
+        category: "BUTTON_CLICK",
+        diagnosis: "Staff requested tasks.",
+        actionTaken: "Sent task summary.",
+        replyText:
+          `Hey${shortName}! Here is your task briefing:\n\n` +
+          `• *Target:* 30–50 verified outreaches daily\n` +
+          `• *Tracker:* Check your assigned B2B Google Sheet\n` +
+          `• *Deadline:* Log all entries by 6:00 PM PKT daily\n\n` +
+          `What do you need?`,
+        buttons: [
+          { id: "submit_progress", title: "Submit Report" },
+          { id: "staff_next_batch", title: "Request Leads" },
+          { id: "human", title: "Ask Lead" },
+        ],
+      };
+
+    case "staff_next_batch":
+    case "submit_progress":
+      return {
+        category: "BUTTON_CLICK",
+        diagnosis: "Staff submitting report.",
+        actionTaken: "Prompted for sheet link.",
+        replyText:
+          `Great progress! 🚀\n\n` +
+          `Please reply with your *Google Sheet link* and *number of verified emails sent today*.\n\n` +
+          `We'll verify and allocate your next batch.`,
+        buttons: [
+          { id: "staff_tasks", title: "Task Rules" },
+          { id: "human", title: "Talk to Lead" },
+        ],
+      };
+
+    case "open_webmail":
+      return {
+        category: "BUTTON_CLICK",
+        diagnosis: "Webmail portal link requested.",
+        actionTaken: "Shared portal link.",
+        replyText:
+          `Log into your corporate email here:\n` +
+          `🌐 *https://webmail.tauqeermustafa.tech*\n\n` +
+          `Use your full company email and assigned password.`,
+        buttons: [
+          { id: "reset_pw", title: "Reset Password" },
+          { id: "human", title: "IT Help" },
+        ],
+      };
+
+    case "reset_pw":
+      return {
+        category: "BUTTON_CLICK",
+        diagnosis: "Password reset requested.",
+        actionTaken: "Prompted for verification info.",
+        replyText:
+          `To reset your password, reply here with:\n\n` +
+          `• *Your Full Name*\n` +
+          `• *Employee / Intern ID*\n\n` +
+          `We'll verify and send new credentials to this chat.`,
+        buttons: [
+          { id: "open_webmail", title: "Try Login Again" },
+          { id: "human", title: "Talk to IT" },
+        ],
+      };
+
+    case "restart":
+    case "start":
+    case "menu":
+      return {
+        category: "BUTTON_CLICK",
+        diagnosis: "User requested main menu.",
+        actionTaken: "Dispatched main menu.",
+        replyText: `How can we help you today? Tap below to explore:`,
+        list: {
+          header: "Tauqeer Mustafa Inc",
+          buttonText: "Menu Options",
+          rows: [
+            { id: "web", title: "Web & Platforms", description: "Web apps, SaaS portals & APIs" },
+            { id: "ai", title: "AI & Automation", description: "Copilots, agents & automated workflows" },
+            { id: "cybersecurity", title: "Cybersecurity", description: "Security audits & incident defense" },
+            { id: "cloud", title: "Cloud & DevOps", description: "Cloud infrastructure, scaling & CI/CD" },
+            { id: "uiux", title: "UI/UX & Product", description: "Product design & design systems" },
+            { id: "client_services", title: "Client Desk", description: "Retainers, deliverables & billing" },
+            { id: "careers", title: "Careers & Internships", description: "Open positions & engineering roles" },
+            { id: "human", title: "Speak to Principal", description: "Direct consultation with a lead engineer" },
+          ],
+        },
       };
 
     default:
@@ -325,20 +342,21 @@ export function handleButtonClick(choiceId: string, name?: string): TriageResult
 }
 
 /**
- * OmniAssistant Resolver: Humanized with Interactive Buttons & Lists
+ * OmniAssistant Resolver: Short, human, and direct
  */
 export async function resolveStaffOrCustomerQuery(params: {
   text: string;
   senderName?: string;
   channel: "whatsapp" | "email" | "contact_form";
   extraData?: Record<string, any>;
+  allowFallback?: boolean;
 }): Promise<TriageResult> {
-  const { text, senderName, channel } = params;
-  const lower = text.toLowerCase();
-  const greeting = getHumanGreeting(senderName);
+  const { text, senderName, channel, allowFallback = false } = params;
+  const lower = text.toLowerCase().trim();
+  const shortName = getShortName(senderName);
   const extractedEmails = extractEmails(text);
 
-  // 0. If user tapped a service or sent text matching a capability
+  // 0. Check if user sent text matching a capability
   const serviceMatches: Record<string, string> = {
     "ai & automation": "ai",
     "custom copilots": "ai",
@@ -349,12 +367,13 @@ export async function resolveStaffOrCustomerQuery(params: {
     "client desk": "client_services",
     "client account": "client_services",
     "careers & internships": "careers",
+    "careers": "careers",
     "speak to principal": "human",
     "talk to a principal": "human",
   };
 
   for (const [phrase, key] of Object.entries(serviceMatches)) {
-    if (lower.includes(phrase)) {
+    if (lower === phrase || lower.startsWith(phrase)) {
       const matched = handleButtonClick(key, senderName);
       if (matched) return matched;
     }
@@ -380,39 +399,36 @@ export async function resolveStaffOrCustomerQuery(params: {
     const emailSummary = Object.entries(mxChecks)
       .map(([em, res]) => {
         if (!res.valid) {
-          return `• *${em}*: ❌ Domain is inactive or has no mail exchange (${res.error})`;
+          return `• *${em}*: Mailbox invalid or domain inactive`;
         }
         if (res.exchange?.includes("ppe-hosted") || res.exchange?.includes("proofpoint")) {
-          return `• *${em}*: 🛡️ Protected by Proofpoint Firewall (Strict enterprise filter dropped unverified/cold mail)`;
+          return `• *${em}*: Blocked by corporate Proofpoint firewall`;
         }
         if (res.exchange?.includes("hostinger")) {
-          return `• *${em}*: ⚠️ Hostinger Mailbox rejected (Mailbox does not exist or disabled)`;
+          return `• *${em}*: Hostinger mailbox does not exist`;
         }
-        return `• *${em}*: ⚠️ Recipient server rejected delivery (${res.exchange})`;
+        return `• *${em}*: Server rejected message`;
       })
       .join("\n");
 
     const reply =
-      `${greeting}\n\n` +
-      `I've looked into this mail delivery notice for you right away! 🔍\n\n` +
+      `Hey${shortName}! Looked into those bounced emails:\n\n` +
       (emailSummary ? `${emailSummary}\n\n` : "") +
-      `*What happened:* Those emails ran into a *Permanent Hard Bounce*. The recipient mail servers refused them because the mailboxes do not exist, were closed, or are blocked by enterprise security firewalls.\n\n` +
-      `*Simple steps for you right now:*\n` +
-      `1. *Do NOT retry* those specific addresses (repeated attempts hurt our domain reputation).\n` +
-      `2. *Mark as Invalid* in your sheet so your stats remain clean.\n` +
-      `3. *No attachments* on first cold emails (enterprise firewalls instantly flag them).\n` +
-      `4. *Keep going!* You can safely continue sending to the rest of your list.\n\n` +
-      `How would you like to proceed?`;
+      `*What to do:*\n` +
+      `1. *Don't retry* these addresses (it hurts our domain reputation).\n` +
+      `2. *Mark them Invalid* in your spreadsheet.\n` +
+      `3. *No attachments* on first cold emails (filters drop them).\n` +
+      `4. *Keep going* with the rest of your list!`;
 
     return {
       category: "EMAIL_BOUNCE",
       diagnosis: `Hard bounce detected for ${extractedEmails.join(", ") || "reported emails"}`,
-      actionTaken: "Extracted recipient addresses, inspected live MX gateway, and provided humanized guidelines.",
+      actionTaken: "Inspected MX gateway and shared concise instructions.",
       replyText: reply,
       buttons: [
-        { id: "staff_tasks", title: "View My Tasks" },
+        { id: "staff_tasks", title: "View Tasks" },
         { id: "staff_next_batch", title: "Report Progress" },
-        { id: "human", title: "Speak to Lead" },
+        { id: "human", title: "Talk to Lead" },
       ],
       emailDetails: { addresses: extractedEmails, mxChecks },
     };
@@ -429,21 +445,20 @@ export async function resolveStaffOrCustomerQuery(params: {
 
   if (isCredentialIssue) {
     const reply =
-      `${greeting}\n\n` +
-      `I'm here to help you access your accounts quickly!\n\n` +
-      `• *Webmail:* Log into your official inbox at https://webmail.tauqeermustafa.tech\n` +
-      `• *Format:* Enter your full email address and the password assigned during onboarding.\n\n` +
-      `If you're still locked out, tap an option below:`;
+      `Hey${shortName}! To log into your company email:\n\n` +
+      `🌐 *Webmail:* https://webmail.tauqeermustafa.tech\n\n` +
+      `Use your full email and onboarding password.\n` +
+      `Need a password reset? Tap below:`;
 
     return {
       category: "CREDENTIALS",
-      diagnosis: "User requested login/credential assistance.",
-      actionTaken: "Provided direct portal links and reset options.",
+      diagnosis: "Login/credential assistance.",
+      actionTaken: "Provided portal links and reset options.",
       replyText: reply,
       buttons: [
         { id: "open_webmail", title: "Open Webmail" },
         { id: "reset_pw", title: "Reset Password" },
-        { id: "human", title: "Talk to IT Lead" },
+        { id: "human", title: "Talk to IT" },
       ],
     };
   }
@@ -460,102 +475,107 @@ export async function resolveStaffOrCustomerQuery(params: {
 
   if (isTaskIssue) {
     const reply =
-      `${greeting}\n\n` +
-      `Hope your tasks are going smoothly today! 💼\n\n` +
-      `Here is a quick overview:\n` +
-      `• *Target Quota:* 30–50 verified outreach emails daily.\n` +
-      `• *Reporting:* Update your batch logs by 6:00 PM PKT.\n` +
-      `• *Quality Check:* Filter every email through a verification tool before sending.\n\n` +
-      `Select what you'd like to do:`;
+      `Hey${shortName}! Here's your task summary:\n\n` +
+      `• *Daily Quota:* 30–50 verified outreaches\n` +
+      `• *Log Deadline:* By 6:00 PM PKT in your Google Sheet\n` +
+      `• Always verify leads before sending!`;
 
     return {
       category: "TASK_ASSIGNMENT",
-      diagnosis: "Staff inquired about task allocation, progress, or guidelines.",
-      actionTaken: "Dispatched humanized operations summary with action buttons.",
+      diagnosis: "Task allocation or progress check.",
+      actionTaken: "Sent quick task summary.",
       replyText: reply,
       buttons: [
-        { id: "submit_progress", title: "Submit Progress" },
+        { id: "submit_progress", title: "Submit Report" },
         { id: "week2_tasks", title: "Next Batch" },
-        { id: "human", title: "Ask Manager" },
+        { id: "human", title: "Ask Lead" },
       ],
     };
   }
 
   // 4. Contact Form Inquiries
   if (channel === "contact_form") {
-    const serviceRequested = params.extraData?.service || "Custom Software & Systems";
+    const serviceRequested = params.extraData?.service || "Engineering & Systems";
     const reply =
       `Hello ${senderName || "there"}!\n\n` +
-      `Thank you for reaching out to *Tauqeer Mustafa Inc* regarding *${serviceRequested}*.\n\n` +
-      `Our technical advisory team has received your brief and is currently reviewing your specifications.\n\n` +
-      `• *Summary of your request:* "${text.slice(0, 140)}${text.length > 140 ? "..." : ""}"\n` +
-      `• *Expected Review:* Within 2 business hours.\n` +
-      `• *Direct Hotline:* +92 335 6701199 (Mon–Sat, 09:00–18:00 PKT)\n\n` +
-      `A principal engineer will follow up shortly to arrange a discovery call or deliver a tailored architecture proposal.\n\n` +
-      `Warm regards,\n` +
-      `*Tauqeer Mustafa Inc — Engineering & Advisory*`;
+      `Thanks for reaching out to *Tauqeer Mustafa Inc* regarding *${serviceRequested}*.\n\n` +
+      `We've received your note and our technical team is reviewing it. We'll reply within 2 business hours.\n\n` +
+      `• *Hotline:* +92 335 6701199 (Mon–Sat, 09:00–18:00 PKT)\n\n` +
+      `Best regards,\n` +
+      `*Tauqeer Mustafa Inc*`;
 
     return {
       category: "CONTACT_FORM",
-      diagnosis: `Website inquiry received from ${senderName || "visitor"} for ${serviceRequested}`,
-      actionTaken: "Processed intake review and scheduled discovery follow-up.",
+      diagnosis: `Website inquiry from ${senderName || "visitor"} for ${serviceRequested}`,
+      actionTaken: "Acknowledged inquiry.",
       replyText: reply,
     };
   }
 
-  // 5. General Greeting or Client Inquiries (Interactive List Menu)
-  const isGreetingOrGeneral =
-    lower.includes("hi") ||
-    lower.includes("hello") ||
-    lower.includes("hey") ||
-    lower.includes("salam") ||
-    lower.includes("info") ||
-    lower.includes("service") ||
-    text.length < 30;
+  // 5. Short Greeting / Initial Visitor Contact
+  const isGreeting =
+    lower === "hi" ||
+    lower === "hello" ||
+    lower === "hey" ||
+    lower === "salam" ||
+    lower === "menu" ||
+    lower === "start" ||
+    lower === "options" ||
+    lower.length < 15;
 
-  if (isGreetingOrGeneral) {
+  if (isGreeting) {
     const reply =
-      `${greeting}\n\n` +
-      `Welcome to *Tauqeer Mustafa Inc*. We build high-performance software, modern AI workflows, and resilient cloud architectures.\n\n` +
-      `How can we support you today? Please tap below to explore our core solutions or speak directly with an engineer.`;
+      `Hi${shortName}! Welcome to *Tauqeer Mustafa Inc*.\n\n` +
+      `We build high-performance software, custom AI systems, and cloud architecture.\n\n` +
+      `What can we help you build today?`;
 
     return {
       category: "GENERAL_SUPPORT",
-      diagnosis: "General inquiry or visitor greeting.",
-      actionTaken: "Dispatched interactive capability menu list.",
+      diagnosis: "Initial greeting.",
+      actionTaken: "Dispatched clean options menu.",
       replyText: reply,
       list: {
-        header: "Tauqeer Mustafa Inc Services",
+        header: "Tauqeer Mustafa Inc",
         buttonText: "Explore Options",
         rows: [
-          { id: "web", title: "Web & Platforms", description: "Modern web platforms, portals, apps & APIs" },
-          { id: "ai", title: "AI & Automation", description: "Custom copilots, workflows & AI integrations" },
-          { id: "cybersecurity", title: "Cybersecurity", description: "Security reviews, posture & defense" },
+          { id: "web", title: "Web & Platforms", description: "Web apps, SaaS portals & APIs" },
+          { id: "ai", title: "AI & Automation", description: "Copilots, agents & automated workflows" },
+          { id: "cybersecurity", title: "Cybersecurity", description: "Audits, posture & defense" },
           { id: "cloud", title: "Cloud & DevOps", description: "Cloud infrastructure, scaling & CI/CD" },
-          { id: "uiux", title: "UI/UX & Product", description: "User research, product design & systems" },
-          { id: "client_services", title: "Client Desk", description: "Retainers, deliverables & billing support" },
-          { id: "careers", title: "Careers & Internships", description: "Opportunities & engineering roles" },
-          { id: "human", title: "Speak to Principal", description: "Direct consultation with a lead engineer" },
+          { id: "uiux", title: "UI/UX & Product", description: "Product design & design systems" },
+          { id: "client_services", title: "Client Desk", description: "Retainers, billing & support" },
+          { id: "careers", title: "Careers & Internships", description: "Open roles & engineering positions" },
+          { id: "human", title: "Speak to Principal", description: "Direct consultation with lead engineer" },
         ],
       },
     };
   }
 
-  // Default fallback
+  // If allowFallback is false, let custom keyword rules evaluate
+  if (!allowFallback) {
+    return {
+      category: "UNKNOWN",
+      diagnosis: "No specialized intent matched; deferring to rules.",
+      actionTaken: "Defer to custom keyword rules.",
+      replyText: "",
+    };
+  }
+
+  // Default fallback for any other custom text
   const reply =
-    `${greeting}\n\n` +
-    `Thanks for getting in touch! We have logged your request:\n` +
-    `> "${text.slice(0, 120)}${text.length > 120 ? "..." : ""}"\n\n` +
-    `Our engineering & support desk has been alerted and will follow up with you promptly.`;
+    `Thanks for your message${shortName}!\n\n` +
+    `Our engineering desk has received your note:\n` +
+    `> "${text.slice(0, 100)}${text.length > 100 ? "..." : ""}"\n\n` +
+    `We'll reply directly in this thread shortly. For urgent matters, call +92 335 6701199.`;
 
   return {
     category: "GENERAL_SUPPORT",
-    diagnosis: "General support request logged.",
-    actionTaken: "Dispatched acknowledgment with quick action buttons.",
+    diagnosis: "General inquiry.",
+    actionTaken: "Sent direct acknowledgement.",
     replyText: reply,
     buttons: [
-      { id: "human", title: "Speak to Lead" },
-      { id: "web", title: "View Services" },
+      { id: "human", title: "Call Lead" },
+      { id: "restart", title: "Main Menu" },
     ],
   };
 }
