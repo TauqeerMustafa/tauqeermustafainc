@@ -512,7 +512,7 @@ export async function resolveStaffOrCustomerQuery(params: {
     };
   }
 
-  // 5. Short Greeting / Initial Visitor Contact
+  // 5. Explicit Greeting / Initial Visitor Contact
   const isGreeting =
     lower === "hi" ||
     lower === "hello" ||
@@ -521,7 +521,10 @@ export async function resolveStaffOrCustomerQuery(params: {
     lower === "menu" ||
     lower === "start" ||
     lower === "options" ||
-    lower.length < 15;
+    lower === "help" ||
+    lower.startsWith("hi ") ||
+    lower.startsWith("hello ") ||
+    lower.startsWith("hey ");
 
   if (isGreeting) {
     const reply =

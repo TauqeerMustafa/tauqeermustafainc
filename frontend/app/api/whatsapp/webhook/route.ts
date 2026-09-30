@@ -291,113 +291,110 @@ export async function POST(request: Request) {
           // 🤖 Trigger Lead Triage Flow & Keyword Auto-Replies
           if (from && msgType !== "unsupported" && msgType !== "system") {
             const replyChannel = phoneId || channel || displayPhone;
-            // Fire-and-forget in background to guarantee instant 200 OK response to Meta
-            (async () => {
-              try {
-                // 1. Check if user tapped an interactive quick-action button
-                if (choiceId) {
-                  const buttonRes = handleButtonClick(choiceId, name || from);
-                  if (buttonRes) {
-                    if (buttonRes.buttons && buttonRes.buttons.length > 0) {
-                      await sendButtonMessage(
-                        from,
-                        { body: buttonRes.replyText, buttons: buttonRes.buttons },
-                        replyChannel,
-                        msgId
-                      );
-                    } else if (buttonRes.list) {
-                      await sendListMessage(
-                        from,
-                        {
-                          header: buttonRes.list.header,
-                          body: buttonRes.replyText,
-                          buttonText: buttonRes.list.buttonText,
-                          rows: buttonRes.list.rows,
-                        },
-                        replyChannel,
-                        msgId
-                      );
-                    } else {
-                      await sendMessage(from, buttonRes.replyText, replyChannel, msgId);
-                    }
-                    return;
-                  }
-                }
-
-                // 2. Intelligent Humanized Auto-Resolver (e.g. greetings, capabilities, email bounce, credentials, tasks)
-                const analysis = await resolveStaffOrCustomerQuery({
-                  text,
-                  senderName: name || from,
-                  channel: "whatsapp",
-                  allowFallback: false,
-                });
-
-                if (analysis.category !== "UNKNOWN") {
-                  console.log(`[webhook] Humanized Dispatch (${analysis.category}) to ${from} on line ${replyChannel}`);
-
-                  // If interactive buttons are configured, dispatch them
-                  if (analysis.buttons && analysis.buttons.length > 0) {
+            try {
+              // 1. Check if user tapped an interactive quick-action button
+              if (choiceId) {
+                const buttonRes = handleButtonClick(choiceId, name || from);
+                if (buttonRes) {
+                  if (buttonRes.buttons && buttonRes.buttons.length > 0) {
                     await sendButtonMessage(
                       from,
-                      { body: analysis.replyText, buttons: analysis.buttons },
+                      { body: buttonRes.replyText, buttons: buttonRes.buttons },
                       replyChannel,
                       msgId
                     );
-                    return;
-                  }
-
-                  // If interactive list menu is configured, dispatch it
-                  if (analysis.list) {
+                  } else if (buttonRes.list) {
                     await sendListMessage(
                       from,
                       {
-                        header: analysis.list.header,
-                        body: analysis.replyText,
-                        buttonText: analysis.list.buttonText,
-                        rows: analysis.list.rows,
+                        header: buttonRes.list.header,
+                        body: buttonRes.replyText,
+                        buttonText: buttonRes.list.buttonText,
+                        rows: buttonRes.list.rows,
                       },
                       replyChannel,
                       msgId
                     );
-                    return;
+                  } else {
+                    await sendMessage(from, buttonRes.replyText, replyChannel, msgId);
                   }
-
-                  // Fallback plain text
-                  await sendMessage(from, analysis.replyText, replyChannel, msgId);
-                  return;
+                  continue;
                 }
+              }
 
-                // 3. Check custom keyword auto-reply rules (pricing, hours, hotline, etc.)
-                const rules = await getRules(dept);
-                const matched = matchRule(rules, text);
-                if (matched && matched.enabled) {
-                  await sendMessage(from, matched.reply, replyChannel, msgId);
-                  return;
-                }
+              // 2. Intelligent Humanized Auto-Resolver (e.g. greetings, capabilities, email bounce, credentials, tasks)
+              const analysis = await resolveStaffOrCustomerQuery({
+                text,
+                senderName: name || from,
+                channel: "whatsapp",
+                allowFallback: false,
+              });
 
-                // 4. Clean humanized fallback with action buttons
-                const fallbackAnalysis = await resolveStaffOrCustomerQuery({
-                  text,
-                  senderName: name || from,
-                  channel: "whatsapp",
-                  allowFallback: true,
-                });
+              if (analysis.category !== "UNKNOWN") {
+                console.log(`[webhook] Humanized Dispatch (${analysis.category}) to ${from} on line ${replyChannel}`);
 
-                if (fallbackAnalysis.buttons && fallbackAnalysis.buttons.length > 0) {
+                // If interactive buttons are configured, dispatch them
+                if (analysis.buttons && analysis.buttons.length > 0) {
                   await sendButtonMessage(
                     from,
-                    { body: fallbackAnalysis.replyText, buttons: fallbackAnalysis.buttons },
+                    { body: analysis.replyText, buttons: analysis.buttons },
                     replyChannel,
                     msgId
                   );
-                  return;
+                  continue;
                 }
 
-                await sendMessage(from, fallbackAnalysis.replyText, replyChannel, msgId);
-              } catch (flowErr) {
-                console.error(`[webhook] Auto-reply dispatch failed for ${from} on ${replyChannel}:`, flowErr);
+                // If interactive list menu is configured, dispatch it
+                if (analysis.list) {
+                  await sendListMessage(
+                    from,
+                    {
+                      header: analysis.list.header,
+                      body: analysis.replyText,
+                      buttonText: analysis.list.buttonText,
+                      rows: analysis.list.rows,
+                    },
+                    replyChannel,
+                    msgId
+                  );
+                  continue;
+                }
+
+                // Fallback plain text
+                await sendMessage(from, analysis.replyText, replyChannel, msgId);
+                continue;
               }
-            })();
+
+              // 3. Check custom keyword auto-reply rules (pricing, hours, hotline, etc.)
+              const rules = await getRules(dept);
+              const matched = matchRule(rules, text);
+              if (matched && matched.enabled) {
+                await sendMessage(from, matched.reply, replyChannel, msgId);
+                continue;
+              }
+
+              // 4. Clean humanized fallback with action buttons
+              const fallbackAnalysis = await resolveStaffOrCustomerQuery({
+                text,
+                senderName: name || from,
+                channel: "whatsapp",
+                allowFallback: true,
+              });
+
+              if (fallbackAnalysis.buttons && fallbackAnalysis.buttons.length > 0) {
+                await sendButtonMessage(
+                  from,
+                  { body: fallbackAnalysis.replyText, buttons: fallbackAnalysis.buttons },
+                  replyChannel,
+                  msgId
+                );
+                continue;
+              }
+
+              await sendMessage(from, fallbackAnalysis.replyText, replyChannel, msgId);
+            } catch (flowErr) {
+              console.error(`[webhook] Auto-reply dispatch failed for ${from} on ${replyChannel}:`, flowErr);
+            }
           }
         }
 

@@ -86,7 +86,7 @@ async function getSenderCredentials(channelId?: string) {
   return { actualPhoneId, token: token ?? "", slot };
 }
 
-/** Show official Meta typing indicator on recipient's screen and pause briefly */
+/** Mark incoming message as read */
 async function sendTypingAndDelay(to: string, msgId?: string, channelId?: string) {
   const { actualPhoneId, token } = await getSenderCredentials(channelId);
   if (!token) return;
@@ -100,19 +100,16 @@ async function sendTypingAndDelay(to: string, msgId?: string, channelId?: string
           messaging_product: "whatsapp",
           status: "read",
           message_id: msgId,
-          typing_indicator: { type: "text" },
         }),
       }).catch(() => {});
     }
   } catch {}
-
-  await sleep(1200);
 }
 
 export async function sendMessage(to: string, bodyText: string, channelId?: string, msgId?: string) {
-  const { actualPhoneId, token } = await getSenderCredentials(channelId);
+  const { actualPhoneId, token, slot } = await getSenderCredentials(channelId);
   if (!token) {
-    console.warn(`[wa-flow] Missing token for sender ${actualPhoneId}`);
+    console.error(`[wa-flow] Missing token for sender ${actualPhoneId} (slot ${slot})`);
     return;
   }
 
@@ -136,6 +133,12 @@ export async function sendMessage(to: string, bodyText: string, channelId?: stri
   const json = res ? await res.json().catch(() => null) : null;
   const sentId = json?.messages?.[0]?.id || `bot_${Date.now()}`;
 
+  if (!res || !res.ok) {
+    console.error(`[wa-flow] Meta sendMessage FAILED (${res?.status}):`, JSON.stringify(json));
+  } else {
+    console.log(`[wa-flow] Meta sendMessage SUCCESS (${res.status}): to ${to}, sentId = ${sentId}`);
+  }
+
   // Log outbound message to store for dashboard visibility
   await appendMessage({
     id: sentId,
@@ -155,7 +158,7 @@ export async function sendMessage(to: string, bodyText: string, channelId?: stri
 export async function sendListMessage(
   to: string,
   payload: {
-    header: string;
+    header?: string;
     body: string;
     footer?: string;
     buttonText: string;
@@ -165,9 +168,9 @@ export async function sendListMessage(
   channelId?: string,
   msgId?: string
 ) {
-  const { actualPhoneId, token } = await getSenderCredentials(channelId);
+  const { actualPhoneId, token, slot } = await getSenderCredentials(channelId);
   if (!token) {
-    console.warn(`[wa-flow] Missing token for sender ${actualPhoneId}`);
+    console.error(`[wa-flow] Missing token for sender ${actualPhoneId} (slot ${slot})`);
     return;
   }
 
@@ -195,22 +198,27 @@ export async function sendListMessage(
         },
       ];
 
-  const listPayload = {
+  const listPayload: any = {
     messaging_product: "whatsapp",
     recipient_type: "individual",
     to,
     type: "interactive",
     interactive: {
       type: "list",
-      header: { type: "text", text: cut(payload.header, 60) },
       body: { text: cut(payload.body, 1024) },
-      ...(payload.footer ? { footer: { text: cut(payload.footer, 60) } } : {}),
       action: {
         button: cut(payload.buttonText, 20),
         sections,
       },
     },
   };
+
+  if (payload.header && payload.header.trim()) {
+    listPayload.interactive.header = { type: "text", text: cut(payload.header.trim(), 60) };
+  }
+  if (payload.footer && payload.footer.trim()) {
+    listPayload.interactive.footer = { text: cut(payload.footer.trim(), 60) };
+  }
 
   const res = await fetch(`${GRAPH_URL}/${actualPhoneId}/messages`, {
     method: "POST",
@@ -224,6 +232,17 @@ export async function sendListMessage(
   const json = res ? await res.json().catch(() => null) : null;
   const sentId = json?.messages?.[0]?.id || `bot_list_${Date.now()}`;
 
+  if (!res || !res.ok) {
+    console.error(`[wa-flow] Meta sendListMessage FAILED (${res?.status}):`, JSON.stringify(json), "Falling back to plain text send");
+    // Reliable fallback: send as plain text with options listed
+    const optionsText = sections.flatMap((s) => s.rows.map((r) => `• *${r.title}*${r.description ? ` - ${r.description}` : ""}`)).join("\n");
+    const fallbackText = `${payload.body}\n\n${optionsText}`;
+    await sendMessage(to, fallbackText, channelId, msgId);
+    return;
+  } else {
+    console.log(`[wa-flow] Meta sendListMessage SUCCESS (${res.status}): to ${to}, sentId = ${sentId}`);
+  }
+
   await appendMessage({
     id: sentId,
     from: actualPhoneId,
@@ -235,7 +254,7 @@ export async function sendListMessage(
     body: `📋 ${payload.body}`,
     timestamp: new Date().toISOString(),
     direction: "outbound",
-    status: res?.ok ? "sent" : "failed",
+    status: "sent",
   }).catch(() => {});
 }
 
@@ -250,9 +269,9 @@ export async function sendButtonMessage(
   channelId?: string,
   msgId?: string
 ) {
-  const { actualPhoneId, token } = await getSenderCredentials(channelId);
+  const { actualPhoneId, token, slot } = await getSenderCredentials(channelId);
   if (!token) {
-    console.warn(`[wa-flow] Missing token for sender ${actualPhoneId}`);
+    console.error(`[wa-flow] Missing token for sender ${actualPhoneId} (slot ${slot})`);
     return;
   }
 
@@ -260,16 +279,14 @@ export async function sendButtonMessage(
 
   const cut = (s: string, n: number) => (s.length > n ? s.slice(0, n) : s);
 
-  const buttonPayload = {
+  const buttonPayload: any = {
     messaging_product: "whatsapp",
     recipient_type: "individual",
     to,
     type: "interactive",
     interactive: {
       type: "button",
-      ...(payload.header ? { header: { type: "text", text: cut(payload.header, 60) } } : {}),
       body: { text: cut(payload.body, 1024) },
-      ...(payload.footer ? { footer: { text: cut(payload.footer, 60) } } : {}),
       action: {
         buttons: payload.buttons.slice(0, 3).map((b) => ({
           type: "reply",
@@ -278,6 +295,13 @@ export async function sendButtonMessage(
       },
     },
   };
+
+  if (payload.header && payload.header.trim()) {
+    buttonPayload.interactive.header = { type: "text", text: cut(payload.header.trim(), 60) };
+  }
+  if (payload.footer && payload.footer.trim()) {
+    buttonPayload.interactive.footer = { text: cut(payload.footer.trim(), 60) };
+  }
 
   const res = await fetch(`${GRAPH_URL}/${actualPhoneId}/messages`, {
     method: "POST",
@@ -291,6 +315,15 @@ export async function sendButtonMessage(
   const json = res ? await res.json().catch(() => null) : null;
   const sentId = json?.messages?.[0]?.id || `bot_btn_${Date.now()}`;
 
+  if (!res || !res.ok) {
+    console.error(`[wa-flow] Meta sendButtonMessage FAILED (${res?.status}):`, JSON.stringify(json), "Falling back to plain text send");
+    const btnsText = payload.buttons.map((b) => `👉 *${b.title}*`).join("\n");
+    await sendMessage(to, `${payload.body}\n\n${btnsText}`, channelId, msgId);
+    return;
+  } else {
+    console.log(`[wa-flow] Meta sendButtonMessage SUCCESS (${res.status}): to ${to}, sentId = ${sentId}`);
+  }
+
   await appendMessage({
     id: sentId,
     from: actualPhoneId,
@@ -302,7 +335,7 @@ export async function sendButtonMessage(
     body: `🔘 ${payload.body}`,
     timestamp: new Date().toISOString(),
     direction: "outbound",
-    status: res?.ok ? "sent" : "failed",
+    status: "sent",
   }).catch(() => {});
 }
 
