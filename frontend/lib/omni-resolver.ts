@@ -140,9 +140,177 @@ export function handleButtonClick(choiceId: string, name?: string): TriageResult
           `${greeting}\n\n` +
           `No worries at all! Let's get your access restored.\n\n` +
           `Please reply with your *Full Name* and *Employee/Intern ID*, and our IT desk will verify and send your temporary credentials directly to this chat.`,
+    // Service 1: AI & Automation
+    case "ai":
+    case "ai_automation":
+    case "ai_copilot":
+      return {
+        category: "BUTTON_CLICK",
+        diagnosis: "Client selected AI & Automation.",
+        actionTaken: "Dispatched AI practice overview and timeline selector.",
+        replyText:
+          `${greeting}\n\n` +
+          `*AI & Automation Practice*\n\n` +
+          `We engineer custom AI copilots, enterprise autonomous agents, and RAG knowledge search systems tailored to your business data.\n\n` +
+          `What target timeline are you aiming for to launch your AI solution?`,
         buttons: [
-          { id: "open_webmail", title: "Try Login Again" },
-          { id: "human", title: "Talk to IT Lead" },
+          { id: "time_immediate", title: "< 2 Wks (MVP)" },
+          { id: "time_quarterly", title: "1–3 Months" },
+          { id: "human", title: "Speak to Engineer" },
+        ],
+      };
+
+    // Service 2: Web & Platforms
+    case "web":
+    case "web_new":
+    case "web_migration":
+    case "web_perf":
+      return {
+        category: "BUTTON_CLICK",
+        diagnosis: "Client selected Web & Platforms.",
+        actionTaken: "Dispatched Web practice overview and timeline selector.",
+        replyText:
+          `${greeting}\n\n` +
+          `*Web Platforms & SaaS Engineering*\n\n` +
+          `We build high-performance web platforms, SaaS MVPs, client portals, and resilient backend microservices.\n\n` +
+          `What target delivery timeline are you planning for?`,
+        buttons: [
+          { id: "time_immediate", title: "< 2 Wks (Immediate)" },
+          { id: "time_quarterly", title: "1–3 Months (Full)" },
+          { id: "human", title: "Speak to Engineer" },
+        ],
+      };
+
+    // Service 3: Cybersecurity
+    case "cybersecurity":
+    case "sec_audit":
+    case "sec_incident":
+    case "sec_access":
+      return {
+        category: "BUTTON_CLICK",
+        diagnosis: "Client selected Cybersecurity.",
+        actionTaken: "Dispatched Cybersecurity defense options.",
+        replyText:
+          `${greeting}\n\n` +
+          `*Cybersecurity & Posture Defense*\n\n` +
+          `Our security engineering team conducts penetration audits, incident crisis response, and zero-trust identity architectures.\n\n` +
+          `What is the urgency of your security requirement?`,
+        buttons: [
+          { id: "time_immediate", title: "Urgent Audit" },
+          { id: "human", title: "Talk to Sec Lead" },
+        ],
+      };
+
+    // Service 4: Cloud & DevOps
+    case "cloud":
+    case "cloud_arch":
+    case "cloud_cicd":
+    case "cloud_iac":
+      return {
+        category: "BUTTON_CLICK",
+        diagnosis: "Client selected Cloud & DevOps.",
+        actionTaken: "Dispatched Cloud architecture options.",
+        replyText:
+          `${greeting}\n\n` +
+          `*Cloud Systems & DevOps Engineering*\n\n` +
+          `We design scalable AWS/GCP cloud architectures, automated CI/CD pipelines, and Terraform IaC deployments.\n\n` +
+          `How soon do you need to begin?`,
+        buttons: [
+          { id: "time_immediate", title: "Immediate Kickoff" },
+          { id: "human", title: "Consult Architect" },
+        ],
+      };
+
+    // Service 5: UI/UX & Product Design
+    case "uiux":
+    case "ux_design":
+    case "ux_research":
+    case "ux_proto":
+      return {
+        category: "BUTTON_CLICK",
+        diagnosis: "Client selected UI/UX & Product Design.",
+        actionTaken: "Dispatched design systems overview.",
+        replyText:
+          `${greeting}\n\n` +
+          `*Product Design & UI/UX Systems*\n\n` +
+          `We craft interactive prototypes, design systems, and user journeys that turn visitors into loyal users.\n\n` +
+          `What delivery timeframe are you aiming for?`,
+        buttons: [
+          { id: "time_immediate", title: "Design Sprint" },
+          { id: "human", title: "Speak to Designer" },
+        ],
+      };
+
+    // Service 6: Client Desk
+    case "client_services":
+      return {
+        category: "BUTTON_CLICK",
+        diagnosis: "Client selected Client Account Desk.",
+        actionTaken: "Routed to Client Services.",
+        replyText:
+          `${greeting}\n\n` +
+          `*Client Account Desk*\n\n` +
+          `You are connected with our dedicated Client Services Desk. We assist with active retainers, deliverables, invoices, or portal access.\n\n` +
+          `• *Direct Hotline:* +92 335 6701199 (Mon–Sat, 09:00–18:00 PKT)\n\n` +
+          `Please share your account or contract reference here, and our desk manager will assist you promptly.`,
+        buttons: [
+          { id: "human", title: "Call Manager" },
+          { id: "restart", title: "Main Menu" },
+        ],
+      };
+
+    // Service 7: Careers & Recruitment
+    case "careers":
+      return {
+        category: "BUTTON_CLICK",
+        diagnosis: "User selected Careers.",
+        actionTaken: "Provided careers portal and hiring link.",
+        replyText:
+          `${greeting}\n\n` +
+          `*Engineering Careers at Tauqeer Mustafa Inc*\n\n` +
+          `We actively hire top-tier software engineers, AI researchers, and systems architects.\n\n` +
+          `Explore our open roles and submit your profile at:\n` +
+          `🌐 https://tauqeermustafa.com/careers\n\n` +
+          `Our technical leadership reviews all submissions directly.`,
+        buttons: [
+          { id: "human", title: "Speak to HR" },
+          { id: "restart", title: "Main Menu" },
+        ],
+      };
+
+    // Service 8: Speak to Principal / Lead
+    case "human":
+      return {
+        category: "BUTTON_CLICK",
+        diagnosis: "Direct Principal consultation requested.",
+        actionTaken: "Connected to Engineering Leadership.",
+        replyText:
+          `${greeting}\n\n` +
+          `*Direct Principal Consultation*\n\n` +
+          `You have requested direct consultation with our Lead Engineering & Advisory desk.\n\n` +
+          `• *Direct Hotline:* +92 335 6701199\n` +
+          `• *Operating Hours:* Monday to Saturday, 09:00 to 18:00 (PKT)\n\n` +
+          `Please drop your project summary or question here, and our Principal Engineer will respond directly in this thread!`,
+      };
+
+    // Timeline selection follow-up
+    case "time_immediate":
+    case "time_quarterly":
+      return {
+        category: "BUTTON_CLICK",
+        diagnosis: "Client selected timeline milestone.",
+        actionTaken: "Prompted for project brief and contact info.",
+        replyText:
+          `${greeting}\n\n` +
+          `*Project Scoping Intake*\n\n` +
+          `To help our technical team prepare an accurate architecture scope and delivery estimate, please share:\n\n` +
+          `1. *Company / Project Name*\n` +
+          `2. *Core Objectives / Key Features*\n\n` +
+          `💡 _You can also share a voice brief or paste an existing scope document link._\n\n` +
+          `Our Senior Technical Lead will review your specifications and reply right away!`,
+        buttons: [
+          { id: "human", title: "Speak to Principal" },
+          { id: "restart", title: "Main Menu" },
         ],
       };
 
@@ -164,6 +332,28 @@ export async function resolveStaffOrCustomerQuery(params: {
   const lower = text.toLowerCase();
   const greeting = getHumanGreeting(senderName);
   const extractedEmails = extractEmails(text);
+
+  // 0. If user tapped a service or sent text matching a capability
+  const serviceMatches: Record<string, string> = {
+    "ai & automation": "ai",
+    "custom copilots": "ai",
+    "web & platforms": "web",
+    "cybersecurity": "cybersecurity",
+    "cloud & devops": "cloud",
+    "ui/ux": "uiux",
+    "client desk": "client_services",
+    "client account": "client_services",
+    "careers & internships": "careers",
+    "speak to principal": "human",
+    "talk to a principal": "human",
+  };
+
+  for (const [phrase, key] of Object.entries(serviceMatches)) {
+    if (lower.includes(phrase)) {
+      const matched = handleButtonClick(key, senderName);
+      if (matched) return matched;
+    }
+  }
 
   // 1. Detect Email Delivery / Mailer Daemon failures
   const isEmailBounce =
