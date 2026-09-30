@@ -642,10 +642,11 @@ async function handleTimelineSelection(
 
   await sendMessage(
     to,
-    `Got it! To help us prepare your proposal, please share:\n\n` +
+    `Got it! Turnaround timeline noted. ⚡\n\n` +
+      `Please share a brief note:\n` +
       `1. *Company / Project Name*\n` +
       `2. *What you need built or solved*\n\n` +
-      `Our Lead Engineer will review and reply in this thread!`,
+      `You can type your reply or send a voice note here. Our lead engineer will review and reply with an estimate!`,
     channelId,
     msgId
   );
@@ -988,16 +989,13 @@ export const DEFAULT_STEPS: FlowStep[] = [
     ],
   },
   {
-    kind: "buttons",
+    kind: "text",
     id: "human",
-    header: "Lead Engineering Desk",
     body:
-      "You're connected with our Lead Engineering desk.\n\n" +
-      "• *Direct Phone:* +92 335 6701199 (Mon–Sat, 09:00–18:00 PKT)\n\n" +
-      "Drop your project summary or question here, and our Principal will reply directly in this chat!",
-    buttons: [
-      { id: "hum_back", title: "Main Menu", next: "start" },
-    ],
+      "You're through to Tauqeer Mustafa (Principal Engineer). 👋\n\n" +
+      "I'm right here in this chat! Tell me what you're looking to build or solve.\n\n" +
+      "• *Direct Hotline:* +92 335 6701199 (Mon–Sat, 09:00–18:00 PKT)\n\n" +
+      "Drop your message or send a voice note below, and I'll reply directly!",
   },
   {
     kind: "buttons",
@@ -1015,19 +1013,19 @@ export const DEFAULT_STEPS: FlowStep[] = [
     kind: "text",
     id: "intake",
     body:
-      "Got it! To help us prepare your proposal, please share:\n\n" +
+      "Got it! Turnaround timeline noted. ⚡\n\n" +
+      "Please share a brief note:\n" +
       "1. *Company / Project Name*\n" +
       "2. *What you need built or solved*\n\n" +
-      "Our Lead Engineer will review and reply in this thread!",
+      "You can type your reply or send a voice note here. Our lead engineer will review and reply with an estimate!",
   },
   {
     kind: "text",
     id: "handoff",
     body:
-      "You're connected with our Technical Advisory Desk.\n\n" +
-      "A lead engineer will review your note and reply directly in this thread shortly.\n\n" +
-      "• *Operating Hours:* Monday to Saturday, 09:00 to 18:00 (PKT)\n" +
-      "• *Direct Phone:* +92 335 6701199",
+      "Thanks! Received your briefing.\n\n" +
+      "Our lead engineer is reviewing this and will reply directly in this chat shortly.\n" +
+      "For immediate assistance: +92 335 6701199.",
   },
 ];
 

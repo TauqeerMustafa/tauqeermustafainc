@@ -195,12 +195,10 @@ export function handleButtonClick(choiceId: string, name?: string): TriageResult
         diagnosis: "Direct consultation requested.",
         actionTaken: "Connected to Principal.",
         replyText:
-          `You're connected with our Lead Engineering desk.\n\n` +
-          `• *Direct Phone:* +92 335 6701199 (Mon–Sat, 09:00–18:00 PKT)\n\n` +
-          `Drop your project summary or question here, and our Principal will reply directly in this chat!`,
-        buttons: [
-          { id: "restart", title: "Main Menu" },
-        ],
+          `You're through to Tauqeer Mustafa (Principal Engineer). 👋\n\n` +
+          `I'm right here in this chat! Tell me what you're looking to build or solve.\n\n` +
+          `• *Direct Hotline:* +92 335 6701199 (Mon–Sat, 09:00–18:00 PKT)\n\n` +
+          `Drop your message or send a voice note below, and I'll reply directly!`,
       };
 
     case "time_immediate":
@@ -215,14 +213,11 @@ export function handleButtonClick(choiceId: string, name?: string): TriageResult
         diagnosis: "Timeline selected.",
         actionTaken: "Prompted for project details.",
         replyText:
-          `Got it! To help us prepare your proposal, please share:\n\n` +
+          `Got it! Turnaround timeline noted. ⚡\n\n` +
+          `Please share a brief note:\n` +
           `1. *Company / Project Name*\n` +
           `2. *What you need built or solved*\n\n` +
-          `Our Lead Engineer will review and reply in this thread!`,
-        buttons: [
-          { id: "human", title: "Call Principal" },
-          { id: "restart", title: "Main Menu" },
-        ],
+          `You can type your reply or send a voice note here. Our lead engineer will review and reply with an estimate!`,
       };
 
     case "incident":
@@ -564,21 +559,17 @@ export async function resolveStaffOrCustomerQuery(params: {
     };
   }
 
-  // Default fallback for any other custom text
+  // Default fallback for custom text/briefings
   const reply =
-    `Thanks for your message${shortName}!\n\n` +
-    `Our engineering desk has received your note:\n` +
-    `> "${text.slice(0, 100)}${text.length > 100 ? "..." : ""}"\n\n` +
-    `We'll reply directly in this thread shortly. For urgent matters, call +92 335 6701199.`;
+    `Thanks${shortName}! Received your note:\n` +
+    `> "${text.slice(0, 120)}${text.length > 120 ? "..." : ""}"\n\n` +
+    `Our lead engineer is reviewing this and will reply directly in this chat shortly.\n` +
+    `For immediate assistance: +92 335 6701199.`;
 
   return {
     category: "GENERAL_SUPPORT",
     diagnosis: "General inquiry.",
     actionTaken: "Sent direct acknowledgement.",
     replyText: reply,
-    buttons: [
-      { id: "human", title: "Call Lead" },
-      { id: "restart", title: "Main Menu" },
-    ],
   };
 }
