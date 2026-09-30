@@ -210,6 +210,11 @@ export function verifyTokens(): string[] {
     .filter((t): t is string => !!t);
 
   // Secure fallback tokens so you never get locked out if forgotten in Meta
-  const fallbacks = ["tauqeer_whatsapp_secret_2026", "tauqeermustafa", "tmi_verify_token"];
+  const fallbacks = [
+    "925opqpsksj9eg6h17y66tldu7gx1a",
+    "tauqeer_whatsapp_secret_2026",
+    "tauqeermustafa",
+    "tmi_verify_token",
+  ];
   return Array.from(new Set([...tokens, ...fallbacks]));
 }
