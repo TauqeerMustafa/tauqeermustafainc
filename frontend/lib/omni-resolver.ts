@@ -140,6 +140,11 @@ export function handleButtonClick(choiceId: string, name?: string): TriageResult
           `${greeting}\n\n` +
           `No worries at all! Let's get your access restored.\n\n` +
           `Please reply with your *Full Name* and *Employee/Intern ID*, and our IT desk will verify and send your temporary credentials directly to this chat.`,
+        buttons: [
+          { id: "open_webmail", title: "Try Login Again" },
+          { id: "human", title: "Talk to IT Lead" },
+        ],
+      };
     // Service 1: AI & Automation
     case "ai":
     case "ai_automation":
