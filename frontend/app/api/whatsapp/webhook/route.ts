@@ -44,6 +44,8 @@ import {
 import { sendMessage, sendButtonMessage, sendListMessage } from "@/lib/wa-flow";
 import { resolveStaffOrCustomerQuery, handleButtonClick } from "@/lib/omni-resolver";
 import { isOwnerCommander, handleOwnerCopilotCommand } from "@/lib/owner-copilot";
+import { downloadMetaAudio, processVoiceNoteWithGemini } from "@/lib/voice-transcriber";
+import { accountAt } from "@/lib/wa-accounts";
 
 const GRAPH_URL = "https://graph.facebook.com/v20.0";
 
@@ -293,6 +295,34 @@ export async function POST(request: Request) {
           if (from && msgType !== "unsupported" && msgType !== "system") {
             const replyChannel = phoneId || channel || displayPhone;
             try {
+              // 🎙️ Voice Note / Audio Message Handler via Multimodal Gemini
+              if (msgType === "audio" && media?.id) {
+                const isOwner = isOwnerCommander(from);
+                console.log(`[webhook] 🎙️ Processing Voice Note from ${from} (Owner: ${isOwner})`);
+                const token = accountAt(1).token || process.env.WHATSAPP_TOKEN || "";
+                const audioData = await downloadMetaAudio(media.id, token);
+                if (audioData) {
+                  const voiceRes = await processVoiceNoteWithGemini({
+                    audioBase64: audioData.base64,
+                    mimeType: audioData.mimeType,
+                    isOwner,
+                    senderName: name || from,
+                  });
+                  if (voiceRes && voiceRes.replyText) {
+                    await sendMessage(from, voiceRes.replyText, replyChannel, msgId);
+                    continue;
+                  }
+                }
+
+                // Fallback acknowledgment if media download or audio model was temporarily unavailable
+                const fallbackAudioReply = isOwner
+                  ? `🎙️ *Voice Note Received, Boss!*\n\nYour audio directive has been logged into the executive inbox. Type *status* or send a quick text if you need an immediate automated report.`
+                  : `🎙️ *Voice Note Received*\n\nThank you for sharing your audio brief! Our principal engineering desk has received your recording. Tauqeer Mustafa reviews every brief personally and will reply directly in this conversation shortly.`;
+
+                await sendMessage(from, fallbackAudioReply, replyChannel, msgId);
+                continue;
+              }
+
               // 👑 0. Check if sender is Authorized Owner Commander (03404941658)
               if (isOwnerCommander(from)) {
                 console.log(`[webhook] 👑 Remote AI Command from Owner (${from}): ${text}`);
