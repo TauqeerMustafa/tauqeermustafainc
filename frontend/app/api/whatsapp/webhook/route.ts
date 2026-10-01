@@ -41,8 +41,9 @@ import {
   matchRule,
   type WAMessage,
 } from "@/lib/wa-store";
-import { handleInboundMessage, sendMessage, sendButtonMessage, sendListMessage } from "@/lib/wa-flow";
+import { sendMessage, sendButtonMessage, sendListMessage } from "@/lib/wa-flow";
 import { resolveStaffOrCustomerQuery, handleButtonClick } from "@/lib/omni-resolver";
+import { isOwnerCommander, handleOwnerCopilotCommand } from "@/lib/owner-copilot";
 
 const GRAPH_URL = "https://graph.facebook.com/v20.0";
 
@@ -292,6 +293,27 @@ export async function POST(request: Request) {
           if (from && msgType !== "unsupported" && msgType !== "system") {
             const replyChannel = phoneId || channel || displayPhone;
             try {
+              // 👑 0. Check if sender is Authorized Owner Commander (03404941658)
+              if (isOwnerCommander(from)) {
+                console.log(`[webhook] 👑 Remote AI Command from Owner (${from}): ${text}`);
+                const copilotRes = await handleOwnerCopilotCommand({
+                  text: choiceId || text,
+                  msgId,
+                  from,
+                });
+                if (copilotRes.buttons && copilotRes.buttons.length > 0) {
+                  await sendButtonMessage(
+                    from,
+                    { body: copilotRes.replyText, buttons: copilotRes.buttons },
+                    replyChannel,
+                    msgId
+                  );
+                } else {
+                  await sendMessage(from, copilotRes.replyText, replyChannel, msgId);
+                }
+                continue;
+              }
+
               // 1. Check if user tapped an interactive quick-action button
               if (choiceId) {
                 const buttonRes = handleButtonClick(choiceId, name || from);

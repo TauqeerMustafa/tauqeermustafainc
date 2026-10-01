@@ -345,7 +345,7 @@ export const DEFAULT_GENERAL_RULES: AutoReplyRule[] = [
     department: "general",
     reply:
       "• *Operating Hours:* Monday–Saturday, 09:00–18:00 PKT\n" +
-      "• *Urgent / Outages:* Available 24/7 at +92 335 6701199",
+      "• Our lead engineering team monitors urgent inquiries round the clock right here.",
     enabled: true,
   },
   {
@@ -354,11 +354,11 @@ export const DEFAULT_GENERAL_RULES: AutoReplyRule[] = [
     mode: "contains",
     department: "general",
     reply:
-      "Here is how to reach us directly:\n\n" +
-      "• *Phone / WhatsApp:* +92 335 6701199\n" +
+      "Here is how to reach our leadership directly:\n\n" +
+      "• *WhatsApp:* Chat directly right here in this thread\n" +
       "• *Email:* contact@tauqeermustafa.com\n" +
-      "• *Hours:* Mon–Sat, 09:00–18:00 PKT\n\n" +
-      "Drop your note here and our Principal will reply directly!",
+      "• *Executive Hours:* Mon–Sat, 09:00–18:00 PKT\n\n" +
+      "Drop your project brief or inquiry here and our Principal will reply directly!",
     enabled: true,
   },
   {
@@ -378,10 +378,9 @@ export const DEFAULT_GENERAL_RULES: AutoReplyRule[] = [
     mode: "contains",
     department: "general",
     reply:
-      "🚨 *High Priority Alert Flagged*\n\n" +
-      "Our on-call incident team has been notified.\n\n" +
-      "• *24/7 Hotline:* +92 335 6701199\n\n" +
-      "Please share your affected website/domain and current error symptoms.",
+      "🚨 *Priority Alert Flagged*\n\n" +
+      "Our on-call engineering team has been notified immediately.\n\n" +
+      "Please share your affected website/domain and current error symptoms right here in this chat.",
     enabled: true,
   },
   {
@@ -411,8 +410,8 @@ export const DEFAULT_SUPPORT_RULES: AutoReplyRule[] = [
     department: "support",
     reply:
       "🚨 *Incident Response Activated*\n\n" +
-      "Our incident commander is responding. For emergency phone bridge call *+92 335 6701199*.\n" +
-      "Please state affected URL and error code.",
+      "Our incident commander is responding directly in this channel.\n" +
+      "Please state your affected URL and error code.",
     enabled: true,
   },
   {
@@ -433,8 +432,8 @@ export const DEFAULT_SUPPORT_RULES: AutoReplyRule[] = [
     mode: "contains",
     department: "support",
     reply:
-      "Direct 24/7 Emergency Bridge: *+92 335 6701199*\n\n" +
-      "Available 24/7 for active clients experiencing system outages.",
+      "Direct Emergency Support Desk:\n\n" +
+      "Available 24/7 for active clients experiencing system outages. Drop your incident details right here for immediate triage.",
     enabled: true,
   },
   {

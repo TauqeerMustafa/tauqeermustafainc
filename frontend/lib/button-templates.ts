@@ -85,8 +85,7 @@ export const BUTTON_TEMPLATES: ButtonTemplate[] = [
     header: "Emergency Incident Triage",
     body:
       "Our on-call incident response team is standing by to assist with active outages, data breaches, or suspicious infrastructure activity.\n\n" +
-      "• *Direct Hotline:* +92 335 6701199\n" +
-      "• Please reply with affected endpoints or symptoms.",
+      "• Please reply with your affected endpoints or incident symptoms right here.",
     footer: "24/7 Rapid Emergency Response",
     buttons: ["System Outage", "Security Breach", "Speak with Lead"],
   },

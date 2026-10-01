@@ -939,12 +939,11 @@ export const DEFAULT_STEPS: FlowStep[] = [
     id: "incident",
     header: "Emergency Incident Alert",
     body:
-      "🚨 *Emergency Alert Received*\n\n" +
-      "Our on-call incident team has been alerted.\n\n" +
-      "• *Direct 24/7 Hotline:* +92 335 6701199\n\n" +
-      "Please share your affected website/IP and symptoms below:",
+      "🚨 *Priority Incident Logged*\n\n" +
+      "Our on-call engineering team has been alerted immediately.\n\n" +
+      "Please share your affected website/IP and incident symptoms right here:",
     buttons: [
-      { id: "inc_call", title: "Call Hotline", next: "human" },
+      { id: "inc_call", title: "Message Lead", next: "human" },
       { id: "hum_back", title: "Main Menu", next: "start" },
     ],
   },
@@ -967,8 +966,7 @@ export const DEFAULT_STEPS: FlowStep[] = [
     header: "Client Account Desk",
     body:
       "Welcome to our Client Desk! We assist with active retainers, deliverables, and invoices.\n\n" +
-      "• *Hotline:* +92 335 6701199\n\n" +
-      "Drop your company name or project details here and we'll help you right away.",
+      "Drop your company name or project details right here and our desk will pull up your records to help immediately.",
     buttons: [
       { id: "human", title: "Speak to Manager", next: "human" },
       { id: "hum_back", title: "Main Menu", next: "start" },
@@ -992,10 +990,9 @@ export const DEFAULT_STEPS: FlowStep[] = [
     kind: "text",
     id: "human",
     body:
-      "You're through to Tauqeer Mustafa (Principal Engineer). 👋\n\n" +
-      "I'm right here in this chat! Tell me what you're looking to build or solve.\n\n" +
-      "• *Direct Hotline:* +92 335 6701199 (Mon–Sat, 09:00–18:00 PKT)\n\n" +
-      "Drop your message or send a voice note below, and I'll reply directly!",
+      "You're through to Tauqeer Mustafa's direct engineering desk. 👋\n\n" +
+      "Please share your project vision, scope, or drop a voice note right here in this chat.\n\n" +
+      "Every brief is reviewed with care, and our principal will reply directly to you right here!",
   },
   {
     kind: "buttons",
@@ -1024,8 +1021,7 @@ export const DEFAULT_STEPS: FlowStep[] = [
     id: "handoff",
     body:
       "Thanks! Received your briefing.\n\n" +
-      "Our lead engineer is reviewing this and will reply directly in this chat shortly.\n" +
-      "For immediate assistance: +92 335 6701199.",
+      "Our lead engineering team reviews every brief directly and will reply in this chat shortly.",
   },
 ];
 

@@ -161,8 +161,7 @@ export function handleButtonClick(choiceId: string, name?: string): TriageResult
         actionTaken: "Connected to Client Desk.",
         replyText:
           `Welcome to our Client Desk! We assist with active contracts, invoices, and portal access.\n\n` +
-          `• *Hotline:* +92 335 6701199\n\n` +
-          `Drop your company name or contract details here and we'll help you right away.`,
+          `Drop your company name or contract details right here and our desk will pull up your records to help immediately.`,
         buttons: [
           { id: "human", title: "Speak to Manager" },
           { id: "restart", title: "Main Menu" },
@@ -195,10 +194,9 @@ export function handleButtonClick(choiceId: string, name?: string): TriageResult
         diagnosis: "Direct consultation requested.",
         actionTaken: "Connected to Principal.",
         replyText:
-          `You're through to Tauqeer Mustafa (Principal Engineer). 👋\n\n` +
-          `I'm right here in this chat! Tell me what you're looking to build or solve.\n\n` +
-          `• *Direct Hotline:* +92 335 6701199 (Mon–Sat, 09:00–18:00 PKT)\n\n` +
-          `Drop your message or send a voice note below, and I'll reply directly!`,
+          `You're through to Tauqeer Mustafa's direct engineering desk. 👋\n\n` +
+          `Please share your project vision, scope, or drop a voice note right here in this chat.\n\n` +
+          `Every brief is reviewed with care, and our principal will reply directly to you right here!`,
       };
 
     case "time_immediate":
@@ -230,12 +228,11 @@ export function handleButtonClick(choiceId: string, name?: string): TriageResult
         diagnosis: "Emergency incident alert.",
         actionTaken: "Dispatched emergency contact instructions.",
         replyText:
-          `🚨 *Emergency Alert Received*\n\n` +
-          `Our on-call incident team has been alerted.\n\n` +
-          `• *Direct 24/7 Hotline:* +92 335 6701199\n\n` +
-          `Please share your affected website/IP and symptoms below:`,
+          `🚨 *Priority Incident Logged*\n\n` +
+          `Our on-call engineering team has been alerted immediately.\n\n` +
+          `Please reply with your affected service/URL, IP address, and incident symptoms right here:`,
         buttons: [
-          { id: "human", title: "Call Hotline" },
+          { id: "human", title: "Message Lead" },
           { id: "restart", title: "Main Menu" },
         ],
       };
@@ -495,7 +492,6 @@ export async function resolveStaffOrCustomerQuery(params: {
       `Hello ${senderName || "there"}!\n\n` +
       `Thanks for reaching out to *Tauqeer Mustafa Inc* regarding *${serviceRequested}*.\n\n` +
       `We've received your note and our technical team is reviewing it. We'll reply within 2 business hours.\n\n` +
-      `• *Hotline:* +92 335 6701199 (Mon–Sat, 09:00–18:00 PKT)\n\n` +
       `Best regards,\n` +
       `*Tauqeer Mustafa Inc*`;
 
@@ -563,8 +559,7 @@ export async function resolveStaffOrCustomerQuery(params: {
   const reply =
     `Thanks${shortName}! Received your note:\n` +
     `> "${text.slice(0, 120)}${text.length > 120 ? "..." : ""}"\n\n` +
-    `Our lead engineer is reviewing this and will reply directly in this chat shortly.\n` +
-    `For immediate assistance: +92 335 6701199.`;
+    `Our lead engineering team reviews every brief directly and will reply in this chat shortly.`;
 
   return {
     category: "GENERAL_SUPPORT",
