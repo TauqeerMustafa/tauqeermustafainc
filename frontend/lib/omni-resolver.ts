@@ -372,16 +372,21 @@ export async function resolveStaffOrCustomerQuery(params: {
     }
   }
 
-  // 1. Detect Email Delivery / Mailer Daemon failures
+  // Check for explicit staff/intern requests
+  const isExplicitStaff =
+    lower.startsWith("/staff") ||
+    lower.startsWith("staff:") ||
+    lower.startsWith("/task") ||
+    lower.includes("intern quota") ||
+    lower.includes("b2b sheet") ||
+    lower.includes("webmail login") ||
+    lower.includes("daily quota");
+
+  // 1. Detect Email Delivery / Mailer Daemon failures (Explicit staff only)
   const isEmailBounce =
-    lower.includes("error occurs") ||
-    lower.includes("delivery status") ||
-    lower.includes("permanently rejected") ||
     lower.includes("mailer-daemon") ||
-    lower.includes("bounced") ||
-    lower.includes("mail not sending") ||
-    lower.includes("destination server") ||
-    (extractedEmails.length > 0 && (lower.includes("sent") || lower.includes("failed") || lower.includes("last two")));
+    lower.includes("delivery status notification") ||
+    (isExplicitStaff && (lower.includes("bounced") || lower.includes("mail not sending") || lower.includes("failed")));
 
   if (isEmailBounce) {
     let mxChecks: Record<string, { valid: boolean; exchange?: string; error?: string }> = {};
@@ -427,14 +432,10 @@ export async function resolveStaffOrCustomerQuery(params: {
     };
   }
 
-  // 2. Credentials & Login Support
+  // 2. Credentials & Login Support (Explicit staff webmail only)
   const isCredentialIssue =
-    lower.includes("password") ||
-    lower.includes("login") ||
-    lower.includes("credentials") ||
-    lower.includes("access") ||
-    lower.includes("portal") ||
-    lower.includes("sign in");
+    lower.includes("webmail.tauqeermustafa") ||
+    (isExplicitStaff && (lower.includes("password") || lower.includes("credentials") || lower.includes("webmail") || lower.includes("login")));
 
   if (isCredentialIssue) {
     const reply =
@@ -456,15 +457,10 @@ export async function resolveStaffOrCustomerQuery(params: {
     };
   }
 
-  // 3. Task Management & B2B Progress
+  // 3. Task Management & B2B Progress (Explicit staff only)
   const isTaskIssue =
-    lower.includes("task") ||
-    lower.includes("b2b") ||
-    lower.includes("progress") ||
-    lower.includes("assignment") ||
-    lower.includes("submission") ||
-    lower.includes("week 1") ||
-    lower.includes("week 2");
+    lower.startsWith("/task") ||
+    (isExplicitStaff && (lower.includes("task") || lower.includes("quota") || lower.includes("assignment") || lower.includes("submission")));
 
   if (isTaskIssue) {
     const reply =
@@ -504,19 +500,18 @@ export async function resolveStaffOrCustomerQuery(params: {
     };
   }
 
-  // 5. Explicit Greeting / Initial Visitor Contact
+  // 5. Explicit Greeting / Initial Visitor Contact (Exact matches only)
   const isGreeting =
     lower === "hi" ||
     lower === "hello" ||
     lower === "hey" ||
     lower === "salam" ||
+    lower === "aoa" ||
+    lower === "assalam o alaikum" ||
     lower === "menu" ||
     lower === "start" ||
     lower === "options" ||
-    lower === "help" ||
-    lower.startsWith("hi ") ||
-    lower.startsWith("hello ") ||
-    lower.startsWith("hey ");
+    lower === "help";
 
   if (isGreeting) {
     const reply =

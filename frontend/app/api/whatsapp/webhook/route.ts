@@ -41,7 +41,7 @@ import {
   matchRule,
   type WAMessage,
 } from "@/lib/wa-store";
-import { sendMessage, sendButtonMessage, sendListMessage } from "@/lib/wa-flow";
+import { sendMessage, sendButtonMessage, sendListMessage, getSenderCredentials } from "@/lib/wa-flow";
 import { resolveStaffOrCustomerQuery, handleButtonClick } from "@/lib/omni-resolver";
 import { isOwnerCommander, handleOwnerCopilotCommand } from "@/lib/owner-copilot";
 import { downloadMetaAudio, processVoiceNoteWithGemini } from "@/lib/voice-transcriber";
@@ -299,7 +299,8 @@ export async function POST(request: Request) {
               if (msgType === "audio" && media?.id) {
                 const isOwner = isOwnerCommander(from);
                 console.log(`[webhook] 🎙️ Processing Voice Note from ${from} (Owner: ${isOwner})`);
-                const token = accountAt(1).token || process.env.WHATSAPP_TOKEN || "";
+                const creds = await getSenderCredentials(replyChannel);
+                const token = creds.token || accountAt(1).token || process.env.WHATSAPP_TOKEN || "";
                 const audioData = await downloadMetaAudio(media.id, token);
                 if (audioData) {
                   const voiceRes = await processVoiceNoteWithGemini({
@@ -417,7 +418,21 @@ export async function POST(request: Request) {
                 continue;
               }
 
-              // 3. Check custom keyword auto-reply rules (pricing, hours, hotline, etc.)
+              // 3. 🤖 Generative AI Technical Consultation (Deep, Professional, Model-First)
+              // "Dont bind always use best model to provide ans"
+              try {
+                const { generateProfessionalClientReply } = await import("@/lib/owner-copilot");
+                const aiReply = await generateProfessionalClientReply(text, name || from);
+                if (aiReply && aiReply.trim()) {
+                  console.log(`[webhook] 🤖 Generative AI Consultation Dispatched to ${from}`);
+                  await sendMessage(from, aiReply.trim(), replyChannel, msgId);
+                  continue;
+                }
+              } catch (aiErr) {
+                console.error(`[webhook] Generative AI consultation failed, falling back to rules:`, aiErr);
+              }
+
+              // 4. Check custom keyword auto-reply rules (if AI was unavailable or for exact keywords)
               const rules = await getRules(dept);
               const matched = matchRule(rules, text);
               if (matched && matched.enabled) {
@@ -425,7 +440,7 @@ export async function POST(request: Request) {
                 continue;
               }
 
-              // 4. Clean humanized fallback with action buttons
+              // 5. Clean humanized fallback with action buttons
               const fallbackAnalysis = await resolveStaffOrCustomerQuery({
                 text,
                 senderName: name || from,

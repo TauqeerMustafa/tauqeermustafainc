@@ -56,10 +56,9 @@ const DEFAULT_GEMINI_KEY =
   process.env.GEMINI_API_KEY ||
   Buffer.from("QVEuQWI4Uk42SjZYcmhCNlo2OFBWcmlNOVJzR3AySnRCUUh2eUN6a0pOWkg4Y1NJRnJtT0E=", "base64").toString("utf-8");
 const GEMINI_MODELS = [
-  "gemini-3.5-flash",
+  "gemini-3.5-flash-lite",
   "gemini-3-flash-preview",
-  "gemini-3.1-pro-preview",
-  "gemini-3.8-flash",
+  "gemini-3.5-flash",
 ];
 
 /**
@@ -78,6 +77,7 @@ export async function callGenerativeAI(
         const res = await fetch(url, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
+          signal: AbortSignal.timeout(6000),
           body: JSON.stringify({
             systemInstruction: { parts: [{ text: systemInstruction }] },
             contents: [{ role: "user", parts: [{ text: prompt }] }],
@@ -106,6 +106,7 @@ export async function callGenerativeAI(
           "Content-Type": "application/json",
           Authorization: `Bearer ${openaiKey}`,
         },
+        signal: AbortSignal.timeout(6000),
         body: JSON.stringify({
           model: "gpt-4o-mini",
           messages: [
@@ -139,8 +140,8 @@ export async function generateProfessionalClientReply(
     `Respond to the client's inquiry${name} with unmatched technical authority, warmth, and prestigious executive professionalism.\n` +
     `Rules:\n` +
     `1. NEVER provide personal phone numbers or direct hotline numbers under any circumstances.\n` +
-    `2. Give a clear, high-level technical overview of how we architect and solve their exact requirement in 2-3 concise paragraphs.\n` +
-    `3. Conclude by inviting them to share any timeline or budget targets, or drop a quick voice note right here in this chat.\n` +
+    `2. Address their EXACT question or project requirement thoroughly. If they ask about features, architecture, integrations, timeline, or tech stack, provide a concrete, high-IQ architectural overview in 2-3 focused paragraphs.\n` +
+    `3. Conclude by inviting them to share their timeline targets, system requirements, or drop a quick voice note right here in this chat.\n` +
     `4. Remind them that Principal Engineer Tauqeer Mustafa personally reviews every client brief and will reply directly in this conversation.\n` +
     `5. Format cleanly using WhatsApp markdown (*bold*, bullet points).`;
 
@@ -226,7 +227,7 @@ export async function handleOwnerCopilotCommand(params: {
         `• *Backend Engine:* ${backendStatus}\n` +
         `• *WhatsApp Inbox:* ${messages.length} total stored\n` +
         `• *Client Inquiries:* ${clientMessages.length} received (${uniqueClients} unique clients)\n` +
-        `• *Active Lines:* Line 1 (PK · +92 335 6701199), Line 2 (UK) Active\n` +
+        `• *Active Lines:* Line 1 (PK Primary), Line 2 (UK) Active\n` +
         `• *Team Quotas:* B2B target 30–50 verified outreaches daily\n` +
         `───────────────────────────\n` +
         `All systems operational. Type *leads* to view recent client messages.`,

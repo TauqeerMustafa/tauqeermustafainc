@@ -13,10 +13,9 @@ const DEFAULT_GEMINI_KEY =
   Buffer.from("QVEuQWI4Uk42SjZYcmhCNlo2OFBWcmlNOVJzR3AySnRCUUh2eUN6a0pOWkg4Y1NJRnJtT0E=", "base64").toString("utf-8");
 
 const GEMINI_MODELS = [
-  "gemini-3.5-flash",
+  "gemini-3.5-flash-lite",
   "gemini-3-flash-preview",
-  "gemini-3.1-pro-preview",
-  "gemini-3.8-flash",
+  "gemini-3.5-flash",
 ];
 
 /**
@@ -95,6 +94,7 @@ export async function processVoiceNoteWithGemini(params: {
       const res = await fetch(url, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        signal: AbortSignal.timeout(8000),
         body: JSON.stringify({
           systemInstruction: { parts: [{ text: systemInstruction }] },
           contents: [

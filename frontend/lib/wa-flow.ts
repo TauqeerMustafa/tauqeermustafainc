@@ -17,7 +17,6 @@ const GRAPH_URL = "https://graph.facebook.com/v20.0";
 const COMPANY_NAME = "Tauqeer Mustafa Inc";
 const WEBSITE = "https://tauqeermustafa.com";
 const HOURS = "Monday to Saturday, 09:00 to 18:00 (PKT)";
-const HOTLINE = "+92 335 6701199";
 const REP_QUEUE_CHANNEL = process.env.REP_QUEUE_CHANNEL ?? "#leads-inbound";
 
 // ---------- Service catalogue (mirrors tauqeermustafa.com/services) ----------
@@ -76,7 +75,7 @@ export const SERVICES: Record<
 
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
-async function getSenderCredentials(channelId?: string) {
+export async function getSenderCredentials(channelId?: string) {
   const resolved = resolveNumberId(channelId);
   const actualPhoneId = resolved.ok ? resolved.id : (primaryNumberId() || DEFAULT_PK_ID);
   const numberDef = waNumbers().find((n) => n.id === actualPhoneId || n.id === channelId);
@@ -392,8 +391,7 @@ export async function handleInboundMessage(
       await sendMessage(
         from,
         `Welcome to our Client Desk!\n\n` +
-          `Drop your company name or project details here, and a team lead will help you with your retainer, invoice, or portal access right away.\n\n` +
-          `• *Hotline:* ${HOTLINE}`,
+          `Drop your company name or project details here, and our principal team will assist you with your retainer, deliverables, or portal access right away in this chat.`,
         channelId,
         msgId
       );
@@ -503,8 +501,7 @@ async function handleMenuSelection(
     await sendMessage(
       to,
       `Welcome to our Client Desk!\n\n` +
-        `Drop your company name or project details here, and a team lead will help you with your retainer, invoice, or portal access right away.\n\n` +
-        `• *Hotline:* ${HOTLINE}`,
+        `Drop your company name or project details here, and our principal team will assist you with your retainer, deliverables, or portal access right away in this chat.`,
       channelId,
       msgId
     );
@@ -551,7 +548,7 @@ async function sendScopeOptions(to: string, session: Session, channelId?: string
     await sendMessage(
       to,
       `🚨 *Active Threat or Outage?*\n` +
-        `Reply *urgent* immediately or call our 24/7 hotline directly: ${HOTLINE}.`,
+        `Reply *urgent* immediately with your affected domain or IP for priority triage.`,
       channelId,
       msgId
     );
@@ -682,8 +679,8 @@ async function escalateToEmergency(to: string, channelId?: string, msgId?: strin
   await sendMessage(
     to,
     `🚨 *Emergency Alert*\n\n` +
-      `Our on-call incident team has been alerted.\n\n` +
-      `• *Direct 24/7 Hotline:* ${HOTLINE}\n\n` +
+      `Our on-call incident team has been alerted immediately.\n\n` +
+      `• *Status:* Priority incident triage active in this conversation\n\n` +
       `Please share your affected website/IP and symptoms below:`,
     channelId,
     msgId
@@ -712,9 +709,9 @@ async function escalateToHuman(
   await sendMessage(
     to,
     `You're connected with our Technical Advisory Desk.\n\n` +
-      `A lead engineer will review your note and reply directly in this thread shortly.\n\n` +
+      `Our principal engineering team will review your requirements and reply directly in this thread shortly.\n\n` +
       `• *Operating Hours:* ${HOURS}\n` +
-      `• *Direct Phone:* ${HOTLINE}`,
+      `• *Direct Desk:* Priority response active in this chat`,
     channelId,
     msgId
   );
