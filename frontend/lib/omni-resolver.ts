@@ -1,5 +1,6 @@
 import dns from "node:dns";
 import dnsPromises from "node:dns/promises";
+import { generateProfessionalClientReply } from "@/lib/owner-copilot";
 
 // Configure reliable public DNS resolvers
 try {
@@ -555,11 +556,24 @@ export async function resolveStaffOrCustomerQuery(params: {
     };
   }
 
+  // 6. Intelligent Generative AI Client Response (Deep, Professional & Prestigious)
+  try {
+    const aiResponse = await generateProfessionalClientReply(text, senderName);
+    if (aiResponse && aiResponse.trim()) {
+      return {
+        category: "GENERAL_SUPPORT",
+        diagnosis: "Generative AI technical consultation dispatched.",
+        actionTaken: "Generated authoritative senior architect response via Gemini.",
+        replyText: aiResponse.trim(),
+      };
+    }
+  } catch {}
+
   // Default fallback for custom text/briefings
   const reply =
-    `Thanks${shortName}! Received your note:\n` +
+    `Thanks${shortName}! Received your briefing:\n` +
     `> "${text.slice(0, 120)}${text.length > 120 ? "..." : ""}"\n\n` +
-    `Our lead engineering team reviews every brief directly and will reply in this chat shortly.`;
+    `Our principal engineering team reviews every brief directly and will reply in this chat shortly.`;
 
   return {
     category: "GENERAL_SUPPORT",
