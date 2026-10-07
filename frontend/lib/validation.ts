@@ -11,6 +11,8 @@ export const contactSchema = z.object({
     .max(100, "Company name is too long.")
     .optional(),
 
+  department: z.string().optional(),
+
   jobTitle: z.string().max(100, "Job title is too long.").optional(),
   country: z.string().optional(),
   timeline: z.string().optional(),

@@ -182,6 +182,8 @@ function cleanDigits(s?: string | null): string {
  */
 function messageDirectlyMatchesNumber(m: WAMessage, numberInfo: WANumberInfo): boolean {
   const line = identifyMessageLine(m);
+  const targetLine = identifyMessageLine({ channel: numberInfo.id, to: numberInfo.displayNumber || numberInfo.id, direction: "inbound" });
+  if (line.lineKey === targetLine.lineKey || line.canonicalId === targetLine.canonicalId) return true;
   if (numberInfo.slot && `line${numberInfo.slot}` === line.lineKey) return true;
   if (numberInfo.id === line.canonicalId) return true;
 

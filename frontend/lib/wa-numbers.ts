@@ -153,17 +153,12 @@ function build(): WANumber[] {
   const explicit = clean(process.env.WHATSAPP_PHONE_NUMBERS);
   if (explicit) return dedupe(parseExplicitList(explicit));
 
-  const line1Id = clean(process.env.WHATSAPP_PHONE_NUMBER_ID) || DEFAULT_PK_ID;
-  const line2Id = clean(process.env.WHATSAPP_PHONE_NUMBER_ID_2) || DEFAULT_SL_ID;
-  const line3Id = clean(process.env.WHATSAPP_PHONE_NUMBER_ID_3) || DEFAULT_NL_PRIMARY_ID;
-  const line4Id = clean(process.env.WHATSAPP_PHONE_NUMBER_ID_4) || DEFAULT_NL_SECONDARY_ID;
-  const line5Id = clean(process.env.WHATSAPP_PHONE_NUMBER_ID_5) || DEFAULT_US_PRIMARY_ID;
-  const line6Id = clean(process.env.WHATSAPP_PHONE_NUMBER_ID_6) || DEFAULT_US_SECONDARY_ID;
-  const line7Id = clean(process.env.WHATSAPP_PHONE_NUMBER_ID_7) || DEFAULT_LINE7_ID;
+  const primaryEnvId = clean(process.env.WHATSAPP_PHONE_NUMBER_ID);
 
-  const numbers: WANumber[] = [
+  // All 7 canonical international lines always active
+  const canonicalLines: WANumber[] = [
     {
-      id: line1Id,
+      id: primaryEnvId || DEFAULT_PK_ID,
       label: clean(process.env.WHATSAPP_PHONE_LABEL) || "Line 1 (PK)",
       primary: true,
       slot: 1,
@@ -171,47 +166,47 @@ function build(): WANumber[] {
       displayNumber: clean(process.env.WHATSAPP_DISPLAY_NUMBER) || "+92 335 6701199",
     },
     {
-      id: line2Id,
-      label: clean(process.env.WHATSAPP_PHONE_LABEL_2) || "Line 2 (SL)",
+      id: DEFAULT_SL_ID,
+      label: clean(process.env.WHATSAPP_PHONE_LABEL_SL) || "Line 2 (SL)",
       primary: false,
       slot: 2,
       department: "general",
-      displayNumber: clean(process.env.WHATSAPP_DISPLAY_NUMBER_2) || "+386 65 743 712",
+      displayNumber: clean(process.env.WHATSAPP_DISPLAY_NUMBER_SL) || "+386 65 743 712",
     },
     {
-      id: line3Id,
-      label: clean(process.env.WHATSAPP_PHONE_LABEL_3) || "Line 3 (NL 1)",
+      id: DEFAULT_NL_PRIMARY_ID,
+      label: clean(process.env.WHATSAPP_PHONE_LABEL_NL1) || "Line 3 (NL 1)",
       primary: false,
       slot: 3,
       department: "general",
-      displayNumber: clean(process.env.WHATSAPP_DISPLAY_NUMBER_3) || "+31 97058026144",
+      displayNumber: clean(process.env.WHATSAPP_DISPLAY_NUMBER_NL1) || "+31 97058026144",
     },
     {
-      id: line4Id,
-      label: clean(process.env.WHATSAPP_PHONE_LABEL_4) || "Line 4 (NL 2)",
+      id: DEFAULT_NL_SECONDARY_ID,
+      label: clean(process.env.WHATSAPP_PHONE_LABEL_NL2) || "Line 4 (NL 2)",
       primary: false,
       slot: 4,
       department: "general",
-      displayNumber: clean(process.env.WHATSAPP_DISPLAY_NUMBER_4) || "+31 97058026143",
+      displayNumber: clean(process.env.WHATSAPP_DISPLAY_NUMBER_NL2) || "+31 97058026143",
     },
     {
-      id: line5Id,
-      label: clean(process.env.WHATSAPP_PHONE_LABEL_5) || "Line 5 (US 1)",
+      id: DEFAULT_US_PRIMARY_ID,
+      label: clean(process.env.WHATSAPP_PHONE_LABEL_US1) || "Line 5 (US 1)",
       primary: false,
       slot: 5,
       department: "general",
-      displayNumber: clean(process.env.WHATSAPP_DISPLAY_NUMBER_5) || "+1 555-431-6671",
+      displayNumber: clean(process.env.WHATSAPP_DISPLAY_NUMBER_US1) || "+1 555-431-6671",
     },
     {
-      id: line6Id,
-      label: clean(process.env.WHATSAPP_PHONE_LABEL_6) || "Line 6 (US 2)",
+      id: DEFAULT_US_SECONDARY_ID,
+      label: clean(process.env.WHATSAPP_PHONE_LABEL_US2) || "Line 6 (US 2)",
       primary: false,
       slot: 6,
       department: "general",
-      displayNumber: clean(process.env.WHATSAPP_DISPLAY_NUMBER_6) || "+1 555-434-0459",
+      displayNumber: clean(process.env.WHATSAPP_DISPLAY_NUMBER_US2) || "+1 555-434-0459",
     },
     {
-      id: line7Id,
+      id: DEFAULT_LINE7_ID,
       label: clean(process.env.WHATSAPP_PHONE_LABEL_7) || "Line 7 (UK)",
       primary: false,
       slot: 7,
@@ -220,7 +215,36 @@ function build(): WANumber[] {
     },
   ];
 
-  return dedupe(numbers);
+  // Extra environment slots (e.g. WHATSAPP_PHONE_NUMBER_ID_2...7)
+  const envSlots = [
+    { id: clean(process.env.WHATSAPP_PHONE_NUMBER_ID_2), slot: 2, label: clean(process.env.WHATSAPP_PHONE_LABEL_2), disp: clean(process.env.WHATSAPP_DISPLAY_NUMBER_2) },
+    { id: clean(process.env.WHATSAPP_PHONE_NUMBER_ID_3), slot: 3, label: clean(process.env.WHATSAPP_PHONE_LABEL_3), disp: clean(process.env.WHATSAPP_DISPLAY_NUMBER_3) },
+    { id: clean(process.env.WHATSAPP_PHONE_NUMBER_ID_4), slot: 4, label: clean(process.env.WHATSAPP_PHONE_LABEL_4), disp: clean(process.env.WHATSAPP_DISPLAY_NUMBER_4) },
+    { id: clean(process.env.WHATSAPP_PHONE_NUMBER_ID_5), slot: 5, label: clean(process.env.WHATSAPP_PHONE_LABEL_5), disp: clean(process.env.WHATSAPP_DISPLAY_NUMBER_5) },
+    { id: clean(process.env.WHATSAPP_PHONE_NUMBER_ID_6), slot: 6, label: clean(process.env.WHATSAPP_PHONE_LABEL_6), disp: clean(process.env.WHATSAPP_DISPLAY_NUMBER_6) },
+    { id: clean(process.env.WHATSAPP_PHONE_NUMBER_ID_7), slot: 7, label: clean(process.env.WHATSAPP_PHONE_LABEL_7), disp: clean(process.env.WHATSAPP_DISPLAY_NUMBER_7) },
+  ];
+
+  for (const extra of envSlots) {
+    if (extra.id && !isDisabled(extra.id)) {
+      const existing = canonicalLines.find((c) => c.id === extra.id);
+      if (existing) {
+        if (extra.label) existing.label = extra.label;
+        if (extra.disp) existing.displayNumber = extra.disp;
+      } else {
+        canonicalLines.push({
+          id: extra.id,
+          label: extra.label || `Line ${extra.slot}`,
+          primary: false,
+          slot: extra.slot,
+          department: "general",
+          displayNumber: extra.disp || null,
+        });
+      }
+    }
+  }
+
+  return dedupe(canonicalLines);
 }
 
 /** Same id twice (e.g. env duplicating the default) must not appear twice. */

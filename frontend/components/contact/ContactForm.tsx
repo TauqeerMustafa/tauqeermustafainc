@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -48,6 +48,17 @@ const COUNTRIES = [
   "France", "Netherlands", "Singapore", "United Arab Emirates", "Saudi Arabia",
   "Pakistan", "India", "Japan", "South Korea", "Brazil", "Mexico",
   "South Africa", "Nigeria", "Kenya", "Other",
+];
+
+const DEPARTMENTS = [
+  "General inquiries",
+  "Customer support",
+  "Sales & new business",
+  "Partnerships",
+  "Marketing & press",
+  "Careers",
+  "Billing & invoices",
+  "Legal & privacy",
 ];
 
 export default function ContactForm() {
@@ -143,6 +154,16 @@ export default function ContactForm() {
       </p>
 
       <div className="mt-7 grid gap-x-8 gap-y-8 md:grid-cols-2">
+        <div className={fieldWrap}>
+          <label className={labelClass}>Department to reach</label>
+          <select {...register("department")} className={inputClass}>
+            <option value="">Select a department (optional)</option>
+            {DEPARTMENTS.map((d) => (
+              <option key={d} value={d}>{d}</option>
+            ))}
+          </select>
+        </div>
+
         <div className={fieldWrap}>
           <label className={labelClass}>Service needed <span className="text-red-500">*</span></label>
           <select {...register("service")} className={inputClass}>

@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils";
 import { appConfig } from "@/config/app";
 import { company } from "@/data/company";
 import CookieConsent from "@/components/common/CookieConsent";
+import AcquisitionPopup from "@/components/common/AcquisitionPopup";
 import { organizationSchema, localBusinessSchema, websiteSchema } from "@/lib/schema";
 
 export const metadata: Metadata = {
@@ -95,6 +96,7 @@ export default function RootLayout({
         <AppProviders>
           {children}
           <CookieConsent />
+          <AcquisitionPopup />
         </AppProviders>
       </body>
     </html>

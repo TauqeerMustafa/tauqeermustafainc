@@ -19,7 +19,19 @@ export async function POST(request: Request) {
     );
   }
 
+const DEPARTMENT_DESTINATIONS: Record<string, string> = {
+  "General inquiries": "info@tauqeermustafa.tech",
+  "Customer support": "support@tauqeermustafa.tech",
+  "Sales & new business": "sales@tauqeermustafa.tech",
+  "Partnerships": "business@tauqeermustafa.tech",
+  "Marketing & press": "marketing@tauqeermustafa.tech",
+  "Careers": "careers@tauqeermustafa.tech",
+  "Billing & invoices": "billing@tauqeermustafa.tech",
+  "Legal & privacy": "legal@tauqeermustafa.tech",
+};
+
   const detailLines = [
+    body.department ? `Department: ${body.department}` : null,
     body.subject ? `Subject: ${body.subject}` : null,
     body.service ? `Service: ${body.service}` : null,
     body.phone ? `Phone: ${body.phone}` : null,
@@ -70,6 +82,18 @@ export async function POST(request: Request) {
             text: analysis.replyText,
           });
           console.log(`[contact] Auto-reply dispatched to ${payload.email}`);
+
+          const targetDeptEmail = body.department ? DEPARTMENT_DESTINATIONS[String(body.department)] : null;
+          if (targetDeptEmail) {
+            await sendOpenEmailMessage(NOTIFICATIONS_MAILBOX_ID, {
+              from: "notifications@tauqeermustafa.tech",
+              fromName: "Tauqeer Mustafa Inc — Website Dispatch",
+              to: [targetDeptEmail],
+              subject: `[New Inquiry] ${body.department} — ${body.fullName || "Inquiry"}`,
+              text: `New website inquiry for ${body.department}:\n\nFrom: ${body.fullName} (${payload.email})\nCompany: ${body.company || "N/A"}\nPhone: ${body.phone || "N/A"}\nService: ${body.service || "N/A"}\nSubject: ${body.subject || "N/A"}\n\nMessage:\n${body.message}\n`,
+            });
+            console.log(`[contact] Department copy dispatched to ${targetDeptEmail}`);
+          }
         }
       } catch (autoErr) {
         console.error("[contact] Failed to dispatch auto-reply email:", autoErr);

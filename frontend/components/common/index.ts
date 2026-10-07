@@ -8,3 +8,4 @@ export { SkeletonGrid } from "@/components/common/SkeletonGrid";
 export { SkeletonHero } from "@/components/common/SkeletonHero";
 export { SkeletonTable } from "@/components/common/SkeletonTable";
 export { Spinner } from "@/components/common/Spinner";
+export { default as AcquisitionPopup } from "@/components/common/AcquisitionPopup";

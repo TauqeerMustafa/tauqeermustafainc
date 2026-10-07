@@ -7,7 +7,7 @@
 import { getKV } from "@/lib/kv";
 import { getSession, setSession, clearSession, appendMessage, type Session, type FlowStage, type ServiceKey, type WAMessage } from "@/lib/wa-store";
 import { primaryNumberId, waNumbers, resolveNumberId, getChannelDepartment, DEFAULT_PK_ID } from "@/lib/wa-numbers";
-import { accountAt } from "@/lib/wa-accounts";
+import { accountAt, usableAccounts } from "@/lib/wa-accounts";
 import { notify } from "@/lib/wa-notify";
 
 const GRAPH_URL = "https://graph.facebook.com/v20.0";
@@ -114,7 +114,7 @@ export async function sendMessage(to: string, bodyText: string, channelId?: stri
 
   await sendTypingAndDelay(to, msgId, channelId);
 
-  const res = await fetch(`${GRAPH_URL}/${actualPhoneId}/messages`, {
+  let res = await fetch(`${GRAPH_URL}/${actualPhoneId}/messages`, {
     method: "POST",
     headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
     body: JSON.stringify({
@@ -128,6 +128,31 @@ export async function sendMessage(to: string, bodyText: string, channelId?: stri
     console.error("[wa-flow] sendMessage network error:", e);
     return null;
   });
+
+  // Multi-account token retry: If token slot was misassigned or expired, try other usable accounts
+  if (!res || !res.ok) {
+    const alternateAccounts = usableAccounts().filter((a) => a.token && a.token !== token);
+    for (const alt of alternateAccounts) {
+      console.log(`[wa-flow] Retrying sendMessage with alternate token slot ${alt.slot} for ${actualPhoneId}...`);
+      const retryRes = await fetch(`${GRAPH_URL}/${actualPhoneId}/messages`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${alt.token}` },
+        body: JSON.stringify({
+          messaging_product: "whatsapp",
+          recipient_type: "individual",
+          to,
+          type: "text",
+          text: { body: bodyText, preview_url: false },
+        }),
+      }).catch(() => null);
+
+      if (retryRes && retryRes.ok) {
+        res = retryRes;
+        console.log(`[wa-flow] Alternate token slot ${alt.slot} succeeded for ${actualPhoneId}`);
+        break;
+      }
+    }
+  }
 
   const json = res ? await res.json().catch(() => null) : null;
   const sentId = json?.messages?.[0]?.id || `bot_${Date.now()}`;
@@ -219,7 +244,7 @@ export async function sendListMessage(
     listPayload.interactive.footer = { text: cut(payload.footer.trim(), 60) };
   }
 
-  const res = await fetch(`${GRAPH_URL}/${actualPhoneId}/messages`, {
+  let res = await fetch(`${GRAPH_URL}/${actualPhoneId}/messages`, {
     method: "POST",
     headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
     body: JSON.stringify(listPayload),
@@ -227,6 +252,21 @@ export async function sendListMessage(
     console.error("[wa-flow] sendListMessage error:", e);
     return null;
   });
+
+  if (!res || !res.ok) {
+    const alternateAccounts = usableAccounts().filter((a) => a.token && a.token !== token);
+    for (const alt of alternateAccounts) {
+      const retryRes = await fetch(`${GRAPH_URL}/${actualPhoneId}/messages`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${alt.token}` },
+        body: JSON.stringify(listPayload),
+      }).catch(() => null);
+      if (retryRes && retryRes.ok) {
+        res = retryRes;
+        break;
+      }
+    }
+  }
 
   const json = res ? await res.json().catch(() => null) : null;
   const sentId = json?.messages?.[0]?.id || `bot_list_${Date.now()}`;
@@ -302,7 +342,7 @@ export async function sendButtonMessage(
     buttonPayload.interactive.footer = { text: cut(payload.footer.trim(), 60) };
   }
 
-  const res = await fetch(`${GRAPH_URL}/${actualPhoneId}/messages`, {
+  let res = await fetch(`${GRAPH_URL}/${actualPhoneId}/messages`, {
     method: "POST",
     headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
     body: JSON.stringify(buttonPayload),
@@ -310,6 +350,21 @@ export async function sendButtonMessage(
     console.error("[wa-flow] sendButtonMessage error:", e);
     return null;
   });
+
+  if (!res || !res.ok) {
+    const alternateAccounts = usableAccounts().filter((a) => a.token && a.token !== token);
+    for (const alt of alternateAccounts) {
+      const retryRes = await fetch(`${GRAPH_URL}/${actualPhoneId}/messages`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${alt.token}` },
+        body: JSON.stringify(buttonPayload),
+      }).catch(() => null);
+      if (retryRes && retryRes.ok) {
+        res = retryRes;
+        break;
+      }
+    }
+  }
 
   const json = res ? await res.json().catch(() => null) : null;
   const sentId = json?.messages?.[0]?.id || `bot_btn_${Date.now()}`;
@@ -359,14 +414,14 @@ export async function handleInboundMessage(
     return escalateToEmergency(from, channelId, msgId);
   }
 
+  let session = await getSession(from);
+
   // Reset trigger: allow restarting lead triage flow at any time
   if (/^(menu|reset|restart|start|help)$/i.test(clean)) {
     session = { stage: "welcome", startedAt: Date.now() };
     await setSession(from, session);
     return sendWelcome(from, channelId, msgId);
   }
-
-  let session = await getSession(from);
 
   if (!session) {
     // Fast-path 2: Direct Careers

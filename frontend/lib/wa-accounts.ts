@@ -218,3 +218,30 @@ export function verifyTokens(): string[] {
   ];
   return Array.from(new Set([...tokens, ...fallbacks]));
 }
+
+/**
+ * Ensures Meta Cloud API delivers incoming webhook events for all 7 international WABAs.
+ */
+export async function ensureAllWabasSubscribed(): Promise<void> {
+  const accounts = usableAccounts();
+  const allWabaIds = [
+    "1363415125370805", // Line 1 PK
+    "1485319076722009", // Line 2 SL
+    "2663451950739498", // Line 3 NL 1
+    "1739099617324219", // Line 4 NL 2
+    "1083562997861778", // Line 5 US 1
+    "1034864159583818", // Line 6 US 2
+    "1854430365722527", // Line 7 UK
+    "1964540454233744", // Line 7 UK alias
+  ];
+
+  for (const account of accounts) {
+    if (!account.token) continue;
+    for (const wabaId of allWabaIds) {
+      try {
+        const url = `https://graph.facebook.com/v20.0/${wabaId}/subscribed_apps?access_token=${encodeURIComponent(account.token)}`;
+        await fetch(url, { method: "POST", cache: "no-store" }).catch(() => {});
+      } catch {}
+    }
+  }
+}
