@@ -60,6 +60,39 @@ const PRESET_IMAGES = [
   { label: "Celebration", url: "https://images.unsplash.com/photo-1511795409834-ef04bbd61622?auto=format&fit=crop&w=1200&q=80" },
 ];
 
+function FormattedAnnouncementBody({ content }: { content: string }) {
+  if (!content) return null;
+
+  const lines = content.split("\n");
+
+  return (
+    <div className="text-adm-text-2 space-y-1 mt-2 text-[15px] leading-relaxed">
+      {lines.map((line, idx) => {
+        if (!line.trim()) {
+          return <div key={idx} className="h-2" />;
+        }
+
+        const parts = line.split(/(\*\*[^*]+\*\*)/g);
+
+        return (
+          <p key={idx} className="leading-relaxed">
+            {parts.map((part, pIdx) => {
+              if (part.startsWith("**") && part.endsWith("**")) {
+                return (
+                  <strong key={pIdx} className="font-semibold text-adm-text">
+                    {part.slice(2, -2)}
+                  </strong>
+                );
+              }
+              return part;
+            })}
+          </p>
+        );
+      })}
+    </div>
+  );
+}
+
 export default function AnnouncementsPage({ isAdmin = false }: { isAdmin?: boolean }) {
   const { data, isLoading, isError, error } = useAnnouncements(
     isAdmin ? { pageSize: 50 } : { pageSize: 50, publishedOnly: true },
@@ -315,18 +348,18 @@ export default function AnnouncementsPage({ isAdmin = false }: { isAdmin?: boole
                 {/* Optional Cover Image */}
                 {item.imageUrl && (
                   <div
-                    className="relative w-full h-56 sm:h-72 bg-adm-surface-2 cursor-pointer group overflow-hidden border-b"
+                    className="relative w-full max-h-[520px] bg-slate-950/40 cursor-pointer group overflow-hidden border-b flex items-center justify-center"
                     style={{ borderColor: "var(--adm-border)" }}
                     onClick={() => setLightboxImage(item.imageUrl || null)}
                   >
                     <img
                       src={item.imageUrl}
                       alt={item.title}
-                      className="w-full h-full object-cover group-hover:scale-105 transition duration-500"
+                      className="w-full h-auto max-h-[520px] object-contain group-hover:scale-[1.01] transition duration-300"
                       loading="lazy"
                     />
-                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition flex items-center justify-center">
-                      <span className="opacity-0 group-hover:opacity-100 transition bg-black/60 text-white text-xs font-mono px-3 py-1.5 flex items-center gap-1.5 backdrop-blur-sm">
+                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition flex items-center justify-center pointer-events-none">
+                      <span className="opacity-0 group-hover:opacity-100 transition bg-black/70 text-white text-xs font-mono px-3 py-1.5 flex items-center gap-1.5 backdrop-blur-sm rounded">
                         <Maximize2 size={13} /> View Photo
                       </span>
                     </div>
@@ -371,6 +404,7 @@ export default function AnnouncementsPage({ isAdmin = false }: { isAdmin?: boole
                           className="h-8 w-8 rounded-full hover:bg-adm-surface-2 flex items-center justify-center text-adm-text-3 hover:text-adm-blue transition"
                           aria-label="Edit announcement"
                           title="Edit announcement"
+                          style={{ minHeight: "32px", minWidth: "32px" }}
                         >
                           <Edit size={14} />
                         </button>
@@ -380,6 +414,7 @@ export default function AnnouncementsPage({ isAdmin = false }: { isAdmin?: boole
                           className="h-8 w-8 rounded-full hover:bg-adm-red-light flex items-center justify-center text-adm-text-3 hover:text-adm-red transition"
                           aria-label="Delete announcement"
                           title="Delete announcement"
+                          style={{ minHeight: "32px", minWidth: "32px" }}
                         >
                           <Trash2 size={14} />
                         </button>
@@ -387,9 +422,7 @@ export default function AnnouncementsPage({ isAdmin = false }: { isAdmin?: boole
                     )}
                   </div>
 
-                  <p className="text-adm-text-2 whitespace-pre-wrap leading-relaxed mt-2 text-[15px]">
-                    {item.body}
-                  </p>
+                  <FormattedAnnouncementBody content={item.body} />
                 </div>
               </article>
             );
