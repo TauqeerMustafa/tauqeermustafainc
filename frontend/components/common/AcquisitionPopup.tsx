@@ -2,17 +2,27 @@
 
 import { useEffect, useState } from "react";
 import Image from "next/image";
+import { usePathname } from "next/navigation";
 import { X, Sparkles, ArrowRight, Building2, Calendar } from "lucide-react";
 
 // 7-day period starting October 8, 2026 up to October 15, 2026 23:59:59 (inclusive)
 const EXPIRATION_TIMESTAMP = new Date("2026-10-15T23:59:59+05:00").getTime();
-const SESSION_DISMISS_KEY = "tmi_acquisition_popup_dismissed_session";
+const STORAGE_SEEN_KEY = "tmi_acquisition_popup_main_only_once";
 
 export default function AcquisitionPopup() {
+  const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
 
+  // Strictly only show on the main homepage
+  const isMainPage = pathname === "/";
+
   useEffect(() => {
+    if (!isMainPage) {
+      setIsOpen(false);
+      return;
+    }
+
     setMounted(true);
 
     // 1. Check if the announcement period is still active
@@ -21,27 +31,38 @@ export default function AcquisitionPopup() {
       return;
     }
 
-    // 2. Check if already dismissed in the current browser session
+    // 2. Check if already shown / dismissed (only once when website loads)
     try {
-      const dismissed = sessionStorage.getItem(SESSION_DISMISS_KEY);
-      if (!dismissed) {
-        // Small delay for smooth entrance after page paints
-        const timer = setTimeout(() => {
-          setIsOpen(true);
-        }, 500);
-        return () => clearTimeout(timer);
+      const alreadySeen =
+        localStorage.getItem(STORAGE_SEEN_KEY) ||
+        sessionStorage.getItem(STORAGE_SEEN_KEY);
+      if (alreadySeen) {
+        return;
       }
+
+      // Small delay for smooth entrance after homepage paints
+      const timer = setTimeout(() => {
+        setIsOpen(true);
+        // Mark in session so navigating back and forth within the visit does not re-trigger
+        try {
+          sessionStorage.setItem(STORAGE_SEEN_KEY, "true");
+        } catch {
+          // Ignore
+        }
+      }, 500);
+      return () => clearTimeout(timer);
     } catch {
-      // If sessionStorage is unavailable, display by default
+      // If storage is unavailable, show once
       setIsOpen(true);
     }
-  }, []);
+  }, [isMainPage]);
 
-  // Close and record in session storage
+  // Close and record permanently in storage
   const handleClose = () => {
     setIsOpen(false);
     try {
-      sessionStorage.setItem(SESSION_DISMISS_KEY, "true");
+      localStorage.setItem(STORAGE_SEEN_KEY, "true");
+      sessionStorage.setItem(STORAGE_SEEN_KEY, "true");
     } catch {
       // Ignore
     }
@@ -69,7 +90,8 @@ export default function AcquisitionPopup() {
     }
   }, [isOpen]);
 
-  if (!mounted || !isOpen) {
+  // Render strictly only on the main page
+  if (!isMainPage || !mounted || !isOpen) {
     return null;
   }
 
@@ -108,7 +130,7 @@ export default function AcquisitionPopup() {
               <Sparkles className="h-3 w-3" />
               Acquisition Announcement
             </span>
-            <span className="inline-flex items-center gap-1 rounded-full bg-surface px-2 py-0.5 text-[11px] font-mono text-ink-muted border border-line">
+            <span className="hidden xs:inline-flex items-center gap-1 rounded-full bg-surface px-2 py-0.5 text-[11px] font-mono text-ink-muted border border-line">
               <Calendar className="h-3 w-3" />
               Oct 15, 2026
             </span>
