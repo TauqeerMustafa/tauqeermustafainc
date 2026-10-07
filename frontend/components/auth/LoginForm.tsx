@@ -7,7 +7,7 @@ import { useCallback, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { ArrowLeft, Loader2, ShieldCheck } from "lucide-react";
+import { ArrowLeft, Loader2, ShieldCheck, ShieldAlert } from "lucide-react";
 
 import { Field, PortalButton, inputClass } from "@/components/portal/PortalUI";
 import { useLogin } from "@/hooks/useAuth";
@@ -156,7 +156,16 @@ export default function LoginForm({
               </label>
 
               {loginMutation.isError && (
-                <div className="border border-adm-red/40 bg-adm-red-light p-4">
+                <div className="border border-adm-red/60 bg-adm-red-light p-4 space-y-1.5">
+                  {(apiError?.message?.toLowerCase().includes("terminated") ||
+                    apiError?.message?.toLowerCase().includes("locked") ||
+                    apiError?.message?.toLowerCase().includes("revoked") ||
+                    apiError?.message?.toLowerCase().includes("suspended")) && (
+                    <div className="flex items-center gap-1.5 text-adm-red font-bold text-[11px] uppercase tracking-wider mb-1">
+                      <ShieldAlert className="h-4 w-4 shrink-0 text-adm-red" />
+                      <span>Account Terminated & Locked</span>
+                    </div>
+                  )}
                   <p className="text-xs font-semibold text-adm-red" role="alert">
                     {apiError?.message ?? "Sign-in failed. Check your details and try again."}
                   </p>

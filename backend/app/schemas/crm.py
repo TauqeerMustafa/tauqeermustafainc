@@ -31,6 +31,8 @@ class UserStatus(str, Enum):
     approved = "approved"
     rejected = "rejected"
     suspended = "suspended"
+    terminated = "terminated"
+    locked = "locked"
 
 
 class ActivityType(str, Enum):

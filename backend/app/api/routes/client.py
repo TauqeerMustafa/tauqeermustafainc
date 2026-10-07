@@ -175,6 +175,11 @@ def client_login(payload: ClientLoginRequest, db: DatabaseSession) -> ApiRespons
     if user is None or not verify_password(payload.password, user.password_hash):
         raise HTTPException(status_code=401, detail="Incorrect email or password")
     _client_user(user)
+    if user.status in ("terminated", "locked", "suspended") or not user.is_active:
+        raise HTTPException(
+            status_code=403,
+            detail="Your account has been terminated and locked due to inactivity. Access to this portal has been revoked. Contact hr@tauqeermustafa.tech for further inquiries.",
+        )
     if user.email_verified_at is None:
         raise HTTPException(status_code=403, detail="Verify your email address before signing in")
     return ApiResponse(data=LoginResponse(access_token=create_access_token(str(user.id)), user=_to_user_read(user, db)), message="Logged in successfully")

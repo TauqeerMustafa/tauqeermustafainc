@@ -417,6 +417,8 @@ def update_user(
         user.status = payload.status.value
         user.is_active = payload.status.value == "approved"
         user.is_verified = payload.status.value == "approved"
+        if user.employee:
+            user.employee.status = "active" if payload.status.value == "approved" else "terminated"
         if payload.status.value == "approved" and user.approved_at is None:
             user.approved_by_id = admin.id
             user.approved_at = datetime.now(timezone.utc)
