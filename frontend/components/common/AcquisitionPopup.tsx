@@ -15,7 +15,7 @@ export default function AcquisitionPopup() {
   useEffect(() => {
     setMounted(true);
 
-    // 1. Check if the 7-day announcement period is still active
+    // 1. Check if the announcement period is still active
     const now = Date.now();
     if (now > EXPIRATION_TIMESTAMP) {
       return;
@@ -28,7 +28,7 @@ export default function AcquisitionPopup() {
         // Small delay for smooth entrance after page paints
         const timer = setTimeout(() => {
           setIsOpen(true);
-        }, 600);
+        }, 500);
         return () => clearTimeout(timer);
       }
     } catch {
@@ -58,6 +58,17 @@ export default function AcquisitionPopup() {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [isOpen]);
 
+  // Lock body scroll while popup is active to keep single-page view locked
+  useEffect(() => {
+    if (isOpen) {
+      const originalOverflow = document.body.style.overflow;
+      document.body.style.overflow = "hidden";
+      return () => {
+        document.body.style.overflow = originalOverflow;
+      };
+    }
+  }, [isOpen]);
+
   if (!mounted || !isOpen) {
     return null;
   }
@@ -67,95 +78,89 @@ export default function AcquisitionPopup() {
       role="dialog"
       aria-modal="true"
       aria-labelledby="acquisition-popup-title"
-      className="fixed inset-0 z-[9999] flex items-center justify-center p-4 sm:p-6 overflow-y-auto"
+      className="fixed inset-0 z-[9999] flex items-center justify-center p-3 sm:p-4 overflow-hidden"
     >
+      {/* Accessible Screen Reader Title */}
+      <h2 id="acquisition-popup-title" className="sr-only">
+        Tauqeer Mustafa Inc. Acquired by Qorlune LLC Announcement
+      </h2>
+
       {/* Backdrop */}
       <div
-        className="fixed inset-0 bg-black/75 backdrop-blur-sm transition-opacity animate-in fade-in duration-300"
+        className="fixed inset-0 bg-black/80 backdrop-blur-sm transition-opacity animate-in fade-in duration-300"
         onClick={handleClose}
         aria-hidden="true"
       />
 
-      {/* Modal Dialog Container */}
-      <div className="relative w-full max-w-2xl bg-surface border border-line shadow-2xl rounded-2xl overflow-hidden z-10 animate-in fade-in zoom-in-95 duration-300 my-auto">
-        {/* Top Accent Gradient Bar */}
-        <div className="h-1.5 w-full bg-gradient-to-r from-red-600 via-rose-500 to-indigo-600" />
+      {/* Modal Dialog Container - strictly fits in single viewport height */}
+      <div className="relative w-full max-w-md sm:max-w-lg max-h-[92vh] flex flex-col bg-surface border border-line shadow-2xl rounded-2xl overflow-hidden z-10 animate-in fade-in zoom-in-95 duration-300 my-auto">
+        {/* Top 3-Color Brand Stripe (matching header edges: Blue, Mid-Blue, Red) */}
+        <div className="flex h-1.5 w-full shrink-0" aria-hidden="true">
+          <div className="w-1/3 bg-[#0066b1]" />
+          <div className="w-1/3 bg-[#1c69d4]" />
+          <div className="w-1/3 bg-[#e22718]" />
+        </div>
 
-        {/* Close Button */}
-        <button
-          type="button"
-          onClick={handleClose}
-          aria-label="Close notification"
-          className="absolute top-4 right-4 z-20 flex h-9 w-9 items-center justify-center rounded-full bg-surface-2 text-ink-muted hover:text-ink hover:bg-line transition border border-line"
-        >
-          <X className="h-5 w-5" />
-        </button>
-
-        <div className="p-6 sm:p-8">
-          {/* Header Badges */}
-          <div className="flex flex-wrap items-center gap-2 mb-4">
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-red-500/10 px-3 py-1 text-xs font-semibold text-red-600 border border-red-500/20">
-              <Sparkles className="h-3.5 w-3.5" />
-              Official Acquisition Announcement
+        {/* Compact Header Bar */}
+        <div className="flex items-center justify-between px-4 py-2.5 sm:px-5 sm:py-3 border-b border-line bg-surface-2/40 shrink-0">
+          <div className="flex items-center gap-2">
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-red-500/10 px-2.5 py-0.5 text-[11px] font-semibold text-red-600 dark:text-red-400 border border-red-500/20">
+              <Sparkles className="h-3 w-3" />
+              Acquisition Announcement
             </span>
-            <span className="inline-flex items-center gap-1 rounded-full bg-surface-2 px-2.5 py-1 text-xs font-mono text-ink-muted border border-line">
+            <span className="inline-flex items-center gap-1 rounded-full bg-surface px-2 py-0.5 text-[11px] font-mono text-ink-muted border border-line">
               <Calendar className="h-3 w-3" />
-              Effective Oct 15, 2026
+              Oct 15, 2026
             </span>
           </div>
 
-          {/* Title */}
-          <h2
-            id="acquisition-popup-title"
-            className="text-2xl sm:text-3xl font-bold tracking-tight text-ink leading-snug"
+          <button
+            type="button"
+            onClick={handleClose}
+            aria-label="Close notification"
+            className="flex h-7 w-7 items-center justify-center rounded-full bg-surface text-ink-muted hover:text-ink hover:bg-line transition border border-line"
           >
-            Tauqeer Mustafa Inc. Acquired by Qorlune LLC
-          </h2>
+            <X className="h-4 w-4" />
+          </button>
+        </div>
 
-          <p className="mt-2 text-sm sm:text-base font-medium text-action">
-            Shaping Tomorrow Together • Full Operational Handover
-          </p>
-
-          {/* Acquisition Banner Graphic */}
-          <div className="mt-5 relative w-full aspect-[16/9] sm:aspect-[2/1] rounded-xl overflow-hidden border border-line bg-black/10">
+        {/* Poster Centerpiece - Uncropped 1:1 Aspect Ratio */}
+        <div className="flex-1 min-h-0 p-3 sm:p-4 bg-canvas/30 flex items-center justify-center overflow-hidden">
+          <div className="relative aspect-square w-full max-w-[min(420px,52vh)] rounded-xl overflow-hidden border border-line shadow-md bg-surface">
             <Image
               src="/images/qorlune-acquisition.jpg"
-              alt="Qorlune LLC has acquired Tauqeer Mustafa Inc. - Effective October 15, 2026"
+              alt="Tauqeer Mustafa Inc. Acquired by Qorlune LLC - Effective October 15, 2026"
               fill
-              sizes="(max-width: 768px) 100vw, 672px"
-              className="object-cover"
+              sizes="(max-width: 640px) 90vw, 420px"
+              className="object-contain"
               priority
             />
           </div>
+        </div>
 
-          {/* Official Statement Body */}
-          <div className="mt-5 space-y-3 text-sm sm:text-base leading-relaxed text-ink-muted border-l-2 border-red-500/40 pl-4 py-1 bg-surface-2/40 rounded-r-lg">
-            <p className="text-ink font-medium">
-              Qorlune LLC has acquired Tauqeer Mustafa Inc., with the complete transfer of ownership and operations effective <strong>October 15, 2026</strong>.
-            </p>
-            <p>
-              From that date, founder Tauqeer Mustafa will step back and hand over full operations to their executive team. We extend our heartfelt gratitude to every client, partner, and team member who has supported this journey since 2023.
-            </p>
+        {/* Compact Footer Action Bar */}
+        <div className="px-4 py-2.5 sm:px-5 sm:py-3 border-t border-line bg-surface flex items-center justify-between gap-3 shrink-0">
+          <div className="flex items-center gap-1.5 text-xs text-ink-muted">
+            <Building2 className="h-3.5 w-3.5 text-action" />
+            <span className="hidden sm:inline font-medium text-ink">Tauqeer Mustafa Inc. &rarr; Qorlune LLC</span>
+            <span className="sm:hidden font-mono text-[11px]">Handover Oct 15</span>
           </div>
 
-          {/* Action Buttons */}
-          <div className="mt-6 flex flex-col sm:flex-row items-center justify-between gap-3 pt-4 border-t border-line">
-            <div className="flex items-center gap-2 text-xs text-ink-muted">
-              <Building2 className="h-4 w-4 text-ink-muted" />
-              <span>Tauqeer Mustafa Inc. &rarr; Qorlune LLC</span>
-            </div>
+          <button
+            type="button"
+            onClick={handleClose}
+            className="px-4 py-1.5 sm:px-5 sm:py-2 rounded-full bg-ink text-canvas font-semibold text-xs sm:text-sm hover:opacity-90 transition shadow-sm flex items-center gap-1.5 shrink-0"
+          >
+            <span>Acknowledge & Continue</span>
+            <ArrowRight className="h-3.5 w-3.5" />
+          </button>
+        </div>
 
-            <div className="flex items-center gap-2 w-full sm:w-auto">
-              <button
-                type="button"
-                onClick={handleClose}
-                className="w-full sm:w-auto px-6 py-2.5 rounded-full bg-ink text-canvas font-semibold text-sm hover:opacity-90 transition shadow-sm flex items-center justify-center gap-2"
-              >
-                <span>Acknowledge & Continue</span>
-                <ArrowRight className="h-4 w-4" />
-              </button>
-            </div>
-          </div>
+        {/* Bottom 3-Color Brand Stripe (matching header edges: Blue, Mid-Blue, Red) */}
+        <div className="flex h-1.5 w-full shrink-0" aria-hidden="true">
+          <div className="w-1/3 bg-[#0066b1]" />
+          <div className="w-1/3 bg-[#1c69d4]" />
+          <div className="w-1/3 bg-[#e22718]" />
         </div>
       </div>
     </div>
