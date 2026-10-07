@@ -2,6 +2,10 @@
  * Server-only open.email REST client. Holds OPENEMAIL_API_KEY — never import
  * into a client component; go through the /api/mail/* routes instead.
  *
+ * Supports Dual Domain Routing:
+ * 1. OPENEMAIL_TECH_API_KEY: Handles all employee mailboxes on tauqeermustafa.tech
+ * 2. OPENEMAIL_COM_API_KEY: Dedicated scoped key for executive tauqeermustafa.com
+ *
  * Endpoints (verified against open.email docs):
  *   GET  /mailboxes
  *   GET  /mailboxes/{id}/messages?limit=&state=&order=&cursor=
@@ -12,19 +16,29 @@
  */
 export const OPENEMAIL_API_URL = "https://api.open.email/api/v1";
 
-function authHeaders(json = false): HeadersInit {
-  const token =
-    process.env.OPENEMAIL_API_KEY || "oek_vLhzeeO6fO_owBMaIIkLLzFPAWezb9I-f5H7isSGYug";
+// .tech accounts (All 84 employees)
+export const OPENEMAIL_TECH_API_KEY =
+  process.env.OPENEMAIL_TECH_API_KEY ||
+  process.env.OPENEMAIL_API_KEY ||
+  "oek_vLhzeeO6fO_owBMaIIkLLzFPAWezb9I-f5H7isSGYug";
+
+// .com accounts (ceo@ and notifications@ on tauqeermustafa.com)
+export const OPENEMAIL_COM_API_KEY =
+  process.env.OPENEMAIL_COM_API_KEY ||
+  "oek_MB82hkIw8oJa0h-MG0mODJ1i5vHmInjB0Y3JWtH3NVo";
+
+function authHeaders(json = false, customToken?: string): HeadersInit {
+  const token = customToken || OPENEMAIL_TECH_API_KEY;
   if (!token) throw new Error("OPENEMAIL_API_KEY is missing");
   const headers: Record<string, string> = { Authorization: `Bearer ${token}` };
   if (json) headers["Content-Type"] = "application/json";
   return headers;
 }
 
-async function oeFetch(path: string, init?: RequestInit) {
+async function oeFetch(path: string, init?: RequestInit, customToken?: string) {
   const res = await fetch(`${OPENEMAIL_API_URL}${path}`, {
     ...init,
-    headers: { ...authHeaders(init?.method === "POST"), ...(init?.headers ?? {}) },
+    headers: { ...authHeaders(init?.method === "POST", customToken), ...(init?.headers ?? {}) },
     cache: "no-store",
   });
   if (!res.ok) {
@@ -46,17 +60,36 @@ async function oeFetch(path: string, init?: RequestInit) {
 }
 
 export async function fetchOpenEmailMailboxes() {
-  const data = await oeFetch(`/identities`);
-  const rawList = Array.isArray(data)
-    ? data
-    : Array.isArray(data?.identities)
-    ? data.identities
-    : Array.isArray(data?.mailboxes)
-    ? data.mailboxes
-    : Array.isArray(data?.data)
-    ? data.data
-    : [];
-  return { mailboxes: rawList };
+  const extractList = (data: any) =>
+    Array.isArray(data)
+      ? data
+      : Array.isArray(data?.identities)
+      ? data.identities
+      : Array.isArray(data?.mailboxes)
+      ? data.mailboxes
+      : Array.isArray(data?.data)
+      ? data.data
+      : [];
+
+  const [techRes, comRes] = await Promise.allSettled([
+    oeFetch(`/identities`, undefined, OPENEMAIL_TECH_API_KEY),
+    oeFetch(`/identities`, undefined, OPENEMAIL_COM_API_KEY),
+  ]);
+
+  const techList = techRes.status === "fulfilled" ? extractList(techRes.value) : [];
+  const comList = comRes.status === "fulfilled" ? extractList(comRes.value) : [];
+
+  const seen = new Set();
+  const merged: any[] = [];
+  for (const m of [...comList, ...techList]) {
+    const key = m.id || m.primaryAddress;
+    if (key && !seen.has(key)) {
+      seen.add(key);
+      merged.push(m);
+    }
+  }
+
+  return { mailboxes: merged };
 }
 
 export interface MessageListOptions {
@@ -72,11 +105,22 @@ export async function fetchOpenEmailMessages(mailboxId: string, opts: MessageLis
   if (opts.state) params.set("state", opts.state);
   if (opts.order) params.set("order", opts.order);
   if (opts.cursor) params.set("cursor", opts.cursor);
-  return oeFetch(`/mailboxes/${mailboxId}/messages?${params.toString()}`);
+
+  const path = `/mailboxes/${mailboxId}/messages?${params.toString()}`;
+  try {
+    return await oeFetch(path, undefined, OPENEMAIL_COM_API_KEY);
+  } catch {
+    return await oeFetch(path, undefined, OPENEMAIL_TECH_API_KEY);
+  }
 }
 
 export async function fetchOpenEmailMessageContent(mailboxId: string, messageId: string) {
-  return oeFetch(`/mailboxes/${mailboxId}/messages/${messageId}/content`);
+  const path = `/mailboxes/${mailboxId}/messages/${messageId}/content`;
+  try {
+    return await oeFetch(path, undefined, OPENEMAIL_COM_API_KEY);
+  } catch {
+    return await oeFetch(path, undefined, OPENEMAIL_TECH_API_KEY);
+  }
 }
 
 export interface OpenEmailAttachment {
@@ -99,9 +143,9 @@ export interface SendMessageInput {
 }
 
 export async function sendOpenEmailMessage(mailboxId: string, input: SendMessageInput) {
-  // open.email validates addresses under `email` (NOT `address`) — sending
-  // `address` returns `400 validation_failed` on body.from.email / body.to.0.email.
-  // Body text goes in `text`/`html` (a `body` field is silently ignored).
+  const isCom = input.from?.toLowerCase().endsWith(".com");
+  const token = isCom ? OPENEMAIL_COM_API_KEY : OPENEMAIL_TECH_API_KEY;
+
   const save = input.save === false ? "" : "?save=true";
   const path = `/mailboxes/${mailboxId}/send${save}`;
 
@@ -125,29 +169,38 @@ export async function sendOpenEmailMessage(mailboxId: string, input: SendMessage
   const bcc = asEmails(input.bcc);
 
   try {
-    return await oeFetch(path, {
-      method: "POST",
-      body: JSON.stringify({
-        ...base,
-        to,
-        ...(cc.length ? { cc } : {}),
-        ...(bcc.length ? { bcc } : {}),
-      }),
-    });
+    return await oeFetch(
+      path,
+      {
+        method: "POST",
+        body: JSON.stringify({
+          ...base,
+          to,
+          ...(cc.length ? { cc } : {}),
+          ...(bcc.length ? { bcc } : {}),
+        }),
+      },
+      token,
+    );
   } catch (err) {
-    // Some accounts 400 on `cc`/`bcc` as unknown fields. Rather than lose the
-    // message, retry: fold Cc into To (Cc isn't secret anyway) and deliver Bcc
-    // as a separate blind send so those recipients stay hidden from the others.
     const hasExtra = cc.length || bcc.length;
     const message = err instanceof Error ? err.message : "";
     if (!hasExtra || !/\b400\b|validation|\bcc\b|\bbcc\b/i.test(message)) throw err;
 
-    const result = await oeFetch(path, {
-      method: "POST",
-      body: JSON.stringify({ ...base, to: [...to, ...cc] }),
-    });
+    const result = await oeFetch(
+      path,
+      {
+        method: "POST",
+        body: JSON.stringify({ ...base, to: [...to, ...cc] }),
+      },
+      token,
+    );
     if (bcc.length) {
-      await oeFetch(path, { method: "POST", body: JSON.stringify({ ...base, to: bcc }) });
+      await oeFetch(
+        path,
+        { method: "POST", body: JSON.stringify({ ...base, to: bcc }) },
+        token,
+      );
     }
     return result;
   }
@@ -159,7 +212,12 @@ export async function sendOpenEmailMessage(mailboxId: string, input: SendMessage
  * failures surface to the caller rather than being silently swallowed.
  */
 export async function deleteOpenEmailMessage(mailboxId: string, messageId: string) {
-  return oeFetch(`/mailboxes/${mailboxId}/messages/${messageId}`, { method: "DELETE" });
+  const path = `/mailboxes/${mailboxId}/messages/${messageId}`;
+  try {
+    return await oeFetch(path, { method: "DELETE" }, OPENEMAIL_COM_API_KEY);
+  } catch {
+    return await oeFetch(path, { method: "DELETE" }, OPENEMAIL_TECH_API_KEY);
+  }
 }
 
 export async function fetchOpenEmailAttachmentPart(
@@ -167,15 +225,21 @@ export async function fetchOpenEmailAttachmentPart(
   messageId: string,
   section: string,
 ) {
-  const token =
-    process.env.OPENEMAIL_API_KEY || "oek_vLhzeeO6fO_owBMaIIkLLzFPAWezb9I-f5H7isSGYug";
-  const res = await fetch(
-    `${OPENEMAIL_API_URL}/mailboxes/${mailboxId}/messages/${messageId}/parts/${section}`,
-    {
+  const path = `/mailboxes/${mailboxId}/messages/${messageId}/parts/${section}`;
+  let token = OPENEMAIL_COM_API_KEY;
+  let res = await fetch(`${OPENEMAIL_API_URL}${path}`, {
+    headers: { Authorization: `Bearer ${token}` },
+    cache: "no-store",
+  });
+
+  if (!res.ok) {
+    token = OPENEMAIL_TECH_API_KEY;
+    res = await fetch(`${OPENEMAIL_API_URL}${path}`, {
       headers: { Authorization: `Bearer ${token}` },
       cache: "no-store",
-    },
-  );
+    });
+  }
+
   if (!res.ok) {
     let detail = res.statusText;
     try {
