@@ -348,20 +348,22 @@ export default function AnnouncementsPage({ isAdmin = false }: { isAdmin?: boole
                 {/* Optional Cover Image */}
                 {item.imageUrl && (
                   <div
-                    className="relative w-full max-h-[520px] bg-slate-950/40 cursor-pointer group overflow-hidden border-b flex items-center justify-center"
+                    className="relative w-full bg-slate-900/[0.03] dark:bg-black/30 cursor-pointer group overflow-hidden border-b flex items-center justify-center p-4 sm:p-6"
                     style={{ borderColor: "var(--adm-border)" }}
                     onClick={() => setLightboxImage(item.imageUrl || null)}
                   >
-                    <img
-                      src={item.imageUrl}
-                      alt={item.title}
-                      className="w-full h-auto max-h-[520px] object-contain group-hover:scale-[1.01] transition duration-300"
-                      loading="lazy"
-                    />
-                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition flex items-center justify-center pointer-events-none">
-                      <span className="opacity-0 group-hover:opacity-100 transition bg-black/70 text-white text-xs font-mono px-3 py-1.5 flex items-center gap-1.5 backdrop-blur-sm rounded">
-                        <Maximize2 size={13} /> View Photo
-                      </span>
+                    <div className="relative max-w-sm sm:max-w-md w-full flex items-center justify-center">
+                      <img
+                        src={item.imageUrl}
+                        alt={item.title}
+                        className="w-auto h-auto max-h-[460px] max-w-full rounded-xl shadow-lg border border-slate-200/50 dark:border-slate-800 object-contain group-hover:scale-[1.01] transition duration-300"
+                        loading="lazy"
+                      />
+                      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition rounded-xl flex items-center justify-center pointer-events-none">
+                        <span className="opacity-0 group-hover:opacity-100 transition bg-black/75 text-white text-xs font-mono px-3 py-1.5 flex items-center gap-1.5 backdrop-blur-sm rounded-md shadow-lg">
+                          <Maximize2 size={13} /> View Full Resolution
+                        </span>
+                      </div>
                     </div>
                   </div>
                 )}
