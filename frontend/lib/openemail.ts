@@ -71,21 +71,34 @@ export async function fetchOpenEmailMailboxes() {
       ? data.data
       : [];
 
-  const [techRes, comRes] = await Promise.allSettled([
+  const [techRes, comRes, routesRes] = await Promise.allSettled([
     oeFetch(`/identities`, undefined, OPENEMAIL_TECH_API_KEY),
     oeFetch(`/identities`, undefined, OPENEMAIL_COM_API_KEY),
+    oeFetch(`/routes`, undefined, OPENEMAIL_TECH_API_KEY),
   ]);
 
   const techList = techRes.status === "fulfilled" ? extractList(techRes.value) : [];
   const comList = comRes.status === "fulfilled" ? extractList(comRes.value) : [];
+  const routeList =
+    routesRes.status === "fulfilled" && Array.isArray((routesRes.value as any)?.routes)
+      ? (routesRes.value as any).routes
+          .filter((r: any) => r.destinationType === "mailbox" && r.mailboxId && r.address)
+          .map((r: any) => ({
+            id: r.mailboxId,
+            primaryAddress: r.address,
+          }))
+      : [];
 
-  const seen = new Set();
+  const seen = new Set<string>();
   const merged: any[] = [];
-  for (const m of [...comList, ...techList]) {
-    const key = m.id || m.primaryAddress;
-    if (key && !seen.has(key)) {
-      seen.add(key);
-      merged.push(m);
+  for (const m of [...comList, ...techList, ...routeList]) {
+    const addr = String(m.primaryAddress || m.id || "").toLowerCase().trim();
+    if (addr && !seen.has(addr)) {
+      seen.add(addr);
+      merged.push({
+        id: m.id,
+        primaryAddress: m.primaryAddress || m.id,
+      });
     }
   }
 

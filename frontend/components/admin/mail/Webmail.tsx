@@ -442,6 +442,7 @@ export default function Webmail({
 }) {
   const [mailboxes, setMailboxes] = useState<Mailbox[]>([]);
   const [activeId, setActiveId] = useState<string>("");
+  const [activeAddress, setActiveAddress] = useState<string>("");
   const [mbOpen, setMbOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
@@ -516,7 +517,12 @@ export default function Webmail({
   const searchRef = useRef<HTMLInputElement>(null);
   const mbDropdownRef = useRef<HTMLDivElement>(null);
 
-  const active = mailboxes.find((m) => m.id === activeId) ?? null;
+  const active =
+    mailboxes.find(
+      (m) =>
+        (activeAddress && m.primaryAddress?.toLowerCase() === activeAddress.toLowerCase()) ||
+        (!activeAddress && m.id === activeId),
+    ) ?? null;
   const selfEmail = active?.primaryAddress?.toLowerCase() ?? "";
 
   // Close mailbox dropdown when clicking outside
@@ -538,7 +544,9 @@ export default function Webmail({
       const json = await res.json();
       if (!res.ok || json.error) throw new Error(json.error || "Could not load mailboxes.");
       setMailboxes(json.mailboxes || []);
-      setActiveId((prev) => prev || json.mailboxes?.[0]?.id || "");
+      const initial = json.mailboxes?.[0];
+      setActiveId((prev) => prev || initial?.id || "");
+      setActiveAddress((prev) => prev || initial?.primaryAddress || "");
     } catch (e: any) {
       setError(e.message);
     } finally {
@@ -1097,8 +1105,9 @@ export default function Webmail({
     setCursorIndex(0);
   }
 
-  function switchMailbox(id: string) {
+  function switchMailbox(id: string, address?: string) {
     setActiveId(id);
+    if (address) setActiveAddress(address);
     setMbOpen(false);
     setSelected(null);
     setFolder("inbox");
@@ -1417,12 +1426,14 @@ export default function Webmail({
               >
                 <div className="p-1">
                   {mailboxes.map((mb) => {
-                    const isCur = mb.id === activeId;
+                    const isCur =
+                      (activeAddress && mb.primaryAddress?.toLowerCase() === activeAddress.toLowerCase()) ||
+                      (!activeAddress && mb.id === activeId);
                     return (
                       <button
-                        key={mb.id}
+                        key={mb.primaryAddress || mb.id}
                         type="button"
-                        onClick={() => switchMailbox(mb.id)}
+                        onClick={() => switchMailbox(mb.id, mb.primaryAddress)}
                         className="flex w-full items-center justify-between gap-2 rounded-lg px-2.5 py-1.5 text-left text-xs transition hover:bg-adm-surface-2"
                         style={{
                           color: isCur ? "var(--adm-blue)" : "var(--adm-text)",
