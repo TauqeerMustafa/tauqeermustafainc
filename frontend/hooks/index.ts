@@ -101,3 +101,12 @@ export {
   useDeleteProject,
   useUpdateProject,
 } from "@/hooks/useProjects";
+
+// Departments management.
+export {
+  useCreateDepartment,
+  useDeleteDepartment,
+  useDepartments,
+  useUpdateDepartment,
+} from "@/hooks/useDepartments";
+

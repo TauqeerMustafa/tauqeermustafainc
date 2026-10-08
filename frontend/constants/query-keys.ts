@@ -6,6 +6,11 @@ export const queryKeys = {
     teams: ["admin", "teams"] as const,
     projects: ["admin", "projects"] as const,
     metrics: ["admin", "metrics"] as const,
+    departments: ["admin", "departments"] as const,
+  },
+  departments: {
+    all: ["departments"] as const,
+    detail: (id: string) => ["departments", id] as const,
   },
   services: {
     all: ["services"] as const,

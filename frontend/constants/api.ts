@@ -100,5 +100,10 @@ export const API_ENDPOINTS = {
     leadToCashProvision: "/agent/lead-to-cash/provision-project",
     leadToCashPayment: "/agent/lead-to-cash/generate-payment",
   },
+  departments: {
+    list: "/departments",
+    create: "/departments",
+    detail: (id: string) => `/departments/${id}`,
+  },
 } as const;
 

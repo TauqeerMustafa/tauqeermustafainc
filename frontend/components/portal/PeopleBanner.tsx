@@ -2,6 +2,7 @@
 
 import {
   Bell,
+  Building2,
   CalendarDays,
   Clock,
   FileText,
@@ -17,6 +18,7 @@ export type PeopleFunctionId =
   | "overview"
   | "employees"
   | "teams"
+  | "departments"
   | "attendance"
   | "leave"
   | "documents"
@@ -24,7 +26,7 @@ export type PeopleFunctionId =
 
 /**
  * The People & HR sub-tab bar — the "sub" layer over every People sub-tool page
- * (Employees, Teams, Attendance, Leave, Documents, Announcements). A thin
+ * (Employees, Teams, Departments, Attendance, Leave, Documents, Announcements). A thin
  * adapter over the shared {@link SubNav}: it supplies live counts from the admin
  * dashboard and translated labels, and lets `SubNav` derive the active pill from
  * the route. The `/admin/people` overview page itself renders a `SectionOverview`
@@ -56,6 +58,7 @@ export default function PeopleBanner() {
           count: overview?.totalEmployees,
         },
         { label: t("Teams"), href: "/admin/teams", icon: Users },
+        { label: t("Departments"), href: "/admin/departments", icon: Building2 },
         {
           label: t("Attendance"),
           href: "/admin/attendance",

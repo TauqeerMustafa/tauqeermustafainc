@@ -43,5 +43,6 @@ export type {
   UpdateTaskPayload,
 } from "./task.service";
 export { teamService } from "./team.service";
+export { departmentService } from "./department.service";
 export { projectService } from "./project.service";
 export type { ProjectListParams } from "./project.service";

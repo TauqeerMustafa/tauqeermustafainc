@@ -276,3 +276,22 @@ export interface LeadPipeline {
   lostValue: number;
   followUpsDue: number;
 }
+
+// ── Departments ──────────────────────────────────────────────────────────────
+
+export interface Department {
+  id: string;
+  name: string;
+  employeeCount?: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateDepartmentPayload {
+  name: string;
+}
+
+export interface UpdateDepartmentPayload {
+  name?: string;
+}
+

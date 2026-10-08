@@ -1,6 +1,6 @@
 "use client";
 
-import { Bell, CalendarDays, Clock, FileText, Plus, Users } from "lucide-react";
+import { Bell, Building2, CalendarDays, Clock, FileText, Plus, Users } from "lucide-react";
 
 import {
   ErrorBlock,
@@ -15,7 +15,7 @@ import { useI18n } from "@/lib/i18n";
 
 /**
  * People & HR section overview — the "div" between the sidebar and each sub-tool.
- * A card grid that fans out to Employees, Teams, Attendance, Leave, Documents and
+ * A card grid that fans out to Employees, Teams, Departments, Attendance, Leave, Documents and
  * Announcements, each surfacing one live count. This replaced a mixed layout that
  * paired the sub-tab bar with an in-page show/hide filter (two navigations doing
  * the same job); the sub-tab bar now lives only on the sub-tool pages themselves.
@@ -71,10 +71,17 @@ export default function AdminPeoplePage() {
         },
         {
           title: t("Teams"),
-          description: t("Group the roster into departments and assign leads."),
+          description: t("Group the roster into sub-teams and assign leads."),
           icon: Users,
           href: "/admin/teams",
           tone: "neutral",
+        },
+        {
+          title: t("Departments"),
+          description: t("Organizational divisions, dual-domain mail routing, and staff allocations."),
+          icon: Building2,
+          href: "/admin/departments",
+          tone: "blue",
         },
         {
           title: t("Attendance"),
