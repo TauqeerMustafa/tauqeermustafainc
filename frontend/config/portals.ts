@@ -84,6 +84,12 @@ export const PORTAL_NAV: Record<PortalId, NavSection[]> = {
           icon: Users,
           matches: ["/admin/teams"],
         },
+        {
+          label: "Departments",
+          href: "/admin/departments",
+          icon: Building2,
+          matches: ["/admin/departments"],
+        },
         { label: "Attendance", href: "/admin/attendance", icon: Clock },
         { label: "Leave Requests", href: "/admin/leave", icon: CalendarDays },
         { label: "Documents", href: "/admin/documents", icon: FileText },
