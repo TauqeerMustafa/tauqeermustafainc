@@ -2,8 +2,8 @@ import type { MetadataRoute } from "next";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "Tauqeer Mustafa Inc Portals",
-    short_name: "TMI Portals",
+    name: "Qorlune Portals",
+    short_name: "Qorlune",
     description: "Enterprise Operations & Staff Management Portal for Employees, Admin, and Management.",
     start_url: "/portals",
     display: "standalone",

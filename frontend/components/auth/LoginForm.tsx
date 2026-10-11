@@ -109,7 +109,7 @@ export default function LoginForm({
           <div className="border border-adm-border bg-adm-surface">
             <div className="flex items-center gap-3 border-b border-adm-border bg-adm-surface-2 px-6 py-4">
               <span className="relative flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden border border-adm-border bg-surface">
-                <Image src="/logo.png" alt="Tauqeer Mustafa Inc." fill sizes="36px" className="object-cover" priority />
+                <Image src="/logo.png" alt="Qorlune" fill sizes="36px" className="object-contain p-0.5" priority />
               </span>
               <div className="min-w-0">
                 <h1 className="text-sm font-bold uppercase tracking-[0.12em] text-adm-text">
