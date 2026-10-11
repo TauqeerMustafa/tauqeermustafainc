@@ -210,7 +210,7 @@ export default function InternshipDispatchPage() {
       {/* Header */}
       <PortalPageHeader
         title={t("Internship Dispatch & Payslip Console")}
-        subtitle={t(
+        description={t(
           "Review active interns, customize USD payslip terms per 1-month roadmap, and verify before dispatching."
         )}
       />
@@ -232,7 +232,7 @@ export default function InternshipDispatchPage() {
         <StatCard
           label={t("Confirmed CRM Orders")}
           value="0 Orders"
-          tone="slate"
+          tone="neutral"
           hint={t("USD Payout condition: Confirmed order")}
         />
         <StatCard
@@ -249,7 +249,6 @@ export default function InternshipDispatchPage() {
         <div className="lg:col-span-5 flex flex-col gap-4">
           <Panel
             title={t("Select Intern (Sorted by Attendance)")}
-            description={t("Click an intern to inspect and customize their payslip")}
           >
             <div className="mb-4">
               <div className="relative">
@@ -340,7 +339,6 @@ export default function InternshipDispatchPage() {
           {/* Customization Form */}
           <Panel
             title={`${t("Customize Payslip for")} ${selectedEmp.name} (${selectedEmp.id})`}
-            description={t("Adjust USD stipend, order bonus, and tenure dates")}
           >
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
               <div>
@@ -445,7 +443,6 @@ export default function InternshipDispatchPage() {
           {/* Live Payslip & Email Document Preview */}
           <Panel
             title={t("Official Document Preview")}
-            description={t("Live rendered representation of the payslip & dispatch email")}
           >
             {/* Visual Payslip Document */}
             <div className="border border-adm-border rounded-lg bg-neutral-950 p-6 text-white font-sans text-xs space-y-4 shadow-xl">
