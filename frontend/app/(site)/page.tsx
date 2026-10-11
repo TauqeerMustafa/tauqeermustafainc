@@ -14,9 +14,9 @@ import WhatsAppChat from "@/components/whatsapp/WhatsAppChat";
 import { buildMetadata } from "@/lib/metadata";
 
 export const metadata: Metadata = buildMetadata({
-  title: "Tauqeer Mustafa Inc. | Web Development, Cybersecurity & AI Services",
+  title: "Qorlune LLC | Web Development, Cybersecurity & AI Services",
   description:
-    "Custom web development, cybersecurity consulting, AI automation, cloud engineering, and product design. Security-first engineering for businesses worldwide — built by TMI.",
+    "Custom web development, cybersecurity consulting, AI automation, cloud engineering, and product design. Security-first engineering for businesses worldwide — built by Qorlune.",
   path: "/",
 });
 

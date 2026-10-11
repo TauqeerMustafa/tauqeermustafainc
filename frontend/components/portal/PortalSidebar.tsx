@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import { ChevronRight, ExternalLink, X } from "lucide-react";
 
 import { PORTAL_NAV, isNavItemActive, type NavItem } from "@/config/portals";
+import { company } from "@/data/company";
 import { useCurrentUser } from "@/hooks/useAuth";
 import { useI18n } from "@/lib/i18n";
 import {
@@ -75,7 +76,7 @@ export default function PortalSidebar({ portal, isOpen, onClose }: Props) {
             </span>
             <span className="min-w-0">
               <span className="block text-sm font-semibold leading-tight tracking-tight text-adm-text">
-                TM Inc.
+                {company.shortName}
               </span>
               <span className="block truncate text-[11px] font-medium tracking-wide text-adm-blue">
                 {t(PORTAL_LABEL[portal])} {t("Portal")}
