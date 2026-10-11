@@ -12,8 +12,8 @@ import { organizationSchema, localBusinessSchema, websiteSchema } from "@/lib/sc
 export const metadata: Metadata = {
   metadataBase: new URL(appConfig.siteUrl),
   title: {
-    default: "Tauqeer Mustafa Inc. | Web Development, Cybersecurity & AI Services",
-    template: "%s | TMI",
+    default: "Qorlune LLC | Web Development, Cybersecurity & AI Services",
+    template: "%s | Qorlune",
   },
   description:
     "Full-stack web development, cybersecurity consulting, AI automation, and cloud engineering for businesses worldwide. Security-first engineering from a team that ships.",
@@ -25,17 +25,17 @@ export const metadata: Metadata = {
     "full stack development",
     "security-first development",
     "software engineering firm",
-    "Tauqeer Mustafa",
+    "Qorlune LLC",
   ],
-  authors: [{ name: "Tauqeer Mustafa", url: appConfig.siteUrl }],
-  creator: "Tauqeer Mustafa",
+  authors: [{ name: "Qorlune LLC", url: appConfig.siteUrl }],
+  creator: "Qorlune LLC",
   publisher: company.name,
-  applicationName: "TMI Portals",
+  applicationName: "Qorlune Portals",
   manifest: "/manifest.webmanifest",
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
-    title: "TMI Portals",
+    title: "Qorlune Portals",
   },
   icons: {
     icon: "/logo.png",
@@ -46,14 +46,14 @@ export const metadata: Metadata = {
     siteName: company.name,
     locale: "en_US",
     url: appConfig.siteUrl,
-    title: "Tauqeer Mustafa Inc. | Web Development, Cybersecurity & AI Services",
+    title: "Qorlune LLC | Web Development, Cybersecurity & AI Services",
     description:
       "Full-stack web development, cybersecurity consulting, AI automation, and cloud engineering. Security-first engineering, delivered globally.",
-    images: [{ url: "https://images.unsplash.com/photo-1518186285589-2f7649de83e0?auto=format&fit=crop&w=1600&q=80", width: 1200, height: 630, alt: "Tauqeer Mustafa Inc. - Digital Agency" }],
+    images: [{ url: "https://images.unsplash.com/photo-1518186285589-2f7649de83e0?auto=format&fit=crop&w=1600&q=80", width: 1200, height: 630, alt: "Qorlune LLC - Digital Technology Firm" }],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Tauqeer Mustafa Inc. | Web Development, Cybersecurity & AI",
+    title: "Qorlune LLC | Web Development, Cybersecurity & AI",
     description:
       "Full-stack web development, cybersecurity, AI automation, and cloud engineering — security-first, globally delivered.",
     images: ["https://images.unsplash.com/photo-1518186285589-2f7649de83e0?auto=format&fit=crop&w=1600&q=80"],

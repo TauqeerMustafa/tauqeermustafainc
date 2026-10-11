@@ -1,12 +1,12 @@
 export const company = {
-  name: "Tauqeer Mustafa Inc.",
+  name: "Qorlune LLC",
 
-  shortName: "TMI",
+  shortName: "Qorlune",
 
   tagline: "Engineering that ships. Security that holds.",
 
   description:
-    "A digital agency specializing in secure web platforms, cybersecurity consulting, AI integration, cloud engineering, and product design. We work with growing companies that need systems built to handle real operational load.",
+    "A digital technology firm specializing in secure web platforms, cybersecurity consulting, AI integration, cloud engineering, and product design. We work with growing companies that need systems built to handle real operational load.",
 
   mission:
     "To deliver integrated engineering and security work that solves actual business problems — platforms that scale, systems that stay secure, and implementations that teams can maintain.",
@@ -16,89 +16,86 @@ export const company = {
 
   founded: "2023",
 
-  // Registered head office — used for postal/legal contact and single-location consumers.
-  hq: "TMHQ, 6 Milton Rd, Harrow HA1 1XX, United Kingdom",
+  // Registered head office — official US address
+  hq: "1808 Orleans Ave, New Orleans, LA 70116, United States",
 
-  // Primary city label (kept for generic copy). Full list of locations is `offices`.
-  city: "Harrow, United Kingdom",
+  // Primary city label
+  city: "New Orleans, United States",
 
-  // All offices, head office first. Rendered wherever we show "our locations".
+  // All offices
   offices: [
     {
-      label: "Head Office",
-      city: "Harrow, United Kingdom",
-      address: "TMHQ, 6 Milton Rd, Harrow HA1 1XX, United Kingdom",
+      label: "Headquarters",
+      city: "New Orleans, United States",
+      address: "1808 Orleans Ave, New Orleans, LA 70116, United States",
       mapEmbedUrl:
-        "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2478.805554438541!2d-0.33609!3d51.590126999999995!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x487613a792782131%3A0xfe349ec1a1b858c!2sTauqeer%20Mustafa%20Inc.!5e0!3m2!1sen!2s!4v1788868991513!5m2!1sen!2s",
+        "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3456.883726715694!2d-90.0768!3d29.9675!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x8620a61a0d859e91%3A0x6b45d2e3f4347712!2s1808%20Orleans%20Ave%2C%20New%20Orleans%2C%20LA%2070116!5e0!3m2!1sen!2sus",
     },
     {
-      label: "Regional Office",
-      city: "Islamabad, Pakistan",
-      address: "TMRQ Flat No 02-A A Block, Awais Appartment, Iqbal Town, Islamabad, Pakistan",
+      label: "UK Operations Desk",
+      city: "Harrow, United Kingdom",
+      address: "6 Milton Rd, Harrow HA1 1XX, United Kingdom",
       mapEmbedUrl:
-        "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2590.576371136363!2d73.092347510015!3d33.644887339020876!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x38dfeb25cff2f1f5%3A0x40402eca6dcd5e75!2sTauqeer%20Mustafa!5e1!3m2!1sen!2s!4v1786901231225!5m2!1sen!2s",
+        "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2478.805554438541!2d-0.33609!3d51.590126999999995!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x487613a792782131%3A0xfe349ec1a1b858c!2sHarrow!5e0!3m2!1sen!2suk",
     },
   ],
 
-  email: "contact@tauqeermustafa.com",
+  email: "support@qorlune.com",
 
   emails: {
-    general: "info@tauqeermustafa.com",
-    contact: "contact@tauqeermustafa.com",
-    support: "support@tauqeermustafa.com",
-    sales: "sales@tauqeermustafa.com",
-    marketing: "marketing@tauqeermustafa.com",
-    legal: "legal@tauqeermustafa.com",
-    careers: "careers@tauqeermustafa.com",
-    business: "business@tauqeermustafa.com",
-    billing: "billing@tauqeermustafa.com",
+    general: "info@qorlune.com",
+    contact: "contact@qorlune.com",
+    support: "support@qorlune.com",
+    sales: "sales@qorlune.com",
+    marketing: "marketing@qorlune.com",
+    legal: "legal@qorlune.com",
+    careers: "careers@qorlune.com",
+    business: "business@qorlune.com",
+    billing: "billing@qorlune.com",
   },
 
   mapEmbedUrl:
-    "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2478.805554438541!2d-0.33609!3d51.590126999999995!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x487613a792782131%3A0xfe349ec1a1b858c!2sTauqeer%20Mustafa%20Inc.!5e0!3m2!1sen!2s!4v1788868991513!5m2!1sen!2s",
+    "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3456.883726715694!2d-90.0768!3d29.9675!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x8620a61a0d859e91%3A0x6b45d2e3f4347712!2s1808%20Orleans%20Ave%2C%20New%20Orleans%2C%20LA%2070116!5e0!3m2!1sen!2sus",
 
-  phone: "+92 335 6701199",
+  phone: "+1 (213) 754-6766",
 
-  whatsapp: "https://wa.me/message/NMUGLZ5AW7TVC1",
+  whatsapp: "https://wa.me/12137546766",
 
   whatsappChannels: {
     general: {
       name: "General Inquiries & Sales",
-      number: "+92 335 6701199",
-      url: "https://wa.me/message/NMUGLZ5AW7TVC1",
-      displayNumber: "+92 335 6701199",
+      number: "+1 (213) 754-6766",
+      url: "https://wa.me/12137546766",
+      displayNumber: "+1 (213) 754-6766",
       description: "Business inquiries, service proposals, partnerships, and general questions",
       action: "Chat with Sales & Info",
       badge: "General & Sales",
     },
     support: {
       name: "Technical & Client Support",
-      number: "wa.me/message/TJILSTIMLJHVK1",
-      url: "https://wa.me/message/TJILSTIMLJHVK1",
-      displayNumber: "wa.me/message/TJILSTIMLJHVK1",
+      number: "+1 (213) 754-6766",
+      url: "https://wa.me/12137546766",
+      displayNumber: "+1 (213) 754-6766",
       description: "24/7 client helpdesk, SLA ticket escalation, and live technical support",
       action: "Contact Support Desk",
       badge: "24/7 Client Support",
     },
     direct: {
-      name: "Executive & Direct Desk",
-      number: process.env.NEXT_PUBLIC_WHATSAPP_NUMBER_3 || "+44 7575 376078",
-      url:
-        process.env.NEXT_PUBLIC_WHATSAPP_URL_3 ||
-        `https://wa.me/${(process.env.NEXT_PUBLIC_WHATSAPP_NUMBER_3 || "+44 7575 376078").replace(/[^0-9]/g, "")}?text=%5BExecutive%20Desk%5D%20Hello%2C%20I%20would%20like%20to%20inquire%20about%20enterprise%20consultation.`,
-      displayNumber: process.env.NEXT_PUBLIC_WHATSAPP_DISPLAY_3 || "+44 7575 376078",
+      name: "Executive Desk",
+      number: "+44 7575 376078",
+      url: "https://wa.me/447575376078",
+      displayNumber: "+44 7575 376078",
       description: "Executive desk, enterprise proposals & strategic partnerships",
       action: "Chat with Executive Desk",
       badge: "Priority Desk",
     },
   },
 
-  website: "https://tauqeermustafa.com",
+  website: "https://www.qorlune.com",
 
-  workingHours: "Monday - Friday | 9:00 AM - 6:00 PM",
+  workingHours: "Monday - Friday | 9:00 AM - 6:00 PM EST",
 
-  slogan:
-    "Building secure digital experiences for the next generation of businesses.",
+  slogan: "Building secure digital experiences for the next generation of businesses.",
 
   targetClients: [
     "Startups",
@@ -114,13 +111,13 @@ export const company = {
   colors: {
     primary: "#111111",
     secondary: "#FFFFFF",
-    accent: "#171717",
+    accent: "#E5007D",
   },
 
   social: {
-    github: "https://github.com/tauqeermustafa",
-    linkedin: "https://linkedin.com/in/tauqeermustafa",
-    twitter: "https://x.com/tauqeermustafainc",
+    github: "https://github.com/qorlune",
+    linkedin: "https://linkedin.com/company/qorlune",
+    twitter: "https://x.com/qorlune",
   },
 };
 

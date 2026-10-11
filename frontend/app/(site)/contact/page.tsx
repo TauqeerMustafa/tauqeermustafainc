@@ -23,7 +23,7 @@ import { company } from "@/data/company";
 export const metadata: Metadata = {
   title: `Contact | ${company.name}`,
   description:
-    "Start a conversation with Tauqeer Mustafa Inc. about enterprise web development, cybersecurity, AI solutions, cloud engineering, or product design.",
+    "Start a conversation with Qorlune LLC about enterprise web development, cybersecurity, AI solutions, cloud engineering, or product design.",
 };
 
 const expectations = [

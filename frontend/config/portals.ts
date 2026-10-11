@@ -127,6 +127,12 @@ export const PORTAL_NAV: Record<PortalId, NavSection[]> = {
             PERMISSION.LEADS_READ_ALL,
           ],
         },
+        {
+          label: "Internship Payslips & Dispatch",
+          href: "/admin/internship-dispatch",
+          icon: FileText,
+          matches: ["/admin/internship-dispatch"],
+        },
       ],
     },
     {
