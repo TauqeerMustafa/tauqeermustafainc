@@ -62,8 +62,16 @@ export async function proxy(request: NextRequest) {
   const url = request.nextUrl.clone();
   const hostname = request.headers.get("host") || "";
 
-  // Note: .tech -> .com redirect removed to prevent loop with hosting provider/Vercel
-  // canonical domain settings.
+  // Redirect all .tech requests permanently (308) to matching .com domains
+  if (
+    !hostname.includes("localhost") &&
+    !hostname.includes("127.0.0.1") &&
+    hostname.includes("tauqeermustafa.tech")
+  ) {
+    const targetHost = hostname.replace("tauqeermustafa.tech", "tauqeermustafa.com");
+    const search = request.nextUrl.search;
+    return NextResponse.redirect(`https://${targetHost}${pathname}${search}`, 308);
+  }
 
   // Delete / block APK and download access from portals
   if (
