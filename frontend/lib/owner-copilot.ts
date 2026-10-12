@@ -1,10 +1,10 @@
 /**
  * owner-copilot.ts
  *
- * Dedicated Remote AI Operations & Executive Copilot for Tauqeer Mustafa (Principal/Founder).
+ * Dedicated Remote AI Operations & Executive Copilot for Qorlune LLC (Principal/Founder).
  * Phone: 03404941658 (Intl: +92 340 4941658 / 923404941658)
  *
- * This module empowers Tauqeer to guide the AI and manage the entire company
+ * This module empowers Leadership to guide the AI and manage the entire company
  * remotely directly from WhatsApp without opening a laptop.
  */
 
@@ -136,13 +136,13 @@ export async function generateProfessionalClientReply(
 ): Promise<string | null> {
   const name = senderName ? ` for ${senderName}` : "";
   const systemInstruction =
-    `You are the Senior Technical Solutions Architect for Tauqeer Mustafa Inc (tauqeermustafa.com), an elite engineering consultancy specializing in custom software, AI copilots, cybersecurity audits, and scalable cloud architecture.\n` +
+    `You are the Senior Technical Solutions Architect for Qorlune LLC (qorlune.com), an elite engineering consultancy specializing in custom software, AI copilots, cybersecurity audits, and scalable cloud architecture.\n` +
     `Respond to the client's inquiry${name} with unmatched technical authority, warmth, and prestigious executive professionalism.\n` +
     `Rules:\n` +
     `1. NEVER provide personal phone numbers or direct hotline numbers under any circumstances.\n` +
     `2. Address their EXACT question or project requirement thoroughly. If they ask about features, architecture, integrations, timeline, or tech stack, provide a concrete, high-IQ architectural overview in 2-3 focused paragraphs.\n` +
     `3. Conclude by inviting them to share their timeline targets, system requirements, or drop a quick voice note right here in this chat.\n` +
-    `4. Remind them that Principal Engineer Tauqeer Mustafa personally reviews every client brief and will reply directly in this conversation.\n` +
+    `4. Remind them that Principal Engineer Qorlune LLC personally reviews every client brief and will reply directly in this conversation.\n` +
     `5. Format cleanly using WhatsApp markdown (*bold*, bullet points).`;
 
   return callGenerativeAI(query, systemInstruction, "client");
@@ -175,7 +175,7 @@ export async function handleOwnerCopilotCommand(params: {
     return {
       replyText:
         `👑 *Executive AI Copilot — Online* ⚡\n\n` +
-        `Welcome, Boss. I'm your dedicated remote operations commander for *Tauqeer Mustafa Inc.* You have full executive control from WhatsApp without your laptop.\n\n` +
+        `Welcome, Boss. I'm your dedicated remote operations commander for *Qorlune LLC* You have full executive control from WhatsApp without your laptop.\n\n` +
         `🚀 *Quick Operational Commands:*\n` +
         `• *status* or *pulse* — Live company health & telemetry\n` +
         `• *leads* or *inbox* — Latest client inquiries & briefs\n` +
@@ -299,7 +299,7 @@ export async function handleOwnerCopilotCommand(params: {
         `───────────────────────────\n` +
         `• *Active Quota:* 30–50 verified outreaches daily per member\n` +
         `• *Reporting Deadline:* 6:00 PM PKT daily in Google Sheet\n` +
-        `• *Corporate Webmail:* https://webmail.tauqeermustafa.tech\n` +
+        `• *Corporate Webmail:* https://webmail.qorlune.com\n` +
         `• *Verification Policy:* Hard bounces must be marked Invalid immediately\n` +
         `───────────────────────────\n` +
         `To assign a task, text: *task: <description>*\n` +
@@ -323,7 +323,7 @@ export async function handleOwnerCopilotCommand(params: {
       replyText:
         `🚀 *Careers & Talent Pipeline*\n` +
         `───────────────────────────\n` +
-        `• *Portal:* https://tauqeermustafa.com/careers\n` +
+        `• *Portal:* https://qorlune.com/careers\n` +
         `• *Open Roles:* Full-Stack Engineer, AI Copilot Engineer, Cloud Architect, B2B Marketing Intern\n` +
         `• *Review Policy:* Technical leadership reviews all applicant GitHub portfolios directly\n` +
         `───────────────────────────\n` +
@@ -347,7 +347,7 @@ export async function handleOwnerCopilotCommand(params: {
           id: `task_${Date.now()}`,
           title: taskContent,
           priority,
-          createdBy: "Principal Tauqeer (WhatsApp Remote)",
+          createdBy: "Principal Architect (WhatsApp Remote)",
           createdAt: new Date().toISOString(),
           status: "pending",
         });
@@ -380,7 +380,7 @@ export async function handleOwnerCopilotCommand(params: {
         announcements.push({
           id: `memo_${Date.now()}`,
           content: memoContent,
-          publishedBy: "Tauqeer Mustafa (Founder)",
+          publishedBy: "Qorlune Leadership",
           timestamp: new Date().toISOString(),
         });
         await kv.set("company:announcements", announcements.slice(-20));
@@ -400,8 +400,8 @@ export async function handleOwnerCopilotCommand(params: {
 
   // ─── 8. Autonomous Generative AI Assistance (Any Directive / Query) ───────
   const ownerSystemPrompt =
-    `You are the Senior Executive AI Copilot & Virtual Chief of Staff for Tauqeer Mustafa, Principal Engineer and Founder of Tauqeer Mustafa Inc.\n` +
-    `Tauqeer is directing you remotely via WhatsApp without his laptop. Speak directly to him as Boss/Principal.\n` +
+    `You are the Senior Executive AI Copilot & Virtual Chief of Staff for Qorlune LLC, Principal Engineer and Founder of Qorlune LLC\n` +
+    `Leadership is directing you remotely via WhatsApp without his laptop. Speak directly to him as Boss/Principal.\n` +
     `Be concise, highly strategic, brilliant, and executive. Provide crisp bullet points, ready-to-use email drafts, technical blueprints, and actionable decisions.\n` +
     `Never waste words with generic fluff or disclaimers. Format cleanly with WhatsApp markdown (*bold*, bullet points).`;
 
@@ -423,15 +423,15 @@ export async function handleOwnerCopilotCommand(params: {
     return {
       replyText:
         `📝 *Executive Draft Prepared for Boss:*\n\n` +
-        `*Subject:* Re: Technical Architecture & Scoping — Tauqeer Mustafa Inc\n\n` +
+        `*Subject:* Re: Technical Architecture & Scoping — Qorlune LLC\n\n` +
         `"Dear Client,\n\n` +
         `Thank you for detailing your requirements. Our engineering team has reviewed the scope and architectural prerequisites.\n\n` +
         `We have structured our deliverables into clear milestones: discovery & architecture blueprint, core development sprint, and production hardening.\n\n` +
         `Let us know if you'd like to schedule a 15-minute technical sync to finalize the delivery schedule.\n\n` +
         `Best regards,\n` +
-        `*Tauqeer Mustafa*\n` +
+        `*Qorlune LLC*\n` +
         `Principal Engineer & Founder\n` +
-        `Tauqeer Mustafa Inc"`,
+        `Qorlune LLC"`,
     };
   }
 

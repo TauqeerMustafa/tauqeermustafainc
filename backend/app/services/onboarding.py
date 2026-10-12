@@ -155,7 +155,7 @@ def _welcome_body(
     name: str, email: str, password: str, role_name: str, login_url: str
 ) -> str:
     first_name = name.split()[0] if name.strip() else "there"
-    return f"""Congratulations {first_name} — welcome to Tauqeer Mustafa Inc.
+    return f"""Congratulations {first_name} — welcome to Qorlune LLC
 
 Your {role_name} account is live and you can start today. Here are your
 credentials:
@@ -180,11 +180,11 @@ ask before you guess.
 
 Welcome aboard.
 
-— Tauqeer Mustafa Inc
+— Qorlune LLC
 """
 
 
-_WELCOME_SUBJECT = "Welcome to Tauqeer Mustafa Inc — your portal credentials"
+_WELCOME_SUBJECT = "Welcome to Qorlune LLC — your portal credentials"
 
 
 def _send_via_openemail(
@@ -228,7 +228,7 @@ def _send_via_openemail(
         openemail.send_message(
             mailbox_id,
             from_email=from_email,
-            from_name=sender_name or "Tauqeer Mustafa Inc",
+            from_name=sender_name or "Qorlune LLC",
             to=[to_email],
             subject=subject,
             text=text,
@@ -323,7 +323,7 @@ def send_password_reset_notification(
     login_url = login_url_for_role(role_slug)
     body = f"""Hello {first_name},
 
-Your password for your Tauqeer Mustafa Inc account has been reset by an administrator.
+Your password for your Qorlune LLC account has been reset by an administrator.
 
 Your updated credentials are:
 
@@ -335,9 +335,9 @@ Please sign in and change this temporary password from Settings if desired.
 
 If you did not expect this password reset, please reach out to your administrator.
 
-— Tauqeer Mustafa Inc
+— Qorlune LLC
 """
-    subject = "Tauqeer Mustafa Inc — your password has been reset"
+    subject = "Qorlune LLC — your password has been reset"
     if _send_via_openemail(
         to_email=to_email,
         subject=subject,

@@ -3,8 +3,8 @@
  * into a client component; go through the /api/mail/* routes instead.
  *
  * Supports Dual Domain Routing:
- * 1. OPENEMAIL_TECH_API_KEY: Handles all employee mailboxes on tauqeermustafa.tech
- * 2. OPENEMAIL_COM_API_KEY: Dedicated scoped key for executive tauqeermustafa.com
+ * 1. OPENEMAIL_TECH_API_KEY: Handles all employee mailboxes on qorlune.com
+ * 2. OPENEMAIL_COM_API_KEY: Dedicated scoped key for executive qorlune.com
  *
  * Endpoints (verified against open.email docs):
  *   GET  /mailboxes
@@ -22,7 +22,7 @@ export const OPENEMAIL_TECH_API_KEY =
   process.env.OPENEMAIL_API_KEY ||
   "oek_vLhzeeO6fO_owBMaIIkLLzFPAWezb9I-f5H7isSGYug";
 
-// .com accounts (ceo@ and notifications@ on tauqeermustafa.com)
+// .com accounts (ceo@ and notifications@ on qorlune.com)
 export const OPENEMAIL_COM_API_KEY =
   process.env.OPENEMAIL_COM_API_KEY ||
   "oek_MB82hkIw8oJa0h-MG0mODJ1i5vHmInjB0Y3JWtH3NVo";

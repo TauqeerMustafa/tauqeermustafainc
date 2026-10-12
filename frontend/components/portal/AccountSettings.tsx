@@ -379,7 +379,7 @@ export default function AccountSettings() {
                 rows={3}
                 value={bio}
                 onChange={(event) => setBio(event.target.value)}
-                placeholder="Brief summary of your background, specialties, and role at TMI..."
+                placeholder="Brief summary of your background, specialties, and role at Qorlune..."
                 className={inputClass}
               />
             </Field>

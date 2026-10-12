@@ -23,7 +23,7 @@ NOTE:${company.tagline} - ${company.description}
 END:VCARD`;
 
   const blob = new Blob([vcardContent], { type: "text/vcard;charset=utf-8" });
-  saveAs(blob, "Tauqeer-Mustafa-Inc-Contact.vcf");
+  saveAs(blob, "Qorlune-LLC-Contact.vcf");
 }
 
 /**
@@ -88,7 +88,7 @@ export function generateDocxProposal(): void {
 
   <h2>4. Commercial & Proposal Contacts</h2>
   <p>To initiate a statement of work or request a formal technical review, please contact:</p>
-  <p><strong>Tauqeer Mustafa Inc. Commercial Desk</strong><br>
+  <p><strong>Qorlune LLC Commercial Desk</strong><br>
   Email: ${company.emails.sales}<br>
   Website: <a href="${company.website}">${company.website}</a></p>
 </body>
@@ -96,7 +96,7 @@ export function generateDocxProposal(): void {
 `;
 
   const blob = new Blob([htmlDoc], { type: "application/msword;charset=utf-8" });
-  saveAs(blob, "Tauqeer-Mustafa-Inc-Proposal-Template.doc");
+  saveAs(blob, "Qorlune-LLC-Proposal-Template.doc");
 }
 
 /**
@@ -110,7 +110,7 @@ export async function generateBrandKitZip(): Promise<void> {
   <rect width="100%" height="100%" fill="#0d1117"/>
   <rect x="20" y="20" width="60" height="60" rx="10" fill="#2563eb"/>
   <text x="36" y="62" font-family="Arial, sans-serif" font-size="32" font-weight="bold" fill="#ffffff">TM</text>
-  <text x="96" y="55" font-family="Arial, sans-serif" font-size="24" font-weight="bold" fill="#ffffff">Tauqeer Mustafa Inc.</text>
+  <text x="96" y="55" font-family="Arial, sans-serif" font-size="24" font-weight="bold" fill="#ffffff">Qorlune LLC</text>
   <text x="96" y="72" font-family="Arial, sans-serif" font-size="11" font-weight="bold" fill="#38bdf8" letter-spacing="1">ENGINEERING &amp; SECURITY</text>
 </svg>`;
 
@@ -119,7 +119,7 @@ export async function generateBrandKitZip(): Promise<void> {
   <rect width="100%" height="100%" fill="#ffffff"/>
   <rect x="20" y="20" width="60" height="60" rx="10" fill="#111827"/>
   <text x="36" y="62" font-family="Arial, sans-serif" font-size="32" font-weight="bold" fill="#ffffff">TM</text>
-  <text x="96" y="55" font-family="Arial, sans-serif" font-size="24" font-weight="bold" fill="#111827">Tauqeer Mustafa Inc.</text>
+  <text x="96" y="55" font-family="Arial, sans-serif" font-size="24" font-weight="bold" fill="#111827">Qorlune LLC</text>
   <text x="96" y="72" font-family="Arial, sans-serif" font-size="11" font-weight="bold" fill="#2563eb" letter-spacing="1">ENGINEERING &amp; SECURITY</text>
 </svg>`;
 
@@ -131,13 +131,13 @@ export async function generateBrandKitZip(): Promise<void> {
 </svg>`;
 
   // 4. Brand Guidelines Document
-  const brandGuideMd = `# Tauqeer Mustafa Inc. — Official Brand Guidelines & Press Spec
+  const brandGuideMd = `# Qorlune LLC — Official Brand Guidelines & Press Spec
 
 ## 1. Company Name & Verbal Identity
-- **Full Legal Name:** Tauqeer Mustafa Inc.
+- **Full Legal Name:** Qorlune LLC
 - **Short Name:** TMI
 - **Tagline:** Engineering that ships. Security that holds.
-- **Primary Website:** https://tauqeermustafa.com
+- **Primary Website:** https://qorlune.com
 
 ## 2. Color Palette
 - **Obsidian Dark (Canvas / Hero):** \`#0D1117\` (RGB: 13, 17, 23)
@@ -157,11 +157,11 @@ export async function generateBrandKitZip(): Promise<void> {
 
 ## 5. Media Contact
 For press inquiries, brand permissions, or high-res photography requests:
-Email: marketing@tauqeermustafa.com / contact@tauqeermustafa.com
+Email: marketing@qorlune.com / contact@qorlune.com
 `;
 
   // 5. Company Facts Markdown
-  const factsMd = `# Tauqeer Mustafa Inc. Quick Facts Sheet
+  const factsMd = `# Qorlune LLC Quick Facts Sheet
 
 - **Founded:** 2023
 - **Head Office:** TMHQ, 6 Milton Rd, Harrow HA1 1XX, London, United Kingdom
@@ -170,8 +170,8 @@ Email: marketing@tauqeermustafa.com / contact@tauqeermustafa.com
 - **Deliveries:** 45+ Production Systems
 - **SLA Uptime:** 99.98% Maintained
 - **Direct Contacts:**
-  - Sales & Proposals: sales@tauqeermustafa.com
-  - Support & Helpdesk: support@tauqeermustafa.com
+  - Sales & Proposals: sales@qorlune.com
+  - Support & Helpdesk: support@qorlune.com
   - WhatsApp Line: +92 335 6701199
 `;
 
@@ -182,5 +182,5 @@ Email: marketing@tauqeermustafa.com / contact@tauqeermustafa.com
   zip.file("COMPANY-FACTS.md", factsMd);
 
   const content = await zip.generateAsync({ type: "blob" });
-  saveAs(content, "Tauqeer-Mustafa-Inc-Brand-Kit.zip");
+  saveAs(content, "Qorlune-LLC-Brand-Kit.zip");
 }

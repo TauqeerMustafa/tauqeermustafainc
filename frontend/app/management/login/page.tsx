@@ -6,7 +6,7 @@ import { PORTAL } from "@/lib/rbac";
 
 export const metadata: Metadata = buildMetadata({
   title: "Management Login",
-  description: "Sign in to the Tauqeer Mustafa Inc. management portal.",
+  description: "Sign in to the Qorlune LLC management portal.",
   path: "/management/login",
   noIndex: true,
 });

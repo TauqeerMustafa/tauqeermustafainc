@@ -77,7 +77,7 @@ export const profileSlides: ProfileSlide[] = [
     id: 1,
     slideNumber: "01",
     category: "Executive Title",
-    title: "Tauqeer Mustafa Inc.",
+    title: "Qorlune LLC",
     subtitle: "Engineering that ships. Security that holds.",
     bullets: [
       "High-assurance digital platforms, cybersecurity consulting, AI workflows, and cloud engineering.",
@@ -86,10 +86,10 @@ export const profileSlides: ProfileSlide[] = [
       "Empowering startups, scaling SaaS, and enterprises to build mission-critical systems.",
     ],
     keyHighlights: [
-      { label: "Entity", value: "Tauqeer Mustafa Inc." },
+      { label: "Entity", value: "Qorlune LLC" },
       { label: "Founded", value: "2023" },
       { label: "HQ", value: "London / Harrow, UK" },
-      { label: "Website", value: "tauqeermustafa.com" },
+      { label: "Website", value: "qorlune.com" },
     ],
   },
   {
@@ -100,7 +100,7 @@ export const profileSlides: ProfileSlide[] = [
     subtitle: "Bridging the gap between engineering velocity and uncompromising security.",
     bullets: [
       "Most digital agencies decouple development from security — leading to fragile code and costly late audits.",
-      "TMI operates as one unified discipline: full-stack engineering with built-in adversarial threat modeling.",
+      "Qorlune operates as one unified discipline: full-stack engineering with built-in adversarial threat modeling.",
       "We build resilient systems designed to handle real operational traffic, compliance mandates, and high concurrency.",
       "Focused on long-term maintainability with comprehensive documentation and knowledge transfer.",
     ],
@@ -253,16 +253,16 @@ export const profileSlides: ProfileSlide[] = [
     title: "Let's Build Together",
     subtitle: "Direct technical consultations with our leadership team.",
     bullets: [
-      "Website: https://tauqeermustafa.com",
-      "Direct Sales & Proposal Inquiries: sales@tauqeermustafa.com / contact@tauqeermustafa.com",
+      "Website: https://qorlune.com",
+      "Direct Sales & Proposal Inquiries: sales@qorlune.com / contact@qorlune.com",
       "WhatsApp Sales Channel: +92 335 6701199 (Direct WhatsApp Chat)",
-      "24/7 Client Technical Support: support@tauqeermustafa.com / wa.me/message/TJILSTIMLJHVK1",
+      "24/7 Client Technical Support: support@qorlune.com / wa.me/message/TJILSTIMLJHVK1",
       "Executive & Direct Desk: WhatsApp Priority Hotline",
-      "Founder GitHub: github.com/tauqeermustafa | LinkedIn: linkedin.com/in/tauqeermustafa",
+      "Engineering GitHub: github.com/qorlune | LinkedIn: linkedin.com/company/qorlune",
     ],
     keyHighlights: [
-      { label: "General Email", value: "info@tauqeermustafa.com" },
-      { label: "Sales Email", value: "sales@tauqeermustafa.com" },
+      { label: "General Email", value: "info@qorlune.com" },
+      { label: "Sales Email", value: "sales@qorlune.com" },
       { label: "WhatsApp", value: "+92 335 6701199" },
       { label: "Executive Desk", value: "Priority WhatsApp Line" },
       { label: "Support", value: "24/7 Live Desk" },
@@ -297,8 +297,8 @@ export const clientSources: ClientSourceItem[] = [
     title: "Official Web Domain",
     category: "entity",
     description: "Verified primary domain with TLS 1.3 security and DNSSEC",
-    displayValue: "https://tauqeermustafa.com",
-    link: "https://tauqeermustafa.com",
+    displayValue: "https://qorlune.com",
+    link: "https://qorlune.com",
     verified: true,
     actionLabel: "Visit Website",
   },
@@ -369,7 +369,7 @@ export const clientSources: ClientSourceItem[] = [
     title: "Responsible Vulnerability Disclosure",
     category: "security",
     description: "Vulnerability reporting program and security contact SLA",
-    displayValue: "security@tauqeermustafa.com",
+    displayValue: "security@qorlune.com",
     link: "/documents/responsible-disclosure",
     verified: true,
     actionLabel: "View Disclosure Terms",
@@ -431,7 +431,7 @@ export const clientSources: ClientSourceItem[] = [
     title: "Engineering Portfolio & Open Source",
     category: "social",
     description: "Verified GitHub repositories, code examples, and technical work",
-    displayValue: "github.com/tauqeermustafa",
+    displayValue: "github.com/qorlune",
     link: company.social.github,
     verified: true,
     actionLabel: "View GitHub",
@@ -441,7 +441,7 @@ export const clientSources: ClientSourceItem[] = [
     title: "LinkedIn Executive Profile",
     category: "social",
     description: "Official executive presence and corporate updates",
-    displayValue: "linkedin.com/in/tauqeermustafa",
+    displayValue: "linkedin.com/company/qorlune",
     link: company.social.linkedin,
     verified: true,
     actionLabel: "View LinkedIn",
@@ -456,7 +456,7 @@ export const outreachTemplates: OutreachTemplate[] = [
     purpose: "Send to warm prospects or incoming WhatsApp inquiries with attached deck.",
     body: `Hi [ClientName],
 
-Thanks for reaching out to Tauqeer Mustafa Inc. (TMI).
+Thanks for reaching out to Qorlune LLC.
 
 We are a UK-headquartered digital engineering agency specializing in:
 ✓ High-performance Web Platforms & SaaS (Next.js/React/Node)
@@ -470,7 +470,7 @@ Would you be open for a brief 15-minute technical discovery call this week to re
 
 Best regards,
 [EmployeeName]
-Tauqeer Mustafa Inc. | https://tauqeermustafa.com`,
+Qorlune LLC | https://qorlune.com`,
     variables: ["[ClientName]", "[EmployeeName]"],
   },
   {
@@ -478,12 +478,12 @@ Tauqeer Mustafa Inc. | https://tauqeermustafa.com`,
     title: "Email: Formal Executive Introduction & Company Profile",
     channel: "email",
     purpose: "Formal introductory email to CTOs, VPs of Engineering, and Founders with profile PDF/PPTX attached.",
-    subject: "Introduction: Engineering & Security Partnership with Tauqeer Mustafa Inc. (TMI)",
+    subject: "Introduction: Engineering & Security Partnership with Qorlune LLC",
     body: `Dear [ClientName],
 
 I hope this email finds you well.
 
-I am writing from Tauqeer Mustafa Inc. (TMI), a UK-registered digital engineering agency (HQ London / Harrow). We partner with high-growth companies, startups, and enterprises that require systems built to handle real operational pressure without security tradeoffs.
+I am writing from Qorlune LLC, a UK-registered digital engineering agency (HQ London / Harrow). We partner with high-growth companies, startups, and enterprises that require systems built to handle real operational pressure without security tradeoffs.
 
 Our core disciplines include:
 1. Web Engineering & SaaS Systems: Modern Next.js/TypeScript architectures engineered for sub-100ms response times.
@@ -501,9 +501,9 @@ Sincerely,
 
 [EmployeeName]
 Technical Partnerships Lead
-Tauqeer Mustafa Inc.
-Website: https://tauqeermustafa.com
-Direct Sales: sales@tauqeermustafa.com
+Qorlune LLC
+Website: https://qorlune.com
+Direct Sales: sales@qorlune.com
 WhatsApp: +92 335 6701199`,
     variables: ["[ClientName]", "[EmployeeName]", "[SuggestedDate]"],
   },
@@ -512,16 +512,16 @@ WhatsApp: +92 335 6701199`,
     title: "Security & Compliance Assurance Snippet",
     channel: "proposal",
     purpose: "Send to enterprise clients requesting security, NDA, or compliance verification during procurement.",
-    body: `Tauqeer Mustafa Inc. — Security & Compliance Profile Summary
+    body: `Qorlune LLC — Security & Compliance Profile Summary
 
 • Head Office: TMHQ, 6 Milton Rd, Harrow HA1 1XX, United Kingdom
 • Security Philosophy: Zero-Trust by default; OWASP Top 10 mitigation embedded in development sprints.
 • Data Protection: TLS 1.3 encryption in transit; AES-256 at rest; strict RBAC and least-privilege policies.
 • Legal & Governance:
-  - Mutual NDA: https://tauqeermustafa.com/documents/nda
-  - Privacy & GDPR: https://tauqeermustafa.com/documents/gdpr
-  - Information Security Policy: https://tauqeermustafa.com/documents/security-policy
-  - SLA Commitments: https://tauqeermustafa.com/documents/sla
+  - Mutual NDA: https://qorlune.com/documents/nda
+  - Privacy & GDPR: https://qorlune.com/documents/gdpr
+  - Information Security Policy: https://qorlune.com/documents/security-policy
+  - SLA Commitments: https://qorlune.com/documents/sla
 • IP Ownership: 100% intellectual property transfer upon milestone completion with zero vendor lock-in.
 • Support SLA: 24/7 dedicated escalation desk with guaranteed response times.`,
     variables: [],
@@ -535,7 +535,7 @@ WhatsApp: +92 335 6701199`,
 
 Noticed your team at [CompanyName] is scaling your digital platforms. 
 
-At Tauqeer Mustafa Inc. (TMI), we help fast-growing teams ship secure, production-grade web platforms, cloud infrastructure, and AI workflows without the usual agency bloat or handoff friction.
+At Qorlune LLC, we help fast-growing teams ship secure, production-grade web platforms, cloud infrastructure, and AI workflows without the usual agency bloat or handoff friction.
 
 We work directly with engineering leaders from architecture discovery through launch.
 
@@ -604,7 +604,7 @@ export const downloadableCollateral = [
     format: "VCF",
     extension: ".vcf",
     fileSize: "~5 KB",
-    description: "1-click digital contact file importing verified TMI corporate phone, email, WhatsApp, and office address into any device.",
+    description: "1-click digital contact file importing verified Qorlune corporate phone, email, WhatsApp, and office address into any device.",
     type: "vcard",
     badge: "1-Click Contact",
   },

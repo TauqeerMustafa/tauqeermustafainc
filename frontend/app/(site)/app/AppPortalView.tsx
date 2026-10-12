@@ -82,7 +82,7 @@ export default function AppPortalView() {
       <div className="absolute left-0 right-0 top-0 m-stripe" />
 
       {/* ── Hero Section ── */}
-      <section className="relative px-5 pb-20 pt-20 sm:px-6 sm:pt-28 lg:pt-36" aria-label="TMI Portals App Hero">
+      <section className="relative px-5 pb-20 pt-20 sm:px-6 sm:pt-28 lg:pt-36" aria-label="Qorlune Portals App Hero">
         <div className="mx-auto max-w-[1200px]">
           <div className="flex flex-col items-center text-center">
             {/* Eyebrow badge */}
@@ -93,7 +93,7 @@ export default function AppPortalView() {
               className="inline-flex items-center gap-2 border border-ink/15 bg-surface px-4 py-1.5 font-mono text-[11px] font-bold uppercase tracking-[0.14em] text-action shadow-sm"
             >
               <Smartphone className="h-3.5 w-3.5" />
-              <span>Official TMI Multi-Portal App • APK & PWA</span>
+              <span>Official Qorlune Multi-Portal App • APK & PWA</span>
             </motion.div>
 
             {/* Display Headline */}
@@ -115,7 +115,7 @@ export default function AppPortalView() {
               transition={{ duration: 0.6, delay: 0.18, ease: [0.22, 1, 0.36, 1] }}
               className="mt-6 max-w-3xl text-pretty text-[17px] font-light leading-[1.6] tracking-[-0.01em] text-ink/70 sm:text-[20px]"
             >
-              The unified mobile suite for Tauqeer Mustafa Inc. Engineered for Employees, Management,
+              The unified mobile suite for Qorlune LLC Engineered for Employees, Management,
               and Administrators. Download the direct Android APK or install the universal Progressive Web App with zero friction.
             </motion.p>
 
@@ -128,8 +128,8 @@ export default function AppPortalView() {
             >
               {/* Primary APK Download */}
               <a
-                href="/downloads/TMI-Portals.apk"
-                download="TMI-Portals.apk"
+                href="/downloads/Qorlune-Portals.apk"
+                download="Qorlune-Portals.apk"
                 className="inline-flex w-full items-center justify-center gap-2.5 bg-action px-8 py-4 font-mono text-[13px] font-bold uppercase tracking-[0.08em] text-on-action shadow-lg shadow-action/20 transition-all hover:bg-action-strong focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-action sm:w-auto"
               >
                 <Download className="h-4 w-4" />
@@ -148,7 +148,7 @@ export default function AppPortalView() {
 
               {/* Online Portals Link */}
               <a
-                href="https://portals.tauqeermustafa.com"
+                href="https://portals.qorlune.com"
                 className="inline-flex w-full items-center justify-center gap-2 px-6 py-4 font-mono text-[13px] font-bold uppercase tracking-[0.08em] text-ink/70 transition-colors hover:text-ink sm:w-auto"
               >
                 <span>Launch in Browser</span>
@@ -195,11 +195,11 @@ export default function AppPortalView() {
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-ink/10 pb-6">
                 <div className="flex items-center gap-3">
                   <div className="relative h-10 w-10 shrink-0 overflow-hidden border border-ink/15 bg-ink/[0.06]">
-                    <Image src="/logo.png" alt="TMI Portals" fill sizes="40px" className="object-cover" />
+                    <Image src="/logo.png" alt="Qorlune Portals" fill sizes="40px" className="object-cover" />
                   </div>
                   <div>
                     <h3 className="font-mono text-sm font-bold uppercase tracking-wider text-ink">
-                      TMI Portals Ecosystem OS
+                      Qorlune Portals Ecosystem OS
                     </h3>
                     <p className="text-xs text-ink/60">Multi-Role Architecture: Admin • Employees • Management</p>
                   </div>
@@ -294,7 +294,7 @@ export default function AppPortalView() {
             Three Desks. One Mobile Suite.
           </h2>
           <p className="mt-4 max-w-2xl text-pretty text-[17px] font-light leading-[1.6] text-ink/70">
-            Every operational role inside Tauqeer Mustafa Inc. is powered by a specialized, mobile-optimized workspace.
+            Every operational role inside Qorlune LLC is powered by a specialized, mobile-optimized workspace.
           </p>
         </div>
 
@@ -340,7 +340,7 @@ export default function AppPortalView() {
 
             <div className="mt-8 pt-6 border-t border-ink/10">
               <a
-                href="https://portals.tauqeermustafa.com/admin/dashboard"
+                href="https://portals.qorlune.com/admin/dashboard"
                 className="inline-flex w-full items-center justify-between bg-surface px-5 py-3 font-mono text-xs font-bold uppercase tracking-wider text-ink border border-ink/15 transition hover:bg-action hover:text-on-action hover:border-action"
               >
                 <span>Launch Admin Desk</span>
@@ -389,7 +389,7 @@ export default function AppPortalView() {
 
             <div className="mt-8 pt-6 border-t border-ink/10">
               <a
-                href="https://portals.tauqeermustafa.com/employees/dashboard"
+                href="https://portals.qorlune.com/employees/dashboard"
                 className="inline-flex w-full items-center justify-between bg-surface px-5 py-3 font-mono text-xs font-bold uppercase tracking-wider text-ink border border-ink/15 transition hover:bg-action hover:text-on-action hover:border-action"
               >
                 <span>Launch Employee Desk</span>
@@ -438,7 +438,7 @@ export default function AppPortalView() {
 
             <div className="mt-8 pt-6 border-t border-ink/10">
               <a
-                href="https://portals.tauqeermustafa.com/management/dashboard"
+                href="https://portals.qorlune.com/management/dashboard"
                 className="inline-flex w-full items-center justify-between bg-surface px-5 py-3 font-mono text-xs font-bold uppercase tracking-wider text-ink border border-ink/15 transition hover:bg-action hover:text-on-action hover:border-action"
               >
                 <span>Launch Management Desk</span>
@@ -532,12 +532,12 @@ export default function AppPortalView() {
                   </div>
                   <div className="flex flex-wrap items-center gap-3">
                     <a
-                      href="/downloads/TMI-Portals.apk"
-                      download="TMI-Portals.apk"
+                      href="/downloads/Qorlune-Portals.apk"
+                      download="Qorlune-Portals.apk"
                       className="inline-flex items-center justify-center gap-2 bg-action px-6 py-3 font-mono text-xs font-bold uppercase tracking-wider text-on-action hover:bg-action-strong transition shadow-sm"
                     >
                       <Download className="h-4 w-4" />
-                      <span>Download TMI-Portals.apk (v3.0.0.1.7)</span>
+                      <span>Download Qorlune-Portals.apk (v3.0.0.1.7)</span>
                     </a>
                   </div>
                 </div>
@@ -549,7 +549,7 @@ export default function AppPortalView() {
                     </span>
                     <h4 className="mt-4 font-bold uppercase text-sm text-ink">Download APK</h4>
                     <p className="mt-2 text-xs leading-relaxed text-ink/70">
-                      Tap the download button above to save <code className="bg-ink/5 px-1 py-0.5 rounded text-action">TMI-Portals.apk</code> to your Android device.
+                      Tap the download button above to save <code className="bg-ink/5 px-1 py-0.5 rounded text-action">Qorlune-Portals.apk</code> to your Android device.
                     </p>
                   </div>
 
@@ -569,7 +569,7 @@ export default function AppPortalView() {
                     </span>
                     <h4 className="mt-4 font-bold uppercase text-sm text-ink">Launch & Sign In</h4>
                     <p className="mt-2 text-xs leading-relaxed text-ink/70">
-                      Tap <strong className="text-ink">"Install"</strong>. Once finished, open TMI Portals directly from your home screen and select your portal desk.
+                      Tap <strong className="text-ink">"Install"</strong>. Once finished, open Qorlune Portals directly from your home screen and select your portal desk.
                     </p>
                   </div>
                 </div>
@@ -602,7 +602,7 @@ export default function AppPortalView() {
                     </span>
                     <h4 className="mt-4 font-bold uppercase text-sm text-ink">Open in Safari</h4>
                     <p className="mt-2 text-xs leading-relaxed text-ink/70">
-                      Ensure you are viewing <code className="bg-ink/5 px-1 py-0.5 rounded text-action">https://app.tauqeermustafa.com</code> in Apple Safari.
+                      Ensure you are viewing <code className="bg-ink/5 px-1 py-0.5 rounded text-action">https://app.qorlune.com</code> in Apple Safari.
                     </p>
                   </div>
 
@@ -645,7 +645,7 @@ export default function AppPortalView() {
                   <h3 className="mt-1 text-2xl font-bold uppercase tracking-tight text-ink">
                     Install on PC, Mac & Linux
                   </h3>
-                  <p className="mt-1 text-xs text-ink/70">Run TMI Portals as a standalone desktop application with dedicated window and system tray notifications.</p>
+                  <p className="mt-1 text-xs text-ink/70">Run Qorlune Portals as a standalone desktop application with dedicated window and system tray notifications.</p>
                 </div>
 
                 <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
@@ -665,7 +665,7 @@ export default function AppPortalView() {
                     </span>
                     <h4 className="mt-4 font-bold uppercase text-sm text-ink">Click Install</h4>
                     <p className="mt-2 text-xs leading-relaxed text-ink/70">
-                      Click <strong className="text-ink">"Install TMI Portals"</strong> in the popup prompt to launch installation.
+                      Click <strong className="text-ink">"Install Qorlune Portals"</strong> in the popup prompt to launch installation.
                     </p>
                   </div>
 
@@ -675,7 +675,7 @@ export default function AppPortalView() {
                     </span>
                     <h4 className="mt-4 font-bold uppercase text-sm text-ink">Standalone Window</h4>
                     <p className="mt-2 text-xs leading-relaxed text-ink/70">
-                      TMI Portals will open in its own clean window, pin to your taskbar/dock, and retain your session securely.
+                      Qorlune Portals will open in its own clean window, pin to your taskbar/dock, and retain your session securely.
                     </p>
                   </div>
                 </div>
@@ -803,7 +803,7 @@ export default function AppPortalView() {
 
             <div className="flex flex-col sm:flex-row lg:flex-col gap-3 shrink-0">
               <a
-                href="https://support.tauqeermustafa.com/ticket"
+                href="https://support.qorlune.com/ticket"
                 className="inline-flex items-center justify-center gap-2 bg-action px-6 py-3.5 font-mono text-xs font-bold uppercase tracking-wider text-on-action hover:bg-action-strong transition shadow-sm"
               >
                 <span>Open Enterprise Ticket</span>

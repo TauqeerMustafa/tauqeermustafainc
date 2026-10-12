@@ -3,7 +3,7 @@ import type { Metadata } from 'next';
 export const metadata: Metadata = {
   title: {
     template: '%s | TMI Documentation & Policies',
-    default: 'Documentation & Legal Policies | Tauqeer Mustafa Inc.',
+    default: 'Documentation & Legal Policies | Qorlune LLC',
   },
   description:
     'Official corporate documentation, legal agreements, compliance standards, and operating playbooks.',

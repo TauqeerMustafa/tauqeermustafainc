@@ -9,8 +9,8 @@ export async function generatePptxDeck(): Promise<void> {
   pptx.layout = "LAYOUT_16x9";
   pptx.author = company.name;
   pptx.company = company.name;
-  pptx.subject = "Tauqeer Mustafa Inc. Official Company Profile & Capabilities Deck";
-  pptx.title = "Tauqeer Mustafa Inc. - Company Profile";
+  pptx.subject = "Qorlune LLC Official Company Profile & Capabilities Deck";
+  pptx.title = "Qorlune LLC - Company Profile";
 
   // Corporate Theme Colors
   const BG_DARK = "0D1117";
@@ -256,5 +256,5 @@ export async function generatePptxDeck(): Promise<void> {
   });
 
   // Save the PPTX file
-  await pptx.writeFile({ fileName: "Tauqeer-Mustafa-Inc-Company-Profile.pptx" });
+  await pptx.writeFile({ fileName: "Qorlune-LLC-Company-Profile.pptx" });
 }

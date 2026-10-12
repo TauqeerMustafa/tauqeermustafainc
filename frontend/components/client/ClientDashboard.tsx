@@ -78,7 +78,7 @@ export default function ClientDashboard() {
             title="Your work, clearly in view."
             description={
               overview
-                ? `Good to see you, ${firstName}. Here is the latest signal from your TMI projects.`
+                ? `Good to see you, ${firstName}. Here is the latest signal from your Qorlune projects.`
                 : "Loading your latest project signal…"
             }
           />
@@ -149,7 +149,7 @@ function ProjectList({ overview }: { overview: ClientOverview }) {
           <FileText className="mx-auto h-6 w-6 text-ink-muted" aria-hidden />
           <p className="mt-4 font-semibold uppercase text-ink">No projects assigned yet</p>
           <p className="mt-2 text-sm font-light leading-6 text-ink-muted">
-            Your project workspace will appear here as soon as the TMI team sets it up.
+            Your project workspace will appear here as soon as the Qorlune team sets it up.
           </p>
         </div>
       ) : (
@@ -160,7 +160,7 @@ function ProjectList({ overview }: { overview: ClientOverview }) {
                 <div>
                   <h3 className="text-xl font-bold uppercase text-ink">{project.name}</h3>
                   <p className="mt-2 max-w-xl text-sm font-light leading-6 text-ink-muted">
-                    {project.summary || "Your TMI team will add the next project update here."}
+                    {project.summary || "Your Qorlune team will add the next project update here."}
                   </p>
                 </div>
                 <span className="border border-action/20 bg-action/[0.08] px-3 py-1 font-mono text-[9px] font-bold uppercase tracking-[0.12em] text-action">
@@ -259,7 +259,7 @@ function Messages({
 
       <form onSubmit={send} className={`mt-6 ${CARD} p-5`}>
         <label htmlFor="client-message" className={LABEL}>
-          Send a note to your TMI team
+          Send a note to your Qorlune team
         </label>
         <textarea
           id="client-message"
@@ -273,7 +273,7 @@ function Messages({
           {sending ? "Sending..." : "Send message"}
           <Send className="h-3.5 w-3.5" aria-hidden />
         </button>
-        {sent ? <p className="mt-3 text-xs text-emerald-600">Message sent to your TMI team.</p> : null}
+        {sent ? <p className="mt-3 text-xs text-emerald-600">Message sent to your Qorlune team.</p> : null}
         {error ? (
           <p className="mt-3 text-xs text-rose-600" role="alert">
             {error}
@@ -439,7 +439,7 @@ function AccountSection({
             </label>
             <input id="client-email" value={overview.user.email} readOnly disabled className={INPUT} />
             <p className="mt-2 text-xs font-light text-ink-muted">
-              This is your verified sign-in address. Contact your TMI team to change it.
+              This is your verified sign-in address. Contact your Qorlune team to change it.
             </p>
           </div>
           <div className="mt-5">

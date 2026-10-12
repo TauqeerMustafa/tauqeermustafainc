@@ -14,7 +14,7 @@ _ENV_FILE = Path(__file__).resolve().parent.parent.parent / ".env"
 
 
 class Settings(BaseSettings):
-    app_name: str = "Tauqeer Inc Backend"
+    app_name: str = "Qorlune LLC Backend"
     app_version: str = "0.1.0"
     environment: str = "development"
     debug: bool = Field(default=False, validation_alias="APP_DEBUG")

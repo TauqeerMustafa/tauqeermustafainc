@@ -23,13 +23,13 @@ export const metadata: Metadata = {
 const DEPARTMENTS = [
   {
     name: "Technical Support & Engineering",
-    email: "support@tauqeermustafa.com",
+    email: "support@qorlune.com",
     sla: "< 1-4 hours",
     desc: "System troubleshooting, bug triage, API webhooks, and cloud infrastructure.",
   },
   {
     name: "Corporate Billing & Treasury",
-    email: "billing@tauqeermustafa.com",
+    email: "billing@qorlune.com",
     sla: "< 12 hours",
     desc: "Invoice settlement, IBFT wire confirmations, Raast transfers, and contractor payouts.",
   },
@@ -193,7 +193,7 @@ export default function ContactDirectoryPage() {
               <MapPin className="h-5 w-5 text-action shrink-0 mt-0.5" />
               <div>
                 <span className="font-bold text-ink uppercase block mb-1">Registered Headquarters</span>
-                <p className="text-ink-muted">Tauqeer Mustafa Inc.</p>
+                <p className="text-ink-muted">Qorlune LLC</p>
                 <p className="text-ink-muted">Karachi, Sindh, Pakistan</p>
                 <p className="text-ink-muted">Corporate Registry &bull; Verified Business Entity</p>
               </div>

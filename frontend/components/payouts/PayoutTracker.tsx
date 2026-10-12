@@ -39,7 +39,7 @@ export default function PayoutTracker() {
   const handleSearch = async (codeToSearch?: string) => {
     const term = (codeToSearch ?? query).trim().toUpperCase();
     if (!term) {
-      setError("Please enter a disbursement reference (e.g. TMI-PO-2026-XXXXX).");
+      setError("Please enter a disbursement reference (e.g. QOR-PO-2026-XXXXX).");
       return;
     }
 
@@ -99,7 +99,7 @@ export default function PayoutTracker() {
               type="text"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="ENTER DISBURSEMENT REFERENCE (E.G. TMI-PO-2026-XXXXX)..."
+              placeholder="ENTER DISBURSEMENT REFERENCE (E.G. QOR-PO-2026-XXXXX)..."
               className="w-full bg-transparent font-mono text-xs uppercase tracking-wider text-ink outline-none placeholder:text-ink-muted"
             />
           </div>

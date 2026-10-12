@@ -39,11 +39,11 @@ import type { Department } from "@/types/domain";
 const DEPARTMENT_MAIL_MAP: Record<string, { tech: string; com: string }> = {
   "General Inquiries": {
     tech: "contact@tauqeermustafa.tech",
-    com: "contact@tauqeermustafa.com",
+    com: "contact@qorlune.com",
   },
   "Customer Support": {
     tech: "support@tauqeermustafa.tech",
-    com: "support@tauqeermustafa.com",
+    com: "support@qorlune.com",
   },
   "Sales & New Business": {
     tech: "sales@tauqeermustafa.tech",
@@ -59,11 +59,11 @@ const DEPARTMENT_MAIL_MAP: Record<string, { tech: string; com: string }> = {
   },
   "Careers & Human Resources": {
     tech: "careers@tauqeermustafa.tech",
-    com: "careers@tauqeermustafa.com",
+    com: "careers@qorlune.com",
   },
   "Billing & Invoices": {
     tech: "billing@tauqeermustafa.tech",
-    com: "billing@tauqeermustafa.com",
+    com: "billing@qorlune.com",
   },
   "Legal & Privacy": {
     tech: "legal@tauqeermustafa.tech",

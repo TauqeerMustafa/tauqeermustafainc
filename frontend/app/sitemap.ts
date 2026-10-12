@@ -7,7 +7,7 @@ import { ALL_DOCS } from "@/data/docs-registry";
 export default function sitemap(): MetadataRoute.Sitemap {
   const now = new Date();
 
-  // 1. Primary Corporate Domain Routes (tauqeermustafa.com)
+  // 1. Primary Corporate Domain Routes (qorlune.com)
   const mainRoutes = [
     { url: "", changeFrequency: "weekly", priority: 1.0 },
     { url: "/about", changeFrequency: "monthly", priority: 0.8 },
@@ -58,7 +58,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
   // 3. Documentation & Policy Portal (docs.tauqeermustafa.com)
   const docsHubRoute: MetadataRoute.Sitemap = [
     {
-      url: "https://docs.tauqeermustafa.com",
+      url: "https://docs.qorlune.com",
       lastModified: now,
       changeFrequency: "weekly",
       priority: 0.8,
@@ -66,7 +66,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
   ];
 
   const docDetailRoutes: MetadataRoute.Sitemap = ALL_DOCS.map((doc) => ({
-    url: `https://docs.tauqeermustafa.com/${doc.slug}`,
+    url: `https://docs.qorlune.com/${doc.slug}`,
     lastModified: now,
     changeFrequency: "monthly",
     priority: 0.7,
@@ -74,25 +74,25 @@ export default function sitemap(): MetadataRoute.Sitemap {
 
   // 4. Billing & Treasury Suite (billing.tauqeermustafa.com)
   const billingRoutes: MetadataRoute.Sitemap = [
-    { url: "https://billing.tauqeermustafa.com", lastModified: now, changeFrequency: "monthly", priority: 0.8 },
-    { url: "https://billing.tauqeermustafa.com/pay", lastModified: now, changeFrequency: "monthly", priority: 0.8 },
-    { url: "https://billing.tauqeermustafa.com/payouts", lastModified: now, changeFrequency: "monthly", priority: 0.7 },
-    { url: "https://billing.tauqeermustafa.com/policies", lastModified: now, changeFrequency: "monthly", priority: 0.6 },
+    { url: "https://billing.qorlune.com", lastModified: now, changeFrequency: "monthly", priority: 0.8 },
+    { url: "https://billing.qorlune.com/pay", lastModified: now, changeFrequency: "monthly", priority: 0.8 },
+    { url: "https://billing.qorlune.com/payouts", lastModified: now, changeFrequency: "monthly", priority: 0.7 },
+    { url: "https://billing.qorlune.com/policies", lastModified: now, changeFrequency: "monthly", priority: 0.6 },
   ];
 
   // 5. Customer Support & Helpdesk Hub (support.tauqeermustafa.com)
   const supportRoutes: MetadataRoute.Sitemap = [
-    { url: "https://support.tauqeermustafa.com", lastModified: now, changeFrequency: "daily", priority: 0.8 },
-    { url: "https://support.tauqeermustafa.com/ticket", lastModified: now, changeFrequency: "monthly", priority: 0.7 },
-    { url: "https://support.tauqeermustafa.com/status", lastModified: now, changeFrequency: "always", priority: 0.8 },
-    { url: "https://support.tauqeermustafa.com/faq", lastModified: now, changeFrequency: "weekly", priority: 0.7 },
-    { url: "https://support.tauqeermustafa.com/contact", lastModified: now, changeFrequency: "monthly", priority: 0.7 },
+    { url: "https://support.qorlune.com", lastModified: now, changeFrequency: "daily", priority: 0.8 },
+    { url: "https://support.qorlune.com/ticket", lastModified: now, changeFrequency: "monthly", priority: 0.7 },
+    { url: "https://support.qorlune.com/status", lastModified: now, changeFrequency: "always", priority: 0.8 },
+    { url: "https://support.qorlune.com/faq", lastModified: now, changeFrequency: "weekly", priority: 0.7 },
+    { url: "https://support.qorlune.com/contact", lastModified: now, changeFrequency: "monthly", priority: 0.7 },
   ];
 
   // 6. Portals & Community
   const networkRoutes: MetadataRoute.Sitemap = [
-    { url: "https://portals.tauqeermustafa.com", lastModified: now, changeFrequency: "monthly", priority: 0.7 },
-    { url: "https://community.tauqeermustafa.com", lastModified: now, changeFrequency: "weekly", priority: 0.7 },
+    { url: "https://portals.qorlune.com", lastModified: now, changeFrequency: "monthly", priority: 0.7 },
+    { url: "https://community.qorlune.com", lastModified: now, changeFrequency: "weekly", priority: 0.7 },
   ];
 
   return [

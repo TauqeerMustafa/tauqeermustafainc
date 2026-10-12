@@ -15,19 +15,19 @@ export const QUICK_REPLIES: QuickReplyItem[] = [
     command: "/quote",
     title: "Project Scope & Quote Inquiry",
     category: "sales",
-    text: "Thank you for reaching out to Tauqeer Inc. Could you please share your project requirements, target timeline, and estimated budget so our solutions team can prepare an accurate proposal?",
+    text: "Thank you for reaching out to Qorlune LLC. Could you please share your project requirements, target timeline, and estimated budget so our solutions team can prepare an accurate proposal?",
   },
   {
     command: "/pricing",
     title: "Standard Enterprise Pricing",
     category: "sales",
-    text: "Our enterprise engineering packages start from tailored milestones or dedicated team arrangements. Let's schedule a 15-minute consultation to walk through options for your stack: https://tauqeer.inc/consultation",
+    text: "Our enterprise engineering packages start from tailored milestones or dedicated team arrangements. Let's schedule a 15-minute consultation to walk through options for your stack: https://qorlune.com/consultation",
   },
   {
     command: "/meeting",
     title: "Executive Desk Calendar",
     category: "general",
-    text: "You can book a direct strategy call with our executive desk at: https://tauqeer.inc/consultation",
+    text: "You can book a direct strategy call with our executive desk at: https://qorlune.com/consultation",
   },
   {
     command: "/support-hours",
@@ -39,13 +39,13 @@ export const QUICK_REPLIES: QuickReplyItem[] = [
     command: "/bank",
     title: "Company Bank Remittance",
     category: "general",
-    text: "Tauqeer Inc Official Remittance:\nBank: Bank Alfalah Islamic\nAccount Name: Tauqeer Mustafa Inc\nSwift/IBAN available upon contract execution.",
+    text: "Qorlune LLC Official Remittance:\nBank: Bank Alfalah Islamic\nAccount Name: Qorlune LLC\nSwift/IBAN available upon contract execution.",
   },
   {
     command: "/services",
     title: "Enterprise Solutions Overview",
     category: "sales",
-    text: "Tauqeer Inc delivers Full-Stack Web & Mobile Engineering, AI/LLM Workflow Automation, Cloud DevOps, and Official WhatsApp Business API integrations.",
+    text: "Qorlune LLC delivers Full-Stack Web & Mobile Engineering, AI/LLM Workflow Automation, Cloud DevOps, and Official WhatsApp Business API integrations.",
   },
   {
     command: "/followup",

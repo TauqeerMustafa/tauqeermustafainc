@@ -1,5 +1,5 @@
 /**
- * Paddle Billing configuration and helper definitions for Tauqeer Mustafa Inc.
+ * Paddle Billing configuration and helper definitions for Qorlune LLC
  * Supports sandbox and production environments, client tokens, and preset service tiers.
  */
 

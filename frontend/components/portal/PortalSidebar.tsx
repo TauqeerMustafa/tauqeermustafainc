@@ -167,7 +167,7 @@ export default function PortalSidebar({ portal, isOpen, onClose }: Props) {
           )}
 
           <p className="px-5 py-4 text-[11px] text-adm-text-3 font-normal">
-            Tauqeer Mustafa Inc. &copy; {new Date().getFullYear()}
+            {company.name} &copy; {new Date().getFullYear()}
           </p>
         </div>
       </aside>

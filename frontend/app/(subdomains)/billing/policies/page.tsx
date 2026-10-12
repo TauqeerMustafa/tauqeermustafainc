@@ -36,7 +36,7 @@ export default function SubdomainPoliciesPage() {
                 Effective Date: August 2026
               </span>
               <span className="font-mono text-xs text-ink-muted">
-                Entity: Tauqeer Mustafa Inc.
+                Entity: Qorlune LLC
               </span>
             </div>
 
@@ -54,7 +54,7 @@ export default function SubdomainPoliciesPage() {
                 2. Accepted Payment Rails
               </h2>
               <p className="text-xs sm:text-sm text-ink-muted leading-relaxed">
-                Tauqeer Mustafa Inc. accepts electronic settlement through the following certified rails:
+                Qorlune LLC accepts electronic settlement through the following certified rails:
               </p>
               <ul className="list-disc pl-5 space-y-1 text-xs sm:text-sm text-ink-muted leading-relaxed">
                 <li><strong>Credit & Debit Cards:</strong> Visa, Mastercard, and American Express processed via Level 1 PCI-DSS tokenized infrastructure with 3D Secure fraud authentication.</li>
@@ -112,7 +112,7 @@ export default function SubdomainPoliciesPage() {
                 </h3>
               </div>
               <p className="mt-2 text-xs sm:text-sm text-ink-muted leading-relaxed">
-                All legitimate invoices originate solely from our verified domain <code className="font-mono font-bold text-action">@tauqeermustafa.com</code>. Corporate bank accounts are exclusively registered under <strong>Tauqeer Mustafa Inc.</strong> or <strong>Tauqeer Mustafa</strong>. Our employees will never request wire transfers to unlisted personal accounts or mobile wallets over chat apps.
+                All legitimate invoices originate solely from our verified domain <code className="font-mono font-bold text-action">@tauqeermustafa.com</code>. Corporate bank accounts are exclusively registered under <strong>Qorlune LLC</strong> or <strong>Qorlune</strong>. Our employees will never request wire transfers to unlisted personal accounts or mobile wallets over chat apps.
               </p>
             </div>
 
@@ -121,7 +121,7 @@ export default function SubdomainPoliciesPage() {
                 Looking for complete institutional legal agreements & SLAs?
               </p>
               <a
-                href="https://docs.tauqeermustafa.com/payment-policy"
+                href="https://docs.qorlune.com/payment-policy"
                 className="inline-flex items-center gap-1.5 font-mono text-xs font-bold uppercase tracking-wider text-action hover:underline"
               >
                 <span>Master Payment Policy in Docs</span>

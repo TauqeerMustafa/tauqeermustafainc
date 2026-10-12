@@ -484,7 +484,7 @@ export default function MyProfilePage() {
                     Organization
                   </span>
                   <span className="font-bold text-adm-text text-sm mt-0.5 block">
-                    Tauqeer Mustafa Inc.
+                    Qorlune LLC
                   </span>
                 </div>
 

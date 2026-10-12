@@ -469,7 +469,7 @@ class CompanyAgentService:
             headline = "Company Operations Under Strain: High-priority tasks overdue and action required."
 
         summary = (
-            f"As of today, Tauqeer Mustafa Inc. is operating at {pulse.health_score}% efficiency (Grade {pulse.operational_grade}). "
+            f"As of today, Qorlune LLC is operating at {pulse.health_score}% efficiency (Grade {pulse.operational_grade}). "
             f"We have {pulse.present_today} team members active today, {pulse.open_tasks} tasks currently in flight across "
             f"{pulse.active_projects} client projects, and an active deal pipeline of ${pulse.pipeline_estimated_value:,.2f}. "
             f"The AI Agent has flagged {len(audit.anomalies)} items for executive attention."
@@ -947,7 +947,7 @@ class CompanyAgentService:
                 import httpx
 
                 system_prompt = (
-                    f"You are the Autonomous AI Business Employee and Chief Operating Officer ({persona.upper()}) for Tauqeer Mustafa Inc. "
+                    f"You are the Autonomous AI Business Employee and Chief Operating Officer ({persona.upper()}) for Qorlune LLC "
                     "You have complete real-time oversight of the company's HR, operations, tasks, pipeline, and announcements. "
                     f"Standing Custom Instructions: {request.custom_instructions or 'None'}. "
                     f"Current Company Metrics: Headcount={pulse.headcount}, Present={pulse.present_today}, "

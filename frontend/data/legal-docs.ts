@@ -16,10 +16,10 @@ export const legalDocs: LegalDoc[] = [
   {
     slug: "company-rules",
     title: "Company Rules",
-    shortDescription: "The core principles, expectations, and rules that govern engagements with Tauqeer Mustafa Inc.",
+    shortDescription: "The core principles, expectations, and rules that govern engagements with Qorlune LLC",
     lastUpdated: "August 27, 2026",
     intro:
-      "These company rules outline the expectations and professional standards required from all parties interacting with Tauqeer Mustafa Inc., including our employees, clients, and platform users. They ensure a safe, productive, and respectful environment for everyone.",
+      "These company rules outline the expectations and professional standards required from all parties interacting with Qorlune LLC, including our employees, clients, and platform users. They ensure a safe, productive, and respectful environment for everyone.",
     sections: [
       {
         heading: "1. Professional Conduct",
@@ -43,7 +43,7 @@ export const legalDocs: LegalDoc[] = [
     shortDescription: "Rules and consequences regarding misconduct or policy violations by any user, client, or employee.",
     lastUpdated: "August 27, 2026",
     intro:
-      "This document defines what constitutes misconduct and details the consequences for violations of any Tauqeer Mustafa Inc. policies. This applies uniformly to clients, employees, contractors, and general users of our platforms.",
+      "This document defines what constitutes misconduct and details the consequences for violations of any Qorlune LLC policies. This applies uniformly to clients, employees, contractors, and general users of our platforms.",
     sections: [
       {
         heading: "1. Definition of Misconduct",
@@ -68,7 +68,7 @@ export const legalDocs: LegalDoc[] = [
     shortDescription: "The response times, uptime commitments, and support terms that apply to ongoing engagements.",
     lastUpdated: "July 28, 2026",
     intro:
-      "This Service Level Agreement (SLA) sets out the standards Tauqeer Mustafa Inc. commits to for ongoing support, maintenance, and retainer engagements. It applies to any client with an active support or retainer contract, and supplements the master services agreement governing the relationship.",
+      "This Service Level Agreement (SLA) sets out the standards Qorlune LLC commits to for ongoing support, maintenance, and retainer engagements. It applies to any client with an active support or retainer contract, and supplements the master services agreement governing the relationship.",
     sections: [
       {
         heading: "1. Support Availability",
@@ -112,7 +112,7 @@ export const legalDocs: LegalDoc[] = [
     shortDescription: "Terms governing how we process personal data on behalf of clients, in line with GDPR and equivalent frameworks.",
     lastUpdated: "July 28, 2026",
     intro:
-      "This Data Processing Agreement (DPA) forms part of the contract between Tauqeer Mustafa Inc. (the \"Processor\") and the client (the \"Controller\") whenever we process personal data on the client's behalf in the course of delivering services.",
+      "This Data Processing Agreement (DPA) forms part of the contract between Qorlune LLC (the \"Processor\") and the client (the \"Controller\") whenever we process personal data on the client's behalf in the course of delivering services.",
     sections: [
       {
         heading: "1. Scope and Roles",
@@ -164,7 +164,7 @@ export const legalDocs: LegalDoc[] = [
     shortDescription: "Our standard mutual confidentiality terms, available on request before detailed project discussions begin.",
     lastUpdated: "July 28, 2026",
     intro:
-      "Tauqeer Mustafa Inc. routinely enters into mutual non-disclosure agreements (NDAs) with prospective and existing clients before discussing sensitive project details, architecture, or business information. This page summarizes the standard terms; a signed copy is issued on request via our legal team.",
+      "Qorlune LLC routinely enters into mutual non-disclosure agreements (NDAs) with prospective and existing clients before discussing sensitive project details, architecture, or business information. This page summarizes the standard terms; a signed copy is issued on request via our legal team.",
     sections: [
       {
         heading: "1. Purpose",
@@ -285,7 +285,7 @@ export const legalDocs: LegalDoc[] = [
     shortDescription: "Our commitment to preventing modern slavery and human trafficking across our business and supply chain.",
     lastUpdated: "July 28, 2026",
     intro:
-      "Tauqeer Mustafa Inc. is committed to preventing acts of modern slavery and human trafficking within our business and supply chains, and to acting ethically and with integrity in all business dealings.",
+      "Qorlune LLC is committed to preventing acts of modern slavery and human trafficking within our business and supply chains, and to acting ethically and with integrity in all business dealings.",
     sections: [
       {
         heading: "1. Our Business",
@@ -319,7 +319,7 @@ export const legalDocs: LegalDoc[] = [
     shortDescription: "Our zero-tolerance approach to bribery and corruption in every market we operate in.",
     lastUpdated: "July 28, 2026",
     intro:
-      "Tauqeer Mustafa Inc. maintains a zero-tolerance approach to bribery and corruption in all forms, across every jurisdiction in which we operate or serve clients.",
+      "Qorlune LLC maintains a zero-tolerance approach to bribery and corruption in all forms, across every jurisdiction in which we operate or serve clients.",
     sections: [
       {
         heading: "1. Prohibited Conduct",
@@ -495,7 +495,7 @@ export const legalDocs: LegalDoc[] = [
     shortDescription: "Accepted payment methods, invoicing schedules, currencies, taxes, and what happens when an invoice runs late.",
     lastUpdated: "August 22, 2026",
     intro:
-      "This Payment Policy explains how Tauqeer Mustafa Inc. quotes, invoices, and collects payment for its services. It applies to all clients unless a signed proposal, statement of work, or master services agreement sets out different commercial terms â€” in which case that signed document takes precedence.",
+      "This Payment Policy explains how Qorlune LLC quotes, invoices, and collects payment for its services. It applies to all clients unless a signed proposal, statement of work, or master services agreement sets out different commercial terms â€” in which case that signed document takes precedence.",
     sections: [
       {
         heading: "1. Currency and Pricing",
@@ -561,7 +561,7 @@ export const legalDocs: LegalDoc[] = [
       {
         heading: "9. Billing Contact",
         body: [
-          "Questions about an invoice, a payment method, or a payment that has not appeared on your account should be sent to our billing team at billing@tauqeermustafa.com. Please quote the invoice number in your message.",
+          "Questions about an invoice, a payment method, or a payment that has not appeared on your account should be sent to our billing team at billing@qorlune.com. Please quote the invoice number in your message.",
         ],
       },
     ],
@@ -572,7 +572,7 @@ export const legalDocs: LegalDoc[] = [
     shortDescription: "When advance payments, milestones, and retainers are refundable, and how to request a refund.",
     lastUpdated: "August 22, 2026",
     intro:
-      "This Refund Policy explains when Tauqeer Mustafa Inc. issues refunds for professional services, retainers, and digital deliverables, and how to request one. It applies alongside our Payment Policy and Terms of Service, and is superseded by any refund terms written into a signed statement of work.",
+      "This Refund Policy explains when Qorlune LLC issues refunds for professional services, retainers, and digital deliverables, and how to request one. It applies alongside our Payment Policy and Terms of Service, and is superseded by any refund terms written into a signed statement of work.",
     sections: [
       {
         heading: "1. General Principle",
@@ -622,7 +622,7 @@ export const legalDocs: LegalDoc[] = [
       {
         heading: "7. How to Request a Refund",
         body: [
-          "Send a written request to billing@tauqeermustafa.com, including the invoice number, the amount in question, and a short description of the reason.",
+          "Send a written request to billing@qorlune.com, including the invoice number, the amount in question, and a short description of the reason.",
           "We acknowledge every refund request within 2 business days and give a written decision within 7 business days of receiving the information needed to assess it.",
           "Approved refunds are issued to the original payment method within 10 business days of approval. Where the original method cannot receive a refund, we issue it by bank transfer to an account in the paying party's name. Bank charges on international refunds are deducted from the refunded amount.",
         ],
@@ -642,7 +642,7 @@ export const legalDocs: LegalDoc[] = [
     shortDescription: "How returns, cancellations, and rework requests work for digital deliverables and for hardware bought on your behalf.",
     lastUpdated: "August 22, 2026",
     intro:
-      "This Return Policy explains what can and cannot be returned when you buy from Tauqeer Mustafa Inc. Most of what we deliver is professional services and custom digital work, which behaves differently from a physical product â€” so this policy sets out the practical equivalent: cancellation, rework, and, where relevant, the return of hardware procured on your behalf.",
+      "This Return Policy explains what can and cannot be returned when you buy from Qorlune LLC Most of what we deliver is professional services and custom digital work, which behaves differently from a physical product â€” so this policy sets out the practical equivalent: cancellation, rework, and, where relevant, the return of hardware procured on your behalf.",
     sections: [
       {
         heading: "1. What We Sell",
@@ -695,7 +695,7 @@ export const legalDocs: LegalDoc[] = [
       {
         heading: "7. How to Raise a Return or Rework Request",
         body: [
-          "Send your request to support@tauqeermustafa.com, including the project name, the relevant invoice or delivery note number, and a clear description of the problem, with screenshots or reproduction steps where applicable.",
+          "Send your request to support@qorlune.com, including the project name, the relevant invoice or delivery note number, and a clear description of the problem, with screenshots or reproduction steps where applicable.",
           "We acknowledge requests within 2 business days and confirm the remedy â€” rework, replacement, return authorisation, or refund â€” within 5 business days.",
         ],
       },
@@ -707,7 +707,7 @@ export const legalDocs: LegalDoc[] = [
     shortDescription: "Ownership, licensing, warranty, updates, and acceptable use for the products and software we deliver.",
     lastUpdated: "August 22, 2026",
     intro:
-      "This Product Policy sets out the terms that apply to the products Tauqeer Mustafa Inc. builds and delivers â€” custom software, web platforms, internal tools, integrations, and any licensed components we supply with them. It covers who owns what, how third-party components are licensed, what our warranty covers, and how we handle updates and deprecation.",
+      "This Product Policy sets out the terms that apply to the products Qorlune LLC builds and delivers â€” custom software, web platforms, internal tools, integrations, and any licensed components we supply with them. It covers who owns what, how third-party components are licensed, what our warranty covers, and how we handle updates and deprecation.",
     sections: [
       {
         heading: "1. Products Covered",

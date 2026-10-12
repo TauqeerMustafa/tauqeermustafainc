@@ -53,14 +53,14 @@ export default async function BlogDetailPage({
     description: post.excerpt,
     slug: post.slug,
     publishedAt: new Date(post.date).toISOString(),
-    author: "Tauqeer Mustafa",
+    author: "Qorlune",
     image: post.coverImage,
   });
 
   const breadcrumbs = breadcrumbSchema([
-    { name: "Home", url: "https://tauqeermustafa.com" },
-    { name: "Blog", url: "https://tauqeermustafa.com/blog" },
-    { name: post.title, url: `https://tauqeermustafa.com/blog/${post.slug}` },
+    { name: "Home", url: "https://qorlune.com" },
+    { name: "Blog", url: "https://qorlune.com/blog" },
+    { name: post.title, url: `https://qorlune.com/blog/${post.slug}` },
   ]);
 
   return (

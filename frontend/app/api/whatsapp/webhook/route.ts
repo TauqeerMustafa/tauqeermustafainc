@@ -327,7 +327,7 @@ export async function POST(request: Request) {
                 // Fallback acknowledgment if media download or audio model was temporarily unavailable
                 const fallbackAudioReply = isOwner
                   ? `🎙️ *Voice Note Received, Boss!*\n\nYour audio directive has been logged into the executive inbox. Type *status* or send a quick text if you need an immediate automated report.`
-                  : `🎙️ *Voice Note Received*\n\nThank you for sharing your audio brief! Our principal engineering desk has received your recording. Tauqeer Mustafa reviews every brief personally and will reply directly in this conversation shortly.`;
+                  : `🎙️ *Voice Note Received*\n\nThank you for sharing your audio brief! Our principal engineering desk has received your recording. Qorlune reviews every brief personally and will reply directly in this conversation shortly.`;
 
                 await sendMessage(from, fallbackAudioReply, replyChannel, msgId);
                 continue;

@@ -81,9 +81,9 @@ const PERSONAS: PersonaConfig[] = [
 const PRESET_INSTRUCTIONS = [
   "Always set task priority to High",
   "Default billing currency is USD",
-  "Auto-assign deliverables to Tauqeer",
+  "Auto-assign deliverables to Lead Architect",
   "Default task due date is within 3 days",
-  "Company signature: Tauqeer Mustafa Inc.",
+  "Company signature: Qorlune LLC",
 ];
 
 export function VirtualEmployeeConsole() {
@@ -323,7 +323,7 @@ export function VirtualEmployeeConsole() {
             rows={2}
             value={customInstructions}
             onChange={(e) => setCustomInstructions(e.target.value)}
-            placeholder="e.g. Always set task priority to High; Default billing currency USD; Company name: Tauqeer Mustafa Inc.; Auto-assign tasks to Tauqeer..."
+            placeholder="e.g. Always set task priority to High; Default billing currency USD; Company name: Qorlune LLC; Auto-assign tasks to Lead Architect..."
             className="w-full rounded-lg border border-border bg-background/60 p-2.5 text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary leading-relaxed"
           />
 

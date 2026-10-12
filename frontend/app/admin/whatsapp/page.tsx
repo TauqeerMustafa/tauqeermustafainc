@@ -3009,7 +3009,7 @@ function SendTab({
                 id="headerText"
                 value={headerText}
                 onChange={(e) => setHeaderText(e.target.value)}
-                placeholder="Welcome to Tauqeer Mustafa Inc"
+                placeholder="Welcome to Qorlune LLC"
                 className={adminInputClass}
                 style={adminInputStyle}
                 maxLength={60}
@@ -3785,7 +3785,7 @@ function FlowTab({
           return {
             kind: "list",
             id: s.id,
-            header: (s as any).header || "Tauqeer Mustafa Inc",
+            header: (s as any).header || "Qorlune LLC",
             body: s.body || "Please select an option below:",
             footer: (s as any).footer || "Mon to Sat, 09:00 to 18:00 PKT",
             button: (s as any).button || "Choose an option",
@@ -3821,7 +3821,7 @@ function FlowTab({
           return {
             kind: "buttons",
             id: s.id,
-            header: (s as any).header || "Tauqeer Mustafa Inc",
+            header: (s as any).header || "Qorlune LLC",
             body: s.body || "Please select an option below:",
             footer: (s as any).footer || "Select an option below",
             buttons:
@@ -4018,7 +4018,7 @@ function FlowTab({
       newStep = {
         kind: "list",
         id: cleanId,
-        header: "Tauqeer Mustafa Inc",
+        header: "Qorlune LLC",
         body: "Please select an option from the list below:",
         footer: "Professional Advisory",
         button: "Select Option",
@@ -4046,7 +4046,7 @@ function FlowTab({
       newStep = {
         kind: "buttons",
         id: cleanId,
-        header: "Tauqeer Mustafa Inc",
+        header: "Qorlune LLC",
         body: "Please confirm your selection below:",
         footer: "Select an option",
         buttons: [
@@ -4339,7 +4339,7 @@ function FlowTab({
                   maxLength={60}
                   className={adminInputClass}
                   style={adminInputStyle}
-                  placeholder="e.g. Tauqeer Mustafa Inc"
+                  placeholder="e.g. Qorlune LLC"
                 />
                 <p className="mt-1 text-right text-[11px] text-adm-text-3">
                   {(currentStep.header || "").length}/60 chars

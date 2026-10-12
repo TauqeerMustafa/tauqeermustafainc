@@ -4,9 +4,9 @@ import WhatsAppChat from "@/components/whatsapp/WhatsAppChat";
 import { buildMetadata } from "@/lib/metadata";
 
 export const metadata: Metadata = buildMetadata({
-  title: "TMI Portals App | Android APK & Progressive Web App",
+  title: "Qorlune Portals App | Android APK & Progressive Web App",
   description:
-    "Official mobile application and installable portal suite for Tauqeer Mustafa Inc. Dedicated workspaces for Employees, Admin, and Management. Download the Android APK or install the PWA.",
+    "Official mobile application and installable portal suite for Qorlune LLC Dedicated workspaces for Employees, Admin, and Management. Download the Android APK or install the PWA.",
   path: "/app",
 });
 

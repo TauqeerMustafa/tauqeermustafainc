@@ -65,11 +65,11 @@ const ADDITIONAL_DOCS: UnifiedDoc[] = [
   {
     slug: 'privacy',
     title: 'Privacy Policy',
-    shortDescription: 'How Tauqeer Mustafa Inc. collects, uses, protects, and handles personal data across our website and client engagements.',
+    shortDescription: 'How Qorlune LLC collects, uses, protects, and handles personal data across our website and client engagements.',
     lastUpdated: 'July 28, 2026',
     estimatedReadTime: '7 min read',
     category: 'legal',
-    intro: 'Tauqeer Mustafa Inc. respects your privacy and is committed to protecting it through compliance with this policy. This Privacy Policy describes the types of information we may collect from you or that you may provide when you visit our website or engage us for consulting and software delivery services.',
+    intro: 'Qorlune LLC respects your privacy and is committed to protecting it through compliance with this policy. This Privacy Policy describes the types of information we may collect from you or that you may provide when you visit our website or engage us for consulting and software delivery services.',
     sections: [
       {
         heading: '1. Information We Collect',
@@ -97,7 +97,7 @@ const ADDITIONAL_DOCS: UnifiedDoc[] = [
       {
         heading: '4. Your Rights and Contact',
         body: [
-          'You may request access to, correction of, or deletion of your personal data by contacting our privacy compliance desk at privacy@tauqeermustafa.com.'
+          'You may request access to, correction of, or deletion of your personal data by contacting our privacy compliance desk at privacy@qorlune.com.'
         ]
       }
     ]
@@ -105,11 +105,11 @@ const ADDITIONAL_DOCS: UnifiedDoc[] = [
   {
     slug: 'terms',
     title: 'Terms of Service',
-    shortDescription: 'The terms and conditions governing use of the Tauqeer Mustafa Inc. website, client portals, and technical engagements.',
+    shortDescription: 'The terms and conditions governing use of the Qorlune LLC website, client portals, and technical engagements.',
     lastUpdated: 'July 28, 2026',
     estimatedReadTime: '8 min read',
     category: 'legal',
-    intro: 'By accessing or using the Tauqeer Mustafa Inc. website, subdomains, portals, or by engaging us to provide technology consulting and software engineering services, you agree to be bound by these Terms of Service.',
+    intro: 'By accessing or using the Qorlune LLC website, subdomains, portals, or by engaging us to provide technology consulting and software engineering services, you agree to be bound by these Terms of Service.',
     sections: [
       {
         heading: '1. Acceptance of Terms',
@@ -121,7 +121,7 @@ const ADDITIONAL_DOCS: UnifiedDoc[] = [
       {
         heading: '2. Description of Services',
         body: [
-          'Tauqeer Mustafa Inc. delivers high-assurance technology consulting and engineering services, including enterprise web platforms, cybersecurity auditing, AI workflows, and cloud engineering.',
+          'Qorlune LLC delivers high-assurance technology consulting and engineering services, including enterprise web platforms, cybersecurity auditing, AI workflows, and cloud engineering.',
           'Specific engagement milestones, fees, and deliverables are defined in signed Statements of Work (SOW) or Proposals.'
         ]
       },
@@ -129,13 +129,13 @@ const ADDITIONAL_DOCS: UnifiedDoc[] = [
         heading: '3. Intellectual Property Rights',
         body: [
           'Unless otherwise specified in a custom Master Services Agreement, client deliverable IP passes to the client upon full settlement of all corresponding milestone invoices.',
-          'Pre-existing software frameworks, libraries, open-source utilities, and internal delivery tooling remain the proprietary intellectual property of Tauqeer Mustafa Inc.'
+          'Pre-existing software frameworks, libraries, open-source utilities, and internal delivery tooling remain the proprietary intellectual property of Qorlune LLC'
         ]
       },
       {
         heading: '4. Limitation of Liability',
         body: [
-          'In no event will Tauqeer Mustafa Inc., its directors, employees, or contractors be liable for any indirect, exemplary, or punitive damages arising from site or service usage, except to the extent prohibited by law.'
+          'In no event will Qorlune LLC, its directors, employees, or contractors be liable for any indirect, exemplary, or punitive damages arising from site or service usage, except to the extent prohibited by law.'
         ]
       }
     ]
@@ -147,7 +147,7 @@ const ADDITIONAL_DOCS: UnifiedDoc[] = [
     lastUpdated: 'August 10, 2026',
     estimatedReadTime: '4 min read',
     category: 'legal',
-    intro: 'This Cookie Policy explains how Tauqeer Mustafa Inc. uses cookies and similar technologies when you visit our website, portals, and client workspaces.',
+    intro: 'This Cookie Policy explains how Qorlune LLC uses cookies and similar technologies when you visit our website, portals, and client workspaces.',
     sections: [
       {
         heading: '1. What Are Cookies',
@@ -178,7 +178,7 @@ const ADDITIONAL_DOCS: UnifiedDoc[] = [
     lastUpdated: 'August 15, 2026',
     estimatedReadTime: '3 min read',
     category: 'legal',
-    intro: 'Tauqeer Mustafa Inc. is committed to ensuring digital accessibility for people of all abilities. We continually improve the user experience across our digital properties in accordance with WCAG 2.1 Level AA standards.',
+    intro: 'Qorlune LLC is committed to ensuring digital accessibility for people of all abilities. We continually improve the user experience across our digital properties in accordance with WCAG 2.1 Level AA standards.',
     sections: [
       {
         heading: '1. Conformance Standard',
@@ -198,7 +198,7 @@ const ADDITIONAL_DOCS: UnifiedDoc[] = [
       {
         heading: '3. Feedback & Assistance',
         body: [
-          'If you encounter an accessibility barrier on any TMI digital surface, please contact accessibility@tauqeermustafa.com and our engineering team will respond within 48 hours.'
+          'If you encounter an accessibility barrier on any Qorlune digital surface, please contact accessibility@qorlune.com and our engineering team will respond within 48 hours.'
         ]
       }
     ]
@@ -210,7 +210,7 @@ const ADDITIONAL_DOCS: UnifiedDoc[] = [
     lastUpdated: 'September 1, 2026',
     estimatedReadTime: '10 min read',
     category: 'operations',
-    intro: 'This playbook defines the commercial outreach methodology and discovery protocol for Tauqeer Mustafa Inc. representatives, ensuring consultative, high-integrity sales execution.',
+    intro: 'This playbook defines the commercial outreach methodology and discovery protocol for Qorlune LLC representatives, ensuring consultative, high-integrity sales execution.',
     sections: [
       {
         heading: '1. ICP Definition & Targeting Criteria',

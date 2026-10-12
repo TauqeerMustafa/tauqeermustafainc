@@ -73,7 +73,7 @@ export default function PaymentCheckout() {
   // Initialize Paddle checkout SDK hook
   const { paddle, isConfigured: isPaddleConfigured, isSandbox, openCheckout } = usePaddle({
     onCheckoutCompleted: (data) => {
-      const txId = data.transaction_id || `TMI-TXN-${Date.now().toString().slice(-6)}`;
+      const txId = data.transaction_id || `QOR-TXN-${Date.now().toString().slice(-6)}`;
       const timestamp = new Date().toLocaleDateString("en-US", {
         month: "short",
         day: "numeric",
@@ -145,7 +145,7 @@ export default function PaymentCheckout() {
     setInvoiceError("");
 
     if (!code) {
-      setInvoiceError("Please enter an invoice number (e.g. TMI-INV-2026-001).");
+      setInvoiceError("Please enter an invoice number (e.g. QOR-INV-2026-001).");
       return;
     }
 
@@ -372,7 +372,7 @@ export default function PaymentCheckout() {
             )}
 
             <div className="mt-8 pt-6 border-t border-line flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 text-xs font-mono text-ink-muted">
-              <span>Tauqeer Mustafa Inc. // Corporate Treasury Desk</span>
+              <span>Qorlune LLC // Corporate Treasury Desk</span>
               <span className="text-action">Verified & Recorded</span>
             </div>
           </div>
@@ -442,7 +442,7 @@ export default function PaymentCheckout() {
                     type="text"
                     value={invoiceQuery}
                     onChange={(e) => setInvoiceQuery(e.target.value)}
-                    placeholder="e.g. TMI-INV-2026-001"
+                    placeholder="e.g. QOR-INV-2026-001"
                     className="flex-1 border border-line bg-surface px-4 py-2.5 font-mono text-xs text-ink outline-none focus:border-action uppercase"
                   />
                   <button
@@ -574,7 +574,7 @@ export default function PaymentCheckout() {
                   type="text"
                   value={projectRef}
                   onChange={(e) => setProjectRef(e.target.value)}
-                  placeholder="e.g. TMI-2026-ENG or SOW-04"
+                  placeholder="e.g. QOR-2026-ENG or SOW-04"
                   className="w-full border border-line bg-canvas px-3.5 py-2 text-xs font-mono text-ink outline-none focus:border-action uppercase"
                 />
               </div>
@@ -752,7 +752,7 @@ export default function PaymentCheckout() {
                   </div>
                   <div className="flex justify-between">
                     <span className="text-ink-muted">Account Title:</span>
-                    <span className="font-bold text-ink">Tauqeer Mustafa Inc.</span>
+                    <span className="font-bold text-ink">Qorlune LLC</span>
                   </div>
                   <div className="flex justify-between items-center">
                     <span className="text-ink-muted">IBAN:</span>
@@ -818,7 +818,7 @@ export default function PaymentCheckout() {
                 <div className="p-4 bg-surface border border-line space-y-2 font-mono text-xs">
                   <div className="flex justify-between">
                     <span className="text-ink-muted">Account Title:</span>
-                    <span className="font-bold text-ink">Tauqeer Mustafa Inc.</span>
+                    <span className="font-bold text-ink">Qorlune LLC</span>
                   </div>
                   <div className="flex justify-between items-center">
                     <span className="text-ink-muted">Raast IBAN:</span>
@@ -866,10 +866,10 @@ export default function PaymentCheckout() {
                   <div className="flex justify-between">
                     <span className="text-ink-muted">Wise Business Email:</span>
                     <div className="flex items-center gap-1.5 font-bold text-action">
-                      <span>billing@tauqeermustafa.com</span>
+                      <span>billing@qorlune.com</span>
                       <button
                         type="button"
-                        onClick={() => handleCopyText("billing@tauqeermustafa.com", setCopiedWise)}
+                        onClick={() => handleCopyText("billing@qorlune.com", setCopiedWise)}
                         className="text-ink-muted hover:text-ink p-1"
                       >
                         {copiedWise ? <Check size={12} className="text-emerald-500" /> : <Copy size={12} />}
@@ -878,7 +878,7 @@ export default function PaymentCheckout() {
                   </div>
                   <div className="flex justify-between">
                     <span className="text-ink-muted">Recipient Name:</span>
-                    <span className="font-bold text-ink">Tauqeer Mustafa Inc.</span>
+                    <span className="font-bold text-ink">Qorlune LLC</span>
                   </div>
                 </div>
 

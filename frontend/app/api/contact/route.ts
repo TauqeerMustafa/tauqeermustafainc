@@ -76,7 +76,7 @@ const DEPARTMENT_DESTINATIONS: Record<string, string> = {
 
           await sendOpenEmailMessage(NOTIFICATIONS_MAILBOX_ID, {
             from: "notifications@tauqeermustafa.tech",
-            fromName: "Tauqeer Mustafa Inc",
+            fromName: "Qorlune LLC",
             to: [payload.email],
             subject: `We have received your inquiry: ${body.service || "General Inquiry"}`,
             text: analysis.replyText,
@@ -87,7 +87,7 @@ const DEPARTMENT_DESTINATIONS: Record<string, string> = {
           if (targetDeptEmail) {
             await sendOpenEmailMessage(NOTIFICATIONS_MAILBOX_ID, {
               from: "notifications@tauqeermustafa.tech",
-              fromName: "Tauqeer Mustafa Inc — Website Dispatch",
+              fromName: "Qorlune LLC — Website Dispatch",
               to: [targetDeptEmail],
               subject: `[New Inquiry] ${body.department} — ${body.fullName || "Inquiry"}`,
               text: `New website inquiry for ${body.department}:\n\nFrom: ${body.fullName} (${payload.email})\nCompany: ${body.company || "N/A"}\nPhone: ${body.phone || "N/A"}\nService: ${body.service || "N/A"}\nSubject: ${body.subject || "N/A"}\n\nMessage:\n${body.message}\n`,

@@ -28,12 +28,12 @@ export function faqSchema(faqs: FAQItem[]) {
 // Common FAQs for homepage or about page
 export const commonFAQs: FAQItem[] = [
   {
-    question: "What services does Tauqeer Mustafa Inc. provide?",
+    question: "What services does Qorlune LLC provide?",
     answer: "We provide full-stack web development, cybersecurity consulting, AI automation, cloud engineering, and product design services. Our security-first approach ensures every project is built with robust protection from day one.",
   },
   {
-    question: "Where is Tauqeer Mustafa Inc. located?",
-    answer: "We are based in Islamabad, Pakistan, and serve clients both locally and internationally across multiple time zones.",
+    question: "Where is Qorlune LLC located?",
+    answer: "We are headquartered in New Orleans, Louisiana, United States, with operating desks serving clients globally across multiple time zones.",
   },
   {
     question: "Do you work with international clients?",

@@ -4,7 +4,7 @@ import SupportHubClient from "../SupportHubClient";
 export const metadata: Metadata = {
   title: "Live System Status & SLA Metrics | TMI Helpdesk",
   description:
-    "Real-time operational status, service latencies, scheduled maintenance, and 99.98% uptime SLA telemetry for Tauqeer Mustafa Inc.",
+    "Real-time operational status, service latencies, scheduled maintenance, and 99.98% uptime SLA telemetry for Qorlune LLC",
 };
 
 export default function StatusPage() {

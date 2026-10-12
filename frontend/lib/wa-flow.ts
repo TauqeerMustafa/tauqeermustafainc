@@ -14,12 +14,12 @@ const GRAPH_URL = "https://graph.facebook.com/v20.0";
 
 // ---------- Constants & Company Info ----------
 
-const COMPANY_NAME = "Tauqeer Mustafa Inc";
-const WEBSITE = "https://tauqeermustafa.com";
+const COMPANY_NAME = "Qorlune LLC";
+const WEBSITE = "https://qorlune.com";
 const HOURS = "Monday to Saturday, 09:00 to 18:00 (PKT)";
 const REP_QUEUE_CHANNEL = process.env.REP_QUEUE_CHANNEL ?? "#leads-inbound";
 
-// ---------- Service catalogue (mirrors tauqeermustafa.com/services) ----------
+// ---------- Service catalogue (mirrors qorlune.com/services) ----------
 
 export const SERVICES: Record<
   Exclude<ServiceKey, "client_services" | "careers" | "human">,
@@ -496,7 +496,7 @@ async function sendServiceMenu(to: string, session: Session, channelId?: string,
     {
       header: COMPANY_NAME,
       body:
-        `Hi! Welcome to *Tauqeer Mustafa Inc*.\n\n` +
+        `Hi! Welcome to *Qorlune LLC*.\n\n` +
         `We build high-performance software, custom AI systems, and cloud architecture.\n\n` +
         `What can we help you build today?`,
       footer: `${HOURS}`,
@@ -900,9 +900,9 @@ export const DEFAULT_STEPS: FlowStep[] = [
   {
     kind: "list",
     id: "start",
-    header: "Tauqeer Mustafa Inc",
+    header: "Qorlune LLC",
     body:
-      "Hi! Welcome to *Tauqeer Mustafa Inc*.\n\n" +
+      "Hi! Welcome to *Qorlune LLC*.\n\n" +
       "We build high-performance software, custom AI systems, and cloud architecture.\n\n" +
       "What can we help you build today?",
     footer: "Mon–Sat, 09:00–18:00 PKT",
@@ -1031,7 +1031,7 @@ export const DEFAULT_STEPS: FlowStep[] = [
     body:
       "We're actively hiring engineers and interns! 🚀\n\n" +
       "Check open roles and apply here:\n" +
-      "👉 *https://tauqeermustafa.com/careers*\n\n" +
+      "👉 *https://qorlune.com/careers*\n\n" +
       "Our technical team reviews all applications directly.",
     buttons: [
       { id: "human", title: "Message HR", next: "human" },
@@ -1042,7 +1042,7 @@ export const DEFAULT_STEPS: FlowStep[] = [
     kind: "text",
     id: "human",
     body:
-      "You're through to Tauqeer Mustafa's direct engineering desk. 👋\n\n" +
+      "You're through to Qorlune LLC's direct engineering desk. 👋\n\n" +
       "Please share your project vision, scope, or drop a voice note right here in this chat.\n\n" +
       "Every brief is reviewed with care, and our principal will reply directly to you right here!",
   },

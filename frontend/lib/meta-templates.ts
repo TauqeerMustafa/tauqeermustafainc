@@ -66,9 +66,9 @@ export const META_TEMPLATES: MetaTemplateDef[] = [
     category: "MARKETING",
     language: "en_US",
     department: "general",
-    header: "Welcome to Tauqeer Mustafa Inc",
+    header: "Welcome to Qorlune LLC",
     body:
-      "Hi {{1}}, thanks for connecting with Tauqeer Mustafa Inc.\n\n" +
+      "Hi {{1}}, thanks for connecting with Qorlune LLC\n\n" +
       "We design and engineer high-performance web platforms, cloud systems, AI workflows, and cybersecurity.\n\n" +
       "Reply with what you are building or solving and we will connect you directly with the right lead engineer.",
     bodyExample: ["there"],
@@ -203,7 +203,7 @@ export const META_TEMPLATES: MetaTemplateDef[] = [
       "If you would like to move forward on your project, we are ready to share a delivery roadmap and scope. If timing has shifted, no problem at all.\n\n" +
       "Let us know how you would like to proceed.",
     bodyExample: ["there"],
-    footer: "Tauqeer Mustafa Inc",
+    footer: "Qorlune LLC",
     buttons: ["Ready to proceed", "Need more time", "Schedule a call"],
   },
   {
@@ -231,7 +231,7 @@ export const META_TEMPLATES: MetaTemplateDef[] = [
       "If you still have upcoming software, cloud, or security milestones, we would be glad to resume right where we left off.\n\n" +
       "Feel free to reply here anytime.",
     bodyExample: ["there"],
-    footer: "Tauqeer Mustafa Inc",
+    footer: "Qorlune LLC",
     buttons: ["Resume discussion", "Not right now", "Schedule a call"],
   },
   // ─── Technical & Client Support Templates ────────────────────────────
@@ -273,7 +273,7 @@ export const META_TEMPLATES: MetaTemplateDef[] = [
       "The fix has been deployed to production: {{3}}.\n\n" +
       "Please verify that your system is functioning normally.",
     bodyExample: ["there", "TMI-SUP-88214", "API gateway patch applied"],
-    footer: "Tauqeer Mustafa Inc Support",
+    footer: "Qorlune LLC Support",
     buttons: ["Confirm Resolution", "Reopen Ticket"],
   },
   {
@@ -301,7 +301,7 @@ export const META_TEMPLATES: MetaTemplateDef[] = [
       "This incident has been escalated directly to {{3}} for priority triage.\n\n" +
       "We will update you within the next 30 minutes.",
     bodyExample: ["there", "TMI-SUP-88214", "Head of Engineering"],
-    footer: "Tauqeer Mustafa Inc Support Desk",
+    footer: "Qorlune LLC Support Desk",
     buttons: ["View Status", "Call Hotline"],
   },
   {
@@ -326,10 +326,10 @@ export const META_TEMPLATES: MetaTemplateDef[] = [
     department: "general",
     header: "Verification Code",
     body:
-      "Your security verification code for Tauqeer Mustafa Inc is {{1}}.\n\n" +
+      "Your security verification code for Qorlune LLC is {{1}}.\n\n" +
       "This code is valid for 10 minutes. For your protection, never share this code or your account credentials with anyone.",
     bodyExample: ["849201"],
-    footer: "Tauqeer Mustafa Inc Security",
+    footer: "Qorlune LLC Security",
     buttons: ["Copy Code", "I did not request this"],
   },
   {

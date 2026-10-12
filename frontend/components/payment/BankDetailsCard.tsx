@@ -52,7 +52,7 @@ export default function BankDetailsCard() {
           Official Company Bank Accounts
         </h3>
         <p className="text-xs text-ink-muted">
-          Tauqeer Mustafa Inc. accepts direct institutional transfers with zero processing fees.
+          Qorlune LLC accepts direct institutional transfers with zero processing fees.
         </p>
       </div>
 
@@ -92,7 +92,7 @@ export default function BankDetailsCard() {
           </div>
 
           <BankDetailItem label="Bank Name" value="Meezan Bank Limited" copyable={false} />
-          <BankDetailItem label="Account Title" value="Tauqeer Mustafa Inc." />
+          <BankDetailItem label="Account Title" value="Qorlune LLC" />
           <BankDetailItem label="IBAN Number" value="PK64MEZN0001090108421092" />
           <BankDetailItem label="Account Number" value="01090108421092" />
           <BankDetailItem label="Branch Code" value="0109 (Islamabad F-7 Markaz)" copyable={false} />
@@ -109,8 +109,8 @@ export default function BankDetailsCard() {
           </div>
 
           <BankDetailItem label="Raast ID (Phone)" value="+923356701199" />
-          <BankDetailItem label="Raast ID (Email)" value="billing@tauqeermustafa.com" />
-          <BankDetailItem label="Registered Account Title" value="Tauqeer Mustafa Inc." />
+          <BankDetailItem label="Raast ID (Email)" value="billing@qorlune.com" />
+          <BankDetailItem label="Registered Account Title" value="Qorlune LLC" />
           <BankDetailItem label="Associated Bank" value="Meezan Bank Limited" copyable={false} />
           <BankDetailItem label="Associated IBAN" value="PK64MEZN0001090108421092" />
         </div>
@@ -124,13 +124,13 @@ export default function BankDetailsCard() {
             <span>SWIFT Wire / Wise • 1–3 Business Days</span>
           </div>
 
-          <BankDetailItem label="Beneficiary" value="Tauqeer Mustafa Inc." />
-          <BankDetailItem label="Wise Multi-Currency Tag" value="tauqeermustafa-inc" />
+          <BankDetailItem label="Beneficiary" value="Qorlune LLC" />
+          <BankDetailItem label="Wise Multi-Currency Tag" value="qorlune-llc" />
           <BankDetailItem label="UK Head Office Account #" value="83921045" />
           <BankDetailItem label="UK Sort Code" value="23-14-70" />
           <BankDetailItem label="UK IBAN (Barclays / Wise)" value="GB29BARC20000083921045" />
           <BankDetailItem label="SWIFT / BIC Code" value="BARCGB22" />
-          <BankDetailItem label="Beneficiary Address" value="TMHQ, 6 Milton Rd, Harrow HA1 1XX, UK" copyable={false} />
+          <BankDetailItem label="Beneficiary Address" value="1808 Orleans Ave, New Orleans, LA 70116, USA" copyable={false} />
         </div>
       )}
 
@@ -138,9 +138,9 @@ export default function BankDetailsCard() {
       <div className="mt-6 flex items-start gap-2.5 border-t border-line/70 pt-4 text-xs text-ink/60">
         <ShieldCheck size={16} className="shrink-0 text-action mt-0.5" />
         <p className="leading-relaxed">
-          <strong>Security Notice:</strong> Tauqeer Mustafa Inc. conducts commercial banking solely
+          <strong>Security Notice:</strong> Qorlune LLC conducts commercial banking solely
           through the corporate credentials displayed above. Official invoices are dispatched
-          exclusively from <code className="font-mono text-action font-bold">@tauqeermustafa.com</code>.
+          exclusively from <code className="font-mono text-action font-bold">@qorlune.com</code>.
         </p>
       </div>
     </div>

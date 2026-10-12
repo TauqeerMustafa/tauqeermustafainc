@@ -3,7 +3,7 @@ import CommunityMembersView from "@/components/community/CommunityMembersView";
 import { buildMetadata } from "@/lib/metadata";
 
 export const metadata: Metadata = buildMetadata({
-  title: "Members | TMI Community",
+  title: "Members | Qorlune Community",
   description: "Meet the builders, designers, security practitioners, and leaders making up the TMI community.",
   path: "/community/members",
 });

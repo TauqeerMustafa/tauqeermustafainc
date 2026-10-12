@@ -86,7 +86,7 @@ export default function AIWorkforcePage() {
 
   const handleCopyBriefing = () => {
     if (!briefing) return;
-    const text = `📊 *Tauqeer Mustafa Inc. Executive Briefing*\nHealth Score: ${briefing.healthScore}% (${briefing.operationalGrade})\n\n*${briefing.headline}*\n${briefing.summary}\n\n🌟 *Key Wins:*\n${briefing.topAchievements.map((a) => `• ${a}`).join("\n")}\n\n⚠️ *Risks:*\n${briefing.criticalRisks.map((r) => `• ${r}`).join("\n")}\n\n🎯 *AI Recommendations:*\n${briefing.strategicRecommendations.map((s) => `• ${s}`).join("\n")}`;
+    const text = `📊 *Qorlune LLC Executive Briefing*\nHealth Score: ${briefing.healthScore}% (${briefing.operationalGrade})\n\n*${briefing.headline}*\n${briefing.summary}\n\n🌟 *Key Wins:*\n${briefing.topAchievements.map((a) => `• ${a}`).join("\n")}\n\n⚠️ *Risks:*\n${briefing.criticalRisks.map((r) => `• ${r}`).join("\n")}\n\n🎯 *AI Recommendations:*\n${briefing.strategicRecommendations.map((s) => `• ${s}`).join("\n")}`;
 
     navigator.clipboard.writeText(text);
     setCopied(true);

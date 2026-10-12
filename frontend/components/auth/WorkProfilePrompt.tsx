@@ -92,11 +92,11 @@ export default function WorkProfilePrompt() {
     if (bridge && typeof bridge.triggerWorkProfileProvisioning === "function") {
       bridge.triggerWorkProfileProvisioning();
     } else {
-      // Deep-link into installed TMI Portals app
+      // Deep-link into installed Qorlune Portals app
       window.location.href = "tmi://provision-work-profile";
       setTimeout(() => {
         // Fallback: If not opened within 1.5s, direct to official app portal
-        window.location.href = "https://app.tauqeermustafa.com";
+        window.location.href = "https://app.qorlune.com";
       }, 1500);
     }
   };
@@ -251,7 +251,7 @@ export default function WorkProfilePrompt() {
                     <span>Launch Work Setup</span>
                   </button>
                   <a
-                    href="https://app.tauqeermustafa.com"
+                    href="https://app.qorlune.com"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="inline-flex items-center justify-center gap-1.5 border border-adm-border bg-adm-surface px-3 py-2.5 font-mono text-xs font-bold uppercase tracking-wider text-adm-text transition hover:border-adm-blue hover:text-adm-blue shrink-0"
@@ -275,7 +275,7 @@ export default function WorkProfilePrompt() {
                   <span className="font-mono text-[10px] font-bold text-adm-blue">STEP 02 (Android 13+)</span>
                   <p className="mt-1 text-xs font-semibold text-adm-text">Allow Restricted Settings</p>
                   <p className="mt-0.5 text-[11px] text-adm-text-3 leading-snug">
-                    In phone <strong>Settings → Apps → TMI Portals → 3 Dots (⋮)</strong>, tap <strong>Allow restricted settings</strong>.
+                    In phone <strong>Settings → Apps → Qorlune Portals → 3 Dots (⋮)</strong>, tap <strong>Allow restricted settings</strong>.
                   </p>
                 </div>
                 <div className="border border-adm-border p-3 bg-adm-surface">

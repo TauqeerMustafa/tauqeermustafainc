@@ -18,7 +18,7 @@ import { getKV, checkKVConfigured, KEYS } from "@/lib/kv";
 const DEFAULT_TEMPLATES = [
   {
     name: "qualify_new_lead",
-    text: "Welcome to Tauqeer Mustafa Inc.\n\nTo connect you with the appropriate technical practice, please share three details in one message:\n\n1. Company name and primary website\n2. Your name and role\n3. The core objective or milestone you need engineered\n\nA text or voice brief works equally well. Our technical leads review every submission.",
+    text: "Welcome to Qorlune LLC\n\nTo connect you with the appropriate technical practice, please share three details in one message:\n\n1. Company name and primary website\n2. Your name and role\n3. The core objective or milestone you need engineered\n\nA text or voice brief works equally well. Our technical leads review every submission.",
   },
   {
     name: "web_platform_scope",
@@ -50,7 +50,7 @@ const DEFAULT_TEMPLATES = [
   },
   {
     name: "careers_reply",
-    text: "Thank you for your interest in joining Tauqeer Mustafa Inc.\n\nOur engineering leadership evaluates all applications directly. Please provide:\n1. Your name, city, and primary role/focus\n2. Your CV / resume (PDF format)\n3. A link to your GitHub profile, portfolio, or a complex system you built\n\nWe will review your background and respond directly.",
+    text: "Thank you for your interest in joining Qorlune LLC\n\nOur engineering leadership evaluates all applications directly. Please provide:\n1. Your name, city, and primary role/focus\n2. Your CV / resume (PDF format)\n3. A link to your GitHub profile, portfolio, or a complex system you built\n\nWe will review your background and respond directly.",
   },
   {
     name: "payment_due",

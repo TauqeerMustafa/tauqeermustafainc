@@ -2,9 +2,9 @@ import type { Metadata } from "next";
 import SupportHubClient, { type SupportTab } from "./SupportHubClient";
 
 export const metadata: Metadata = {
-  title: "Support & Help Center | Tauqeer Mustafa Inc.",
+  title: "Support & Help Center | Qorlune LLC",
   description:
-    "Official corporate helpdesk, ticket submission, system status, live SLA monitoring, and 24/7 technical assistance for Tauqeer Mustafa Inc.",
+    "Official corporate helpdesk, ticket submission, system status, live SLA monitoring, and 24/7 technical assistance for Qorlune LLC",
 };
 
 export default async function SupportPage({
@@ -28,14 +28,14 @@ export default async function SupportPage({
           __html: JSON.stringify({
             "@context": "https://schema.org",
             "@type": "ContactPage",
-            name: "Tauqeer Mustafa Inc. Support & Helpdesk",
+            name: "Qorlune LLC Support & Helpdesk",
             description:
               "Official corporate support, ticket tracking, emergency incident response, and live system status.",
-            url: "https://support.tauqeermustafa.com",
+            url: "https://support.qorlune.com",
             mainEntity: {
               "@type": "CustomerService",
               telephone: "+92 335 6701199",
-              email: "support@tauqeermustafa.com",
+              email: "support@qorlune.com",
               contactType: "technical support",
               availableLanguage: ["English", "Urdu"],
             },

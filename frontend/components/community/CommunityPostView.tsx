@@ -58,7 +58,7 @@ export default function CommunityPostView({ post }: { post: CommunityPost }) {
   return (
     <>
       <PageHero
-        eyebrow={`TMI Community // ${post.category}`}
+        eyebrow={`Qorlune Community // ${post.category}`}
         title={post.title}
         description={post.excerpt}
       >

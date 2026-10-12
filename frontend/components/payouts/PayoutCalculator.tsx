@@ -243,7 +243,7 @@ export default function PayoutCalculator() {
 
               <div className="flex items-center justify-between">
                 <span className="text-ink-muted">Platform Deductions</span>
-                <span className="font-mono font-bold text-emerald-600">ZERO (TMI Paid)</span>
+                <span className="font-mono font-bold text-emerald-600">ZERO (Qorlune Paid)</span>
               </div>
             </div>
 
@@ -266,7 +266,7 @@ export default function PayoutCalculator() {
               <span>Full Value Protection</span>
             </div>
             <p className="leading-relaxed">
-              TMI absorbs internal payment processing overheads. Foreign exchange spreads on Wise
+              Qorlune absorbs internal payment processing overheads. Foreign exchange spreads on Wise
               and bank wires reflect live interbank rates at disbursement time.
             </p>
           </div>

@@ -79,7 +79,7 @@ async function inspect(
         nodeType: "whatsapp_business_account",
         phoneId: p.id,
         displayNumber: p.display_phone_number,
-        verifiedName: p.verified_name ?? "Tauqeer Mustafa Inc",
+        verifiedName: p.verified_name ?? "Qorlune LLC",
         quality: p.quality_rating ?? "GREEN",
         nameStatus: p.name_status ?? "APPROVED",
         codeVerificationStatus: p.code_verification_status ?? "VERIFIED",

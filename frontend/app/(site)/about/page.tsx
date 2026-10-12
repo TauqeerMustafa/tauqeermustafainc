@@ -38,7 +38,7 @@ export const metadata: Metadata = buildMetadata({
 
   description:
 
-    "TMI is a digital agency that delivers integrated web engineering, cybersecurity, AI, cloud, and design services. We work with companies that need systems built to last.",
+    "Qorlune is a digital technology firm that delivers integrated web engineering, cybersecurity, AI, cloud, and design services. We work with companies that need systems built to last.",
 
   path: "/about",
 
@@ -124,7 +124,7 @@ const timeline = [
 
     description:
 
-      "TMI now works with startups, growing SaaS companies, and enterprises that need secure platforms built to handle real operational load. Five disciplines  web, security, AI, cloud, design  delivered as one integrated team. Engagements typically run 816 weeks, from discovery through launch support.",
+      "Qorlune now works with startups, growing SaaS companies, and enterprises that need secure platforms built to handle real operational load. Five disciplines — web, security, AI, cloud, design — delivered as one integrated team. Engagements typically run 8–16 weeks, from discovery through launch support.",
 
   },
 

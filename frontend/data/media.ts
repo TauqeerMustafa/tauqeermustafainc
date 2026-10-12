@@ -54,8 +54,6 @@ export const imageLibrary = {
 export type ImageCategory = keyof typeof imageLibrary;
 
 /**
- * Founder photograph — a real photo of Tauqeer Mustafa, served locally.
- * Deliberately NOT part of `imageLibrary`, which is Unsplash stock: a stock
- * portrait must never be presented as a named person.
+ * Corporate identity visual.
  */
-export const founderPortrait = "/TM.jpeg";
+export const founderPortrait = "/qorlune-logo-llc.png";

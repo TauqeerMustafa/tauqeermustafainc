@@ -7,7 +7,7 @@ import { MStripe, Section } from "./ui";
 
 const reasons = [
   { title: "Security designed in, not added later",         description: "Threat modeling happens during discovery, not after launch. Security controls are embedded in the architecture — authentication flows, data handling, access boundaries — so they don't break under real load.",                icon: Lock,    num: "01" },
-  { title: "Direct access to the founder on every project", description: "Tauqeer leads every engagement from scoping through deployment. The person who makes architecture decisions is the same person who writes the code and reviews the security posture. No layers, no handoffs.",  icon: Users,   num: "02" },
+  { title: "Direct access to senior staff architects on every project", description: "Senior engineering leads direct every engagement from scoping through deployment. The professionals who make architecture decisions are the same engineers who write the code and review the security posture. No layers, no handoffs.",  icon: Users,   num: "02" },
   { title: "Five disciplines under one roof",               description: "Web engineering, cybersecurity, AI automation, cloud infrastructure, and product design delivered by one team that understands how those capabilities need to interact. No vendor coordination overhead.", icon: Gauge,   num: "03" },
   { title: "Clear scope, honest pricing",                   description: "Fixed-scope engagements with transparent timelines. You pay for the actual work — engineering, security reviews, infrastructure setup — not enterprise markup or account management overhead.",                      icon: Network, num: "04" },
 ];
@@ -19,7 +19,7 @@ export default function WhyChooseUs() {
         <div className="lg:sticky lg:top-32 lg:self-start">
           <MStripe />
           <p className="mt-6 font-mono text-[11px] font-semibold uppercase tracking-[0.14em] text-action">
-            Why TMI
+            Why Qorlune
           </p>
           <h2
             id="why-title"
@@ -30,8 +30,8 @@ export default function WhyChooseUs() {
           <p className="mt-6 text-[17px] font-light leading-[1.6] tracking-[-0.01em] text-ink/60 sm:text-[18px]">
             Most agencies either lack security expertise or treat it as a separate audit phase. Most freelancers
             can&apos;t handle the full stack — frontend, backend, infrastructure, threat modeling, and UX — as one
-            coherent system. TMI exists because those gaps create real operational risk. We deliver all five
-            disciplines with the technical depth they require, led by someone who&apos;s built production systems
+            coherent system. Qorlune exists because those gaps create real operational risk. We deliver all five
+            disciplines with the technical depth they require, led by teams who have built production systems
             that had to survive real threats and real load.
           </p>
         </div>

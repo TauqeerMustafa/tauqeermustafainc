@@ -154,7 +154,7 @@ export default function DocReaderClient({
               <div className="flex items-center gap-2.5">
                 <ShieldCheck size={18} className="text-action" />
                 <span className="uppercase tracking-wider font-semibold text-ink">
-                  Official Corporate Policy // Tauqeer Mustafa Inc.
+                  Official Corporate Policy // Qorlune LLC
                 </span>
               </div>
               <div>

@@ -11,7 +11,7 @@ import { footerLinks, navigation } from "@/lib/site-data";
 const socialLinks = [
   { name: "GitHub",   href: company.social.github,   icon: FaGithub },
   { name: "LinkedIn", href: company.social.linkedin,  icon: FaLinkedin },
-  { name: "X",        href: company.social.twitter ?? "https://x.com/tauqeermustafainc", icon: FaXTwitter },
+  { name: "X",        href: company.social.twitter ?? "https://x.com/qorlune", icon: FaXTwitter },
 ];
 
 export default function Footer() {

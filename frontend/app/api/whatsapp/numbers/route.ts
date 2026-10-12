@@ -53,7 +53,7 @@ async function describe(number: WANumber, token: string): Promise<WANumberInfo> 
             ...number,
             id: String(first.id),
             displayNumber: first.display_phone_number,
-            verifiedName: first.verified_name ?? "Tauqeer Mustafa Inc",
+            verifiedName: first.verified_name ?? "Qorlune LLC",
             nameStatus: first.name_status ?? first.new_name_status ?? "APPROVED",
             quality: first.quality_rating ?? "GREEN",
             codeVerificationStatus: first.code_verification_status ?? "VERIFIED",
@@ -77,7 +77,7 @@ async function describe(number: WANumber, token: string): Promise<WANumberInfo> 
         ...number,
         canSend: true,
         displayNumber: number.displayNumber || null,
-        verifiedName: "Tauqeer Mustafa Inc",
+        verifiedName: "Qorlune LLC",
         nameStatus: "APPROVED",
         quality: "GREEN",
         codeVerificationStatus: "VERIFIED",
@@ -88,7 +88,7 @@ async function describe(number: WANumber, token: string): Promise<WANumberInfo> 
     return {
       ...number,
       displayNumber: json.display_phone_number,
-      verifiedName: json.verified_name ?? "Tauqeer Mustafa Inc",
+      verifiedName: json.verified_name ?? "Qorlune LLC",
       nameStatus: json.name_status ?? json.new_name_status ?? "APPROVED",
       quality: json.quality_rating ?? "GREEN",
       codeVerificationStatus: json.code_verification_status ?? "VERIFIED",
@@ -142,7 +142,7 @@ export async function GET(request: Request) {
               slot: account.slot,
               department: "general",
               displayNumber: item.display_phone_number ?? null,
-              verifiedName: item.verified_name ?? "Tauqeer Mustafa Inc",
+              verifiedName: item.verified_name ?? "Qorlune LLC",
               nameStatus: item.name_status ?? item.new_name_status ?? "APPROVED",
               quality: item.quality_rating ?? "GREEN",
               codeVerificationStatus: item.code_verification_status ?? "VERIFIED",
@@ -206,7 +206,7 @@ export async function GET(request: Request) {
     primaryItem.label = "Line 1 (PK)";
     primaryItem.canSend = true;
     if (!primaryItem.displayNumber) primaryItem.displayNumber = "+92 335 6701199";
-    if (!primaryItem.verifiedName) primaryItem.verifiedName = "Tauqeer Mustafa Inc";
+    if (!primaryItem.verifiedName) primaryItem.verifiedName = "Qorlune LLC";
     if (!primaryItem.nameStatus) primaryItem.nameStatus = "APPROVED";
     if (!primaryItem.quality) primaryItem.quality = "GREEN";
     if (!primaryItem.codeVerificationStatus) primaryItem.codeVerificationStatus = "VERIFIED";
@@ -300,7 +300,7 @@ export async function GET(request: Request) {
       n.label = conf?.label || `Line ${resultList.indexOf(n) + 1}`;
     }
     n.canSend = true;
-    if (!n.verifiedName) n.verifiedName = "Tauqeer Mustafa Inc";
+    if (!n.verifiedName) n.verifiedName = "Qorlune LLC";
     if (!n.nameStatus) n.nameStatus = "APPROVED";
     if (!n.quality) n.quality = "GREEN";
     if (!n.codeVerificationStatus) n.codeVerificationStatus = "VERIFIED";
@@ -334,7 +334,7 @@ export async function GET(request: Request) {
           : n.id === "1964540454233744" || n.id === "1318810581311680"
           ? n.displayNumber || "+44 7575 376078"
           : null),
-      verifiedName: "Tauqeer Mustafa Inc",
+      verifiedName: "Qorlune LLC",
       nameStatus: "APPROVED",
       quality: "GREEN",
       codeVerificationStatus: "VERIFIED",

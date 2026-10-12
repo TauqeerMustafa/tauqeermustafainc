@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import BillingHubClient from "./BillingHubClient";
 
 export const metadata: Metadata = {
-  title: "Billing, Payouts & Policies | Tauqeer Mustafa Inc.",
+  title: "Billing, Payouts & Policies | Qorlune LLC",
   description:
     "Official corporate portal for client payments, contractor payout tracking, net fee calculators, and payment policies.",
 };

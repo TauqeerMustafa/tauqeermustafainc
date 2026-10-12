@@ -35,7 +35,7 @@ export const BUTTON_TEMPLATES: ButtonTemplate[] = [
     name: "route_enquiry",
     header: "Engineering & Advisory Desk",
     body:
-      "Welcome to *Tauqeer Mustafa Inc.*\n\n" +
+      "Welcome to *Qorlune LLC*\n\n" +
       "To connect you directly with the appropriate engineering team, please select your primary focus:\n\n" +
       "1. *Web & Platforms* — Cloud portals, enterprise SaaS & microservices\n" +
       "2. *Cybersecurity* — Posture audits, zero-trust & incident defense\n" +
@@ -98,7 +98,7 @@ export const BUTTON_TEMPLATES: ButtonTemplate[] = [
       "2. *Contact* — Your full name and role\n" +
       "3. *Objective* — What you want to build, upgrade, or defend\n\n" +
       "A brief text or voice note is welcome.",
-    footer: "Tauqeer Mustafa Inc",
+    footer: "Qorlune LLC",
     buttons: ["Sending Details", "Request Voice Call", "Technical Sync"],
   },
   {
@@ -150,7 +150,7 @@ export const BUTTON_TEMPLATES: ButtonTemplate[] = [
       "2. GitHub profile or portfolio link\n" +
       "3. Summary of a complex system you engineered\n\n" +
       "Our engineering leads review every submission.",
-    footer: "tauqeermustafa.com/careers",
+    footer: "qorlune.com/careers",
     buttons: ["Sending Resume", "View Open Roles", "Speak with Lead"],
   },
   {

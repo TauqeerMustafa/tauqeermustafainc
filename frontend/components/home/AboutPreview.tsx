@@ -78,7 +78,7 @@ export default function AboutPreview() {
 
           <div className="mt-6 space-y-5 text-[17px] font-light leading-[1.6] tracking-[-0.01em] text-ink-muted">
             <p>
-              TMI delivers web platforms, security consulting, and AI automation as one integrated team.
+              Qorlune delivers web platforms, security consulting, and AI automation as one integrated team.
               Instead of hiring three vendors who can&apos;t talk to each other, you work with senior
               engineers who understand how those capabilities need to interact — security constraints inform
               architecture from day one, infrastructure choices shape feature scope, and UX reflects the

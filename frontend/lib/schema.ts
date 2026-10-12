@@ -157,7 +157,7 @@ export function articleSchema(article: {
     dateModified: article.updatedAt || article.publishedAt,
     author: {
       "@type": "Person",
-      name: article.author || "Tauqeer Mustafa",
+      name: article.author || "Qorlune LLC",
       url: appConfig.siteUrl,
     },
     publisher: {

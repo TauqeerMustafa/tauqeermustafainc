@@ -46,7 +46,7 @@ export async function POST(request: Request) {
       try {
         await sendOpenEmailMessage(mailboxId, {
           from: "notifications@tauqeermustafa.tech",
-          fromName: "Tauqeer Mustafa Inc Support Desk",
+          fromName: "Qorlune LLC Support Desk",
           to: [from],
           subject: subject.toLowerCase().startsWith("re:") ? subject : `Re: ${subject}`,
           text: analysis.replyText,

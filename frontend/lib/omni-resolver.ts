@@ -177,7 +177,7 @@ export function handleButtonClick(choiceId: string, name?: string): TriageResult
         replyText:
           `We're actively hiring engineers and interns! 🚀\n\n` +
           `Check open roles and apply here:\n` +
-          `👉 *https://tauqeermustafa.com/careers*\n\n` +
+          `👉 *https://qorlune.com/careers*\n\n` +
           `Our technical team reviews all applications directly.`,
         buttons: [
           { id: "human", title: "Message HR" },
@@ -195,7 +195,7 @@ export function handleButtonClick(choiceId: string, name?: string): TriageResult
         diagnosis: "Direct consultation requested.",
         actionTaken: "Connected to Principal.",
         replyText:
-          `You're through to Tauqeer Mustafa's direct engineering desk. 👋\n\n` +
+          `You're through to Qorlune LLC's direct engineering desk. 👋\n\n` +
           `Please share your project vision, scope, or drop a voice note right here in this chat.\n\n` +
           `Every brief is reviewed with care, and our principal will reply directly to you right here!`,
       };
@@ -281,7 +281,7 @@ export function handleButtonClick(choiceId: string, name?: string): TriageResult
         actionTaken: "Shared portal link.",
         replyText:
           `Log into your corporate email here:\n` +
-          `🌐 *https://webmail.tauqeermustafa.tech*\n\n` +
+          `🌐 *https://webmail.qorlune.com*\n\n` +
           `Use your full company email and assigned password.`,
         buttons: [
           { id: "reset_pw", title: "Reset Password" },
@@ -314,7 +314,7 @@ export function handleButtonClick(choiceId: string, name?: string): TriageResult
         actionTaken: "Dispatched main menu.",
         replyText: `How can we help you today? Tap below to explore:`,
         list: {
-          header: "Tauqeer Mustafa Inc",
+          header: "Qorlune LLC",
           buttonText: "Menu Options",
           rows: [
             { id: "web", title: "Web & Platforms", description: "Web apps, SaaS portals & APIs" },
@@ -434,13 +434,13 @@ export async function resolveStaffOrCustomerQuery(params: {
 
   // 2. Credentials & Login Support (Explicit staff webmail only)
   const isCredentialIssue =
-    lower.includes("webmail.tauqeermustafa") ||
+    lower.includes("webmail.qorlune") ||
     (isExplicitStaff && (lower.includes("password") || lower.includes("credentials") || lower.includes("webmail") || lower.includes("login")));
 
   if (isCredentialIssue) {
     const reply =
       `Hey${shortName}! To log into your company email:\n\n` +
-      `🌐 *Webmail:* https://webmail.tauqeermustafa.tech\n\n` +
+      `🌐 *Webmail:* https://webmail.qorlune.com\n\n` +
       `Use your full email and onboarding password.\n` +
       `Need a password reset? Tap below:`;
 
@@ -487,10 +487,10 @@ export async function resolveStaffOrCustomerQuery(params: {
     const serviceRequested = params.extraData?.service || "Engineering & Systems";
     const reply =
       `Hello ${senderName || "there"}!\n\n` +
-      `Thanks for reaching out to *Tauqeer Mustafa Inc* regarding *${serviceRequested}*.\n\n` +
+      `Thanks for reaching out to *Qorlune LLC* regarding *${serviceRequested}*.\n\n` +
       `We've received your note and our technical team is reviewing it. We'll reply within 2 business hours.\n\n` +
       `Best regards,\n` +
-      `*Tauqeer Mustafa Inc*`;
+      `*Qorlune LLC*`;
 
     return {
       category: "CONTACT_FORM",
@@ -515,7 +515,7 @@ export async function resolveStaffOrCustomerQuery(params: {
 
   if (isGreeting) {
     const reply =
-      `Hi${shortName}! Welcome to *Tauqeer Mustafa Inc*.\n\n` +
+      `Hi${shortName}! Welcome to *Qorlune LLC*.\n\n` +
       `We build high-performance software, custom AI systems, and cloud architecture.\n\n` +
       `What can we help you build today?`;
 
@@ -525,7 +525,7 @@ export async function resolveStaffOrCustomerQuery(params: {
       actionTaken: "Dispatched clean options menu.",
       replyText: reply,
       list: {
-        header: "Tauqeer Mustafa Inc",
+        header: "Qorlune LLC",
         buttonText: "Explore Options",
         rows: [
           { id: "web", title: "Web & Platforms", description: "Web apps, SaaS portals & APIs" },

@@ -6,7 +6,7 @@ import { buildMetadata } from "@/lib/metadata";
 import { PageHero, Section } from "@/components/home/ui";
 
 export const metadata: Metadata = buildMetadata({
-  title: "Community Guidelines | TMI Community",
+  title: "Community Guidelines | Qorlune Community",
   description: "The principles that keep the TMI community useful, generous, and safe for everyone.",
   path: "/community/guidelines",
 });

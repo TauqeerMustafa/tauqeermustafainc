@@ -296,7 +296,7 @@ export function generateCompanyProfilePdf(): void {
   doc.setFont("helvetica", "normal");
   doc.setFontSize(8);
   doc.setTextColor(MUTED[0], MUTED[1], MUTED[2]);
-  doc.text("Tauqeer Mustafa Inc.", margin + 4, curY + 13);
+  doc.text("Qorlune LLC", margin + 4, curY + 13);
   doc.text("TMHQ, 6 Milton Rd, Harrow HA1 1XX", margin + 4, curY + 18);
   doc.text("London, United Kingdom", margin + 4, curY + 23);
   doc.text("Hours: 09:00 - 18:00 GMT", margin + 4, curY + 28);
@@ -316,7 +316,7 @@ export function generateCompanyProfilePdf(): void {
   doc.setFont("helvetica", "normal");
   doc.setFontSize(8);
   doc.setTextColor(MUTED[0], MUTED[1], MUTED[2]);
-  doc.text("Tauqeer Mustafa Inc. (Regional HQ)", col2X + 4, curY + 13);
+  doc.text("Qorlune LLC (Regional HQ)", col2X + 4, curY + 13);
   doc.text("TMRQ Flat 02-A A Block, Awais Appt", col2X + 4, curY + 18);
   doc.text("Iqbal Town, Islamabad, Pakistan", col2X + 4, curY + 23);
   doc.text("Hours: 09:00 - 18:00 PKT", col2X + 4, curY + 28);
@@ -384,7 +384,7 @@ export function generateCompanyProfilePdf(): void {
   addFooter(doc, 3, 3, pageWidth, pageHeight, margin, company);
 
   // Save the PDF
-  doc.save("Tauqeer-Mustafa-Inc-Company-Profile.pdf");
+  doc.save("Qorlune-LLC-Company-Profile.pdf");
 }
 
 /**
@@ -592,7 +592,7 @@ export function generateExecutiveOnePagerPdf(): void {
     pageHeight - 10
   );
 
-  doc.save("Tauqeer-Mustafa-Inc-Executive-OnePager.pdf");
+  doc.save("Qorlune-LLC-Executive-OnePager.pdf");
 }
 
 function addHeaderBanner(doc: jsPDF, subtitle: string, pageWidth: number, margin: number) {

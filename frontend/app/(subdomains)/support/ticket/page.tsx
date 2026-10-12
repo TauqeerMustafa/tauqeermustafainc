@@ -4,7 +4,7 @@ import SupportHubClient from "../SupportHubClient";
 export const metadata: Metadata = {
   title: "Submit a Support Ticket | TMI Helpdesk",
   description:
-    "Open an enterprise service ticket with guaranteed SLA commitments from Tauqeer Mustafa Inc.",
+    "Open an enterprise service ticket with guaranteed SLA commitments from Qorlune LLC",
 };
 
 export default function TicketPage() {

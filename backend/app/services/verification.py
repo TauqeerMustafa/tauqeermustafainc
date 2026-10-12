@@ -11,9 +11,9 @@ logger = logging.getLogger(__name__)
 
 
 def send_email_code(email: str, code: str) -> bool:
-    subject = "Your Tauqeer Mustafa Inc. verification code"
+    subject = "Your Qorlune LLC verification code"
     text = (
-        f"Your Tauqeer Mustafa Inc. client portal verification code is {code}. It expires in "
+        f"Your Qorlune LLC client portal verification code is {code}. It expires in "
         f"{settings.verification_code_ttl_minutes} minutes. If you did not request this, ignore this email."
     )
 
@@ -28,7 +28,7 @@ def send_email_code(email: str, code: str) -> bool:
                 openemail.send_message(
                     mb["id"],
                     from_email=mb["primaryAddress"],
-                    from_name="Tauqeer Mustafa Inc",
+                    from_name="Qorlune LLC",
                     to=[email],
                     subject=subject,
                     text=text,

@@ -200,7 +200,7 @@ function Composer({ onClose }: { onClose: () => void }) {
             <CheckCircle2 className="mb-2 h-5 w-5 text-emerald-600" aria-hidden />
             <p className="font-semibold">Your discussion topic is published.</p>
             <p className="mt-1 text-xs text-ink-muted">
-              Thank you for contributing to the Tauqeer Mustafa Inc. technical community.
+              Thank you for contributing to the Qorlune LLC technical community.
             </p>
             <button
               type="button"
@@ -304,7 +304,7 @@ export default function CommunityHub() {
     <>
       <PageHero
         eyebrow="Open Engineering // Technical Exchange"
-        title="TMI Developer Community"
+        title="Qorlune Developer Community"
         description="A thoughtful space for software engineers, founders, and system architects shaping production products and sharing real-world decisions."
       >
         <button

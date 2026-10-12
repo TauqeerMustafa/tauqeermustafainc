@@ -33,18 +33,18 @@ export default function ClientPacketBuilder() {
   const buildPacketText = () => {
     const greeting = clientName.trim() ? `Hi ${clientName.trim()},` : "Hello,";
     const companyRef = clientCompany.trim() ? ` for ${clientCompany.trim()}` : "";
-    const sender = employeeName.trim() ? employeeName.trim() : "The TMI Engineering Team";
+    const sender = employeeName.trim() ? employeeName.trim() : "The Qorlune Engineering Team";
 
     let sections: string[] = [];
 
     sections.push(`${greeting}
 
-Here is the customized Tauqeer Mustafa Inc. (TMI) technical capabilities and collateral package${companyRef}:
+Here is the customized Qorlune LLC technical capabilities and collateral package${companyRef}:
 
 ═══════════════════════════════════════════════════════
-TAUQEER MUSTAFA INC. — TECHNICAL PROFILE & CAPABILITIES
+QORLUNE LLC — TECHNICAL PROFILE & CAPABILITIES
 "Engineering that ships. Security that holds."
-Official Website: https://tauqeermustafa.com
+Official Website: https://qorlune.com
 ═══════════════════════════════════════════════════════`);
 
     sections.push(`1. EXECUTIVE SUMMARY & CREDENTIALS
@@ -80,10 +80,10 @@ Official Website: https://tauqeermustafa.com
 
     if (includeLegal) {
       sections.push(`4. GOVERNANCE, SECURITY & LEGAL COMPLIANCE
-• Mutual NDA: https://tauqeermustafa.com/documents/nda
-• Information Security Policy: https://tauqeermustafa.com/documents/security-policy
-• Service Level Agreement (SLA): https://tauqeermustafa.com/documents/sla
-• GDPR & Privacy Terms: https://tauqeermustafa.com/documents/gdpr`);
+• Mutual NDA: https://qorlune.com/documents/nda
+• Information Security Policy: https://qorlune.com/documents/security-policy
+• Service Level Agreement (SLA): https://qorlune.com/documents/sla
+• GDPR & Privacy Terms: https://qorlune.com/documents/gdpr`);
     }
 
     if (includeWhatsApp) {
@@ -100,7 +100,7 @@ Looking forward to connecting with your team.
 
 Best regards,
 ${sender}
-Tauqeer Mustafa Inc. | https://tauqeermustafa.com`);
+Qorlune LLC | https://qorlune.com`);
 
     return sections.join("\n\n");
   };

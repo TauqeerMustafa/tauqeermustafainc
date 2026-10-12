@@ -102,7 +102,7 @@ export async function createPaddleTransaction(params: CreateTransactionParams) {
             currencyCode,
           },
           product: {
-            name: "Tauqeer Mustafa Inc. - Engineering & Technical Services",
+            name: "Qorlune LLC - Engineering & Technical Services",
             taxCategory: "standard" as TaxCategory,
             description: "Institutional engineering, digital platforms & architecture services.",
           },

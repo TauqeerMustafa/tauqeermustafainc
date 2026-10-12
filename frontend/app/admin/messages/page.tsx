@@ -182,7 +182,7 @@ export default function AdminMessagesPage() {
                       </a>
                     )}
                     <a
-                      href={`/admin/mail?compose=1&to=${encodeURIComponent(message.email)}&subject=${encodeURIComponent(`Re: your message to Tauqeer Mustafa Inc`)}`}
+                      href={`/admin/mail?compose=1&to=${encodeURIComponent(message.email)}&subject=${encodeURIComponent(`Re: your message to Qorlune LLC`)}`}
                       className="border border-adm-border px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.14em] text-adm-text-2 transition hover:bg-adm-surface hover:text-adm-text"
                     >
                       Reply by email

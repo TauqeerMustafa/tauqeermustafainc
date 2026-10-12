@@ -268,7 +268,7 @@ function defaultOpusHead(channels = 1): Uint8Array {
 }
 
 function opusTags(): Uint8Array {
-  const vendor = ascii("tauqeer-inc webm→ogg remux");
+  const vendor = ascii("qorlune webm→ogg remux");
   const tags = new Uint8Array(8 + 4 + vendor.length + 4);
   tags.set(ascii("OpusTags"), 0);
   const view = new DataView(tags.buffer);
