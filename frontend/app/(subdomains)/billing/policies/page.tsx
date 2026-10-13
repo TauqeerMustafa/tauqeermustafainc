@@ -112,7 +112,7 @@ export default function SubdomainPoliciesPage() {
                 </h3>
               </div>
               <p className="mt-2 text-xs sm:text-sm text-ink-muted leading-relaxed">
-                All legitimate invoices originate solely from our verified domain <code className="font-mono font-bold text-action">@tauqeermustafa.com</code>. Corporate bank accounts are exclusively registered under <strong>Qorlune LLC</strong> or <strong>Qorlune</strong>. Our employees will never request wire transfers to unlisted personal accounts or mobile wallets over chat apps.
+                All legitimate invoices originate solely from our verified domain <code className="font-mono font-bold text-action">@qorlune.com</code>. Corporate bank accounts are exclusively registered under <strong>Qorlune LLC</strong>. Our employees will never request wire transfers to unlisted personal accounts or mobile wallets over chat apps.
               </p>
             </div>
 

@@ -239,11 +239,11 @@ const ADDITIONAL_DOCS: UnifiedDoc[] = [
   {
     slug: 'community-guidelines',
     title: 'Community Code of Conduct',
-    shortDescription: 'Community standards, participation ethics, and moderation policies for members of the TMI community.',
+    shortDescription: 'Community standards, participation ethics, and moderation policies for members of the Qorlune community.',
     lastUpdated: 'August 18, 2026',
     estimatedReadTime: '5 min read',
     category: 'operations',
-    intro: 'The TMI Community is a space for developers, founders, engineering leaders, and technology practitioners to exchange ideas, share technical progress, and collaborate respectfully.',
+    intro: 'The Qorlune Community is a space for developers, founders, engineering leaders, and technology practitioners to exchange ideas, share technical progress, and collaborate respectfully.',
     sections: [
       {
         heading: '1. Our Standards',

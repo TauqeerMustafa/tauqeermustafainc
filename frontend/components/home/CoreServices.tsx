@@ -58,7 +58,7 @@ export default function CoreServices() {
               <div className="relative flex items-start justify-between gap-4">
                 <div className="min-w-0 flex-1">
                   <span className="inline-flex items-center rounded-full border border-ink/15 bg-ink/[0.06] px-3.5 py-1.5 font-mono text-[11px] font-semibold uppercase tracking-[0.1em] text-ink/70">
-                    {tags[index] ?? "TMI"}
+                    {tags[index] ?? "QORLUNE"}
                   </span>
                   <h3 className="mt-4 text-[24px] font-bold uppercase leading-[1.15] tracking-[-0.01em] text-ink sm:text-[28px]">
                     {service.title}

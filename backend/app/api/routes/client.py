@@ -178,7 +178,7 @@ def client_login(payload: ClientLoginRequest, db: DatabaseSession) -> ApiRespons
     if user.status in ("terminated", "locked", "suspended") or not user.is_active:
         raise HTTPException(
             status_code=403,
-            detail="Your account has been terminated and locked due to inactivity. Access to this portal has been revoked. Contact hr@tauqeermustafa.tech for further inquiries.",
+            detail="Your account has been terminated and locked due to inactivity. Access to this portal has been revoked. Contact hr@qorlune.com for further inquiries.",
         )
     if user.email_verified_at is None:
         raise HTTPException(status_code=403, detail="Verify your email address before signing in")

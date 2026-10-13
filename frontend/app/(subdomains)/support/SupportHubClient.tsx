@@ -55,7 +55,7 @@ const KNOWLEDGE_ARTICLES = [
     category: "Client Portals",
     title: "How to access your dedicated Client Portal & deliverables",
     summary:
-      "Step-by-step instructions for logging in at portals.tauqeermustafa.com, viewing project boards, downloading assets, and reviewing sprint milestones.",
+      "Step-by-step instructions for logging in at portals.qorlune.com, viewing project boards, downloading assets, and reviewing sprint milestones.",
     steps: [
       "Navigate to https://portals.qorlune.com and select the Client Portal tile.",
       "Enter your organization email address and initial password provided during client onboarding.",
@@ -109,7 +109,7 @@ const KNOWLEDGE_ARTICLES = [
     summary:
       "Guidance on verifying webhook handshake tokens, Meta Graph API limits, and inbound event delivery.",
     steps: [
-      "Verify that your Meta App Webhook Callback is pointed to https://tmi-whatsapp-service.onrender.com/webhook.",
+      "Verify that your Meta App Webhook Callback is pointed to https://api.qorlune.com/webhook.",
       "Confirm WEBHOOK_VERIFY_TOKEN matches the value configured in your Meta Developer App.",
       "Ensure phone number ID 1211044558768028 has active Meta business verification.",
       "Check API health at /api/whatsapp/diagnose via your admin session.",
@@ -123,8 +123,8 @@ const KNOWLEDGE_ARTICLES = [
       "Access compliance documentation, vulnerability disclosure policies, and data processing agreements.",
     steps: [
       "Review official policies at https://docs.qorlune.com/security-policy.",
-      "To report a discovered vulnerability, email security@tauqeermustafa.com with encrypted PGP logs.",
-      "Request signed copies of standard Mutual NDAs or Data Processing Agreements via legal@tauqeermustafa.com.",
+      "To report a discovered vulnerability, email security@qorlune.com with encrypted PGP logs.",
+      "Request signed copies of standard Mutual NDAs or Data Processing Agreements via legal@qorlune.com.",
     ],
   },
 ];
@@ -144,7 +144,7 @@ const FAQS = [
   },
   {
     q: "Where do I track the resolution status of my support ticket?",
-    a: "You can track your ticket directly on this hub by entering your Ticket ID (e.g. TMI-SUP-88214) into the 'Ticket Status Tracker' tab. You also receive status updates via email upon each triage milestone.",
+    a: "You can track your ticket directly on this hub by entering your Ticket ID (e.g. QOR-SUP-88214) into the 'Ticket Status Tracker' tab. You also receive status updates via email upon each triage milestone.",
   },
   {
     q: "What information should I include when filing a bug report?",
@@ -209,7 +209,7 @@ export default function SupportHubClient({ initialTab = "overview" }: { initialT
     e.preventDefault();
     setIsSubmitting(true);
 
-    const generatedId = `TMI-SUP-${Math.floor(10000 + Math.random() * 90000)}`;
+    const generatedId = `QOR-SUP-${Math.floor(10000 + Math.random() * 90000)}`;
 
     try {
       const res = await fetch("/api/support/ticket", {
@@ -612,7 +612,7 @@ export default function SupportHubClient({ initialTab = "overview" }: { initialT
                   href="https://portals.qorlune.com"
                   className="mt-2 inline-flex items-center gap-1 font-mono text-xs text-action hover:underline"
                 >
-                  <span>portals.tauqeermustafa.com</span>
+                  <span>portals.qorlune.com</span>
                   <ExternalLink size={11} />
                 </a>
               </div>
@@ -627,7 +627,7 @@ export default function SupportHubClient({ initialTab = "overview" }: { initialT
                   href="https://billing.qorlune.com/pay"
                   className="mt-2 inline-flex items-center gap-1 font-mono text-xs text-action hover:underline"
                 >
-                  <span>billing.tauqeermustafa.com</span>
+                  <span>billing.qorlune.com</span>
                   <ExternalLink size={11} />
                 </a>
               </div>
@@ -642,7 +642,7 @@ export default function SupportHubClient({ initialTab = "overview" }: { initialT
                   href="https://docs.qorlune.com"
                   className="mt-2 inline-flex items-center gap-1 font-mono text-xs text-action hover:underline"
                 >
-                  <span>docs.tauqeermustafa.com</span>
+                  <span>docs.qorlune.com</span>
                   <ExternalLink size={11} />
                 </a>
               </div>
@@ -790,7 +790,7 @@ export default function SupportHubClient({ initialTab = "overview" }: { initialT
                       type="text"
                       value={formData.clientId}
                       onChange={(e) => setFormData({ ...formData, clientId: e.target.value })}
-                      placeholder="e.g. TMI-CL-4089 or Company Name"
+                      placeholder="e.g. QOR-CL-4089 or Company Name"
                       className="w-full px-3.5 py-2.5 bg-canvas border border-line-2 text-sm text-ink outline-none focus:border-action transition"
                     />
                   </div>
@@ -920,7 +920,7 @@ export default function SupportHubClient({ initialTab = "overview" }: { initialT
                 type="text"
                 value={lookupId}
                 onChange={(e) => setLookupId(e.target.value)}
-                placeholder="e.g. TMI-SUP-88214"
+                placeholder="e.g. QOR-SUP-88214"
                 className="flex-1 px-4 py-2.5 bg-canvas border border-line-2 font-mono text-sm text-ink outline-none focus:border-action uppercase"
               />
               <button

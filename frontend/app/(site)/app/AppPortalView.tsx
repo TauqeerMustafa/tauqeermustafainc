@@ -71,7 +71,7 @@ export default function AppPortalView() {
   };
 
   const handleCopyEmail = () => {
-    navigator.clipboard.writeText("app@tauqeermustafa.com");
+    navigator.clipboard.writeText("app@qorlune.com");
     setCopiedEmail(true);
     setTimeout(() => setCopiedEmail(false), 2000);
   };
@@ -175,7 +175,7 @@ export default function AppPortalView() {
               <span className="hidden sm:inline text-ink/20">•</span>
               <div className="flex items-center gap-2">
                 <Mail className="h-3.5 w-3.5 text-action" />
-                <span>SUPPORT: <strong className="text-ink">app@tauqeermustafa.com</strong></span>
+                <span>SUPPORT: <strong className="text-ink">app@qorlune.com</strong></span>
               </div>
             </motion.div>
           </div>
@@ -776,10 +776,10 @@ export default function AppPortalView() {
                   <Mail className="h-4 w-4 text-action" />
                   <span className="text-ink/60">Official Support Mail:</span>
                   <a
-                    href="mailto:app@tauqeermustafa.com"
+                    href="mailto:app@qorlune.com"
                     className="font-bold text-ink hover:text-action transition underline"
                   >
-                    app@tauqeermustafa.com
+                    app@qorlune.com
                   </a>
                   <button
                     type="button"

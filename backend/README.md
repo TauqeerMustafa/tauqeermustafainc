@@ -110,7 +110,7 @@ After running migrations, create an initial admin user and starter content:
 .venv\Scripts\python -m scripts.seed
 ```
 
-This creates `admin@tauqeermustafa.tech` / `ChangeMe123!` as a superuser —
+This creates `admin@qorlune.com` / `ChangeMe123!` as a superuser —
 change this password immediately after the first login in production. It
 also seeds the same services, portfolio, blog, and career content currently
 hardcoded in the frontend's `lib/site-data.ts`, so the site has real content

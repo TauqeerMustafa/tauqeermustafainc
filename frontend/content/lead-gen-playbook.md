@@ -1,6 +1,6 @@
 # Lead Generation Playbook
 
-How leads get found, worked, and closed at Tauqeer Mustafa Inc. This is the plan
+How leads get found, worked, and closed at Qorlune LLC. This is the plan
 the portal enforces — every stage name and activity type below is a real value in
 the CRM, not a metaphor.
 
@@ -14,7 +14,7 @@ Where the work happens:
 
 | Who | Portal | Page |
 | --- | --- | --- |
-| Intern / employee | `portals.tauqeermustafa.com/employees` | **My Pipeline** (own leads only) |
+| Intern / employee | `portals.qorlune.com/employees` | **My Pipeline** (own leads only) |
 | Exec / team lead | `.../management` | **Pipeline** (own + team) |
 | Admin | `.../admin` | **Client CRM** (everything) |
 

@@ -19,8 +19,8 @@ from datetime import date
 if hasattr(sys.stdout, "reconfigure"):
     sys.stdout.reconfigure(encoding="utf-8")
 
-BASE_URL = os.getenv("API_BASE_URL", "https://tauqeer-inc-backend.onrender.com").rstrip("/")
-ADMIN_EMAIL = os.getenv("ADMIN_EMAIL", "admin@tauqeermustafa.tech")
+BASE_URL = os.getenv("API_BASE_URL", "https://api.qorlune.com").rstrip("/")
+ADMIN_EMAIL = os.getenv("ADMIN_EMAIL", "admin@qorlune.com")
 ADMIN_PW = os.getenv("ADMIN_PASSWORD", "Bushra@0609")
 
 WEEK2_TASKS = [
@@ -104,14 +104,14 @@ Week 1 was about foundational sourcing, outreach cadence, and CRM hygiene.
 1. **Discovery Calls Booked is King**: Clause 4.1 makes booked discovery calls with named SME decision-makers the single strongest input into salaried offer decisions.
 2. **Follow-Ups Due at ZERO**: Clear your pending follow-ups every morning before taking new actions.
 3. **Log Everything in Real Time**: Any interaction not logged on the CRM timeline did not happen.
-4. **Data Security (Clause 5.3 & 6.5)**: Company data lives strictly inside the portal (`https://tauqeermustafa.com`). Personal spreadsheets, personal cloud storage, and unapproved tools are strictly prohibited.
+4. **Data Security (Clause 5.3 & 6.5)**: Company data lives strictly inside the portal (`https://qorlune.com`). Personal spreadsheets, personal cloud storage, and unapproved tools are strictly prohibited.
 
-View and track your cards at **Tasks -> My Tasks** in the [Employee Portal](https://tauqeermustafa.com/employees/login).
+View and track your cards at **Tasks -> My Tasks** in the [Employee Portal](https://qorlune.com/employees/login).
 
 Good luck with your closing sprint! Let's convert these pipelines.
 
 — **Office of Human Resources & Management**  
-**Tauqeer Mustafa Inc.**
+**Qorlune LLC**
 """
 
 def request_json(url, method="GET", payload=None, token=None):

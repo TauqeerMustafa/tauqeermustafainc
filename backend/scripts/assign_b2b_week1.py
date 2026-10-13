@@ -3,7 +3,7 @@ B2B Week-1 Onboarding Script
 =============================
 Assigns first-week tasks to all active B2B (member-role) employees,
 emails each person on BOTH their personal email AND their company
-@tauqeermustafa.tech address, and posts a company-wide announcement.
+@qorlune.com address, and posts a company-wide announcement.
 
 Usage:
     python -m scripts.assign_b2b_week1 [--start-date YYYY-MM-DD] [--dry-run]
@@ -12,7 +12,7 @@ Usage:
     --dry-run     Print what would happen without touching the API.
 
 Environment:
-    API_BASE_URL   (default: https://api.tauqeermustafa.tech)
+    API_BASE_URL   (default: https://api.qorlune.com)
     ADMIN_EMAIL
     ADMIN_PASSWORD
 """
@@ -36,8 +36,8 @@ except ImportError:
 # ---------------------------------------------------------------------------
 # Config
 # ---------------------------------------------------------------------------
-API_BASE = os.getenv("API_BASE_URL", "https://api.tauqeermustafa.tech").rstrip("/")
-ADMIN_EMAIL = os.getenv("ADMIN_EMAIL", "admin@tauqeermustafa.tech")
+API_BASE = os.getenv("API_BASE_URL", "https://api.qorlune.com").rstrip("/")
+ADMIN_EMAIL = os.getenv("ADMIN_EMAIL", "admin@qorlune.com")
 ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD", "")
 
 # ---------------------------------------------------------------------------
@@ -180,7 +180,7 @@ WEEK1_TASKS = [
 # ---------------------------------------------------------------------------
 # Email content
 # ---------------------------------------------------------------------------
-TASK_EMAIL_SUBJECT = "Your Week 1 Tasks — B2B Business Development Trial · Tauqeer Mustafa Inc"
+TASK_EMAIL_SUBJECT = "Your Week 1 Tasks — B2B Business Development Trial · Qorlune LLC"
 
 ANNOUNCEMENT_TITLE = "B2B Business Development Trial — Week 1 Tasks Assigned"
 ANNOUNCEMENT_BODY = """We have officially kicked off the **14-day B2B Business Development trial**.
@@ -206,7 +206,7 @@ All enrolled team members have their **Week 1 task boards live** on the employee
 
 Good luck to everyone on the trial. Management is watching the pipeline and cheering you on.
 
-— Tauqeer Mustafa Inc, Human Resources"""
+— Qorlune LLC, Human Resources"""
 
 
 def _due_date_str(start: date, days: int) -> str:
@@ -226,7 +226,7 @@ def task_email_body(name: str, start: date) -> str:
 
     return f"""Hi {first},
 
-Welcome to your first week on the B2B Business Development trial at Tauqeer Mustafa Inc.
+Welcome to your first week on the B2B Business Development trial at Qorlune LLC.
 
 Your ten Week-1 tasks are now live on your portal board. They follow the Trial Engagement
 Declaration you signed clause-for-clause, so nothing here should be a surprise — but read
@@ -237,7 +237,7 @@ WEEK 1 TASK BOARD
 {task_block}----------------------------------------------------------------------
 
 WHERE TO FIND YOUR TASKS
-  Portal    https://portals.tauqeermustafa.tech/employees/login
+  Portal    https://portals.qorlune.com/employees/login
   Once signed in, go to  Tasks -> My Tasks  to see every card with full details.
 
 TWO RULES THAT MATTER MORE THAN EVERYTHING ELSE THIS WEEK
@@ -258,7 +258,7 @@ If something is unclear, ask before you guess.
 
 Welcome aboard.
 
-— Tauqeer Mustafa Inc
+— Qorlune LLC
   Human Resources
 """
 
@@ -457,7 +457,7 @@ def main() -> None:
                     "id": "00000000-0000-0000-0000-000000000001",
                     "name": "Demo Employee",
                     "email": "demo@example.com",
-                    "openemail_address": "demo@tauqeermustafa.tech",
+                    "openemail_address": "demo@qorlune.com",
                     "role_slug": "member",
                 }
             ]

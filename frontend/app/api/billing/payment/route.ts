@@ -45,7 +45,7 @@ export async function POST(request: Request) {
     );
   }
 
-  const txId = `TMI-TXN-${Date.now().toString().slice(-6)}`;
+  const txId = `QOR-TXN-${Date.now().toString().slice(-6)}`;
   const timestamp = new Date().toLocaleDateString("en-US", {
     month: "short",
     day: "numeric",

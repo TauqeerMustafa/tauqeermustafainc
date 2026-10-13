@@ -1527,7 +1527,7 @@ class CompanyAgentService:
             names = (lead.contact_person or "Valued Client").split(" ", 1)
             first_name = names[0]
             last_name = names[1] if len(names) > 1 else "Partner"
-            client_email = lead.email or f"client_{uuid.uuid4().hex[:6]}@partner.tauqeermustafa.tech"
+            client_email = lead.email or f"client_{uuid.uuid4().hex[:6]}@partner.qorlune.com"
             client_user = db.scalar(select(User).where(User.email == client_email))
             if not client_user:
                 client_user = User(

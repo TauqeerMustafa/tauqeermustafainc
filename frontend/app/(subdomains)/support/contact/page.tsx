@@ -15,7 +15,7 @@ import {
 import { PageHero, Section } from "@/components/home/ui";
 
 export const metadata: Metadata = {
-  title: "Direct Contact & Emergency Hotline | TMI Helpdesk",
+  title: "Direct Contact & Emergency Hotline | Qorlune Helpdesk",
   description:
     "24/7 emergency dispatch line, official departmental email routing, WhatsApp concierge, and corporate contact directory.",
 };
@@ -35,13 +35,13 @@ const DEPARTMENTS = [
   },
   {
     name: "Client Account Management",
-    email: "clients@tauqeermustafa.com",
+    email: "clients@qorlune.com",
     sla: "< 24 hours",
     desc: "Portal onboarding, active project deliverables, contract scope, and sprint reviews.",
   },
   {
     name: "Legal, Privacy & Compliance",
-    email: "legal@tauqeermustafa.com",
+    email: "legal@qorlune.com",
     sla: "< 48 hours",
     desc: "Mutual NDAs, Data Processing Agreements (GDPR), SOC2 reports, and corporate governance.",
   },
@@ -194,8 +194,8 @@ export default function ContactDirectoryPage() {
               <div>
                 <span className="font-bold text-ink uppercase block mb-1">Registered Headquarters</span>
                 <p className="text-ink-muted">Qorlune LLC</p>
-                <p className="text-ink-muted">Karachi, Sindh, Pakistan</p>
-                <p className="text-ink-muted">Corporate Registry &bull; Verified Business Entity</p>
+                <p className="text-ink-muted">1808 Orleans Ave, New Orleans, LA 70116</p>
+                <p className="text-ink-muted">United States &bull; Verified Entity</p>
               </div>
             </div>
           </div>

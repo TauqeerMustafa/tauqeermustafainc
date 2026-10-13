@@ -1,4 +1,4 @@
-# Tauqeer Mustafa Inc. — Frontend
+# Qorlune LLC — Frontend
 
 Next.js 16 (App Router) frontend for the public marketing site, the client
 login flow, and the admin content-management portal.

@@ -244,7 +244,7 @@ export const META_TEMPLATES: MetaTemplateDef[] = [
     body:
       "Hi {{1}}, your ticket {{2}} is logged with {{3}} SLA priority.\n\n" +
       "Our incident engineer is reviewing diagnostic logs. Updates will be dispatched here directly.",
-    bodyExample: ["there", "TMI-SUP-88214", "P1 Critical"],
+    bodyExample: ["there", "QOR-SUP-88214", "P1 Critical"],
     footer: "24/7 SLA Technical Desk",
     buttons: ["Track Ticket Status", "Escalate to Lead", "Add Notes"],
   },
@@ -258,7 +258,7 @@ export const META_TEMPLATES: MetaTemplateDef[] = [
       "URGENT ACKNOWLEDGEMENT for {{1}}.\n\n" +
       "Our incident commander has initiated the emergency triage bridge for outage report {{2}}.\n\n" +
       "Voice bridge dispatch is standing by at {{3}}.",
-    bodyExample: ["Production Cluster", "TMI-INC-99120", "+92 335 6701199"],
+    bodyExample: ["Production Cluster", "QOR-INC-99120", "+92 335 6701199"],
     footer: "15 to 60 min SLA Response",
     buttons: ["Join Bridge", "View Incident Status"],
   },
@@ -272,7 +272,7 @@ export const META_TEMPLATES: MetaTemplateDef[] = [
       "Hi {{1}}, ticket {{2}} is resolved.\n\n" +
       "The fix has been deployed to production: {{3}}.\n\n" +
       "Please verify that your system is functioning normally.",
-    bodyExample: ["there", "TMI-SUP-88214", "API gateway patch applied"],
+    bodyExample: ["there", "QOR-SUP-88214", "API gateway patch applied"],
     footer: "Qorlune LLC Support",
     buttons: ["Confirm Resolution", "Reopen Ticket"],
   },
@@ -286,7 +286,7 @@ export const META_TEMPLATES: MetaTemplateDef[] = [
       "Hi {{1}}, an update on ticket {{2}}.\n\n" +
       "Investigation details: {{3}}.\n\n" +
       "Our engineering team is monitoring the resolution.",
-    bodyExample: ["there", "TMI-SUP-88214", "Patch testing underway in staging"],
+    bodyExample: ["there", "QOR-SUP-88214", "Patch testing underway in staging"],
     footer: "SLA Priority Monitored",
     buttons: ["Acknowledge", "Speak with Lead"],
   },
@@ -300,7 +300,7 @@ export const META_TEMPLATES: MetaTemplateDef[] = [
       "Notice for {{1}} regarding ticket {{2}}.\n\n" +
       "This incident has been escalated directly to {{3}} for priority triage.\n\n" +
       "We will update you within the next 30 minutes.",
-    bodyExample: ["there", "TMI-SUP-88214", "Head of Engineering"],
+    bodyExample: ["there", "QOR-SUP-88214", "Head of Engineering"],
     footer: "Qorlune LLC Support Desk",
     buttons: ["View Status", "Call Hotline"],
   },

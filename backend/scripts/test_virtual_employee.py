@@ -58,9 +58,9 @@ def test_virtual_employee():
     print("=== 2. Creating Executive User ===")
     exec_user = User(
         id=uuid.uuid4(),
-        first_name="Tauqeer",
-        last_name="Mustafa",
-        email="tauqeer@tauqeermustafa.com",
+        first_name="Qorlune",
+        last_name="Staff",
+        email="admin@qorlune.com",
         password_hash="hashed_pw",
         is_superuser=True,
         is_active=True,

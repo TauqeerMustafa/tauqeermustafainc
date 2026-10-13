@@ -7,7 +7,7 @@ import { motion, type Variants } from "framer-motion";
 import { ArrowRight } from "lucide-react";
 
 /* ══════════════════════════════════════════════════════════════════
-   TMI design primitives — PURE BMW M, theme-flipping
+   Qorlune design primitives — PURE BMW M, theme-flipping
    · 700/300 weight contrast, UPPERCASE mono micro-labels
    · blue --action is the single action signal (never the M stripe)
    · 0px radius by default; rounded-full only for circular icons

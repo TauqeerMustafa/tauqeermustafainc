@@ -306,7 +306,7 @@ function Messages({
                   {item.authorName}
                   {item.fromTeam ? (
                     <span className="ml-2 border border-action/20 bg-action/[0.08] px-1.5 py-0.5 font-mono text-[9px] font-bold uppercase tracking-[0.1em] text-action">
-                      TMI
+                      QORLUNE
                     </span>
                   ) : null}
                 </span>

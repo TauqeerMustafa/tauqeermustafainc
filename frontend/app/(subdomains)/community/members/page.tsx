@@ -1,10 +1,10 @@
-﻿import type { Metadata } from "next";
+import type { Metadata } from "next";
 import CommunityMembersView from "@/components/community/CommunityMembersView";
 import { buildMetadata } from "@/lib/metadata";
 
 export const metadata: Metadata = buildMetadata({
   title: "Members | Qorlune Community",
-  description: "Meet the builders, designers, security practitioners, and leaders making up the TMI community.",
+  description: "Meet the builders, designers, security practitioners, and leaders making up the Qorlune community.",
   path: "/community/members",
 });
 

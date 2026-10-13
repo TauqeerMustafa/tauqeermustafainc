@@ -3,7 +3,7 @@ import { appConfig } from "@/config/app";
 import { resolveStaffOrCustomerQuery } from "@/lib/omni-resolver";
 import { sendOpenEmailMessage } from "@/lib/openemail";
 
-const NOTIFICATIONS_MAILBOX_ID = "01M1TEFW41Y9FDR3SHCY0053CS"; // notifications@tauqeermustafa.tech
+const NOTIFICATIONS_MAILBOX_ID = "01M1TEFW41Y9FDR3SHCY0053CS"; // notifications@qorlune.com
 
 const API_BASE_URL = appConfig.apiBaseUrl;
 
@@ -20,14 +20,14 @@ export async function POST(request: Request) {
   }
 
 const DEPARTMENT_DESTINATIONS: Record<string, string> = {
-  "General inquiries": "info@tauqeermustafa.tech",
-  "Customer support": "support@tauqeermustafa.tech",
-  "Sales & new business": "sales@tauqeermustafa.tech",
-  "Partnerships": "business@tauqeermustafa.tech",
-  "Marketing & press": "marketing@tauqeermustafa.tech",
-  "Careers": "careers@tauqeermustafa.tech",
-  "Billing & invoices": "billing@tauqeermustafa.tech",
-  "Legal & privacy": "legal@tauqeermustafa.tech",
+  "General inquiries": "info@qorlune.com",
+  "Customer support": "support@qorlune.com",
+  "Sales & new business": "sales@qorlune.com",
+  "Partnerships": "business@qorlune.com",
+  "Marketing & press": "marketing@qorlune.com",
+  "Careers": "careers@qorlune.com",
+  "Billing & invoices": "billing@qorlune.com",
+  "Legal & privacy": "legal@qorlune.com",
 };
 
   const detailLines = [
@@ -75,7 +75,7 @@ const DEPARTMENT_DESTINATIONS: Record<string, string> = {
           });
 
           await sendOpenEmailMessage(NOTIFICATIONS_MAILBOX_ID, {
-            from: "notifications@tauqeermustafa.tech",
+            from: "notifications@qorlune.com",
             fromName: "Qorlune LLC",
             to: [payload.email],
             subject: `We have received your inquiry: ${body.service || "General Inquiry"}`,
@@ -86,7 +86,7 @@ const DEPARTMENT_DESTINATIONS: Record<string, string> = {
           const targetDeptEmail = body.department ? DEPARTMENT_DESTINATIONS[String(body.department)] : null;
           if (targetDeptEmail) {
             await sendOpenEmailMessage(NOTIFICATIONS_MAILBOX_ID, {
-              from: "notifications@tauqeermustafa.tech",
+              from: "notifications@qorlune.com",
               fromName: "Qorlune LLC — Website Dispatch",
               to: [targetDeptEmail],
               subject: `[New Inquiry] ${body.department} — ${body.fullName || "Inquiry"}`,

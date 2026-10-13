@@ -160,10 +160,10 @@ export default function DocReaderClient({
               <div>
                 <span>Compliance Desk: </span>
                 <a
-                  href="mailto:legal@tauqeermustafa.com"
+                  href="mailto:legal@qorlune.com"
                   className="text-action hover:underline font-bold"
                 >
-                  legal@tauqeermustafa.com
+                  legal@qorlune.com
                 </a>
               </div>
             </div>

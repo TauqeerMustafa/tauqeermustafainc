@@ -142,7 +142,7 @@ export const BUTTON_TEMPLATES: ButtonTemplate[] = [
   },
   {
     name: "careers_reply",
-    header: "Engineering Careers at TMI",
+    header: "Engineering Careers at Qorlune",
     body:
       "We are actively recruiting exceptional software engineers, security researchers, and systems architects.\n\n" +
       "To apply, please submit:\n" +

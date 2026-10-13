@@ -135,7 +135,7 @@ export async function generateBrandKitZip(): Promise<void> {
 
 ## 1. Company Name & Verbal Identity
 - **Full Legal Name:** Qorlune LLC
-- **Short Name:** TMI
+- **Short Name:** Qorlune
 - **Tagline:** Engineering that ships. Security that holds.
 - **Primary Website:** https://qorlune.com
 
@@ -152,7 +152,7 @@ export async function generateBrandKitZip(): Promise<void> {
 
 ## 4. Logo Clearspace & Usage
 - Do not distort, skew, or recolor the logo icon.
-- Maintain a minimum clearspace equal to the height of the 'TM' glyph around the wordmark.
+- Maintain a minimum clearspace equal to the height of the 'Q' glyph around the wordmark.
 - Use the dark-mode vector on dark backgrounds and the light-mode vector on light surfaces.
 
 ## 5. Media Contact
@@ -164,8 +164,7 @@ Email: marketing@qorlune.com / contact@qorlune.com
   const factsMd = `# Qorlune LLC Quick Facts Sheet
 
 - **Founded:** 2023
-- **Head Office:** TMHQ, 6 Milton Rd, Harrow HA1 1XX, London, United Kingdom
-- **Regional Office:** TMRQ Flat 02-A A Block, Awais Appt, Iqbal Town, Islamabad, Pakistan
+- **Head Office:** 1808 Orleans Ave, New Orleans, LA 70116, United States
 - **Core Focus:** Web Platforms, Cybersecurity, AI Automation, Cloud SRE, Product Systems
 - **Deliveries:** 45+ Production Systems
 - **SLA Uptime:** 99.98% Maintained
@@ -175,9 +174,9 @@ Email: marketing@qorlune.com / contact@qorlune.com
   - WhatsApp Line: +92 335 6701199
 `;
 
-  zip.folder("logos")?.file("tmi-logo-dark.svg", logoDarkSvg);
-  zip.folder("logos")?.file("tmi-logo-light.svg", logoLightSvg);
-  zip.folder("logos")?.file("tmi-icon-square.svg", iconSvg);
+  zip.folder("logos")?.file("qorlune-logo-dark.svg", logoDarkSvg);
+  zip.folder("logos")?.file("qorlune-logo-light.svg", logoLightSvg);
+  zip.folder("logos")?.file("qorlune-icon-square.svg", iconSvg);
   zip.file("BRAND-GUIDELINES.md", brandGuideMd);
   zip.file("COMPANY-FACTS.md", factsMd);
 

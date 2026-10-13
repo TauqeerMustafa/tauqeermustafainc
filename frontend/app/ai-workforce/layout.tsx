@@ -51,7 +51,7 @@ export default function AIWorkforceLayout({ children }: { children: ReactNode })
             <Bot className="h-7 w-7 text-cyan-400 animate-pulse" />
           </div>
           <p className="text-sm font-medium tracking-wide text-slate-300">
-            Establishing secure executive link to TMI Autonomous Workforce…
+            Establishing secure executive link to Qorlune Autonomous Workforce…
           </p>
         </div>
       </div>
@@ -111,7 +111,7 @@ export default function AIWorkforceLayout({ children }: { children: ReactNode })
             <div>
               <div className="flex items-center gap-2">
                 <span className="font-bold tracking-tight text-white sm:text-base">
-                  TMI AI Workforce
+                  Qorlune AI Workforce
                 </span>
                 <span className="rounded-full bg-cyan-500/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-cyan-400 border border-cyan-500/20">
                   Autonomous Virtual Staff

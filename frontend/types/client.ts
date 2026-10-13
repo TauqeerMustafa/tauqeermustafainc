@@ -27,7 +27,7 @@ export interface ClientMessage {
   authorName: string;
   body: string;
   createdAt: string;
-  /** True when the TMI team wrote it, false for the client's own note. */
+  /** True when the Qorlune team wrote it, false for the client's own note. */
   fromTeam?: boolean;
   readAt?: string | null;
 }

@@ -10,6 +10,7 @@
 
 import { getKV, KEYS } from "@/lib/kv";
 import { getMessages, type WAMessage } from "@/lib/wa-store";
+import { appConfig } from "@/config/app";
 
 export const OWNER_NUMBER = "03404941658";
 export const OWNER_INTL = "923404941658";
@@ -205,10 +206,11 @@ export async function handleOwnerCopilotCommand(params: {
   ) {
     let backendStatus = "Checking...";
     try {
-      const backendRes = await fetch("https://tauqeer-inc-backend.onrender.com/health", {
+      const healthUrl = `${appConfig.apiBaseUrl}/health`;
+      const backendRes = await fetch(healthUrl, {
         signal: AbortSignal.timeout(3000),
       }).catch(() => null);
-      backendStatus = backendRes && backendRes.ok ? "🟢 Healthy (Render Prod)" : "🟡 Standby";
+      backendStatus = backendRes && backendRes.ok ? "🟢 Healthy (Backend Prod)" : "🟡 Standby";
     } catch {
       backendStatus = "Standby";
     }

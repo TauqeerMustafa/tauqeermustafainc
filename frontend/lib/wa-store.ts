@@ -400,7 +400,7 @@ export const DEFAULT_SUPPORT_RULES: AutoReplyRule[] = [
     mode: "contains",
     department: "support",
     reply:
-      "To check your ticket status or submit logs, reply with your Ticket ID (e.g. *TMI-SUP-XXXXX*) or visit https://support.qorlune.com/ticket.",
+      "To check your ticket status or submit logs, reply with your Ticket ID (e.g. *QOR-SUP-XXXXX*) or visit https://support.qorlune.com/ticket.",
     enabled: true,
   },
   {

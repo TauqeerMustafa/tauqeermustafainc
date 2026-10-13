@@ -41,7 +41,7 @@ export default function VisualIndex() {
           >
             <Image
               src={src}
-              alt={`TMI selected visual ${i + 1}`}
+              alt={`Qorlune selected visual ${i + 1}`}
               fill
               sizes="(min-width:1024px) 24vw,(min-width:640px) 50vw,100vw"
               className="object-cover grayscale"

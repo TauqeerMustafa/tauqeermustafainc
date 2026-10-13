@@ -30,7 +30,7 @@ export default function PortalsPage() {
     <>
       <PageHero
         eyebrow="Identity & Access // Secure Workspaces"
-        title="TMI Corporate Portals"
+        title="Qorlune Corporate Portals"
         description="Select your authorized workspace to authenticate and access your dedicated management, engineering, or client dashboard."
       >
         <Badge>256-Bit SSL Encrypted</Badge>

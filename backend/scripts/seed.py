@@ -19,7 +19,7 @@ from app.models.portfolio import Portfolio
 from app.models.service import Service
 from app.models.user import User
 
-ADMIN_EMAIL = "admin@tauqeermustafa.tech"
+ADMIN_EMAIL = "admin@qorlune.com"
 ADMIN_PASSWORD = "ChangeMe123!"
 
 SERVICES = [
@@ -506,8 +506,8 @@ def seed_admin(db) -> None:
         return
 
     admin = User(
-        first_name="Tauqeer",
-        last_name="Mustafa",
+        first_name="Qorlune",
+        last_name="Admin",
         email=ADMIN_EMAIL,
         password_hash=hash_password(ADMIN_PASSWORD),
         is_active=True,

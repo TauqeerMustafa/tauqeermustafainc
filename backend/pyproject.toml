@@ -1,7 +1,7 @@
 [project]
-name = "tauqeer-inc-backend"
+name = "qorlune-backend"
 version = "0.1.0"
-description = "FastAPI backend foundation for Tauqeer Inc."
+description = "FastAPI backend foundation for Qorlune LLC."
 requires-python = ">=3.12,<3.13"
 dependencies = [
   "alembic==1.17.2",

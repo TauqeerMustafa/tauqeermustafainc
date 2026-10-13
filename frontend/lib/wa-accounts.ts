@@ -212,9 +212,9 @@ export function verifyTokens(): string[] {
   // Secure fallback tokens so you never get locked out if forgotten in Meta
   const fallbacks = [
     "925opqpsksj9eg6h17y66tldu7gx1a",
-    "tauqeer_whatsapp_secret_2026",
-    "tauqeermustafa",
-    "tmi_verify_token",
+    "qorlune_whatsapp_secret_2026",
+    "qorlune",
+    "qorlune_verify_token",
   ];
   return Array.from(new Set([...tokens, ...fallbacks]));
 }

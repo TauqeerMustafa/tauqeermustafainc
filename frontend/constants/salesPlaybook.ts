@@ -1,7 +1,7 @@
 /**
  * B2B Sales Command Center — 45-Day Strategy & Outreach Data Engine.
  *
- * Aligned with Tauqeer Mustafa Inc.'s service offerings:
+ * Aligned with Qorlune LLC's service offerings:
  *  1. Cybersecurity Consulting
  *  2. Financial Compliance
  *  3. SEO & AdSense Optimization
@@ -523,7 +523,7 @@ Are you open to a brief 10-minute sanity check this Thursday at 2:30 PM to see h
 
 Best regards,
 {{sender_name}}
-Tauqeer Mustafa Inc.`,
+Qorlune LLC`,
     context: "Best sent as First Touch to CTOs, CISOs, or Heads of Engineering.",
     tags: ["Email", "First Touch", "Cybersecurity", "Compliance"],
   },
@@ -628,7 +628,7 @@ No strings attached — hope it saves your team some headache!`,
     id: "call_30s_pitch",
     category: "phone",
     name: "30-Second Elevator Cold Call Pitch",
-    body: `"Hi {{first_name}}, this is {{sender_name}} with Tauqeer Mustafa Inc.
+    body: `"Hi {{first_name}}, this is {{sender_name}} with Qorlune LLC
 
 I know you weren't expecting my call, so I'll keep this strictly to 30 seconds. If what I say doesn't resonate, you can hang up on me — fair enough?
 
@@ -653,7 +653,7 @@ I'm trying to find who on {{first_name}}'s executive team is responsible for sig
 Is that typically handled by {{first_name}} directly, or is there an engineering director who oversees vendor assessments?"
 
 (If asked what company you're with):
-"It's {{sender_name}} with Tauqeer Mustafa Inc. It's regarding an executive briefing on upcoming compliance mandates for {{company}}."`,
+"It's {{sender_name}} with Qorlune LLC It's regarding an executive briefing on upcoming compliance mandates for {{company}}."`,
     context: "Polite, authoritative, non-salesy. Treats the executive assistant as an ally.",
     tags: ["Cold Call", "Gatekeeper", "Executive Access"],
   },

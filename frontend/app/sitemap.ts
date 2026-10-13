@@ -55,7 +55,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: 0.6,
   }));
 
-  // 3. Documentation & Policy Portal (docs.tauqeermustafa.com)
+  // 3. Documentation & Policy Portal (docs.qorlune.com)
   const docsHubRoute: MetadataRoute.Sitemap = [
     {
       url: "https://docs.qorlune.com",
@@ -72,7 +72,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: 0.7,
   }));
 
-  // 4. Billing & Treasury Suite (billing.tauqeermustafa.com)
+  // 4. Billing & Treasury Suite (billing.qorlune.com)
   const billingRoutes: MetadataRoute.Sitemap = [
     { url: "https://billing.qorlune.com", lastModified: now, changeFrequency: "monthly", priority: 0.8 },
     { url: "https://billing.qorlune.com/pay", lastModified: now, changeFrequency: "monthly", priority: 0.8 },
@@ -80,7 +80,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: "https://billing.qorlune.com/policies", lastModified: now, changeFrequency: "monthly", priority: 0.6 },
   ];
 
-  // 5. Customer Support & Helpdesk Hub (support.tauqeermustafa.com)
+  // 5. Customer Support & Helpdesk Hub (support.qorlune.com)
   const supportRoutes: MetadataRoute.Sitemap = [
     { url: "https://support.qorlune.com", lastModified: now, changeFrequency: "daily", priority: 0.8 },
     { url: "https://support.qorlune.com/ticket", lastModified: now, changeFrequency: "monthly", priority: 0.7 },

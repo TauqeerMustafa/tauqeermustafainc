@@ -47,7 +47,7 @@ export async function POST(request: Request) {
     );
   }
 
-  const reference = `TMI-PO-2026-${Date.now().toString().slice(-5)}`;
+  const reference = `QOR-PO-2026-${Date.now().toString().slice(-5)}`;
   const submittedDate = new Date().toLocaleDateString("en-US", {
     month: "short",
     day: "numeric",

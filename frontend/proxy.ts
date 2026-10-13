@@ -213,7 +213,7 @@ export async function proxy(request: NextRequest) {
         return NextResponse.redirect(`https://community.${apex}${newPath || "/"}${search}`);
       }
 
-      // TMI Portals App redirects (app.tauqeermustafa.com)
+      // Qorlune Portals App redirects (app.qorlune.com)
       if (pathname === "/app" || pathname.startsWith("/app/")) {
         const appPath = pathname.replace(/^\/app/, "");
         return NextResponse.redirect(`https://app.${apex}${appPath || "/"}${search}`);
@@ -222,7 +222,7 @@ export async function proxy(request: NextRequest) {
         return NextResponse.redirect(`https://app.${apex}${search}`);
       }
 
-      // Secure Portals Suite redirects (portals.tauqeermustafa.com)
+      // Secure Portals Suite redirects (portals.qorlune.com)
       // Disallow serving admin, employees, management, client or chooser directly on main domain
       if (pathname === "/company-profile" || pathname.startsWith("/company-profile/")) {
         return NextResponse.redirect(`https://portals.${apex}/employees/company-profile${search}`);

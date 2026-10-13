@@ -71,7 +71,7 @@ export async function POST(request: NextRequest) {
 
   // Process transaction completion
   if (eventType === "transaction.completed" || eventType === "transaction.paid") {
-    const txId = data?.id || `TMI-TXN-${Date.now().toString().slice(-6)}`;
+    const txId = data?.id || `QOR-TXN-${Date.now().toString().slice(-6)}`;
     const invoiceNumber = data?.customData?.invoiceNumber || `INV-${Date.now().toString().slice(-6)}`;
     const clientName = data?.customData?.clientName || data?.customer?.name || "Client";
     const clientEmail = data?.customData?.clientEmail || data?.customer?.email || "";

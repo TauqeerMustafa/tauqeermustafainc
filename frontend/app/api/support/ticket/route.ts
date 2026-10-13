@@ -44,7 +44,7 @@ export async function POST(request: Request) {
   }
 
   // Generate ticketId strictly server-side to prevent arbitrary ticket overwrites
-  const refId = `TMI-SUP-${crypto.randomUUID().slice(0, 8).toUpperCase()}`;
+  const refId = `QOR-SUP-${crypto.randomUUID().slice(0, 8).toUpperCase()}`;
   const createdAt = new Date().toISOString();
 
   const ticketData = {

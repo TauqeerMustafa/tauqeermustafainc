@@ -1027,7 +1027,7 @@ export const DEFAULT_STEPS: FlowStep[] = [
   {
     kind: "buttons",
     id: "careers",
-    header: "Careers at TMI",
+    header: "Careers at Qorlune",
     body:
       "We're actively hiring engineers and interns! 🚀\n\n" +
       "Check open roles and apply here:\n" +

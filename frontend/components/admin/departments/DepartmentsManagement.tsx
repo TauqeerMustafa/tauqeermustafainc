@@ -38,44 +38,44 @@ import type { Department } from "@/types/domain";
 
 const DEPARTMENT_MAIL_MAP: Record<string, { tech: string; com: string }> = {
   "General Inquiries": {
-    tech: "contact@tauqeermustafa.tech",
-    com: "contact@qorlune.com",
+    tech: "contact@qorlune.com",
+    com: "info@qorlune.com",
   },
   "Customer Support": {
-    tech: "support@tauqeermustafa.tech",
-    com: "support@qorlune.com",
+    tech: "support@qorlune.com",
+    com: "help@qorlune.com",
   },
   "Sales & New Business": {
-    tech: "sales@tauqeermustafa.tech",
-    com: "sales@tauqeermustafa.com",
+    tech: "sales@qorlune.com",
+    com: "deals@qorlune.com",
   },
   "Partnerships": {
-    tech: "partners@tauqeermustafa.tech",
-    com: "partners@tauqeermustafa.com",
+    tech: "partners@qorlune.com",
+    com: "business@qorlune.com",
   },
   "Marketing & Press": {
-    tech: "press@tauqeermustafa.tech",
-    com: "press@tauqeermustafa.com",
+    tech: "press@qorlune.com",
+    com: "media@qorlune.com",
   },
   "Careers & Human Resources": {
-    tech: "careers@tauqeermustafa.tech",
-    com: "careers@qorlune.com",
+    tech: "careers@qorlune.com",
+    com: "hr@qorlune.com",
   },
   "Billing & Invoices": {
-    tech: "billing@tauqeermustafa.tech",
-    com: "billing@qorlune.com",
+    tech: "billing@qorlune.com",
+    com: "finance@qorlune.com",
   },
   "Legal & Privacy": {
-    tech: "legal@tauqeermustafa.tech",
-    com: "legal@tauqeermustafa.com",
+    tech: "legal@qorlune.com",
+    com: "compliance@qorlune.com",
   },
   "Engineering": {
-    tech: "engineering@tauqeermustafa.tech",
-    com: "engineering@tauqeermustafa.com",
+    tech: "engineering@qorlune.com",
+    com: "dev@qorlune.com",
   },
   "Product & Design": {
-    tech: "product@tauqeermustafa.tech",
-    com: "product@tauqeermustafa.com",
+    tech: "product@qorlune.com",
+    com: "design@qorlune.com",
   },
 };
 
@@ -85,8 +85,8 @@ function getDepartmentEmails(name: string) {
   }
   const clean = name.toLowerCase().replace(/[^a-z0-9]/g, "").slice(0, 15) || "dept";
   return {
-    tech: `${clean}@tauqeermustafa.tech`,
-    com: `${clean}@tauqeermustafa.com`,
+    tech: `${clean}@qorlune.com`,
+    com: `${clean}@qorlune.com`,
   };
 }
 

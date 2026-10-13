@@ -41,7 +41,7 @@ const EMPLOYEES_DATA = [
   {
     id: "006069",
     name: "Hifza Abbas",
-    email: "hifza.abbas@tauqeermustafa.tech",
+    email: "hifza.abbas@qorlune.com",
     daysCheckedIn: 32,
     role: "B2B Executive Intern",
     confirmedOrders: 0,
@@ -52,7 +52,7 @@ const EMPLOYEES_DATA = [
   {
     id: "006019",
     name: "Bisma Basharat",
-    email: "bisma.Basharat@tauqeermustafa.tech",
+    email: "bisma.Basharat@qorlune.com",
     daysCheckedIn: 17,
     role: "B2B Executive Intern",
     confirmedOrders: 0,
@@ -63,7 +63,7 @@ const EMPLOYEES_DATA = [
   {
     id: "006028",
     name: "Muhammad Ahsan",
-    email: "muhammad.Ahsan@tauqeermustafa.tech",
+    email: "muhammad.Ahsan@qorlune.com",
     daysCheckedIn: 12,
     role: "B2B Executive Intern",
     confirmedOrders: 0,
@@ -74,7 +74,7 @@ const EMPLOYEES_DATA = [
   {
     id: "006062",
     name: "Asif Sultan",
-    email: "asif.Sultan@tauqeermustafa.tech",
+    email: "asif.Sultan@qorlune.com",
     daysCheckedIn: 11,
     role: "B2B Executive Intern",
     confirmedOrders: 0,
@@ -85,7 +85,7 @@ const EMPLOYEES_DATA = [
   {
     id: "006014",
     name: "Samar Ayaz",
-    email: "samar.Ayaz@tauqeermustafa.tech",
+    email: "samar.Ayaz@qorlune.com",
     daysCheckedIn: 5,
     role: "B2B Executive Intern",
     confirmedOrders: 0,
@@ -96,7 +96,7 @@ const EMPLOYEES_DATA = [
   {
     id: "006017",
     name: "Azeem Shahzad",
-    email: "azeem.Shahzad@tauqeermustafa.tech",
+    email: "azeem.Shahzad@qorlune.com",
     daysCheckedIn: 5,
     role: "B2B Executive Intern",
     confirmedOrders: 0,
@@ -107,7 +107,7 @@ const EMPLOYEES_DATA = [
   {
     id: "006040",
     name: "Rahma Amir",
-    email: "rahma.Amir@tauqeermustafa.tech",
+    email: "rahma.Amir@qorlune.com",
     daysCheckedIn: 5,
     role: "B2B Executive Intern",
     confirmedOrders: 0,
@@ -118,7 +118,7 @@ const EMPLOYEES_DATA = [
   {
     id: "006013",
     name: "Muneeb Ahmad",
-    email: "muneeb.Ahmad@tauqeermustafa.tech",
+    email: "muneeb.Ahmad@qorlune.com",
     daysCheckedIn: 4,
     role: "B2B Executive Intern",
     confirmedOrders: 0,
@@ -129,7 +129,7 @@ const EMPLOYEES_DATA = [
   {
     id: "006091",
     name: "Hammad",
-    email: "hammad@tauqeermustafa.tech",
+    email: "hammad@qorlune.com",
     daysCheckedIn: 4,
     role: "B2B Executive Intern",
     confirmedOrders: 0,
@@ -140,7 +140,7 @@ const EMPLOYEES_DATA = [
   {
     id: "006072",
     name: "Raima Zahra",
-    email: "raima.Zahra@tauqeermustafa.tech",
+    email: "raima.Zahra@qorlune.com",
     daysCheckedIn: 3,
     role: "B2B Executive Intern",
     confirmedOrders: 0,
@@ -151,7 +151,7 @@ const EMPLOYEES_DATA = [
   {
     id: "006042",
     name: "Kiran Javed",
-    email: "kiran.Javed@tauqeermustafa.tech",
+    email: "kiran.Javed@qorlune.com",
     daysCheckedIn: 3,
     role: "B2B Executive Intern",
     confirmedOrders: 0,
@@ -456,7 +456,7 @@ export default function InternshipDispatchPage() {
                     1808 Orleans Ave, New Orleans, LA 70116, USA
                   </p>
                   <p className="text-[11px] text-neutral-500">
-                    support@qorlune.com | portals.tauqeermustafa.tech
+                    support@qorlune.com | portals.qorlune.com
                   </p>
                 </div>
                 <div className="text-right">

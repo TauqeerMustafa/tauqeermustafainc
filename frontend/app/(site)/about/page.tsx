@@ -190,7 +190,7 @@ export default function AboutPage() {
 
               <p>
 
-                Today, TMI works with startups building their first secure platform, SaaS companies scaling beyond their
+                Today, Qorlune works with startups building their first secure platform, SaaS companies scaling beyond their
 
                 initial architecture, and enterprises that need operational systems rebuilt with modern tooling.
 

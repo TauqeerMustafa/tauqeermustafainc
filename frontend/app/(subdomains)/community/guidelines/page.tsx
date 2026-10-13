@@ -7,7 +7,7 @@ import { PageHero, Section } from "@/components/home/ui";
 
 export const metadata: Metadata = buildMetadata({
   title: "Community Guidelines | Qorlune Community",
-  description: "The principles that keep the TMI community useful, generous, and safe for everyone.",
+  description: "The principles that keep the Qorlune community useful, generous, and safe for everyone.",
   path: "/community/guidelines",
 });
 
@@ -25,7 +25,7 @@ export default function CommunityGuidelinesPage() {
       <PageHero
         eyebrow="Community Handbook // Standards & Etiquette"
         title="Community Guidelines"
-        description="The principles that keep the TMI community useful, generous, and safe for everyone. Simple by design, creating the conditions for great exchange."
+        description="The principles that keep the Qorlune community useful, generous, and safe for everyone. Simple by design, creating the conditions for great exchange."
       >
         <Link
           href="/community"

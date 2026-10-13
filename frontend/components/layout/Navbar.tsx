@@ -75,12 +75,6 @@ const companySubdomains = [
 ];
 
 function getSubdomainHref(sub: string) {
-  if (typeof window !== "undefined") {
-    const h = window.location.hostname;
-    if (h.includes("tauqeermustafa.com") || h.includes("tauqeermustafa.tech")) {
-      return `https://${sub}.tauqeermustafa.com`;
-    }
-  }
   return `https://${sub}.qorlune.com`;
 }
 

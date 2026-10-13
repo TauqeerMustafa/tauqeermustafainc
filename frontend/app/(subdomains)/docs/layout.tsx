@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
   title: {
-    template: '%s | TMI Documentation & Policies',
+    template: '%s | Qorlune Documentation & Policies',
     default: 'Documentation & Legal Policies | Qorlune LLC',
   },
   description:

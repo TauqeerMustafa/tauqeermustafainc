@@ -66,16 +66,16 @@ def run_tests():
     # Users
     ceo_user = User(
         id=uuid.uuid4(),
-        email="ceo@tauqeermustafa.tech",
+        email="ceo@qorlune.com",
         password_hash="hash",
-        first_name="Tauqeer",
-        last_name="Mustafa",
+        first_name="Qorlune",
+        last_name="Staff",
         role_id=admin_role.id,
         is_active=True,
     )
     dev_user = User(
         id=uuid.uuid4(),
-        email="dev@tauqeermustafa.tech",
+        email="dev@qorlune.com",
         password_hash="hash",
         first_name="Ahmed",
         last_name="Khan",
