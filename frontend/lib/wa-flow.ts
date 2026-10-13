@@ -14,7 +14,7 @@ const GRAPH_URL = "https://graph.facebook.com/v20.0";
 
 // ---------- Constants & Company Info ----------
 
-const COMPANY_NAME = "Qorlune LLC";
+const COMPANY_NAME = "Qorlune";
 const WEBSITE = "https://qorlune.com";
 const HOURS = "Monday to Saturday, 09:00 to 18:00 (PKT)";
 const REP_QUEUE_CHANNEL = process.env.REP_QUEUE_CHANNEL ?? "#leads-inbound";
@@ -496,7 +496,7 @@ async function sendServiceMenu(to: string, session: Session, channelId?: string,
     {
       header: COMPANY_NAME,
       body:
-        `Hi! Welcome to *Qorlune LLC*.\n\n` +
+        `Hi! Welcome to *Qorlune*.\n\n` +
         `We build high-performance software, custom AI systems, and cloud architecture.\n\n` +
         `What can we help you build today?`,
       footer: `${HOURS}`,
@@ -900,9 +900,9 @@ export const DEFAULT_STEPS: FlowStep[] = [
   {
     kind: "list",
     id: "start",
-    header: "Qorlune LLC",
+    header: "Qorlune",
     body:
-      "Hi! Welcome to *Qorlune LLC*.\n\n" +
+      "Hi! Welcome to *Qorlune*.\n\n" +
       "We build high-performance software, custom AI systems, and cloud architecture.\n\n" +
       "What can we help you build today?",
     footer: "Mon–Sat, 09:00–18:00 PKT",

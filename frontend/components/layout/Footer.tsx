@@ -130,7 +130,7 @@ export default function Footer() {
         {/* ── Bottom bar ── */}
         <div className="mt-14 flex flex-col gap-4 border-t border-ink/10 pt-8 sm:flex-row sm:items-center sm:justify-between">
           <p className="font-mono text-[11px] uppercase tracking-[0.08em] text-ink/40">
-            &copy; <span suppressHydrationWarning>{new Date().getFullYear()}</span> {company.name}. All rights reserved.
+            &copy; <span suppressHydrationWarning>{new Date().getFullYear()}</span> {company.legalName}. All rights reserved.
           </p>
           <div className="flex flex-wrap gap-6">
             {footerLinks.legal.map((item) => (

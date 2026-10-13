@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import DocsHubClient from './DocsHubClient';
 
 export const metadata: Metadata = {
-  title: 'Documentation & Legal Policies | Qorlune LLC',
+  title: 'Documentation & Legal Policies | Qorlune',
   description:
     'Official corporate documentation, legal agreements, compliance standards, and operating playbooks.',
 };

@@ -1,7 +1,7 @@
 import { env } from "@/config/env";
 
 export const appConfig = {
-  name: "Qorlune LLC",
+  name: "Qorlune",
   siteUrl: process.env.NEXT_PUBLIC_SITE_URL || "https://qorlune.com",
   apiBaseUrl: env.NEXT_PUBLIC_API_URL,
   apiTimeoutMs: 60000,

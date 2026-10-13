@@ -6,7 +6,7 @@ import { PORTAL } from "@/lib/rbac";
 
 export const metadata: Metadata = buildMetadata({
   title: "Admin Login",
-  description: "Sign in to the Qorlune LLC admin workspace.",
+  description: "Sign in to the Qorlune admin workspace.",
   path: "/admin/login",
   noIndex: true,
 });

@@ -1,4 +1,4 @@
-﻿import type { Metadata } from "next";
+import type { Metadata } from "next";
 import {
   Briefcase,
   Building2,
@@ -21,9 +21,9 @@ import { IconFrame } from "@/components/home/IconFrame";
 import { company } from "@/data/company";
 
 export const metadata: Metadata = {
-  title: `Contact | ${company.name}`,
+  title: "Contact",
   description:
-    "Start a conversation with Qorlune LLC about enterprise web development, cybersecurity, AI solutions, cloud engineering, or product design.",
+    "Start a conversation with Qorlune about enterprise web development, cybersecurity, AI solutions, cloud engineering, or product design.",
 };
 
 const expectations = [

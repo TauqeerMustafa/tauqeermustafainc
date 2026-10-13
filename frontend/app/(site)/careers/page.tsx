@@ -1,4 +1,4 @@
-﻿import type { Metadata } from "next";
+import type { Metadata } from "next";
 import { HeartHandshake, LineChart, Users } from "lucide-react";
 
 import {
@@ -17,7 +17,7 @@ export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = buildMetadata({
   title: "Careers",
-  description: "Open roles at Qorlune LLC across engineering, security, design, and delivery.",
+  description: "Open roles at Qorlune across engineering, security, design, and delivery.",
   path: "/careers",
   image: "https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?auto=format&fit=crop&w=1600&q=80",
 });

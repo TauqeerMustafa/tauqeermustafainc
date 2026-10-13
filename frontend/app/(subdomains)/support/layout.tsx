@@ -3,10 +3,10 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: {
     template: "%s | Qorlune Support & Helpdesk",
-    default: "Support & Help Center | Qorlune LLC",
+    default: "Support & Help Center | Qorlune",
   },
   description:
-    "Official customer support, technical helpdesk, incident escalation, knowledge base, and live system status for Qorlune LLC",
+    "Official customer support, technical helpdesk, incident escalation, knowledge base, and live system status for Qorlune.",
   icons: {
     icon: "/logo.png",
     apple: "/logo.png",

@@ -2,9 +2,9 @@ import type { Metadata } from "next";
 import SupportHubClient, { type SupportTab } from "./SupportHubClient";
 
 export const metadata: Metadata = {
-  title: "Support & Help Center | Qorlune LLC",
+  title: "Support & Help Center | Qorlune",
   description:
-    "Official corporate helpdesk, ticket submission, system status, live SLA monitoring, and 24/7 technical assistance for Qorlune LLC",
+    "Official corporate helpdesk, ticket submission, system status, live SLA monitoring, and 24/7 technical assistance for Qorlune.",
 };
 
 export default async function SupportPage({
@@ -28,7 +28,7 @@ export default async function SupportPage({
           __html: JSON.stringify({
             "@context": "https://schema.org",
             "@type": "ContactPage",
-            name: "Qorlune LLC Support & Helpdesk",
+            name: "Qorlune Support & Helpdesk",
             description:
               "Official corporate support, ticket tracking, emergency incident response, and live system status.",
             url: "https://support.qorlune.com",

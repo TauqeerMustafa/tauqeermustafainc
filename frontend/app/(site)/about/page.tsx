@@ -218,24 +218,21 @@ export default function AboutPage() {
 
           <div className="space-y-6 lg:sticky lg:top-32">
 
-            <FounderPortrait src={founderPortrait} />
+            <FounderPortrait
+              src={founderPortrait}
+              name="Qorlune Systems Practice"
+              role="Engineering & Architecture"
+              alt="Qorlune Systems Architecture"
+            />
 
             <Card>
-
               <p className="font-mono text-[11px] font-semibold uppercase tracking-[0.14em] text-action">
-
                 Who you work with
-
               </p>
-
               <p className="mt-3 text-[16px] font-light leading-[1.6] text-ink-muted">
-
-                Full-stack engineer with a background in security consulting and cloud
-
-                architecture. Leads every engagement from discovery through delivery 
-
-                no account managers between you and the person writing the code.
-
+                Dedicated engineering squads with deep expertise in security consulting, cloud
+                architecture, and AI systems. We lead every engagement from discovery through delivery —
+                no account managers between you and the engineers writing the code.
               </p>
 
               <div className="mt-5 flex flex-wrap gap-x-5 gap-y-2">

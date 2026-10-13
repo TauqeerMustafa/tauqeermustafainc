@@ -8,9 +8,9 @@ const FOCAL_Y = "47%";
 const CANVAS = "#1a2129";
 
 export function FounderPortrait({
-  src = "/qorlune-logo-llc.png",
-  name = "Qorlune Engineering Staff",
-  role = "Principal Systems Architecture",
+  src = "/about-architecture.png",
+  name = "Qorlune Systems Practice",
+  role = "Engineering & Cloud Architecture",
   alt,
 }: {
   src?: string;
@@ -28,7 +28,7 @@ export function FounderPortrait({
       <div className="relative aspect-[4/5] overflow-hidden">
         <Image
           src={src}
-          alt={alt ?? `${name}, ${role} of Qorlune LLC`}
+          alt={alt ?? `${name}, ${role} at Qorlune`}
           fill
           sizes="(max-width: 1024px) 100vw, 45vw"
           className="object-cover"

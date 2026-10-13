@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: {
     template: "%s | Qorlune Billing & Treasury",
-    default: "Billing & Treasury Portal | Qorlune LLC",
+    default: "Billing & Treasury Portal | Qorlune",
   },
   description:
     "Official corporate billing, client payments, contractor payouts, and financial settlement policies.",

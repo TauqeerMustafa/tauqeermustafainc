@@ -1,5 +1,7 @@
 export const company = {
-  name: "Qorlune LLC",
+  name: "Qorlune",
+
+  legalName: "Qorlune LLC",
 
   shortName: "Qorlune",
 

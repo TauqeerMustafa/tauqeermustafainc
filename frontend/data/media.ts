@@ -56,4 +56,4 @@ export type ImageCategory = keyof typeof imageLibrary;
 /**
  * Corporate identity visual.
  */
-export const founderPortrait = "/qorlune-logo-llc.png";
+export const founderPortrait = "/about-architecture.png";

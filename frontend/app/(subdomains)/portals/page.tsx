@@ -14,7 +14,7 @@ import {
 import { PageHero, Section, Badge, BadgeMuted, MStripe } from "@/components/home/ui";
 
 export const metadata = {
-  title: "Portals & Workspaces | Qorlune LLC",
+  title: "Portals & Workspaces | Qorlune",
   description: "Choose your secure corporate workspace to sign in to your dashboard.",
 };
 

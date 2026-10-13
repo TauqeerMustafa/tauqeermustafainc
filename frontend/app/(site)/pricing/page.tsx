@@ -3,7 +3,7 @@ import PricingClient from "@/components/pricing/PricingClient";
 import { buildMetadata } from "@/lib/metadata";
 
 export const metadata: Metadata = buildMetadata({
-  title: "Pricing & Engineering Retainers | Qorlune LLC",
+  title: "Pricing & Engineering Retainers | Qorlune",
   description:
     "Transparent pricing and dedicated engineering retainers for web applications, cloud infrastructure, AI automation, and cybersecurity.",
   path: "/pricing",

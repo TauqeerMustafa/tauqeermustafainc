@@ -28,11 +28,11 @@ export function faqSchema(faqs: FAQItem[]) {
 // Common FAQs for homepage or about page
 export const commonFAQs: FAQItem[] = [
   {
-    question: "What services does Qorlune LLC provide?",
+    question: "What services does Qorlune provide?",
     answer: "We provide full-stack web development, cybersecurity consulting, AI automation, cloud engineering, and product design services. Our security-first approach ensures every project is built with robust protection from day one.",
   },
   {
-    question: "Where is Qorlune LLC located?",
+    question: "Where is Qorlune located?",
     answer: "We are headquartered in New Orleans, Louisiana, United States, with operating desks serving clients globally across multiple time zones.",
   },
   {

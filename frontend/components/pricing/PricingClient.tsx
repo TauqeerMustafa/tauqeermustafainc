@@ -172,7 +172,7 @@ const FAQS = [
   {
     question: "What is your workmanship warranty on shipped deliverables?",
     answer:
-      "Every production milestone delivered by Qorlune LLC includes an unconditional 30-day workmanship warranty covering any bug fixes, edge-case remediation, or performance anomalies at zero additional fee.",
+      "Every production milestone delivered by Qorlune includes an unconditional 30-day workmanship warranty covering any bug fixes, edge-case remediation, or performance anomalies at zero additional fee.",
   },
   {
     question: "Can retainers be paused, adjusted, or canceled?",

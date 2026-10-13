@@ -4,7 +4,7 @@ import SupportHubClient from "../SupportHubClient";
 export const metadata: Metadata = {
   title: "Submit a Support Ticket | Qorlune Helpdesk",
   description:
-    "Open an enterprise service ticket with guaranteed SLA commitments from Qorlune LLC",
+    "Open an enterprise service ticket with guaranteed SLA commitments from Qorlune.",
 };
 
 export default function TicketPage() {
