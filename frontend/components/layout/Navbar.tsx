@@ -37,22 +37,10 @@ const primaryNav = [
 /** Official company subdomains */
 const companySubdomains = [
   {
-    name: "Portals",
-    subdomain: "portals",
-    description: "Secure client, employee & management workspaces",
+    name: "Client Workspace",
+    subdomain: "client",
+    description: "Dedicated project tracking, deliverables & source code",
     icon: ShieldCheck,
-  },
-  {
-    name: "Portals App",
-    subdomain: "app",
-    description: "Android APK & installable mobile portal suite",
-    icon: Smartphone,
-  },
-  {
-    name: "Community",
-    subdomain: "community",
-    description: "Developer hub, open forum & technical discussions",
-    icon: Users,
   },
   {
     name: "Documentation",
@@ -61,16 +49,22 @@ const companySubdomains = [
     icon: FileText,
   },
   {
-    name: "Support",
+    name: "Support & Helpdesk",
     subdomain: "support",
     description: "24/7 client helpdesk, ticketing & incident status",
     icon: LifeBuoy,
   },
   {
-    name: "Billing",
+    name: "Billing & Treasury",
     subdomain: "billing",
-    description: "Treasury management, invoices & payment processing",
+    description: "Invoicing, card settlement & payment policies",
     icon: CreditCard,
+  },
+  {
+    name: "Corporate Portals",
+    subdomain: "portals",
+    description: "Executive console & client authentication gateway",
+    icon: ShieldCheck,
   },
 ];
 

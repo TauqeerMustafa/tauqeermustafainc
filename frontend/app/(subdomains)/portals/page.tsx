@@ -1,95 +1,173 @@
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight, BarChart3, Briefcase, ShieldCheck, Users, type LucideIcon, CreditCard, LifeBuoy } from "lucide-react";
+import { ArrowRight, BarChart3, Briefcase, ShieldCheck, Users, type LucideIcon, CreditCard, LifeBuoy, Lock, CheckCircle2 } from "lucide-react";
 
-import {
-  PORTAL,
-  PORTAL_CHOOSER,
-  PORTAL_DESCRIPTION,
-  PORTAL_LABEL,
-  PORTAL_LOGIN_PATH,
-  PORTAL_ROLES_HINT,
-  type PortalId,
-} from "@/lib/rbac";
 import { PageHero, Section, Badge, BadgeMuted, MStripe } from "@/components/home/ui";
 
 export const metadata = {
   title: "Portals & Workspaces | Qorlune",
-  description: "Choose your secure corporate workspace to sign in to your dashboard.",
-};
-
-const PORTAL_ICON: Record<PortalId, LucideIcon> = {
-  [PORTAL.ADMIN]: ShieldCheck,
-  [PORTAL.MANAGEMENT]: BarChart3,
-  [PORTAL.EMPLOYEES]: Users,
-  [PORTAL.CLIENT]: Briefcase,
+  description: "Secure client workspace, administrative governance, and corporate portals for Qorlune.",
 };
 
 export default function PortalsPage() {
   return (
     <>
       <PageHero
-        eyebrow="Identity & Access // Secure Workspaces"
-        title="Qorlune Corporate Portals"
-        description="Select your authorized workspace to authenticate and access your dedicated management, engineering, or client dashboard."
+        eyebrow="Identity & Access // Workspaces"
+        title="Qorlune Workspaces & Client Portals"
+        description="All active project deliverables, enterprise contracts, and client data have transitioned to Qorlune. Select your authorized workspace below."
       >
         <Badge>256-Bit SSL Encrypted</Badge>
         <BadgeMuted>Role-Based Access Control</BadgeMuted>
-        <BadgeMuted>Single Sign-On Supported</BadgeMuted>
+        <BadgeMuted>Client Data Preserved</BadgeMuted>
       </PageHero>
 
       <Section className="bg-canvas py-12 sm:py-16">
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-          {PORTAL_CHOOSER.map((portal) => {
-            const Icon = PORTAL_ICON[portal];
-            return (
-              <Link
-                key={portal}
-                href={PORTAL_LOGIN_PATH[portal]}
-                className="group relative flex flex-col justify-between border border-line bg-surface p-8 transition-all duration-300 hover:border-action/60 hover:shadow-[0_12px_40px_rgba(28,105,212,0.12)]"
-              >
-                <span
-                  className="absolute left-0 top-0 h-0.5 w-full origin-left scale-x-0 bg-action transition-transform duration-500 group-hover:scale-x-100"
-                  aria-hidden
-                />
+        {/* Active Client Spotlight */}
+        <div className="mb-10">
+          <div className="relative border-2 border-action bg-surface p-8 sm:p-10 shadow-lg">
+            <span className="absolute -top-3 left-6 bg-action text-on-action font-mono text-[10px] font-bold uppercase tracking-widest px-3 py-1">
+              Primary Active Workspace
+            </span>
 
-                <div>
-                  <div className="flex items-start justify-between">
-                    <span className="flex h-12 w-12 items-center justify-center border border-line bg-card text-ink transition-colors group-hover:border-action group-hover:text-action">
-                      <Icon className="h-6 w-6" aria-hidden="true" />
-                    </span>
-                    <span className="font-mono text-[10px] font-bold uppercase tracking-[0.14em] text-action border border-action/20 bg-action/[0.08] px-2.5 py-1">
-                      {PORTAL_ROLES_HINT[portal]}
-                    </span>
+            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+              <div className="max-w-2xl">
+                <div className="flex items-center gap-3">
+                  <span className="flex h-12 w-12 items-center justify-center border border-action bg-action/10 text-action">
+                    <Briefcase className="h-6 w-6" aria-hidden="true" />
+                  </span>
+                  <div>
+                    <h2 className="text-2xl sm:text-3xl font-bold uppercase tracking-tight text-ink">
+                      Client Workspace
+                    </h2>
+                    <p className="font-mono text-xs text-action font-semibold">Active & Monitored 24/7</p>
                   </div>
-
-                  <h2 className="mt-6 text-2xl font-bold uppercase tracking-tight text-ink group-hover:text-action transition-colors">
-                    {PORTAL_LABEL[portal]} Portal
-                  </h2>
-                  <p className="mt-2 text-sm leading-relaxed text-ink-muted font-light">
-                    {PORTAL_DESCRIPTION[portal]}
-                  </p>
                 </div>
 
-                <div className="mt-8 pt-6 border-t border-line flex items-center justify-between font-mono text-xs font-bold uppercase tracking-wider text-action">
-                  <span>Sign In To Workspace</span>
-                  <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+                <p className="mt-4 text-sm sm:text-base leading-relaxed text-ink-muted font-light">
+                  Direct access for authorized enterprise clients. Monitor active development sprints, review cloud infrastructure telemetry, download milestone deliverables, and communicate directly with your dedicated Qorlune technical lead.
+                </p>
+
+                <div className="mt-4 flex flex-wrap gap-4 text-xs font-mono text-ink-muted">
+                  <span className="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400 font-semibold">
+                    <CheckCircle2 size={14} /> Full Project Continuity
+                  </span>
+                  <span className="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400 font-semibold">
+                    <CheckCircle2 size={14} /> Historical Deliverables Intact
+                  </span>
+                  <span className="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400 font-semibold">
+                    <CheckCircle2 size={14} /> Active SLA Telemetry
+                  </span>
                 </div>
-              </Link>
-            );
-          })}
+              </div>
+
+              <div className="flex flex-col sm:flex-row lg:flex-col gap-3 shrink-0">
+                <Link
+                  href="/client/login"
+                  className="inline-flex items-center justify-center gap-2 bg-action px-7 py-3.5 font-mono text-xs font-bold uppercase tracking-wider text-on-action transition hover:bg-action-strong shadow-md"
+                >
+                  <span>Sign In To Client Portal</span>
+                  <ArrowRight className="h-4 w-4" />
+                </Link>
+                <Link
+                  href="/client/register"
+                  className="inline-flex items-center justify-center gap-2 border border-line bg-card px-7 py-3 font-mono text-xs font-bold uppercase tracking-wider text-ink transition hover:border-action"
+                >
+                  <span>Activate Client Account</span>
+                </Link>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Secondary Administrative & Transitioned Workspaces */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+          {/* Admin Workspace */}
+          <Link
+            href="/admin/login"
+            className="group relative flex flex-col justify-between border border-line bg-surface p-6 transition-all duration-300 hover:border-action/60 hover:shadow-md"
+          >
+            <div>
+              <div className="flex items-start justify-between">
+                <span className="flex h-10 w-10 items-center justify-center border border-line bg-card text-ink group-hover:border-action group-hover:text-action">
+                  <ShieldCheck className="h-5 w-5" />
+                </span>
+                <span className="font-mono text-[9px] font-bold uppercase tracking-wider text-action border border-action/20 bg-action/[0.08] px-2 py-0.5">
+                  Authorized Admin
+                </span>
+              </div>
+              <h3 className="mt-5 text-lg font-bold uppercase tracking-tight text-ink group-hover:text-action">
+                Admin Console
+              </h3>
+              <p className="mt-2 text-xs leading-relaxed text-ink-muted font-light">
+                Qorlune corporate administration, system audit logs, and client telemetry governance.
+              </p>
+            </div>
+            <div className="mt-6 pt-4 border-t border-line flex items-center justify-between font-mono text-[11px] font-bold uppercase tracking-wider text-action">
+              <span>Admin Access</span>
+              <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-1" />
+            </div>
+          </Link>
+
+          {/* Employee Workspace - Concluded */}
+          <div className="relative flex flex-col justify-between border border-line bg-card/60 p-6 opacity-75">
+            <div>
+              <div className="flex items-start justify-between">
+                <span className="flex h-10 w-10 items-center justify-center border border-line bg-surface text-ink-muted">
+                  <Lock className="h-5 w-5 text-amber-500" />
+                </span>
+                <span className="font-mono text-[9px] font-bold uppercase tracking-wider text-amber-700 dark:text-amber-400 border border-amber-500/20 bg-amber-500/10 px-2 py-0.5">
+                  Operations Concluded
+                </span>
+              </div>
+              <h3 className="mt-5 text-lg font-bold uppercase tracking-tight text-ink-muted">
+                Employee Portal
+              </h3>
+              <p className="mt-2 text-xs leading-relaxed text-ink-muted font-light">
+                Staff operations under previous management have concluded. All corporate assets and active client pipelines have transitioned to Qorlune.
+              </p>
+            </div>
+            <div className="mt-6 pt-4 border-t border-line flex items-center justify-between font-mono text-[11px] font-semibold uppercase tracking-wider text-ink-muted">
+              <span>Handover Complete</span>
+              <Lock className="h-3.5 w-3.5 text-amber-500" />
+            </div>
+          </div>
+
+          {/* Management Workspace - Concluded */}
+          <div className="relative flex flex-col justify-between border border-line bg-card/60 p-6 opacity-75">
+            <div>
+              <div className="flex items-start justify-between">
+                <span className="flex h-10 w-10 items-center justify-center border border-line bg-surface text-ink-muted">
+                  <Lock className="h-5 w-5 text-amber-500" />
+                </span>
+                <span className="font-mono text-[9px] font-bold uppercase tracking-wider text-amber-700 dark:text-amber-400 border border-amber-500/20 bg-amber-500/10 px-2 py-0.5">
+                  Operations Concluded
+                </span>
+              </div>
+              <h3 className="mt-5 text-lg font-bold uppercase tracking-tight text-ink-muted">
+                Management Portal
+              </h3>
+              <p className="mt-2 text-xs leading-relaxed text-ink-muted font-light">
+                Executive governance transferred to Qorlune LLC. Inquiries should be directed to the incoming executive directorate at contact@qorlune.com.
+              </p>
+            </div>
+            <div className="mt-6 pt-4 border-t border-line flex items-center justify-between font-mono text-[11px] font-semibold uppercase tracking-wider text-ink-muted">
+              <span>Handover Complete</span>
+              <Lock className="h-3.5 w-3.5 text-amber-500" />
+            </div>
+          </div>
         </div>
 
         {/* Treasury & Support Auxiliary Grid */}
         <div className="mt-12 grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="border border-line bg-card p-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div className="border border-line bg-surface p-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
               <div className="flex items-center gap-2 font-mono text-[10px] font-bold uppercase tracking-wider text-action">
                 <CreditCard size={14} />
-                <span>Public Treasury & Billing</span>
+                <span>Treasury & Billing</span>
               </div>
-              <p className="text-sm font-bold text-ink mt-1">Looking to settle an invoice or track payouts?</p>
-              <p className="text-xs text-ink-muted mt-0.5 font-light">Direct Card/Paddle payments & Raast instant settlement.</p>
+              <p className="text-sm font-bold text-ink mt-1">Client Invoices & Settlement</p>
+              <p className="text-xs text-ink-muted mt-0.5 font-light">Direct Card/Paddle payments & verified corporate wire rails.</p>
             </div>
             <a
               href="https://billing.qorlune.com"
@@ -100,14 +178,14 @@ export default function PortalsPage() {
             </a>
           </div>
 
-          <div className="border border-line bg-card p-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div className="border border-line bg-surface p-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
               <div className="flex items-center gap-2 font-mono text-[10px] font-bold uppercase tracking-wider text-action">
                 <LifeBuoy size={14} />
-                <span>24/7 Technical Dispatch</span>
+                <span>24/7 Client Dispatch</span>
               </div>
-              <p className="text-sm font-bold text-ink mt-1">Need emergency hotline or account assistance?</p>
-              <p className="text-xs text-ink-muted mt-0.5 font-light">Open an enterprise ticket or check real-time uptime.</p>
+              <p className="text-sm font-bold text-ink mt-1">Technical Assistance & Hotline</p>
+              <p className="text-xs text-ink-muted mt-0.5 font-light">Open an enterprise ticket or check real-time system status.</p>
             </div>
             <a
               href="https://support.qorlune.com"
@@ -122,4 +200,3 @@ export default function PortalsPage() {
     </>
   );
 }
-
