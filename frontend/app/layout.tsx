@@ -5,27 +5,27 @@ import { AppProviders } from "@/providers";
 import { cn } from "@/lib/utils";
 import { appConfig } from "@/config/app";
 import { company } from "@/data/company";
-import AcquisitionPopup from "@/components/common/AcquisitionPopup";
 import { organizationSchema, localBusinessSchema, websiteSchema } from "@/lib/schema";
 
 export const metadata: Metadata = {
   metadataBase: new URL(appConfig.siteUrl),
   title: {
-    default: "Qorlune | Web Development, Cybersecurity & AI Services",
+    default: "Qorlune — Enterprise Digital Engineering, Cybersecurity & AI Systems",
     template: "%s | Qorlune",
   },
   description:
-    "Full-stack web development, cybersecurity consulting, AI automation, and cloud engineering for businesses worldwide. Security-first engineering from a team that ships.",
+    "Qorlune is a premier digital technology firm delivering enterprise web platforms, cybersecurity consulting, custom AI automation, and resilient cloud engineering worldwide.",
   keywords: [
-    "web development",
-    "cybersecurity consulting",
-    "AI automation services",
-    "cloud engineering",
-    "full stack development",
-    "security-first development",
-    "software engineering firm",
     "Qorlune",
     "Qorlune LLC",
+    "Qorlune Technologies",
+    "enterprise web development",
+    "cybersecurity consulting",
+    "AI automation solutions",
+    "cloud infrastructure engineering",
+    "DevSecOps consulting",
+    "custom software development",
+    "high-assurance platforms",
   ],
   authors: [{ name: "Qorlune", url: appConfig.siteUrl }],
   creator: "Qorlune",
@@ -95,7 +95,6 @@ export default function RootLayout({
       <body className="flex min-h-screen flex-col overflow-x-hidden bg-canvas text-ink">
         <AppProviders>
           {children}
-          <AcquisitionPopup />
         </AppProviders>
       </body>
     </html>

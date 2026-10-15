@@ -83,7 +83,7 @@ export const PLAYBOOK_45_DAYS: PlaybookDayTask[] = [
     day: 1,
     phase: "foundation",
     title: "Service Line Mastery & ICP Definition",
-    description: "Deep dive into TMI's 3 core offerings: Cybersecurity consulting, Financial compliance, and SEO/AdSense optimization. Document specific pain points for each industry.",
+    description: "Deep dive into Qorlune's 3 core offerings: Cybersecurity consulting, Financial compliance, and SEO/AdSense optimization. Document specific pain points for each industry.",
     actionItem: "Define ICP criteria (revenue $1M–$20M, employee count 10–100, designated decision maker).",
     targetCount: "3 ICP Profiles",
     priority: "high",

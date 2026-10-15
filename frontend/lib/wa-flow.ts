@@ -1,6 +1,6 @@
 /**
  * wa-flow.ts
- * TMI WhatsApp Lead Triage — Conversation State Machine
+ * Qorlune WhatsApp Lead Triage — Conversation State Machine
  * Flow: Welcome -> Service Menu -> Sub-scope -> Timeline -> Contact Details -> Human Handoff
  */
 

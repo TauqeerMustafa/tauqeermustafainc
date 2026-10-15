@@ -16,24 +16,15 @@ export function organizationSchema() {
     logo: `${appConfig.siteUrl}/logo.png`,
     email: company.email,
     telephone: company.phone,
-    address: [
-      {
-        "@type": "PostalAddress",
-        streetAddress: "1808 Orleans Ave",
-        addressLocality: "New Orleans",
-        addressRegion: "LA",
-        postalCode: "70116",
-        addressCountry: "US",
-      },
-      {
-        "@type": "PostalAddress",
-        streetAddress: "6 Milton Rd",
-        addressLocality: "Harrow",
-        postalCode: "HA1 1XX",
-        addressCountry: "GB",
-      },
-    ],
-    sameAs: [company.social.github, company.social.linkedin].filter(Boolean),
+    address: {
+      "@type": "PostalAddress",
+      streetAddress: "1808 Orleans Ave",
+      addressLocality: "New Orleans",
+      addressRegion: "LA",
+      postalCode: "70116",
+      addressCountry: "US",
+    },
+    sameAs: [company.social.github, company.social.linkedin, company.social.twitter].filter(Boolean),
   };
 }
 
@@ -65,11 +56,7 @@ export function localBusinessSchema() {
     areaServed: [
       {
         "@type": "Country",
-        name: "United Kingdom",
-      },
-      {
-        "@type": "Country",
-        name: "Pakistan",
+        name: "United States",
       },
       {
         "@type": "Country",

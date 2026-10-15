@@ -18,12 +18,12 @@ export async function generateMetadata({
 
   if (!doc) {
     return {
-      title: 'Document Not Found | TMI Docs',
+      title: 'Document Not Found | Qorlune Docs',
     };
   }
 
   return {
-    title: `${doc.title} | TMI Documentation & Policies`,
+    title: `${doc.title} | Qorlune Documentation & Policies`,
     description: doc.shortDescription,
   };
 }
