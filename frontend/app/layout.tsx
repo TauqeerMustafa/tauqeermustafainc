@@ -5,6 +5,7 @@ import { AppProviders } from "@/providers";
 import { cn } from "@/lib/utils";
 import { appConfig } from "@/config/app";
 import { company } from "@/data/company";
+import AcquisitionPopup from "@/components/common/AcquisitionPopup";
 import { organizationSchema, localBusinessSchema, websiteSchema } from "@/lib/schema";
 
 export const metadata: Metadata = {
@@ -94,6 +95,7 @@ export default function RootLayout({
       <body className="flex min-h-screen flex-col overflow-x-hidden bg-canvas text-ink">
         <AppProviders>
           {children}
+          <AcquisitionPopup />
         </AppProviders>
       </body>
     </html>

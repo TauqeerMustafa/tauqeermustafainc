@@ -143,6 +143,12 @@ export default function Navbar() {
 
   return (
     <header className="sticky top-0 z-50 border-b border-ink/10 bg-canvas/95 supports-[backdrop-filter]:bg-canvas/85 supports-[backdrop-filter]:backdrop-blur-xl">
+      {/* 12:00 AM Takeover Notification Banner */}
+      <div className="bg-ink text-canvas px-4 py-1.5 text-center text-[11px] sm:text-xs font-mono tracking-wide flex items-center justify-center gap-2 border-b border-ink/20">
+        <span className="inline-block h-2 w-2 rounded-full bg-red-500 animate-pulse shrink-0" aria-hidden="true" />
+        <span><strong>Official Notice:</strong> Qorlune officially takes over full operations at 12:00 AM.</span>
+      </div>
+
       {/* M-stripe rail — signature brand element (literal tricolor) */}
       <div className="m-stripe" aria-hidden="true" />
 
