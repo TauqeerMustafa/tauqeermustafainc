@@ -77,72 +77,64 @@ function readSlot(slot: number): WAAccount {
       ? {
           token: primaryToken,
           appSecret: primarySecret,
-          wabaId: process.env.WHATSAPP_BUSINESS_ACCOUNT_ID || "1363415125370805",
+          wabaId: process.env.WHATSAPP_BUSINESS_ACCOUNT_ID || "944973294966811",
           verifyToken: process.env.WEBHOOK_VERIFY_TOKEN,
-          label: process.env.WHATSAPP_APP_LABEL || "Line 1 (PK)",
+          label: process.env.WHATSAPP_APP_LABEL || "Qorlune Official",
         }
       : slot === 2
         ? {
             token: process.env.WHATSAPP_TOKEN_2 || primaryToken,
             appSecret: process.env.WHATSAPP_APP_SECRET_2 || primarySecret,
-            wabaId:
-              !process.env.WHATSAPP_BUSINESS_ACCOUNT_ID_2 ||
-              process.env.WHATSAPP_BUSINESS_ACCOUNT_ID_2 === "1854430365722527"
-                ? "1485319076722009"
-                : process.env.WHATSAPP_BUSINESS_ACCOUNT_ID_2,
+            wabaId: process.env.WHATSAPP_BUSINESS_ACCOUNT_ID_2 || "944973294966811",
             verifyToken: process.env.WEBHOOK_VERIFY_TOKEN_2,
-            label: process.env.WHATSAPP_APP_LABEL_2 || "Line 2 (SL)",
+            label: process.env.WHATSAPP_APP_LABEL_2 || "Qorlune Line 2",
           }
       : slot === 3
         ? {
             token: process.env.WHATSAPP_TOKEN_3 || process.env.WHATSAPP_TOKEN_2 || primaryToken,
             appSecret: process.env.WHATSAPP_APP_SECRET_3 || process.env.WHATSAPP_APP_SECRET_2 || primarySecret,
-            wabaId:
-              !process.env.WHATSAPP_BUSINESS_ACCOUNT_ID_3 ||
-              process.env.WHATSAPP_BUSINESS_ACCOUNT_ID_3 === "1083562997861778"
-                ? "2663451950739498"
-                : process.env.WHATSAPP_BUSINESS_ACCOUNT_ID_3,
+            wabaId: process.env.WHATSAPP_BUSINESS_ACCOUNT_ID_3 || "944973294966811",
             verifyToken: process.env.WEBHOOK_VERIFY_TOKEN_3,
-            label: process.env.WHATSAPP_APP_LABEL_3 || "Line 3 (NL 1)",
+            label: process.env.WHATSAPP_APP_LABEL_3 || "Qorlune Line 3",
           }
       : slot === 4
         ? {
             token: process.env.WHATSAPP_TOKEN_4 || primaryToken,
             appSecret: process.env.WHATSAPP_APP_SECRET_4 || primarySecret,
-            wabaId: process.env.WHATSAPP_BUSINESS_ACCOUNT_ID_4 || "1739099617324219",
+            wabaId: process.env.WHATSAPP_BUSINESS_ACCOUNT_ID_4 || "944973294966811",
             verifyToken: process.env.WEBHOOK_VERIFY_TOKEN_4,
-            label: process.env.WHATSAPP_APP_LABEL_4 || "Line 4 (NL 2)",
+            label: process.env.WHATSAPP_APP_LABEL_4 || "Qorlune Line 4",
           }
       : slot === 5
         ? {
             token: process.env.WHATSAPP_TOKEN_5 || primaryToken,
             appSecret: process.env.WHATSAPP_APP_SECRET_5 || primarySecret,
-            wabaId: process.env.WHATSAPP_BUSINESS_ACCOUNT_ID_5 || "1083562997861778",
+            wabaId: process.env.WHATSAPP_BUSINESS_ACCOUNT_ID_5 || "944973294966811",
             verifyToken: process.env.WEBHOOK_VERIFY_TOKEN_5,
-            label: process.env.WHATSAPP_APP_LABEL_5 || "Line 5 (US 1)",
+            label: process.env.WHATSAPP_APP_LABEL_5 || "Qorlune Line 5",
           }
       : slot === 6
         ? {
             token: process.env.WHATSAPP_TOKEN_6 || primaryToken,
             appSecret: process.env.WHATSAPP_APP_SECRET_6 || primarySecret,
-            wabaId: process.env.WHATSAPP_BUSINESS_ACCOUNT_ID_6 || "1034864159583818",
+            wabaId: process.env.WHATSAPP_BUSINESS_ACCOUNT_ID_6 || "944973294966811",
             verifyToken: process.env.WEBHOOK_VERIFY_TOKEN_6,
-            label: process.env.WHATSAPP_APP_LABEL_6 || "Line 6 (US 2)",
+            label: process.env.WHATSAPP_APP_LABEL_6 || "Qorlune Line 6",
           }
       : slot === 7
         ? {
             token: process.env.WHATSAPP_TOKEN_7 || process.env.WHATSAPP_TOKEN_2 || primaryToken,
             appSecret: process.env.WHATSAPP_APP_SECRET_7 || process.env.WHATSAPP_APP_SECRET_2 || primarySecret,
-            wabaId: process.env.WHATSAPP_BUSINESS_ACCOUNT_ID_7 || "1964540454233744",
+            wabaId: process.env.WHATSAPP_BUSINESS_ACCOUNT_ID_7 || "944973294966811",
             verifyToken: process.env.WEBHOOK_VERIFY_TOKEN_7,
-            label: process.env.WHATSAPP_APP_LABEL_7 || "Line 7 (UK)",
+            label: process.env.WHATSAPP_APP_LABEL_7 || "Qorlune Line 7",
           }
         : {
             token: process.env.WHATSAPP_TOKEN_8 || primaryToken,
             appSecret: process.env.WHATSAPP_APP_SECRET_8 || primarySecret,
-            wabaId: process.env.WHATSAPP_BUSINESS_ACCOUNT_ID_8,
+            wabaId: process.env.WHATSAPP_BUSINESS_ACCOUNT_ID_8 || "944973294966811",
             verifyToken: process.env.WEBHOOK_VERIFY_TOKEN_8,
-            label: process.env.WHATSAPP_APP_LABEL_8 || "Line 8",
+            label: process.env.WHATSAPP_APP_LABEL_8 || "Qorlune Line 8",
           };
 
   return {
@@ -225,15 +217,9 @@ export function verifyTokens(): string[] {
 export async function ensureAllWabasSubscribed(): Promise<void> {
   const accounts = usableAccounts();
   const allWabaIds = [
-    "1363415125370805", // Line 1 PK
-    "1485319076722009", // Line 2 SL
-    "2663451950739498", // Line 3 NL 1
-    "1739099617324219", // Line 4 NL 2
-    "1083562997861778", // Line 5 US 1
-    "1034864159583818", // Line 6 US 2
-    "1854430365722527", // Line 7 UK
-    "1964540454233744", // Line 7 UK alias
-  ];
+    process.env.WHATSAPP_BUSINESS_ACCOUNT_ID,
+    "944973294966811",
+  ].filter((id): id is string => !!id && id.trim().length > 0);
 
   for (const account of accounts) {
     if (!account.token) continue;

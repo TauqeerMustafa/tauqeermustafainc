@@ -103,33 +103,15 @@ export async function POST(request: Request) {
       const status = from || requestedPhoneNumberId ? 400 : 500;
       return NextResponse.json({ success: false, error: sender.error }, { status });
     }
-    let phoneNumberId = sender.id;
-    if (phoneNumberId === "1363415125370805") phoneNumberId = "1239592269240963";
-    if (phoneNumberId === "1083562997861778") phoneNumberId = "1385974501255442";
-    if (phoneNumberId === "1854430365722527") phoneNumberId = "1318810581311680";
+    let phoneNumberId = sender.id || "944973294966811";
+    if (!phoneNumberId || phoneNumberId === "undefined" || phoneNumberId === "null") {
+      phoneNumberId = "944973294966811";
+    }
 
+    phoneNumberId = "944973294966811";
     const numberDef = waNumbers().find((n) => n.id === phoneNumberId);
     const account = accountAt(numberDef?.slot ?? 1);
     let token = account.token || accountAt(1).token;
-
-    // Dynamically resolve WABA ID to active Phone Number ID if needed across all configured accounts
-    if (["1485319076722009", "2663451950739498", "1739099617324219", "1034864159583818", "1964540454233744", "1854430365722527"].includes(phoneNumberId)) {
-      const candidateAccounts = [account, ...usableAccounts().filter((a) => a.slot !== account.slot)];
-      for (const cand of candidateAccounts) {
-        if (!cand.token) continue;
-        try {
-          const pnRes = await fetch(`${GRAPH_URL}/${phoneNumberId}/phone_numbers?fields=id,display_phone_number&access_token=${cand.token}`, { cache: "no-store" });
-          const pnData = await pnRes.json();
-          if (pnData?.data?.[0]?.id) {
-            phoneNumberId = String(pnData.data[0].id);
-            token = cand.token;
-            break;
-          }
-        } catch (e) {
-          console.warn(`[send] Could not resolve phone ID for WABA ${phoneNumberId}:`, e);
-        }
-      }
-    }
 
     if (!token) {
       return NextResponse.json(

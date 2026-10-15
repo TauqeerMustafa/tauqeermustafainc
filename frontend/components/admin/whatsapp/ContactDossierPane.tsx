@@ -107,26 +107,7 @@ export function ContactDossierPane({
     onSaveMeta({ tags: tags.filter((t) => t !== tagToRemove) });
   };
 
-  const isLine7 = channelId === "1964540454233744" || channelId === "1318810581311680" || channelId === "1854430365722527";
-  const isLine6 = channelId === "1034864159583818" || channelId === "1291624014041103";
-  const isLine5 = channelId === "1083562997861778" || channelId === "1385974501255442";
-  const isLine4 = channelId === "1739099617324219" || channelId === "1339948289200329";
-  const isLine3 = channelId === "2663451950739498" || channelId === "1401823986336958";
-  const isLine2 = channelId === "1485319076722009" || channelId === "1245811661959729";
-
-  const themeColor = isLine7
-    ? "#ec4899"
-    : isLine6
-    ? "#7c3aed"
-    : isLine5
-    ? "#6366f1"
-    : isLine4
-    ? "#0891b2"
-    : isLine3
-    ? "#4f46e5"
-    : isLine2
-    ? "#059669"
-    : "var(--adm-blue)";
+  const themeColor = "#2563eb";
 
   return (
     <aside
@@ -211,37 +192,10 @@ export function ContactDossierPane({
 
           {/* Department Line Pill */}
           <div className="mt-3">
-            {isLine6 ? (
-              <span className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/20">
-                <ShieldCheck size={12} />
-                🇺🇸 Line 6 (US 2: +1 555-434-0459)
-              </span>
-            ) : isLine5 ? (
-              <span className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold bg-violet-500/10 text-violet-600 dark:text-violet-400 border border-violet-500/20">
-                <ShieldCheck size={12} />
-                🇺🇸 Line 5 (US 1: +1 555-431-6671)
-              </span>
-            ) : isLine4 ? (
-              <span className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 border border-cyan-500/20">
-                <LifeBuoy size={12} />
-                🇳🇱 Line 4 (NL 2: +31 97058026143)
-              </span>
-            ) : isLine3 ? (
-              <span className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-500/20">
-                <Briefcase size={12} />
-                🇳🇱 Line 3 (NL 1: +31 97058026144)
-              </span>
-            ) : isLine2 ? (
-              <span className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
-                <LifeBuoy size={12} />
-                🇸🇮 Line 2 (SL: +386 65 743 712)
-              </span>
-            ) : (
-              <span className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20">
-                <Briefcase size={12} />
-                🇵🇰 Line 1 (PK: +92 335 6701199)
-              </span>
-            )}
+            <span className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20">
+              <Briefcase size={12} />
+              🇺🇸 Qorlune Official (+1 711-249-4712)
+            </span>
           </div>
         </div>
 

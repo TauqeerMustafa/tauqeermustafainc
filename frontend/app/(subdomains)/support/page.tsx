@@ -34,10 +34,10 @@ export default async function SupportPage({
             url: "https://support.qorlune.com",
             mainEntity: {
               "@type": "CustomerService",
-              telephone: "+92 335 6701199",
+              telephone: "+1 711-249-4712",
               email: "support@qorlune.com",
               contactType: "technical support",
-              availableLanguage: ["English", "Urdu"],
+              availableLanguage: ["English"],
             },
           }),
         }}

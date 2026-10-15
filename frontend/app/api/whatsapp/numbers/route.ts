@@ -194,147 +194,41 @@ export async function GET(request: Request) {
     resultList[0].primary = true;
   }
 
-  // Identify primary line first (Line 1 - PK)
+  // Identify official primary Qorlune line
   const primaryItem =
     resultList.find(
-      (n) => n.primary || n.id === "1363415125370805" || n.id === "1239592269240963"
+      (n) => n.id === "944973294966811" || n.primary
     ) || resultList[0];
+
   if (primaryItem) {
     primaryItem.primary = true;
     primaryItem.department = "general";
     primaryItem.slot = 1;
-    primaryItem.label = "Line 1 (PK)";
+    primaryItem.label = "Qorlune Official";
     primaryItem.canSend = true;
-    if (!primaryItem.displayNumber) primaryItem.displayNumber = "+92 335 6701199";
-    if (!primaryItem.verifiedName) primaryItem.verifiedName = "Qorlune LLC";
+    if (!primaryItem.displayNumber) primaryItem.displayNumber = "+1 711-249-4712";
+    if (!primaryItem.verifiedName) primaryItem.verifiedName = "Qorlune";
     if (!primaryItem.nameStatus) primaryItem.nameStatus = "APPROVED";
     if (!primaryItem.quality) primaryItem.quality = "GREEN";
     if (!primaryItem.codeVerificationStatus) primaryItem.codeVerificationStatus = "VERIFIED";
   }
 
-  // Process all non-primary lines
-  const nonPrimary = resultList.filter((n) => n !== primaryItem);
+  // Sole official Qorlune line — purge all legacy lines
+  const finalNumbers = [primaryItem].filter(Boolean);
 
-  for (const n of nonPrimary) {
-    const conf = configured.find((c) => c.id === n.id);
-    const digits = n.displayNumber?.replace(/[^0-9]/g, "") || "";
+  // Register discovered numbers so resolveNumberId accepts them
+  registerKnownNumbers(finalNumbers);
 
-    const isLine2 =
-      n.id === "1485319076722009" ||
-      digits.includes("38665743712") ||
-      n.slot === 2;
-
-    const isLine3 =
-      !isLine2 &&
-      (n.id === "2663451950739498" ||
-        digits.includes("3197058026144") ||
-        n.slot === 3);
-
-    const isLine4 =
-      !isLine2 &&
-      !isLine3 &&
-      (n.id === "1739099617324219" ||
-        digits.includes("3197058026143") ||
-        n.slot === 4);
-
-    const isLine5 =
-      !isLine2 &&
-      !isLine3 &&
-      !isLine4 &&
-      (n.id === "1083562997861778" ||
-        digits.includes("15554316671") ||
-        n.slot === 5);
-
-    const isLine6 =
-      !isLine2 &&
-      !isLine3 &&
-      !isLine4 &&
-      !isLine5 &&
-      (n.id === "1034864159583818" ||
-        digits.includes("15554340459") ||
-        n.slot === 6);
-
-    const isLine7 =
-      !isLine2 &&
-      !isLine3 &&
-      !isLine4 &&
-      !isLine5 &&
-      !isLine6 &&
-      (n.id === "1964540454233744" ||
-        n.id === "1318810581311680" ||
-        digits.includes("447575376078") ||
-        n.slot === 7);
-
-    if (isLine2) {
-      n.department = "general";
-      n.slot = 2;
-      n.label = conf?.label || "Line 2 (SL)";
-      if (!n.displayNumber) n.displayNumber = "+386 65 743 712";
-    } else if (isLine3) {
-      n.department = "general";
-      n.slot = 3;
-      n.label = conf?.label || "Line 3 (NL 1)";
-      if (!n.displayNumber) n.displayNumber = "+31 97058026144";
-    } else if (isLine4) {
-      n.department = "general";
-      n.slot = 4;
-      n.label = conf?.label || "Line 4 (NL 2)";
-      if (!n.displayNumber) n.displayNumber = "+31 97058026143";
-    } else if (isLine5) {
-      n.department = "general";
-      n.slot = 5;
-      n.label = conf?.label || "Line 5 (US 1)";
-      if (!n.displayNumber) n.displayNumber = "+1 555-431-6671";
-    } else if (isLine6) {
-      n.department = "general";
-      n.slot = 6;
-      n.label = conf?.label || "Line 6 (US 2)";
-      if (!n.displayNumber) n.displayNumber = "+1 555-434-0459";
-    } else if (isLine7) {
-      n.department = "general";
-      n.slot = 7;
-      n.label = conf?.label || "Line 7 (UK)";
-      if (!n.displayNumber) n.displayNumber = conf?.displayNumber || "+44 7575 376078";
-    } else {
-      n.department = "general";
-      n.label = conf?.label || `Line ${resultList.indexOf(n) + 1}`;
-    }
-    n.canSend = true;
-    if (!n.verifiedName) n.verifiedName = "Qorlune LLC";
-    if (!n.nameStatus) n.nameStatus = "APPROVED";
-    if (!n.quality) n.quality = "GREEN";
-    if (!n.codeVerificationStatus) n.codeVerificationStatus = "VERIFIED";
-  }
-
-  // Register all discovered numbers so resolveNumberId accepts them
-  registerKnownNumbers(resultList);
-
-  cache = { at: Date.now(), data: resultList };
-  return NextResponse.json({ success: true, data: resultList });
+  cache = { at: Date.now(), data: finalNumbers };
+  return NextResponse.json({ success: true, data: finalNumbers });
   } catch (err: any) {
     console.error("[numbers] GET error:", err);
     const configured = waNumbers();
     const fallbackNumbers: WANumberInfo[] = configured.map((n) => ({
       ...n,
       canSend: true,
-      displayNumber:
-        n.displayNumber ||
-        (n.id === "1363415125370805" || n.id === "1239592269240963"
-          ? "+92 335 6701199"
-          : n.id === "1485319076722009"
-          ? "+386 65 743 712"
-          : n.id === "2663451950739498"
-          ? "+31 97058026144"
-          : n.id === "1739099617324219"
-          ? "+31 97058026143"
-          : n.id === "1083562997861778"
-          ? "+1 555-431-6671"
-          : n.id === "1034864159583818"
-          ? "+1 555-434-0459"
-          : n.id === "1964540454233744" || n.id === "1318810581311680"
-          ? n.displayNumber || "+44 7575 376078"
-          : null),
-      verifiedName: "Qorlune LLC",
+      displayNumber: n.displayNumber || "+1 711-249-4712",
+      verifiedName: "Qorlune",
       nameStatus: "APPROVED",
       quality: "GREEN",
       codeVerificationStatus: "VERIFIED",

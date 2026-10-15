@@ -173,15 +173,8 @@ export async function GET(request: Request) {
       slotConfigured.map((n) => inspect(n.id, n.label, token, visibleIds, wabaId))
     );
 
-    // Also test all 7 active lines directly with this token
-    const line1Direct = await inspect("1363415125370805", "Line 1 (PK: +92 335 6701199)", token, visibleIds, wabaId);
-    const line2Direct = await inspect("1485319076722009", "Line 2 (SL: +386 65 743 712)", token, visibleIds, wabaId);
-    const line3Direct = await inspect("2663451950739498", "Line 3 (NL 1: +31 97058026144)", token, visibleIds, wabaId);
-    const line4Direct = await inspect("1739099617324219", "Line 4 (NL 2: +31 97058026143)", token, visibleIds, wabaId);
-    const line5Direct = await inspect("1083562997861778", "Line 5 (US 1: +1 555-431-6671)", token, visibleIds, wabaId);
-    const line6Direct = await inspect("1034864159583818", "Line 6 (US 2: +1 555-434-0459)", token, visibleIds, wabaId);
-    const line7Direct = await inspect("1964540454233744", "Line 7 (UK WABA: 1964540454233744)", token, visibleIds, wabaId);
-    const line7PhoneDirect = await inspect("1318810581311680", "Line 7 (UK Phone: +44 7575 376078)", token, visibleIds, wabaId);
+    // Test official Qorlune line directly with this token
+    const qorluneDirect = await inspect("944973294966811", "Qorlune Official (+1 711-249-4712)", token, visibleIds, wabaId);
 
     slotsReport.push({
       slot: account.slot,
@@ -191,14 +184,7 @@ export async function GET(request: Request) {
       subscribedApps,
       subscribeAttempt,
       checks,
-      line1Direct,
-      line2Direct,
-      line3Direct,
-      line4Direct,
-      line5Direct,
-      line6Direct,
-      line7Direct,
-      line7PhoneDirect,
+      qorluneDirect,
     });
   }
 
@@ -217,13 +203,10 @@ export async function GET(request: Request) {
       departmentCounts[dept] = (departmentCounts[dept] ?? 0) + 1;
 
       const isDirectMatch =
-        m.channel === "1034864159583818" ||
-        m.channel === "1083562997861778" ||
-        m.channel === "2663451950739498" ||
-        m.channel === "1485319076722009" ||
-        m.department === "direct" ||
-        (m.from && (m.from.includes("1034864159583818") || m.from.includes("2663451950739498") || m.from.includes("1485319076722009"))) ||
-        (m.to && (m.to.includes("1034864159583818") || m.to.includes("2663451950739498") || m.to.includes("1485319076722009")));
+        m.channel === "944973294966811" ||
+        m.department === "general" ||
+        (m.from && m.from.includes("17112494712")) ||
+        (m.to && m.to.includes("17112494712"));
 
       if (isDirectMatch) {
         directMatches.push({

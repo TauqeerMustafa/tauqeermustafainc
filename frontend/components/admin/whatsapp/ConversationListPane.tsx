@@ -107,89 +107,7 @@ export function ConversationListPane({
   // Filter by line/department
   const lineFiltered = withDetails.filter(({ conv }) => {
     if (!currentDepartment || currentDepartment === "all") return true;
-    if (
-      currentDepartment === "line1" ||
-      currentDepartment === "1363415125370805" ||
-      currentDepartment === "1239592269240963" ||
-      currentDepartment === "general"
-    ) {
-      return (
-        conv.lineKey === "line1" ||
-        conv.channel === "1363415125370805" ||
-        conv.channel === "1239592269240963"
-      );
-    }
-    if (
-      currentDepartment === "line2" ||
-      currentDepartment === "1485319076722009" ||
-      currentDepartment === "1245811661959729" ||
-      currentDepartment === "support"
-    ) {
-      return (
-        conv.lineKey === "line2" ||
-        conv.channel === "1485319076722009" ||
-        conv.channel === "1245811661959729"
-      );
-    }
-    if (
-      currentDepartment === "line3" ||
-      currentDepartment === "2663451950739498" ||
-      currentDepartment === "1401823986336958"
-    ) {
-      return (
-        conv.lineKey === "line3" ||
-        conv.channel === "2663451950739498" ||
-        conv.channel === "1401823986336958"
-      );
-    }
-    if (
-      currentDepartment === "line4" ||
-      currentDepartment === "1739099617324219" ||
-      currentDepartment === "1339948289200329"
-    ) {
-      return (
-        conv.lineKey === "line4" ||
-        conv.channel === "1739099617324219" ||
-        conv.channel === "1339948289200329"
-      );
-    }
-    if (
-      currentDepartment === "line5" ||
-      currentDepartment === "1083562997861778" ||
-      currentDepartment === "1385974501255442"
-    ) {
-      return (
-        conv.lineKey === "line5" ||
-        conv.channel === "1083562997861778" ||
-        conv.channel === "1385974501255442"
-      );
-    }
-    if (
-      currentDepartment === "line6" ||
-      currentDepartment === "1034864159583818" ||
-      currentDepartment === "1291624014041103" ||
-      currentDepartment === "direct"
-    ) {
-      return (
-        conv.lineKey === "line6" ||
-        conv.channel === "1034864159583818" ||
-        conv.channel === "1291624014041103"
-      );
-    }
-    if (
-      currentDepartment === "line7" ||
-      currentDepartment === "1964540454233744" ||
-      currentDepartment === "1318810581311680" ||
-      currentDepartment === "1854430365722527"
-    ) {
-      return (
-        conv.lineKey === "line7" ||
-        conv.channel === "1964540454233744" ||
-        conv.channel === "1318810581311680" ||
-        conv.channel === "1854430365722527"
-      );
-    }
-    return conv.lineKey === currentDepartment || conv.channel === currentDepartment;
+    return true; // All conversations belong to the sole official Qorlune line
   });
 
   // Filter by search query
@@ -263,155 +181,27 @@ export function ConversationListPane({
       >
         {/* Line selection tabs */}
         <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
-          {/* Line 1: PK */}
+          {/* Sole Official Qorlune Line */}
           <button
             type="button"
             onClick={() => onDepartmentChange("line1")}
             className={`flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1 text-[11px] font-bold transition ${
-              currentDepartment === "line1" ||
-              currentDepartment === "1363415125370805" ||
-              currentDepartment === "1239592269240963"
+              currentDepartment !== "all"
                 ? "bg-blue-600 text-white shadow-sm"
                 : "bg-adm-surface-2 text-adm-text-2 border border-adm-border hover:border-adm-text-3 hover:text-adm-text"
             }`}
-            title="Line 1: Pakistan (+92 335 6701199)"
+            title="Qorlune Official (+1 711-249-4712)"
           >
             <span className="h-1.5 w-1.5 rounded-full bg-blue-400" />
-            <span>🇵🇰 Line 1 (PK)</span>
-            {(unreadCounts.line1 ?? unreadCounts.general ?? 0) > 0 && (
+            <span>🇺🇸 Qorlune Official (+1 711-249-4712)</span>
+            {unreadCounts.total > 0 && (
               <span className="flex h-4 min-w-[16px] items-center justify-center rounded-full bg-blue-500 px-1 text-[9px] font-bold text-white">
-                {unreadCounts.line1 ?? unreadCounts.general}
+                {unreadCounts.total}
               </span>
             )}
           </button>
 
-          {/* Line 2: SL */}
-          <button
-            type="button"
-            onClick={() => onDepartmentChange("line2")}
-            className={`flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1 text-[11px] font-bold transition ${
-              currentDepartment === "line2" ||
-              currentDepartment === "1485319076722009" ||
-              currentDepartment === "1245811661959729"
-                ? "bg-emerald-600 text-white shadow-sm"
-                : "bg-adm-surface-2 text-adm-text-2 border border-adm-border hover:border-adm-text-3 hover:text-adm-text"
-            }`}
-            title="Line 2: Slovenia (+386 65 743 712)"
-          >
-            <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
-            <span>🇸🇮 Line 2 (SL)</span>
-            {(unreadCounts.line2 ?? 0) > 0 && (
-              <span className="flex h-4 min-w-[16px] items-center justify-center rounded-full bg-emerald-500 px-1 text-[9px] font-bold text-white">
-                {unreadCounts.line2}
-              </span>
-            )}
-          </button>
-
-          {/* Line 3: NL 1 */}
-          <button
-            type="button"
-            onClick={() => onDepartmentChange("line3")}
-            className={`flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1 text-[11px] font-bold transition ${
-              currentDepartment === "line3" || currentDepartment === "2663451950739498" || currentDepartment === "1401823986336958"
-                ? "bg-indigo-600 text-white shadow-sm"
-                : "bg-adm-surface-2 text-adm-text-2 border border-adm-border hover:border-adm-text-3 hover:text-adm-text"
-            }`}
-            title="Line 3: Netherlands 1 (+31 97058026144)"
-          >
-            <span className="h-1.5 w-1.5 rounded-full bg-indigo-400" />
-            <span>🇳🇱 Line 3 (NL 1)</span>
-            {(unreadCounts.line3 ?? 0) > 0 && (
-              <span className="flex h-4 min-w-[16px] items-center justify-center rounded-full bg-indigo-500 px-1 text-[9px] font-bold text-white">
-                {unreadCounts.line3}
-              </span>
-            )}
-          </button>
-
-          {/* Line 4: NL 2 */}
-          <button
-            type="button"
-            onClick={() => onDepartmentChange("line4")}
-            className={`flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1 text-[11px] font-bold transition ${
-              currentDepartment === "line4" || currentDepartment === "1739099617324219" || currentDepartment === "1339948289200329"
-                ? "bg-cyan-600 text-white shadow-sm"
-                : "bg-adm-surface-2 text-adm-text-2 border border-adm-border hover:border-adm-text-3 hover:text-adm-text"
-            }`}
-            title="Line 4: Netherlands 2 (+31 97058026143)"
-          >
-            <span className="h-1.5 w-1.5 rounded-full bg-cyan-400" />
-            <span>🇳🇱 Line 4 (NL 2)</span>
-            {(unreadCounts.line4 ?? 0) > 0 && (
-              <span className="flex h-4 min-w-[16px] items-center justify-center rounded-full bg-cyan-500 px-1 text-[9px] font-bold text-white">
-                {unreadCounts.line4}
-              </span>
-            )}
-          </button>
-
-          {/* Line 5: US 1 */}
-          <button
-            type="button"
-            onClick={() => onDepartmentChange("line5")}
-            className={`flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1 text-[11px] font-bold transition ${
-              currentDepartment === "line5" || currentDepartment === "1083562997861778" || currentDepartment === "1385974501255442"
-                ? "bg-violet-600 text-white shadow-sm"
-                : "bg-adm-surface-2 text-adm-text-2 border border-adm-border hover:border-adm-text-3 hover:text-adm-text"
-            }`}
-            title="Line 5: United States 1 (+1 555-431-6671)"
-          >
-            <span className="h-1.5 w-1.5 rounded-full bg-violet-400" />
-            <span>🇺🇸 Line 5 (US 1)</span>
-            {(unreadCounts.line5 ?? 0) > 0 && (
-              <span className="flex h-4 min-w-[16px] items-center justify-center rounded-full bg-violet-500 px-1 text-[9px] font-bold text-white">
-                {unreadCounts.line5}
-              </span>
-            )}
-          </button>
-
-          {/* Line 6: US 2 */}
-          <button
-            type="button"
-            onClick={() => onDepartmentChange("line6")}
-            className={`flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1 text-[11px] font-bold transition ${
-              currentDepartment === "line6" ||
-              currentDepartment === "1034864159583818" ||
-              currentDepartment === "1291624014041103"
-                ? "bg-purple-600 text-white shadow-sm"
-                : "bg-adm-surface-2 text-adm-text-2 border border-adm-border hover:border-adm-text-3 hover:text-adm-text"
-            }`}
-            title="Line 6: United States 2 (+1 555-434-0459)"
-          >
-            <span className="h-1.5 w-1.5 rounded-full bg-purple-400" />
-            <span>🇺🇸 Line 6 (US 2)</span>
-            {(unreadCounts.line6 ?? unreadCounts.direct ?? 0) > 0 && (
-              <span className="flex h-4 min-w-[16px] items-center justify-center rounded-full bg-purple-500 px-1 text-[9px] font-bold text-white">
-                {unreadCounts.line6 ?? unreadCounts.direct}
-              </span>
-            )}
-          </button>
-
-          {/* Line 7 (UK) */}
-          <button
-            type="button"
-            onClick={() => onDepartmentChange("line7")}
-            className={`flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1 text-[11px] font-bold transition ${
-              currentDepartment === "line7" ||
-              currentDepartment === "1964540454233744" ||
-              currentDepartment === "1318810581311680"
-                ? "bg-pink-600 text-white shadow-sm"
-                : "bg-adm-surface-2 text-adm-text-2 border border-adm-border hover:border-adm-text-3 hover:text-adm-text"
-            }`}
-            title="Line 7 (UK: +44 7575 376078)"
-          >
-            <span className="h-1.5 w-1.5 rounded-full bg-pink-400" />
-            <span>Line 7 (UK)</span>
-            {(unreadCounts.line7 ?? 0) > 0 && (
-              <span className="flex h-4 min-w-[16px] items-center justify-center rounded-full bg-pink-500 px-1 text-[9px] font-bold text-white">
-                {unreadCounts.line7}
-              </span>
-            )}
-          </button>
-
-          {/* All Lines */}
+          {/* All Messages */}
           <button
             type="button"
             onClick={() => onDepartmentChange("all")}
@@ -421,7 +211,7 @@ export function ConversationListPane({
                 : "bg-adm-surface-2 text-adm-text-2 border border-adm-border hover:border-adm-text-3 hover:text-adm-text"
             }`}
           >
-            <span>All Lines</span>
+            <span>All Messages</span>
             <span
               className={`rounded-full px-1.5 py-0.2 text-[10px] font-semibold ${
                 currentDepartment === "all"
@@ -519,35 +309,7 @@ export function ConversationListPane({
             const isOutbound = last?.direction === "outbound";
             const lastText = last?.body || (last?.type ? `[${last.type}]` : "No messages");
 
-            const isLine7 =
-              conv.lineKey === "line7" ||
-              conv.channel === "1964540454233744" ||
-              conv.channel === "1318810581311680" ||
-              conv.channel === "1854430365722527";
-            const isLine6 = conv.lineKey === "line6" || conv.channel === "1034864159583818" || conv.channel === "1291624014041103";
-            const isLine5 = conv.lineKey === "line5" || conv.channel === "1083562997861778" || conv.channel === "1385974501255442";
-            const isLine4 = conv.lineKey === "line4" || conv.channel === "1739099617324219" || conv.channel === "1339948289200329";
-            const isLine3 = conv.lineKey === "line3" || conv.channel === "2663451950739498" || conv.channel === "1401823986336958";
-            const isLine2 = conv.lineKey === "line2" || conv.channel === "1485319076722009" || conv.channel === "1245811661959729";
-            const isLine1 =
-              conv.lineKey === "line1" ||
-              conv.channel === "1363415125370805" ||
-              conv.channel === "1239592269240963" ||
-              (!isLine7 && !isLine6 && !isLine5 && !isLine4 && !isLine3 && !isLine2);
-
-            const lineThemeColor = isLine7
-              ? "#ec4899"
-              : isLine6
-              ? "#7c3aed"
-              : isLine5
-              ? "#6366f1"
-              : isLine4
-              ? "#0891b2"
-              : isLine3
-              ? "#4f46e5"
-              : isLine2
-              ? "#059669"
-              : "var(--adm-blue)";
+            const lineThemeColor = "#2563eb";
 
             return (
               <button

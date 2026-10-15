@@ -255,15 +255,15 @@ export const profileSlides: ProfileSlide[] = [
     bullets: [
       "Website: https://qorlune.com",
       "Direct Sales & Proposal Inquiries: sales@qorlune.com / contact@qorlune.com",
-      "WhatsApp Sales Channel: +1 (213) 754-6766 (Direct WhatsApp Chat)",
-      "24/7 Client Technical Support: support@qorlune.com / wa.me/message/TJILSTIMLJHVK1",
+      "WhatsApp Sales Channel: +1 711-249-4712 (Direct WhatsApp Chat)",
+      "24/7 Client Technical Support: support@qorlune.com / wa.me/17112494712",
       "Executive & Direct Desk: WhatsApp Priority Hotline",
       "Engineering GitHub: github.com/qorlune | LinkedIn: linkedin.com/company/qorlune",
     ],
     keyHighlights: [
       { label: "General Email", value: "info@qorlune.com" },
       { label: "Sales Email", value: "sales@qorlune.com" },
-      { label: "WhatsApp", value: "+1 (213) 754-6766" },
+      { label: "WhatsApp", value: "+1 711-249-4712" },
       { label: "Executive Desk", value: "Priority WhatsApp Line" },
       { label: "Support", value: "24/7 Live Desk" },
     ],
@@ -504,7 +504,7 @@ Technical Partnerships Lead
 Qorlune LLC
 Website: https://qorlune.com
 Direct Sales: sales@qorlune.com
-WhatsApp: +1 (213) 754-6766`,
+WhatsApp: +1 711-249-4712`,
     variables: ["[ClientName]", "[EmployeeName]", "[SuggestedDate]"],
   },
   {
