@@ -125,11 +125,11 @@ export default function BankDetailsCard() {
           </div>
 
           <BankDetailItem label="Beneficiary" value="Qorlune LLC" />
-          <BankDetailItem label="Wise Multi-Currency Tag" value="qorlune-llc" />
-          <BankDetailItem label="UK Head Office Account #" value="83921045" />
-          <BankDetailItem label="UK Sort Code" value="23-14-70" />
-          <BankDetailItem label="UK IBAN (Barclays / Wise)" value="GB29BARC20000083921045" />
-          <BankDetailItem label="SWIFT / BIC Code" value="BARCGB22" />
+          <BankDetailItem label="Bank Name" value="JPMorgan Chase Bank, N.A." copyable={false} />
+          <BankDetailItem label="Account Type" value="Commercial Checking (USD)" copyable={false} />
+          <BankDetailItem label="Routing Number (ABA / ACH)" value="021000021" />
+          <BankDetailItem label="Account Number" value="8392104529" />
+          <BankDetailItem label="SWIFT / BIC Code (Wire)" value="CHASUS33" />
           <BankDetailItem label="Beneficiary Address" value="1808 Orleans Ave, New Orleans, LA 70116, USA" copyable={false} />
         </div>
       )}

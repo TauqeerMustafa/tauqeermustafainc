@@ -48,8 +48,8 @@ Official Website: https://qorlune.com
 ═══════════════════════════════════════════════════════`);
 
     sections.push(`1. EXECUTIVE SUMMARY & CREDENTIALS
-• Registered UK Head Office: TMHQ, 6 Milton Rd, Harrow HA1 1XX, London, UK
-• Regional Engineering Office: Islamabad, Pakistan
+• Corporate Headquarters: 1808 Orleans Ave, New Orleans, LA 70116, USA
+• Core Delivery: US & Distributed Global Engineering
 • SLA Reliability: 99.98% production uptime
 • Direct Leadership: Lead engineer governance with 100% intellectual property transfer.`);
 

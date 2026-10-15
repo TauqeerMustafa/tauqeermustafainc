@@ -63,7 +63,7 @@ export const companyMetrics: CompanyMetric[] = [
   {
     label: "Global Reach",
     value: "UK & Global",
-    description: "Headquartered in London/Harrow, UK with regional engineering offices",
+    description: "Headquartered in New Orleans, LA, United States",
   },
   {
     label: "Security Hardened",
@@ -82,7 +82,7 @@ export const profileSlides: ProfileSlide[] = [
     bullets: [
       "High-assurance digital platforms, cybersecurity consulting, AI workflows, and cloud engineering.",
       "Direct technical leadership — no junior handoffs or account manager buffers.",
-      "Headquartered in London (Harrow), UK with regional engineering operations in Islamabad.",
+      "Headquartered in New Orleans, Louisiana, United States.",
       "Empowering startups, scaling SaaS, and enterprises to build mission-critical systems.",
     ],
     keyHighlights: [
@@ -215,14 +215,14 @@ export const profileSlides: ProfileSlide[] = [
     title: "Offices & Worldwide Operations",
     subtitle: "UK registered head office with distributed global delivery capability.",
     bullets: [
-      "UK Head Office: TMHQ, 6 Milton Rd, Harrow HA1 1XX, United Kingdom.",
-      "Regional Engineering Office: TMRQ, Iqbal Town, Islamabad, Pakistan.",
+      "Headquarters: 1808 Orleans Ave, New Orleans, LA 70116, United States.",
+      "Delivery: Distributed High-Assurance Engineering (US & Global).",
       "Timezone Flexibility: Covering GMT, EST, CET, and PKT business hours for seamless real-time collaboration.",
       "Compliance & Treasury: Multi-currency billing in USD, GBP, EUR, and PKR with formal invoicing and contracts.",
     ],
     keyHighlights: [
-      { label: "UK Head Office", value: "Harrow, London" },
-      { label: "Regional Office", value: "Islamabad, PK" },
+      { label: "Headquarters", value: "New Orleans, USA" },
+      { label: "Regional Office", value: "United States" },
       { label: "Timezones", value: "UK, US & EU Coverage" },
       { label: "Currencies", value: "USD, GBP, EUR, PKR" },
     ],
@@ -255,7 +255,7 @@ export const profileSlides: ProfileSlide[] = [
     bullets: [
       "Website: https://qorlune.com",
       "Direct Sales & Proposal Inquiries: sales@qorlune.com / contact@qorlune.com",
-      "WhatsApp Sales Channel: +92 335 6701199 (Direct WhatsApp Chat)",
+      "WhatsApp Sales Channel: +1 (213) 754-6766 (Direct WhatsApp Chat)",
       "24/7 Client Technical Support: support@qorlune.com / wa.me/message/TJILSTIMLJHVK1",
       "Executive & Direct Desk: WhatsApp Priority Hotline",
       "Engineering GitHub: github.com/qorlune | LinkedIn: linkedin.com/company/qorlune",
@@ -263,7 +263,7 @@ export const profileSlides: ProfileSlide[] = [
     keyHighlights: [
       { label: "General Email", value: "info@qorlune.com" },
       { label: "Sales Email", value: "sales@qorlune.com" },
-      { label: "WhatsApp", value: "+92 335 6701199" },
+      { label: "WhatsApp", value: "+1 (213) 754-6766" },
       { label: "Executive Desk", value: "Priority WhatsApp Line" },
       { label: "Support", value: "24/7 Live Desk" },
     ],
@@ -274,10 +274,10 @@ export const clientSources: ClientSourceItem[] = [
   // Corporate & Entity
   {
     id: "src-uk-hq",
-    title: "UK Head Office Location",
+    title: "Corporate Headquarters Location",
     category: "entity",
-    description: "TMHQ, 6 Milton Rd, Harrow HA1 1XX, United Kingdom",
-    displayValue: "Harrow, London, United Kingdom",
+    description: "1808 Orleans Ave, New Orleans, LA 70116, United States",
+    displayValue: "New Orleans, LA, United States",
     link: company.offices[0].mapEmbedUrl,
     verified: true,
     actionLabel: "View on Google Maps",
@@ -286,8 +286,8 @@ export const clientSources: ClientSourceItem[] = [
     id: "src-pk-hq",
     title: "Regional Engineering Office",
     category: "entity",
-    description: "TMRQ Flat No 02-A A Block, Awais Appartment, Iqbal Town, Islamabad, Pakistan",
-    displayValue: "Islamabad, Pakistan",
+    description: "1808 Orleans Ave, New Orleans, LA 70116, United States",
+    displayValue: "New Orleans, United States",
     link: company.offices[1].mapEmbedUrl,
     verified: true,
     actionLabel: "View on Google Maps",
@@ -483,7 +483,7 @@ Qorlune LLC | https://qorlune.com`,
 
 I hope this email finds you well.
 
-I am writing from Qorlune LLC, a UK-registered digital engineering agency (HQ London / Harrow). We partner with high-growth companies, startups, and enterprises that require systems built to handle real operational pressure without security tradeoffs.
+I am writing from Qorlune LLC, a US-based digital technology and engineering firm (HQ New Orleans, LA). We partner with high-growth companies, startups, and enterprises that require systems built to handle real operational pressure without security tradeoffs.
 
 Our core disciplines include:
 1. Web Engineering & SaaS Systems: Modern Next.js/TypeScript architectures engineered for sub-100ms response times.
@@ -504,7 +504,7 @@ Technical Partnerships Lead
 Qorlune LLC
 Website: https://qorlune.com
 Direct Sales: sales@qorlune.com
-WhatsApp: +92 335 6701199`,
+WhatsApp: +1 (213) 754-6766`,
     variables: ["[ClientName]", "[EmployeeName]", "[SuggestedDate]"],
   },
   {
@@ -514,7 +514,7 @@ WhatsApp: +92 335 6701199`,
     purpose: "Send to enterprise clients requesting security, NDA, or compliance verification during procurement.",
     body: `Qorlune LLC — Security & Compliance Profile Summary
 
-• Head Office: TMHQ, 6 Milton Rd, Harrow HA1 1XX, United Kingdom
+• Head Office: 1808 Orleans Ave, New Orleans, LA 70116, United States
 • Security Philosophy: Zero-Trust by default; OWASP Top 10 mitigation embedded in development sprints.
 • Data Protection: TLS 1.3 encryption in transit; AES-256 at rest; strict RBAC and least-privilege policies.
 • Legal & Governance:

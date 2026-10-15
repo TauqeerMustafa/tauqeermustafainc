@@ -1,7 +1,5 @@
 export const company = {
-  name: "Qorlune",
-
-  legalName: "Qorlune LLC",
+  name: "Qorlune LLC",
 
   shortName: "Qorlune",
 
@@ -24,7 +22,7 @@ export const company = {
   // Primary city label
   city: "New Orleans, United States",
 
-  // All offices
+  // All offices — US only
   offices: [
     {
       label: "Headquarters",
@@ -32,13 +30,6 @@ export const company = {
       address: "1808 Orleans Ave, New Orleans, LA 70116, United States",
       mapEmbedUrl:
         "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3456.883726715694!2d-90.0768!3d29.9675!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x8620a61a0d859e91%3A0x6b45d2e3f4347712!2s1808%20Orleans%20Ave%2C%20New%20Orleans%2C%20LA%2070116!5e0!3m2!1sen!2sus",
-    },
-    {
-      label: "UK Operations Desk",
-      city: "Harrow, United Kingdom",
-      address: "6 Milton Rd, Harrow HA1 1XX, United Kingdom",
-      mapEmbedUrl:
-        "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2478.805554438541!2d-0.33609!3d51.590126999999995!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x487613a792782131%3A0xfe349ec1a1b858c!2sHarrow!5e0!3m2!1sen!2suk",
     },
   ],
 
@@ -59,34 +50,34 @@ export const company = {
   mapEmbedUrl:
     "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3456.883726715694!2d-90.0768!3d29.9675!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x8620a61a0d859e91%3A0x6b45d2e3f4347712!2s1808%20Orleans%20Ave%2C%20New%20Orleans%2C%20LA%2070116!5e0!3m2!1sen!2sus",
 
-  phone: "+1 (213) 754-6766",
+  phone: "+1 711-249-4712",
 
-  whatsapp: "https://wa.me/12137546766",
+  whatsapp: "https://wa.me/17112494712",
 
   whatsappChannels: {
     general: {
-      name: "General Inquiries & Sales",
-      number: "+1 (213) 754-6766",
-      url: "https://wa.me/12137546766",
-      displayNumber: "+1 (213) 754-6766",
-      description: "Business inquiries, service proposals, partnerships, and general questions",
-      action: "Chat with Sales & Info",
-      badge: "General & Sales",
+      name: "Qorlune Official Desk",
+      number: "+1 711-249-4712",
+      url: "https://wa.me/17112494712",
+      displayNumber: "+1 711-249-4712",
+      description: "Direct client consultation, inquiries, enterprise proposals, and official support",
+      action: "Chat with Qorlune",
+      badge: "Official Line",
     },
     support: {
       name: "Technical & Client Support",
-      number: "+1 (213) 754-6766",
-      url: "https://wa.me/12137546766",
-      displayNumber: "+1 (213) 754-6766",
+      number: "+1 711-249-4712",
+      url: "https://wa.me/17112494712",
+      displayNumber: "+1 711-249-4712",
       description: "24/7 client helpdesk, SLA ticket escalation, and live technical support",
       action: "Contact Support Desk",
-      badge: "24/7 Client Support",
+      badge: "24/7 Support",
     },
     direct: {
-      name: "Executive Desk",
-      number: "+44 7575 376078",
-      url: "https://wa.me/447575376078",
-      displayNumber: "+44 7575 376078",
+      name: "Executive & Priority Desk",
+      number: "+1 711-249-4712",
+      url: "https://wa.me/17112494712",
+      displayNumber: "+1 711-249-4712",
       description: "Executive desk, enterprise proposals & strategic partnerships",
       action: "Chat with Executive Desk",
       badge: "Priority Desk",
