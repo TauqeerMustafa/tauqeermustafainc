@@ -298,7 +298,7 @@ export function ConversationListPane({
           <div className="flex flex-col items-center justify-center p-8 text-center text-xs text-adm-text-3 space-y-2">
             <p className="font-semibold text-adm-text-2">No conversations found</p>
             <span className="text-[11px]">
-              {searchQuery ? "Try a different search keyword or number" : "Incoming messages on all 4 lines will stream here"}
+              {searchQuery ? "Try a different search keyword or number" : "Incoming messages will stream here"}
             </span>
           </div>
         ) : (
@@ -370,36 +370,8 @@ export function ConversationListPane({
 
                     <div className="flex items-center gap-1 shrink-0">
                       {/* Department Line indicator */}
-                      <span
-                        className={`rounded px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider ${
-                          isLine7
-                            ? "bg-pink-500/10 text-pink-600 dark:text-pink-400 border border-pink-500/20"
-                            : isLine6
-                            ? "bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/20"
-                            : isLine5
-                            ? "bg-violet-500/10 text-violet-600 dark:text-violet-400 border border-violet-500/20"
-                            : isLine4
-                            ? "bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 border border-cyan-500/20"
-                            : isLine3
-                            ? "bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-500/20"
-                            : isLine2
-                            ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20"
-                            : "bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20"
-                        }`}
-                      >
-                        {isLine7
-                          ? "Line 7 (UK)"
-                          : isLine6
-                          ? "Line 6"
-                          : isLine5
-                          ? "Line 5"
-                          : isLine4
-                          ? "Line 4"
-                          : isLine3
-                          ? "Line 3"
-                          : isLine2
-                          ? "Line 2"
-                          : "Line 1"}
+                      <span className="rounded px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20">
+                        Official Line
                       </span>
 
                       {/* Unread badge */}
