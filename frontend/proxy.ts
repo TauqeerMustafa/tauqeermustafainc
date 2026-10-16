@@ -55,13 +55,16 @@ function isMainSitePath(pathname: string): boolean {
 
 
 function getApexDomain(hostname: string): string {
+  if (hostname.includes("qorlune.co.uk")) return "qorlune.co.uk";
   if (hostname.includes("qorlune.com")) return "qorlune.com";
   if (hostname.includes("tauqeermustafa.com") || hostname.includes("tauqeermustafa.tech")) return "tauqeermustafa.com";
-  return "qorlune.com";
+  return "qorlune.co.uk";
 }
 
 function isMainDomainHost(hostname: string): boolean {
   return (
+    hostname === "qorlune.co.uk" ||
+    hostname === "www.qorlune.co.uk" ||
     hostname === "qorlune.com" ||
     hostname === "www.qorlune.com" ||
     hostname === "tauqeermustafa.com" ||
