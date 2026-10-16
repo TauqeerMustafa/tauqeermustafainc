@@ -44,7 +44,7 @@ Here is the customized Qorlune LLC technical capabilities and collateral package
 ═══════════════════════════════════════════════════════
 QORLUNE LLC — TECHNICAL PROFILE & CAPABILITIES
 "Engineering that ships. Security that holds."
-Official Website: https://qorlune.com
+Official Website: https://qorlune.co.uk
 ═══════════════════════════════════════════════════════`);
 
     sections.push(`1. EXECUTIVE SUMMARY & CREDENTIALS
@@ -80,10 +80,10 @@ Official Website: https://qorlune.com
 
     if (includeLegal) {
       sections.push(`4. GOVERNANCE, SECURITY & LEGAL COMPLIANCE
-• Mutual NDA: https://qorlune.com/documents/nda
-• Information Security Policy: https://qorlune.com/documents/security-policy
-• Service Level Agreement (SLA): https://qorlune.com/documents/sla
-• GDPR & Privacy Terms: https://qorlune.com/documents/gdpr`);
+• Mutual NDA: https://qorlune.co.uk/documents/nda
+• Information Security Policy: https://qorlune.co.uk/documents/security-policy
+• Service Level Agreement (SLA): https://qorlune.co.uk/documents/sla
+• GDPR & Privacy Terms: https://qorlune.co.uk/documents/gdpr`);
     }
 
     if (includeWhatsApp) {
@@ -100,7 +100,7 @@ Looking forward to connecting with your team.
 
 Best regards,
 ${sender}
-Qorlune LLC | https://qorlune.com`);
+Qorlune LLC | https://qorlune.co.uk`);
 
     return sections.join("\n\n");
   };

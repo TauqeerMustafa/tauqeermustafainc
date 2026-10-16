@@ -58,9 +58,9 @@ export default async function BlogDetailPage({
   });
 
   const breadcrumbs = breadcrumbSchema([
-    { name: "Home", url: "https://qorlune.com" },
-    { name: "Blog", url: "https://qorlune.com/blog" },
-    { name: post.title, url: `https://qorlune.com/blog/${post.slug}` },
+    { name: "Home", url: "https://qorlune.co.uk" },
+    { name: "Blog", url: "https://qorlune.co.uk/blog" },
+    { name: post.title, url: `https://qorlune.co.uk/blog/${post.slug}` },
   ]);
 
   return (

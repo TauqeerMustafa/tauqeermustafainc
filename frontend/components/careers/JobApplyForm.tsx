@@ -202,10 +202,10 @@ export default function JobApplyForm({
           <p className="text-[13px] text-red-700">
             Something went wrong. Email us directly at{" "}
             <a
-              href="mailto:careers@qorlune.com"
+              href="mailto:careers@qorlune.co.uk"
               className="underline"
             >
-              careers@qorlune.com
+              careers@qorlune.co.uk
             </a>
             .
           </p>

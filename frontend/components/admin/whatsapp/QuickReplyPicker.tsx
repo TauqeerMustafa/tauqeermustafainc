@@ -21,13 +21,13 @@ export const QUICK_REPLIES: QuickReplyItem[] = [
     command: "/pricing",
     title: "Standard Enterprise Pricing",
     category: "sales",
-    text: "Our enterprise engineering packages start from tailored milestones or dedicated team arrangements. Let's schedule a 15-minute consultation to walk through options for your stack: https://qorlune.com/consultation",
+    text: "Our enterprise engineering packages start from tailored milestones or dedicated team arrangements. Let's schedule a 15-minute consultation to walk through options for your stack: https://qorlune.co.uk/consultation",
   },
   {
     command: "/meeting",
     title: "Executive Desk Calendar",
     category: "general",
-    text: "You can book a direct strategy call with our executive desk at: https://qorlune.com/consultation",
+    text: "You can book a direct strategy call with our executive desk at: https://qorlune.co.uk/consultation",
   },
   {
     command: "/support-hours",

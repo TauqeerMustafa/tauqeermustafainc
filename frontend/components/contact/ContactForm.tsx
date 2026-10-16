@@ -225,7 +225,7 @@ export default function ContactForm() {
       <p className="mt-6 text-[13px] leading-6 tracking-[-0.1px] text-ink-muted">
         Need an NDA before sharing details?{" "}
         <a
-          href="mailto:legal@qorlune.com"
+          href="mailto:legal@qorlune.co.uk"
           className="text-action underline-offset-2 hover:underline"
         >
           Email our legal team

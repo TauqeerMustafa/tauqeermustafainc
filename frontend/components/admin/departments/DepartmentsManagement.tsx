@@ -38,44 +38,44 @@ import type { Department } from "@/types/domain";
 
 const DEPARTMENT_MAIL_MAP: Record<string, { tech: string; com: string }> = {
   "General Inquiries": {
-    tech: "contact@qorlune.com",
-    com: "info@qorlune.com",
+    tech: "contact@qorlune.co.uk",
+    com: "info@qorlune.co.uk",
   },
   "Customer Support": {
-    tech: "support@qorlune.com",
-    com: "help@qorlune.com",
+    tech: "support@qorlune.co.uk",
+    com: "help@qorlune.co.uk",
   },
   "Sales & New Business": {
-    tech: "sales@qorlune.com",
-    com: "deals@qorlune.com",
+    tech: "sales@qorlune.co.uk",
+    com: "deals@qorlune.co.uk",
   },
   "Partnerships": {
-    tech: "partners@qorlune.com",
-    com: "business@qorlune.com",
+    tech: "partners@qorlune.co.uk",
+    com: "business@qorlune.co.uk",
   },
   "Marketing & Press": {
-    tech: "press@qorlune.com",
-    com: "media@qorlune.com",
+    tech: "press@qorlune.co.uk",
+    com: "media@qorlune.co.uk",
   },
   "Careers & Human Resources": {
-    tech: "careers@qorlune.com",
-    com: "hr@qorlune.com",
+    tech: "careers@qorlune.co.uk",
+    com: "hr@qorlune.co.uk",
   },
   "Billing & Invoices": {
-    tech: "billing@qorlune.com",
-    com: "finance@qorlune.com",
+    tech: "billing@qorlune.co.uk",
+    com: "finance@qorlune.co.uk",
   },
   "Legal & Privacy": {
-    tech: "legal@qorlune.com",
-    com: "compliance@qorlune.com",
+    tech: "legal@qorlune.co.uk",
+    com: "compliance@qorlune.co.uk",
   },
   "Engineering": {
-    tech: "engineering@qorlune.com",
-    com: "dev@qorlune.com",
+    tech: "engineering@qorlune.co.uk",
+    com: "dev@qorlune.co.uk",
   },
   "Product & Design": {
-    tech: "product@qorlune.com",
-    com: "design@qorlune.com",
+    tech: "product@qorlune.co.uk",
+    com: "design@qorlune.co.uk",
   },
 };
 
@@ -85,8 +85,8 @@ function getDepartmentEmails(name: string) {
   }
   const clean = name.toLowerCase().replace(/[^a-z0-9]/g, "").slice(0, 15) || "dept";
   return {
-    tech: `${clean}@qorlune.com`,
-    com: `${clean}@qorlune.com`,
+    tech: `${clean}@qorlune.co.uk`,
+    com: `${clean}@qorlune.co.uk`,
   };
 }
 

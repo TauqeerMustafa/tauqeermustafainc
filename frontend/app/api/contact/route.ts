@@ -3,7 +3,7 @@ import { appConfig } from "@/config/app";
 import { resolveStaffOrCustomerQuery } from "@/lib/omni-resolver";
 import { sendOpenEmailMessage } from "@/lib/openemail";
 
-const NOTIFICATIONS_MAILBOX_ID = "01M1TEFW41Y9FDR3SHCY0053CS"; // notifications@qorlune.com
+const NOTIFICATIONS_MAILBOX_ID = "01M1TEFW41Y9FDR3SHCY0053CS"; // notifications@qorlune.co.uk
 
 const API_BASE_URL = appConfig.apiBaseUrl;
 
@@ -20,14 +20,14 @@ export async function POST(request: Request) {
   }
 
 const DEPARTMENT_DESTINATIONS: Record<string, string> = {
-  "General inquiries": "info@qorlune.com",
-  "Customer support": "support@qorlune.com",
-  "Sales & new business": "sales@qorlune.com",
-  "Partnerships": "business@qorlune.com",
-  "Marketing & press": "marketing@qorlune.com",
-  "Careers": "careers@qorlune.com",
-  "Billing & invoices": "billing@qorlune.com",
-  "Legal & privacy": "legal@qorlune.com",
+  "General inquiries": "info@qorlune.co.uk",
+  "Customer support": "support@qorlune.co.uk",
+  "Sales & new business": "sales@qorlune.co.uk",
+  "Partnerships": "business@qorlune.co.uk",
+  "Marketing & press": "marketing@qorlune.co.uk",
+  "Careers": "careers@qorlune.co.uk",
+  "Billing & invoices": "billing@qorlune.co.uk",
+  "Legal & privacy": "legal@qorlune.co.uk",
 };
 
   const detailLines = [
@@ -75,7 +75,7 @@ const DEPARTMENT_DESTINATIONS: Record<string, string> = {
           });
 
           await sendOpenEmailMessage(NOTIFICATIONS_MAILBOX_ID, {
-            from: "notifications@qorlune.com",
+            from: "notifications@qorlune.co.uk",
             fromName: "Qorlune LLC",
             to: [payload.email],
             subject: `We have received your inquiry: ${body.service || "General Inquiry"}`,
@@ -86,7 +86,7 @@ const DEPARTMENT_DESTINATIONS: Record<string, string> = {
           const targetDeptEmail = body.department ? DEPARTMENT_DESTINATIONS[String(body.department)] : null;
           if (targetDeptEmail) {
             await sendOpenEmailMessage(NOTIFICATIONS_MAILBOX_ID, {
-              from: "notifications@qorlune.com",
+              from: "notifications@qorlune.co.uk",
               fromName: "Qorlune LLC — Website Dispatch",
               to: [targetDeptEmail],
               subject: `[New Inquiry] ${body.department} — ${body.fullName || "Inquiry"}`,

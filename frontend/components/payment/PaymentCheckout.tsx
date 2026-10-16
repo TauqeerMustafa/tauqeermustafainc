@@ -866,10 +866,10 @@ export default function PaymentCheckout() {
                   <div className="flex justify-between">
                     <span className="text-ink-muted">Wise Business Email:</span>
                     <div className="flex items-center gap-1.5 font-bold text-action">
-                      <span>billing@qorlune.com</span>
+                      <span>billing@qorlune.co.uk</span>
                       <button
                         type="button"
-                        onClick={() => handleCopyText("billing@qorlune.com", setCopiedWise)}
+                        onClick={() => handleCopyText("billing@qorlune.co.uk", setCopiedWise)}
                         className="text-ink-muted hover:text-ink p-1"
                       >
                         {copiedWise ? <Check size={12} className="text-emerald-500" /> : <Copy size={12} />}

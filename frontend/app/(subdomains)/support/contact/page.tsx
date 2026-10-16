@@ -23,25 +23,25 @@ export const metadata: Metadata = {
 const DEPARTMENTS = [
   {
     name: "Technical Support & Engineering",
-    email: "support@qorlune.com",
+    email: "support@qorlune.co.uk",
     sla: "< 1-4 hours",
     desc: "System troubleshooting, bug triage, API webhooks, and cloud infrastructure.",
   },
   {
     name: "Corporate Billing & Treasury",
-    email: "billing@qorlune.com",
+    email: "billing@qorlune.co.uk",
     sla: "< 12 hours",
     desc: "Invoice settlement, IBFT wire confirmations, Raast transfers, and contractor payouts.",
   },
   {
     name: "Client Account Management",
-    email: "clients@qorlune.com",
+    email: "clients@qorlune.co.uk",
     sla: "< 24 hours",
     desc: "Portal onboarding, active project deliverables, contract scope, and sprint reviews.",
   },
   {
     name: "Legal, Privacy & Compliance",
-    email: "legal@qorlune.com",
+    email: "legal@qorlune.co.uk",
     sla: "< 48 hours",
     desc: "Mutual NDAs, Data Processing Agreements (GDPR), SOC2 reports, and corporate governance.",
   },

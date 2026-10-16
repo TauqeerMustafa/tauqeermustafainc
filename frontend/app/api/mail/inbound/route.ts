@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { resolveStaffOrCustomerQuery } from "@/lib/omni-resolver";
 import { sendOpenEmailMessage } from "@/lib/openemail";
 
-const DEFAULT_MAILBOX_ID = "01M1TEFW41Y9FDR3SHCY0053CS"; // notifications@qorlune.com
+const DEFAULT_MAILBOX_ID = "01M1TEFW41Y9FDR3SHCY0053CS"; // notifications@qorlune.co.uk
 
 /**
  * POST /api/mail/inbound
@@ -45,7 +45,7 @@ export async function POST(request: Request) {
     if (autoReply && analysis.replyText) {
       try {
         await sendOpenEmailMessage(mailboxId, {
-          from: "notifications@qorlune.com",
+          from: "notifications@qorlune.co.uk",
           fromName: "Qorlune LLC Support Desk",
           to: [from],
           subject: subject.toLowerCase().startsWith("re:") ? subject : `Re: ${subject}`,

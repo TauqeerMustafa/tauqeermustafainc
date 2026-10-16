@@ -79,7 +79,7 @@ export async function processVoiceNoteWithGemini(params: {
       `1. Transcribe what he said accurately under "🎙️ *Voice Directive:* [transcription]"\n` +
       `2. Immediately execute his directive, provide strategic analysis, draft what he asked for, or outline the next action steps with executive precision.\n` +
       `3. Format cleanly with WhatsApp markdown (*bold*, bullet points). Speak directly to him as Boss/Principal.`
-    : `You are the Senior Technical Solutions Architect for Qorlune LLC (qorlune.com), an elite engineering consultancy.\n` +
+    : `You are the Senior Technical Solutions Architect for Qorlune LLC (qorlune.co.uk), an elite engineering consultancy.\n` +
       `A prospective client ${senderName ? `(${senderName})` : ""} has sent a voice note inquiring about a project, architecture, or services.\n` +
       `Your task:\n` +
       `1. Start with a polite acknowledgement and brief summary of their audio note: "🎙️ *Voice Note Received:* [brief 1-line recap of their request]"\n` +

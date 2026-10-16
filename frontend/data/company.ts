@@ -33,18 +33,18 @@ export const company = {
     },
   ],
 
-  email: "support@qorlune.com",
+  email: "support@qorlune.co.uk",
 
   emails: {
-    general: "info@qorlune.com",
-    contact: "contact@qorlune.com",
-    support: "support@qorlune.com",
-    sales: "sales@qorlune.com",
-    marketing: "marketing@qorlune.com",
-    legal: "legal@qorlune.com",
-    careers: "careers@qorlune.com",
-    business: "business@qorlune.com",
-    billing: "billing@qorlune.com",
+    general: "info@qorlune.co.uk",
+    contact: "contact@qorlune.co.uk",
+    support: "support@qorlune.co.uk",
+    sales: "sales@qorlune.co.uk",
+    marketing: "marketing@qorlune.co.uk",
+    legal: "legal@qorlune.co.uk",
+    careers: "careers@qorlune.co.uk",
+    business: "business@qorlune.co.uk",
+    billing: "billing@qorlune.co.uk",
   },
 
   mapEmbedUrl:
@@ -84,7 +84,7 @@ export const company = {
     },
   },
 
-  website: "https://www.qorlune.com",
+  website: "https://www.qorlune.co.uk",
 
   workingHours: "Monday - Friday | 9:00 AM - 6:00 PM EST",
 

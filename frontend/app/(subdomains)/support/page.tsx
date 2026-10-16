@@ -31,11 +31,11 @@ export default async function SupportPage({
             name: "Qorlune Support & Helpdesk",
             description:
               "Official corporate support, ticket tracking, emergency incident response, and live system status.",
-            url: "https://support.qorlune.com",
+            url: "https://support.qorlune.co.uk",
             mainEntity: {
               "@type": "CustomerService",
               telephone: "+1 711-249-4712",
-              email: "support@qorlune.com",
+              email: "support@qorlune.co.uk",
               contactType: "technical support",
               availableLanguage: ["English"],
             },

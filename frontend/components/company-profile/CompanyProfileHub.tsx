@@ -87,7 +87,7 @@ export default function CompanyProfileHub({
   };
 
   const handleCopyProfileUrl = () => {
-    const url = typeof window !== "undefined" ? window.location.href : "https://portals.qorlune.com/employees/company-profile";
+    const url = typeof window !== "undefined" ? window.location.href : "https://portals.qorlune.co.uk/employees/company-profile";
     navigator.clipboard.writeText(url);
     setCopiedLink(true);
     setTimeout(() => setCopiedLink(false), 2000);

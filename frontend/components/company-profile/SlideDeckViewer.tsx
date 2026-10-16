@@ -202,7 +202,7 @@ export default function SlideDeckViewer({ onExportPptx }: SlideDeckViewerProps) 
           <div className="flex items-center gap-2">
             <span className="font-semibold text-zinc-300">Qorlune LLC</span>
             <span>•</span>
-            <span className="text-sky-400">qorlune.com</span>
+            <span className="text-sky-400">qorlune.co.uk</span>
           </div>
           <div className="text-zinc-500 text-[11px]">
             Use <kbd className="rounded border border-zinc-700 bg-zinc-800 px-1 py-0.5 text-zinc-300">←</kbd> /{" "}

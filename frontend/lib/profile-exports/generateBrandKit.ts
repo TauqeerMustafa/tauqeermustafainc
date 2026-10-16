@@ -137,7 +137,7 @@ export async function generateBrandKitZip(): Promise<void> {
 - **Full Legal Name:** Qorlune LLC
 - **Short Name:** Qorlune
 - **Tagline:** Engineering that ships. Security that holds.
-- **Primary Website:** https://qorlune.com
+- **Primary Website:** https://qorlune.co.uk
 
 ## 2. Color Palette
 - **Obsidian Dark (Canvas / Hero):** \`#0D1117\` (RGB: 13, 17, 23)
@@ -157,7 +157,7 @@ export async function generateBrandKitZip(): Promise<void> {
 
 ## 5. Media Contact
 For press inquiries, brand permissions, or high-res photography requests:
-Email: marketing@qorlune.com / contact@qorlune.com
+Email: marketing@qorlune.co.uk / contact@qorlune.co.uk
 `;
 
   // 5. Company Facts Markdown
@@ -169,8 +169,8 @@ Email: marketing@qorlune.com / contact@qorlune.com
 - **Deliveries:** 45+ Production Systems
 - **SLA Uptime:** 99.98% Maintained
 - **Direct Contacts:**
-  - Sales & Proposals: sales@qorlune.com
-  - Support & Helpdesk: support@qorlune.com
+  - Sales & Proposals: sales@qorlune.co.uk
+  - Support & Helpdesk: support@qorlune.co.uk
   - WhatsApp Line: +1 711-249-4712
 `;
 

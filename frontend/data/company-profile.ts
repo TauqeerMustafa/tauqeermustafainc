@@ -89,7 +89,7 @@ export const profileSlides: ProfileSlide[] = [
       { label: "Entity", value: "Qorlune LLC" },
       { label: "Founded", value: "2023" },
       { label: "HQ", value: "London / Harrow, UK" },
-      { label: "Website", value: "qorlune.com" },
+      { label: "Website", value: "qorlune.co.uk" },
     ],
   },
   {
@@ -253,16 +253,16 @@ export const profileSlides: ProfileSlide[] = [
     title: "Let's Build Together",
     subtitle: "Direct technical consultations with our leadership team.",
     bullets: [
-      "Website: https://qorlune.com",
-      "Direct Sales & Proposal Inquiries: sales@qorlune.com / contact@qorlune.com",
+      "Website: https://qorlune.co.uk",
+      "Direct Sales & Proposal Inquiries: sales@qorlune.co.uk / contact@qorlune.co.uk",
       "WhatsApp Sales Channel: +1 711-249-4712 (Direct WhatsApp Chat)",
-      "24/7 Client Technical Support: support@qorlune.com / wa.me/17112494712",
+      "24/7 Client Technical Support: support@qorlune.co.uk / wa.me/17112494712",
       "Executive & Direct Desk: WhatsApp Priority Hotline",
       "Engineering GitHub: github.com/qorlune | LinkedIn: linkedin.com/company/qorlune",
     ],
     keyHighlights: [
-      { label: "General Email", value: "info@qorlune.com" },
-      { label: "Sales Email", value: "sales@qorlune.com" },
+      { label: "General Email", value: "info@qorlune.co.uk" },
+      { label: "Sales Email", value: "sales@qorlune.co.uk" },
       { label: "WhatsApp", value: "+1 711-249-4712" },
       { label: "Executive Desk", value: "Priority WhatsApp Line" },
       { label: "Support", value: "24/7 Live Desk" },
@@ -297,8 +297,8 @@ export const clientSources: ClientSourceItem[] = [
     title: "Official Web Domain",
     category: "entity",
     description: "Verified primary domain with TLS 1.3 security and DNSSEC",
-    displayValue: "https://qorlune.com",
-    link: "https://qorlune.com",
+    displayValue: "https://qorlune.co.uk",
+    link: "https://qorlune.co.uk",
     verified: true,
     actionLabel: "Visit Website",
   },
@@ -369,7 +369,7 @@ export const clientSources: ClientSourceItem[] = [
     title: "Responsible Vulnerability Disclosure",
     category: "security",
     description: "Vulnerability reporting program and security contact SLA",
-    displayValue: "security@qorlune.com",
+    displayValue: "security@qorlune.co.uk",
     link: "/documents/responsible-disclosure",
     verified: true,
     actionLabel: "View Disclosure Terms",
@@ -470,7 +470,7 @@ Would you be open for a brief 15-minute technical discovery call this week to re
 
 Best regards,
 [EmployeeName]
-Qorlune LLC | https://qorlune.com`,
+Qorlune LLC | https://qorlune.co.uk`,
     variables: ["[ClientName]", "[EmployeeName]"],
   },
   {
@@ -502,8 +502,8 @@ Sincerely,
 [EmployeeName]
 Technical Partnerships Lead
 Qorlune LLC
-Website: https://qorlune.com
-Direct Sales: sales@qorlune.com
+Website: https://qorlune.co.uk
+Direct Sales: sales@qorlune.co.uk
 WhatsApp: +1 711-249-4712`,
     variables: ["[ClientName]", "[EmployeeName]", "[SuggestedDate]"],
   },
@@ -518,10 +518,10 @@ WhatsApp: +1 711-249-4712`,
 • Security Philosophy: Zero-Trust by default; OWASP Top 10 mitigation embedded in development sprints.
 • Data Protection: TLS 1.3 encryption in transit; AES-256 at rest; strict RBAC and least-privilege policies.
 • Legal & Governance:
-  - Mutual NDA: https://qorlune.com/documents/nda
-  - Privacy & GDPR: https://qorlune.com/documents/gdpr
-  - Information Security Policy: https://qorlune.com/documents/security-policy
-  - SLA Commitments: https://qorlune.com/documents/sla
+  - Mutual NDA: https://qorlune.co.uk/documents/nda
+  - Privacy & GDPR: https://qorlune.co.uk/documents/gdpr
+  - Information Security Policy: https://qorlune.co.uk/documents/security-policy
+  - SLA Commitments: https://qorlune.co.uk/documents/sla
 • IP Ownership: 100% intellectual property transfer upon milestone completion with zero vendor lock-in.
 • Support SLA: 24/7 dedicated escalation desk with guaranteed response times.`,
     variables: [],

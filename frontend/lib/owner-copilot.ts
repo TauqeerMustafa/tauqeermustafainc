@@ -137,7 +137,7 @@ export async function generateProfessionalClientReply(
 ): Promise<string | null> {
   const name = senderName ? ` for ${senderName}` : "";
   const systemInstruction =
-    `You are the Senior Technical Solutions Architect for Qorlune LLC (qorlune.com), an elite engineering consultancy specializing in custom software, AI copilots, cybersecurity audits, and scalable cloud architecture.\n` +
+    `You are the Senior Technical Solutions Architect for Qorlune LLC (qorlune.co.uk), an elite engineering consultancy specializing in custom software, AI copilots, cybersecurity audits, and scalable cloud architecture.\n` +
     `Respond to the client's inquiry${name} with unmatched technical authority, warmth, and prestigious executive professionalism.\n` +
     `Rules:\n` +
     `1. NEVER provide personal phone numbers or direct hotline numbers under any circumstances.\n` +
@@ -301,7 +301,7 @@ export async function handleOwnerCopilotCommand(params: {
         `───────────────────────────\n` +
         `• *Active Quota:* 30–50 verified outreaches daily per member\n` +
         `• *Reporting Deadline:* 6:00 PM PKT daily in Google Sheet\n` +
-        `• *Corporate Webmail:* https://webmail.qorlune.com\n` +
+        `• *Corporate Webmail:* https://webmail.qorlune.co.uk\n` +
         `• *Verification Policy:* Hard bounces must be marked Invalid immediately\n` +
         `───────────────────────────\n` +
         `To assign a task, text: *task: <description>*\n` +
@@ -325,7 +325,7 @@ export async function handleOwnerCopilotCommand(params: {
       replyText:
         `🚀 *Careers & Talent Pipeline*\n` +
         `───────────────────────────\n` +
-        `• *Portal:* https://qorlune.com/careers\n` +
+        `• *Portal:* https://qorlune.co.uk/careers\n` +
         `• *Open Roles:* Full-Stack Engineer, AI Copilot Engineer, Cloud Architect, B2B Marketing Intern\n` +
         `• *Review Policy:* Technical leadership reviews all applicant GitHub portfolios directly\n` +
         `───────────────────────────\n` +

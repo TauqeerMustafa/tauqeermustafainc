@@ -69,7 +69,7 @@ const companySubdomains = [
 ];
 
 function getSubdomainHref(sub: string) {
-  return `https://${sub}.qorlune.com`;
+  return `https://${sub}.qorlune.co.uk`;
 }
 
 const linkClass =

@@ -216,7 +216,7 @@ export default function BillingHubClient({ initialTab = "pay" }: { initialTab?: 
                     </ul>
                     <div className="pt-3 border-t border-line">
                       <a
-                        href="mailto:billing@qorlune.com"
+                        href="mailto:billing@qorlune.co.uk"
                         className="text-action hover:underline font-bold"
                       >
                         Contact Treasury Desk &rarr;
@@ -327,7 +327,7 @@ export default function BillingHubClient({ initialTab = "pay" }: { initialTab?: 
                     Need the complete legal agreement?
                   </p>
                   <a
-                    href="https://docs.qorlune.com/payment-policy"
+                    href="https://docs.qorlune.co.uk/payment-policy"
                     className="inline-flex items-center gap-1.5 font-mono text-xs font-bold uppercase tracking-wider text-action hover:underline"
                   >
                     <span>Read Full Payment Policy in Docs</span>

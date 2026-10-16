@@ -356,7 +356,7 @@ export const DEFAULT_GENERAL_RULES: AutoReplyRule[] = [
     reply:
       "Here is how to reach our leadership directly:\n\n" +
       "• *WhatsApp:* Chat directly right here in this thread\n" +
-      "• *Email:* contact@qorlune.com\n" +
+      "• *Email:* contact@qorlune.co.uk\n" +
       "• *Executive Hours:* Mon–Sat, 09:00–18:00 PKT\n\n" +
       "Drop your project brief or inquiry here and our Principal will reply directly!",
     enabled: true,
@@ -368,7 +368,7 @@ export const DEFAULT_GENERAL_RULES: AutoReplyRule[] = [
     department: "general",
     reply:
       "Explore our software engineering architecture and case studies at:\n" +
-      "👉 *https://qorlune.com*\n\n" +
+      "👉 *https://qorlune.co.uk*\n\n" +
       "Tell us your target tech stack or industry, and we'll share relevant past deliverables!",
     enabled: true,
   },
@@ -400,7 +400,7 @@ export const DEFAULT_SUPPORT_RULES: AutoReplyRule[] = [
     mode: "contains",
     department: "support",
     reply:
-      "To check your ticket status or submit logs, reply with your Ticket ID (e.g. *QOR-SUP-XXXXX*) or visit https://support.qorlune.com/ticket.",
+      "To check your ticket status or submit logs, reply with your Ticket ID (e.g. *QOR-SUP-XXXXX*) or visit https://support.qorlune.co.uk/ticket.",
     enabled: true,
   },
   {
@@ -423,7 +423,7 @@ export const DEFAULT_SUPPORT_RULES: AutoReplyRule[] = [
       "• *Critical P1:* 15–60 min response\n" +
       "• *High P2:* < 4 hours\n" +
       "• *Standard P3:* < 24 hours\n\n" +
-      "Status tracker: https://support.qorlune.com/status",
+      "Status tracker: https://support.qorlune.co.uk/status",
     enabled: true,
   },
   {
@@ -444,7 +444,7 @@ export const DEFAULT_SUPPORT_RULES: AutoReplyRule[] = [
     reply:
       "• *Critical Outages (P1):* 24/7 coverage\n" +
       "• *Standard Support:* Mon–Sat, 08:00–22:00 PKT\n" +
-      "• *Email:* support@qorlune.com",
+      "• *Email:* support@qorlune.co.uk",
     enabled: true,
   },
   {

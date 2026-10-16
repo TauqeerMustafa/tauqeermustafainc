@@ -15,11 +15,11 @@ const GRAPH_URL = "https://graph.facebook.com/v20.0";
 // ---------- Constants & Company Info ----------
 
 const COMPANY_NAME = "Qorlune";
-const WEBSITE = "https://qorlune.com";
+const WEBSITE = "https://qorlune.co.uk";
 const HOURS = "Monday to Saturday, 09:00 to 18:00 (PKT)";
 const REP_QUEUE_CHANNEL = process.env.REP_QUEUE_CHANNEL ?? "#leads-inbound";
 
-// ---------- Service catalogue (mirrors qorlune.com/services) ----------
+// ---------- Service catalogue (mirrors qorlune.co.uk/services) ----------
 
 export const SERVICES: Record<
   Exclude<ServiceKey, "client_services" | "careers" | "human">,
@@ -1031,7 +1031,7 @@ export const DEFAULT_STEPS: FlowStep[] = [
     body:
       "We're actively hiring engineers and interns! 🚀\n\n" +
       "Check open roles and apply here:\n" +
-      "👉 *https://qorlune.com/careers*\n\n" +
+      "👉 *https://qorlune.co.uk/careers*\n\n" +
       "Our technical team reviews all applications directly.",
     buttons: [
       { id: "human", title: "Message HR", next: "human" },

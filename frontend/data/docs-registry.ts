@@ -97,7 +97,7 @@ const ADDITIONAL_DOCS: UnifiedDoc[] = [
       {
         heading: '4. Your Rights and Contact',
         body: [
-          'You may request access to, correction of, or deletion of your personal data by contacting our privacy compliance desk at privacy@qorlune.com.'
+          'You may request access to, correction of, or deletion of your personal data by contacting our privacy compliance desk at privacy@qorlune.co.uk.'
         ]
       }
     ]
@@ -198,7 +198,7 @@ const ADDITIONAL_DOCS: UnifiedDoc[] = [
       {
         heading: '3. Feedback & Assistance',
         body: [
-          'If you encounter an accessibility barrier on any Qorlune digital surface, please contact accessibility@qorlune.com and our engineering team will respond within 48 hours.'
+          'If you encounter an accessibility barrier on any Qorlune digital surface, please contact accessibility@qorlune.co.uk and our engineering team will respond within 48 hours.'
         ]
       }
     ]

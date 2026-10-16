@@ -7,7 +7,7 @@ import { ALL_DOCS } from "@/data/docs-registry";
 export default function sitemap(): MetadataRoute.Sitemap {
   const now = new Date();
 
-  // 1. Primary Corporate Domain Routes (qorlune.com)
+  // 1. Primary Corporate Domain Routes (qorlune.co.uk)
   const mainRoutes = [
     { url: "", changeFrequency: "weekly", priority: 1.0 },
     { url: "/about", changeFrequency: "monthly", priority: 0.8 },
@@ -55,10 +55,10 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: 0.6,
   }));
 
-  // 3. Documentation & Policy Portal (docs.qorlune.com)
+  // 3. Documentation & Policy Portal (docs.qorlune.co.uk)
   const docsHubRoute: MetadataRoute.Sitemap = [
     {
-      url: "https://docs.qorlune.com",
+      url: "https://docs.qorlune.co.uk",
       lastModified: now,
       changeFrequency: "weekly",
       priority: 0.8,
@@ -66,33 +66,33 @@ export default function sitemap(): MetadataRoute.Sitemap {
   ];
 
   const docDetailRoutes: MetadataRoute.Sitemap = ALL_DOCS.map((doc) => ({
-    url: `https://docs.qorlune.com/${doc.slug}`,
+    url: `https://docs.qorlune.co.uk/${doc.slug}`,
     lastModified: now,
     changeFrequency: "monthly",
     priority: 0.7,
   }));
 
-  // 4. Billing & Treasury Suite (billing.qorlune.com)
+  // 4. Billing & Treasury Suite (billing.qorlune.co.uk)
   const billingRoutes: MetadataRoute.Sitemap = [
-    { url: "https://billing.qorlune.com", lastModified: now, changeFrequency: "monthly", priority: 0.8 },
-    { url: "https://billing.qorlune.com/pay", lastModified: now, changeFrequency: "monthly", priority: 0.8 },
-    { url: "https://billing.qorlune.com/payouts", lastModified: now, changeFrequency: "monthly", priority: 0.7 },
-    { url: "https://billing.qorlune.com/policies", lastModified: now, changeFrequency: "monthly", priority: 0.6 },
+    { url: "https://billing.qorlune.co.uk", lastModified: now, changeFrequency: "monthly", priority: 0.8 },
+    { url: "https://billing.qorlune.co.uk/pay", lastModified: now, changeFrequency: "monthly", priority: 0.8 },
+    { url: "https://billing.qorlune.co.uk/payouts", lastModified: now, changeFrequency: "monthly", priority: 0.7 },
+    { url: "https://billing.qorlune.co.uk/policies", lastModified: now, changeFrequency: "monthly", priority: 0.6 },
   ];
 
-  // 5. Customer Support & Helpdesk Hub (support.qorlune.com)
+  // 5. Customer Support & Helpdesk Hub (support.qorlune.co.uk)
   const supportRoutes: MetadataRoute.Sitemap = [
-    { url: "https://support.qorlune.com", lastModified: now, changeFrequency: "daily", priority: 0.8 },
-    { url: "https://support.qorlune.com/ticket", lastModified: now, changeFrequency: "monthly", priority: 0.7 },
-    { url: "https://support.qorlune.com/status", lastModified: now, changeFrequency: "always", priority: 0.8 },
-    { url: "https://support.qorlune.com/faq", lastModified: now, changeFrequency: "weekly", priority: 0.7 },
-    { url: "https://support.qorlune.com/contact", lastModified: now, changeFrequency: "monthly", priority: 0.7 },
+    { url: "https://support.qorlune.co.uk", lastModified: now, changeFrequency: "daily", priority: 0.8 },
+    { url: "https://support.qorlune.co.uk/ticket", lastModified: now, changeFrequency: "monthly", priority: 0.7 },
+    { url: "https://support.qorlune.co.uk/status", lastModified: now, changeFrequency: "always", priority: 0.8 },
+    { url: "https://support.qorlune.co.uk/faq", lastModified: now, changeFrequency: "weekly", priority: 0.7 },
+    { url: "https://support.qorlune.co.uk/contact", lastModified: now, changeFrequency: "monthly", priority: 0.7 },
   ];
 
   // 6. Portals & Community
   const networkRoutes: MetadataRoute.Sitemap = [
-    { url: "https://portals.qorlune.com", lastModified: now, changeFrequency: "monthly", priority: 0.7 },
-    { url: "https://community.qorlune.com", lastModified: now, changeFrequency: "weekly", priority: 0.7 },
+    { url: "https://portals.qorlune.co.uk", lastModified: now, changeFrequency: "monthly", priority: 0.7 },
+    { url: "https://community.qorlune.co.uk", lastModified: now, changeFrequency: "weekly", priority: 0.7 },
   ];
 
   return [

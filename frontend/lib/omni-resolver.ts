@@ -177,7 +177,7 @@ export function handleButtonClick(choiceId: string, name?: string): TriageResult
         replyText:
           `We're actively hiring engineers and interns! 🚀\n\n` +
           `Check open roles and apply here:\n` +
-          `👉 *https://qorlune.com/careers*\n\n` +
+          `👉 *https://qorlune.co.uk/careers*\n\n` +
           `Our technical team reviews all applications directly.`,
         buttons: [
           { id: "human", title: "Message HR" },
@@ -281,7 +281,7 @@ export function handleButtonClick(choiceId: string, name?: string): TriageResult
         actionTaken: "Shared portal link.",
         replyText:
           `Log into your corporate email here:\n` +
-          `🌐 *https://webmail.qorlune.com*\n\n` +
+          `🌐 *https://webmail.qorlune.co.uk*\n\n` +
           `Use your full company email and assigned password.`,
         buttons: [
           { id: "reset_pw", title: "Reset Password" },
@@ -440,7 +440,7 @@ export async function resolveStaffOrCustomerQuery(params: {
   if (isCredentialIssue) {
     const reply =
       `Hey${shortName}! To log into your company email:\n\n` +
-      `🌐 *Webmail:* https://webmail.qorlune.com\n\n` +
+      `🌐 *Webmail:* https://webmail.qorlune.co.uk\n\n` +
       `Use your full email and onboarding password.\n` +
       `Need a password reset? Tap below:`;
 

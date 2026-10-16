@@ -66,9 +66,9 @@ export default async function ServiceDetailPage({
   });
 
   const breadcrumbs = breadcrumbSchema([
-    { name: "Home", url: "https://qorlune.com" },
-    { name: "Services", url: "https://qorlune.com/services" },
-    { name: service.title, url: `https://qorlune.com/services/${service.slug}` },
+    { name: "Home", url: "https://qorlune.co.uk" },
+    { name: "Services", url: "https://qorlune.co.uk/services" },
+    { name: service.title, url: `https://qorlune.co.uk/services/${service.slug}` },
   ]);
 
   // Convert service FAQs to schema format if they exist
