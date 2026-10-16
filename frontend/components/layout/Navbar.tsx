@@ -63,7 +63,7 @@ const companySubdomains = [
   {
     name: "Corporate Portals",
     subdomain: "portals",
-    description: "Executive console & client authentication gateway",
+    description: "Secure client, employee & management workspaces",
     icon: ShieldCheck,
   },
 ];
