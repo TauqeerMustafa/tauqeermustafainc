@@ -56,9 +56,10 @@ export type WANumber = {
 
 /**
  * Sole Official Qorlune WhatsApp Line (+1 711-249-4712)
- * Meta Phone Number ID: 944973294966811
+ * Meta Phone Number ID: 1433890589802290
+ * Meta WABA ID: 944973294966811
  */
-export const DEFAULT_QORLUNE_ID = "944973294966811";
+export const DEFAULT_QORLUNE_ID = "1433890589802290";
 export const DEFAULT_PRIMARY_ID = DEFAULT_QORLUNE_ID;
 
 // Deprecated line aliases mapped directly to the official Qorlune line
