@@ -19,17 +19,7 @@ const techStack = ["Next.js 16", "TypeScript", "FastAPI", "PostgreSQL", "Redis",
 
 export default function FeaturedWork() {
   return (
-    <Section className="relative overflow-hidden" labelledBy="featured-work-title">
-      {/* Background image abstract mesh texture */}
-      <div 
-        className="pointer-events-none absolute inset-0 -z-10 bg-cover bg-center opacity-20 mix-blend-screen"
-        style={{ backgroundImage: "url('/images/abstract-dark-mesh.jpg')" }}
-        aria-hidden="true"
-      />
-      <div 
-        className="pointer-events-none absolute inset-0 -z-10 bg-gradient-to-b from-[#040e27]/60 via-transparent to-[#040e27]/60"
-        aria-hidden="true"
-      />
+    <Section labelledBy="featured-work-title">
       <div className="grid items-center gap-12 lg:grid-cols-2 lg:gap-20">
 
         <Reveal variant={fadeLeft} className="lg:order-1">
