@@ -66,23 +66,43 @@ export default function CoreServices() {
                   <p className="mt-3 text-[16px] font-light leading-[1.6] tracking-[-0.01em] text-ink/60 sm:text-[17px]">
                     {service.shortDescription}
                   </p>
-                  <ul className="mt-6 grid gap-2.5 sm:grid-cols-2">
-                    {service.outcomes.slice(0, 4).map((outcome) => (
-                      <li
-                        key={outcome}
-                        className="flex items-start gap-2.5 text-[15px] font-light leading-[1.55] tracking-[-0.01em] text-ink/85"
-                      >
-                        <ChevronRight className="mt-0.5 h-4 w-4 shrink-0 text-action" aria-hidden />
-                        {outcome}
-                      </li>
-                    ))}
-                  </ul>
-                  <div className="mt-7">
+                  {/* Sub-Service Divisions & Deliverables Hierarchy */}
+                  {service.divisions && (
+                    <div className="mt-6 space-y-4 rounded-none border border-ink/10 bg-surface/80 p-4 sm:p-5">
+                      <div className="flex items-center justify-between border-b border-ink/10 pb-2">
+                        <span className="font-mono text-[11px] font-bold uppercase tracking-wider text-action">
+                          {service.title} &gt; Architecture & Scope
+                        </span>
+                        <span className="font-mono text-[10px] text-ink/40">
+                          {service.divisions.length} Divisions
+                        </span>
+                      </div>
+                      <div className="grid gap-4 sm:grid-cols-2">
+                        {service.divisions.map((div, dIdx) => (
+                          <div key={div.title} className="border-l-2 border-action/50 pl-3">
+                            <h4 className="font-mono text-[12px] font-bold text-ink">
+                              &gt; {div.title}
+                            </h4>
+                            <ul className="mt-2 space-y-1">
+                              {div.deliverables.slice(0, 3).map((deliv) => (
+                                <li key={deliv} className="flex items-start gap-1.5 text-[12px] leading-snug text-ink/75">
+                                  <span className="font-mono font-bold text-action">&gt;</span>
+                                  <span>{deliv}</span>
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  <div className="mt-7 flex items-center gap-4">
                     <Link
                       href={`/services/${service.slug}`}
                       className="group/link inline-flex items-center gap-1.5 font-mono text-[12px] font-bold uppercase tracking-[0.1em] text-action transition-colors hover:text-ink"
                     >
-                      Learn More
+                      Full Specifications
                       <ArrowRight className="h-3.5 w-3.5 transition-transform duration-300 group-hover/link:translate-x-0.5" aria-hidden />
                     </Link>
                   </div>

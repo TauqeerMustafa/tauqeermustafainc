@@ -26,6 +26,13 @@ export type SiteJob = {
 export type ServiceProcessStep = { title: string; detail: string };
 export type ServiceFaq = { question: string; answer: string };
 
+export type SubServiceDivision = {
+  title: string;
+  description: string;
+  deliverables: string[];
+  techStack?: string[];
+};
+
 export type SiteService = {
   slug: string;
   title: string;
@@ -33,6 +40,7 @@ export type SiteService = {
   description: string;
   outcomes: string[];
   // Not editable in admin — kept from static content, matched by slug.
+  divisions?: SubServiceDivision[];
   process?: ServiceProcessStep[];
   faqs?: ServiceFaq[];
 };
@@ -92,6 +100,7 @@ function toSiteService(s: Service): SiteService {
     shortDescription: s.shortDescription,
     description: s.description,
     outcomes: s.outcomes ?? stat?.outcomes ?? [],
+    divisions: (stat as any)?.divisions,
     process: stat?.process,
     faqs: stat?.faqs,
   };

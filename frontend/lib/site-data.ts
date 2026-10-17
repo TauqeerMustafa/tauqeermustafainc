@@ -58,54 +58,101 @@ export const services = [
     slug: "enterprise-web-development",
     title: "Web Development",
     shortDescription:
-      "Secure web platforms, portals, dashboards, and product systems built to last.",
+      "Production-ready web platforms, enterprise portals, multi-tenant SaaS, and mission-critical APIs built to scale.",
     description:
-      "We design and build maintainable web applications with clear architecture, reliable delivery practices, and performance-minded implementation. Every engagement starts with the business workflow, not the framework, so the systems we ship stay easy to operate long after launch.",
+      "We design and engineer high-assurance web applications with maintainable architecture, enterprise-grade security defaults, and sub-second performance. Every system is built around business operations and real concurrency, ensuring reliability from MVP to global scale.",
     outcomes: [
-      "Application architecture and technical planning",
-      "Customer and internal portals",
-      "Dashboards and operational reporting",
-      "Performance optimization and Core Web Vitals",
-      "API design and third-party integrations",
-      "Post-launch maintenance and support",
+      "Multi-tenant SaaS & web applications",
+      "Customer & staff portals with RBAC",
+      "Global payment engines & billing ledgers",
+      "High-throughput REST, GraphQL & gRPC APIs",
+      "Database clustering & fault-tolerant caching",
+      "Post-launch maintenance & 99.99% SLA support",
+    ],
+    divisions: [
+      {
+        title: "Custom SaaS Platforms & Web Applications",
+        description: "Full-stack web software engineered for heavy concurrent load, clean maintainability, and rapid feature iteration.",
+        deliverables: [
+          "Multi-Tenant Architecture & Workspace Isolation",
+          "Role-Based Access Control (RBAC) & Granular Permissions",
+          "Edge-Rendered High-Speed Frontends (Next.js 16, React 19, TypeScript)",
+          "High-Throughput Backend Microservices (Node.js, Go, Python FastAPI)",
+          "Real-Time Bi-Directional WebSockets & Event Streaming",
+        ],
+        techStack: ["Next.js", "React", "TypeScript", "Node.js", "FastAPI", "Tailwind CSS"],
+      },
+      {
+        title: "Enterprise Portals & Client Workspaces",
+        description: "Dedicated secure portals that unify customer interactions, employee workflows, and executive reporting.",
+        deliverables: [
+          "Self-Service Client Onboarding & Automated KYC Verification",
+          "Interactive Project Milestones & Deliverables Approval Pipelines",
+          "End-to-End Encrypted File Vaults with Cryptographic Checksums",
+          "Executive Analytics Dashboards & Operational Data Visualizations",
+        ],
+        techStack: ["PostgreSQL", "Supabase", "Redis", "Shadcn UI", "Zod"],
+      },
+      {
+        title: "Payment Engines, Billing & Financial Ledgers",
+        description: "Compliant monetization engines managing global checkout, recurring subscriptions, and tax reconciliation.",
+        deliverables: [
+          "Paddle, Stripe Billing & Merchant of Record (MoR) Integration",
+          "Automated Tier Upgrades, Downgrades & Prorated Billing Cycles",
+          "International Tax Compliance (VAT, GST, US Sales Tax, Reverse Charge)",
+          "Idempotent Webhook Processing & Automated Financial Reconciliation",
+        ],
+        techStack: ["Paddle Node SDK", "Stripe API", "Webhooks", "PostgreSQL", "Invoicing"],
+      },
+      {
+        title: "Database Engineering & Backend Resilience",
+        description: "Zero-downtime data architectures engineered to eliminate bottlenecks and guarantee data integrity.",
+        deliverables: [
+          "High-Availability PostgreSQL & Distributed Supabase Configurations",
+          "In-Memory Caching & Distributed Job Queues (Redis, KeyDB, BullMQ)",
+          "Zero-Downtime Schema Migrations & Partitioned Query Tuning",
+          "Automated Point-in-Time Recovery (PITR) & Disaster Failover",
+        ],
+        techStack: ["PostgreSQL", "Redis", "Prisma", "Drizzle", "Docker", "AWS RDS"],
+      },
     ],
     process: [
       {
-        title: "Discovery & architecture",
+        title: "Discovery & Architecture Mapping",
         detail:
-          "We map the real workflow the platform needs to support, then define data boundaries, service ownership, and a technical plan before any code is written.",
+          "We map the real business workflows, model strict entity relationships, and design data boundaries before any code is written.",
       },
       {
-        title: "Build in reviewable increments",
+        title: "Iterative Test-Driven Build",
         detail:
-          "Work ships in small, testable slices with regular check-ins, so priorities can shift without losing momentum on the parts already validated.",
+          "Code ships in testable, reviewable sprints with automated CI/CD checks, ensuring velocity never compromises software quality.",
       },
       {
-        title: "Harden for production",
+        title: "Production Hardening",
         detail:
-          "Load testing, security review, and monitoring are built in before launch, not treated as a follow-up phase once something breaks.",
+          "Load testing, penetration testing, and observability telemetry are implemented before release, ensuring day-one stability.",
       },
       {
-        title: "Support after launch",
+        title: "Post-Launch SLA & Evolution",
         detail:
-          "We stay engaged post-launch for bug fixes, iteration, and the inevitable adjustments real usage reveals that no amount of planning fully anticipates.",
+          "We provide dedicated post-launch engineering support, proactive monitoring, security patching, and ongoing performance tuning.",
       },
     ],
     faqs: [
       {
-        question: "Do you work with an existing codebase, or only greenfield builds?",
+        question: "Do you work with existing codebases or only greenfield builds?",
         answer:
-          "Both. Many engagements start with an existing platform that needs a rebuild, a migration, or targeted modernization rather than a start from scratch.",
+          "Both. Many engagements involve auditing, refactoring, or modernizing an existing legacy platform, while others are built from scratch.",
       },
       {
-        question: "What does a typical engagement timeline look like?",
+        question: "What is the typical delivery timeline?",
         answer:
-          "It depends on scope, but most platform builds run 8 to 16 weeks from discovery to launch, with smaller feature work delivered in shorter, focused increments.",
+          "A production-ready MVP typically takes 6 to 10 weeks. Comprehensive enterprise portals and SaaS suites span 10 to 16 weeks.",
       },
       {
-        question: "Do you handle ongoing maintenance after launch?",
+        question: "Do you provide ongoing maintenance and SLAs?",
         answer:
-          "Yes. Most clients move into a lighter-weight support arrangement after launch, covering bug fixes, small iterations, and monitoring.",
+          "Yes. We offer structured monthly SLA retainers covering bug fixes, feature evolution, security updates, and performance audits.",
       },
     ],
   },
@@ -113,54 +160,100 @@ export const services = [
     slug: "cybersecurity",
     title: "Cybersecurity",
     shortDescription:
-      "Security reviews, hardening, and governance support for digital operations.",
+      "High-assurance application security reviews, offensive penetration testing, cloud perimeter hardening, and compliance governance.",
     description:
-      "We help teams identify risk, improve secure defaults, and build practical remediation plans that align engineering effort with business exposure. Our approach favors clear, prioritized action over generic checklists so security work fits inside real delivery timelines.",
+      "We help forward-thinking organizations secure their attack surfaces, identify zero-day vulnerabilities, and implement zero-trust engineering standards. We balance theoretical security with pragmatic business operations.",
     outcomes: [
-      "Security posture reviews and audits",
-      "Vulnerability assessment and prioritization",
-      "Access control and identity governance",
-      "Secure application development practices",
-      "Incident response and readiness planning",
-      "Operational risk reporting for leadership",
+      "Application security testing (SAST / DAST)",
+      "Penetration testing & code reviews",
+      "Cloud perimeter & WAF defense tuning",
+      "Zero-trust IAM & session security",
+      "SOC 2 & ISO 27001 audit preparation",
+      "Incident response & forensic runbooks",
+    ],
+    divisions: [
+      {
+        title: "Application Security (AppSec) & Code Auditing",
+        description: "Offensive analysis and rigorous code review to discover vulnerabilities before adversaries exploit them.",
+        deliverables: [
+          "Static & Dynamic Application Security Testing (SAST / DAST)",
+          "OWASP Top 10 Vulnerability Remediation & Secure Architecture Audits",
+          "Penetration Testing for Web Applications, REST APIs & Portals",
+          "Cryptographic Storage Review, Secrets Scanning & Key Management",
+        ],
+        techStack: ["Semgrep", "OWASP ZAP", "Burp Suite", "SonarQube", "TruffleHog"],
+      },
+      {
+        title: "Cloud Infrastructure & Perimeter Defense",
+        description: "Hardening cloud infrastructure, network boundaries, and firewall configurations against unauthorized intrusion.",
+        deliverables: [
+          "AWS, Google Cloud & Azure Security Posture Management (CSPM)",
+          "Web Application Firewall (WAF) Rule Tuning & Layer 7 DDoS Mitigation",
+          "VPC Peering, Subnet Isolation, NAT Gateways & Bastion Host Hardening",
+          "Strict Least-Privilege Identity & Access Management (IAM) Policies",
+        ],
+        techStack: ["Cloudflare Enterprise", "AWS WAF", "Terraform", "GuardDuty", "HashiCorp Vault"],
+      },
+      {
+        title: "Zero-Trust Identity & Session Security",
+        description: "Modern authentication frameworks ensuring only verified actors access corporate systems.",
+        deliverables: [
+          "Enterprise Single Sign-On (SSO), SAML 2.0 & OIDC Federation",
+          "Hardware-Backed Multi-Factor Authentication (MFA) & WebAuthn / Passkeys",
+          "Automated Session Invalidation, IP Geofencing & Brute-Force Rate Limiting",
+          "Machine-to-Machine Mutual TLS (mTLS) & Scoped Service Accounts",
+        ],
+        techStack: ["OAuth 2.0", "OIDC", "JWT / JWE", "WebAuthn", "Redis Rate-Limiter"],
+      },
+      {
+        title: "Regulatory Compliance & Audit Readiness",
+        description: "Transforming internal controls into verifiable compliance evidence for institutional clients.",
+        deliverables: [
+          "SOC 2 Type II Gap Analysis, Policy Authoring & Audit Preparation",
+          "ISO/IEC 27001 Information Security Management System (ISMS) Implementation",
+          "GDPR, UK DPA & CCPA Data Protection Impact Assessments (DPIA)",
+          "Incident Response Playbooks, Tabletop Drills & Forensic Logging",
+        ],
+        techStack: ["Vanta", "Drata", "AuditBoard", "AWS CloudTrail", "Datadog Security"],
+      },
     ],
     process: [
       {
-        title: "Baseline assessment",
+        title: "Threat Modeling & Discovery",
         detail:
-          "We review current architecture, access controls, and existing findings to understand where real risk is concentrated, not just where a scanner flags noise.",
+          "We inventory all assets, data flows, and trust boundaries to build a customized threat model reflecting real-world attack vectors.",
       },
       {
-        title: "Prioritized remediation plan",
+        title: "Offensive Assessment & Verification",
         detail:
-          "Findings are ranked by realistic business impact, not raw severity scores, so engineering effort goes toward what actually reduces exposure first.",
+          "We conduct controlled penetration testing, automated vulnerability scans, and manual code audits to pinpoint active risks.",
       },
       {
-        title: "Guided or hands-on remediation",
+        title: "Prioritized Remediation Engineering",
         detail:
-          "Depending on your team's capacity, we can advise your engineers directly or implement fixes ourselves, tracked to closure rather than left open indefinitely.",
+          "Rather than handing you an unmanageable PDF, we provide actionable code fixes and configuration diffs ranked by business impact.",
       },
       {
-        title: "Ongoing monitoring & reporting",
+        title: "Continuous Verification & Governance",
         detail:
-          "We help set up recurring review cadences and leadership-level reporting so security posture stays visible instead of becoming a once-a-year fire drill.",
+          "We verify fixes, implement continuous security monitoring in your CI/CD pipeline, and prepare leadership compliance reports.",
       },
     ],
     faqs: [
       {
-        question: "Do you perform formal penetration testing?",
+        question: "Do you provide formal penetration testing reports?",
         answer:
-          "We conduct security assessments and vulnerability reviews. For formal, certified penetration testing requiring specific compliance sign-off, we can help scope and coordinate with a specialized partner.",
+          "Yes. We deliver executive summaries and detailed technical findings with reproducible proof-of-concept exploits and remediation code.",
       },
       {
-        question: "Can you help us prepare for a compliance audit?",
+        question: "Can you help us achieve SOC 2 or ISO 27001 compliance?",
         answer:
-          "Yes. We regularly help teams prepare evidence, close control gaps, and build the documentation auditors expect ahead of SOC 2, ISO 27001, or similar reviews.",
+          "Yes. We help organizations draft security policies, implement technical controls, and gather evidence required for third-party audits.",
       },
       {
-        question: "What if you find something serious during a review?",
+        question: "How do you handle critical vulnerabilities found during testing?",
         answer:
-          "We flag critical findings immediately, not at the end of the engagement, along with clear guidance on realistic short-term mitigation while a full fix is planned.",
+          "Critical vulnerabilities are escalated within 1 hour via encrypted communication with immediate mitigation steps.",
       },
     ],
   },
@@ -168,54 +261,100 @@ export const services = [
     slug: "ai-solutions",
     title: "AI Solutions",
     shortDescription:
-      "Internal copilots, automation workflows, and data-enabled tools for operations.",
+      "Autonomous AI agents, enterprise RAG knowledge bases, omnichannel customer copilots, and end-to-end workflow automation.",
     description:
-      "We create practical AI systems that reduce repetitive work, improve response quality, and give teams better visibility into operational decisions. Every rollout includes human review checkpoints and measurable success criteria, so automation earns trust instead of just adding complexity.",
+      "We build high-accuracy AI platforms that eliminate manual operations, streamline customer engagement, and unlock deep insights from proprietary business data. Every deployment includes human-in-the-loop controls and zero data leakage.",
     outcomes: [
-      "Workflow automation and process design",
-      "Internal assistant and copilot design",
-      "Document and data summarization",
-      "Retrieval-augmented knowledge systems",
-      "Model evaluation and quality monitoring",
-      "Responsible rollout and governance planning",
+      "Autonomous AI agent swarms & tool use",
+      "Enterprise RAG on private document bases",
+      "WhatsApp & omnichannel client copilots",
+      "Document parsing & automated data extraction",
+      "Self-hosted private LLM deployments",
+      "Event-driven workflow & CRM automation",
+    ],
+    divisions: [
+      {
+        title: "Autonomous AI Agents & Multi-Agent Workforces",
+        description: "Self-directing autonomous systems executing complex, multi-step business operations with strict safety guardrails.",
+        deliverables: [
+          "Autonomous Task Execution Agents with External Tool Calling & API Actions",
+          "Multi-Agent Orchestration (Planner, Critic, Tool Executor Swarms)",
+          "Human-in-the-Loop Approval Checkpoints & Operational Audit Trails",
+          "Hybrid Short-Term Working Memory & Long-Term Semantic Vector Memory",
+        ],
+        techStack: ["LangGraph", "LangChain", "OpenAI / Claude / Gemini API", "Python", "FastAPI"],
+      },
+      {
+        title: "Enterprise Retrieval-Augmented Generation (RAG)",
+        description: "Domain-specific search and synthesis engines grounded exclusively in your organization's verified knowledge.",
+        deliverables: [
+          "Proprietary Knowledge Base Ingestion & Document Parsing (PDF, Docs, Sheets)",
+          "High-Performance Vector Indexing & Hybrid Keyword/Semantic Search",
+          "Contextual Re-Ranking & Strict Hallucination Elimination Guardrails",
+          "Secure Private & Self-Hosted LLM Deployments (Llama 3.3, Mistral, DeepSeek)",
+        ],
+        techStack: ["pgvector", "Pinecone", "Qdrant", "Unstructured.io", "Cohere Rerank"],
+      },
+      {
+        title: "Omnichannel AI Communications & WhatsApp Copilots",
+        description: "Intelligent conversational interfaces automating customer service, sales qualification, and scheduling.",
+        deliverables: [
+          "Official Meta WhatsApp Cloud API Multi-Tenant Integration & Flow Routing",
+          "Real-Time Context-Aware Lead Qualification & Automated Calendar Booking",
+          "Multi-Lingual Customer Support Copilots with Human Escalation Handover",
+          "Voice-to-Text Transcription & Conversational Intelligence Analytics",
+        ],
+        techStack: ["Meta Graph API", "Whisper", "Vercel AI SDK", "Webhooks", "Redis"],
+      },
+      {
+        title: "Workflow Automation & Enterprise Data Pipelines",
+        description: "Connecting your CRM, ERP, and communication tools into unified, automated event-driven workflows.",
+        deliverables: [
+          "Custom Event-Driven ETL Pipelines & Data Cleaning Engines",
+          "Autonomous CRM Synchronization & Lead Enrichment (HubSpot, Salesforce)",
+          "Automated Document Minting (PDF Invoices, Certificates, Onboarding Packets)",
+          "Real-Time Notification Bridges (Slack, WhatsApp, Telegram, Webhooks)",
+        ],
+        techStack: ["n8n", "Make", "Python", "Celery", "BullMQ", "OpenEmail"],
+      },
     ],
     process: [
       {
-        title: "Identify the right first workflow",
+        title: "High-Impact Workflow Identification",
         detail:
-          "We look for repetitive, measurable tasks with clear success criteria, not the most exciting use case, since tractable workflows are what actually ship successfully.",
+          "We identify high-repetition, data-heavy workflows with measurable ROI, defining precise success benchmarks before coding.",
       },
       {
-        title: "Build with a human checkpoint",
+        title: "Architecture & Guardrail Engineering",
         detail:
-          "The first version always includes human review and a clear fallback path, protecting against early-stage mistakes while the system is still being validated.",
+          "We build retrieval pipelines, vector stores, and prompt architectures with strict guardrails against hallucination and data leakage.",
       },
       {
-        title: "Measure real impact",
+        title: "Controlled Human-in-the-Loop Pilot",
         detail:
-          "We track accuracy, escalation rate, and time saved, not just adoption numbers, so you know whether the system is actually working, not just being used.",
+          "The system is deployed with mandatory human approvals to benchmark accuracy, latency, and operational time savings.",
       },
       {
-        title: "Expand deliberately",
+        title: "Autonomous Scaling & Continuous Tuning",
         detail:
-          "Once a workflow is proven, we expand scope based on evidence, one team and one use case at a time, rather than a risky, all-at-once rollout.",
+          "Once validated, the system operates autonomously with continuous telemetry, prompt refinement, and automated model re-evaluation.",
       },
     ],
     faqs: [
       {
-        question: "Do we need our own data infrastructure before starting?",
+        question: "Is our private company data used to train public models?",
         answer:
-          "Not necessarily. We assess what data is available during discovery and can often start with what you have, improving data infrastructure alongside the automation work itself.",
+          "Never. We use enterprise zero-retention APIs and private VPC/self-hosted vector instances to guarantee complete data confidentiality.",
       },
       {
-        question: "How do you handle AI accuracy and hallucination risk?",
+        question: "How do you prevent hallucinations in customer-facing bots?",
         answer:
-          "Every workflow ships with a human review checkpoint initially, plus explicit tracking of escalation and correction rates, so accuracy is measured, not assumed.",
+          "We enforce strict RAG boundaries, semantic similarity thresholds, and fallback rules so the model only answers from verified documents.",
       },
       {
-        question: "Will this replace our team's jobs?",
+        question: "Can the AI integrate directly with our existing CRM and database?",
         answer:
-          "Our engagements are scoped around reducing repetitive workload, not headcount replacement. Most clients redirect the time saved toward higher-value work.",
+          "Yes. Our solutions connect natively via REST, Webhooks, GraphQL, or direct SQL connections with full audit logging.",
       },
     ],
   },
@@ -223,54 +362,100 @@ export const services = [
     slug: "cloud-engineering",
     title: "Cloud Engineering",
     shortDescription:
-      "Cloud infrastructure, CI/CD pipelines, and reliable deployment systems for growing teams.",
+      "High-availability cloud architecture, Infrastructure as Code, automated CI/CD pipelines, and 24/7 site reliability engineering.",
     description:
-      "We design cloud infrastructure that scales predictably and fails gracefully. From containerized deployments to automated pipelines and observability, we build the operational backbone that keeps applications reliable as usage grows.",
+      "We architect, deploy, and manage resilient cloud infrastructure across AWS, Google Cloud, and Azure. We turn fragile deployments into automated, reproducible, cost-optimized environments built for continuous delivery.",
     outcomes: [
-      "Cloud architecture on AWS, Azure, or GCP",
-      "CI/CD pipeline design and automation",
-      "Containerization and orchestration",
-      "Infrastructure as code",
-      "Monitoring, logging, and alerting",
-      "Cost optimization and capacity planning",
+      "Multi-cloud architecture & migration",
+      "Docker & Kubernetes (K8s) orchestration",
+      "Declarative Infrastructure as Code (Terraform)",
+      "Automated CI/CD testing & deployment",
+      "Full-stack observability & Prometheus metrics",
+      "Cloud cost optimization & 99.99% uptime SLAs",
+    ],
+    divisions: [
+      {
+        title: "Container Orchestration & Microservices",
+        description: "Standardizing application environments and deploying scalable microservices across resilient clusters.",
+        deliverables: [
+          "Production Dockerization with Minimal Multi-Stage Build Footprints",
+          "Kubernetes (EKS, GKE, K8s) Cluster Deployment, Autoscaling & Ingress Routing",
+          "Service Mesh (Istio / Linkerd) for Secure Service-to-Service Communication",
+          "Horizontal Pod Autoscaling (HPA) & Zero-Downtime Rolling Upgrades",
+        ],
+        techStack: ["Docker", "Kubernetes", "Helm", "Envoy", "AWS EKS", "GCP GKE"],
+      },
+      {
+        title: "Infrastructure as Code (IaC) & Cloud Architecture",
+        description: "Declarative, version-controlled cloud provisioning eliminating configuration drift and manual errors.",
+        deliverables: [
+          "Modular Terraform & OpenTofu Architecture for Multi-Cloud Provisioning",
+          "Multi-Region Redundancy & Active-Passive / Active-Active Disaster Recovery",
+          "Global Edge CDN & Serverless Compute Optimization (Vercel, Cloudflare Workers)",
+          "Managed S3-Compatible Object Storage & Secure Asset Vaults",
+        ],
+        techStack: ["Terraform", "OpenTofu", "AWS CloudFormation", "Vercel", "Cloudflare"],
+      },
+      {
+        title: "Continuous Integration & Automated Delivery (CI/CD)",
+        description: "Automating the journey from pull request to verified production deployment with zero downtime.",
+        deliverables: [
+          "GitHub Actions & GitLab CI Fast Automated Test & Build Pipelines",
+          "Automated Security Vulnerability Scanning & Dependency Audits",
+          "Ephemeral PR Preview Environments for Rapid Stakeholder Review",
+          "Automated Semantic Versioning, Container Image Pushes & Rollback Strategies",
+        ],
+        techStack: ["GitHub Actions", "GitLab CI", "ArgoCD", "Docker Hub", "Trivy"],
+      },
+      {
+        title: "Site Reliability Engineering (SRE) & Observability",
+        description: "Full-stack telemetry and proactive monitoring guaranteeing continuous uptime and rapid incident response.",
+        deliverables: [
+          "Full-Stack Metrics, Telemetry & Distributed Tracing (Prometheus, OpenTelemetry)",
+          "Custom Operational Grafana & Datadog Performance Dashboards",
+          "Centralized Log Aggregation with Structured Querying (Loki, Vector, OpenSearch)",
+          "Automated Alerting, Health Probing & PagerDuty On-Call Integration",
+        ],
+        techStack: ["Prometheus", "Grafana", "Datadog", "OpenTelemetry", "Loki", "PagerDuty"],
+      },
     ],
     process: [
       {
-        title: "Assess current infrastructure",
+        title: "Workload & Cost Baseline Audit",
         detail:
-          "We review existing traffic patterns, deployment practices, and cost structure to design for the next realistic order of magnitude, not a hypothetical future scale.",
+          "We analyze your current infrastructure, traffic surges, single points of failure, and cloud spending inefficiencies.",
       },
       {
-        title: "Build reproducible environments",
+        title: "Declarative IaC Blueprinting",
         detail:
-          "Infrastructure as code and consistent environments come first, since this reduces operational risk on every deployment more than any single scaling pattern.",
+          "We codify the entire target architecture in modular Terraform scripts, enabling reproducible environments across regions.",
       },
       {
-        title: "Automate the deployment pipeline",
+        title: "Zero-Downtime Staged Migration",
         detail:
-          "CI/CD is designed around your team's actual release cadence, with rollback paths and testing gates that catch problems before they reach production.",
+          "Workloads and databases are migrated incrementally using DNS traffic shifting, ensuring zero interruption to live users.",
       },
       {
-        title: "Establish cost & reliability visibility",
+        title: "Telemetry & 24/7 SRE Enablement",
         detail:
-          "Tagging, monitoring, and cost dashboards are set up from day one, so spend and system health are visible before they become a surprise.",
+          "We instrument distributed tracing, real-time alerts, and automated runbooks to maintain 99.99% operational uptime.",
       },
     ],
     faqs: [
       {
-        question: "Which cloud providers do you work with?",
+        question: "Which cloud providers do you support?",
         answer:
-          "We work across AWS, Azure, and GCP, and help teams choose the right provider based on existing tooling, team familiarity, and cost structure rather than a default preference.",
+          "We specialize in AWS, Google Cloud, Azure, and modern edge platforms like Vercel and Cloudflare.",
       },
       {
-        question: "Can you migrate us from a different cloud provider?",
+        question: "Can you reduce our current monthly cloud bill?",
         answer:
-          "Yes. Migrations are planned incrementally, one service or workload at a time, to minimize downtime risk and keep the system operable throughout the transition.",
+          "Yes. Typical infrastructure audits identify 20% to 45% savings through rightsizing, reserved instances, and caching.",
       },
       {
-        question: "Do you help reduce our existing cloud costs?",
+        question: "How do you handle database failovers?",
         answer:
-          "Cost review is part of most engagements. We typically find meaningful savings in unused resources, oversized instances, and untagged spend before recommending any new investment.",
+          "We configure automated multi-AZ replication with health probes that switch traffic seamlessly in under 30 seconds.",
       },
     ],
   },
@@ -278,54 +463,100 @@ export const services = [
     slug: "ui-ux-product-design",
     title: "UI/UX & Product Design",
     shortDescription:
-      "Research-informed interface design that turns complex workflows into clear digital products.",
+      "Research-grounded digital product design, comprehensive enterprise design systems, and conversion-engineered interfaces.",
     description:
-      "We design interfaces that hold up under real operational use, not just first impressions. From information architecture to interaction detail, our design process stays grounded in the workflows people actually rely on every day.",
+      "We craft interfaces that withstand operational load and complex user workflows. From intuitive information architecture to production-faithful design systems, we bridge the gap between aesthetic excellence and engineering reality.",
     outcomes: [
-      "User research and journey mapping",
-      "Information architecture and wireframing",
-      "Design systems and component libraries",
-      "High-fidelity interface design",
-      "Usability testing and iteration",
-      "Design-to-development handoff",
+      "User journey mapping & information architecture",
+      "Tokenized enterprise design systems",
+      "High-fidelity web & mobile interface design",
+      "WCAG 2.1 AA/AAA accessibility compliance",
+      "Frictionless checkout & conversion funnels",
+      "Zero-ambiguity developer handoff specs",
+    ],
+    divisions: [
+      {
+        title: "Product Strategy & Information Architecture",
+        description: "Grounding software interfaces in cognitive ergonomics, user workflows, and structural clarity.",
+        deliverables: [
+          "User Journey Mapping, Task Flows & Comprehensive Information Architecture",
+          "Product Requirements Document (PRD) Translation into Actionable Wireframes",
+          "Competitor Analysis, Heuristic Benchmarking & User Persona Modeling",
+          "Low-Fidelity Clickable Prototypes for Rapid Stakeholder Validation",
+        ],
+        techStack: ["Figma", "FigJam", "Miro", "Whimsical", "UserTesting"],
+      },
+      {
+        title: "High-Assurance Design Systems & Component Libraries",
+        description: "Building scalable, accessible design systems that bridge the gap between design and production code.",
+        deliverables: [
+          "Tokenized Multi-Theme Design Systems (Dark/Light Mode Variables in Figma)",
+          "WCAG 2.1 AA/AAA Accessibility Standard Compliance & Keyboard Navigation",
+          "Reusable Component Libraries Mirroring Production React/Tailwind Code",
+          "Comprehensive UI Documentation, Style Guides & Micro-Copy Standards",
+        ],
+        techStack: ["Figma Design Tokens", "Tailwind CSS", "Radix UI", "Storybook"],
+      },
+      {
+        title: "High-Fidelity UI Design & Micro-Interactions",
+        description: "Crafting ergonomic, modern interfaces that make complex enterprise software effortless to use.",
+        deliverables: [
+          "Pixel-Perfect Responsive Layouts for Mobile, Tablet & Desktop Workstations",
+          "Fluid CSS & Framer Motion Animation Specs for State Transitions & Feedback",
+          "Touch-Optimized Mobile Interfaces & High-Density Enterprise Tables",
+          "High-Converting Checkout, Registration & Onboarding Experience Design",
+        ],
+        techStack: ["Figma", "Framer Motion", "Tailwind CSS", "Lucide Icons"],
+      },
+      {
+        title: "Usability Auditing & Conversion Engineering",
+        description: "Eliminating user friction points and optimizing funnels for maximum retention and revenue.",
+        deliverables: [
+          "Comprehensive Usability Audits & Friction Point Elimination Reports",
+          "A/B Testing Hypothesis Formation & Funnel Optimization Experiments",
+          "Core Web Vitals Visual Performance Tuning (CLS & LCP Optimization)",
+          "Zero-Ambiguity Engineering Handoff Packages with Interactive Specs",
+        ],
+        techStack: ["Hotjar", "Google Analytics 4", "PostHog", "Lighthouse", "Figma Dev Mode"],
+      },
     ],
     process: [
       {
-        title: "Understand the real workflow",
+        title: "User & Workflow Research",
         detail:
-          "We start with how people actually work today, not an idealized version, since interfaces designed against real friction hold up far better in practice.",
+          "We study the real operational friction points of your users, mapping task paths and information hierarchies.",
       },
       {
-        title: "Structure before styling",
+        title: "Structural Wireframing & Prototyping",
         detail:
-          "Information architecture and wireframes come before visual design, so the underlying structure is validated before time is spent on visual polish.",
+          "We build interactive wireframes to validate usability, navigation speed, and content density before visual styling.",
       },
       {
-        title: "Design in context",
+        title: "Design System & Component Authoring",
         detail:
-          "High-fidelity screens are designed and reviewed within realistic data and content, not lorem ipsum, so edge cases surface before development begins.",
+          "We author a comprehensive Figma design system with tokens, states, and responsive variants directly mapped to Tailwind CSS.",
       },
       {
-        title: "Test and hand off cleanly",
+        title: "Production Handoff & QA Review",
         detail:
-          "Usability testing catches friction early, and a detailed design-to-development handoff keeps implementation faithful to the intended experience.",
+          "We deliver pixel-exact specs with animation timings and conduct visual QA reviews on implemented frontend code.",
       },
     ],
     faqs: [
       {
-        question: "Do you design and build, or just design?",
+        question: "Do you supply production Figma files?",
         answer:
-          "Both, depending on the engagement. Many clients use our design work alongside our own engineering team; others take our designs to their in-house developers.",
+          "Yes. You receive full ownership of clean, componentized Figma source files organized with variables and autolayout.",
       },
       {
-        question: "Do you conduct user research, or just visual design?",
+        question: "Do you design for accessibility standards?",
         answer:
-          "Research is part of most engagements, ranging from lightweight stakeholder interviews to structured usability testing, depending on project scope and timeline.",
+          "Always. All color contrasts, typography scales, focus states, and tap targets meet WCAG 2.1 AA requirements.",
       },
       {
-        question: "Can you work within our existing design system?",
+        question: "Can you work directly alongside our developers?",
         answer:
-          "Yes, and we're equally comfortable helping build one from scratch if none exists yet, or extending a partial system into something more complete and consistent.",
+          "Yes. We speak developer language, write CSS/Tailwind, and participate in sprint planning to ensure flawless execution.",
       },
     ],
   },

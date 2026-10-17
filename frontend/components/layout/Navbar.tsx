@@ -151,20 +151,6 @@ export default function Navbar() {
 
   return (
     <header className="sticky top-0 z-50 border-b border-ink/10 bg-canvas/95 supports-[backdrop-filter]:bg-canvas/85 supports-[backdrop-filter]:backdrop-blur-xl">
-      {/* Official status banner — the previous copy said "at 12:00 AM" with no
-          date, so it read as permanently imminent. This states what changed and
-          links to the story behind it. */}
-      <div className="flex items-center justify-center gap-2 border-b border-tint-warm-line bg-tint-warm px-4 py-1.5 text-center font-mono text-[11px] tracking-wide text-ink sm:text-xs">
-        <span className="inline-block h-2 w-2 shrink-0 rounded-full bg-signal" aria-hidden="true" />
-        <span>
-          <strong>Official Notice:</strong> Qorlune LLC now operates all services under one group —{" "}
-          <Link href="/about" className="underline decoration-tint-warm-line underline-offset-2 transition-colors hover:text-action hover:decoration-action">
-            read the announcement
-          </Link>
-          .
-        </span>
-      </div>
-
       {/* M-stripe rail — signature brand element (literal tricolor) */}
       <div className="m-stripe" aria-hidden="true" />
 

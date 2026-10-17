@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { CheckCircle2 } from "lucide-react";
+import { CheckCircle2, ChevronRight } from "lucide-react";
 
 import {
   Card,
@@ -106,8 +106,80 @@ export default async function ServiceDetailPage({
         imageTitle={service.title}
         imageCaption={service.shortDescription}
       >
-        <PrimaryButton href="/contact">Discuss This Service</PrimaryButton>
       </PageHero>
+
+      {service.divisions && service.divisions.length > 0 && (
+        <Section className="bg-canvas" labelledBy="service-divisions">
+          <SectionHeader
+            id="service-divisions"
+            eyebrow="Architecture & Scope"
+            title="Technical Divisions & Concrete Deliverables"
+            description="Every service engagement is partitioned into distinct technical divisions with rigorous deliverable specifications."
+          />
+          <div className="mt-12 grid gap-6 md:grid-cols-2">
+            {service.divisions.map((division, dIdx) => (
+              <div
+                key={division.title}
+                className="group relative flex flex-col justify-between border border-ink/10 bg-surface p-6 transition-all hover:border-action/50 hover:shadow-lg sm:p-8"
+              >
+                <div>
+                  <div className="flex items-center justify-between gap-2 border-b border-ink/10 pb-4">
+                    <span className="font-mono text-[12px] font-bold text-action">
+                      {service.title} &gt; Div 0{dIdx + 1}
+                    </span>
+                    <span className="rounded bg-ink/5 px-2 py-0.5 font-mono text-[10px] uppercase tracking-wider text-ink/60">
+                      Standard Module
+                    </span>
+                  </div>
+
+                  <h3 className="mt-4 text-[20px] font-bold uppercase tracking-tight text-ink group-hover:text-action transition-colors">
+                    {division.title}
+                  </h3>
+
+                  <p className="mt-2 text-[14px] leading-relaxed text-ink/65">
+                    {division.description}
+                  </p>
+
+                  <div className="mt-6 border-t border-ink/5 pt-4">
+                    <p className="font-mono text-[11px] font-semibold uppercase tracking-wider text-ink/45">
+                      Included Deliverables:
+                    </p>
+                    <ul className="mt-3 space-y-2">
+                      {division.deliverables.map((item) => (
+                        <li
+                          key={item}
+                          className="flex items-start gap-2 text-[14px] leading-snug text-ink/85"
+                        >
+                          <ChevronRight className="mt-0.5 h-3.5 w-3.5 shrink-0 text-action" />
+                          <span>{item}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+
+                {division.techStack && division.techStack.length > 0 && (
+                  <div className="mt-6 border-t border-ink/10 pt-4">
+                    <div className="flex flex-wrap items-center gap-1.5">
+                      <span className="font-mono text-[10px] uppercase tracking-wider text-ink/40 mr-1">
+                        Stack:
+                      </span>
+                      {division.techStack.map((tech) => (
+                        <span
+                          key={tech}
+                          className="rounded border border-ink/10 bg-ink/[0.03] px-2 py-0.5 font-mono text-[10px] font-medium text-ink/70"
+                        >
+                          {tech}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </Section>
+      )}
 
       <Section className="bg-surface" labelledBy="service-outcomes">
         <div className="grid gap-10 lg:grid-cols-[1.1fr_0.9fr] lg:items-start">
