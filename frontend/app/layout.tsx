@@ -10,7 +10,7 @@ import { organizationSchema, localBusinessSchema, websiteSchema } from "@/lib/sc
 export const metadata: Metadata = {
   metadataBase: new URL(appConfig.siteUrl),
   title: {
-    default: "Qorlune — Enterprise Digital Engineering, Cybersecurity & AI Systems",
+    default: "Qorlune LLC",
     template: "%s | Qorlune",
   },
   description:
@@ -46,16 +46,16 @@ export const metadata: Metadata = {
     siteName: company.name,
     locale: "en_US",
     url: appConfig.siteUrl,
-    title: "Qorlune | Web Development, Cybersecurity & AI Services",
+    title: "Qorlune LLC",
     description:
-      "Full-stack web development, cybersecurity consulting, AI automation, and cloud engineering. Security-first engineering, delivered globally.",
-    images: [{ url: "/og-qorlune.png", width: 1200, height: 630, alt: "Qorlune - Digital Technology Firm" }],
+      "High-assurance digital platforms, custom AI automation, and zero-trust engineering.",
+    images: [{ url: "/og-qorlune.png", width: 1200, height: 630, alt: "Qorlune LLC" }],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Qorlune | Web Development, Cybersecurity & AI",
+    title: "Qorlune LLC",
     description:
-      "Full-stack web development, cybersecurity, AI automation, and cloud engineering — security-first, globally delivered.",
+      "High-assurance digital platforms, custom AI automation, and zero-trust engineering.",
     images: ["/og-qorlune.png"],
   },
   robots: { index: true, follow: true },
