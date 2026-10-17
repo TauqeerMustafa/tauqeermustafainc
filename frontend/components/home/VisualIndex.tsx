@@ -17,7 +17,17 @@ export default function VisualIndex() {
   ];
 
   return (
-    <Section className="overflow-hidden bg-canvas" labelledBy="visual-index-title">
+    <Section className="relative overflow-hidden" labelledBy="visual-index-title">
+      {/* Background image tech grid texture */}
+      <div 
+        className="pointer-events-none absolute inset-0 -z-10 bg-cover bg-center opacity-20 mix-blend-screen"
+        style={{ backgroundImage: "url('/images/tech-grid-bg.jpg')" }}
+        aria-hidden="true"
+      />
+      <div 
+        className="pointer-events-none absolute inset-0 -z-10 bg-gradient-to-b from-[#040e27]/60 via-transparent to-[#040e27]/60"
+        aria-hidden="true"
+      />
       <SectionHeader
         id="visual-index-title"
         eyebrow="Visual direction"

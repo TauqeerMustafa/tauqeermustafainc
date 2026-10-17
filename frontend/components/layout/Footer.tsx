@@ -26,8 +26,15 @@ const socialLinks = [
 
 export default function Footer() {
   return (
-    <footer className="relative bg-[#040e27] text-white border-t border-[#1e273d]" aria-labelledby="footer-heading">
+    <footer className="relative bg-[#040e27]/95 overflow-hidden text-white border-t border-[#1e273d]" aria-labelledby="footer-heading">
       <h2 id="footer-heading" className="sr-only">Footer</h2>
+
+      {/* Background image subtle overlay */}
+      <div 
+        className="pointer-events-none absolute inset-0 -z-10 bg-cover bg-bottom opacity-15 mix-blend-screen"
+        style={{ backgroundImage: "url('/images/site-bg.jpg')" }}
+        aria-hidden="true"
+      />
 
       {/* M-stripe rail — literal tricolor brand signature */}
       <div className="flex h-1" aria-hidden>
