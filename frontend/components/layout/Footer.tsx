@@ -1,32 +1,22 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Mail, MapPin, Phone } from "lucide-react";
-import {
-  FaFacebookF,
-  FaGithub,
-  FaInstagram,
-  FaLinkedin,
-  FaXTwitter,
-  FaYoutube,
-} from "react-icons/fa6";
+import { FaGithub, FaLinkedin, FaXTwitter } from "react-icons/fa6";
 
 import { company } from "@/data/company";
 import { footerLinks, navigation } from "@/lib/site-data";
 
-/* ── Deep Oxford Navy Footer (#040e27) — Divider (#1e273d), Muted (#919191) ── */
+/* ── BMW M footer — theme-flipping canvas, M-stripe rail, mono labels ── */
 
 const socialLinks = [
-  { name: "Facebook",  href: "https://facebook.com/qorlune",                    icon: FaFacebookF },
-  { name: "X",         href: company.social.twitter ?? "https://x.com/qorlune", icon: FaXTwitter },
-  { name: "Instagram", href: "https://instagram.com/qorlune",                   icon: FaInstagram },
-  { name: "LinkedIn",  href: company.social.linkedin,                           icon: FaLinkedin },
-  { name: "GitHub",    href: company.social.github,                             icon: FaGithub },
-  { name: "YouTube",   href: "https://youtube.com/@qorlune",                    icon: FaYoutube },
+  { name: "GitHub",   href: company.social.github,   icon: FaGithub },
+  { name: "LinkedIn", href: company.social.linkedin,  icon: FaLinkedin },
+  { name: "X",        href: company.social.twitter ?? "https://x.com/qorlune", icon: FaXTwitter },
 ];
 
 export default function Footer() {
   return (
-    <footer className="relative bg-[#040e27] text-white border-t border-[#1e273d]" aria-labelledby="footer-heading">
+    <footer className="relative bg-surface" aria-labelledby="footer-heading">
       <h2 id="footer-heading" className="sr-only">Footer</h2>
 
       {/* M-stripe rail — literal tricolor brand signature */}
@@ -45,15 +35,15 @@ export default function Footer() {
           <div className="max-w-sm">
             <Link
               href="/"
-              className="inline-flex items-center gap-2.5 text-[15px] font-bold uppercase tracking-[0.01em] text-white transition-opacity hover:opacity-80"
+              className="inline-flex items-center gap-2.5 text-[15px] font-bold uppercase tracking-[0.01em] text-ink transition-opacity hover:opacity-80"
             >
-              <span className="relative flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden border border-[#1e273d] bg-white/5">
+              <span className="relative flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden border border-ink/15 bg-ink/[0.06]">
                 <Image src="/logo.png" alt={company.name} fill sizes="36px" className="object-contain p-0.5" />
               </span>
               {company.name}
             </Link>
 
-            <p className="mt-5 text-[15px] font-light leading-[1.6] tracking-[-0.01em] text-[#919191]">
+            <p className="mt-5 text-[15px] font-light leading-[1.6] tracking-[-0.01em] text-ink/55">
               {company.description.split(".")[0]}.
             </p>
 
@@ -61,7 +51,7 @@ export default function Footer() {
               <li>
                 <a
                   href={`mailto:${company.email}`}
-                  className="flex items-center gap-2.5 text-[14px] font-light tracking-[-0.01em] text-[#919191] transition-colors hover:text-white"
+                  className="flex items-center gap-2.5 text-[14px] font-light tracking-[-0.01em] text-ink/60 transition-colors hover:text-action"
                 >
                   <Mail className="h-4 w-4 shrink-0 text-action" aria-hidden="true" />
                   {company.email}
@@ -70,7 +60,7 @@ export default function Footer() {
               <li>
                 <a
                   href={`tel:${company.phone.replace(/\s+/g, "")}`}
-                  className="flex items-center gap-2.5 text-[14px] font-light tracking-[-0.01em] text-[#919191] transition-colors hover:text-white"
+                  className="flex items-center gap-2.5 text-[14px] font-light tracking-[-0.01em] text-ink/60 transition-colors hover:text-action"
                 >
                   <Phone className="h-4 w-4 shrink-0 text-action" aria-hidden="true" />
                   {company.phone}
@@ -79,11 +69,11 @@ export default function Footer() {
               {company.offices.map((office) => (
                 <li
                   key={office.label}
-                  className="flex items-start gap-2.5 text-[14px] font-light tracking-[-0.01em] text-[#919191]"
+                  className="flex items-start gap-2.5 text-[14px] font-light tracking-[-0.01em] text-ink/60"
                 >
                   <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-action" aria-hidden="true" />
                   <span>
-                    <span className="block font-mono text-[10px] font-semibold uppercase tracking-[0.1em] text-[#919191]/60">
+                    <span className="block font-mono text-[10px] font-semibold uppercase tracking-[0.1em] text-ink/40">
                       {office.label}
                     </span>
                     {office.address}
@@ -91,6 +81,21 @@ export default function Footer() {
                 </li>
               ))}
             </ul>
+
+            <div className="mt-7 flex gap-2.5">
+              {socialLinks.map((social) => (
+                <a
+                  key={social.name}
+                  href={social.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={social.name}
+                  className="flex h-10 w-10 items-center justify-center border border-ink/12 bg-ink/[0.04] text-ink/60 transition-colors hover:border-action hover:bg-action hover:text-on-action"
+                >
+                  <social.icon className="h-4 w-4" aria-hidden="true" />
+                </a>
+              ))}
+            </div>
           </div>
 
           {/* Nav columns */}
@@ -110,7 +115,7 @@ export default function Footer() {
                     <li key={item.name}>
                       <Link
                         href={item.href}
-                        className="text-[14px] font-light tracking-[-0.01em] text-[#919191] transition-colors hover:text-white"
+                        className="text-[14px] font-light tracking-[-0.01em] text-ink/60 transition-colors hover:text-action"
                       >
                         {item.name}
                       </Link>
@@ -122,43 +127,21 @@ export default function Footer() {
           </div>
         </div>
 
-        {/* ── Social Row + Hairline Divider + Copyright Bar (matching reference screenshot) ── */}
-        <div className="mt-16">
-          {/* Social icons row centered above the divider */}
-          <div className="flex items-center justify-center gap-8 pb-10 text-[#919191]">
-            {socialLinks.map((social) => (
-              <a
-                key={social.name}
-                href={social.href}
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label={social.name}
-                className="transition-colors hover:text-white"
+        {/* ── Bottom bar ── */}
+        <div className="mt-14 flex flex-col gap-4 border-t border-ink/10 pt-8 sm:flex-row sm:items-center sm:justify-between">
+          <p className="font-mono text-[11px] uppercase tracking-[0.08em] text-ink/40">
+            &copy; <span suppressHydrationWarning>{new Date().getFullYear()}</span> {company.legalName}. All rights reserved.
+          </p>
+          <div className="flex flex-wrap gap-6">
+            {footerLinks.legal.map((item) => (
+              <Link
+                key={item.name}
+                href={item.href}
+                className="font-mono text-[11px] uppercase tracking-[0.08em] text-ink/40 transition-colors hover:text-ink"
               >
-                <social.icon className="h-5 w-5" aria-hidden="true" />
-              </a>
+                {item.name}
+              </Link>
             ))}
-          </div>
-
-          {/* Full-width continuous divider line (#1e273d) */}
-          <div className="w-full border-t border-[#1e273d]" />
-
-          {/* Bottom copyright and legal links */}
-          <div className="flex flex-col gap-4 pt-8 sm:flex-row sm:items-center sm:justify-between">
-            <p className="font-mono text-[12px] uppercase tracking-[0.08em] text-[#919191]">
-              Copyright &copy; <span suppressHydrationWarning>{new Date().getFullYear()}</span> {company.legalName}. All rights reserved.
-            </p>
-            <div className="flex flex-wrap gap-6">
-              {footerLinks.legal.map((item) => (
-                <Link
-                  key={item.name}
-                  href={item.href}
-                  className="font-mono text-[11px] uppercase tracking-[0.08em] text-[#919191] transition-colors hover:text-white"
-                >
-                  {item.name}
-                </Link>
-              ))}
-            </div>
           </div>
         </div>
 

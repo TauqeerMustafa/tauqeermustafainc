@@ -205,65 +205,70 @@
    Opacity utilities (text-ink/60, bg-ink/[0.06]) also invert because
    --ink flips white↔near-black. */
 .dark {
-  --canvas:        #040e27;  /* Deep Oxford Navy — user reference palette */
-  --surface:       #07122e;  /* Elevated Navy Plate */
-  --surface-2:     #0c1b40;  /* Deeper navy tile / table head / hover */
-  --card:          #06102a;
+  --canvas:        #000000;
+  --surface:       #0c0c0d;
+  --surface-2:     #17171a;
+  --card:          #101012;
   --ink:           #ffffff;
   --ink-2:         #d6d6d6;
-  --ink-muted:     #919191;  /* Screenshot exact muted text */
-  --line:          #1e273d;  /* Screenshot exact divider border */
-  --line-2:        #293856;
-  --action:        #1c69d4;  /* BMW action blue */
-  --action-strong: #0b53b8;
+  --ink-muted:     #9a9aa0;
+  --line:          #26262a;
+  --line-2:        #35353c;
+  --action:        #2f7de0;   /* a touch brighter to hold up on black */
+  --action-strong: #1c69d4;
   --on-action:     #ffffff;
-  --signal:        #f37338;  /* Light Signal Orange */
+  --signal:        #f37338;   /* Light Signal Orange reads on black   */
   --dot-grid:      rgba(255,255,255,0.06);
 
-  /* Atmospheric tints · DARK — rich midnight navy fields */
-  --tint-blue:     #091738;
-  --tint-blue-2:   #0f2352;
-  --tint-warm:     #1b161c;
-  --tint-warm-2:   #271e22;
-  --tint-rose:     #1b131c;
-  --tint-rose-2:   #2a1c27;
-  --tint-teal:     #071b26;
-  --tint-teal-2:   #0a2838;
-  --tint-blue-line:#1e2f52;
-  --tint-warm-line:#38272f;
-  --tint-rose-line:#3a202c;
-  --tint-teal-line:#183748;
+  /* Atmospheric tints · DARK — a 6–10% lift of the same brand signals
+     against pure black. Kept deliberately dim: on BMW M black the band
+     should read as "tinted", never as a lit panel. */
+  --tint-blue:    #0a1524;
+  --tint-blue-2:  #0f1e33;
+  --tint-warm:    #1c110b;
+  --tint-warm-2:  #29180f;
+  --tint-rose:    #1b0f0e;
+  --tint-rose-2:  #291413;
+  --tint-teal:    #081915;
+  --tint-teal-2:  #0c231d;
+  --tint-blue-line: #1a2f4d;
+  --tint-warm-line: #3a2418;
+  --tint-rose-line: #381c19;
+  --tint-teal-line: #17342d;
 
   /* shadcn / base compat — flip alongside the semantic tokens */
   --background:            var(--canvas);
   --foreground:            var(--ink);
   --card-foreground:       #ffffff;
-  --popover:               #07122e;
+  --popover:               #101012;
   --popover-foreground:    #ffffff;
-  --secondary:             #0c1b40;
+  --secondary:             #17171a;
   --secondary-foreground:  #ffffff;
-  --muted:                 #0c1b40;
-  --muted-foreground:      #919191;
-  --accent:                #0c1b40;
+  --muted:                 #17171a;
+  --muted-foreground:      #9a9aa0;
+  --accent:                #17171a;
   --accent-foreground:     #ffffff;
-  --border:                #1e273d;
-  --input:                 #1e273d;
-  --ring:                  #1c69d4;
+  --border:                #26262a;
+  --input:                 #26262a;
+  --ring:                  #2f7de0;
 
-  /* ── Portal panel tokens · DARK ──────────────────────────────────────
-     Deep Oxford Navy canvas with hairline #1e273d borders and #919191 muted meta. */
-  --adm-bg:           #040e27;  /* Deep Oxford Navy canvas           */
-  --adm-surface:      #07122e;  /* elevated navy plate               */
-  --adm-surface-2:    #0c1b40;  /* elevated tile / hover             */
-  --adm-border:       #1e273d;  /* hairline matching divider         */
-  --adm-border-2:     #293856;  /* stronger dark outline            */
-  --adm-text:         #ffffff;  /* white display / primary          */
-  --adm-text-2:       #d6d6d6;  /* readable body copy                */
-  --adm-text-3:       #919191;  /* muted tertiary                    */
+  /* ── Portal panel tokens · DARK (BMW M — pure black) ───────────────
+     BMW M's home turf: a true-black canvas, near-black plates lifted only by
+     a hairline (no glow), #b8b8b4 body copy, and the brighter action blue
+     that holds up on black. Shadows are effectively nil — depth is the
+     hairline, not a blur. */
+  --adm-bg:           #000000;  /* BMW M pure black canvas            */
+  --adm-surface:      #101012;  /* near-black plate                   */
+  --adm-surface-2:    #1a1a1d;  /* elevated tile / hover              */
+  --adm-border:       #262629;  /* dark hairline                     */
+  --adm-border-2:     #3a3a3f;  /* stronger dark outline             */
+  --adm-text:         #ffffff;  /* white display / primary           */
+  --adm-text-2:       #b8b8b4;  /* BMW M body copy                   */
+  --adm-text-3:       #7a7a7e;  /* muted tertiary                    */
   --adm-ink:          #ffffff;
-  --adm-blue:         #1c69d4;  /* BMW action blue                   */
-  --adm-blue-light:   #0c1b40;
-  --adm-blue-mid:     #0066b1;
+  --adm-blue:         #2f7de0;  /* BMW action blue, brightened for black */
+  --adm-blue-light:   #12233b;
+  --adm-blue-mid:     #1c69d4;
   --adm-green:        #34c759;
   --adm-green-light:  #0e2a18;
   --adm-amber:        #ffb020;
