@@ -57,6 +57,27 @@
      avoid the collision. Used for the eyebrow dot and nothing else. */
   --signal:        #cf4500;  /* Mastercard Signal Orange */
 
+  /* ═══ Atmospheric tints · LIGHT ══════════════════════════════════════
+     Faded colour fields that sit UNDER the cream canvas. Each is a 3–6%
+     wash of a brand signal — action blue, signal orange, M-red, plus one
+     teal that extends the palette without inventing a new hero colour.
+     They are painted as full-bleed section bands, never as text colour,
+     so contrast stays on the ink tokens. Hover states step one notch
+     deeper (--tint-*-2) so a card reacts without shouting. */
+  --tint-blue:    #eef3fb;
+  --tint-blue-2:  #e0eafa;
+  --tint-warm:    #fdf1ea;
+  --tint-warm-2:  #fae2d5;
+  --tint-rose:    #fceeec;
+  --tint-rose-2:  #f9dcd8;
+  --tint-teal:    #e9f4f2;
+  --tint-teal-2:  #d8ebe7;
+  /* Hairline companions — a tinted section gets a tinted edge, not a grey one */
+  --tint-blue-line: #cddcf4;
+  --tint-warm-line: #f2d3c3;
+  --tint-rose-line: #f0cbc6;
+  --tint-teal-line: #c7e1dc;
+
   /* ── Surface palette ── */
   /* Warm cream (Mastercard) — default light background */
   --canvas-cream:   #f3f0ee;
@@ -199,6 +220,22 @@
   --signal:        #f37338;   /* Light Signal Orange reads on black   */
   --dot-grid:      rgba(255,255,255,0.06);
 
+  /* Atmospheric tints · DARK — a 6–10% lift of the same brand signals
+     against pure black. Kept deliberately dim: on BMW M black the band
+     should read as "tinted", never as a lit panel. */
+  --tint-blue:    #0a1524;
+  --tint-blue-2:  #0f1e33;
+  --tint-warm:    #1c110b;
+  --tint-warm-2:  #29180f;
+  --tint-rose:    #1b0f0e;
+  --tint-rose-2:  #291413;
+  --tint-teal:    #081915;
+  --tint-teal-2:  #0c231d;
+  --tint-blue-line: #1a2f4d;
+  --tint-warm-line: #3a2418;
+  --tint-rose-line: #381c19;
+  --tint-teal-line: #17342d;
+
   /* shadcn / base compat — flip alongside the semantic tokens */
   --background:            var(--canvas);
   --foreground:            var(--ink);
@@ -279,6 +316,20 @@
   --color-action-strong: var(--action-strong);
   --color-on-action:     var(--on-action);
   --color-signal:        var(--signal);
+  /* Atmospheric tint fields — full-bleed section bands and card washes.
+     `bg-tint-blue`, `hover:bg-tint-blue-2`, `border-tint-blue-line` … */
+  --color-tint-blue:      var(--tint-blue);
+  --color-tint-blue-2:    var(--tint-blue-2);
+  --color-tint-warm:      var(--tint-warm);
+  --color-tint-warm-2:    var(--tint-warm-2);
+  --color-tint-rose:      var(--tint-rose);
+  --color-tint-rose-2:    var(--tint-rose-2);
+  --color-tint-teal:      var(--tint-teal);
+  --color-tint-teal-2:    var(--tint-teal-2);
+  --color-tint-blue-line: var(--tint-blue-line);
+  --color-tint-warm-line: var(--tint-warm-line);
+  --color-tint-rose-line: var(--tint-rose-line);
+  --color-tint-teal-line: var(--tint-teal-line);
   /* M tricolor — literal brand signature, never theme-flipped */
   --color-m-blue:        #0066b1;
   --color-m-blue-mid:    #1c69d4;

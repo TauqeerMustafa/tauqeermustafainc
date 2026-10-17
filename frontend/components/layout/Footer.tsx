@@ -51,7 +51,7 @@ export default function Footer() {
               <li>
                 <a
                   href={`mailto:${company.email}`}
-                  className="flex items-center gap-2.5 text-[14px] font-light tracking-[-0.01em] text-ink/60 transition-colors hover:text-ink"
+                  className="flex items-center gap-2.5 text-[14px] font-light tracking-[-0.01em] text-ink/60 transition-colors hover:text-action"
                 >
                   <Mail className="h-4 w-4 shrink-0 text-action" aria-hidden="true" />
                   {company.email}
@@ -60,7 +60,7 @@ export default function Footer() {
               <li>
                 <a
                   href={`tel:${company.phone.replace(/\s+/g, "")}`}
-                  className="flex items-center gap-2.5 text-[14px] font-light tracking-[-0.01em] text-ink/60 transition-colors hover:text-ink"
+                  className="flex items-center gap-2.5 text-[14px] font-light tracking-[-0.01em] text-ink/60 transition-colors hover:text-action"
                 >
                   <Phone className="h-4 w-4 shrink-0 text-action" aria-hidden="true" />
                   {company.phone}
@@ -115,7 +115,7 @@ export default function Footer() {
                     <li key={item.name}>
                       <Link
                         href={item.href}
-                        className="text-[14px] font-light tracking-[-0.01em] text-ink/60 transition-colors hover:text-ink"
+                        className="text-[14px] font-light tracking-[-0.01em] text-ink/60 transition-colors hover:text-action"
                       >
                         {item.name}
                       </Link>

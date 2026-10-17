@@ -1,6 +1,9 @@
 export const company = {
   name: "Qorlune LLC",
 
+  /** Registered legal entity — what the copyright line and JSON-LD must say. */
+  legalName: "Qorlune LLC",
+
   shortName: "Qorlune",
 
   tagline: "Engineering that ships. Security that holds.",

@@ -11,7 +11,7 @@ export default function FAQ() {
 
   return (
     <>
-      <Section className="bg-surface" labelledBy="faq-title">
+      <Section className="bg-tint-warm" labelledBy="faq-title">
         <SectionHeader
           id="faq-title"
           eyebrow="FAQ"

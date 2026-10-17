@@ -14,7 +14,7 @@ const reasons = [
 
 export default function WhyChooseUs() {
   return (
-    <Section className="bg-surface-2" labelledBy="why-title">
+    <Section className="bg-tint-rose" labelledBy="why-title">
       <div className="grid gap-14 lg:grid-cols-2 lg:gap-20">
         <div className="lg:sticky lg:top-32 lg:self-start">
           <MStripe />

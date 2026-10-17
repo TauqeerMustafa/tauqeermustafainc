@@ -4,107 +4,127 @@ import { appConfig } from "@/config/app";
 import { jobs, posts, projects, services } from "@/lib/site-data";
 import { ALL_DOCS } from "@/data/docs-registry";
 
-export default function sitemap(): MetadataRoute.Sitemap {
-  const now = new Date();
+/**
+ * The main-site sitemap.
+ *
+ * A sitemap file may only advertise URLs on ONE host. This previously mixed
+ * qorlune.co.uk, docs.qorlune.co.uk, billing.qorlune.co.uk,
+ * support.qorlune.co.uk, portals.qorlune.co.uk and community.qorlune.co.uk
+ * into a single file — cross-host entries are ignored by Google, so the
+ * subdomains were never actually indexed through it.
+ *
+ * Subdomains are served from the same Next app (the proxy rewrites them), so
+ * `sitemap.xml` must vary by host. `buildHostSitemap` below is the single
+ * source of truth; each host gets only its own routes.
+ */
 
-  // 1. Primary Corporate Domain Routes (qorlune.co.uk)
-  const mainRoutes = [
-    { url: "", changeFrequency: "weekly", priority: 1.0 },
-    { url: "/about", changeFrequency: "monthly", priority: 0.8 },
-    { url: "/services", changeFrequency: "monthly", priority: 0.9 },
-    { url: "/portfolio", changeFrequency: "weekly", priority: 0.8 },
-    { url: "/blog", changeFrequency: "weekly", priority: 0.7 },
-    { url: "/careers", changeFrequency: "weekly", priority: 0.7 },
-    { url: "/contact", changeFrequency: "monthly", priority: 0.8 },
-    { url: "/success-story", changeFrequency: "monthly", priority: 0.7 },
-  ] as const;
+const MAIN_ROUTES = [
+  { url: "", changeFrequency: "weekly" as const, priority: 1.0 },
+  { url: "/about", changeFrequency: "monthly" as const, priority: 0.8 },
+  { url: "/services", changeFrequency: "monthly" as const, priority: 0.9 },
+  { url: "/portfolio", changeFrequency: "weekly" as const, priority: 0.8 },
+  { url: "/blog", changeFrequency: "weekly" as const, priority: 0.7 },
+  { url: "/careers", changeFrequency: "weekly" as const, priority: 0.7 },
+  { url: "/contact", changeFrequency: "monthly" as const, priority: 0.8 },
+  { url: "/success-story", changeFrequency: "monthly" as const, priority: 0.7 },
+];
 
-  const staticMainSitemap: MetadataRoute.Sitemap = mainRoutes.map((route) => ({
-    url: `${appConfig.siteUrl}${route.url}`,
+const DOCS_ROUTES = [
+  { url: "", changeFrequency: "weekly" as const, priority: 0.8 },
+  ...ALL_DOCS.map((doc) => ({
+    url: `/${doc.slug}`,
+    changeFrequency: "monthly" as const,
+    priority: 0.7,
+  })),
+];
+
+const BILLING_ROUTES = [
+  { url: "", changeFrequency: "monthly" as const, priority: 0.8 },
+  { url: "/pay", changeFrequency: "monthly" as const, priority: 0.8 },
+  { url: "/payouts", changeFrequency: "monthly" as const, priority: 0.7 },
+  { url: "/policies", changeFrequency: "monthly" as const, priority: 0.6 },
+];
+
+const SUPPORT_ROUTES = [
+  { url: "", changeFrequency: "daily" as const, priority: 0.8 },
+  { url: "/ticket", changeFrequency: "monthly" as const, priority: 0.7 },
+  { url: "/status", changeFrequency: "always" as const, priority: 0.8 },
+  { url: "/faq", changeFrequency: "weekly" as const, priority: 0.7 },
+  { url: "/contact", changeFrequency: "monthly" as const, priority: 0.7 },
+];
+
+const COMMUNITY_ROUTES = [
+  { url: "", changeFrequency: "weekly" as const, priority: 0.8 },
+  { url: "/guidelines", changeFrequency: "monthly" as const, priority: 0.5 },
+  { url: "/members", changeFrequency: "weekly" as const, priority: 0.6 },
+];
+
+export type SitemapHost = "main" | "docs" | "billing" | "support" | "community";
+
+function entriesFor(
+  origin: string,
+  routes: ReadonlyArray<{ url: string; changeFrequency: MetadataRoute.Sitemap[number]["changeFrequency"]; priority: number }>,
+  now: Date,
+): MetadataRoute.Sitemap {
+  return routes.map((route) => ({
+    url: `${origin}${route.url}`,
     lastModified: now,
     changeFrequency: route.changeFrequency,
     priority: route.priority,
   }));
+}
 
-  // 2. Dynamic Content on Main Domain
-  const serviceRoutes: MetadataRoute.Sitemap = services.map((service) => ({
-    url: `${appConfig.siteUrl}/services/${service.slug}`,
-    lastModified: now,
-    changeFrequency: "monthly",
-    priority: 0.8,
-  }));
+/** Build the sitemap for one host. Exported so a host-aware route can reuse it. */
+export function buildHostSitemap(host: SitemapHost, now = new Date()): MetadataRoute.Sitemap {
+  const apex = appConfig.siteUrl.replace(/\/$/, "");
 
-  const projectRoutes: MetadataRoute.Sitemap = projects.map((project) => ({
-    url: `${appConfig.siteUrl}/portfolio/${project.slug}`,
-    lastModified: now,
-    changeFrequency: "monthly",
-    priority: 0.7,
-  }));
+  switch (host) {
+    case "docs":
+      return entriesFor("https://docs.qorlune.co.uk", DOCS_ROUTES, now);
+    case "billing":
+      return entriesFor("https://billing.qorlune.co.uk", BILLING_ROUTES, now);
+    case "support":
+      return entriesFor("https://support.qorlune.co.uk", SUPPORT_ROUTES, now);
+    case "community":
+      return entriesFor("https://community.qorlune.co.uk", COMMUNITY_ROUTES, now);
+    default: {
+      const main = entriesFor(apex, MAIN_ROUTES, now);
+      const serviceRoutes = services.map((service) => ({
+        url: `${apex}/services/${service.slug}`,
+        lastModified: now,
+        changeFrequency: "monthly" as const,
+        priority: 0.8,
+      }));
+      const projectRoutes = projects.map((project) => ({
+        url: `${apex}/portfolio/${project.slug}`,
+        lastModified: now,
+        changeFrequency: "monthly" as const,
+        priority: 0.7,
+      }));
+      const postRoutes = posts.map((post) => ({
+        url: `${apex}/blog/${post.slug}`,
+        lastModified: now,
+        changeFrequency: "monthly" as const,
+        priority: 0.6,
+      }));
+      const jobRoutes = jobs.map((job) => ({
+        url: `${apex}/careers/${job.slug}`,
+        lastModified: now,
+        changeFrequency: "weekly" as const,
+        priority: 0.6,
+      }));
+      return [...main, ...serviceRoutes, ...projectRoutes, ...postRoutes, ...jobRoutes];
+    }
+  }
+}
 
-  const postRoutes: MetadataRoute.Sitemap = posts.map((post) => ({
-    url: `${appConfig.siteUrl}/blog/${post.slug}`,
-    lastModified: now,
-    changeFrequency: "monthly",
-    priority: 0.6,
-  }));
-
-  const jobRoutes: MetadataRoute.Sitemap = jobs.map((job) => ({
-    url: `${appConfig.siteUrl}/careers/${job.slug}`,
-    lastModified: now,
-    changeFrequency: "weekly",
-    priority: 0.6,
-  }));
-
-  // 3. Documentation & Policy Portal (docs.qorlune.co.uk)
-  const docsHubRoute: MetadataRoute.Sitemap = [
-    {
-      url: "https://docs.qorlune.co.uk",
-      lastModified: now,
-      changeFrequency: "weekly",
-      priority: 0.8,
-    },
-  ];
-
-  const docDetailRoutes: MetadataRoute.Sitemap = ALL_DOCS.map((doc) => ({
-    url: `https://docs.qorlune.co.uk/${doc.slug}`,
-    lastModified: now,
-    changeFrequency: "monthly",
-    priority: 0.7,
-  }));
-
-  // 4. Billing & Treasury Suite (billing.qorlune.co.uk)
-  const billingRoutes: MetadataRoute.Sitemap = [
-    { url: "https://billing.qorlune.co.uk", lastModified: now, changeFrequency: "monthly", priority: 0.8 },
-    { url: "https://billing.qorlune.co.uk/pay", lastModified: now, changeFrequency: "monthly", priority: 0.8 },
-    { url: "https://billing.qorlune.co.uk/payouts", lastModified: now, changeFrequency: "monthly", priority: 0.7 },
-    { url: "https://billing.qorlune.co.uk/policies", lastModified: now, changeFrequency: "monthly", priority: 0.6 },
-  ];
-
-  // 5. Customer Support & Helpdesk Hub (support.qorlune.co.uk)
-  const supportRoutes: MetadataRoute.Sitemap = [
-    { url: "https://support.qorlune.co.uk", lastModified: now, changeFrequency: "daily", priority: 0.8 },
-    { url: "https://support.qorlune.co.uk/ticket", lastModified: now, changeFrequency: "monthly", priority: 0.7 },
-    { url: "https://support.qorlune.co.uk/status", lastModified: now, changeFrequency: "always", priority: 0.8 },
-    { url: "https://support.qorlune.co.uk/faq", lastModified: now, changeFrequency: "weekly", priority: 0.7 },
-    { url: "https://support.qorlune.co.uk/contact", lastModified: now, changeFrequency: "monthly", priority: 0.7 },
-  ];
-
-  // 6. Portals & Community
-  const networkRoutes: MetadataRoute.Sitemap = [
-    { url: "https://portals.qorlune.co.uk", lastModified: now, changeFrequency: "monthly", priority: 0.7 },
-    { url: "https://community.qorlune.co.uk", lastModified: now, changeFrequency: "weekly", priority: 0.7 },
-  ];
-
-  return [
-    ...staticMainSitemap,
-    ...serviceRoutes,
-    ...projectRoutes,
-    ...postRoutes,
-    ...jobRoutes,
-    ...docsHubRoute,
-    ...docDetailRoutes,
-    ...billingRoutes,
-    ...supportRoutes,
-    ...networkRoutes,
-  ];
+/**
+ * Next calls this without request context, so it always returns the apex
+ * (main) host — the canonical sitemap at https://qorlune.co.uk/sitemap.xml.
+ * The host-specific builders above are exported for a future per-host
+ * sitemap route; until one exists, subdomains are intentionally omitted
+ * rather than advertised from the wrong host.
+ */
+export default function sitemap(): MetadataRoute.Sitemap {
+  return buildHostSitemap("main");
 }

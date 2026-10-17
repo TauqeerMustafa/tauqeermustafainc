@@ -14,7 +14,7 @@ export default function LatestBlogs() {
   const [featuredPost, ...otherPosts] = posts.slice(0, 3);
 
   return (
-    <Section className="bg-surface-2" labelledBy="blogs-title">
+    <Section className="bg-tint-teal" labelledBy="blogs-title">
       <SectionHeader
         id="blogs-title"
         eyebrow="Latest Insights"

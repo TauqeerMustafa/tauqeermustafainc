@@ -14,7 +14,9 @@ import WhatsAppChat from "@/components/whatsapp/WhatsAppChat";
 import { buildMetadata } from "@/lib/metadata";
 
 export const metadata: Metadata = buildMetadata({
-  title: "Qorlune | Web Development, Cybersecurity & AI Services",
+  // The root layout's template already appends "| Qorlune" — repeating the
+  // brand here produced "…Services | Qorlune | Qorlune" in the live <title>.
+  title: "Web Development, Cybersecurity & AI Services",
   description:
     "Custom web development, cybersecurity consulting, AI automation, cloud engineering, and product design. Security-first engineering for businesses worldwide — built by Qorlune.",
   path: "/",

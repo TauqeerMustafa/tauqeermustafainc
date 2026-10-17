@@ -16,7 +16,7 @@ const phases = [
 
 export default function OperatingModel() {
   return (
-    <Section className="bg-surface" labelledBy="operating-model-title">
+    <Section className="bg-tint-blue" labelledBy="operating-model-title">
       <div className="grid gap-12 lg:grid-cols-[1fr_0.85fr] lg:items-center">
         <Reveal variant={fadeLeft}>
           <MStripe />

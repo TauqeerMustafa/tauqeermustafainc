@@ -24,7 +24,7 @@ const principles = [
 
 export default function AboutPreview() {
   return (
-    <Section className="bg-surface" labelledBy="about-title">
+    <Section className="bg-tint-teal" labelledBy="about-title">
       <div className="grid gap-16 lg:grid-cols-2 lg:items-start lg:gap-20">
 
         <Reveal variant={fadeLeft} className="order-2 lg:order-1">

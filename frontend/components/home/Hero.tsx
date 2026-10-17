@@ -12,7 +12,13 @@ import { imageLibrary } from "@/data/media";
 export default function Hero() {
   return (
     /* bg-canvas: pure black in dark mode, pure white in light mode */
-    <section className="relative overflow-hidden bg-canvas px-5 pb-20 pt-24 sm:px-6 sm:pt-32 lg:pt-40" aria-label="Hero">
+    <section className="relative overflow-hidden bg-tint-blue px-5 pb-20 pt-24 sm:px-6 sm:pt-32 lg:pt-40" aria-label="Hero">
+      {/* Faded colour field — two soft brand washes bleeding into the canvas.
+          Decorative only, so it never affects contrast or layout. */}
+      <div className="pointer-events-none absolute inset-0" aria-hidden>
+        <div className="absolute -left-40 -top-40 h-[34rem] w-[34rem] rounded-full bg-action/[0.07] blur-3xl" />
+        <div className="absolute -right-32 top-24 h-[28rem] w-[28rem] rounded-full bg-signal/[0.06] blur-3xl" />
+      </div>
       {/* M-stripe — signature brand element at top (literal tricolor — never theme-flipped) */}
       <div className="absolute left-0 right-0 top-0 m-stripe" />
 

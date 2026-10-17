@@ -13,8 +13,6 @@ import {
   LifeBuoy,
   Menu,
   ShieldCheck,
-  Smartphone,
-  Users,
   X,
 } from "lucide-react";
 
@@ -73,7 +71,24 @@ function getSubdomainHref(sub: string) {
 }
 
 const linkClass =
-  "relative flex h-9 items-center px-3 font-mono text-[11px] font-semibold uppercase tracking-[0.1em] text-ink/55 transition-colors hover:text-ink focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-action";
+  "relative flex h-9 items-center px-3 font-mono text-[11px] font-semibold uppercase tracking-[0.1em] text-ink/55 transition-colors hover:bg-tint-blue hover:text-action focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-action";
+
+/**
+ * Close the menus when the route changes.
+ *
+ * This runs during render rather than in an effect: `pathname` is available
+ * synchronously, and calling setState here is React's documented "adjust state
+ * when a prop changes" pattern. The previous version did it inside
+ * `useEffect`, which the react-hooks lint rule flags and which produced an
+ * extra render pass on every navigation.
+ */
+function useCloseOnNavigate(pathname: string, close: () => void) {
+  const [lastPath, setLastPath] = useState(pathname);
+  if (lastPath !== pathname) {
+    setLastPath(pathname);
+    close();
+  }
+}
 
 export default function Navbar() {
   const pathname = usePathname();
@@ -103,12 +118,11 @@ export default function Navbar() {
     setIsDropdownOpen((prev) => !prev);
   }
 
-  // Close menus on route change
-  useEffect(() => {
+  // Close menus on route change (state adjustment during render, not an effect)
+  useCloseOnNavigate(pathname, () => {
     setIsDropdownOpen(false);
-    const closeMenu = window.setTimeout(() => setIsOpen(false), 0);
-    return () => window.clearTimeout(closeMenu);
-  }, [pathname]);
+    setIsOpen(false);
+  });
 
   // Close dropdown on click outside
   useEffect(() => {
@@ -137,10 +151,18 @@ export default function Navbar() {
 
   return (
     <header className="sticky top-0 z-50 border-b border-ink/10 bg-canvas/95 supports-[backdrop-filter]:bg-canvas/85 supports-[backdrop-filter]:backdrop-blur-xl">
-      {/* 12:00 AM Takeover Notification Banner */}
-      <div className="bg-ink text-canvas px-4 py-1.5 text-center text-[11px] sm:text-xs font-mono tracking-wide flex items-center justify-center gap-2 border-b border-ink/20">
-        <span className="inline-block h-2 w-2 rounded-full bg-red-500 animate-pulse shrink-0" aria-hidden="true" />
-        <span><strong>Official Notice:</strong> Qorlune officially takes over full operations at 12:00 AM.</span>
+      {/* Official status banner — the previous copy said "at 12:00 AM" with no
+          date, so it read as permanently imminent. This states what changed and
+          links to the story behind it. */}
+      <div className="flex items-center justify-center gap-2 border-b border-tint-warm-line bg-tint-warm px-4 py-1.5 text-center font-mono text-[11px] tracking-wide text-ink sm:text-xs">
+        <span className="inline-block h-2 w-2 shrink-0 rounded-full bg-signal" aria-hidden="true" />
+        <span>
+          <strong>Official Notice:</strong> Qorlune LLC now operates all services under one group —{" "}
+          <Link href="/about" className="underline decoration-tint-warm-line underline-offset-2 transition-colors hover:text-action hover:decoration-action">
+            read the announcement
+          </Link>
+          .
+        </span>
       </div>
 
       {/* M-stripe rail — signature brand element (literal tricolor) */}
@@ -231,7 +253,7 @@ export default function Navbar() {
                         target="_blank"
                         rel="noopener noreferrer"
                         onClick={() => setIsDropdownOpen(false)}
-                        className="group/tag flex items-center justify-between border border-transparent bg-ink/[0.03] dark:bg-white/[0.04] px-3 py-2 text-ink dark:text-white transition-all hover:border-action hover:bg-action/[0.08] hover:text-action focus-visible:outline focus-visible:outline-2 focus-visible:outline-action"
+                        className="group/tag flex items-center justify-between border border-transparent bg-ink/[0.03] dark:bg-white/[0.04] px-3 py-2 text-ink dark:text-white transition-all hover:border-action hover:bg-tint-blue-2 hover:text-action focus-visible:outline focus-visible:outline-2 focus-visible:outline-action"
                         role="menuitem"
                       >
                         <span className="flex items-center gap-2">
@@ -315,7 +337,7 @@ export default function Navbar() {
                       target="_blank"
                       rel="noopener noreferrer"
                       onClick={() => setIsOpen(false)}
-                      className="block border-l-2 border-transparent px-4 py-2.5 font-mono text-[11px] font-semibold uppercase tracking-[0.1em] text-ink/60 transition hover:border-action hover:bg-ink/[0.06] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-action"
+                      className="block border-l-2 border-transparent px-4 py-2.5 font-mono text-[11px] font-semibold uppercase tracking-[0.1em] text-ink/60 transition hover:border-action hover:bg-tint-blue hover:text-action focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-action"
                     >
                       <div className="flex items-center justify-between">
                         <span className="flex items-center gap-1.5">

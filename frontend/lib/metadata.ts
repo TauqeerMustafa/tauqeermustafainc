@@ -6,7 +6,7 @@ export function buildMetadata({
   title,
   description,
   path = "/",
-  image = "https://images.unsplash.com/photo-1518186285589-2f7649de83e0?auto=format&fit=crop&w=1600&q=80",
+  image = "/og-qorlune.png",
   noIndex = false,
 }: {
   title: string;

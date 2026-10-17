@@ -13,7 +13,7 @@ const tags = ["WEB", "SEC", "AI", "CLOUD", "UX"];
 
 export default function CoreServices() {
   return (
-    <Section className="bg-surface-2" labelledBy="core-services-title">
+    <Section className="bg-tint-warm" labelledBy="core-services-title">
       <div className="grid gap-12 lg:grid-cols-12 lg:gap-16">
 
         <Reveal variant={fadeLeft} className="lg:col-span-5">

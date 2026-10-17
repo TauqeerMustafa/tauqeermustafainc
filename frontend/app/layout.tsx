@@ -49,14 +49,14 @@ export const metadata: Metadata = {
     title: "Qorlune | Web Development, Cybersecurity & AI Services",
     description:
       "Full-stack web development, cybersecurity consulting, AI automation, and cloud engineering. Security-first engineering, delivered globally.",
-    images: [{ url: "https://images.unsplash.com/photo-1518186285589-2f7649de83e0?auto=format&fit=crop&w=1600&q=80", width: 1200, height: 630, alt: "Qorlune - Digital Technology Firm" }],
+    images: [{ url: "/og-qorlune.png", width: 1200, height: 630, alt: "Qorlune - Digital Technology Firm" }],
   },
   twitter: {
     card: "summary_large_image",
     title: "Qorlune | Web Development, Cybersecurity & AI",
     description:
       "Full-stack web development, cybersecurity, AI automation, and cloud engineering — security-first, globally delivered.",
-    images: ["https://images.unsplash.com/photo-1518186285589-2f7649de83e0?auto=format&fit=crop&w=1600&q=80"],
+    images: ["/og-qorlune.png"],
   },
   robots: { index: true, follow: true },
   verification: {
