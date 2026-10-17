@@ -16,21 +16,26 @@
  */
 export const OPENEMAIL_API_URL = "https://api.open.email/api/v1";
 
-// .tech accounts (All 84 employees)
+// .co.uk primary accounts (all company departments)
 export const OPENEMAIL_TECH_API_KEY =
   process.env.OPENEMAIL_TECH_API_KEY ||
   process.env.OPENEMAIL_API_KEY ||
-  "oek_vLhzeeO6fO_owBMaIIkLLzFPAWezb9I-f5H7isSGYug";
+  "oek_QvxyNrk1tAOyYzAlisEuyRa5mP3LRxSJmaZc_vaJ7es";
 
-// .com accounts (ceo@ and notifications@ on qorlune.com)
+// .com fallback accounts
 export const OPENEMAIL_COM_API_KEY =
   process.env.OPENEMAIL_COM_API_KEY ||
-  "oek_MB82hkIw8oJa0h-MG0mODJ1i5vHmInjB0Y3JWtH3NVo";
+  "oek_QvxyNrk1tAOyYzAlisEuyRa5mP3LRxSJmaZc_vaJ7es";
 
 function authHeaders(json = false, customToken?: string): HeadersInit {
   const token = customToken || OPENEMAIL_TECH_API_KEY;
   if (!token) throw new Error("OPENEMAIL_API_KEY is missing");
-  const headers: Record<string, string> = { Authorization: `Bearer ${token}` };
+  const headers: Record<string, string> = {
+    Authorization: `Bearer ${token}`,
+    "User-Agent":
+      "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36",
+    Accept: "application/json",
+  };
   if (json) headers["Content-Type"] = "application/json";
   return headers;
 }
@@ -74,20 +79,30 @@ export async function fetchOpenEmailMailboxes() {
   const [techRes, comRes, routesRes] = await Promise.allSettled([
     oeFetch(`/identities`, undefined, OPENEMAIL_TECH_API_KEY),
     oeFetch(`/identities`, undefined, OPENEMAIL_COM_API_KEY),
-    oeFetch(`/routes`, undefined, OPENEMAIL_TECH_API_KEY),
+    oeFetch(`/routes?limit=100`, undefined, OPENEMAIL_TECH_API_KEY),
   ]);
 
   const techList = techRes.status === "fulfilled" ? extractList(techRes.value) : [];
   const comList = comRes.status === "fulfilled" ? extractList(comRes.value) : [];
-  const routeList =
-    routesRes.status === "fulfilled" && Array.isArray((routesRes.value as any)?.routes)
-      ? (routesRes.value as any).routes
-          .filter((r: any) => r.destinationType === "mailbox" && r.mailboxId && r.address)
-          .map((r: any) => ({
-            id: r.mailboxId,
-            primaryAddress: r.address,
-          }))
-      : [];
+  const rawRoutes = routesRes.status === "fulfilled" && Array.isArray((routesRes.value as any)?.routes)
+    ? (routesRes.value as any).routes
+    : [];
+
+  // Also attempt page 2 if cursor exists
+  let extraRoutes: any[] = [];
+  if (routesRes.status === "fulfilled" && (routesRes.value as any)?.nextCursor) {
+    try {
+      const p2 = await oeFetch(`/routes?limit=100&cursor=${encodeURIComponent((routesRes.value as any).nextCursor)}`, undefined, OPENEMAIL_TECH_API_KEY);
+      if (Array.isArray(p2?.routes)) extraRoutes = p2.routes;
+    } catch {}
+  }
+
+  const routeList = [...rawRoutes, ...extraRoutes]
+    .filter((r: any) => r.destinationType === "mailbox" && r.mailboxId && r.address)
+    .map((r: any) => ({
+      id: r.mailboxId,
+      primaryAddress: r.address,
+    }));
 
   const seen = new Set<string>();
   const merged: any[] = [];
