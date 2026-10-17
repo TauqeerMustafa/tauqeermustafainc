@@ -32,7 +32,7 @@ export const company = {
       city: "New Orleans, United States",
       address: "1808 Orleans Ave, New Orleans, LA 70116, United States",
       mapEmbedUrl:
-        "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3456.883726715694!2d-90.0768!3d29.9675!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x8620a61a0d859e91%3A0x6b45d2e3f4347712!2s1808%20Orleans%20Ave%2C%20New%20Orleans%2C%20LA%2070116!5e0!3m2!1sen!2sus",
+        "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3456.4971033504817!2d-90.07737629016616!3d29.96514072222164!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x8620a50056d541c1%3A0xd62188e30053c7ed!2sQorlune!5e0!3m2!1sen!2s!4v1792247708181!5m2!1sen!2s",
     },
   ],
 
@@ -51,7 +51,7 @@ export const company = {
   },
 
   mapEmbedUrl:
-    "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3456.883726715694!2d-90.0768!3d29.9675!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x8620a61a0d859e91%3A0x6b45d2e3f4347712!2s1808%20Orleans%20Ave%2C%20New%20Orleans%2C%20LA%2070116!5e0!3m2!1sen!2sus",
+    "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3456.4971033504817!2d-90.07737629016616!3d29.96514072222164!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x8620a50056d541c1%3A0xd62188e30053c7ed!2sQorlune!5e0!3m2!1sen!2s!4v1792247708181!5m2!1sen!2s",
 
   phone: "+1 711-249-4712",
 

@@ -1,4 +1,7 @@
+import { company } from "@/data/company";
+
 export default function OfficeMap() {
+  const office = company.offices[0];
   return (
     <section className="overflow-hidden rounded-none border border-white/10 bg-white/5 backdrop-blur-xl">
 
@@ -8,13 +11,13 @@ export default function OfficeMap() {
         </h2>
 
         <p className="mt-3 text-slate-400">
-          We work with clients worldwide while operating from Pakistan.
+          {office.address}
         </p>
       </div>
 
       <iframe
-        title="Office Location"
-        src="https://www.google.com/maps?q=Islamabad,Pakistan&output=embed"
+        title={`${company.name} — ${office.label}`}
+        src={office.mapEmbedUrl}
         loading="lazy"
         allowFullScreen
         referrerPolicy="no-referrer-when-downgrade"
