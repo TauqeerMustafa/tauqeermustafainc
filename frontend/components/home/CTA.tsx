@@ -9,9 +9,15 @@ import { Reveal, scaleIn } from "./ui";
 
 export default function CTA() {
   return (
-    <section className="relative px-5 py-20 sm:px-6 sm:py-24 lg:py-32">
+    <section className="relative overflow-hidden px-5 py-20 sm:px-6 sm:py-24 lg:py-32">
+      {/* Background image tech grid texture */}
+      <div 
+        className="pointer-events-none absolute inset-0 -z-10 bg-cover bg-center opacity-20 mix-blend-screen"
+        style={{ backgroundImage: "url('/images/tech-grid-bg.jpg')" }}
+        aria-hidden="true"
+      />
       <Reveal variant={scaleIn} className="mx-auto max-w-4xl">
-        <div className="relative overflow-hidden rounded-[24px] border border-line/20 bg-surface/85 backdrop-blur-xl px-8 py-12 text-center shadow-2xl sm:px-12 sm:py-16 lg:px-16 lg:py-20">
+        <div className="relative overflow-hidden rounded-[24px] border border-[#1e273d] bg-[#07122e]/85 backdrop-blur-xl px-8 py-12 text-center shadow-2xl sm:px-12 sm:py-16 lg:px-16 lg:py-20">
           {/* M-stripe top accent — literal brand tricolor */}
           <div className="absolute left-0 right-0 top-0 flex h-1">
             <span className="flex-1 bg-m-blue" />

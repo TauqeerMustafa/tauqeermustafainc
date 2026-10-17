@@ -13,7 +13,17 @@ const tags = ["WEB", "SEC", "AI", "CLOUD", "UX"];
 
 export default function CoreServices() {
   return (
-    <Section labelledBy="core-services-title">
+    <Section className="relative overflow-hidden" labelledBy="core-services-title">
+      {/* Background image circuit texture */}
+      <div 
+        className="pointer-events-none absolute inset-0 -z-10 bg-cover bg-center opacity-25 mix-blend-screen"
+        style={{ backgroundImage: "url('/images/cyber-circuit.jpg')" }}
+        aria-hidden="true"
+      />
+      <div 
+        className="pointer-events-none absolute inset-0 -z-10 bg-gradient-to-b from-[#040e27]/85 via-[#040e27]/40 to-[#040e27]/85"
+        aria-hidden="true"
+      />
       <div className="grid gap-12 lg:grid-cols-12 lg:gap-16">
 
         <Reveal variant={fadeLeft} className="lg:col-span-5">

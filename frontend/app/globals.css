@@ -43,9 +43,9 @@
      on these (bg-canvas / text-ink / border-line / bg-action …) so the
      whole site inverts with one class on <html>. The M tricolor stripe
      stays literal (see --m-* + .m-stripe) — it is brand, not theme. */
-  --canvas:        transparent;  /* Transparent — SiteBackground handles the backdrop in both themes */
-  --surface:       rgba(252, 251, 250, 0.88);  /* Frosted cream plate — paper over photo */
-  --surface-2:     rgba(234, 229, 225, 0.90);  /* deeper tile / table head / hover   */
+  --canvas:        #f3f0ee;  /* Canvas Cream — never sterile white */
+  --surface:       #fcfbfa;  /* Lifted Cream — paper laid on paper */
+  --surface-2:     #eae5e1;  /* deeper tile / table head / hover   */
   --ink-2:         #3c3c3c;  /* secondary text              */
   --line-2:        #c8c0b8;  /* stronger hairline / outline */
   --action:        #1c69d4;  /* the single BMW action blue  */

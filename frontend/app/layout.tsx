@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 import { AppProviders } from "@/providers";
-import SiteBackground from "@/components/layout/SiteBackground";
 import { cn } from "@/lib/utils";
 import { appConfig } from "@/config/app";
 import { company } from "@/data/company";
@@ -93,9 +92,19 @@ export default function RootLayout({
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdSchemas) }}
         />
       </head>
-      <body className="relative flex min-h-screen flex-col overflow-x-hidden bg-canvas text-ink">
+      <body className="relative flex min-h-screen flex-col overflow-x-hidden bg-[#040e27] text-ink antialiased">
+        {/* Full-site global background image wallpaper layer (fixed across whole site) */}
+        <div
+          className="fixed inset-0 -z-50 pointer-events-none bg-cover bg-center bg-no-repeat bg-fixed opacity-70"
+          style={{ backgroundImage: "url('/images/site-bg.jpg')" }}
+          aria-hidden="true"
+        />
+        {/* Atmospheric vignette & dark navy gradient wash */}
+        <div
+          className="fixed inset-0 -z-40 pointer-events-none bg-gradient-to-b from-[#040e27]/40 via-transparent to-[#040e27]/80"
+          aria-hidden="true"
+        />
         <AppProviders>
-          <SiteBackground />
           {children}
         </AppProviders>
       </body>

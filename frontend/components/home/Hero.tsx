@@ -12,6 +12,16 @@ import { imageLibrary } from "@/data/media";
 export default function Hero() {
   return (
     <section className="relative overflow-hidden px-5 pb-20 pt-24 sm:px-6 sm:pt-32 lg:pt-40" aria-label="Hero">
+      {/* Hero perspective background image texture */}
+      <div 
+        className="pointer-events-none absolute inset-0 -z-10 bg-cover bg-center opacity-65 mix-blend-screen"
+        style={{ backgroundImage: "url('/images/site-bg.jpg')" }}
+        aria-hidden="true"
+      />
+      <div 
+        className="pointer-events-none absolute inset-0 -z-10 bg-gradient-to-b from-[#040e27]/30 via-transparent to-[#040e27]"
+        aria-hidden="true"
+      />
       {/* Faded colour field — two soft brand washes bleeding into the canvas */}
       <div className="pointer-events-none absolute inset-0" aria-hidden>
         <div className="absolute -left-40 -top-40 h-[34rem] w-[34rem] rounded-full bg-action/[0.07] blur-3xl" />
