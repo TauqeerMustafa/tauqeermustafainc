@@ -150,7 +150,7 @@ export default function Navbar() {
   }, []);
 
   return (
-    <header className="sticky top-0 z-50 border-b border-[#1e273d] bg-[#040e27]/80 backdrop-blur-xl supports-[backdrop-filter]:bg-[#040e27]/75">
+    <header className="sticky top-0 z-50 border-b border-ink/10 bg-canvas/95 supports-[backdrop-filter]:bg-canvas/85 supports-[backdrop-filter]:backdrop-blur-xl">
       {/* M-stripe rail — signature brand element (literal tricolor) */}
       <div className="m-stripe" aria-hidden="true" />
 

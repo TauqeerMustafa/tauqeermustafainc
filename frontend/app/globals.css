@@ -205,10 +205,10 @@
    Opacity utilities (text-ink/60, bg-ink/[0.06]) also invert because
    --ink flips white↔near-black. */
 .dark {
-  --canvas:        transparent;  /* Transparent canvas so the global background image is visible across the entire website */
-  --surface:       rgba(7, 18, 46, 0.78);   /* Frosted glass navy plate */
-  --surface-2:     rgba(12, 27, 64, 0.88);  /* Deeper navy tile / table head / hover */
-  --card:          rgba(6, 16, 42, 0.82);   /* Frosted glass card */
+  --canvas:        #040e27;  /* Deep Oxford Navy — user reference palette */
+  --surface:       #07122e;  /* Elevated Navy Plate */
+  --surface-2:     #0c1b40;  /* Deeper navy tile / table head / hover */
+  --card:          #06102a;
   --ink:           #ffffff;
   --ink-2:         #d6d6d6;
   --ink-muted:     #919191;  /* Screenshot exact muted text */
@@ -218,17 +218,17 @@
   --action-strong: #0b53b8;
   --on-action:     #ffffff;
   --signal:        #f37338;  /* Light Signal Orange */
-  --dot-grid:      rgba(255,255,255,0.04);
+  --dot-grid:      rgba(255,255,255,0.06);
 
-  /* Atmospheric tints · DARK — translucent atmospheric washes over background image */
-  --tint-blue:     rgba(9, 23, 56, 0.35);
-  --tint-blue-2:   rgba(15, 35, 82, 0.5);
-  --tint-warm:     rgba(27, 22, 28, 0.35);
-  --tint-warm-2:   rgba(39, 30, 34, 0.5);
-  --tint-rose:     rgba(27, 19, 28, 0.35);
-  --tint-rose-2:   rgba(42, 28, 39, 0.5);
-  --tint-teal:     rgba(7, 27, 38, 0.35);
-  --tint-teal-2:   rgba(10, 40, 56, 0.5);
+  /* Atmospheric tints · DARK — rich midnight navy fields */
+  --tint-blue:     #091738;
+  --tint-blue-2:   #0f2352;
+  --tint-warm:     #1b161c;
+  --tint-warm-2:   #271e22;
+  --tint-rose:     #1b131c;
+  --tint-rose-2:   #2a1c27;
+  --tint-teal:     #071b26;
+  --tint-teal-2:   #0a2838;
   --tint-blue-line:#1e2f52;
   --tint-warm-line:#38272f;
   --tint-rose-line:#3a202c;

@@ -33,18 +33,8 @@ export default function Technology() {
   return (
     <section
       aria-labelledby="technology-title"
-      className="relative overflow-hidden px-5 py-20 sm:px-6 sm:py-24 lg:py-32"
+      className="relative overflow-hidden bg-canvas px-5 py-20 sm:px-6 sm:py-24 lg:py-32"
     >
-      {/* Background image digital nodes texture */}
-      <div 
-        className="pointer-events-none absolute inset-0 -z-10 bg-cover bg-center opacity-20 mix-blend-screen"
-        style={{ backgroundImage: "url('/images/digital-nodes.jpg')" }}
-        aria-hidden="true"
-      />
-      <div 
-        className="pointer-events-none absolute inset-0 -z-10 bg-gradient-to-b from-[#040e27]/80 via-transparent to-[#040e27]/80"
-        aria-hidden="true"
-      />
       <div className="mx-auto max-w-[1200px]">
         <Reveal variant={fadeLeft} className="max-w-3xl">
           {/* M-stripe rail above the eyebrow — literal brand tricolor */}
