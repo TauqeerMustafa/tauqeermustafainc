@@ -58,6 +58,22 @@ class DashboardNotification(CamelModel):
     created_at: Optional[datetime] = None
 
 
+class InternshipProgress(CamelModel):
+    is_completed: bool = True
+    track_title: str = "Business Development Executive (B2B) – 1-Month Paid Internship"
+    total_days: int = 30
+    days_worked: int = 30
+    progress_percentage: int = 100
+    status: str = "completed"
+    certificate_status: str = "processing"
+    stipend_status: str = "processing"
+    transition_status: str = "eligible"
+    leads_sourced: str = "60+ Verified SME Decision-Makers"
+    outreach_touches: str = "45+ Multi-Channel Touches"
+    discovery_calls: str = "5+ Confirmed Discovery Calls"
+    pipeline_discipline: str = "Zero Overdue Tasks (100% Closed)"
+
+
 class EmployeeDashboardResponse(CamelModel):
     attendance: DashboardAttendance
     tasks: list[DashboardTask] = []
@@ -66,6 +82,7 @@ class EmployeeDashboardResponse(CamelModel):
     announcements: list[DashboardAnnouncement] = []
     documents: list[DashboardDocument] = []
     notifications: list[DashboardNotification] = []
+    internship: InternshipProgress = InternshipProgress()
 
 
 class AdminOverview(CamelModel):

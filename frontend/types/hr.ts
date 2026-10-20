@@ -213,6 +213,22 @@ export interface DashboardNotification {
   createdAt: string | null;
 }
 
+export interface InternshipProgress {
+  isCompleted: boolean;
+  trackTitle: string;
+  totalDays: number;
+  daysWorked: number;
+  progressPercentage: number;
+  status: string;
+  certificateStatus: string;
+  stipendStatus: string;
+  transitionStatus: string;
+  leadsSourced: string;
+  outreachTouches: string;
+  discoveryCalls: string;
+  pipelineDiscipline: string;
+}
+
 export interface EmployeeDashboard {
   attendance: DashboardAttendance;
   tasks: DashboardTask[];
@@ -221,6 +237,7 @@ export interface EmployeeDashboard {
   announcements: DashboardAnnouncement[];
   documents: DashboardDocument[];
   notifications: DashboardNotification[];
+  internship?: InternshipProgress;
 }
 
 export interface PendingLeaveSummary {

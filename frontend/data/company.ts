@@ -53,34 +53,34 @@ export const company = {
   mapEmbedUrl:
     "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3456.4971033504817!2d-90.07737629016616!3d29.96514072222164!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x8620a50056d541c1%3A0xd62188e30053c7ed!2sQorlune!5e0!3m2!1sen!2s!4v1792247708181!5m2!1sen!2s",
 
-  phone: "+1 711-249-4712",
+  phone: "+1 711-091-5975",
 
-  whatsapp: "https://wa.me/17112494712",
+  whatsapp: "https://wa.me/17110915975",
 
   whatsappChannels: {
     general: {
       name: "Qorlune Official Desk",
-      number: "+1 711-249-4712",
-      url: "https://wa.me/17112494712",
-      displayNumber: "+1 711-249-4712",
+      number: "+1 711-091-5975",
+      url: "https://wa.me/17110915975",
+      displayNumber: "+1 711-091-5975",
       description: "Direct client consultation, inquiries, enterprise proposals, and official support",
       action: "Chat with Qorlune",
       badge: "Official Line",
     },
     support: {
       name: "Technical & Client Support",
-      number: "+1 711-249-4712",
-      url: "https://wa.me/17112494712",
-      displayNumber: "+1 711-249-4712",
+      number: "+1 711-091-5975",
+      url: "https://wa.me/17110915975",
+      displayNumber: "+1 711-091-5975",
       description: "24/7 client helpdesk, SLA ticket escalation, and live technical support",
       action: "Contact Support Desk",
       badge: "24/7 Support",
     },
     direct: {
       name: "Executive & Priority Desk",
-      number: "+1 711-249-4712",
-      url: "https://wa.me/17112494712",
-      displayNumber: "+1 711-249-4712",
+      number: "+1 711-091-5975",
+      url: "https://wa.me/17110915975",
+      displayNumber: "+1 711-091-5975",
       description: "Executive desk, enterprise proposals & strategic partnerships",
       action: "Chat with Executive Desk",
       badge: "Priority Desk",

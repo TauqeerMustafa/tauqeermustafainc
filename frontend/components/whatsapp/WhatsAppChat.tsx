@@ -9,7 +9,7 @@ const WA_GREEN = "#25D366";
  * Floating WhatsApp direct button — only the icon, no text bubble/tooltips, no link preview on hover.
  */
 export default function WhatsAppChat() {
-  const whatsappUrl = company.whatsapp || "https://wa.me/17112494712";
+  const whatsappUrl = company.whatsapp || "https://wa.me/17110915975";
 
   const handleClick = () => {
     window.open(whatsappUrl, "_blank", "noopener,noreferrer");

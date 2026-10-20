@@ -103,15 +103,33 @@ export async function POST(request: Request) {
       const status = from || requestedPhoneNumberId ? 400 : 500;
       return NextResponse.json({ success: false, error: sender.error }, { status });
     }
-    let phoneNumberId = sender.id || "944973294966811";
-    if (!phoneNumberId || phoneNumberId === "undefined" || phoneNumberId === "null") {
-      phoneNumberId = "944973294966811";
+    let phoneNumberId = sender.id || "1433890589802290";
+    if (!phoneNumberId || phoneNumberId === "undefined" || phoneNumberId === "null" || phoneNumberId === "944973294966811") {
+      phoneNumberId = "1433890589802290";
     }
 
-    phoneNumberId = "944973294966811";
     const numberDef = waNumbers().find((n) => n.id === phoneNumberId);
     const account = accountAt(numberDef?.slot ?? 1);
     let token = account.token || accountAt(1).token;
+
+    // Dynamically resolve WABA ID to active Phone Number ID if needed
+    if (phoneNumberId === "944973294966811" || phoneNumberId === account.wabaId) {
+      if (token) {
+        try {
+          const pnRes = await fetch(`${GRAPH_URL}/${phoneNumberId}/phone_numbers?fields=id,display_phone_number&access_token=${token}`, { cache: "no-store" });
+          const pnData = await pnRes.json();
+          if (pnData?.data?.[0]?.id) {
+            phoneNumberId = String(pnData.data[0].id);
+          } else {
+            phoneNumberId = "1433890589802290";
+          }
+        } catch {
+          phoneNumberId = "1433890589802290";
+        }
+      } else {
+        phoneNumberId = "1433890589802290";
+      }
+    }
 
     if (!token) {
       return NextResponse.json(
@@ -384,6 +402,16 @@ export async function POST(request: Request) {
     // If Meta rejected with a permission or invalid ID error (code 100, 190, 200, 131030),
     // automatically retry across other configured account tokens (e.g. Account 2 token)
     if (!ok && (data?.error?.code === 100 || data?.error?.code === 190 || data?.error?.code === 200 || data?.error?.code === 131030)) {
+      // If the error was an invalid ID / unsupported post and we didn't try 1433890589802290 yet, retry with official phone ID
+      if (phoneNumberId !== "1433890589802290" && token) {
+        const retryPhone = await graphPost("1433890589802290", token, payload);
+        if (retryPhone.ok) {
+          ok = true;
+          status = retryPhone.status;
+          data = retryPhone.json;
+          phoneNumberId = "1433890589802290";
+        }
+      }
       const candidates = usableAccounts().filter((a) => a.token && a.token !== token);
       for (const altAcc of candidates) {
         if (!altAcc.token) continue;

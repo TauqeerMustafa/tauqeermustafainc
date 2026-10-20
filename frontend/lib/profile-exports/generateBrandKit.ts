@@ -171,7 +171,7 @@ Email: marketing@qorlune.co.uk / contact@qorlune.co.uk
 - **Direct Contacts:**
   - Sales & Proposals: sales@qorlune.co.uk
   - Support & Helpdesk: support@qorlune.co.uk
-  - WhatsApp Line: +1 711-249-4712
+  - WhatsApp Line: +1 711-091-5975
 `;
 
   zip.folder("logos")?.file("qorlune-logo-dark.svg", logoDarkSvg);

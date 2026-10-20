@@ -174,7 +174,7 @@ export async function GET(request: Request) {
     );
 
     // Test official Qorlune line directly with this token
-    const qorluneDirect = await inspect("944973294966811", "Qorlune Official (+1 711-249-4712)", token, visibleIds, wabaId);
+    const qorluneDirect = await inspect("1433890589802290", "Qorlune Official (+1 711-091-5975)", token, visibleIds, wabaId);
 
     slotsReport.push({
       slot: account.slot,
@@ -205,8 +205,8 @@ export async function GET(request: Request) {
       const isDirectMatch =
         m.channel === "944973294966811" ||
         m.department === "general" ||
-        (m.from && m.from.includes("17112494712")) ||
-        (m.to && m.to.includes("17112494712"));
+        (m.from && (m.from.includes("17110915975") || m.from.includes("17112494712"))) ||
+        (m.to && (m.to.includes("17110915975") || m.to.includes("17112494712")));
 
       if (isDirectMatch) {
         directMatches.push({

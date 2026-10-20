@@ -197,16 +197,19 @@ export async function GET(request: Request) {
   // Identify official primary Qorlune line
   const primaryItem =
     resultList.find(
-      (n) => n.id === "944973294966811" || n.primary
-    ) || resultList[0];
+      (n) => n.id === "1433890589802290" || (n.id !== "944973294966811" && n.primary)
+    ) || resultList.find((n) => n.id !== "944973294966811") || resultList[0];
 
   if (primaryItem) {
+    if (primaryItem.id === "944973294966811") {
+      primaryItem.id = "1433890589802290";
+    }
     primaryItem.primary = true;
     primaryItem.department = "general";
     primaryItem.slot = 1;
     primaryItem.label = "Qorlune Official";
     primaryItem.canSend = true;
-    if (!primaryItem.displayNumber) primaryItem.displayNumber = "+1 711-249-4712";
+    if (!primaryItem.displayNumber) primaryItem.displayNumber = "+1 711-091-5975";
     if (!primaryItem.verifiedName) primaryItem.verifiedName = "Qorlune";
     if (!primaryItem.nameStatus) primaryItem.nameStatus = "APPROVED";
     if (!primaryItem.quality) primaryItem.quality = "GREEN";
@@ -227,7 +230,7 @@ export async function GET(request: Request) {
     const fallbackNumbers: WANumberInfo[] = configured.map((n) => ({
       ...n,
       canSend: true,
-      displayNumber: n.displayNumber || "+1 711-249-4712",
+      displayNumber: n.displayNumber || "+1 711-091-5975",
       verifiedName: "Qorlune",
       nameStatus: "APPROVED",
       quality: "GREEN",

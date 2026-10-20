@@ -50,17 +50,18 @@ export type WANumber = {
   slot: number;
   /** Dedicated department: general info & sales, technical support, or executive/direct desk. */
   department?: WADepartment;
-  /** Optional human display phone number e.g. +1 711-249-4712 */
+  /** Optional human display phone number e.g. +1 711-091-5975 */
   displayNumber?: string | null;
 };
 
 /**
- * Sole Official Qorlune WhatsApp Line (+1 711-249-4712)
+ * Sole Official Qorlune WhatsApp Line (+1 711-091-5975)
  * Meta Phone Number ID: 1433890589802290
  * Meta WABA ID: 944973294966811
  */
 export const DEFAULT_QORLUNE_ID = "1433890589802290";
 export const DEFAULT_PRIMARY_ID = DEFAULT_QORLUNE_ID;
+export const DEFAULT_QORLUNE_DISPLAY = "+1 711-091-5975";
 
 // Deprecated line aliases mapped directly to the official Qorlune line
 export const DEFAULT_PK_ID = DEFAULT_QORLUNE_ID;
@@ -144,7 +145,7 @@ function build(): WANumber[] {
       primary: true,
       slot: 1,
       department: "general",
-      displayNumber: clean(process.env.WHATSAPP_DISPLAY_NUMBER) || "+1 711-249-4712",
+      displayNumber: clean(process.env.WHATSAPP_DISPLAY_NUMBER) || DEFAULT_QORLUNE_DISPLAY,
     },
   ];
 
@@ -208,7 +209,7 @@ export function isKnownNumber(id: string | null | undefined): boolean {
   if (!value) return false;
   const digits = value.replace(/[^0-9]/g, "");
 
-  if (digits === "17112494712" || value === DEFAULT_QORLUNE_ID) {
+  if (digits === "17110915975" || digits === "17112494712" || value === DEFAULT_QORLUNE_ID || value === "944973294966811") {
     return true;
   }
   return waNumbers().some((n) => n.id === value || (n.displayNumber && n.displayNumber.replace(/[^0-9]/g, "") === digits));
@@ -236,7 +237,7 @@ export function resolveNumberId(requested?: string | null): ResolvedNumber {
   if (!wanted) return { ok: true, id: primaryId };
 
   const digits = wanted.replace(/[^0-9]/g, "");
-  if (digits === "17112494712" || wanted === DEFAULT_QORLUNE_ID) {
+  if (digits === "17110915975" || digits === "17112494712" || wanted === DEFAULT_QORLUNE_ID || wanted === "944973294966811") {
     return { ok: true, id: DEFAULT_QORLUNE_ID };
   }
 
@@ -268,49 +269,49 @@ export const KNOWN_LINES: Record<string, LineIdentifier> = {
     canonicalId: DEFAULT_QORLUNE_ID,
     label: "Qorlune Official",
     flag: "🇺🇸",
-    displayNumber: "+1 711-249-4712",
+    displayNumber: "+1 711-091-5975",
   },
   line2: {
     lineKey: "line2",
     canonicalId: DEFAULT_QORLUNE_ID,
     label: "Qorlune Official",
     flag: "🇺🇸",
-    displayNumber: "+1 711-249-4712",
+    displayNumber: "+1 711-091-5975",
   },
   line3: {
     lineKey: "line3",
     canonicalId: DEFAULT_QORLUNE_ID,
     label: "Qorlune Official",
     flag: "🇺🇸",
-    displayNumber: "+1 711-249-4712",
+    displayNumber: "+1 711-091-5975",
   },
   line4: {
     lineKey: "line4",
     canonicalId: DEFAULT_QORLUNE_ID,
     label: "Qorlune Official",
     flag: "🇺🇸",
-    displayNumber: "+1 711-249-4712",
+    displayNumber: "+1 711-091-5975",
   },
   line5: {
     lineKey: "line5",
     canonicalId: DEFAULT_QORLUNE_ID,
     label: "Qorlune Official",
     flag: "🇺🇸",
-    displayNumber: "+1 711-249-4712",
+    displayNumber: "+1 711-091-5975",
   },
   line6: {
     lineKey: "line6",
     canonicalId: DEFAULT_QORLUNE_ID,
     label: "Qorlune Official",
     flag: "🇺🇸",
-    displayNumber: "+1 711-249-4712",
+    displayNumber: "+1 711-091-5975",
   },
   line7: {
     lineKey: "line7",
     canonicalId: DEFAULT_QORLUNE_ID,
     label: "Qorlune Official",
     flag: "🇺🇸",
-    displayNumber: "+1 711-249-4712",
+    displayNumber: "+1 711-091-5975",
   },
 };
 

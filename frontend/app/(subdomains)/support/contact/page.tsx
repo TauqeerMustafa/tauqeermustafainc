@@ -89,11 +89,11 @@ export default function ContactDirectoryPage() {
             </div>
 
             <a
-              href="tel:+17112494712"
+              href="tel:+17110915975"
               className="px-6 py-3 bg-rose-600 text-white font-mono text-xs font-bold uppercase hover:bg-rose-700 transition flex items-center gap-2 shrink-0"
             >
               <PhoneCall size={14} />
-              <span>Call +1 711-249-4712</span>
+              <span>Call +1 711-091-5975</span>
             </a>
           </div>
 
@@ -114,7 +114,7 @@ export default function ContactDirectoryPage() {
                 </p>
               </div>
               <a
-                href="https://wa.me/17112494712"
+                href="https://wa.me/17110915975"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="mt-6 inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-emerald-600 text-white font-mono text-xs font-bold uppercase hover:bg-emerald-700 transition"

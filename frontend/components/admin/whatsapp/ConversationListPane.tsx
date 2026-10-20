@@ -190,10 +190,10 @@ export function ConversationListPane({
                 ? "bg-blue-600 text-white shadow-sm"
                 : "bg-adm-surface-2 text-adm-text-2 border border-adm-border hover:border-adm-text-3 hover:text-adm-text"
             }`}
-            title="Qorlune Official (+1 711-249-4712)"
+            title="Qorlune Official (+1 711-091-5975)"
           >
             <span className="h-1.5 w-1.5 rounded-full bg-blue-400" />
-            <span>🇺🇸 Qorlune Official (+1 711-249-4712)</span>
+            <span>🇺🇸 Qorlune Official (+1 711-091-5975)</span>
             {unreadCounts.total > 0 && (
               <span className="flex h-4 min-w-[16px] items-center justify-center rounded-full bg-blue-500 px-1 text-[9px] font-bold text-white">
                 {unreadCounts.total}

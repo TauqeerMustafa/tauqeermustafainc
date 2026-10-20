@@ -194,7 +194,7 @@ export function ContactDossierPane({
           <div className="mt-3">
             <span className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20">
               <Briefcase size={12} />
-              🇺🇸 Qorlune Official (+1 711-249-4712)
+              🇺🇸 Qorlune Official (+1 711-091-5975)
             </span>
           </div>
         </div>

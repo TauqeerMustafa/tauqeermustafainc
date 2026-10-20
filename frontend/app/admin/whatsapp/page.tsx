@@ -272,7 +272,7 @@ function withSeenChannels(
       slot: 1,
       canSend: true,
       department: "general",
-      displayNumber: "+1 711-249-4712",
+      displayNumber: "+1 711-091-5975",
       error: null,
     });
   }
@@ -627,7 +627,7 @@ export default function AdminWhatsAppPage() {
                   }}
                 >
                   <Briefcase size={12} />
-                  <span>Qorlune Official ({generalLine?.displayNumber || "+1 711-249-4712"})</span>
+                  <span>Qorlune Official ({generalLine?.displayNumber || "+1 711-091-5975"})</span>
                 </button>
                 <button
                   type="button"
@@ -642,7 +642,7 @@ export default function AdminWhatsAppPage() {
                   }}
                 >
                   <LifeBuoy size={12} />
-                  <span>Support Desk ({generalLine?.displayNumber || "+1 711-249-4712"})</span>
+                  <span>Support Desk ({generalLine?.displayNumber || "+1 711-091-5975"})</span>
                 </button>
                 <button
                   type="button"
@@ -657,7 +657,7 @@ export default function AdminWhatsAppPage() {
                   }}
                 >
                   <ShieldCheck size={12} />
-                  <span>Executive Desk ({generalLine?.displayNumber || "+1 711-249-4712"})</span>
+                  <span>Executive Desk ({generalLine?.displayNumber || "+1 711-091-5975"})</span>
                 </button>
               </div>
             </div>
@@ -1252,7 +1252,7 @@ function ChatView({
 
   // Determine sender line ID strictly scoped to this conversation's department
   const defaultSenderId = useMemo(() => {
-    return numbers.find((n) => n.id === "944973294966811")?.id || numbers.find((n) => n.primary)?.id || numbers[0]?.id || "944973294966811";
+    return numbers.find((n) => n.id === "1433890589802290")?.id || numbers.find((n) => n.primary && n.id !== "944973294966811")?.id || numbers.find((n) => n.id !== "944973294966811")?.id || numbers[0]?.id || "1433890589802290";
   }, [numbers]);
 
   const [activeSenderId, setActiveSenderId] = useState<string>(defaultSenderId);
@@ -1457,7 +1457,7 @@ function ChatView({
             title={showDossier ? "Click to toggle contact dossier" : "Click to view contact dossier"}
           >
             {(() => {
-              const lineTheme = { color: "#2563eb", dot: "bg-blue-500", label: "🇺🇸 Qorlune Official (+1 711-249-4712)" };
+              const lineTheme = { color: "#2563eb", dot: "bg-blue-500", label: "🇺🇸 Qorlune Official (+1 711-091-5975)" };
 
               return (
                 <>
@@ -2552,10 +2552,11 @@ function SendTab({
   const [senderChoice, setSenderChoice] = useState(defaultSender || "");
   
   const fallbackSender =
-    numbers.find((n) => n.id === "944973294966811")?.id ||
-    numbers.find((n) => n.primary)?.id ||
+    numbers.find((n) => n.id === "1433890589802290")?.id ||
+    numbers.find((n) => n.primary && n.id !== "944973294966811")?.id ||
+    numbers.find((n) => n.id !== "944973294966811")?.id ||
     numbers[0]?.id ||
-    "944973294966811";
+    "1433890589802290";
   const sender = senderChoice || defaultSender || fallbackSender;
 
   const resetMedia = () => {
@@ -2699,7 +2700,7 @@ function SendTab({
                   ? "Outbound messages will send from executive direct line (Line 3)"
                   : department === "support"
                   ? "Outbound messages will send from client support line"
-                  : "Outbound messages will send from official Qorlune line +1 711-249-4712"}
+                  : "Outbound messages will send from official Qorlune line +1 711-091-5975"}
               </p>
             </div>
           </div>
@@ -3156,10 +3157,11 @@ function MetaTemplatesTab({ defaultRecipient, department }: { defaultRecipient: 
   // Derived, not seeded in an effect: the list arrives after first render.
   const sender =
     senderChoice ||
-    numbers.find((n) => n.id === "944973294966811")?.id ||
-    numbers.find((n) => n.primary)?.id ||
+    numbers.find((n) => n.id === "1433890589802290")?.id ||
+    numbers.find((n) => n.primary && n.id !== "944973294966811")?.id ||
+    numbers.find((n) => n.id !== "944973294966811")?.id ||
     numbers[0]?.id ||
-    "944973294966811";
+    "1433890589802290";
 
   const templates = data?.data ?? [];
   const configured = data?.configured;
@@ -4851,7 +4853,7 @@ function StatsTab({ department = "general" }: { department?: "general" | "suppor
               ? "Message volume and traffic for Executive Line (Line 3)"
               : department === "support"
               ? "Message volume and traffic for Support Desk Line"
-              : "Message volume and traffic for Official Line (+1 711-249-4712)"}
+              : "Message volume and traffic for Official Line (+1 711-091-5975)"}
           </p>
         </div>
         <span
@@ -5527,7 +5529,7 @@ function PipelineTab({
           {department === "direct"
             ? "Line 3: Executive Desk"
             : department === "general"
-            ? "Official Line: +1 711-249-4712"
+            ? "Official Line: +1 711-091-5975"
             : "Line 2: Support Desk"}
         </span>
       </div>
