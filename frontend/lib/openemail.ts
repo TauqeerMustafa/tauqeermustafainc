@@ -106,9 +106,10 @@ export async function fetchOpenEmailMailboxes() {
 
   const seen = new Set<string>();
   const merged: any[] = [];
-  for (const m of [...comList, ...techList, ...routeList]) {
+  for (const m of [...routeList, ...comList, ...techList]) {
     const addr = String(m.primaryAddress || m.id || "").toLowerCase().trim();
-    if (addr && !seen.has(addr)) {
+    if (!addr || addr.endsWith("@tauqeermustafa.tech")) continue;
+    if (!seen.has(addr)) {
       seen.add(addr);
       merged.push({
         id: m.id,

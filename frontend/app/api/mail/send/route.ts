@@ -49,9 +49,11 @@ export async function POST(request: Request) {
 
     const user = await resolveMailUser(request);
     const mb = await assertMailboxAccess(user, mailbox);
-    // The sender is always the authorized mailbox, never a client-supplied value,
-    // so a caller can't send "as" a mailbox they don't own.
-    const fromAddress = mb.primaryAddress;
+    // Prefer requested fromAddress if provided and valid on @qorlune.co.uk, otherwise use mailbox primaryAddress
+    const requestedFrom = typeof body.fromAddress === "string" ? body.fromAddress.trim().toLowerCase() : "";
+    const fromAddress = (requestedFrom && (requestedFrom.endsWith("@qorlune.co.uk") || requestedFrom === mb.primaryAddress.toLowerCase()))
+      ? requestedFrom
+      : mb.primaryAddress;
 
     const data = await sendOpenEmailMessage(mailbox, {
       from: fromAddress,
