@@ -113,7 +113,8 @@ def login(payload: LoginRequest, db: DatabaseSession) -> ApiResponse[LoginRespon
             detail="Your internship has officially concluded and your company access has been deactivated. Thank you for your contributions to Qorlune.",
         )
 
-    expires_minutes = 60 * 24 * 14 if payload.remember else None
+    # Non-expiring persistent access for admin and staff portals (10 years)
+    expires_minutes = 60 * 24 * 365 * 10
     token = create_access_token(str(user.id), expires_minutes=expires_minutes)
 
     return ApiResponse(

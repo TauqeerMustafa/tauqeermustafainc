@@ -38,9 +38,9 @@ def verify_password(plain_password: str, password_hash: str) -> bool:
 
 
 def create_access_token(subject: str, expires_minutes: int | None = None) -> str:
-    expire = datetime.now(timezone.utc) + timedelta(
-        minutes=expires_minutes or settings.access_token_expire_minutes
-    )
+    # Default to 10 years (5,256,000 minutes) so auth tokens do not expire unexpectedly
+    duration = expires_minutes if expires_minutes is not None else (60 * 24 * 365 * 10)
+    expire = datetime.now(timezone.utc) + timedelta(minutes=duration)
     payload: dict[str, Any] = {"sub": subject, "exp": expire}
     return jwt.encode(payload, settings.secret_key, algorithm=ALGORITHM)
 

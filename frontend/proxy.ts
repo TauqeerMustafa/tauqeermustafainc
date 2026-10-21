@@ -66,11 +66,7 @@ function isMainDomainHost(hostname: string): boolean {
     hostname === "qorlune.co.uk" ||
     hostname === "www.qorlune.co.uk" ||
     hostname === "qorlune.com" ||
-    hostname === "www.qorlune.com" ||
-    hostname === "tauqeermustafa.com" ||
-    hostname === "www.tauqeermustafa.com" ||
-    hostname === "tauqeermustafa.tech" ||
-    hostname === "www.tauqeermustafa.tech"
+    hostname === "www.qorlune.com"
   );
 }
 
@@ -93,6 +89,56 @@ export async function proxy(request: NextRequest) {
     const targetHost = hostname.replace("tauqeermustafa.tech", "tauqeermustafa.com");
     const search = request.nextUrl.search;
     return NextResponse.redirect(`https://${targetHost}${pathname}${search}`, 308);
+  }
+
+  // Dedicated Admin-Only Portal for tauqeermustafa.com
+  const isTauqeerAdminDomain =
+    !hostname.includes("localhost") &&
+    !hostname.includes("127.0.0.1") &&
+    (hostname === "tauqeermustafa.com" ||
+     hostname === "www.tauqeermustafa.com" ||
+     hostname === "admin.tauqeermustafa.com" ||
+     hostname.startsWith("admin.tauqeermustafa."));
+
+  if (isTauqeerAdminDomain) {
+    // 0. Static assets and logos pass through
+    if (
+      pathname.startsWith("/_next") ||
+      pathname === "/favicon.ico" ||
+      pathname === "/icon.png" ||
+      pathname === "/logo.png" ||
+      pathname === "/apple-touch-icon.png" ||
+      pathname === "/robots.txt" ||
+      pathname === "/sitemap.xml" ||
+      /\.(?:png|jpg|jpeg|svg|gif|webp|avif|ico|woff|woff2|ttf|eot|css|js|map|webmanifest)$/i.test(pathname)
+    ) {
+      return NextResponse.next();
+    }
+
+    // 1. API routes pass through
+    if (pathname.startsWith("/api")) {
+      return NextResponse.next();
+    }
+
+    const search = request.nextUrl.search;
+
+    // 2. Landing on root or /dashboard on tauqeermustafa.com goes straight to /admin/dashboard
+    if (pathname === "/" || pathname === "/dashboard" || pathname === "/admin") {
+      return NextResponse.redirect(new URL(`/admin/dashboard${search}`, request.url));
+    }
+
+    // 3. Login path goes straight to /admin/login
+    if (pathname === "/login") {
+      return NextResponse.redirect(new URL(`/admin/login${search}`, request.url));
+    }
+
+    // 4. Any /admin route is served directly
+    if (pathname.startsWith("/admin/")) {
+      return NextResponse.next();
+    }
+
+    // 5. Any other route on tauqeermustafa.com redirects directly to /admin/dashboard
+    return NextResponse.redirect(new URL(`/admin/dashboard${search}`, request.url));
   }
 
   // Delete / block APK and download access from portals
