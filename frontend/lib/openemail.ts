@@ -184,7 +184,19 @@ export async function sendOpenEmailMessage(mailboxId: string, input: SendMessage
     subject: input.subject,
   };
   if (input.text) base.text = input.text;
-  if (input.html) base.html = input.html;
+  if (input.html) {
+    base.html = input.html;
+    if (!input.text) {
+      base.text = input.html.replace(/<[^>]*>?/gm, "").trim();
+    }
+  } else if (input.text) {
+    const escaped = input.text
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/\n/g, "<br/>");
+    base.html = `<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 14px; line-height: 1.6; color: #111827;">${escaped}</div>`;
+  }
   if (input.attachments && input.attachments.length > 0) {
     base.attachments = input.attachments.map((att) => ({
       filename: att.filename,
