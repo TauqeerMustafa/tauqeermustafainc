@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useCallback, useEffect } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -78,7 +78,18 @@ export default function LoginForm({
     if (isAuthenticated) router.replace(destination());
   }, [isAuthenticated, router, destination]);
 
+  const [legacyDomainNotice, setLegacyDomainNotice] = useState(false);
+
   async function onSubmit(data: LoginFormData) {
+    if (
+      data.email.trim().toLowerCase().endsWith("@tauqeermustafa.tech") ||
+      data.email.trim().toLowerCase().endsWith("@tauqeermustafa.com")
+    ) {
+      setLegacyDomainNotice(true);
+      return;
+    }
+    setLegacyDomainNotice(false);
+
     try {
       await loginMutation.mutateAsync(data);
       if (typeof window !== "undefined") {
@@ -91,6 +102,13 @@ export default function LoginForm({
   }
 
   const apiError = loginMutation.error as ApiError | undefined;
+  const isInternshipEnded =
+    legacyDomainNotice ||
+    apiError?.message?.toLowerCase().includes("internship") ||
+    apiError?.message?.toLowerCase().includes("terminated") ||
+    apiError?.message?.toLowerCase().includes("locked") ||
+    apiError?.message?.toLowerCase().includes("revoked") ||
+    apiError?.message?.toLowerCase().includes("suspended");
   const busy = isSubmitting || loginMutation.isPending;
 
   return (
@@ -155,17 +173,29 @@ export default function LoginForm({
                 Stay signed in on this device
               </label>
 
-              {loginMutation.isError && (
+              {isInternshipEnded ? (
+                <div className="border border-amber-500/50 bg-amber-500/10 p-5 space-y-2.5 text-left">
+                  <div className="flex items-center gap-2 text-amber-600 dark:text-amber-400 font-bold text-xs uppercase tracking-wider">
+                    <ShieldAlert className="h-4 w-4 shrink-0 text-amber-500" />
+                    <span>End of Internship Program</span>
+                  </div>
+                  <p className="text-xs text-adm-text leading-relaxed font-medium">
+                    The internship program has officially concluded. All intern accounts and corporate email addresses have been deactivated.
+                  </p>
+                  <div className="pt-2 border-t border-amber-500/20 text-[11px] text-adm-text-3 space-y-1">
+                    <p>
+                      Thank you for your dedicated service and contributions to Qorlune.
+                    </p>
+                    <p>
+                      For reference letters, completion certificates, or formal inquiries, please contact{" "}
+                      <a href="mailto:hr@qorlune.co.uk" className="font-semibold text-action underline">
+                        hr@qorlune.co.uk
+                      </a>.
+                    </p>
+                  </div>
+                </div>
+              ) : loginMutation.isError ? (
                 <div className="border border-adm-red/60 bg-adm-red-light p-4 space-y-1.5">
-                  {(apiError?.message?.toLowerCase().includes("terminated") ||
-                    apiError?.message?.toLowerCase().includes("locked") ||
-                    apiError?.message?.toLowerCase().includes("revoked") ||
-                    apiError?.message?.toLowerCase().includes("suspended")) && (
-                    <div className="flex items-center gap-1.5 text-adm-red font-bold text-[11px] uppercase tracking-wider mb-1">
-                      <ShieldAlert className="h-4 w-4 shrink-0 text-adm-red" />
-                      <span>Account Terminated & Locked</span>
-                    </div>
-                  )}
                   <p className="text-xs font-semibold text-adm-red" role="alert">
                     {apiError?.message ?? "Sign-in failed. Check your details and try again."}
                   </p>
@@ -177,7 +207,7 @@ export default function LoginForm({
                     </p>
                   )}
                 </div>
-              )}
+              ) : null}
 
               <PortalButton type="submit" disabled={busy} icon={busy ? Loader2 : undefined}>
                 {busy ? "Signing in…" : "Sign in"}

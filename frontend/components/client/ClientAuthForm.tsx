@@ -21,6 +21,17 @@ export default function ClientAuthForm({ mode }: Props) {
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError("");
+
+    if (
+      form.email.trim().toLowerCase().endsWith("@tauqeermustafa.tech") ||
+      form.email.trim().toLowerCase().endsWith("@tauqeermustafa.com")
+    ) {
+      setError(
+        "End of Internship: The internship program has officially concluded and corporate email accounts have been deactivated. Contact hr@qorlune.co.uk for inquiries."
+      );
+      return;
+    }
+
     setLoading(true);
     try {
       const response = await fetch(clientApiUrl(isRegister ? "/auth/client/register" : "/auth/client/login"), {

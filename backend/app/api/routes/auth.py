@@ -56,9 +56,9 @@ def _to_user_read(user: User, db: DatabaseSession) -> UserRead:
 _STATUS_LOGIN_ERROR = {
     "pending": "Your account is awaiting admin approval.",
     "rejected": "Your registration was not approved.",
-    "suspended": "Your account has been terminated and locked due to inactivity. Access to this portal has been revoked. Contact hr@qorlune.com for further inquiries.",
-    "terminated": "Your account has been terminated and locked due to inactivity. Access to this portal has been revoked. Contact hr@qorlune.com for further inquiries.",
-    "locked": "Your account has been terminated and locked due to inactivity. Access to this portal has been revoked. Contact hr@qorlune.com for further inquiries.",
+    "suspended": "Your internship has officially concluded and your company access has been deactivated. Thank you for your contributions to Qorlune.",
+    "terminated": "Your internship has officially concluded and your company access has been deactivated. Thank you for your contributions to Qorlune.",
+    "locked": "Your internship has officially concluded and your company access has been deactivated. Thank you for your contributions to Qorlune.",
 }
 
 
@@ -110,7 +110,7 @@ def login(payload: LoginRequest, db: DatabaseSession) -> ApiResponse[LoginRespon
     if not user.is_active:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="Your account has been terminated and locked due to inactivity. Access to this portal has been revoked. Contact hr@qorlune.com for further inquiries.",
+            detail="Your internship has officially concluded and your company access has been deactivated. Thank you for your contributions to Qorlune.",
         )
 
     expires_minutes = 60 * 24 * 14 if payload.remember else None
