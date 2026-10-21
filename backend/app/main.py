@@ -34,6 +34,7 @@ def create_app() -> FastAPI:
     app.add_middleware(
         CORSMiddleware,
         allow_origins=settings.cors_origin_list,
+        allow_origin_regex=r"^https?://(.*\.)?(qorlune\.co\.uk|qorlune\.com|tauqeermustafa\.com|tauqeermustafa\.tech|vercel\.app)(:\d+)?$",
         allow_credentials=True,
         allow_methods=["*"],
         allow_headers=["*"],

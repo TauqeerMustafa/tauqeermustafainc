@@ -59,11 +59,37 @@ class Settings(BaseSettings):
 
     @property
     def cors_origin_list(self) -> list[str]:
-        return [
+        origins = [
             origin.strip()
             for origin in self.cors_origins.split(",")
             if origin.strip()
         ]
+        defaults = [
+            "https://qorlune.co.uk",
+            "https://www.qorlune.co.uk",
+            "https://portals.qorlune.co.uk",
+            "https://community.qorlune.co.uk",
+            "https://support.qorlune.co.uk",
+            "https://billing.qorlune.co.uk",
+            "https://app.qorlune.co.uk",
+            "https://qorlune.com",
+            "https://www.qorlune.com",
+            "https://portals.qorlune.com",
+            "https://community.qorlune.com",
+            "https://support.qorlune.com",
+            "https://billing.qorlune.com",
+            "https://tauqeermustafa.com",
+            "https://www.tauqeermustafa.com",
+            "https://portals.tauqeermustafa.com",
+            "https://tauqeermustafa.tech",
+            "https://www.tauqeermustafa.tech",
+            "https://portals.tauqeermustafa.tech",
+            "https://tauqeermustafainc.vercel.app",
+        ]
+        for d in defaults:
+            if d not in origins:
+                origins.append(d)
+        return origins
 
 
 @lru_cache

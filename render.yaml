@@ -40,9 +40,9 @@ services:
         sync: false
       # Comma-separated, exact scheme+host, no trailing slash, no spaces.
       - key: CORS_ORIGINS
-        value: https://tauqeermustafa.com,https://www.tauqeermustafa.com,https://community.tauqeermustafa.com,https://portals.tauqeermustafa.com,https://support.tauqeermustafa.com,https://billing.tauqeermustafa.com,https://tauqeermustafa.tech,https://www.tauqeermustafa.tech,https://tauqeermustafainc.vercel.app,https://community.tauqeermustafa.tech,https://portals.tauqeermustafa.tech,https://support.tauqeermustafa.tech,https://billing.tauqeermustafa.tech
+        value: https://qorlune.co.uk,https://www.qorlune.co.uk,https://portals.qorlune.co.uk,https://community.qorlune.co.uk,https://support.qorlune.co.uk,https://billing.qorlune.co.uk,https://app.qorlune.co.uk,https://qorlune.com,https://www.qorlune.com,https://portals.qorlune.com,https://community.qorlune.com,https://support.qorlune.com,https://billing.qorlune.com,https://tauqeermustafa.com,https://www.tauqeermustafa.com,https://community.tauqeermustafa.com,https://portals.tauqeermustafa.com,https://support.tauqeermustafa.com,https://billing.tauqeermustafa.com,https://tauqeermustafa.tech,https://www.tauqeermustafa.tech,https://tauqeermustafainc.vercel.app,https://community.tauqeermustafa.tech,https://portals.tauqeermustafa.tech,https://support.tauqeermustafa.tech,https://billing.tauqeermustafa.tech
       - key: CLIENT_PORTAL_URL
-        value: https://portals.tauqeermustafa.com
+        value: https://portals.qorlune.co.uk
       - key: VERIFICATION_CODE_TTL_MINUTES
         value: "10"
       - key: SMTP_HOST
