@@ -29,7 +29,7 @@ const OPEN_PATHS = ["/api/whatsapp/webhook", "/api/whatsapp/diagnose"];
  * `/management` was missing from this list, so https://portals…/management/login
  * rewrote to /client/management/login and 404'd.
  */
-const PORTAL_PREFIXES = ["/portals", "/admin", "/employees", "/management", "/client", "/ai-workforce"];
+const PORTAL_PREFIXES = ["/portals", "/admin", "/employees", "/management", "/client", "/ai-workforce", "/executive"];
 
 const MAIN_SITE_EXACT_PATHS = new Set([
   "/about",
@@ -122,9 +122,9 @@ export async function proxy(request: NextRequest) {
 
     const search = request.nextUrl.search;
 
-    // 2. Landing on root or /dashboard on tauqeermustafa.com goes straight to /admin/dashboard
-    if (pathname === "/" || pathname === "/dashboard" || pathname === "/admin") {
-      return NextResponse.redirect(new URL(`/admin/dashboard${search}`, request.url));
+    // 2. Landing on root, /outreach, or /portal on tauqeermustafa.com serves the Executive Client Acquisition Portal
+    if (pathname === "/" || pathname === "/executive" || pathname === "/outreach" || pathname === "/portal") {
+      return NextResponse.rewrite(new URL(`/executive${search}`, request.url));
     }
 
     // 3. Login path goes straight to /admin/login
@@ -133,12 +133,12 @@ export async function proxy(request: NextRequest) {
     }
 
     // 4. Any /admin route is served directly
-    if (pathname.startsWith("/admin/")) {
+    if (pathname.startsWith("/admin/") || pathname === "/admin" || pathname === "/dashboard") {
       return NextResponse.next();
     }
 
-    // 5. Any other route on tauqeermustafa.com redirects directly to /admin/dashboard
-    return NextResponse.redirect(new URL(`/admin/dashboard${search}`, request.url));
+    // 5. Any other route on tauqeermustafa.com redirects to /executive
+    return NextResponse.redirect(new URL(`/executive${search}`, request.url));
   }
 
   // Delete / block APK and download access from portals
