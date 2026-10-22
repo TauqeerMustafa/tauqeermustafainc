@@ -630,7 +630,7 @@ export default function Webmail({
 
   useEffect(() => {
     if (activeId) loadMessages(activeId);
-  }, [activeId, loadMessages]);
+  }, [activeId, activeAddress, loadMessages]);
 
   useEffect(() => {
     if (!activeId) return;
@@ -1175,11 +1175,85 @@ export default function Webmail({
         (m) => starredIds.has(idOf(m)) || m.starred === true || m.isStarred === true,
       );
     } else if (folder === "sent") {
-      list = messages.filter((m) => !isTrashMsg(m) && isSentMsg(m, selfEmail));
+      list = messages.filter((m) => {
+        if (isTrashMsg(m)) return false;
+        if (!isSentMsg(m, selfEmail)) return false;
+
+        if (selfEmail) {
+          const userPrefix = selfEmail.split("@")[0].toLowerCase();
+          if (userPrefix === "sales") {
+            const senderEmail = rawEmail(m.from)?.toLowerCase() || "";
+            const recipientList = addrList(m.to).map((t) => t.toLowerCase());
+            const subj = (m.subject || "").toLowerCase();
+            const snip = (m.snippet || m.preview || "").toLowerCase();
+
+            // Match if sent from or to any sales@ address
+            if (senderEmail.startsWith("sales@") || recipientList.some((r) => r.startsWith("sales@"))) {
+              return true;
+            }
+
+            // Match all sales outreach, client acquisition & prospect proposals
+            if (
+              subj.includes("outreach") ||
+              subj.includes("telemetry") ||
+              subj.includes("website issues") ||
+              subj.includes("details on your website") ||
+              subj.includes("client") ||
+              subj.includes("proposal") ||
+              subj.includes("quote") ||
+              subj.includes("lead") ||
+              subj.includes("roadmap") ||
+              snip.includes("founder-to-founder") ||
+              snip.includes("pitch") ||
+              snip.includes("outreach")
+            ) {
+              return true;
+            }
+
+            // Filter out pure intern HR onboarding credentials from sales view
+            if (subj.includes("welcome to tauqeer mustafa inc") && !recipientList.some((r) => r.includes("sales"))) {
+              return false;
+            }
+            if (subj.includes("your password has been reset")) {
+              return false;
+            }
+          } else if (["support", "billing", "careers", "info", "hr", "contact", "marketing", "engineering", "legal"].includes(userPrefix)) {
+            const senderEmail = rawEmail(m.from)?.toLowerCase() || "";
+            const recipientList = addrList(m.to).map((t) => t.toLowerCase());
+            if (senderEmail.startsWith(`${userPrefix}@`) || recipientList.some((r) => r.startsWith(`${userPrefix}@`))) {
+              return true;
+            }
+            // For general admin emails, don't flood dedicated department sent folders
+            if (senderEmail.startsWith("admin@") && !recipientList.some((r) => r.startsWith(`${userPrefix}@`))) {
+              return false;
+            }
+          }
+        }
+        return true;
+      });
     } else if (folder === "inbox") {
-      list = messages.filter(
-        (m) => isInboxMsg(m, selfEmail) && !archivedIds.has(idOf(m)),
-      );
+      list = messages.filter((m) => {
+        if (!isInboxMsg(m, selfEmail) || archivedIds.has(idOf(m))) return false;
+        if (selfEmail) {
+          const userPrefix = selfEmail.split("@")[0].toLowerCase();
+          if (["sales", "support", "billing", "careers", "info", "hr", "contact", "marketing", "engineering", "legal"].includes(userPrefix)) {
+            const recipientList = addrList(m.to).map((t) => t.toLowerCase());
+            const ccList = addrList(m.cc).map((t) => t.toLowerCase());
+            const allRecipients = [...recipientList, ...ccList];
+            const matchesDept = allRecipients.some((r) => r.startsWith(`${userPrefix}@`));
+            if (matchesDept) return true;
+            // Filter out system login alerts from other departments
+            const subj = (m.subject || "").toLowerCase();
+            if (subj.includes("new sign-in to admin@") || subj.includes("postmaster")) {
+              return false;
+            }
+            if (allRecipients.some((r) => ["admin@", "info@", "contact@"].some((p) => r.startsWith(p)))) {
+              return false;
+            }
+          }
+        }
+        return true;
+      });
     } else if (folder === "spam") {
       list = messages.filter((m) => !isTrashMsg(m) && isSpamMsg(m));
     } else if (folder === "archive") {

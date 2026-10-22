@@ -123,7 +123,7 @@ export async function fetchOpenEmailMailboxes() {
 
 export interface MessageListOptions {
   limit?: number;
-  state?: "active" | "expunged";
+  state?: "active" | "live" | "expunged";
   order?: string;
   cursor?: string;
 }
@@ -131,7 +131,7 @@ export interface MessageListOptions {
 export async function fetchOpenEmailMessages(mailboxId: string, opts: MessageListOptions = {}) {
   const params = new URLSearchParams();
   params.set("limit", String(opts.limit ?? 100));
-  if (opts.state) params.set("state", opts.state);
+  if (opts.state) { const normState = opts.state === "active" ? "live" : opts.state; params.set("state", normState); }
   if (opts.order) params.set("order", opts.order);
   if (opts.cursor) params.set("cursor", opts.cursor);
 
