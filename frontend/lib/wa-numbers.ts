@@ -63,6 +63,17 @@ export const DEFAULT_QORLUNE_ID = "1433890589802290";
 export const DEFAULT_PRIMARY_ID = DEFAULT_QORLUNE_ID;
 export const DEFAULT_QORLUNE_DISPLAY = "+1 711-091-5975";
 
+const FORBIDDEN_PHONE_IDS = new Set(["1239592269240963"]);
+const FORBIDDEN_NUMBERS = ["3356701199", "6701199", "+923356701199", "+92 335 6701199"];
+
+export function isForbiddenNumber(raw?: string | null): boolean {
+  if (!raw) return false;
+  if (FORBIDDEN_PHONE_IDS.has(raw.trim())) return true;
+  const digits = raw.replace(/\D/g, "");
+  return FORBIDDEN_NUMBERS.some((f) => digits.includes(f.replace(/\D/g, "")));
+}
+
+
 // Deprecated line aliases mapped directly to the official Qorlune line
 export const DEFAULT_PK_ID = DEFAULT_QORLUNE_ID;
 export const ALIAS_PK_ID = DEFAULT_QORLUNE_ID;
@@ -133,6 +144,31 @@ function parseExplicitList(raw: string): WANumber[] {
 
 function build(): WANumber[] {
   const explicit = clean(process.env.WHATSAPP_PHONE_NUMBERS);
+  if (explicit) return dedupe(parseExplicitList(explicit).filter((n) => !isForbiddenNumber(n.id) && !isForbiddenNumber(n.displayNumber)));
+
+  const primaryEnvId = clean(process.env.WHATSAPP_PHONE_NUMBER_ID);
+  const safePrimaryId = primaryEnvId && !isForbiddenNumber(primaryEnvId) ? primaryEnvId : DEFAULT_QORLUNE_ID;
+
+  const primaryDisplay = clean(process.env.WHATSAPP_DISPLAY_NUMBER);
+  const safeDisplayNumber = primaryDisplay && !isForbiddenNumber(primaryDisplay) ? primaryDisplay : DEFAULT_QORLUNE_DISPLAY;
+
+  // Sole Official Qorlune Line
+  const canonicalLines: WANumber[] = [
+    {
+      id: safePrimaryId,
+      label: clean(process.env.WHATSAPP_PHONE_LABEL) || "Qorlune Official",
+      primary: true,
+      slot: 1,
+      department: "general",
+      displayNumber: safeDisplayNumber,
+    },
+  ];
+
+  return dedupe(canonicalLines);
+}
+
+function _unused_build(): WANumber[] {
+  const explicit = clean(process.env.WHATSAPP_PHONE_NUMBERS);
   if (explicit) return dedupe(parseExplicitList(explicit));
 
   const primaryEnvId = clean(process.env.WHATSAPP_PHONE_NUMBER_ID);
@@ -180,6 +216,7 @@ export function waNumbers(): WANumber[] {
 export function registerKnownNumbers(extra: WANumber[]) {
   if (!cached) cached = build();
   for (const item of extra) {
+    if (isForbiddenNumber(item.id) || isForbiddenNumber(item.displayNumber)) continue;
     const existing = cached.find((c) => c.id === item.id);
     if (!existing) {
       cached.push({

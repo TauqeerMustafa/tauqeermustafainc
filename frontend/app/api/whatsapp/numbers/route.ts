@@ -11,7 +11,7 @@
  */
 import { NextResponse } from "next/server";
 import { accountAt, usableAccounts } from "@/lib/wa-accounts";
-import { waNumbers, registerKnownNumbers, type WANumber } from "@/lib/wa-numbers";
+import { waNumbers, registerKnownNumbers, isForbiddenNumber, type WANumber } from "@/lib/wa-numbers";
 
 const GRAPH_URL = "https://graph.facebook.com/v20.0";
 const TTL_MS = 2 * 60 * 1000;
@@ -133,7 +133,7 @@ export async function GET(request: Request) {
 
       if (res.ok && Array.isArray(json?.data)) {
         for (const item of json.data) {
-          if (!item.id) continue;
+          if (!item.id || isForbiddenNumber(String(item.id)) || isForbiddenNumber(item.display_phone_number)) continue;
           // primary is corrected below after the full list is built
             discoveredMap.set(item.id, {
               id: String(item.id),
