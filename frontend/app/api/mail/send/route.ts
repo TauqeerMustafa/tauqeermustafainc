@@ -51,7 +51,7 @@ export async function POST(request: Request) {
     const mb = await assertMailboxAccess(user, mailbox);
     // Prefer requested fromAddress if provided and valid on @qorlune.co.uk, otherwise use mailbox primaryAddress
     const requestedFrom = typeof body.fromAddress === "string" ? body.fromAddress.trim().toLowerCase() : "";
-    const allowedDomains = ["@qorlune.co.uk", "@tauqeermustafa.com", "@tauqeermustafa.tech"];
+    const allowedDomains = ["@qorlune.co.uk", "@qorlune.com"];
     const isValidDomain = allowedDomains.some((d) => requestedFrom.endsWith(d));
     const fromAddress = (requestedFrom && (isValidDomain || requestedFrom === mb.primaryAddress.toLowerCase()))
       ? requestedFrom

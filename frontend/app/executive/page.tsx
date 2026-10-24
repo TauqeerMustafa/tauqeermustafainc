@@ -55,7 +55,7 @@ export default function ExecutiveOutreachPortal() {
 
   // Email Composition State
   const [isComposing, setIsComposing] = useState(false);
-  const [senderMailbox, setSenderMailbox] = useState("tauqeer@tauqeermustafa.com");
+  const [senderMailbox, setSenderMailbox] = useState("admin@qorlune.co.uk");
   const [emailSubject, setEmailSubject] = useState("");
   const [emailBody, setEmailBody] = useState("");
   const [recipientEmail, setRecipientEmail] = useState("");
@@ -205,13 +205,13 @@ export default function ExecutiveOutreachPortal() {
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h1 className="text-lg font-bold text-white tracking-tight">Tauqeer Mustafa</h1>
+                <h1 className="text-lg font-bold text-white tracking-tight">Qorlune LLC</h1>
                 <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 flex items-center gap-1">
                   <ShieldCheck className="w-3 h-3 text-cyan-400" /> Executive Portal
                 </span>
               </div>
               <p className="text-xs text-slate-400">
-                Personal Client Acquisition Engine • <span className="text-slate-300 font-mono">tauqeermustafa.com</span>
+                Executive AI Client Acquisition Engine • <span className="text-slate-300 font-mono">qorlune.co.uk</span>
               </p>
             </div>
           </div>
@@ -223,7 +223,7 @@ export default function ExecutiveOutreachPortal() {
             </div>
             <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-800/70 border border-slate-700/60 text-xs font-mono text-cyan-300">
               <Mail className="w-3.5 h-3.5 text-cyan-400" />
-              <span>tauqeer@tauqeermustafa.com</span>
+              <span>admin@qorlune.co.uk</span>
             </div>
           </div>
         </div>
@@ -556,19 +556,19 @@ export default function ExecutiveOutreachPortal() {
                     onChange={(e) => setSenderMailbox(e.target.value)}
                     className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-slate-200 text-xs focus:outline-none focus:border-cyan-500"
                   >
-                    <option value="tauqeer@tauqeermustafa.com">tauqeer@tauqeermustafa.com (Personal Executive)</option>
-                    <option value="contact@tauqeermustafa.com">contact@tauqeermustafa.com (Direct Business)</option>
-                    <option value="admin@tauqeermustafa.com">admin@tauqeermustafa.com (Founder Admin)</option>
+                    <option value="admin@qorlune.co.uk">admin@qorlune.co.uk (Primary Corporate)</option>
+                    <option value="contact@qorlune.co.uk">contact@qorlune.co.uk (Client Relations)</option>
+                    <option value="sales@qorlune.co.uk">sales@qorlune.co.uk (B2B Executive Sales)</option>
                   </select>
                 </div>
 
                 <div className="p-3 rounded-xl bg-slate-950/60 border border-slate-800 text-[11px] text-slate-400 flex flex-col gap-1">
                   <div className="flex items-center gap-1.5 text-emerald-400">
                     <ShieldCheck className="w-3.5 h-3.5" />
-                    <span className="font-medium">100% Personal Domain Verification</span>
+                    <span className="font-medium">100% Qorlune Corporate Domain Verification</span>
                   </div>
                   <p>
-                    All emails are routed directly through your dedicated DNS-authenticated mailboxes at <strong>tauqeermustafa.com</strong> with zero third-party branding.
+                    All emails are routed directly through your dedicated DNS-authenticated mailboxes at <strong>qorlune.co.uk</strong> with zero third-party branding.
                   </p>
                 </div>
               </div>
@@ -744,7 +744,7 @@ export default function ExecutiveOutreachPortal() {
 
       {/* Clean Footer */}
       <footer className="border-t border-slate-800/80 py-6 px-6 text-center text-xs text-slate-500">
-        Tauqeer Mustafa • Executive AI Client Acquisition &amp; Outreach Engine • Personal Domain: tauqeermustafa.com
+        Qorlune LLC • Executive AI Client Acquisition &amp; Outreach Engine • Corporate Domain: qorlune.co.uk
       </footer>
     </div>
   );

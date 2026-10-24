@@ -6,7 +6,7 @@ const GEMINI_API_KEY =
   Buffer.from("QVEuQWI4Uk42SjZYcmhCNlo2OFBWcmlNOVJzR3AySnRCUUh2eUN6a0pOWkg4Y1NJRnJtT0E=", "base64").toString("utf-8");
 
 const OPENEMAIL_API_KEY =
-  process.env.OPENEMAIL_API_KEY || "oek_vLhzeeO6fO_owBMaIIkLLzFPAWezb9I-f5H7isSGYug";
+  process.env.OPENEMAIL_TECH_API_KEY || process.env.OPENEMAIL_API_KEY || "oek_QvxyNrk1tAOyYzAlisEuyRa5mP3LRxSJmaZc_vaJ7es";
 
 const TAUQEER_MAILBOX_ID = "01M17137MJNRTDR5N92QCAND0P";
 const PIPELINE_KEY = "tauqeer_personal_pipeline_v1";
@@ -129,7 +129,7 @@ export async function POST(req: NextRequest) {
     if (action === "discover_prospects") {
       const { niche, location, count = 5 } = body;
 
-      const systemPrompt = `You are an elite B2B sales researcher and executive talent partner for Tauqeer Mustafa (tauqeermustafa.com).
+      const systemPrompt = `You are an elite B2B sales researcher and executive talent partner for Qorlune (qorlune.co.uk).
 Tauqeer Mustafa is a Senior Software Engineer, Technology Architect, and AI Operations Consultant specializing in:
 - High-performance web and cloud architectures (Next.js, Python, PostgreSQL, Distributed Systems)
 - Enterprise AI Workflows & Automation
@@ -166,9 +166,9 @@ Return as JSON array.`;
 
     // 2. DRAFT BESPOKE EMAIL VIA GEMINI
     if (action === "compose_email") {
-      const { prospect, senderEmail = "tauqeer@tauqeermustafa.com" } = body;
+      const { prospect, senderEmail = "admin@qorlune.co.uk" } = body;
 
-      const systemPrompt = `You are Tauqeer Mustafa, a senior technology consultant and software architect writing from your personal executive email (${senderEmail}).
+      const systemPrompt = `You are Tauqeer Mustafa, Founder & Executive at Qorlune writing from your corporate executive email (${senderEmail}).
 Tone: Sharp, respectful, founder-to-founder, concise (under 110 words), zero marketing fluff, zero buzzwords.
 Value proposition: You build robust scalable software architectures, AI automated pipelines, and resolve critical bottlenecks without bloated agency overhead.
 Goal: Offer a brief 10-minute diagnostic exchange or tailored architectural teardown.
@@ -185,11 +185,11 @@ Company: ${prospect.companyName} (${prospect.domain})
 Target Decision Maker: ${prospect.targetRole} (${prospect.contactName || "Decision Maker"})
 Pain Point: ${prospect.keyPainPoint}
 Value Angle: ${prospect.valueAngle}
-Sender: Tauqeer Mustafa | tauqeermustafa.com`;
+Sender: Tauqeer Mustafa | Qorlune (qorlune.co.uk)`;
 
       let emailContent = {
         subject: `Quick thought regarding ${prospect.companyName}'s engineering roadmap`,
-        html: `<p>Hi there,</p><p>I've been closely following ${prospect.companyName} and your trajectory in ${prospect.industry}.</p><p>Given your focus on scaling, many teams run into friction around ${prospect.keyPainPoint}. As an independent software architect and AI engineer, I partner directly with founders to streamline high-throughput systems and eliminate technical bottlenecks without agency bloat.</p><p>Would you be open to a brief 10-minute conversation this Thursday to see if there is an angle worth exploring?</p><p>Best regards,<br><strong>Tauqeer Mustafa</strong><br>Founder &amp; Principal Architect<br><a href="https://tauqeermustafa.com">tauqeermustafa.com</a></p>`,
+        html: `<p>Hi there,</p><p>I've been closely following ${prospect.companyName} and your trajectory in ${prospect.industry}.</p><p>Given your focus on scaling, many teams run into friction around ${prospect.keyPainPoint}. As an independent software architect and AI engineer, I partner directly with founders to streamline high-throughput systems and eliminate technical bottlenecks without agency bloat.</p><p>Would you be open to a brief 10-minute conversation this Thursday to see if there is an angle worth exploring?</p><p>Best regards,<br><strong>Tauqeer Mustafa</strong><br>Founder &amp; Principal Architect<br><a href="https://qorlune.co.uk">qorlune.co.uk</a></p>`,
         text: `Hi there,\n\nI've been closely following ${prospect.companyName} and your trajectory in ${prospect.industry}.\n\nGiven your focus on scaling, many teams run into friction around ${prospect.keyPainPoint}. As an independent software architect and AI engineer, I partner directly with founders to streamline high-throughput systems and eliminate technical bottlenecks without agency bloat.\n\nWould you be open to a brief 10-minute conversation this Thursday to see if there is an angle worth exploring?\n\nBest regards,\nTauqeer Mustafa\nFounder & Principal Architect\ntauqeermustafa.com`
       };
 
@@ -206,7 +206,7 @@ Sender: Tauqeer Mustafa | tauqeermustafa.com`;
 
     // 3. SEND DIRECTLY FROM TAUQEERMUSTAFA.COM MAILBOX
     if (action === "send_email") {
-      const { toEmail, toName, subject, html, text, fromEmail = "tauqeer@tauqeermustafa.com", prospectId } = body;
+      const { toEmail, toName, subject, html, text, fromEmail = "admin@qorlune.co.uk", prospectId } = body;
 
       if (!toEmail) {
         return NextResponse.json({ success: false, error: "Recipient email is required" }, { status: 400 });
@@ -215,7 +215,7 @@ Sender: Tauqeer Mustafa | tauqeermustafa.com`;
       const payload = {
         from: {
           email: fromEmail,
-          name: "Tauqeer Mustafa"
+          name: "Tauqeer Mustafa | Qorlune"
         },
         to: [{
           email: toEmail,

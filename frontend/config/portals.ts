@@ -33,6 +33,7 @@ import {
   Newspaper,
   Settings,
   Shield,
+  Sparkles,
   Target,
   User,
   Users,
@@ -106,6 +107,12 @@ export const PORTAL_NAV: Record<PortalId, NavSection[]> = {
     {
       title: "Revenue",
       items: [
+        {
+          label: "Executive AI Client Engine",
+          href: "/executive",
+          icon: Sparkles,
+          matches: ["/executive"],
+        },
         {
           label: "B2B Sales Command",
           href: "/admin/sales",

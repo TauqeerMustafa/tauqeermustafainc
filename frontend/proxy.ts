@@ -55,9 +55,7 @@ function isMainSitePath(pathname: string): boolean {
 
 
 function getApexDomain(hostname: string): string {
-  if (hostname.includes("qorlune.co.uk")) return "qorlune.co.uk";
   if (hostname.includes("qorlune.com")) return "qorlune.com";
-  if (hostname.includes("tauqeermustafa.com") || hostname.includes("tauqeermustafa.tech")) return "tauqeermustafa.com";
   return "qorlune.co.uk";
 }
 
@@ -80,65 +78,27 @@ export async function proxy(request: NextRequest) {
   const hostname = request.headers.get("host") || "";
   const apex = getApexDomain(hostname);
 
-  // Redirect all .tech requests permanently (308) to matching .com domains
+  // Permanent 308 redirect for all legacy .tech and .com requests directly to qorlune.co.uk
   if (
     !hostname.includes("localhost") &&
     !hostname.includes("127.0.0.1") &&
-    hostname.includes("tauqeermustafa.tech")
+    (hostname.includes("tauqeermustafa.com") || hostname.includes("tauqeermustafa.tech"))
   ) {
-    const targetHost = hostname.replace("tauqeermustafa.tech", "tauqeermustafa.com");
     const search = request.nextUrl.search;
-    return NextResponse.redirect(`https://${targetHost}${pathname}${search}`, 308);
-  }
+    let targetHost = "qorlune.co.uk";
+    if (hostname.startsWith("portals.")) targetHost = "portals.qorlune.co.uk";
+    else if (hostname.startsWith("support.") || hostname.startsWith("help.")) targetHost = "support.qorlune.co.uk";
+    else if (hostname.startsWith("billing.")) targetHost = "billing.qorlune.co.uk";
+    else if (hostname.startsWith("docs.")) targetHost = "docs.qorlune.co.uk";
+    else if (hostname.startsWith("community.")) targetHost = "community.qorlune.co.uk";
+    else if (hostname.startsWith("app.")) targetHost = "app.qorlune.co.uk";
+    else if (hostname.startsWith("admin.")) targetHost = "portals.qorlune.co.uk";
 
-  // Dedicated Admin-Only Portal for tauqeermustafa.com
-  const isTauqeerAdminDomain =
-    !hostname.includes("localhost") &&
-    !hostname.includes("127.0.0.1") &&
-    (hostname === "tauqeermustafa.com" ||
-     hostname === "www.tauqeermustafa.com" ||
-     hostname === "admin.tauqeermustafa.com" ||
-     hostname.startsWith("admin.tauqeermustafa."));
-
-  if (isTauqeerAdminDomain) {
-    // 0. Static assets and logos pass through
-    if (
-      pathname.startsWith("/_next") ||
-      pathname === "/favicon.ico" ||
-      pathname === "/icon.png" ||
-      pathname === "/logo.png" ||
-      pathname === "/apple-touch-icon.png" ||
-      pathname === "/robots.txt" ||
-      pathname === "/sitemap.xml" ||
-      /\.(?:png|jpg|jpeg|svg|gif|webp|avif|ico|woff|woff2|ttf|eot|css|js|map|webmanifest)$/i.test(pathname)
-    ) {
-      return NextResponse.next();
+    let targetPath = pathname;
+    if (hostname.startsWith("admin.") && !targetPath.startsWith("/admin")) {
+      targetPath = `/admin${targetPath === "/" ? "" : targetPath}`;
     }
-
-    // 1. API routes pass through
-    if (pathname.startsWith("/api")) {
-      return NextResponse.next();
-    }
-
-    const search = request.nextUrl.search;
-
-    // 2. Landing on root, /outreach, or /portal on tauqeermustafa.com serves the Executive Client Acquisition Portal
-    if (pathname === "/" || pathname === "/executive" || pathname === "/outreach" || pathname === "/portal") {
-      return NextResponse.rewrite(new URL(`/executive${search}`, request.url));
-    }
-
-    // 3. Login path goes straight to /admin/login
-    if (pathname === "/login") {
-      return NextResponse.redirect(new URL(`/admin/login${search}`, request.url));
-    }
-
-    // 4. Any /admin route is served directly
-    if (pathname.startsWith("/admin/") || pathname === "/admin" || pathname === "/dashboard") {
-      return NextResponse.next();
-    }
-
-    // 5. Any other route on tauqeermustafa.com redirects to /executive
-    return NextResponse.redirect(new URL(`/executive${search}`, request.url));
+    return NextResponse.redirect(`https://${targetHost}${targetPath}${search}`, 308);
   }
 
   // Delete / block APK and download access from portals
@@ -289,6 +249,9 @@ export async function proxy(request: NextRequest) {
         return NextResponse.redirect(`https://portals.${apex}${pathname}${search}`);
       }
       if (pathname === "/portals" || pathname.startsWith("/portals/")) {
+        return NextResponse.redirect(`https://portals.${apex}${pathname}${search}`);
+      }
+      if (pathname === "/executive" || pathname.startsWith("/executive/")) {
         return NextResponse.redirect(`https://portals.${apex}${pathname}${search}`);
       }
       if (pathname === "/ai-workforce" || pathname.startsWith("/ai-workforce/")) {
