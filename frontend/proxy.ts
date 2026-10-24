@@ -90,7 +90,7 @@ export async function proxy(request: NextRequest) {
     else if (hostname.startsWith("support.") || hostname.startsWith("help.")) targetHost = "support.qorlune.co.uk";
     else if (hostname.startsWith("billing.")) targetHost = "billing.qorlune.co.uk";
     else if (hostname.startsWith("docs.")) targetHost = "docs.qorlune.co.uk";
-    else if (hostname.startsWith("community.")) targetHost = "community.qorlune.co.uk";
+    else if (hostname.startsWith("community.")) targetHost = "qorlune.co.uk";
     else if (hostname.startsWith("app.")) targetHost = "app.qorlune.co.uk";
     else if (hostname.startsWith("admin.")) targetHost = "portals.qorlune.co.uk";
 
@@ -216,10 +216,9 @@ export async function proxy(request: NextRequest) {
         return NextResponse.redirect(`https://support.${apex}/faq${search}`);
       }
 
-      // Community Network redirects
+      // Community permanently removed -> redirect home
       if (pathname === "/community" || pathname.startsWith("/community/")) {
-        const newPath = pathname.replace(/^\/community/, "");
-        return NextResponse.redirect(`https://community.${apex}${newPath || "/"}${search}`);
+        return NextResponse.redirect(`https://${apex}${search}`, 308);
       }
 
       // Qorlune Portals App redirects (app.qorlune.com)
@@ -392,9 +391,8 @@ export async function proxy(request: NextRequest) {
       }
     }
 
-    if (hostname.startsWith("community.") && !pathname.startsWith("/community")) {
-      url.pathname = `/community${pathname === "/" ? "" : pathname}`;
-      return NextResponse.rewrite(url);
+    if (hostname.startsWith("community.")) {
+      return NextResponse.redirect(`https://${apex}${search}`, 308);
     }
 
     if (hostname.startsWith("app.")) {

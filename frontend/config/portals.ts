@@ -32,6 +32,7 @@ import {
   MessagesSquare,
   Newspaper,
   Settings,
+  Share2,
   Shield,
   Sparkles,
   Target,
@@ -140,6 +141,12 @@ export const PORTAL_NAV: Record<PortalId, NavSection[]> = {
           icon: FileText,
           matches: ["/admin/internship-dispatch"],
         },
+        {
+          label: "Social Media Hub",
+          href: "/admin/social",
+          icon: Share2,
+          matches: ["/admin/social"],
+        },
       ],
     },
     {
@@ -160,7 +167,6 @@ export const PORTAL_NAV: Record<PortalId, NavSection[]> = {
         { label: "Portfolio", href: "/admin/portfolio", icon: ImageIcon },
         { label: "Services", href: "/admin/services", icon: Wrench },
         { label: "Careers", href: "/admin/careers", icon: GraduationCap },
-        { label: "Community", href: "/admin/community", icon: Globe },
       ],
     },
     {
