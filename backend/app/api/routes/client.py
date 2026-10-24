@@ -171,7 +171,11 @@ def verify_client_code(payload: VerifyCodeRequest, db: DatabaseSession) -> ApiRe
 
 @router.post("/login", response_model=ApiResponse[LoginResponse])
 def client_login(payload: ClientLoginRequest, db: DatabaseSession) -> ApiResponse[LoginResponse]:
-    user = db.scalar(select(User).where(User.email == payload.email))
+    clean_email = payload.email.strip().lower()
+    user = db.scalar(select(User).where(func.lower(User.email) == clean_email))
+    if user is None and (clean_email.endswith("@tauqeermustafa.tech") or clean_email.endswith("@tauqeermustafa.com")):
+        qorlune_email = clean_email.replace("@tauqeermustafa.tech", "@qorlune.co.uk").replace("@tauqeermustafa.com", "@qorlune.co.uk")
+        user = db.scalar(select(User).where(func.lower(User.email) == qorlune_email))
     if user is None or not verify_password(payload.password, user.password_hash):
         raise HTTPException(status_code=401, detail="Incorrect email or password")
     _client_user(user)

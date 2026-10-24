@@ -22,22 +22,40 @@ export default function ClientAuthForm({ mode }: Props) {
     event.preventDefault();
     setError("");
 
-    if (
-      form.email.trim().toLowerCase().endsWith("@tauqeermustafa.tech") ||
-      form.email.trim().toLowerCase().endsWith("@tauqeermustafa.com")
-    ) {
-      setError(
-        "End of Internship: The internship program has officially concluded and corporate email accounts have been deactivated. Contact hr@qorlune.co.uk for inquiries."
-      );
-      return;
+    let cleanEmail = form.email.trim().toLowerCase();
+
+
+    if (cleanEmail.endsWith("@tauqeermustafa.tech")) {
+
+
+      cleanEmail = cleanEmail.replace("@tauqeermustafa.tech", "@qorlune.co.uk");
+
+
+    } else if (cleanEmail.endsWith("@tauqeermustafa.com")) {
+
+
+      cleanEmail = cleanEmail.replace("@tauqeermustafa.com", "@qorlune.co.uk");
+
+
     }
 
+
     setLoading(true);
+
+
     try {
+
+
       const response = await fetch(clientApiUrl(isRegister ? "/auth/client/register" : "/auth/client/login"), {
+
+
         method: "POST",
+
+
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(isRegister ? form : { email: form.email, password: form.password }),
+
+
+        body: JSON.stringify(isRegister ? { ...form, email: cleanEmail } : { email: cleanEmail, password: form.password }),
       });
       const payload = await response.json();
       if (!response.ok) throw new Error(payload.detail || "Unable to complete this request.");

@@ -78,20 +78,31 @@ export default function LoginForm({
     if (isAuthenticated) router.replace(destination());
   }, [isAuthenticated, router, destination]);
 
-  const [legacyDomainNotice, setLegacyDomainNotice] = useState(false);
-
   async function onSubmit(data: LoginFormData) {
-    if (
-      data.email.trim().toLowerCase().endsWith("@tauqeermustafa.tech") ||
-      data.email.trim().toLowerCase().endsWith("@tauqeermustafa.com")
-    ) {
-      setLegacyDomainNotice(true);
-      return;
+
+
+    let cleanEmail = data.email.trim().toLowerCase();
+
+
+    if (cleanEmail.endsWith("@tauqeermustafa.tech")) {
+
+
+      cleanEmail = cleanEmail.replace("@tauqeermustafa.tech", "@qorlune.co.uk");
+
+
+    } else if (cleanEmail.endsWith("@tauqeermustafa.com")) {
+
+
+      cleanEmail = cleanEmail.replace("@tauqeermustafa.com", "@qorlune.co.uk");
+
+
     }
-    setLegacyDomainNotice(false);
+
 
     try {
-      await loginMutation.mutateAsync(data);
+
+
+      await loginMutation.mutateAsync({ ...data, email: cleanEmail });
       if (typeof window !== "undefined") {
         sessionStorage.setItem("tmi_just_logged_in", "true");
       }
@@ -103,8 +114,7 @@ export default function LoginForm({
 
   const apiError = loginMutation.error as ApiError | undefined;
   const isInternshipEnded =
-    legacyDomainNotice ||
-    apiError?.message?.toLowerCase().includes("internship") ||
+        apiError?.message?.toLowerCase().includes("internship") ||
     apiError?.message?.toLowerCase().includes("terminated") ||
     apiError?.message?.toLowerCase().includes("locked") ||
     apiError?.message?.toLowerCase().includes("revoked") ||
@@ -143,7 +153,7 @@ export default function LoginForm({
                   id="login-email"
                   type="email"
                   autoComplete="email"
-                  placeholder="you@company.com"
+                  placeholder="you@qorlune.co.uk"
                   className={inputClass}
                   {...register("email")}
                 />
