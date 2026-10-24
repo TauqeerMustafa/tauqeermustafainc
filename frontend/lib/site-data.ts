@@ -5,7 +5,6 @@ export const navigation = [
   { name: "Portfolio", href: "/portfolio" },
   { name: "Careers", href: "/careers" },
   { name: "Blog", href: "/blog" },
-  { name: "Community", href: "https://community.qorlune.co.uk" },
   { name: "Portals", href: "https://portals.qorlune.co.uk" },
   { name: "Contact", href: "/contact" },
 ];

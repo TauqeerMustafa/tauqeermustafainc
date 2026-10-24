@@ -785,7 +785,6 @@ export default function AdminDashboardPage() {
               { label: "Portfolio", href: "/admin/portfolio", icon: ImageIcon },
               { label: "Services", href: "/admin/services", icon: Wrench },
               { label: "Careers", href: "/admin/careers", icon: GraduationCap },
-              { label: "Community", href: "/admin/community", icon: Globe },
             ],
           )}
 
@@ -820,14 +819,6 @@ export default function AdminDashboardPage() {
               title="Careers & Job Openings"
               description="Publish open positions and review job applicant resumes with 1-click onboarding."
               actionLabel="Manage Careers"
-            />
-
-            <DepartmentCard
-              href="/admin/community"
-              icon={Globe}
-              title="Community Network"
-              description="Review applicant profiles for the creator and engineer community circle."
-              actionLabel="Open Community"
             />
           </div>
         </div>

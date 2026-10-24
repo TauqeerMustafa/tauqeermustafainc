@@ -12,7 +12,7 @@ import {
 
 import { useI18n } from "@/lib/i18n";
 
-export type CmsFunctionId = "blog" | "portfolio" | "services" | "careers" | "community";
+export type CmsFunctionId = "blog" | "portfolio" | "services" | "careers";
 
 interface CmsBannerProps {
   active?: CmsFunctionId;
@@ -55,13 +55,6 @@ const CMS_FUNCTIONS: FunctionItem[] = [
     shortLabel: "Careers",
     href: "/admin/careers",
     icon: GraduationCap,
-  },
-  {
-    id: "community",
-    label: "Community Network",
-    shortLabel: "Community",
-    href: "/admin/community",
-    icon: Globe,
   },
 ];
 

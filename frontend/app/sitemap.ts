@@ -53,13 +53,9 @@ const SUPPORT_ROUTES = [
   { url: "/contact", changeFrequency: "monthly" as const, priority: 0.7 },
 ];
 
-const COMMUNITY_ROUTES = [
-  { url: "", changeFrequency: "weekly" as const, priority: 0.8 },
-  { url: "/guidelines", changeFrequency: "monthly" as const, priority: 0.5 },
-  { url: "/members", changeFrequency: "weekly" as const, priority: 0.6 },
-];
 
-export type SitemapHost = "main" | "docs" | "billing" | "support" | "community";
+
+export type SitemapHost = "main" | "docs" | "billing" | "support";
 
 function entriesFor(
   origin: string,
@@ -85,8 +81,7 @@ export function buildHostSitemap(host: SitemapHost, now = new Date()): MetadataR
       return entriesFor("https://billing.qorlune.co.uk", BILLING_ROUTES, now);
     case "support":
       return entriesFor("https://support.qorlune.co.uk", SUPPORT_ROUTES, now);
-    case "community":
-      return entriesFor("https://community.qorlune.co.uk", COMMUNITY_ROUTES, now);
+    
     default: {
       const main = entriesFor(apex, MAIN_ROUTES, now);
       const serviceRoutes = services.map((service) => ({
