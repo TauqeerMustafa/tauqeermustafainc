@@ -1,0 +1,438 @@
+[
+  {
+    "name": "Tauqeer Mustafa",
+    "company_email": "admin@qorlune.co.uk",
+    "applicant_email": "mr.tauqeermustafa@gmail.com",
+    "status": "delivered",
+    "delivery_id": "send:01M5S89E4CAB4382763TRSBG37",
+    "delivered_at": "2026-10-25T10:04:38Z"
+  },
+  {
+    "name": "Nusrat Alam",
+    "company_email": "nusrat@qorlune.co.uk",
+    "applicant_email": "nusratalam1400@gmail.com",
+    "status": "delivered",
+    "delivery_id": "send:01M5S8A1MABR6BXE2T2NFHVFZM",
+    "delivered_at": "2026-10-25T10:04:50Z"
+  },
+  {
+    "name": "Hammad Butt",
+    "company_email": "hammad@qorlune.co.uk",
+    "applicant_email": "hammadbutt0107@gmail.com",
+    "status": "delivered",
+    "delivery_id": "send:01M5S8ACDERFZDGCAJQPRC8JD2",
+    "delivered_at": "2026-10-25T10:05:03Z"
+  },
+  {
+    "name": "Muhammad osama",
+    "company_email": "muhammad.osama@qorlune.co.uk",
+    "applicant_email": "osamaafridi608@gmail.com",
+    "status": "delivered",
+    "delivery_id": "send:01M5S8AS1NCAK7CF7JETZ7T37F",
+    "delivered_at": "2026-10-25T10:05:13Z"
+  },
+  {
+    "name": "Hamza Kashif",
+    "company_email": "hamza.kashif@qorlune.co.uk",
+    "applicant_email": "hamza.work.profile@gmail.com",
+    "status": "delivered",
+    "delivery_id": "send:01M5S8B3GS1625WD7N6EQMV910",
+    "delivered_at": "2026-10-25T10:05:24Z"
+  },
+  {
+    "name": "Abdul Moiz",
+    "company_email": "abdul.moiz@qorlune.co.uk",
+    "applicant_email": "moizwattoo8@gmail.com",
+    "status": "delivered",
+    "delivery_id": "send:01M5S8CQBH34FBRWRP5YPJ6QW5",
+    "delivered_at": "2026-10-25T10:06:18Z"
+  },
+  {
+    "name": "DUAAFALAK",
+    "company_email": "duaa.falak@qorlune.co.uk",
+    "applicant_email": "duaaafalak@gmail.com",
+    "status": "delivered",
+    "delivery_id": "send:01M5S8D47KTGT4T56E1711JFZM",
+    "delivered_at": "2026-10-25T10:06:33Z"
+  },
+  {
+    "name": "Muneeb Ahmad",
+    "company_email": "muneeb.ahmad@qorlune.co.uk",
+    "applicant_email": null,
+    "status": "delivered",
+    "delivery_id": "send:01M5S8DHZV9FB0JV91TB6ZYW7T",
+    "delivered_at": "2026-10-25T10:06:44Z"
+  },
+  {
+    "name": "Samar Ayaz",
+    "company_email": "samar.ayaz@qorlune.co.uk",
+    "applicant_email": "samarayaz931@gmail.com",
+    "status": "delivered",
+    "delivery_id": "send:01M5S8DWR1108H0HSE49PKAM8W",
+    "delivered_at": "2026-10-25T10:06:58Z"
+  },
+  {
+    "name": "Hamid Ali",
+    "company_email": "hamid.ali@qorlune.co.uk",
+    "applicant_email": "syedhamidali09890@gmail.com",
+    "status": "delivered",
+    "delivery_id": "send:01M5S8E9PXPN0NT96BZMXSZK9P",
+    "delivered_at": "2026-10-25T10:07:09Z"
+  },
+  {
+    "name": "Arzoo Safdar",
+    "company_email": "arzoo.safdar@qorlune.co.uk",
+    "applicant_email": "muhammadsafdarm8889@gmail.com",
+    "status": "delivered",
+    "delivery_id": "send:01M5S8ENM7T4Z7WWCX8VZX7545",
+    "delivered_at": "2026-10-25T10:07:23Z"
+  },
+  {
+    "name": "Azeem Shahzad",
+    "company_email": "azeem.shahzad@qorlune.co.uk",
+    "applicant_email": null,
+    "status": "delivered",
+    "delivery_id": "send:01M5S8F3FE5NCB0KJCF9BR0V4H",
+    "delivered_at": "2026-10-25T10:07:36Z"
+  },
+  {
+    "name": "Sana Waqar",
+    "company_email": "sana.waqar@qorlune.co.uk",
+    "applicant_email": "sanaw1167@gmail.com",
+    "status": "delivered",
+    "delivery_id": "send:01M5S8FFEQFNVV74HDK3738ZEX",
+    "delivered_at": "2026-10-25T10:07:47Z"
+  },
+  {
+    "name": "Bisma Basharat",
+    "company_email": "bisma.basharat@qorlune.co.uk",
+    "applicant_email": "bismabasharat904@gmail.com",
+    "status": "delivered",
+    "delivery_id": "send:01M5S8FTGRQDAG39RMM6P2ZQAM",
+    "delivered_at": "2026-10-25T10:08:00Z"
+  },
+  {
+    "name": "Muhammad Asim",
+    "company_email": "muhammad.asim@qorlune.co.uk",
+    "applicant_email": "asimadvocate203@gmail.com",
+    "status": "pending"
+  },
+  {
+    "name": "Bushra Gulnaz",
+    "company_email": "bushra.gulnaz@qorlune.co.uk",
+    "applicant_email": "haayakhaan1234@gmail.com",
+    "status": "pending"
+  },
+  {
+    "name": "Muhammad Kamran",
+    "company_email": "muhammad.kamran@qorlune.co.uk",
+    "applicant_email": "scalewithkamran@gmail.com",
+    "status": "pending"
+  },
+  {
+    "name": "ABID ALI",
+    "company_email": "abid.ali@qorlune.co.uk",
+    "applicant_email": "rabidali551@gmail.com",
+    "status": "pending"
+  },
+  {
+    "name": "Kainat Fatima",
+    "company_email": "kainat.fatima@qorlune.co.uk",
+    "applicant_email": "faitmakainat2@gmail.com",
+    "status": "pending"
+  },
+  {
+    "name": "Hamna Shahzad",
+    "company_email": "hamna.shahzad@qorlune.co.uk",
+    "applicant_email": "thehamnashahzad@gmail.com",
+    "status": "pending"
+  },
+  {
+    "name": "Iqra Taseen",
+    "company_email": "iqra.taseen@qorlune.co.uk",
+    "applicant_email": "iqrataseen146@gmail.com",
+    "status": "pending"
+  },
+  {
+    "name": "Merab Khalid",
+    "company_email": "merab.khalid@qorlune.co.uk",
+    "applicant_email": "meerubkhalid703@gmail.com",
+    "status": "pending"
+  },
+  {
+    "name": "Muhammad Ahsan Ali",
+    "company_email": "muhammad.ahsan@qorlune.co.uk",
+    "applicant_email": "ahsan241ali000@gmail.com",
+    "status": "pending"
+  },
+  {
+    "name": "Ansharah Ayub",
+    "company_email": "ansharah.ayub@qorlune.co.uk",
+    "applicant_email": "ansharahayub28@gmail.com",
+    "status": "pending"
+  },
+  {
+    "name": "Iqra farooq",
+    "company_email": "iqra.farooq@qorlune.co.uk",
+    "applicant_email": "iqraf147@gmail.com",
+    "status": "pending"
+  },
+  {
+    "name": "Hafiz Muhammad Hashir Khan",
+    "company_email": "muhammad.hashir@qorlune.co.uk",
+    "applicant_email": "hashirkhan92020@gmail.com",
+    "status": "pending"
+  },
+  {
+    "name": "Sikandar Khalid",
+    "company_email": "sikandar.khalid@qorlune.co.uk",
+    "applicant_email": "sikandarkhalid628@gmail.com",
+    "status": "pending"
+  },
+  {
+    "name": "Aisha Asif",
+    "company_email": "aisha.asif@qorlune.co.uk",
+    "applicant_email": "aidhaasifghadiyali2@gmail.com",
+    "status": "pending"
+  },
+  {
+    "name": "Areeba Manzoor",
+    "company_email": "areeba.manzoor@qorlune.co.uk",
+    "applicant_email": "areebamanzoor20066@gmail.com",
+    "status": "pending"
+  },
+  {
+    "name": "Shanzey Majid",
+    "company_email": "shanzey.majid@qorlune.co.uk",
+    "applicant_email": "shanzeymajid@gmail.com",
+    "status": "pending"
+  },
+  {
+    "name": "Rimsha Shaikh",
+    "company_email": "rimsha.shaikh@qorlune.co.uk",
+    "applicant_email": "rimshaikh.541@gmail.com",
+    "status": "pending"
+  },
+  {
+    "name": "Muskan Farooq Khan",
+    "company_email": "muskan.farooq@qorlune.co.uk",
+    "applicant_email": "muskanfkhan98@gmail.com",
+    "status": "pending"
+  },
+  {
+    "name": "Rahma Amir",
+    "company_email": "rahma.amir@qorlune.co.uk",
+    "applicant_email": "rahmamir7861@gmail.com",
+    "status": "pending"
+  },
+  {
+    "name": "Bisma zehra",
+    "company_email": "bisma.zehra@qorlune.co.uk",
+    "applicant_email": "bismakazmi51@gmail.com",
+    "status": "pending"
+  },
+  {
+    "name": "Kiran Javed",
+    "company_email": "kiran.javed@qorlune.co.uk",
+    "applicant_email": "kiranjaved6373@gmail.com",
+    "status": "pending"
+  },
+  {
+    "name": "Komal Iqbal",
+    "company_email": "komal.iqbal@qorlune.co.uk",
+    "applicant_email": "komaliqbal216@gmail.com",
+    "status": "pending"
+  },
+  {
+    "name": "Atika Fatimah",
+    "company_email": "atika.fatimah@qorlune.co.uk",
+    "applicant_email": "mj858645@gmail.com",
+    "status": "pending"
+  },
+  {
+    "name": "Afrah Rizwan",
+    "company_email": "afrah.rizwan@qorlune.co.uk",
+    "applicant_email": "afrahrizwan579@gmail.com",
+    "status": "pending"
+  },
+  {
+    "name": "MUHAMMAD HASNAIN",
+    "company_email": "muhammad.hasnain@qorlune.co.uk",
+    "applicant_email": "muhammad451011@gmail.com",
+    "status": "pending"
+  },
+  {
+    "name": "Muhammad Abdullah",
+    "company_email": "muhammad.abdullah@qorlune.co.uk",
+    "applicant_email": "ibnasif056@gmail.com",
+    "status": "pending"
+  },
+  {
+    "name": "Iqra Faisal",
+    "company_email": "iqra.faisal@qorlune.co.uk",
+    "applicant_email": "iiqra2130@gmail.com",
+    "status": "pending"
+  },
+  {
+    "name": "Nazish Ali",
+    "company_email": "nazish.ali@qorlune.co.uk",
+    "applicant_email": "nazishali561@gmail.com",
+    "status": "pending"
+  },
+  {
+    "name": "Saba Saeed",
+    "company_email": "saba.saeed@qorlune.co.uk",
+    "applicant_email": "maliksufyanchannar371@gmail.com",
+    "status": "pending"
+  },
+  {
+    "name": "Soniya Anwar",
+    "company_email": "soniya.anwar@qorlune.co.uk",
+    "applicant_email": "soniyaanwar3@gmail.com",
+    "status": "pending"
+  },
+  {
+    "name": "Maham Fatima",
+    "company_email": "maham.fatima@qorlune.co.uk",
+    "applicant_email": "mahamfatimahnd@gmail.com",
+    "status": "pending"
+  },
+  {
+    "name": "LAIBA AFZAL",
+    "company_email": "laiba.afzal@qorlune.co.uk",
+    "applicant_email": "laibaafzal113@gmail.com",
+    "status": "pending"
+  },
+  {
+    "name": "Umar Asif",
+    "company_email": "umar.asif@qorlune.co.uk",
+    "applicant_email": "u4umarmughal@gmail.com",
+    "status": "pending"
+  },
+  {
+    "name": "Kosar Khan",
+    "company_email": "kosar.khan@qorlune.co.uk",
+    "applicant_email": "kosarazl0788@gmail.com",
+    "status": "pending"
+  },
+  {
+    "name": "eman shakeel",
+    "company_email": "eman.shakeel@qorlune.co.uk",
+    "applicant_email": "emanshakeel144@gmail.com",
+    "status": "pending"
+  },
+  {
+    "name": "Muzammal Shafique MOR-B",
+    "company_email": "muzammal.shafique@qorlune.co.uk",
+    "applicant_email": "muzammalshafique56@gmail.com",
+    "status": "pending"
+  },
+  {
+    "name": "Asif Sultan",
+    "company_email": "asif.sultan@qorlune.co.uk",
+    "applicant_email": "bhattiasif6260@gmail.com",
+    "status": "pending"
+  },
+  {
+    "name": "Amal Faisal",
+    "company_email": "amal.faisal@qorlune.co.uk",
+    "applicant_email": "ammalfaisal07@gmail.com",
+    "status": "pending"
+  },
+  {
+    "name": "Roohma Khan",
+    "company_email": "roohma.khan@qorlune.co.uk",
+    "applicant_email": "roohmanasir@gmail.com",
+    "status": "pending"
+  },
+  {
+    "name": "Muhammad Nouman",
+    "company_email": "muhammad.nouman@qorlune.co.uk",
+    "applicant_email": "nomii5818403@gmail.com",
+    "status": "pending"
+  },
+  {
+    "name": "Samra binte rais",
+    "company_email": "samra.rais@qorlune.co.uk",
+    "applicant_email": "samrabinterais7@gmail.com",
+    "status": "pending"
+  },
+  {
+    "name": "Amna Qamar",
+    "company_email": "amna.qamar@qorlune.co.uk",
+    "applicant_email": "amnasheikh3311@gmail.com",
+    "status": "pending"
+  },
+  {
+    "name": "Noor Fatima Hashmi",
+    "company_email": "noor.fatima@qorlune.co.uk",
+    "applicant_email": "noorfatimahashmi167@gmail.com",
+    "status": "pending"
+  },
+  {
+    "name": "Hifza",
+    "company_email": "hifza.abbas@qorlune.co.uk",
+    "applicant_email": null,
+    "status": "pending"
+  },
+  {
+    "name": "duasehar",
+    "company_email": "duasehar@qorlune.co.uk",
+    "applicant_email": null,
+    "status": "pending"
+  },
+  {
+    "name": "Sara Ishmal",
+    "company_email": "sara.ishmal@qorlune.co.uk",
+    "applicant_email": "sara.ishmal.se@gmail.com",
+    "status": "pending"
+  },
+  {
+    "name": "Raima Zahra",
+    "company_email": "raima.zahra@qorlune.co.uk",
+    "applicant_email": "zahraraima34@gmail.com",
+    "status": "pending"
+  },
+  {
+    "name": "Mishal",
+    "company_email": "mishal@qorlune.co.uk",
+    "applicant_email": "mishiii00770@gmail.com",
+    "status": "pending"
+  },
+  {
+    "name": "Amna bibi",
+    "company_email": "amna.bibi@qorlune.co.uk",
+    "applicant_email": "gullamna000@gmail.com",
+    "status": "pending"
+  },
+  {
+    "name": "Zunaira Murslin",
+    "company_email": "zunaira.murslin@qorlune.co.uk",
+    "applicant_email": "zunairamurslin52@gmail.com",
+    "status": "pending"
+  },
+  {
+    "name": "Kashif khattak",
+    "company_email": "kashif.khattak@qorlune.co.uk",
+    "applicant_email": "kashif98555@gmail.com",
+    "status": "pending"
+  },
+  {
+    "name": "Anam Majeed",
+    "company_email": "anam.majeed@qorlune.co.uk",
+    "applicant_email": "anum56274@gmail.com",
+    "status": "pending"
+  },
+  {
+    "name": "fizza Mubashar",
+    "company_email": "fizza.mubashar@qorlune.co.uk",
+    "applicant_email": "fizzamubashar123@gmail.com",
+    "status": "pending"
+  },
+  {
+    "name": "Yazdan rahim",
+    "company_email": "yazdan.rahim@qorlune.co.uk",
+    "applicant_email": "yazdanbaig89@gmail.com",
+    "status": "pending"
+  }
+]

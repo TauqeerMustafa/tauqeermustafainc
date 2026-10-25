@@ -1,0 +1,46 @@
+name: 24/7 Cloud Email Dispatcher
+
+# Automatically triggers and delivers email campaigns in the cloud even when
+# laptop is off or offline. Runs on GitHub's cloud runners on a recurring schedule
+# or on-demand via workflow_dispatch.
+
+on:
+  schedule:
+    - cron: "*/10 * * * *" # Every 10 minutes in the cloud
+  workflow_dispatch: {}     # Manual 1-click trigger from GitHub Actions
+
+concurrency:
+  group: b2b-cloud-dispatch
+  cancel-in-progress: false
+
+jobs:
+  dispatch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Run Cloud Dispatcher
+        env:
+          OPENEMAIL_API_KEY: ${{ secrets.OPENEMAIL_API_KEY || 'oek_QvxyNrk1tAOyYzAlisEuyRa5mP3LRxSJmaZc_vaJ7es' }}
+        run: |
+          python scripts/cloud_dispatch.py
+
+      - name: Commit and Push Progress State
+        run: |
+          git config user.name "Qorlune Operations Automation"
+          git config user.email "admin@qorlune.co.uk"
+          git add data/internship_targets.json
+          if git diff --staged --quiet; then
+            echo "No progress state updates to commit."
+          else
+            git commit -m "chore(mail): sync cloud email dispatch delivery status [skip ci]"
+            git push
+          fi
