@@ -291,15 +291,15 @@ export function generateCompanyProfilePdf(): void {
   doc.setFont("helvetica", "bold");
   doc.setFontSize(10);
   doc.setTextColor(PRIMARY[0], PRIMARY[1], PRIMARY[2]);
-  doc.text("HEAD OFFICE (UNITED KINGDOM)", margin + 4, curY + 7);
+  doc.text("HEAD OFFICE (UNITED STATES)", margin + 4, curY + 7);
 
   doc.setFont("helvetica", "normal");
   doc.setFontSize(8);
   doc.setTextColor(MUTED[0], MUTED[1], MUTED[2]);
   doc.text("Qorlune LLC", margin + 4, curY + 13);
-  doc.text("TMHQ, 6 Milton Rd, Harrow HA1 1XX", margin + 4, curY + 18);
-  doc.text("London, United Kingdom", margin + 4, curY + 23);
-  doc.text("Hours: 09:00 - 18:00 GMT", margin + 4, curY + 28);
+  doc.text("1808 Orleans Ave", margin + 4, curY + 18);
+  doc.text("New Orleans, LA 70116, United States", margin + 4, curY + 23);
+  doc.text("Hours: 09:00 - 18:00 EST", margin + 4, curY + 28);
 
   // Regional Office
   const col2X = margin + (contentWidth - 4) / 2 + 4;
@@ -428,7 +428,7 @@ export function generateExecutiveOnePagerPdf(): void {
   doc.setFontSize(8);
   doc.setTextColor(156, 163, 175);
   doc.text(
-    `EXECUTIVE ONE-PAGER  •  HQ: LONDON, UK  •  ${company.website}`,
+    `EXECUTIVE ONE-PAGER  •  HQ: NEW ORLEANS, US  •  ${company.website}`,
     margin,
     34
   );
@@ -579,7 +579,7 @@ export function generateExecutiveOnePagerPdf(): void {
   doc.text(`• Sales & RFPs: ${company.emails.sales}`, margin + 5, curY + 14);
   doc.text(`• General Inquiries: ${company.emails.contact}`, margin + 5, curY + 20);
   doc.text(`• WhatsApp Direct: ${company.whatsappChannels.general.number}`, margin + 5, curY + 26);
-  doc.text(`• Head Office: TMHQ, 6 Milton Rd, Harrow HA1 1XX, London, UK`, margin + 5, curY + 32);
+  doc.text(`• Head Office: 1808 Orleans Ave, New Orleans, LA 70116, United States`, margin + 5, curY + 32);
   doc.text(`• Regional Office: TMRQ, Iqbal Town, Islamabad, Pakistan`, margin + 5, curY + 37);
 
   // Footer

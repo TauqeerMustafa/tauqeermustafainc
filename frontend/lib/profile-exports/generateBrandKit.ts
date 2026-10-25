@@ -17,7 +17,7 @@ EMAIL;TYPE=WORK,INTERNET:${company.emails.contact}
 EMAIL;TYPE=WORK,INTERNET:${company.emails.sales}
 EMAIL;TYPE=WORK,INTERNET:${company.emails.support}
 URL:${company.website}
-ADR;TYPE=WORK,POSTAL,PARCEL:;;6 Milton Rd;Harrow;London;HA1 1XX;United Kingdom
+ADR;TYPE=WORK,POSTAL,PARCEL:;;1808 Orleans Ave;New Orleans;LA;70116;United States
 ADR;TYPE=WORK:;;Flat 02-A A Block, Awais Appt, Iqbal Town;Islamabad;;;Pakistan
 NOTE:${company.tagline} - ${company.description}
 END:VCARD`;

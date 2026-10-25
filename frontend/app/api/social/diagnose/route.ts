@@ -28,7 +28,7 @@ export async function GET(req: NextRequest) {
       connected: waData.status === "CONNECTED",
       status: waData.status || "UNKNOWN",
       quality: waData.quality_rating || "UNKNOWN",
-      displayPhone: waData.display_phone_number || "+92 335 6701199",
+      displayPhone: waData.display_phone_number || "+1 711-091-5975",
       verifiedName: waData.verified_name || "Tauqeer Mustafa",
       antiBanArmed: true,
       rateLimitTier: "Tier 1 (1,000 unique customers / 24h rolling)",

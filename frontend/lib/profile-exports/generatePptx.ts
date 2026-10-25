@@ -95,7 +95,7 @@ export async function generatePptxDeck(): Promise<void> {
 
     // Meta Footer
     slide.addText(
-      `UK Head Office: London / Harrow  •  Regional Office: Islamabad  •  ${company.website}`,
+      `Head Office: New Orleans, LA, United States  •  Regional Office: Islamabad  •  ${company.website}`,
       {
         x: 1.2,
         y: 6.2,

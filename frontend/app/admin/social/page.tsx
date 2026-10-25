@@ -176,7 +176,7 @@ export default function SocialMediaHubPage() {
           label="WhatsApp Cloud API"
           value={waStatus?.connected ? "Connected" : "Online"}
           tone="green"
-          hint={`Phone: ${waStatus?.displayPhone || "+92 335 6701199"} • Quality: ${waStatus?.quality || "GREEN"}`}
+          hint={`Phone: ${waStatus?.displayPhone || "+1 711-091-5975"} • Quality: ${waStatus?.quality || "GREEN"}`}
         />
         <StatCard
           label="Facebook Page (Meta)"

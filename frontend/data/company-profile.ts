@@ -88,7 +88,7 @@ export const profileSlides: ProfileSlide[] = [
     keyHighlights: [
       { label: "Entity", value: "Qorlune LLC" },
       { label: "Founded", value: "2023" },
-      { label: "HQ", value: "London / Harrow, UK" },
+      { label: "HQ", value: "New Orleans, LA, United States" },
       { label: "Website", value: "qorlune.co.uk" },
     ],
   },
