@@ -63,8 +63,8 @@ export const DEFAULT_QORLUNE_ID = "1433890589802290";
 export const DEFAULT_PRIMARY_ID = DEFAULT_QORLUNE_ID;
 export const DEFAULT_QORLUNE_DISPLAY = "+1 711-091-5975";
 
-const FORBIDDEN_PHONE_IDS = new Set(["1239592269240963"]);
-const FORBIDDEN_NUMBERS = ["3356701199", "6701199", "+923356701199", "+92 335 6701199"];
+const FORBIDDEN_PHONE_IDS = new Set<string>([]);
+const FORBIDDEN_NUMBERS: string[] = [];
 
 export function isForbiddenNumber(raw?: string | null): boolean {
   if (!raw) return false;
