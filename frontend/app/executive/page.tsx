@@ -327,7 +327,7 @@ export default function ExecutiveOutreachPortal() {
                     type="text"
                     value={location}
                     onChange={(e) => setLocation(e.target.value)}
-                    placeholder="e.g. London / UK, North America, Global Remote"
+                    placeholder="e.g. United States, North America, Global Remote"
                     className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-slate-200 focus:outline-none focus:border-cyan-500 transition"
                   />
                 </div>
