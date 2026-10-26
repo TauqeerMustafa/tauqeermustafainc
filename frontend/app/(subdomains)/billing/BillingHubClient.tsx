@@ -34,9 +34,9 @@ export default function BillingHubClient({ initialTab = "pay" }: { initialTab?: 
       <PageHero
         eyebrow="Treasury Operations // Global Settlements"
         title="Billing & Treasury Hub"
-        description="Institutional corporate financial operations: settle invoices securely with Paddle, access the self-service customer portal, track contractor disbursements, or review commercial payment policies."
+        description="Institutional corporate financial operations: settle invoices securely with Whop, access the self-service customer portal, track contractor disbursements, or review commercial payment policies."
       >
-        <Badge>Paddle Merchant of Record</Badge>
+        <Badge>Whop Merchant of Record</Badge>
         <BadgeMuted>Apple Pay & Google Pay</BadgeMuted>
         <BadgeMuted>Meezan Bank & Raast Supported</BadgeMuted>
         <BadgeMuted>256-Bit SSL Encrypted</BadgeMuted>
@@ -74,7 +74,7 @@ export default function BillingHubClient({ initialTab = "pay" }: { initialTab?: 
                 </div>
                 <h3 className="mt-4 text-[16px] font-bold uppercase text-ink">Make a Payment</h3>
                 <p className="mt-2 text-[13px] font-light leading-[1.6] text-ink-muted">
-                  Instant settlement via Paddle (Cards, Apple Pay, PayPal) or direct Meezan Raast.
+                  Instant settlement via Whop (Cards, Apple Pay, Google Pay) or direct Meezan Raast.
                 </p>
               </div>
               <div className="mt-5 flex items-center gap-1 font-mono text-[11px] font-bold text-action uppercase tracking-wider">
@@ -209,7 +209,7 @@ export default function BillingHubClient({ initialTab = "pay" }: { initialTab?: 
                       <span>Institutional Assurance</span>
                     </div>
                     <ul className="space-y-2 text-ink-muted font-light leading-relaxed">
-                      <li>// Global Merchant of Record protection via Paddle.</li>
+                      <li>// Global Merchant of Record protection via Whop.</li>
                       <li>// Direct bank reconciliation on all PKR Raast transfers.</li>
                       <li>// Zero currency markup on international USD wire settlements.</li>
                       <li>// Automated tax invoices generated instantly upon clearance.</li>
@@ -297,7 +297,7 @@ export default function BillingHubClient({ initialTab = "pay" }: { initialTab?: 
                       <span>Accepted Settlement Rails</span>
                     </div>
                     <p className="text-xs text-ink-muted font-light leading-relaxed">
-                      We accept global card and digital payments via Paddle, domestic bank transfers via Meezan Bank IBAN & Raast, international USD wire transfers, and Wise multi-currency routing.
+                      We accept global card and digital payments via Whop, domestic bank transfers via Meezan Bank IBAN & Raast, international USD wire transfers, and Wise multi-currency routing.
                     </p>
                   </div>
 
@@ -317,7 +317,7 @@ export default function BillingHubClient({ initialTab = "pay" }: { initialTab?: 
                       <span>Tax Compliance & Invoicing</span>
                     </div>
                     <p className="text-xs text-ink-muted font-light leading-relaxed">
-                      All transactions include electronic sales tax/NTN receipts compliant with FBR regulations. International B2B clients receive standard cross-border commercial invoices through Paddle.
+                      All transactions include electronic sales tax/NTN receipts compliant with FBR regulations. International B2B clients receive standard cross-border commercial invoices through Whop.
                     </p>
                   </div>
                 </div>

@@ -22,7 +22,7 @@ import {
 import { usePaddle } from "@/hooks/usePaddle";
 import { paddleConfig, PRESET_MILESTONES } from "@/config/paddle";
 
-type PaymentMethod = "paddle" | "bank" | "raast" | "wise";
+type PaymentMethod = "whop" | "paddle" | "bank" | "raast" | "wise";
 type Currency = "USD" | "EUR" | "GBP" | "PKR";
 
 interface Receipt {
@@ -55,7 +55,7 @@ export default function PaymentCheckout() {
   const [selectedPreset, setSelectedPreset] = useState<string | null>("discovery-deposit");
 
   // Payment method selection
-  const [method, setMethod] = useState<PaymentMethod>("paddle");
+  const [method, setMethod] = useState<PaymentMethod>("whop");
 
   // Bank transfer receipt submission
   const [senderBank, setSenderBank] = useState("Meezan Bank Limited");
@@ -190,45 +190,11 @@ export default function PaymentCheckout() {
 
     setProcessing(true);
 
-    // 1. PADDLE CHECKOUT FLOW
-    if (method === "paddle") {
-      try {
-        const txRes = await fetch("/api/billing/paddle/create-transaction", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            clientName: clientName.trim(),
-            clientEmail: clientEmail.trim(),
-            service,
-            projectRef: projectRef.trim() || undefined,
-            amount: parsedAmount,
-            currency,
-          }),
-        });
-
-        const txData = await txRes.json();
-
-        if (txRes.ok && txData.transactionId) {
-          // Open official Paddle Checkout overlay
-          openCheckout({
-            transactionId: txData.transactionId,
-            customer: {
-              email: clientEmail.trim(),
-            },
-          });
-        } else if (txData.configured === false) {
-          // Guide administrator on missing API key while permitting test flow
-          setErrorMessage(
-            "Paddle API Key (PADDLE_API_KEY) is not yet set in environment. Please add your credentials from vendors.paddle.com to complete real transactions."
-          );
-        } else {
-          setErrorMessage(txData.message || "Failed to initiate Paddle checkout transaction.");
-        }
-      } catch {
-        setErrorMessage("Network error connecting to Paddle gateway. Please try again or use direct wire transfer.");
-      } finally {
-        setProcessing(false);
-      }
+    // 1. WHOP CHECKOUT FLOW
+    if (method === "whop" || method === "paddle") {
+      const emailParam = clientEmail.trim() ? `?email=${encodeURIComponent(clientEmail.trim())}` : "";
+      const whopCheckoutUrl = `https://whop.com/checkout/plan_VBTSFyZ4ynM2a${emailParam}`;
+      window.location.href = whopCheckoutUrl;
       return;
     }
 
@@ -579,9 +545,9 @@ export default function PaymentCheckout() {
               <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
                 {[
                   {
-                    id: "paddle",
-                    label: "Paddle Checkout",
-                    sub: "Cards, Apple Pay, PayPal",
+                    id: "whop",
+                    label: "Whop Checkout",
+                    sub: "Cards, Apple Pay, Google Pay",
                     icon: CreditCard,
                     badge: "Recommended",
                   },
@@ -640,13 +606,13 @@ export default function PaymentCheckout() {
             </div>
 
             {/* Paddle Details Preview */}
-            {method === "paddle" && (
+            {method === "whop" && (
               <div className="border border-line bg-canvas p-6 space-y-4 animate-in fade-in duration-150">
                 <div className="flex items-center justify-between pb-3 border-b border-line">
                   <div className="flex items-center gap-2">
                     <ShieldCheck size={16} className="text-action" />
                     <span className="font-mono text-[11px] font-bold uppercase text-ink">
-                      Paddle Merchant of Record Settlement
+                      Whop Merchant of Record Settlement
                     </span>
                   </div>
                   <span className="font-mono text-[10px] text-ink-muted flex items-center gap-1">
@@ -658,11 +624,11 @@ export default function PaymentCheckout() {
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 font-mono text-xs text-ink-muted">
                   <div className="border border-line bg-surface p-3 space-y-1">
                     <span className="text-ink font-bold block uppercase text-[10px]">Payment Methods:</span>
-                    <p className="text-[11px]">Visa, Mastercard, Amex, Apple Pay, Google Pay, PayPal.</p>
+                    <p className="text-[11px]">Visa, Mastercard, Amex, Apple Pay, Google Pay, Whop Pay.</p>
                   </div>
                   <div className="border border-line bg-surface p-3 space-y-1">
                     <span className="text-ink font-bold block uppercase text-[10px]">Tax & Compliance:</span>
-                    <p className="text-[11px]">Automated sales tax, VAT, and GST invoices generated by Paddle.</p>
+                    <p className="text-[11px]">Automated global sales tax, VAT, and GST invoices generated by Whop.</p>
                   </div>
                   <div className="border border-line bg-surface p-3 space-y-1">
                     <span className="text-ink font-bold block uppercase text-[10px]">Security:</span>
@@ -670,14 +636,7 @@ export default function PaymentCheckout() {
                   </div>
                 </div>
 
-                {!isPaddleConfigured && (
-                  <div className="p-3 border border-amber-500/30 bg-amber-500/10 text-xs font-mono text-amber-700 dark:text-amber-300">
-                    <p className="font-bold uppercase">Setup Note for Administrator:</p>
-                    <p className="mt-1">
-                      Add `NEXT_PUBLIC_PADDLE_CLIENT_TOKEN` and `PADDLE_API_KEY` to your `.env.local` to enable production Paddle checkout.
-                    </p>
-                  </div>
-                )}
+                
               </div>
             )}
 
@@ -863,9 +822,9 @@ export default function PaymentCheckout() {
                   <Loader2 size={14} className="animate-spin" />
                   <span>Connecting to Settlement Gateway...</span>
                 </>
-              ) : method === "paddle" ? (
+              ) : (method === "whop" || method === "paddle") ? (
                 <>
-                  <span>Pay with Paddle ({currency} {Number(amount || 0).toLocaleString()})</span>
+                  <span>Pay with Whop ({currency} {Number(amount || 0).toLocaleString()})</span>
                   <ArrowRight size={14} />
                 </>
               ) : (
