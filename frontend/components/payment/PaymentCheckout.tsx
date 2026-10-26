@@ -465,58 +465,6 @@ export default function PaymentCheckout() {
 
           {/* Main Payment Checkout Form */}
           <form onSubmit={handlePay} className="space-y-8">
-            {/* Preset Packages Chips */}
-            {tab === "custom" && (
-              <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <span className="font-mono text-[11px] font-bold uppercase tracking-wider text-ink flex items-center gap-1.5">
-                    <Sparkles size={13} className="text-action" />
-                    <span>Preset Engineering Packages</span>
-                  </span>
-                  <button
-                    type="button"
-                    onClick={() => setSelectedPreset(null)}
-                    className="font-mono text-[10px] text-action uppercase hover:underline"
-                  >
-                    Custom Milestone &rarr;
-                  </button>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                  {PRESET_MILESTONES.map((preset) => {
-                    const isSelected = selectedPreset === preset.id;
-                    return (
-                      <button
-                        key={preset.id}
-                        type="button"
-                        onClick={() => handleSelectPreset(preset.id)}
-                        className={`p-3.5 border text-left transition cursor-pointer flex flex-col justify-between ${
-                          isSelected
-                            ? "border-action bg-surface shadow-xs"
-                            : "border-line bg-canvas hover:border-action/40"
-                        }`}
-                      >
-                        <div>
-                          <span className="font-mono text-[10px] font-bold text-action uppercase">
-                            ${preset.amount.toLocaleString()} USD
-                          </span>
-                          <h4 className="mt-1 font-bold text-xs uppercase text-ink line-clamp-1">
-                            {preset.title}
-                          </h4>
-                          <p className="mt-1 text-[11px] text-ink-muted font-light line-clamp-2">
-                            {preset.description}
-                          </p>
-                        </div>
-                        <span className="mt-3 font-mono text-[9px] uppercase tracking-wider text-ink/40">
-                          {isSelected ? "✓ Selected" : "Select Tier"}
-                        </span>
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-            )}
-
             {/* Payer Details */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-1.5">
