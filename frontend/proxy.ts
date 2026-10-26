@@ -89,7 +89,6 @@ export async function proxy(request: NextRequest) {
     if (hostname.startsWith("portals.")) targetHost = "portals.qorlune.co.uk";
     else if (hostname.startsWith("support.") || hostname.startsWith("help.")) targetHost = "support.qorlune.co.uk";
     else if (hostname.startsWith("billing.")) targetHost = "billing.qorlune.co.uk";
-    else if (hostname.startsWith("store.")) targetHost = "store.qorlune.co.uk";
     else if (hostname.startsWith("docs.")) targetHost = "docs.qorlune.co.uk";
     else if (hostname.startsWith("community.")) targetHost = "qorlune.co.uk";
     else if (hostname.startsWith("app.")) targetHost = "app.qorlune.co.uk";
@@ -196,12 +195,6 @@ export async function proxy(request: NextRequest) {
       if (pathname === "/billing" || pathname.startsWith("/billing/")) {
         const billingPath = pathname.replace(/^\/billing/, "");
         return NextResponse.redirect(`https://billing.${apex}${billingPath || "/"}${search}`);
-      }
-
-      // Digital Store & Products Marketplace (store.qorlune.co.uk)
-      if (pathname === "/store" || pathname.startsWith("/store/")) {
-        const storePath = pathname.replace(/^\/store/, "");
-        return NextResponse.redirect(`https://store.${apex}${storePath || "/"}${search}`);
       }
 
       // Customer Support & Helpdesk redirects
@@ -333,17 +326,6 @@ export async function proxy(request: NextRequest) {
       }
       if (!pathname.startsWith("/support")) {
         url.pathname = `/support${pathname}`;
-        return NextResponse.rewrite(url);
-      }
-    }
-
-    if (hostname.startsWith("store.")) {
-      if (pathname === "/") {
-        url.pathname = "/store";
-        return NextResponse.rewrite(url);
-      }
-      if (!pathname.startsWith("/store")) {
-        url.pathname = `/store${pathname}`;
         return NextResponse.rewrite(url);
       }
     }
