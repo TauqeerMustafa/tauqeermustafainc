@@ -507,30 +507,40 @@
     "name": "Zunaira Murslin",
     "company_email": "zunaira.murslin@qorlune.co.uk",
     "applicant_email": "zunairamurslin52@gmail.com",
-    "status": "pending"
+    "status": "delivered",
+    "delivery_id": "send:01M5WMHF24VFYWBPJG1VV5TGG0",
+    "delivered_at": "2026-10-26T17:36:21Z"
   },
   {
     "name": "Kashif khattak",
     "company_email": "kashif.khattak@qorlune.co.uk",
     "applicant_email": "kashif98555@gmail.com",
-    "status": "pending"
+    "status": "delivered",
+    "delivery_id": "send:01M5WMHS7JYDG41Y4MKKS6Y4FF",
+    "delivered_at": "2026-10-26T17:36:29Z"
   },
   {
     "name": "Anam Majeed",
     "company_email": "anam.majeed@qorlune.co.uk",
     "applicant_email": "anum56274@gmail.com",
-    "status": "pending"
+    "status": "delivered",
+    "delivery_id": "send:01M5WMJ1R96XAFG494FQCA5J7Y",
+    "delivered_at": "2026-10-26T17:36:38Z"
   },
   {
     "name": "fizza Mubashar",
     "company_email": "fizza.mubashar@qorlune.co.uk",
     "applicant_email": "fizzamubashar123@gmail.com",
-    "status": "pending"
+    "status": "delivered",
+    "delivery_id": "send:01M5WMJA3EB5T6RHQ3RYWTSV0T",
+    "delivered_at": "2026-10-26T17:36:47Z"
   },
   {
     "name": "Yazdan rahim",
     "company_email": "yazdan.rahim@qorlune.co.uk",
     "applicant_email": "yazdanbaig89@gmail.com",
-    "status": "pending"
+    "status": "delivered",
+    "delivery_id": "send:01M5WMJJYHEXQEGF1B13QZ0D5X",
+    "delivered_at": "2026-10-26T17:36:56Z"
   }
 ]
