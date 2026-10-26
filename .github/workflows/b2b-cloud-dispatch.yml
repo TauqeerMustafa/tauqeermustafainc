@@ -16,6 +16,8 @@ concurrency:
 jobs:
   dispatch:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
@@ -42,5 +44,6 @@ jobs:
             echo "No progress state updates to commit."
           else
             git commit -m "chore(mail): sync cloud email dispatch delivery status [skip ci]"
+            git pull --rebase origin master || true
             git push
           fi
