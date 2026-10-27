@@ -1,0 +1,41 @@
+@use '../../utils' as *;
+
+.h3-feature {
+    &__item {
+        padding: 50px;
+        border-radius: 12px;
+        background-color: var(--rr-heading-primary);
+        text-align: center;
+
+        &-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 80px;
+            height: 80px;
+            background-color: var(--rr-common-gray);
+            border-radius: 8px;
+            margin: 0 auto 40px;
+        }
+
+        &-title {
+            color: var(--rr-common-white);
+            font-family: var(--rr-ff-heading);
+            font-size: 35px;
+            font-style: normal;
+            font-weight: 700;
+            line-height: 40px;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+        }
+
+        &-text {
+            color: var(--rr-common-white);
+            font-family: var(--rr-ff-body);
+            font-size: 20px;
+            font-style: normal;
+            font-weight: 400;
+            line-height: 20px;
+        }
+    }
+}

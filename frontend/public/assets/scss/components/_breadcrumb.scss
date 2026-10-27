@@ -1,0 +1,131 @@
+@use "../utils" as *;
+
+/*----------------------------------------*/
+/*  2.7 breadcrumb
+/*----------------------------------------*/
+// Breadcrumb style
+.breadcrumb{
+  &__area{
+    padding-top: 220px;
+    padding-bottom: 90px;
+    @media #{$mxm,$mxs,$xxs,$xs} {
+      padding-top: 180px;
+      padding-bottom: 70px;
+   }  
+  }
+  &__shapes{
+    &-shape-1{
+      position: absolute;
+      right: 695px;
+      top: 300px;
+      @media #{$xxl} {
+        right: 400px;;
+      }
+    }
+    &-shape-2{
+      position: absolute;
+      left: 160px;
+      top: 532px;
+      @media #{$lg} {
+       top: 470px;
+      }
+      @media #{$md} {
+       top: 460px;
+      }
+      @media #{$mxm,$mxs,$xxs,$xs} {
+        left: 240px;
+        top: 380px;
+     }  
+    }
+    &-shape-3{
+      position: absolute;
+      right: 160px;
+      top: 226px;
+      @media #{$mxm,$mxs,$xxs,$xs} {
+        top: 145px;
+     }  
+      
+    }
+  }
+  &__title-wrapper{
+    &__title{
+      font-family: var(--rr-ff-heading);
+      font-weight: var(--rr-fw-bold);
+      color: var(--rr-common-white);
+      font-size: 190px;
+      line-height: 200px;
+      font-style: normal;
+      text-transform: uppercase;
+      margin-bottom: 0;
+      margin: 0 15px;
+      @media #{$xxl} {
+        font-size: 170px;
+     } 
+      @media #{$xl} {
+        font-size: 130px;
+        line-height: 160px;
+     } 
+      @media #{$lg,$md} {
+        font-size: 70px;
+        line-height: 122px;
+     } 
+      @media #{$md} {
+        font-size: 65px;
+        line-height: 122px;
+     } 
+     @media #{$sm} {
+      font-size: 50px;
+      line-height: 82px;
+   } 
+   @media #{$mxm,$mxs,$xxs,$xs} {
+    font-size: 43px;
+    line-height: 60px;
+ }  
+      span{
+        font-family: var(--rr-ff-heading);
+        font-weight: var(--rr-fw-bold);
+        color: var(--rr-common-white);
+        font-size: 189px;
+        line-height: 200px;
+        font-style: normal;
+        text-transform: uppercase;
+        padding-left: 560px;
+        margin-bottom: 0;
+        @media #{$xxxl} {
+          padding-left: 500px;
+       }  
+        @media #{$xxl} {
+          font-size: 170px;
+          line-height: 200px;
+          padding-left: 438px;
+       }  
+        @media #{$xl} {
+          font-size: 130px;
+          line-height: 159px;
+          padding-left: 410px;
+       }  
+        @media #{$lg} {
+          font-size: 70px;
+          line-height: 122px;
+          padding-left: 400px;
+       }  
+        @media #{$md} {
+          font-size: 65px;
+          line-height: 122px;
+          padding-left: 358px;
+       }  
+
+        @media #{$sm} {
+          font-size: 50px;
+          line-height: 82px;
+          padding-left: 250px;
+       }  
+        @media #{$mxm,$mxs,$xxs,$xs} {
+          font-size: 38px;
+          line-height: 60px;
+          padding-left: 55px;
+       }  
+      }
+    }
+  }
+}

@@ -1,0 +1,52 @@
+
+// font url
+$font-url: '@import url(https://fonts.googleapis.com/css2?family=Josefin+Sans:ital,wght@0,100..700;1,100..700&display=swap)';
+// font family
+$font-family: (
+    ff: (
+        "heading": "'Josefin Sans', sans-serif",
+        "body": "'Josefin Sans', sans-serif",
+        "fontawesome": '"Font Awesome 6 Pro"',
+    )
+);
+// font weight
+$font-scale: (
+    fw: (
+        "normal": normal,
+        "thin": 100,
+        "elight": 200,
+        "light": 300,
+        "regular": 400,
+        "medium": 500,
+        "sbold": 600,
+        "bold": 700,
+        "ebold": 800,
+        "black": 900,
+    )
+);
+
+// font size
+$font-size: (
+    fs: (
+        "body": 18px,
+        "body2": 20px,
+        "p": 15px,
+        "h1": 190px,
+        "h2": 120px,
+        "h3": 60px,
+        "h4": 42px,
+        "h5": 26px,
+        "h6": 24px,
+    ),
+    lh: (
+    "body": 28px,
+    "body2": 30px,
+    "p": 24px,
+    "h1": 200px,
+    "h2": 130px,
+    "h3": 70px,
+    "h4": 52px,
+    "h5": 36px,
+    "h6": 34px,
+    )
+);

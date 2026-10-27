@@ -1,0 +1,84 @@
+@use '../../utils' as *;
+
+.h4-service {
+    &__title {
+        font-size: 60px;
+        line-height: 1.2;
+        color: var(--rr-common-black);
+        font-family: var(--rr-ff-heading);
+        font-weight: var(--rr-fw-bold);
+        margin-bottom: 20px;
+        text-decoration: underline;
+        margin-bottom: 60px;
+
+        @media #{$md} {
+            font-size: 30px;
+        }
+    }
+
+    &__wrap {
+        margin-top: 50px;
+    }
+
+    &__item {
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+        padding: 20px;
+        margin-bottom: 20px;
+        gap: 100px;
+        background: var(--rr-common-white);
+        border: 1px solid var(--rr-common-gray);
+        border-radius: 10px;
+ 
+
+        @media #{$xs} {
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            gap: 40px;
+        }
+
+        &-number {
+            font-size: 24px;
+            line-height: 1;
+            color: var(--rr-common-black);
+            font-family: var(--rr-ff-heading);
+            font-weight: var(--rr-fw-bold);
+            margin-bottom: 10px;
+        }
+
+        &-text {
+            font-size: 38px;
+            line-height: 1.5;
+            color: var(--rr-common-black);
+            font-family: var(--rr-ff-heading);
+            font-weight: var(--rr-fw-bold);
+
+              @media #{$md} {
+                    font-size: 19px;
+                    line-height: 26px;
+                }
+
+                @media #{$xs} {
+                     font-size: 18px;
+                    line-height: 1;
+                }
+
+                @media #{$xxs} {
+                    font-size: 17px;
+                    line-height: 1;
+                }
+
+                @media #{mxm} {
+                   font-size: 16px;
+                    line-height: 1;
+                }
+
+                @media #{$mxs} {
+                     font-size: 15px;
+                    line-height: 1;
+                }
+        }
+    }
+}

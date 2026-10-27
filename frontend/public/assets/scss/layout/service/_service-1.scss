@@ -1,0 +1,191 @@
+@use '../../utils' as *;
+
+
+.h1-service {
+  &__area {
+    & .swiper {
+      & .swiper-wrapper {
+        & .swiper-slide {
+          width: auto !important;
+        }
+      }
+    }
+
+    .h1-brand__slider {
+      padding: 50px 0;
+
+      @media #{$xs} {
+        padding: 50px 0;
+      }
+    }
+  }
+
+  &__content {
+    h2 {
+      font-size: 120px;
+      text-transform: uppercase;
+      font-weight: var(--rr-fw-bold);
+      color: var(--rr-common-white);
+      font-family: var(--rr-ff-heading);
+      margin-bottom: 0;
+
+      @media #{$lg} {
+        font-size: 50px;
+      }
+
+      @media #{$md,$sm} {
+        font-size: 50px;
+      }
+
+      @media #{$mxm,$mxs,$xxs,$xs} {
+        font-size: 35px;
+      }
+
+      span {
+        font-size: 120px;
+        text-transform: uppercase;
+        font-weight: var(--rr-fw-bold);
+        color: var(--rr-theme-primary);
+        font-family: var(--rr-ff-heading);
+        color: rgba(255, 255, 255, 0);
+        -webkit-text-stroke: 1px rgba(255, 255, 255, 0.6);
+
+        @media #{$lg} {
+          font-size: 50px;
+        }
+
+        @media #{$md,$sm} {
+          font-size: 50px;
+        }
+
+        @media #{$mxm,$mxs,$xxs,$xs} {
+          font-size: 35px;
+        }
+      }
+    }
+  }
+
+  &__item {
+    padding: 0px 128px;
+
+    @media #{$lg, $xl, $md, $sm} {
+      padding: 0px 28px;
+    }
+
+    @media #{$xs} {
+      padding: 0px 8px;
+    }
+
+    &-content {
+      display: flex;
+      flex-wrap: wrap;
+      padding: 40px 0px;
+      align-items: center;
+      align-content: center;
+      justify-content: space-between;
+      // border-width: 1px 0px 1px 0px;
+      // border: 1px solid rgba(255, 255, 255, 0.1);
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      margin-top: -1px;
+
+      &-2 {
+        border-top: 3px solid rgba(255, 255, 255, 0.1);
+      }
+
+      &-3 {
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+      }
+
+      &:hover {
+        .h1-service__item-content-btn {
+          a {
+            background-color: var(--rr-theme-primary);
+          }
+        }
+
+        & .mddle-text {
+          top: 50%;
+          left: 0%;
+          opacity: 1;
+          visibility: visible;
+          transform: translate(0%, -50%);
+        }
+      }
+
+      &-thumb {
+        & .mddle-text {
+          top: 50%;
+          left: 0%;
+          opacity: 0;
+          visibility: hidden;
+          @include rs-transition;
+          transform: translate(0%, -50%);
+
+          & .swiper {
+            & .swiper-wrapper {
+              & .swiper-slide {
+                width: auto !important;
+              }
+            }
+          }
+
+          h6 {
+            font-size: 18px;
+            line-height: 156%;
+            padding-top: 10px;
+            margin-right: -1px;
+            font-weight: var(--rr-fw-sbold);
+            font-family: var(--rr-ff-heading);
+            color: var(--rr-heading-primary);
+            background-color: var(--rr-common-white);
+          }
+        }
+      }
+
+      &-heading {
+        max-width: 600px;
+        width: 100%;
+
+        span {
+          font-size: 24px;
+          line-height: 100%;
+          text-align: center;
+          color: var(--rr-common-white);
+          font-weight: var(--rr-fw-sbold);
+          font-family: var(--rr-ff-heading);
+        }
+
+        h2 {
+          line-height: 117%;
+          font-weight: var(--rr-fw-sbold);
+          font-family: var(--rr-ff-heading);
+          font-size: clamp(30px, 5vw, 60px);
+          color: var(--rr-common-white);
+
+          &:hover {
+            color: var(--rr-theme-primary);
+          }
+        }
+      }
+
+      &-btn {
+        a {
+          display: grid;
+          place-items: center;
+          border-radius: 6px;
+          padding: 11px 22px;
+          background-color: var(--rr-common-white);
+
+          i {
+            color: var(--rr-heading-primary);
+          }
+        }
+      }
+    }
+  }
+}
+
+.custom-row {
+  margin: 0 15px;
+}

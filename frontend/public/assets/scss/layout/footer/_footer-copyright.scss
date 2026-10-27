@@ -1,0 +1,26 @@
+@use '../../utils' as *;
+
+
+// start copyright section 
+.h1-copyright {
+	
+	&__area {
+	  p {
+		font-weight: 500;
+		font-size: 18px;
+		line-height: 156%;
+		text-align: center;
+		color: var(--rr-heading-primary);
+		font-family:var(--rr-ff-heading);
+	  }
+	}
+  }
+  // end copyright section 
+
+  //about-copyright
+  .about-copyright{
+	background: var(--rr-heading-primary) !important;
+	p{
+		color: var(--rr-common-white);
+	}
+  }

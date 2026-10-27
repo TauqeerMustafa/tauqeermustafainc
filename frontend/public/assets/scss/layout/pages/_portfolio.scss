@@ -1,0 +1,166 @@
+@use "../../utils" as *;
+.custom-gutter {
+	--bs-gutter-x: 92px;
+	@media #{$md} {
+	  --bs-gutter-x: 70px;
+	}
+	@media #{$sm,$mxs,$mxm,$xxs,$xs} {
+	  --bs-gutter-x: 0px;
+	}
+  }
+.h1-project {
+    &__heading-text {
+      h2 {
+        line-height: 117%;
+        text-align: center;
+        padding: 90px 0px;
+        font-weight: var(--rr-fw-bold);
+        color: var(--rr-common-white);
+        font-family: var(--rr-ff-heading);
+        font-size: clamp(30px, 5vw, 60px);
+        background: var(--rr-heading-primary);
+        margin-bottom: 0;
+        @media #{$mxs,$mxm,$xxs} {
+          padding: 40px 0px;
+          & br {
+            display: none;
+          }
+        }
+      }
+    }
+    &__item {
+      padding: 45px;
+      margin: 45px 0px;
+      background-color: var(--rr-heading-primary);
+      @media #{$md} {
+        padding: 30px;
+        margin: 30px 0px;
+      }
+      @media #{$sm} {
+        padding: 30px;
+        margin: 20px 0px;
+      }
+      @media #{$mxs,$mxm,$xxs,$xs} {
+        padding: 16px;
+        margin: 10px 0px;
+      }
+      &:hover {
+        & .h1-project__item-content {
+          opacity: 1;
+          visibility: visible;
+        }
+      }
+      &-thumb {
+        img {
+          width: 100%;
+          border-radius: 10px;
+          cursor: none;
+        }
+      }
+      &-content {
+        display: inline-flex;
+        flex-direction: column;
+        gap: 10px;
+        left: 45px;
+        bottom: 45px;
+        opacity: 0;
+        visibility: hidden;
+        @include rs-transition;
+        @media #{$md,$mxs} {
+          left: 22px;
+          bottom: 24px;
+        }
+        h6 {
+          font-size: 16px;
+          line-height: 162%;
+          font-weight: var(--rr-fw-bold);
+          color: var(--rr-heading-primary);
+          font-family: var(--rr-ff-heading);
+          background-color: var(--rr-common-white);
+          display: inline-block;
+          padding: 10px;
+          border-radius: 4px;
+          @media #{$md,$mxs,$mxm} {
+            font-size: 14px;
+            padding: 5px;
+            line-height: 1;
+          }
+          &:hover {
+            color: var(--rr-theme-primary);
+          }
+        }
+        h2 {
+          font-size: 30px;
+          line-height: 133%;
+          font-weight: var(--rr-fw-bold);
+          font-family: var(--rr-ff-heading);
+          color: var(--rr-heading-primary);
+          background-color: var(--rr-common-white);
+          display: inline;
+          padding: 10px;
+          border-radius: 4px;
+          @media #{$md,$mxs,$mxm} {
+            padding: 5px;
+            font-size: 16px;
+          }
+          &:hover {
+            color: var(--rr-theme-primary);
+          }
+        }
+      }
+    }
+  }
+  .project-title{
+    font-family: 'Josefin Sans';
+    font-style: normal;
+    font-weight: 700;
+    font-size: 60px;
+    line-height: 70px;
+    color: #FFFFFF;
+    @media #{$mxs,$mxm,$xxs,$xs} {
+      font-size: 32px;
+      line-height: 50px;
+    }
+  }
+
+  .portfolio-filter{
+    background: #202020;
+    max-width: 793px;
+    border-radius: 65px;
+    display: flex;
+    margin: 0 auto;
+    justify-content: center;
+    & button {
+      margin: 15px 4px 15px 0;
+      font-family: 'Josefin Sans';
+      font-style: normal;
+      font-weight: 700;
+      font-size: 18px;
+      line-height: 28px;
+      color: #FFFFFF;
+      padding: 7px 25px;
+      border-radius: 65px;
+      transition: all 0.3s ease-in-out;
+      @media #{$md} {
+        font-size: 15px;
+      }
+      @media #{$sm} {
+        font-size: 10px;
+        margin: 15px 0px 15px 0;
+      }
+      @media #{$xxs,$xs,$mxm} {
+        font-size: 9px;
+        margin: 13px 0px 13px 0;
+        padding: 4px 8px;
+      }
+      @media #{$mxs} {
+        font-size: 7px;
+        margin: 13px 0px 13px 0;
+        padding: 4px 8px;
+      }
+      &:hover{
+        background: #C4F000;
+        color: #0A0A0A;
+      }
+    }
+  }

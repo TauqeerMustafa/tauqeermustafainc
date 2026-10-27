@@ -1,0 +1,184 @@
+@use '../../utils' as *;
+
+/*----------------------------------------*/
+/*  5.1 blog-list
+/*----------------------------------------*/
+.blog-list {
+    &__area {
+        @media #{$xl,$lg,$md,$sm,$xs} {
+            padding: 0px 15px;
+        }
+    }
+    &__thumb {
+        & a {
+            & img {
+                width: 100%;
+                border-radius: 20px;
+                @media #{$xl,$lg} {
+                    width: inherit;
+                }
+            }
+        }
+        @media #{$sm,$xs} {
+            margin-bottom: 30px;
+        }
+    }
+    &__wrap {
+        display:  flex;
+        align-items: center;
+        padding: 18px;
+        border: 1px solid rgba(21, 21, 21, 0.08);
+        border-radius: 30px;
+        gap: 28px;
+        margin-left: 15px;
+        margin-right: 15px;
+        @media #{$xl,$lg,$md,$sm,$xs} {
+            margin-left: 0;
+            margin-right: 0;
+        }
+        @media #{$sm,$xs} {
+            display: block;
+        }
+        &:hover {
+            & .arrow {
+                & a {
+                    & svg {
+                        transform: rotate(45deg);
+                    }
+                }
+            }
+        }
+    }
+    &__content {
+        &-tag {
+            background: #453030;
+            border-radius: 6px;
+            padding: 0px 14px;
+            display: inline-block;
+            font-family: var(--rr-ff-heading);
+            font-style: normal;
+            font-weight: var(--rr-ff-medium);
+            font-size: 15px;
+            text-transform: uppercase;
+            color: #FFFFFF;
+            margin-bottom: 13px;
+            @media #{$mxs} {
+                font-size: 10px;
+            }
+        }
+        &-date {
+            padding-top: 10px;
+            & span {
+                font-family: var(--rr-ff-heading);
+                font-style: normal;
+                font-weight: var(--rr-ff-medium);
+                font-size: 16px;
+                text-transform: uppercase;
+                color: rgba(69, 48, 48, 0.7);
+                @media #{$mxs} {
+                    font-size: 13px;
+                }
+                & i {
+                    padding-right: 8px;
+                }
+            }
+            & .arrow {
+                & svg {
+                    transform: rotate(-2deg);
+                    transition: all 0.3s ease-in-out;
+                }
+            }
+        }
+    }
+    &__item {
+        padding-left: 30px;
+        @media #{$lg,$md,$sm,$xs} {
+            padding-left: 0;
+        }
+    }
+    &__title {
+        font-family: var(--rr-ff-heading);
+        font-style: normal;
+        font-weight: var(--rr-fw-sbold);
+        font-size: 40px;
+        line-height: 52px;
+        text-transform: uppercase;
+        color: #453030;
+        padding-bottom: 96px;
+        border-bottom: 1px solid rgba(69, 48, 48, 0.14);
+        width: 100%;
+        @media #{$xl} {
+            font-size: 30px;
+            line-height: 39px;
+        }
+        @media #{$lg} {
+            font-size: 24px;
+            line-height: 41px;
+            padding-bottom: 80px;
+        }
+        @media #{$md} {
+            padding-bottom: 40px;
+            font-size: 20px;
+            line-height: 30px;
+        }
+        @media #{$sm} {
+            font-size: 25px;
+            line-height: 40px;
+        }
+        @media #{$xs} {
+            font-size: 20px;
+            line-height: 34px;
+        }
+        @media #{$xxs} {
+            font-size: 22px;
+            line-height: 38px;
+            padding-bottom: 34px;
+        }
+        @media #{$mxs} {
+            font-size: 15px;
+            line-height: 30px;
+            padding-bottom: 34px;
+        }
+
+        & a {
+            background: linear-gradient(#453030 0%, #453030 98%);
+            background-size: 0 2px;
+            background-repeat: no-repeat;
+            background-position: left 100%;
+            color: #453030;
+            transition: all 0.3s ease-in-out;
+            & br {
+                @media #{$lg,$md,$sm,$xxs}  {
+                    display: none;
+                }
+            }
+            &:hover {
+                color: #453030;
+                background-size: 100% 2px;
+            }
+        }
+    }
+}
+.bottom-button{
+    gap: 10px;
+    background-color: #161616;
+    padding-top: 60px;
+    padding-bottom: 60px;
+    border-radius: 0px 0 10px 10px;
+    margin-top: 6px;
+    & a {
+        color: #fff;
+        background: #0A0A0A;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 56px;
+        height: 56px;
+        border-radius: 100px;
+        transition: all 0.3s ease-in-out;
+        &:hover{
+            background: #C4F000;
+            color: #161616;
+        }
+    }
+} 

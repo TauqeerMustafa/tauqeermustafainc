@@ -1,0 +1,64 @@
+@use '../../utils' as *;
+
+.h3-service__heading h2 {
+    line-height: 117%;
+    text-align: center;
+    font-weight: var(--rr-fw-bold);
+    color: var(--rr-common-white);
+    font-family: var(--rr-ff-heading);
+    font-size: clamp(30px, 5vw, 60px);
+    max-width: 700px;
+    margin: auto;
+    padding-bottom: 90px;
+}
+
+
+.h3-service {
+    &__item {
+        padding: 30px;
+        border-radius: 12px;
+        background-color: var(--rr-theme-primary);
+
+        &-title {
+            color: var(--rr-common-black);
+            font-family: var(--rr-ff-heading);
+            font-size: 35px;
+            font-style: normal;
+            font-weight: 700;
+            line-height: 40px;
+            text-transform: uppercase;
+            margin-bottom: 15px;
+        }
+
+        &-desc {
+            color: var(--rr-common-black);
+            font-family: var(--rr-ff-body);
+            font-size: 18px;
+            font-style: normal;
+            font-weight: 400;
+            line-height: 20px;
+            margin-bottom: 10px;
+        }
+
+        &-link {
+            color: var(--rr-common-black);
+            font-family: var(--rr-ff-body);
+            font-size: 20px;
+            font-style: normal;
+            font-weight: 400;
+            line-height: 20px;
+            margin-bottom: 30px;
+            display: block;
+            text-decoration: underline;
+        }
+
+        &-thumb {
+             border-radius: 12px;
+
+             img {
+                 border-radius: 12px;
+                 object-fit: cover;
+             }
+        }
+    }
+}

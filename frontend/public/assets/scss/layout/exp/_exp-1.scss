@@ -1,0 +1,58 @@
+@use '../../utils' as *;
+
+.h2-experience {
+    &__item {
+        text-align: center;
+
+        &-number {
+            letter-spacing: -.5rem;
+            text-transform: uppercase;
+            margin-bottom: 0;
+            font-family: var(--rr-ff-heading);
+            font-weight: var(--rr-fw-sbold);
+            font-size: 8rem;
+            font-weight: 700;
+            line-height: 1.1;
+            text-align: center;
+            color: var(--rr-common-white);
+            margin-bottom: 35px;
+        }
+
+        &-title {
+            letter-spacing: -.5rem;
+            text-transform: uppercase;
+            margin-bottom: 0;
+            font-family: var(--rr-ff-heading);
+            font-weight: var(--rr-fw-sbold);
+            font-size: 7rem;
+            font-weight: 700;
+            line-height: 1.1;
+            text-align: center;
+            color: var(--rr-common-white);
+            margin-bottom: 35px;
+
+            @media #{$sm} {
+                font-size: 6rem;
+            }
+
+            @media #{$xs} {
+                    font-size: 5rem;
+            }
+        }
+
+        &-text {
+            text-transform: capitalize;
+            font-size: 1.7rem;
+            text-align: center;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .rr-btn {
+            display: inline-flex;
+            justify-content: center;
+            margin-top: 60px;
+            margin: 60px auto 0;
+        }
+    }
+}

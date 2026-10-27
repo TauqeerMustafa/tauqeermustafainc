@@ -1,0 +1,95 @@
+@use '../../utils' as *;
+
+.h4-featured {
+    &__item {
+        padding: 2px;
+
+        &-title {
+            font-family: var(--rr-ff-heading);
+            font-weight: var(--rr-fw-sbold);
+            color: var(--rr-heading-primary);
+            font-size: 150px;
+            line-height: 1.2;
+            text-transform: uppercase;
+            text-align: center;
+            margin-bottom: 20px;
+
+            @media #{$lg} {
+                font-size: 90px;
+            }
+
+            @media #{$md} {
+                font-size: 74px;
+            }
+
+            @media #{$sm} {
+                font-size: 50px;
+            }
+
+            @media #{$xs} {
+                font-size: 28px;
+            }
+        }
+    }
+
+    position: relative;
+    overflow: hidden;
+    background: #f3f3f3;
+
+    .sticky-title {
+
+
+
+        &__image-wrapper {
+            position: sticky;
+            top: 30%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+
+            @media #{$lg} {
+                top: 20%;
+            }
+            @media #{$xs} {
+                display: none;
+            }
+        }
+
+        &__image {
+            width: 200px;
+            height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            aspect-ratio: 3 / 4;
+            border-radius: var(--radius--lg);
+            object-fit: cover;
+            width: 100%;
+            max-width: 20rem;
+            position: absolute;
+            inset: 25% auto auto 0%;
+
+            &.is-1 {
+                aspect-ratio: 16 / 9;
+                max-width: 27.3125rem;
+                inset: auto;
+                height: 20rem;
+            }
+
+            &.is-2 {
+                max-width: 27.3125rem;
+                height: 30rem;
+                inset: 0% auto auto 3%;
+                transform: rotate(-5deg);
+            }
+
+            &.is-3 {
+                inset: 0% 0% auto auto;
+                height: 40rem;
+            }
+        }
+    }
+
+
+}

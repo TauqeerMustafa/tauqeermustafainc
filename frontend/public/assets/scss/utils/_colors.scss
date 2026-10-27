@@ -1,0 +1,31 @@
+$colors: (
+  common: (
+    "white": #FFFFFF,
+    "black": #000000,
+    "placeholder": #4A5764,
+    "gray":rgb(230, 230, 230),
+  ),
+  body: (
+    "primary": #fff,
+  ),
+  theme: (
+    "primary": #C4F000,
+  ),
+  heading: (
+    "primary": #0A0A0A,
+    "primary2": #161616,
+    "secondary": #C4F000,
+  ),
+  text: (
+    "body": #999999,
+  ),
+  shadow: (
+      "primary": 0px 30px 60px 0px rgba(0, 15, 32, 0.10),
+  ),
+  background: (
+      "primary": #161616,
+  ),
+  border: (
+    "primary": 1px solid #202020,
+  )
+);

@@ -1,0 +1,102 @@
+@use '../../utils' as *;
+
+/*----------------------------------------*/
+/*  3.3 banner Style 3
+/*----------------------------------------*/
+
+.h3-banner {
+  &__area {
+    padding: 200px 0 120px;
+  }
+
+  &__text {
+    color: var(--rr-common-white);
+    font-family: var(--rr-ff-heading);
+    font-size: 35px;
+    font-style: normal;
+    font-weight: 700;
+    line-height: 40px;
+    text-transform: uppercase;
+  }
+
+  &__title {
+    color: var(--rr-common-white);
+    font-family: var(--rr-ff-heading);
+    font-size: 155px;
+    font-style: normal;
+    font-weight: 700;
+    line-height: 1.3;
+    text-transform: uppercase;
+    text-align: center;
+    margin-top: 100px;
+
+    @media #{$xl} {
+         font-size: 115px;
+    }
+
+    @media #{$lg} {
+        font-size: 100px;
+    }
+
+    @media #{$md} {
+          font-size: 95px;
+    }
+
+    @media #{$sm} {
+        font-size: 55px;
+    }
+
+    @media #{$xs} {
+          font-size: 35px;
+    }
+  }
+
+  &__details {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 60px;
+    flex-wrap: nowrap;
+
+    @media #{$xl} {
+      flex-wrap: wrap;
+    }
+
+    @media #{$lg} {
+      flex-wrap: wrap;
+    }
+
+    @media #{$md} {
+      flex-wrap: wrap;
+    }
+
+    @media #{$sm} {
+      flex-wrap: wrap;
+    }
+
+    @media #{$xs} {
+      flex-wrap: wrap;
+    }
+  }
+
+  &__textbox {
+    &-title {
+      color: var(--rr-common-white);
+      font-family: var(--rr-ff-heading);
+      font-size: 30px;
+      font-style: normal;
+      font-weight: 700;
+      line-height: 40px;
+      text-transform: uppercase;
+      margin-bottom: 30px;
+    }
+
+    &-desc {
+      font-family: var(--rr-ff-body);
+      font-size: 15px;
+      font-style: normal;
+      font-weight: 400;
+      line-height: 20px;
+    }
+  }
+}

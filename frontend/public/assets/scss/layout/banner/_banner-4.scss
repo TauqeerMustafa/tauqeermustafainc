@@ -1,0 +1,166 @@
+@use '../../utils' as *;
+
+/*----------------------------------------*/
+/*  3.4 banner Style 4
+/*----------------------------------------*/
+
+.h4-banner {
+  padding: 220px 0 120px;
+
+  &__title {
+    font-family: var(--rr-ff-heading);
+    font-weight: var(--rr-fw-sbold);
+    color: var(--rr-heading-primary);
+    font-style: normal;
+    font-size: 120px;
+    line-height: 1.2;
+    text-transform: uppercase;
+    text-align: start;
+
+    @media #{$lg} {
+      font-size: 60px;
+      line-height: 70px;
+    }
+
+    @media #{$md} {
+      font-size: 50px;
+      line-height: 60px;
+    }
+
+    @media #{$sm} {
+      font-size: 40px;
+      line-height: 50px;
+    }
+
+    @media #{$xs} {
+      font-size: 30px;
+      line-height: 40px;
+    }
+  }
+
+  &__text {
+    font-size: 24px;
+    font-family: var(--rr-ff-heading);
+    font-weight: var(--rr-fw-sbold);
+    color: var(--rr-heading-primary);
+    margin-top: 20px;
+  }
+
+  &__desc {
+    font-family: var(--rr-ff-heading);
+    font-weight: var(--rr-fw-sbold);
+    color: var(--rr-heading-primary);
+    margin-top: 20px;
+    margin-bottom: 50px;
+    max-width: 600px;
+  }
+
+  &__thumb {
+    position: relative;
+
+    &-text1 {
+      position: absolute;
+      bottom: 40%;
+      right: 0;
+      color: var(--rr-common-black);
+      font-family: var(--rr-ff-heading);
+      font-size: 70px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      line-height: 1;
+      text-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+      background: var(--rr-theme-primary);
+      padding: 25px 20px 5px;
+      border-radius: 5px;
+      margin-right: 10px;
+      transform: rotate(-90deg);
+
+      @media #{$md} {
+        font-size: 50px;
+        line-height: 60px;
+      }
+
+      @media #{$sm} {
+        font-size: 40px;
+        line-height: 50px;
+      }
+
+      @media #{$xs} {
+        font-size: 30px;
+        line-height: 40px;
+      }
+    }
+
+    &-text2 {
+      position: absolute;
+      bottom: 0%;
+      right: 0;
+      color: var(--rr-common-black);
+      font-family: var(--rr-ff-heading);
+      font-size: 70px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      line-height: 1;
+      text-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+      background: var(--rr-theme-primary);
+      padding: 25px 20px 5px;
+      border-radius: 5px;
+      margin-right: 10px;
+      transform: rotate(0deg);
+
+      @media #{$md} {
+        font-size: 50px;
+        line-height: 60px;
+      }
+
+      @media #{$sm} {
+        font-size: 40px;
+        line-height: 50px;
+      }
+
+      @media #{$xs} {
+        font-size: 30px;
+        line-height: 40px;
+      }
+    }
+  }
+
+  &__img {
+    max-width: 400px;
+    max-height: 600px;
+    overflow: hidden;
+    position: relative;
+
+
+    .image-filter {
+      backdrop-filter: none;
+      position: absolute;
+      inset: 0%
+    }
+
+    .image-filter._1 {
+      backdrop-filter: blur(5px)
+    }
+
+    .image-filter._5 {
+      backdrop-filter: saturate(200%)
+    }
+
+    .image-filter._6 {
+      backdrop-filter: grayscale(200%)
+    }
+
+    .image-filter._7 {
+      backdrop-filter: sepia(200%)
+    }
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      position: relative;
+    }
+  }
+}

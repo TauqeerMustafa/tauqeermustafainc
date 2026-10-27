@@ -1,0 +1,538 @@
+@use "../../utils" as *;
+
+.contact-us__area {
+    .contact-title {
+        margin-bottom: 40px;
+
+        & h2 {
+            font-family: 'Josefin Sans';
+            font-style: normal;
+            font-weight: 700;
+            font-size: 60px;
+            line-height: 70px;
+            color: #FFFFFF;
+
+            @media #{$lg,$md,$sm,$xs,$xxs,$mxm,$mxs} {
+                & br {
+                    display: none;
+                }
+
+            }
+
+            @media #{$lg} {
+                font-size: 55px;
+                line-height: 63px;
+
+            }
+
+            @media #{$md} {
+                font-size: 49px;
+                line-height: 65px;
+
+            }
+
+            @media #{$sm,$xxs,$xs} {
+                font-size: 40px;
+                line-height: 45px;
+
+            }
+
+            @media #{$mxs,$mxm} {
+                font-size: 35px;
+                line-height: 40px;
+
+            }
+        }
+    }
+
+    .contact-us__form-wrapper {
+        background: #161616;
+        border: 1px solid #202020;
+        border-radius: 20px;
+        padding: 56px;
+        width: 100%;
+        max-width: 905px;
+        margin: 0 auto;
+        z-index: 9999;
+
+        .title {
+            font-family: 'Josefin Sans';
+            font-style: normal;
+            font-weight: 700;
+            font-size: 60px;
+            line-height: 70px;
+            color: #FFFFFF;
+            margin-bottom: 12px;
+
+            @media #{$sm,$xl} {
+                font-size: 40px;
+            }
+
+            @media #{$mxm,$mxs,$xxs} {
+                font-size: 44px;
+                line-height: 55px;
+            }
+        }
+
+        &-2 {
+            width: 100%;
+            max-width: 100%;
+        }
+
+
+
+        @media #{$xs} {
+            padding: 20px;
+        }
+
+        .contact-shape {
+            z-index: -1;
+        }
+
+        .contact-us__form {
+            .contact-us__input {
+                position: relative;
+
+                span {
+                    color: var(--rr-heading-primary);
+                    font-weight: var(--rr-fw-regular);
+                    line-height: var(--rr-lh-h5);
+                    font-size: 16px;
+                    font-style: normal;
+                    display: block;
+                }
+
+                input {
+                    position: relative;
+                    line-height: var(--rr-lh-h5);
+                    font-weight: var(--rr-fw-regular);
+                    margin-top: 5px;
+                    margin-left: 0;
+                    background: #0A0A0A;
+                    color: #999999;
+                    margin-bottom: 20px;
+                    padding: 10px 12px 10px 27px;
+                    border-radius: 60px;
+                    font-style: normal;
+                    outline: none;
+                    width: 100%;
+                    border: none;
+
+                    @media #{$lg, $md, $sm, $xs} {
+                        padding: 16px 45px 15px 20px;
+                    }
+
+                    @include rs-placeholder {
+                        color: #999999;
+                        opacity: 0.6;
+                        font-size: 16px;
+                    }
+                }
+
+                .icon {
+                    position: absolute;
+                    top: 50%;
+                    right: 20px;
+                    transform: translateY(-50%);
+                    color: var(--rr-heading-primary);
+                }
+            }
+
+            .contact-us__textarea {
+                position: relative;
+
+                span {
+                    color: var(--rr-heading-primary);
+                    font-weight: var(--rr-fw-regular);
+                    line-height: var(--rr-lh-h5);
+                    font-size: 16px;
+                    font-style: normal;
+                }
+
+                textarea {
+                    background: #0A0A0A;
+                    color: #999999;
+                    margin-top: 5px;
+                    height: 180px !important;
+                    margin-left: 0;
+                    border: 1px solid rgba(0, 29, 8, 0.1);
+                    padding: 10px 12px 10px 30px;
+                    border-radius: 15px;
+
+                    @include rs-placeholder {
+                        color: #999999;
+                        opacity: 0.6;
+                        font-size: 16px;
+                    }
+                }
+            }
+
+            .rr-btn {
+                max-width: 100%;
+
+                &-3 {
+                    margin-top: 20px;
+                    padding: 17px 22px;
+                    width: none;
+
+                    @media #{$mxm,$mxs,$xxs} {
+                        font-size: 14px;
+                    }
+
+                }
+            }
+        }
+
+        &-3 {
+            background: none;
+            border: none;
+            border-radius: 0;
+            padding: 56px;
+            width: 100%;
+            max-width: 100%;
+            margin: 0 auto;
+            z-index: 9999;
+
+            @media #{$mxm,$mxs,$xxs} {
+                padding: 20px;
+            }
+        }
+    }
+}
+
+.contact-us__textarea .icon {
+    position: absolute;
+    top: 60px;
+    right: 20px;
+    transform: translateY(-50%);
+    color: var(--rr-heading-primary);
+}
+
+.contact-btn {
+    background: var(--rr-theme-primary);
+    color: #0A0A0A;
+    line-height: var(--rr-lh-h5);
+    font-weight: var(--rr-fw-sbold);
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 60px;
+    border-radius: 150px;
+    font-style: normal;
+    font-size: 14px;
+    transition: .3s;
+
+    & i {
+        margin-left: 10px;
+    }
+
+    &:hover {
+        background: var(--rr-heading-primary);
+    }
+}
+
+.contact-us__title-wrapper {
+    z-index: 999;
+}
+
+.contact-shape {
+
+    .shape {
+        &-1 {
+            max-width: 975px;
+            z-index: -1;
+            left: 140px;
+
+            @media #{$xl} {
+                left: 62px;
+            }
+
+            @media #{$md} {
+                display: none;
+            }
+        }
+
+        &-2 {
+            max-width: 975px;
+            z-index: -1;
+            right: 138px;
+
+            @media #{$xl} {
+                right: 62px;
+            }
+
+            @media #{$md,$xs} {
+                display: none;
+            }
+        }
+    }
+}
+
+
+.contact {
+    &-area {
+        z-index: 99;
+    }
+
+    &-wrapper {
+        background: #161616;
+        border-radius: 10px;
+    }
+
+    &-thumb {
+        & img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+    }
+
+    &-title {
+        & h2 {
+            font-family: 'Josefin Sans';
+            font-style: normal;
+            font-weight: 700;
+            font-size: 60px;
+            line-height: 70px;
+            color: #FFFFFF;
+            text-align: center;
+
+            @media #{$sm,$xl} {
+                font-size: 45px;
+                ;
+            }
+
+            @media #{$mxm,$mxs,$xxs,$xs} {
+                font-size: 50px;
+                line-height: 60px;
+            }
+        }
+    }
+
+    &-item {
+        background: #0A0A0A;
+        padding: 35px 50px;
+        border-radius: 10px;
+        transition: all 0.3s ease-in-out;
+
+        &:hover {
+            & .contact-icon {
+                background: #C4F000;
+                color: #0A0A0A;
+            }
+        }
+    }
+
+    &-content {
+        margin-top: 18px;
+
+        & span {
+            font-family: 'Josefin Sans';
+            font-style: normal;
+            font-weight: 700;
+            font-size: 26px;
+            line-height: 36px;
+            color: #FFFFFF;
+
+            @media #{$lg} {
+                font-size: 23px;
+            }
+
+            @media #{$mxm,$mxs,$xxs,$xs} {
+                font-size: 22px;
+            }
+        }
+
+        .dec {
+            font-family: 'Josefin Sans';
+            font-style: normal;
+            font-weight: 500;
+            font-size: 18px;
+            line-height: 28px;
+            color: #FFFFFF;
+            margin-bottom: 10px;
+            margin-top: 10px;
+
+            @media #{$lg} {
+                font-size: 14px;
+                line-height: 20px;
+            }
+
+            @media #{$mxm,$mxs,$xxs,$xs} {
+                font-size: 16px;
+                line-height: 23px;
+            }
+        }
+
+        & h3 {
+            font-family: 'Josefin Sans';
+            font-style: normal;
+            font-weight: 700;
+            font-size: 26px;
+            line-height: 36px;
+            color: #FFFFFF;
+
+            @media #{$lg} {
+                font-size: 20px;
+            }
+
+            @media #{$mxm,$mxs,$xxs,$xs} {
+                font-size: 20px;
+            }
+
+            &:hover {
+                transition: all 0.3s ease-in-out;
+                color: #C4F000;
+            }
+
+            & a {
+                position: relative;
+
+                &::before {
+                    position: absolute;
+                    content: "";
+                    bottom: 0;
+                    background: #ffff;
+                    height: 2px;
+                    width: 100%;
+                    justify-content: center;
+                }
+            }
+        }
+    }
+
+    &-icon {
+        width: 100px;
+        height: 100px;
+        background: #161616;
+        border-radius: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all .3s ease-out;
+
+        margin: 0 auto;
+
+        & i {
+            font-size: 50px;
+        }
+    }
+}
+
+.breadcrumb__area.breadcrumb__area-2 {
+    padding-bottom: 50px;
+}
+
+// faq area
+.faq-title {
+    & h3 {
+        font-family: 'Josefin Sans';
+        font-style: normal;
+        font-weight: 700;
+        font-size: 60px;
+        line-height: 70px;
+        color: #FFFFFF;
+        margin-bottom: 45px;
+
+        @media #{$xs,$sm} {
+            font-size: 40px;
+            line-height: 50px;
+        }
+
+        @media #{$mxm,$mxs,$xxs,$xs} {
+            font-size: 35px;
+            line-height: 45px;
+        }
+    }
+
+    &-2 {
+        & h3 {
+            font-family: 'Josefin Sans';
+            font-style: normal;
+            font-weight: 700;
+            font-size: 42px;
+            line-height: 52px;
+            color: #FFFFFF;
+        }
+    }
+}
+
+.rr-accordion {
+    &-item {
+        border-bottom: 1px solid #ffff;
+    }
+
+    &-button {
+        font-family: 'Josefin Sans';
+        font-style: normal;
+        font-weight: 600;
+        font-size: 24px;
+        line-height: 34px;
+        color: #FFFFFF;
+        width: 100%;
+        text-align: left;
+        padding-top: 30px;
+        display: flex;
+        justify-content: space-between;
+        padding-bottom: 12px;
+        align-items: end;
+
+        .heading {
+            font-family: 'Josefin Sans';
+            font-weight: 600;
+            font-size: 24px;
+            line-height: 28px;
+            color: #FFFFFF;
+            display: block;
+
+            .dec {
+                margin-left: 44px;
+                font-weight: 600;
+                font-size: 24px;
+                color: #FFFFFF;
+            }
+        }
+
+        &.collapsed span i {
+            transform: rotate(70deg);
+            transition: 0.3s;
+        }
+
+        span i {
+            font-size: 18px;
+            transform: rotate(-130deg);
+            transition: 0.3s;
+        }
+
+        &-2 {
+            border-top: 1px solid #ffff;
+        }
+    }
+
+    &-body {
+        margin-left: 95px;
+
+        @media #{$mxm,$mxs,$xxs,$xs} {
+            margin-left: 0;
+        }
+
+        & p {
+            font-family: 'Josefin Sans';
+            font-style: normal;
+            font-weight: 400;
+            font-size: 18px;
+            line-height: 28px;
+            color: #999999;
+            margin-bottom: 25px;
+
+            @media #{$md,$sm} {
+                font-size: 15px;
+            }
+
+            @media #{$mxm,$mxs,$xxs,$xs} {
+                font-size: 15px;
+            }
+        }
+    }
+}

@@ -1,0 +1,250 @@
+@use '../../utils' as *;
+
+.testimonial3 {
+    margin-bottom: 30px;
+
+    &-top-card {
+        background-color: var(--rr-theme-primary);
+        padding: 30px;
+        border-radius: 10px;
+
+        @media #{$lg} {
+            margin-top: 30px;
+        }
+
+        @media #{$md} {
+            padding: 30px 20px;
+        }
+
+        &__title {
+            color: var(--rr-common-black);
+            font-family: var(--rr-ff-heading);
+            font-size: 20px;
+            font-style: normal;
+            font-weight: 600;
+            line-height: 28px;
+        }
+
+        &__user {
+            display: flex;
+            align-items: center;
+            padding-top: 80px;
+            justify-content: space-between;
+
+            @media #{$xl} {
+                padding-top: 70px;
+            }
+
+            @media #{$lg} {
+                padding-top: 20px;
+            }
+
+            @media #{$sm} {
+                flex-wrap: wrap;
+            }
+
+            &-text {
+                color: var(--rr-common-black);
+                font-family: var(--rr-ff-heading);
+                font-size: 20px;
+                font-style: normal;
+                font-weight: 300;
+                line-height: 28px;
+                padding-bottom: 6px;
+            }
+
+            &-count {
+                color: var(--rr-common-black);
+                font-family: var(--rr-ff-heading);
+                font-size: 60px;
+                font-style: normal;
+                font-weight: 700;
+                line-height: 64px;
+                text-transform: capitalize;
+
+                @media #{$sm} {
+                    font-size: 40px;
+                    line-height: 50px;
+                }
+            }
+
+            &-avatar {
+                display: flex;
+                align-items: center;
+                justify-content: end;
+
+                &:last-child {
+                    margin-left: 0;
+                }
+
+                img {
+                    margin-left: -10px;
+                }
+            }
+        }
+    }
+
+    &-card {
+        border-radius: 10px;
+        border: 1px solid var(--rr-common-white);
+        background: var(--rr-common-white);
+        padding: 35px 40px 53px 40px;
+        position: relative;
+
+        @media #{$md} {
+            padding: 30px;
+        }
+
+        @media #{$sm} {
+            padding: 30px 20px;
+        }
+
+        @media #{$xs} {
+            padding: 30px 20px;
+        }
+
+        @media #{$xxs} {
+            padding: 30px 20px;
+        }
+
+        @media #{mxm} {
+            padding: 30px 20px;
+        }
+
+        @media #{$mxs} {
+            padding: 30px 20px;
+        }
+
+        &__icon {
+            position: absolute;
+            top: 35px;
+            right: 40px;
+
+            @media #{$sm} {
+                display: none;
+            }
+        }
+
+        &__profile {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding-bottom: 40px;
+
+            @media #{$md} {
+                padding-bottom: 20px;
+            }
+
+            &-thumb {}
+
+            &-content {
+                &-name {
+                    color: var(--rr-common-black);
+                    font-family: var(--rr-ff-heading);
+                    font-size: 20px;
+                    font-style: normal;
+                    font-weight: 600;
+                    line-height: 28px;
+
+                    @media #{$md} {
+                        font-size: 17px;
+                        line-height: 24px;
+                    }
+                }
+
+                &-title {
+                    color: var(--rr-common-black);
+                    font-family: var(--rr-ff-heading);
+                    font-size: 20px;
+                    font-style: normal;
+                    font-weight: 300;
+                    line-height: 28px;
+
+                        @media #{$md} {
+                    font-size: 17px;
+                    line-height: 26px;
+                }
+
+                @media #{$xs} {
+                     font-size: 14px;
+                    line-height: 1;
+                }
+
+                @media #{$xxs} {
+                    font-size: 13px;
+                    line-height: 1;
+                }
+
+                @media #{mxm} {
+                   font-size: 12px;
+                    line-height: 1;
+                }
+
+                @media #{$mxs} {
+                     font-size: 12px;
+                    line-height: 1;
+                }
+                }
+            }
+        }
+
+        &__content {
+            &-text {
+                color: var(--rr-common-black);
+                font-family: var(--rr-ff-heading);
+                font-size: 26px;
+                font-style: normal;
+                font-weight: 400;
+                line-height: 34px;
+
+                @media #{$xl} {
+                    font-size: 20px;
+                    line-height: 30px;
+                }
+
+                @media #{$md} {
+                    font-size: 17px;
+                    line-height: 26px;
+                }
+
+                @media #{$xs} {
+                     font-size: 14px;
+                    line-height: 1;
+                }
+
+                @media #{$xxs} {
+                    font-size: 13px;
+                    line-height: 1;
+                }
+
+                @media #{mxm} {
+                   font-size: 12px;
+                    line-height: 1;
+                }
+
+                @media #{$mxs} {
+                     font-size: 12px;
+                    line-height: 1;
+                }
+            }
+
+            &-ratings {
+                display: flex;
+                align-items: center;
+                gap: 4px;
+                padding-top: 20px;
+
+                li {
+                    i {
+                        color: var(--rr-theme-primary);
+                        font-size: 16px;
+                    }
+
+                    .last-star {
+                        color: var(--rr-common-white);
+                    }
+                }
+            }
+        }
+    }
+}

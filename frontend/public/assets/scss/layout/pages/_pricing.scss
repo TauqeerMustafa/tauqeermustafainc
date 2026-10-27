@@ -1,0 +1,285 @@
+@use "../../utils" as *;
+
+//Pricing css
+.pricing-border {
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.pricing-cus-gutter {
+    --bs-gutter-x: 60px;
+
+    @media #{$lg,$md,$sm,$xs,$xxs,$mxm,$mxs} {
+        --bs-gutter-x: 20px !important;
+    }
+}
+
+.h1-pricing-card {
+    &__content {
+        background-color: transparent;
+
+        &:hover {
+            .h1-pricing-card__item-icon {
+                color: var(--rr-heading-primary);
+                background-color: var(--rr-theme-primary);
+
+                svg path[fill="#C4F000"] {
+                    fill: var(--rr-heading-primary);
+                }
+
+                svg path[stroke="#C4F000"] {
+                    fill: var(--rr-heading-primary);
+                }
+            }
+        }
+    }
+
+    &__item {
+        display: flex;
+        align-items: center;
+        align-content: center;
+        flex-direction: column;
+        background-color: transparent;
+        padding: 44px 0px;
+        gap: 36px;
+
+        @media #{$lg,$md,$sm,$xs,$xxs,$mxm,$mxs} {
+            padding: 22px 0px;
+            gap: 12px;
+        }
+
+        &-icon {
+            width: 105px;
+            height: 105px;
+            border-radius: 50%;
+            border: 10px solid var(--rr-background-primary);
+            background-color: var(--rr-heading-primary);
+            display: grid;
+            place-items: center;
+        }
+
+        &-heading {
+            h6 {
+                font-family: var(--rr-ff-heading);
+                font-weight: var(--rr-fw-bold);
+                font-size: 26px;
+                line-height: 100%;
+                color: var(--rr-common-white);
+            }
+
+            &-text {
+                h2 {
+                    font-family: var(--rr-ff-heading);
+                    font-weight: var(--rr-fw-bold);
+                    font-size: 60px;
+                    line-height: 100%;
+                    text-transform: uppercase;
+                    color: var(--rr-common-white);
+                    display: inline;
+                }
+
+                span {
+                    font-family: var(--rr-ff-heading);
+                    font-weight: var(--rr-fw-regular);
+                    font-size: 18px;
+                    line-height: 100%;
+                    color: var(--rr-common-white);
+                }
+            }
+        }
+
+        &-list {
+            background-color: var(--rr-background-primary);
+            text-align: center;
+
+            ul {
+                padding: 45px 0px;
+
+                @media #{$lg,$md,$sm,$xs,$xxs,$mxm,$mxs} {
+                    padding: 20px 0px;
+                }
+
+                li {
+                    list-style: none;
+                    margin: 16px 0px;
+
+                    @media #{$lg,$md,$sm,$xs,$xxs,$mxm,$mxs} {
+                        margin: 10px 0px;
+                    }
+
+                    span {
+                        font-family: var(--rr-ff-heading);
+                        font-weight: var(--rr-fw-sbold);
+                        font-size: 18px;
+                        line-height: 156%;
+                        color: var(--rr-common-white);
+                    }
+                }
+            }
+        }
+
+        &-btn {
+            margin-bottom: -1px;
+
+            a {
+                font-family: var(--rr-ff-heading);
+                font-weight: var(--rr-fw-bold);
+                font-size: 18px;
+                line-height: 156%;
+                color: var(--rr-common-white);
+                padding: 15px;
+                display: block;
+                background-color: var(--rr-heading-primary);
+                transition: all 0.3s ease-in-out;
+
+                &:hover {
+                    background: var(--rr-theme-primary);
+                    color: var(--rr-heading-primary);
+                }
+            }
+        }
+    }
+}
+
+
+.h1-pricing2__heading h2 {
+    line-height: 117%;
+    text-align: center;
+    padding: 90px 0px;
+    font-weight: var(--rr-fw-bold);
+    color: var(--rr-common-white);
+    font-family: var(--rr-ff-heading);
+    font-size: clamp(30px, 5vw, 60px);
+    background: var(--rr-heading-primary); 
+    max-width: 700px;
+    margin: auto;
+}
+
+.h2-pricing2-card {
+    &__content {
+        background-color: var(--rr-heading-primary);
+
+        &:hover {
+            .h1-pricing-card__item-icon {
+                color: var(--rr-heading-primary);
+                background-color: var(--rr-theme-primary);
+
+                svg path[fill="#C4F000"] {
+                    fill: var(--rr-heading-primary);
+                }
+
+                svg path[stroke="#C4F000"] {
+                    fill: var(--rr-heading-primary);
+                }
+            }
+        }
+    }
+
+    &__item {
+        display: flex;
+        align-items: center;
+        align-content: center;
+        flex-direction: column;
+        background-color: var(--rr-heading-secondary);
+        padding: 44px 0px;
+        gap: 36px;
+
+        @media #{$lg,$md,$sm,$xs,$xxs,$mxm,$mxs} {
+            padding: 22px 0px;
+            gap: 12px;
+        }
+
+        &-icon {
+            width: 105px;
+            height: 105px;
+            border-radius: 50%;
+            border: 10px solid var(--rr-background-primary);
+            background-color: var(--rr-heading-primary);
+            display: grid;
+            place-items: center;
+        }
+
+        &-heading {
+            h6 {
+                font-family: var(--rr-ff-heading);
+                font-weight: var(--rr-fw-bold);
+                font-size: 26px;
+                line-height: 100%;
+                color: var(--rr-common-black);
+            }
+
+            &-text {
+                h2 {
+                    font-family: var(--rr-ff-heading);
+                    font-weight: var(--rr-fw-bold);
+                    font-size: 60px;
+                    line-height: 100%;
+                    text-transform: uppercase;
+                    color: var(--rr-common-black);
+                    display: inline;
+                }
+
+                span {
+                    font-family: var(--rr-ff-heading);
+                    font-weight: var(--rr-fw-regular);
+                    font-size: 18px;
+                    line-height: 100%;
+                    color: var(--rr-common-black);
+                }
+            }
+        }
+
+        &-list {
+            background-color: var(--rr-background-primary);
+            text-align: start;
+            padding: 0 25px;
+
+            ul {
+                padding: 45px 0px;
+
+                @media #{$lg,$md,$sm,$xs,$xxs,$mxm,$mxs} {
+                    padding: 20px 0px;
+                }
+
+                li {
+                    list-style: none;
+                    margin: 16px 0px;
+
+                    @media #{$lg,$md,$sm,$xs,$xxs,$mxm,$mxs} {
+                        margin: 10px 0px;
+                    }
+
+                    span {
+                        padding: 5px; 
+                        font-family: var(--rr-ff-heading);
+                        font-weight: var(--rr-fw-sbold);
+                        font-size: 18px;
+                        line-height: 156%;
+                        color: var(--rr-common-white);
+                    }
+                }
+            }
+        }
+
+        &-btn {
+            margin-bottom: -1px;
+            text-align: center;
+
+            a {
+                font-family: var(--rr-ff-heading);
+                font-weight: var(--rr-fw-bold);
+                font-size: 18px;
+                line-height: 156%;
+                color: var(--rr-common-white);
+                padding: 15px;
+                display: block;
+                background-color: var(--rr-background-primary);
+                transition: all 0.3s ease-in-out;
+
+                &:hover {
+                    background: var(--rr-theme-secondary);
+                    color: var(--rr-common-white);
+                }
+            }
+        }
+    }
+}

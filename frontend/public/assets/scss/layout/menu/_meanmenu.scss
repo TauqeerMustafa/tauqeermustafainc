@@ -1,0 +1,212 @@
+@use '../../utils' as *;
+
+/*----------------------------------------*/
+/*  4.1 Meanmenu
+/*----------------------------------------*/
+.mean-container{
+    margin-bottom: 35px;
+    & a{
+        &.meanmenu-reveal{
+            width: 22px;
+            height: 22px;
+            padding: 13px 13px 11px 13px;
+            position: absolute;
+            top: 0;
+            right: 0;
+            cursor: pointer;
+            color: var(--rr-common-white);
+            text-decoration: none;
+            font-size: 16px;
+            text-indent: -9999em;
+            line-height: 22px;
+            font-size: 1px;
+            font-weight: var(--rr-fw-bold);
+            display: none !important;
+            & span{
+                display: block;
+                background: var(--rr-common-white);
+                height: 3px;
+                margin-top: 3px;
+            }
+        }
+    }
+    & .mean-push{
+        float: left;
+        width: 100%;
+        padding: 0;
+        margin: 0;
+        clear: both;
+    }
+    & .mean-nav{
+        background: none;
+        margin-top: 0;
+        float: left;
+        width: 100%;
+        & .wrapper{
+            width: 100%;
+            padding: 0;
+            margin: 0;
+        }
+        & > ul{
+            padding: 0;
+            margin: 0;
+            width: 100%;
+            list-style-type: none;
+            display: block !important;
+            & > li{
+                &:first-child{
+                    & > a{
+                        border-top: 0;
+                    }
+                }
+            }
+        }
+        & ul{
+            padding: 0;
+            margin: 0;
+            width: 100%;
+            list-style-type: none;
+            & li{
+                position: relative;
+                float: left;
+                width: 100%;
+                // if dropdown opened
+                &.dropdown-opened{
+                    & > a,
+                    & > span{
+                        color: var(--rr-theme-primary2);
+                        
+                        &.mean-expand.mean-clicked{
+                            background: var(--rr-theme-primary2);
+                            color: var(--rr-common-white);
+                            border-color: transparent;
+                            & i{
+                                color: var(--rr-common-white);
+                                @include transform (rotate(90deg));
+                            }
+                        }
+                    }
+                }
+                &.mean-last{
+                    border-bottom: none;
+                    margin-bottom: 0;
+                }
+                & > a{
+                    &.mean-expand{
+                        & i{
+                            display: inline-block;
+                            @extend %rs-transition-3;
+                            color: var(--rr-common-white);
+                        }
+                    }
+                    & > i{
+                        display: none;
+                    }
+                }
+                & a,
+                & span{
+                    display: block;
+                    float: left;
+                    margin: 0;
+                    text-align: left;
+                    text-decoration: none;
+                    text-transform: capitalize;
+                    width: 100%;
+                    padding: 10px 0;
+                    color: var(--rr-common-white);
+                    border-top: 1px solid rgba(255, 255, 255, 0.079);
+                    font-size: 16px;
+                    line-height: 1.5;
+                    font-weight: var(--rr-fw-medium);
+                    &:hover{
+                        color: var(--rr-theme-primary);
+                        & i{
+                            color: var(--rr-common-white);
+                        }
+                    }
+                    &.mean-expand{
+                        text-align: center;
+                        position: absolute;
+                        right: 0;
+                        top: 1px;
+                        z-index: 2;
+                        font-size: 14px;
+                        margin-top: 5px;
+                        padding: 0 !important;
+                        border: 1px solid rgba(255, 255, 255, 0.079) !important;
+                        height: 30px;
+                        width: 30px;
+                        color: var(--rr-text-body);
+                        line-height: var(--rr-lh-h3);
+                        font-weight: var(--rr-fw-regular);
+                        border-radius: 3px;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        &:hover{
+                            background: var(--rr-theme-primary2);
+                            color: var(--rr-common-white);
+                            border-color: var(--rr-theme-primary2);
+                            & i{
+                                color: var(--rr-common-white);
+                            }
+                        }
+                        &.mean-clicked{
+                            color: var(--rr-common-white);
+                            &:hover{
+                                background: var(--rr-theme-primary2);
+                                color: var(--rr-common-white);
+                                border-color: var(--rr-theme-primary2);
+                            }
+                        }
+                    }
+                }
+                & li{
+                    & a{
+                        width: 90%;
+                        padding: 10px 7%;
+                        text-shadow: none !important;
+                        visibility: visible;
+                    }
+                    
+                    & li{
+                        & a{
+                            width: 80%;
+                            padding: 10px 12%;
+                        }
+                        
+                        & li{
+                            & a{
+                                width: 70%;
+                                padding: 10px 17%;
+                            }
+                            
+                            & li{
+                                & a{
+                                    width: 60%;
+                                    padding: 10px 20%;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    & .mean-bar{
+        background: none;
+        float: left;
+        width: 100%;
+        position: relative;
+        padding: 4px 0;
+        min-height: 42px;
+        z-index: 999999;
+    }
+    & .mean-bar,
+    & .mean-bar *{
+        /* Fix for box sizing on Foundation Framework etc. */
+        -webkit-box-sizing: content-box;
+        -moz-box-sizing: content-box;
+        box-sizing: content-box;
+    }
+}

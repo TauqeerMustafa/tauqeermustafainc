@@ -1,0 +1,337 @@
+@use '../../utils' as *;
+
+/*----------------------------------------*/
+/*  8.12 home1
+/*----------------------------------------*/
+
+.counter {
+  &__item {
+    padding: 20px 0px;
+    border-top: 1px solid #202020;
+    position: relative;
+    z-index: 1;
+
+    h4 {
+      display: flex;
+      font-size: 42px;
+      align-items: center;
+      font-weight: var(--rr-fw-bold);
+      color: var(--rr-common-white);
+      font-family: var(--rr-ff-heading);
+    }
+
+    p {
+      font-size: 24px;
+      padding-top: 5px;
+      line-height: 125%;
+      color: var(--rr-common-white);
+      font-family: var(--font-family);
+      font-weight: var(--rr-fw-medium);
+    }
+  }
+
+  &__thumb {
+    img {
+      border-radius: 10px;
+    }
+  }
+
+  &__text-area {
+    h4 {
+      font-size: clamp(30px, 5vw, 60px);
+      text-align: center;
+      line-height: 117%;
+      padding: 60px 0px;
+      font-weight: var(--rr-fw-bold);
+      color: var(--rr-common-white);
+      font-family: var(--rr-ff-heading);
+
+      @media #{$mxm,$mxs,$xxs,$xs} {
+        font-size: 25px;
+      }
+
+      & span {
+        margin-right: 15px;
+      }
+
+      @media #{$xs} {
+        padding: 30px 0px;
+      }
+
+    }
+
+    p {
+      font-size: clamp(20px, 5vw, 42px);
+      text-align: center;
+      line-height: 124%;
+      color: var(--rr-common-white);
+      font-weight: var(--rr-fw-sbold);
+      font-family: var(--rr-ff-heading);
+
+      br {
+        @media #{$xs} {
+          display: none;
+        }
+      }
+    }
+  }
+}
+
+
+// branding slider 
+
+.rotate-1 {
+  transform: rotate(-3deg);
+  background-color: var(--rr-theme-primary);
+  margin-bottom: -106px;
+  padding: 10px;
+  margin-left: -100px;
+  margin-right: -100px;
+
+  h2 {
+    color: #000;
+  }
+
+    @media #{$mxs,$mxm,$xxs} {
+    transform: rotate(-11deg);
+  }
+}
+
+.rotate-2 {
+  background-color: var(--rr-common-white);
+  transform: rotate(5deg);
+  padding: 10px;
+  margin-left: -100px;
+  margin-right: -100px;
+
+  @media #{$xs} {
+    transform: rotate(12deg);
+  }
+
+  @media #{$mxs,$mxm,$xxs} {
+    transform: rotate(11deg);
+  }
+
+  h2 {
+    color: #000;
+  }
+}
+
+.custom-m {
+  margin: 100px 0px;
+}
+
+.h1-brand {
+  &__area {
+
+    // border: 1px solid #222222;
+    & .swiper {
+      & .swiper-wrapper {
+        & .swiper-slide {
+          width: auto !important;
+        }
+      }
+    }
+  }
+
+  &__content {
+    h2 {
+      font-size: 42px;
+      line-height: 124%;
+      font-weight: var(--rr-fw-bold);
+      // color: var(--rr-common-white);
+      font-family: var(--rr-ff-heading);
+      margin: 0;
+
+      span {
+        font-size: 42px;
+        line-height: 124%;
+        font-weight: var(--rr-fw-bold);
+        color: var(--rr-theme-primary);
+        font-family: var(--rr-ff-heading);
+
+      }
+    }
+  }
+}
+
+//progress about
+.prog {
+  &__title {
+    margin-bottom: 40px;
+
+    h2 {
+      font-family: var(--font-family);
+      font-weight: 700;
+      font-size: 60px;
+      line-height: 117%;
+      text-align: center;
+      color: #fff;
+
+      @media #{$mxm,$mxs,$xxs,$xs} {
+        font-size: 47px;
+      }
+    }
+  }
+
+  &__item {
+    padding: 30px;
+    border-radius: 10px;
+    background: #202020;
+
+
+    &-icon {
+      max-width: 52px;
+      width: 100%;
+      height: 52px;
+      background-color: var(--rr-common-white);
+      display: grid;
+      place-items: center;
+      border-radius: 6px;
+
+      img {
+        width: 30px;
+      }
+    }
+
+    &-bar {
+      h6 {
+        font-family: var(--font-family);
+        font-weight: 700;
+        font-size: 20px;
+        line-height: 150%;
+        color: #fff;
+      }
+    }
+  }
+}
+
+.progress {
+  position: relative;
+
+  span {
+    background-color: var(--rr-theme-primary);
+    color: #000;
+    font-weight: bold;
+    width: 100px;
+    height: 100px;
+    position: absolute;
+    left: 0;
+    top: 0;
+  }
+}
+
+
+.progress_bar {
+  width: 100%;
+  height: 6px;
+  background-color: #e0e0e0;
+  border-radius: 10px;
+  position: relative;
+  margin-top: 8px;
+}
+
+.progress_fill {
+  background-color: var(--rr-theme-primary);
+  height: 100%;
+  width: 0%;
+  border-radius: 10px 0 0 10px;
+  position: relative;
+  transition: width 2s ease-in-out;
+}
+
+.progress_label {
+  position: absolute;
+  right: 0;
+  top: -15px;
+  transform: translate(50%, 0);
+  background-color: var(--rr-theme-primary);
+  color: #000;
+  // border: 2px solid #4CAF50;
+  border-radius: 25px;
+  width: 42px;
+  height: 22px;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  margin-top: 5px;
+}
+
+// work-studio about
+.work-studio {
+  &__item {
+    display: flex;
+    align-items: start;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    row-gap: 10px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    padding-top: 39px;
+    padding-bottom: 35px;
+
+    &:last-child {
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    &-frist-text {
+      &-2 {
+        @media #{$xl} {
+          max-width: 400px;
+          width: 100%;
+        }
+      }
+
+      .title {
+        font-family: var(--rr-ff-heading);
+        color: var(--rr-common-white);
+        font-weight: var(--rr-fw-sbold);
+        font-size: 20px;
+        line-height: 30px;
+        font-style: normal;
+      }
+    }
+
+    &-det {
+      .title {
+        font-family: var(--rr-ff-heading);
+        color: var(--rr-common-white);
+        font-weight: var(--rr-fw-bold);
+        font-style: normal;
+        font-size: 30px;
+        line-height: 40px;
+        margin-bottom: 3px;
+      }
+
+      .dec {
+        font-family: var(--rr-ff-heading);
+        font-weight: var(--rr-fw-regular);
+        color: var(--rr-text-body);
+        font-style: normal;
+        font-size: 18px;
+        line-height: 28px;
+        // border: 1px solid #161616;
+      }
+    }
+  }
+}
+
+//about-brand section
+.about-brand {
+  &__wrapper {
+    padding: 45px 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    &__item {
+      img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+    }
+  }
+}

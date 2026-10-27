@@ -1,0 +1,195 @@
+@use '../../utils' as *;
+/*----------------------------------------*/
+/*  3.1 banner Style 1
+/*----------------------------------------*/
+.banner{
+    &__area{
+        padding-top: 233px; 
+        padding-bottom: 950px;
+        margin-top: 20px;
+        @media #{$lg, $md, $sm, $xs} {
+            padding-top: 150px;
+            padding-bottom: 100px;
+        }
+        @media #{$md, $sm, $xs} {
+            margin-top: 0;
+        }
+    }
+    &__content{
+        h1{
+            font-family: var(--rr-ff-heading);
+            font-weight: var(--rr-fw-sbold);
+            color: var(--rr-heading-primary);
+            font-style: normal;
+            font-size: 180px;
+            line-height: 193px;
+            text-transform: uppercase;
+            @media #{$xxl} {
+                font-size: 150px;
+                line-height: 170px;
+            }
+            @media #{$xl} {
+                font-size: 130px;
+                line-height: 160px;
+            }
+            @media #{$lg} {
+                font-size: 130px;
+                line-height: 160px;
+            }
+            @media #{$md} {
+                font-size: 95px;
+                line-height: 115px;
+            }
+            @media #{$sm} {
+                font-size: 70px;
+                line-height: 90px;
+            }
+            @media #{$xs} {
+                font-size: 60px;
+                line-height: 75px;
+            }
+            .arrow{
+                padding-left: 74px;
+                @media #{$md} {
+                    padding-left: 40px;
+                }
+                @media #{$sm} {
+                    padding-left: 40px;
+                }
+                @media #{$xs} {
+                    padding-left: 40px;
+                }
+                img{ 
+                    width: inherit;
+                }
+            }
+            .video{
+                padding-left: 155px;
+                @media #{$xl} {
+                    padding-left: 100px;
+                } 
+                @media #{$lg, $md, $sm, $xs} {
+                    padding-left: 0;
+                }
+                .title-video{
+                    max-width: 410px;
+                    width: 100%;
+                    height: 140px;
+                    border-radius: 150px;
+                    object-fit: cover;
+                    transform: translate(0, 13px);
+                    position: relative;
+                    z-index: 1;
+                    @media #{$md} {
+                        max-width: 300px;
+                        height: 100px;
+                        border-radius: 100px;
+                    }
+                    @media #{$sm} {
+                        max-width: 250px;
+                        height: 80px;
+                        border-radius: 100px;
+                    }
+                    @media #{$xs} {
+                        max-width: 300px;
+                        height: 100px;
+                        border-radius: 100px;
+                    } 
+                }
+            }
+            .solutions{
+                font-family: var(--rr-ff-heading1);
+                font-weight: var(--rr-fw-bold);
+                font-style: italic;
+                font-size: 117px;
+                line-height: 130px;
+                text-transform: uppercase;
+                color: #825757;
+                display: inline-block;
+                transform: translate(0, -15px);
+                @media #{$xxl} {
+                    font-size: 90px;
+                    line-height: 110px;
+                }
+                @media #{$xl} {
+                    font-size: 70px;
+                    line-height: 80px;
+                }
+                @media #{$lg} {
+                    font-size: 62px;
+                    line-height: 75px;
+                }
+                @media #{$md} {
+                    font-size: 49px;
+                    line-height: 60px;
+                }
+                @media #{$sm} {
+                    font-size: 34px;
+                    line-height: 45px;
+                }
+                @media #{$xs} {
+                    font-size: 30px;
+                    line-height: 40px;
+                }
+                @media screen and (max-width: 425px) {
+                    font-size: 48px;
+                    line-height: 55px;
+                }
+                @media #{$mxm} {
+                    font-size: 40px;
+                    line-height: 45px;
+                }
+                @media #{$mxs} {
+                    font-size: 35px;
+                    line-height: 45px;
+                }
+            }
+            .brand{
+                font-family: var(--rr-ff-heading1);
+                font-weight: var(--rr-fw-regular);
+                color: var(--rr-heading-primary);
+                font-style: italic;
+                font-size: 160px;
+                line-height: 170px;
+                text-transform: uppercase;
+                @media #{$xxl} {
+                    font-size: 130px;
+                    line-height: 150px;
+                }
+                @media #{$xl} {
+                    font-size: 110px;
+                    line-height: 120px;
+                }
+                @media #{$lg} {
+                    font-size: 100px;
+                    line-height: 110px;
+                }
+                @media #{$md} {
+                    font-size: 82px;
+                    line-height: 100px;
+                }
+                @media #{$sm} {
+                    font-size: 60px;
+                    line-height: 80px;
+                }
+                @media #{$xs} {
+                    font-size: 32px;
+                    line-height: 45px;
+                }
+                @media screen and (max-width: 425px) {
+                    font-size: 44px;
+                    line-height: 55px;
+                }
+                @media #{$mxm} {
+                    font-size: 38px;
+                    line-height: 45px;
+                }
+                @media #{$mxs} {
+                    font-size: 32px;
+                    line-height: 45px;
+                }
+                
+            }
+        }
+    }
+}

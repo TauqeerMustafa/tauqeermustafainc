@@ -1,0 +1,50 @@
+@use '../../utils' as *;
+
+/*----------------------------------------*/
+/*  8.1 brand
+/*----------------------------------------*/
+.smooth-slide-transtion {
+    -webkit-transition-timing-function: linear;
+    transition-timing-function: linear;
+  }
+  .h1-brand {
+    &__slider{
+      border-bottom: 1px solid #202020;
+      border-top: 1px solid #202020;
+      padding: 45px 0;
+    }
+    &__area {
+
+      & .swiper {
+        & .swiper-wrapper {
+          & .swiper-slide {
+            width: auto !important;
+          }
+        }
+      }
+    }
+    &__content {
+      &-2{
+        h2{
+          color: var(--rr-heading-primary) !important;
+        }
+      }
+      h2 {
+        font-size: 42px;
+        line-height: 124%;
+        font-weight: var(--rr-fw-bold);
+        color: var(--rr-common-white);
+        font-family: var(--rr-ff-heading);
+        margin: 0;
+        span {
+          font-size: 42px;
+          line-height: 124%;
+          font-weight: var(--rr-fw-bold);
+          color: var(--rr-theme-primary);
+          font-family: var(--rr-ff-heading);
+          
+        }
+      }
+    }
+  }
+  

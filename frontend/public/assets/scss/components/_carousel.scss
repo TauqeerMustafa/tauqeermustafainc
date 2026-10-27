@@ -1,0 +1,40 @@
+@use '../utils' as *;
+
+/*----------------------------------------*/
+/*  2.9 carousel
+/*----------------------------------------*/
+
+// Common swiper dot10
+.rs-swiper-dot {
+	.swiper-pagination-bullet {
+		width: 10px;
+		height: 10px;
+		background-color: rgba(255, 255, 255, 0.2);
+
+		@include light {
+			background-color: rgba(6, 6, 6, 0.20);
+		}
+
+		opacity: 1;
+		border-radius: 30px;
+		position: relative;
+		margin: 0 8px;
+
+		&.swiper-pagination-bullet-active {
+			background-color: rgba(255, 255, 255, 1);
+
+			@include light {
+				background-color: rgba(6, 6, 6, 1);
+			}
+		}
+	}
+	&.is-white {
+		.swiper-pagination-bullet {
+			background-color: rgba(255, 255, 255, 0.2);
+	
+			&.swiper-pagination-bullet-active {
+				background-color: rgba(255, 255, 255, 1);
+			}
+		}
+	}
+}

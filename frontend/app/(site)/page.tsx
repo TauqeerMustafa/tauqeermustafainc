@@ -1,39 +1,35 @@
 import type { Metadata } from "next";
 
-import AboutPreview from "@/components/home/AboutPreview";
-import CTA from "@/components/home/CTA";
-import CoreServices from "@/components/home/CoreServices";
-import FAQ from "@/components/home/FAQ";
-import FeaturedWork from "@/components/home/FeaturedWork";
-import Hero from "@/components/home/Hero";
-import LatestBlogs from "@/components/home/LatestBlogs";
-import OperatingModel from "@/components/home/OperatingModel";
-import Technology from "@/components/home/Technology";
-import WhyChooseUs from "@/components/home/WhyChooseUs";
+import MonasHero from "@/components/home/MonasHero";
+import MonasBrandMarquee from "@/components/home/MonasBrandMarquee";
+import MonasAbout from "@/components/home/MonasAbout";
+import MonasProjects from "@/components/home/MonasProjects";
+import MonasServices from "@/components/home/MonasServices";
+import MonasTestimonials from "@/components/home/MonasTestimonials";
+import MonasPricing from "@/components/home/MonasPricing";
+import MonasBlog from "@/components/home/MonasBlog";
 import WhatsAppChat from "@/components/whatsapp/WhatsAppChat";
 import { buildMetadata } from "@/lib/metadata";
 
 export const metadata: Metadata = buildMetadata({
-  title: { absolute: "Qorlune LLC" },
+  title: { absolute: "Qorlune — Enterprise Platforms & AI Automation" },
   description:
-    "We build production-ready platforms for businesses that can't afford downtime. Web engineering, AI automation, cloud infrastructure, and security — delivered as one integrated team.",
+    "We engineer mission-critical platforms, autonomous AI pipelines, and resilient cloud architectures for high-growth businesses. Zero downtime, enterprise-grade engineering.",
   path: "/",
 });
 
 export default function Home() {
   return (
-    <main>
-      <Hero />
-      <AboutPreview />
-      <FeaturedWork />
-      <CoreServices />
-      <OperatingModel />
-      <WhyChooseUs />
-      <Technology />
-      <FAQ />
-      <LatestBlogs />
-      <CTA />
+    <div>
+      <MonasHero />
+      <MonasBrandMarquee />
+      <MonasAbout />
+      <MonasProjects />
+      <MonasServices />
+      <MonasTestimonials />
+      <MonasPricing />
+      <MonasBlog />
       <WhatsAppChat />
-    </main>
+    </div>
   );
 }

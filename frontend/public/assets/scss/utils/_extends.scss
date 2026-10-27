@@ -1,0 +1,51 @@
+@use './mixins' as *;
+
+%include-bg{
+	@include background();
+}
+%rs-transition-3 {
+	@include rs-transition();
+}
+%rs-transition-2{
+    @include rs-transition(opacity, 0.2s, ease-in-out);
+}
+%rs-transition-common{
+	@include rs-transition();
+}
+%rs-transition-color{
+	@include rs-transition(color);
+}
+%rs-transition-transform{
+	@include rs-transition(transform);
+}
+%rs-transition-border-color{
+	@include rs-transition(border-color);
+}
+%rs-transition-bg-color{
+	@include rs-transition(background-color);
+}
+%rs-transition-fz{
+	@include rs-transition(font-size);
+}
+// font
+%rs-ff-fontawesome{
+	font-family: var(--rr-ff-fontawesome);
+}
+/* transform */
+%translateY1_2{
+	@include transform(translateY(-50%));
+}
+%translateX1_2{
+	@include transform(translateX(-50%));
+}
+%translate1_2{
+	@include transform(translate(-50%, -50%));
+}
+// bg thumbnails
+%bg-thumb{
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+}

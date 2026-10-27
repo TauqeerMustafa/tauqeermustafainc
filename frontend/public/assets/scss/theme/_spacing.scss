@@ -1,0 +1,79 @@
+
+@use '../utils' as *;
+
+/*---------------------------------
+	1.8 spacing
+---------------------------------*/
+
+.section-space {
+	padding-top: 120px;
+	padding-bottom: 120px;
+	@media #{$md} {
+		padding-top: 80px;
+		padding-bottom: 80px;
+	}
+	@media #{$sm,$xs} {
+		padding-top: 70px;
+		padding-bottom: 70px;
+	}
+}
+.section-space-top {
+	padding-top: 120px;
+	@media #{$md} {
+		padding-top: 80px;
+	}
+	@media #{$sm,$xs} {
+		padding-top: 70px;
+	}
+}
+.section-space-top-2 {
+	padding-top: 180px;
+	@media #{$md} {
+		padding-top: 100px;
+	}
+	@media #{$sm,$xs} {
+		padding-top: 70px;
+	}
+}
+.section-space-top-90 {
+	padding-top: 90px;
+	@media #{$md} {
+		padding-top: 80px;
+	}
+	@media #{$sm,$xs} {
+		padding-top: 70px;
+	}
+}
+.section-space-top-55 {
+	padding-top: 55px;
+}
+.section-space-top-65 {
+	padding-top: 65px;
+}
+.section-space-bottom-90 {
+	padding-bottom: 90px;
+	@media #{$md} {
+		padding-bottom: 80px;
+	}
+	@media #{$sm,$xs} {
+		padding-bottom: 70px;
+	}
+}
+.section-space-bottom {
+	padding-bottom: 120px;
+	@media #{$md} {
+		padding-bottom: 80px;
+	}
+	@media #{$sm,$xs} {
+		padding-bottom: 70px;
+	}
+}
+.section-space-bottom-2 {
+	padding-bottom: 155px;
+	@media #{$md} {
+		padding-bottom: 80px;
+	}
+	@media #{$sm,$xs} {
+		padding-bottom: 70px;
+	}
+}

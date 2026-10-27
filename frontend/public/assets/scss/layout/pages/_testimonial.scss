@@ -1,0 +1,140 @@
+@use "../../utils" as *;
+
+.h1-test {
+    &__shape {
+      &-1 {
+        left: 8%;
+        bottom: 0;
+      }
+      &-2 {
+        top: 0;
+        right: 0;
+      }
+      &-3 {
+
+        bottom: -5px;
+        left: 13%;
+        @media #{$xl} {
+          left: 1%;
+        }
+      }
+      &-4 {
+          top: 13%;
+          left: 0;
+          @media #{$lg} {
+            top: 9%;
+          }
+      }
+      &-5 {
+          top: 55%;
+          left: 14%;
+          transform: translate(13px, -103px);
+          @media #{$xxl} {
+            left: 4%;
+          }
+          @media #{$xl} {
+            left: 0;
+          }
+      }
+      &-6 {
+          left: 0;
+          bottom: 120px;
+      }
+      &-7 {
+          top: 13%;
+          right: 3%;
+          @media #{$lg} {
+            top: 8%;
+          }
+      }
+      &-8 {
+          top: 55%;
+          right: 16%;
+          transform: translate(13px, -103px);
+          @media #{$xxl} {
+            right: 5%;
+          } 
+          @media #{$xl} {
+            right: 3%;
+          } 
+      }
+      &-9 {
+          right: 0;
+          bottom: 120px;
+      }
+    }
+    &__slider-icon{
+        img{
+            width: inherit;
+        }
+    }
+    &__swiper-wrapper {
+      max-width: 920px;
+      width: 100%;
+      padding: 100px 0px;
+      @media #{$mxs,$mxm,$xxs,$xs} {
+          padding: 40px 0px;
+        }
+    }
+    &__heading {
+      h2 {
+          text-align: center;
+          line-height: 117%;
+          font-weight: var(--rr-fw-bold);
+          color: var(--rr-common-white);
+          font-family: var(--rr-ff-heading);
+          margin-bottom: 0;
+          font-size: clamp(30px, 5vw, 60px);
+      }
+    }
+    &__slider {
+      &-text {
+        p {
+            font-size: 26px;
+            line-height: 138%;
+            text-align: center;
+            margin-bottom: 20px;
+            color: var(--rr-common-white);
+            font-weight: var(--rr-fw-sbold);
+            font-family: var(--rr-ff-heading);
+          @media #{$mxs} {
+              font-size: 16px;
+            }
+        }
+        &-clint {
+            width: inherit;
+            // height: 120px;
+            overflow: hidden;
+            border-radius: 35px;
+          background-color: var(--rr-heading-primary);
+          @media #{$mxs,$mxm,$xxs,$xs} {
+              visibility: hidden;
+              opacity: 0;
+            }
+          &-title {
+            h6 {
+              a {
+                  font-size: 30px;
+                  text-align: center;
+                  line-height: 133%;
+                  font-weight: var(--rr-fw-bold);
+                  color: var(--rr-common-white);
+                  font-family: var(--rr-ff-heading);
+                @media #{$mxs} {
+                  font-size: 16px;
+                }
+              }
+            }
+            p {
+                font-size: 18px;
+                margin-top: 8px;
+                line-height: 111%;
+                color: var(--rr-common-white);
+                font-family: var(--rr-ff-heading);
+                text-align: start;
+            }
+          }
+        }
+      }
+    }
+}

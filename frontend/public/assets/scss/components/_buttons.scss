@@ -1,0 +1,241 @@
+@use '../utils' as *;
+
+/*----------------------------------------*/
+/*  2.3 buttons
+/*----------------------------------------*/
+
+// Common button
+.rr-btn {
+    background: var(--rr-heading-secondary);
+    background-color: var(--rr-theme-primary);
+    color: var(--rr-heading-primary);
+    font-family: var(--rr-ff-body);
+	font-weight: var(--rr-fw-bold);
+    font-size: 18px;
+    line-height: 18px;
+    border: 1px solid #0A0A0A;
+    border-radius: 65px;
+    font-style: normal;
+    padding: 17px 50px;
+    text-transform: capitalize;
+    display: inline-flex;
+	align-items: center;
+    gap: 10px;
+	justify-content: center;
+	position: relative;
+	overflow: hidden;
+	z-index: 5;
+    &-2{
+        margin-top: 20px;
+        padding: 17px 34px;
+    }
+    i{
+        font-size: 20px;
+    }
+    
+    &-bold{
+        font-weight: var(--rr-fw-bold);
+    }
+    svg path{
+        @extend %rs-transition-3;
+    }
+
+    &:focus {
+        color: var(--rr-common-white);
+    }
+    
+    &::before {
+        background: var(--rr-heading-primary);
+        width: 100%;
+        height: 100%;
+        position: absolute;
+        top: 0;
+        left: 0;
+        transform: translate(-165%, 0) rotate(0deg);
+        transform-origin: right bottom;
+        transition: all 0.35s;
+        z-index: -1;
+        content: "";
+    }
+ 
+	&:hover {
+        color: var(--rr-common-white);
+        background: var(--rr-heading-primary);
+        &::before {
+            transform: translate(0, 0);
+        }
+        
+        svg path[fill="#00160A"] {
+            fill: var(--rr-common-white);
+        }
+	}
+    
+    &.btn-hover-white {
+        
+        &::before {
+            background-color: var(--rr-common-white);
+        }
+        &:hover {
+            color: var(--rr-heading-primary);
+            
+            svg path[fill="white"] {
+                fill: var(--rr-heading-primary);
+            }
+        }
+    }
+    
+    &.btn-transparent {
+        padding: 18px 37px;
+        border: none;
+        color: var(--rr-heading-primary);
+        background-color: var(--rr-heading-secondary);
+        
+        &::before {
+            background-color: var(--rr-heading-primary);
+        }
+       
+        
+        &.btn-border-2 {
+            padding: 18px 30px;
+            border: 2px solid var(--rr-theme-primary);
+            &::before {
+                border-radius: 0;
+            }
+        }
+        
+        &.btn-border-gray {
+            padding: 19px 22px;
+            border-color: var(--rr-heading-primary);
+            
+            @media #{$md, $lg} {
+                padding: 10px 15px;
+            }
+            
+            @media #{$xs, $sm} {
+                padding: 6px 10px;
+            }
+            
+            &:hover {
+                i {
+                    background-color: var(--rr-theme-primary);
+                }
+            }
+            
+            i {
+                @extend %rs-transition-3;
+                @include border-radius(5px);
+                width: 40px;
+                height: 40px;
+                padding: 10px;
+                background-color: var(--rr-heading-primary);
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                
+                @media #{$xs, $sm} {
+                    width: 30px;
+                    height: 30px;
+                }
+            }
+        }
+        
+        svg path[fill="white"] {
+            fill: var(--rr-theme-primary);
+        }
+        &:hover {
+            color: var(--rr-common-white);
+            // border: 1px solid var(--rr-theme-primary);
+            svg path[fill="white"] {
+                fill: var(--rr-common-white);
+            }
+            span{
+                background-color: var(--rr-common-white);
+                i{
+                    color: var(--rr-heading-primary);
+                }
+            }
+        }
+    }
+    
+    &.btn-white {
+        color: var(--rr-heading-primary);
+        background-color: var(--rr-common-white);
+        width: 100%;
+        &::before {
+            background-color: var(--rr-heading-primary);
+        }
+        &:hover {
+            color: var(--rr-common-white);
+            // background-color: var(--rr-heading-primary);
+        }
+    }
+    
+    &.btn-text-color-white {
+        color: var(--rr-common-white);
+    }
+}
+//Circle big btn ---- tp-btn-trigger-2 ----
+.tp-hover-btn-wrapper {
+    display: inline-block;
+    .tp-btn-circle-2 {
+        background: var(--rr-heading-secondary);
+        color: var(--rr-heading-primary);
+        font-family: var(--rr-ff-heading);
+        font-weight: var(--rr-fw-bold);
+        font-style: normal;
+        font-size: 18px;
+        line-height: 28px;
+        position: relative;
+        overflow: hidden;
+        display: inline-block;
+        width: 220px;
+        height: 220px;
+        border-radius: 50%;
+        border: 1px solid #D9D9D9;
+        z-index: 1;
+        @media #{$xs,$sm} {
+            height: 100px;
+            width: 100px; 
+        }  
+        &:hover{
+            color: var(--rr-heading-primary);
+            .tp-btn-circle-dot{
+                width: 420px;
+                height: 420px;
+            }
+            svg [stroke="white"] {
+                stroke: #151515;
+            }
+        }
+        .tp-btn-circle-text-2 {
+            font-family: var(--rr-ff-heading);
+            font-weight: var(--rr-fw-bold);
+            display: block;
+            font-style: normal;
+            font-size: 18px;
+            line-height: 22px;
+            text-align: center;
+        }
+        .tp-btn-circle-dot {
+            position: absolute;
+            bottom: 0;
+            left: 32px;
+            width: 30px;
+            height: 30px;
+            background-color: var(--rr-common-white);
+            line-height: 20px;
+            border-radius: 50%;
+            -webkit-transition: all 0.5s ease-out;
+            -moz-transition: all 0.5s ease-out;
+            -ms-transition: all 0.5s ease-out;
+            -o-transition: all 0.5s ease-out;
+            transition: all 0.5s ease-out;
+            -webkit-transform: translate(-50%, -50%);
+            -moz-transform: translate(-50%, -50%);
+            -ms-transform: translate(-50%, -50%);
+            -o-transform: translate(-50%, -50%);
+            transform: translate(-50%, -50%);
+            z-index: -1;
+        }
+    }
+}
