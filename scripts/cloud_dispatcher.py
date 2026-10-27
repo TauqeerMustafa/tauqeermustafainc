@@ -14,6 +14,11 @@ from email.mime.multipart import MIMEMultipart
 from urllib.parse import urlparse
 import openpyxl
 
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+if hasattr(sys.stderr, "reconfigure"):
+    sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+
 WORKBOOK_PATH = os.path.join("data", "outreach", "Qorlune_1000_New_Worldwide_Prospects.xlsx")
 
 # Multi-Provider Credentials (Base64 decoded for cloud runner security)
@@ -42,8 +47,33 @@ EMAIL_REGEX = re.compile(r"[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z]{2,10}")
 IGNORE_WORDS = (
     "example.com", "wixpress", "sentry", "latofonts", "domain.com", "polyfill", 
     "webpack", "schema.org", "react-dom", "react@", "core-js", "node_modules",
-    "npm", "github", "cloudflare", "bootstrap", "wordpress", "elementor", "myemail@email.com"
+    "npm", "github", "cloudflare", "bootstrap", "wordpress", "elementor", "myemail@email.com",
+    "shutterstock.com", "istockphoto.com", "depositphotos.com", "pcrisk.com", "godaddy.com",
+    "filler@godaddy.com"
 )
+SKIP_DOMAINS = (
+    "example.com", "shutterstock.com", "istockphoto.com", "depositphotos.com",
+    "pcrisk.com", "findyello.com", "truelocal.com.au", "yelp.com", "yellowpages.com",
+    "facebook.com", "instagram.com", "linkedin.com", "twitter.com", "x.com",
+    "youtube.com", "godaddy.com", "wix.com", "squarespace.com", "wordpress.com",
+    "maskay.com", "acciona-energia.com", "sterlingwoodscondo.org"
+)
+
+def is_valid_email(email):
+    if not email or "@" not in email:
+        return False
+    parts = email.strip().split("@")
+    if len(parts) != 2:
+        return False
+    user, dom = parts[0].strip(), parts[1].strip().lower()
+    if not user or not dom or "." not in dom:
+        return False
+    tld = dom.split(".")[-1]
+    if len(tld) < 2 or not tld.isalpha():
+        return False
+    if any(ig in email.lower() for ig in IGNORE_WORDS):
+        return False
+    return True
 
 def clean_domain(url):
     try:
@@ -59,6 +89,10 @@ def scrape_email_from_site(url):
     if not url or not url.startswith("http") or url.endswith(".pdf"):
         return None
     
+    dom = clean_domain(url)
+    if not dom or any(sd in dom for sd in SKIP_DOMAINS):
+        return None
+
     clean_base = url.rstrip("/")
     pages = [clean_base, clean_base + "/contact", clean_base + "/contact-us"]
     found = set()
@@ -69,7 +103,7 @@ def scrape_email_from_site(url):
                 body = r.read().decode("utf-8", errors="ignore")
                 for em in EMAIL_REGEX.findall(body):
                     em_lower = em.strip().lower()
-                    if not any(ig in em_lower for ig in IGNORE_WORDS) and not em_lower.endswith(('.png', '.jpg', '.webp', '.js', '.css')):
+                    if is_valid_email(em_lower) and not em_lower.endswith(('.png', '.jpg', '.webp', '.js', '.css')):
                         found.add(em_lower)
         except Exception:
             continue
@@ -83,8 +117,7 @@ def scrape_email_from_site(url):
                     return e
         return list(found)[0]
 
-    dom = clean_domain(url)
-    if dom and "." in dom:
+    if dom and "." in dom and not any(sd in dom for sd in SKIP_DOMAINS):
         return f"info@{dom}"
     return None
 
@@ -161,8 +194,20 @@ def send_multi_provider(to_email, to_name, subject, draft, counter):
             ok, detail = send_resend(to_email, to_name, subject, draft)
     return ok, detail
 
+def safe_save_workbook(wb, path):
+    tmp_path = path + ".tmp"
+    try:
+        wb.save(tmp_path)
+        os.replace(tmp_path, path)
+    except Exception as e:
+        print(f"Warning: safe_save failed ({e}), writing directly...", flush=True)
+        try:
+            wb.save(path)
+        except Exception:
+            pass
+
 def main():
-    batch_limit = int(os.environ.get("BATCH_LIMIT", 50))
+    batch_limit = int(os.environ.get("BATCH_LIMIT", 500))
     print(f"Starting cloud outreach batch (Batch limit: {batch_limit})...")
 
     if not os.path.exists(WORKBOOK_PATH):
@@ -182,7 +227,7 @@ def main():
                 break
 
             status = str(ws.cell(row=r, column=20).value or "").strip()
-            if status == "Sent":
+            if status.lower() == "sent":
                 continue
 
             lid = ws.cell(row=r, column=1).value
@@ -192,12 +237,15 @@ def main():
             subj = str(ws.cell(row=r, column=16).value or "").strip()
             draft = str(ws.cell(row=r, column=17).value or "").strip()
 
-            if not email or "@" not in email or any(ig in email.lower() for ig in IGNORE_WORDS):
+            if not is_valid_email(email):
                 scraped = scrape_email_from_site(site)
-                if scraped:
+                if scraped and is_valid_email(scraped):
                     email = scraped
                     ws.cell(row=r, column=8).value = email
                 else:
+                    if status != "Skipped - No Website Email":
+                        ws.cell(row=r, column=20).value = "Skipped - No Website Email"
+                        safe_save_workbook(wb, WORKBOOK_PATH)
                     continue
 
             clean_name = biz or "there"
@@ -213,7 +261,8 @@ def main():
                 )
 
             dispatched += 1
-            print(f"[{dispatched}/{batch_limit}] Sending Lead {lid} -> {biz} <{email}>...", end="", flush=True)
+            safe_biz = biz.encode("ascii", "replace").decode("ascii")
+            print(f"[{dispatched}/{batch_limit}] Sending Lead {lid} -> {safe_biz} <{email}>...", end="", flush=True)
             ok, detail = send_multi_provider(email, biz, subj, draft, dispatched)
 
             if ok:
@@ -227,10 +276,10 @@ def main():
                 ws.cell(row=r, column=23).value = f"Error: {detail}"
                 print(f" [FAIL] {detail}", flush=True)
 
-            wb.save(WORKBOOK_PATH)
-            time.sleep(2.0)
+            safe_save_workbook(wb, WORKBOOK_PATH)
+            time.sleep(1.8)
 
-    wb.save(WORKBOOK_PATH)
+    safe_save_workbook(wb, WORKBOOK_PATH)
     print(f"Cloud Batch Complete: Successfully dispatched {dispatched} emails!")
 
 if __name__ == "__main__":
