@@ -28,9 +28,10 @@ jobs:
 
       - name: Run Cloud Outreach Dispatcher
         env:
-          BATCH_LIMIT: 50
+          BATCH_LIMIT: 200
+          PYTHONUNBUFFERED: "1"
         run: |
-          python scripts/cloud_dispatcher.py
+          python -u scripts/cloud_dispatcher.py
 
       - name: Commit and Push Workbook Progress
         run: |
