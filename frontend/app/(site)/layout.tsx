@@ -1,5 +1,4 @@
-import MonasNavbar from "@/components/layout/MonasNavbar";
-import MonasFooter from "@/components/layout/MonasFooter";
+import MonasScripts from "@/components/layout/MonasScripts";
 
 export default function SiteLayout({
   children,
@@ -8,6 +7,9 @@ export default function SiteLayout({
 }>) {
   return (
     <>
+      <link rel="preconnect" href="https://fonts.googleapis.com" />
+      <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+      <link href="https://fonts.googleapis.com/css2?family=Sofia&display=swap" rel="stylesheet" />
       <link rel="stylesheet" href="/assets/css/vendor/bootstrap.min.css" />
       <link rel="stylesheet" href="/assets/css/vendor/animate.min.css" />
       <link rel="stylesheet" href="/assets/css/vendor/odometer.min.css" />
@@ -18,13 +20,9 @@ export default function SiteLayout({
       <link rel="stylesheet" href="/assets/css/vendor/custom-font.css" />
       <link rel="stylesheet" href="/assets/css/main.css" />
 
-      <MonasNavbar />
+      {children}
 
-      <main className="flex-1" style={{ background: "#0f0f11", minHeight: "100vh" }}>
-        {children}
-      </main>
-
-      <MonasFooter />
+      <MonasScripts />
     </>
   );
 }
