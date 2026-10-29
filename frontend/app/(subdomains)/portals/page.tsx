@@ -1,4 +1,4 @@
-import Image from "next/image";
+﻿import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, BarChart3, Briefcase, ShieldCheck, Users, type LucideIcon, CreditCard, LifeBuoy } from "lucide-react";
 
@@ -30,7 +30,7 @@ export default function PortalsPage() {
     <>
       <PageHero
         eyebrow="Identity & Access // Secure Workspaces"
-        title="Qorlune Corporate Portals"
+        title="Corporate Portals & Workspaces"
         description="Select your authorized workspace to authenticate and access your dedicated management, engineering, or client dashboard."
       >
         <Badge>256-Bit SSL Encrypted</Badge>
@@ -92,7 +92,7 @@ export default function PortalsPage() {
               <p className="text-xs text-ink-muted mt-0.5 font-light">Direct Card/Paddle payments & instant settlement.</p>
             </div>
             <a
-              href="https://billing.qorlune.co.uk"
+              href="/billing"
               className="inline-flex items-center gap-1.5 bg-action px-5 py-2.5 font-mono text-xs font-bold uppercase tracking-wider text-on-action transition hover:bg-action-strong shrink-0"
             >
               <span>Billing Portal</span>
@@ -110,7 +110,7 @@ export default function PortalsPage() {
               <p className="text-xs text-ink-muted mt-0.5 font-light">Open an enterprise ticket or check real-time uptime.</p>
             </div>
             <a
-              href="https://support.qorlune.co.uk"
+              href="/support"
               className="inline-flex items-center gap-1.5 border border-line bg-surface px-5 py-2.5 font-mono text-xs font-bold uppercase tracking-wider text-ink transition hover:border-action hover:text-action shrink-0"
             >
               <span>Helpdesk</span>

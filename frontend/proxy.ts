@@ -1,12 +1,12 @@
-/**
+﻿/**
  * Server-side auth gate for the WhatsApp API (Next.js 16 "proxy", formerly
  * middleware). The /api/whatsapp/* route handlers are a BFF proxy that read
  * customer conversations from KV and call the Meta Graph API with server-only
- * secrets — they must never be reachable without an authenticated admin.
+ * secrets â€” they must never be reachable without an authenticated admin.
  *
  * The admin session token lives in the browser (localStorage, sent by the
  * client as `Authorization: Bearer <token>`). We validate it the same way the
- * UI does — by asking the backend who it belongs to — and require role
+ * UI does â€” by asking the backend who it belongs to â€” and require role
  * "admin". Runs on the Node.js runtime by default, so backend fetch is fine.
  *
  * Admin *pages* are not gated here: the token is in localStorage and invisible
@@ -18,15 +18,15 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
 // Endpoints under /api/whatsapp that must stay open to unauthenticated callers:
-//   webhook  — Meta calls it; authenticated by WEBHOOK_VERIFY_TOKEN / signature
-//   diagnose — ops endpoint, guarded by its own WA_DIAGNOSE_KEY
+//   webhook  â€” Meta calls it; authenticated by WEBHOOK_VERIFY_TOKEN / signature
+//   diagnose â€” ops endpoint, guarded by its own WA_DIAGNOSE_KEY
 const OPEN_PATHS = ["/api/whatsapp/webhook", "/api/whatsapp/diagnose"];
 
 /**
  * Path prefixes that already resolve on the portals host and must NOT be
  * rewritten under /client. The four portals each own a real namespace
  * (see frontend/config/portals.ts), plus /portals is the chooser itself.
- * `/management` was missing from this list, so https://portals…/management/login
+ * `/management` was missing from this list, so https://portalsâ€¦/management/login
  * rewrote to /client/management/login and 404'd.
  */
 const PORTAL_PREFIXES = ["/portals", "/admin", "/employees", "/management", "/client", "/ai-workforce", "/executive"];
@@ -55,6 +55,8 @@ function isMainSitePath(pathname: string): boolean {
 
 
 function getApexDomain(hostname: string): string {
+  if (hostname.includes("tauqeermustafa.com")) return "tauqeermustafa.com";
+  if (hostname.includes("tauqeermustafa.tech")) return "tauqeermustafa.com";
   if (hostname.includes("qorlune.com")) return "qorlune.com";
   return "qorlune.co.uk";
 }
@@ -64,7 +66,11 @@ function isMainDomainHost(hostname: string): boolean {
     hostname === "qorlune.co.uk" ||
     hostname === "www.qorlune.co.uk" ||
     hostname === "qorlune.com" ||
-    hostname === "www.qorlune.com"
+    hostname === "www.qorlune.com" ||
+    hostname === "tauqeermustafa.com" ||
+    hostname === "www.tauqeermustafa.com" ||
+    hostname === "tauqeermustafa.tech" ||
+    hostname === "www.tauqeermustafa.tech"
   );
 }
 
@@ -78,29 +84,47 @@ export async function proxy(request: NextRequest) {
   const hostname = request.headers.get("host") || "";
   const apex = getApexDomain(hostname);
 
-  // Permanent 308 redirect for all legacy .tech and .com requests directly to qorlune.co.uk
+  // Forward legacy .tech requests to .com equivalent
   if (
     !hostname.includes("localhost") &&
     !hostname.includes("127.0.0.1") &&
-    (hostname.includes("tauqeermustafa.com") || hostname.includes("tauqeermustafa.tech"))
+    hostname.includes("tauqeermustafa.tech")
   ) {
-    const search = request.nextUrl.search;
-    let targetHost = "qorlune.co.uk";
-    if (hostname.startsWith("portals.")) targetHost = "portals.qorlune.co.uk";
-    else if (hostname.startsWith("support.") || hostname.startsWith("help.")) targetHost = "support.qorlune.co.uk";
-    else if (hostname.startsWith("billing.")) targetHost = "billing.qorlune.co.uk";
-    else if (hostname.startsWith("docs.")) targetHost = "docs.qorlune.co.uk";
-    else if (hostname.startsWith("community.")) targetHost = "qorlune.co.uk";
-    else if (hostname.startsWith("app.")) targetHost = "app.qorlune.co.uk";
-    else if (hostname.startsWith("admin.")) targetHost = "portals.qorlune.co.uk";
-
-    let targetPath = pathname;
-    if (hostname.startsWith("admin.") && !targetPath.startsWith("/admin")) {
-      targetPath = `/admin${targetPath === "/" ? "" : targetPath}`;
-    }
-    return NextResponse.redirect(`https://${targetHost}${targetPath}${search}`, 308);
+    const targetHost = hostname.replace("tauqeermustafa.tech", "tauqeermustafa.com");
+    return NextResponse.redirect(`https://${targetHost}${pathname}${request.nextUrl.search}`, 308);
   }
 
+  // Handle direct subdomain entries for specific portals
+  if (hostname.startsWith("admin.")) {
+    if (!pathname.startsWith("/admin")) {
+      url.pathname = `/admin${pathname === "/" ? "" : pathname}`;
+      return NextResponse.rewrite(url);
+    }
+  }
+  if (hostname.startsWith("client.")) {
+    if (!pathname.startsWith("/client")) {
+      url.pathname = `/client${pathname === "/" ? "" : pathname}`;
+      return NextResponse.rewrite(url);
+    }
+  }
+  if (hostname.startsWith("employees.")) {
+    if (!pathname.startsWith("/employees")) {
+      url.pathname = `/employees${pathname === "/" ? "" : pathname}`;
+      return NextResponse.rewrite(url);
+    }
+  }
+  if (hostname.startsWith("management.")) {
+    if (!pathname.startsWith("/management")) {
+      url.pathname = `/management${pathname === "/" ? "" : pathname}`;
+      return NextResponse.rewrite(url);
+    }
+  }
+  if (hostname.startsWith("executive.")) {
+    if (!pathname.startsWith("/executive")) {
+      url.pathname = `/executive${pathname === "/" ? "" : pathname}`;
+      return NextResponse.rewrite(url);
+    }
+  }
   // Delete / block APK and download access from portals
   if (
     (hostname.startsWith("portals.") || hostname.includes("portals.")) &&

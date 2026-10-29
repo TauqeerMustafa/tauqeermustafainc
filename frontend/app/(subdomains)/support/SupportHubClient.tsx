@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useId } from "react";
 import Image from "next/image";
@@ -609,10 +609,10 @@ export default function SupportHubClient({ initialTab = "overview" }: { initialT
                 <h4 className="text-sm font-bold text-ink uppercase">Client Workspace</h4>
                 <p className="text-xs text-ink-muted mt-1">Direct project delivery, milestone inspection, and code approvals.</p>
                 <a
-                  href="https://portals.qorlune.co.uk"
+                  href="/portals"
                   className="mt-2 inline-flex items-center gap-1 font-mono text-xs text-action hover:underline"
                 >
-                  <span>portals.qorlune.co.uk</span>
+                  <span>Corporate Portals</span>
                   <ExternalLink size={11} />
                 </a>
               </div>
@@ -624,10 +624,10 @@ export default function SupportHubClient({ initialTab = "overview" }: { initialT
                 <h4 className="text-sm font-bold text-ink uppercase">Billing & Settlement</h4>
                 <p className="text-xs text-ink-muted mt-1">Online card checkout, Meezan IBFT, and Raast instant wire settlement.</p>
                 <a
-                  href="https://billing.qorlune.co.uk/pay"
+                  href="/billing/pay"
                   className="mt-2 inline-flex items-center gap-1 font-mono text-xs text-action hover:underline"
                 >
-                  <span>billing.qorlune.co.uk</span>
+                  <span>Billing Terminal</span>
                   <ExternalLink size={11} />
                 </a>
               </div>
@@ -639,10 +639,10 @@ export default function SupportHubClient({ initialTab = "overview" }: { initialT
                 <h4 className="text-sm font-bold text-ink uppercase">Corporate Policies</h4>
                 <p className="text-xs text-ink-muted mt-1">Official SLAs, security compliance disclosures, and refund protocols.</p>
                 <a
-                  href="https://docs.qorlune.co.uk"
+                  href="/docs"
                   className="mt-2 inline-flex items-center gap-1 font-mono text-xs text-action hover:underline"
                 >
-                  <span>docs.qorlune.co.uk</span>
+                  <span>Documentation</span>
                   <ExternalLink size={11} />
                 </a>
               </div>

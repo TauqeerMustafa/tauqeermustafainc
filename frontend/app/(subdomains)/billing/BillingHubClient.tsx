@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import Link from "next/link";
@@ -327,7 +327,7 @@ export default function BillingHubClient({ initialTab = "pay" }: { initialTab?: 
                     Need the complete legal agreement?
                   </p>
                   <a
-                    href="https://docs.qorlune.co.uk/payment-policy"
+                    href="/billing/policies"
                     className="inline-flex items-center gap-1.5 font-mono text-xs font-bold uppercase tracking-wider text-action hover:underline"
                   >
                     <span>Read Full Payment Policy in Docs</span>
