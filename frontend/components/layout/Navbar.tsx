@@ -94,6 +94,12 @@ export default function Navbar() {
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isTmi, setIsTmi] = useState(false);
+  useEffect(() => {
+    if (typeof window !== "undefined" && (window.location.hostname.includes("tauqeermustafa.com") || window.location.hostname.includes("tauqeermustafa.tech"))) {
+      setIsTmi(true);
+    }
+  }, []);
 
   const detailsRef = useRef<HTMLDetailsElement>(null);
   const dropdownRef = useRef<HTMLLIElement>(null);
@@ -161,10 +167,10 @@ export default function Navbar() {
           className="inline-flex min-h-10 shrink-0 items-center gap-2.5 text-[15px] font-bold uppercase tracking-[0.01em] text-ink transition-opacity hover:opacity-80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-action"
         >
           <span className="relative flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden border border-ink/15 bg-ink/[0.06]">
-            <Image src="/logo.png" alt={company.name} fill sizes="36px" className="object-contain p-0.5" priority />
+            <Image src={isTmi ? "/tmi-logo-primary.jpg" : "/logo.png"} alt={isTmi ? "Tauqeer Mustafa Inc." : company.name} fill sizes="36px" className="object-contain p-0.5" priority />
           </span>
-          <span className="hidden sm:inline">{company.name}</span>
-          <span className="sm:hidden">{company.shortName}</span>
+          <span className="hidden sm:inline">{isTmi ? "Tauqeer Mustafa Inc." : company.name}</span>
+          <span className="sm:hidden">{isTmi ? "TMI" : company.shortName}</span>
         </Link>
 
         {/* Nav options — centred with balanced spacing */}

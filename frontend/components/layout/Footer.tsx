@@ -1,3 +1,6 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Mail, MapPin, Phone } from "lucide-react";
@@ -15,6 +18,15 @@ const socialLinks = [
 ];
 
 export default function Footer() {
+  const [isTmi, setIsTmi] = useState(false);
+  useEffect(() => {
+    if (typeof window !== "undefined" && (window.location.hostname.includes("tauqeermustafa.com") || window.location.hostname.includes("tauqeermustafa.tech"))) {
+      setIsTmi(true);
+    }
+  }, []);
+  const brandName = isTmi ? "Tauqeer Mustafa Inc." : company.name;
+  const brandEmail = isTmi ? "info@tauqeermustafa.com" : company.email;
+  const brandHq = isTmi ? "Islamabad, Pakistan" : company.hq;
   return (
     <footer className="relative bg-surface" aria-labelledby="footer-heading">
       <h2 id="footer-heading" className="sr-only">Footer</h2>
@@ -38,9 +50,9 @@ export default function Footer() {
               className="inline-flex items-center gap-2.5 text-[15px] font-bold uppercase tracking-[0.01em] text-ink transition-opacity hover:opacity-80"
             >
               <span className="relative flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden border border-ink/15 bg-ink/[0.06]">
-                <Image src="/logo.png" alt={company.name} fill sizes="36px" className="object-contain p-0.5" />
+                <Image src={isTmi ? "/tmi-logo-primary.jpg" : "/logo.png"} alt={brandName} fill sizes="36px" className="object-contain p-0.5" />
               </span>
-              {company.name}
+              {brandName}
             </Link>
 
             <p className="mt-5 text-[15px] font-light leading-[1.6] tracking-[-0.01em] text-ink/55">
@@ -50,11 +62,11 @@ export default function Footer() {
             <ul role="list" className="mt-7 space-y-3.5">
               <li>
                 <a
-                  href={`mailto:${company.email}`}
+                  href={`mailto:${brandEmail}`}
                   className="flex items-center gap-2.5 text-[14px] font-light tracking-[-0.01em] text-ink/60 transition-colors hover:text-action"
                 >
                   <Mail className="h-4 w-4 shrink-0 text-action" aria-hidden="true" />
-                  {company.email}
+                  {brandEmail}
                 </a>
               </li>
               <li>
