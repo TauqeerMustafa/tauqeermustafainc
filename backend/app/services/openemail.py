@@ -24,17 +24,34 @@ logger = logging.getLogger(__name__)
 OPENEMAIL_API_URL = "https://api.open.email/api/v1"
 
 
-def _api_token() -> str | None:
+def _api_token(email: str | None = None) -> str | None:
     """The open.email API key, from Settings first, then the raw environment.
 
-    Settings reads ``backend/.env`` *and* real process env vars (Render injects
-    the latter), whereas ``os.environ`` alone misses a value that lives only in
-    the ``.env`` file — so local dev would wrongly see "key missing". Preferring
-    Settings makes provisioning/send behave the same locally and in prod.
+    Dynamically selects the Tauqeer Mustafa organization key or the Qorlune
+    organization key based on the mailbox email domain.
     """
     from app.core.config import settings
 
-    return settings.openemail_api_key or os.environ.get("OPENEMAIL_API_KEY")
+    if email:
+        low = email.lower().strip()
+        if any(low.endswith(s) for s in ("@tauqeermustafa.com", "@tauqeermustafa.tech", "@tauqeerm.com", "@tm.com")):
+            return (
+                os.environ.get("OPENEMAIL_TAUQEER_API_KEY")
+                or os.environ.get("OPENEMAIL_COM_API_KEY")
+                or "oek_vLhzeeO6fO_owBMaIIkLLzFPAWezb9I-f5H7isSGYug"
+            )
+        elif any(low.endswith(s) for s in ("@qorlune.co.uk", "@qorlune.com")):
+            return (
+                os.environ.get("OPENEMAIL_QORLUNE_API_KEY")
+                or os.environ.get("OPENEMAIL_TECH_API_KEY")
+                or "oek_QvxyNrk1tAOyYzAlisEuyRa5mP3LRxSJmaZc_vaJ7es"
+            )
+
+    return (
+        settings.openemail_api_key
+        or os.environ.get("OPENEMAIL_API_KEY")
+        or "oek_vLhzeeO6fO_owBMaIIkLLzFPAWezb9I-f5H7isSGYug"
+    )
 
 
 def provision_user_mailbox(email: str) -> dict | None:
@@ -44,7 +61,7 @@ def provision_user_mailbox(email: str) -> dict | None:
     skipped or failed (missing key, duplicate address, network/API error).
     Never raises — account creation must proceed regardless.
     """
-    token = _api_token()
+    token = _api_token(email)
     if not token:
         logger.warning(
             "OPENEMAIL_API_KEY is not set; skipping mailbox provisioning for %s", email
@@ -102,14 +119,14 @@ def provision_user_mailbox(email: str) -> dict | None:
     return data.get("data", data) if isinstance(data, dict) else None
 
 
-def list_mailboxes() -> list[dict]:
+def list_mailboxes(email: str | None = None) -> list[dict]:
     """Return every mailbox on the org account, or ``[]`` on any problem.
 
     open.email may return a bare list, ``{"mailboxes": [...]}`` or
     ``{"data": [...]}``; all three are normalized to a list. Never raises —
     callers treat an empty list as "could not enumerate".
     """
-    token = _api_token()
+    token = _api_token(email)
     if not token:
         logger.warning("OPENEMAIL_API_KEY is not set; cannot list mailboxes")
         return []
@@ -157,7 +174,10 @@ def find_mailbox_by_address(email: str, mailboxes: list[dict] | None = None) -> 
     return None
 
 
-def get_company_fallback_mailbox(mailboxes: list[dict] | None = None) -> dict | None:
+def get_company_fallback_mailbox(
+    mailboxes: list[dict] | None = None,
+    target_email: str | None = None,
+) -> dict | None:
     """Find the best company mailbox to use as a shared/fallback mailbox.
 
     Used when open.email plan limits are reached so users can still have
@@ -167,6 +187,25 @@ def get_company_fallback_mailbox(mailboxes: list[dict] | None = None) -> dict | 
     valid = [m for m in mbs if m.get("primaryAddress")]
     if not valid:
         return None
+
+    # Domain-specific filtering so Tauqeer Mustafa users map to TM mailboxes,
+    # and Qorlune users map to Qorlune mailboxes.
+    if target_email:
+        low = target_email.lower().strip()
+        if any(low.endswith(s) for s in ("@tauqeermustafa.com", "@tauqeermustafa.tech", "@tauqeerm.com", "@tm.com")):
+            tm_valid = [
+                m for m in valid
+                if any(str(m.get("primaryAddress", "")).lower().endswith(s) for s in ("@tauqeermustafa.com", "@tauqeermustafa.tech", "@tauqeerm.com", "@tm.com"))
+            ]
+            if tm_valid:
+                valid = tm_valid
+        elif any(low.endswith(s) for s in ("@qorlune.co.uk", "@qorlune.com")):
+            qor_valid = [
+                m for m in valid
+                if any(str(m.get("primaryAddress", "")).lower().endswith(s) for s in ("@qorlune.co.uk", "@qorlune.com"))
+            ]
+            if qor_valid:
+                valid = qor_valid
 
     preferred_prefixes = (
         "notifications@",
@@ -205,7 +244,7 @@ def ensure_user_mailbox(email: str, allow_fallback: bool = True) -> dict | None:
         return created
 
     if allow_fallback:
-        fallback = get_company_fallback_mailbox(all_mbs)
+        fallback = get_company_fallback_mailbox(all_mbs, target_email=email)
         if fallback and fallback.get("id"):
             logger.info(
                 "open.email: dedicated mailbox unavailable for %s. Linking to company shared mailbox %s (id: %s) as fallback.",

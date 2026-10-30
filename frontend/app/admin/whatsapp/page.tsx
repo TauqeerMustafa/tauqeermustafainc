@@ -268,12 +268,12 @@ function withSeenChannels(
 
     extras.push({
       id: ch,
-      label: "Qorlune Official",
+      label: typeof window !== "undefined" && !window.location.hostname.includes("qorlune") ? "Tauqeer Mustafa Official" : "Qorlune Official",
       primary: true,
       slot: 1,
       canSend: true,
       department: "general",
-      displayNumber: "+1 711-091-5975",
+      displayNumber: typeof window !== "undefined" && !window.location.hostname.includes("qorlune") ? "+92 335 6701199" : "+1 711-091-5975",
       error: null,
     });
   }
@@ -638,7 +638,7 @@ export default function AdminWhatsAppPage() {
                   }}
                 >
                   <Briefcase size={12} />
-                  <span>Qorlune Official ({generalLine?.displayNumber || "+1 711-091-5975"})</span>
+                  <span>{isTmi ? "Tauqeer Mustafa Official" : "Qorlune Official"} ({isTmi ? "+92 335 6701199" : (generalLine?.displayNumber || "+1 711-091-5975")})</span>
                 </button>
                 <button
                   type="button"
@@ -653,7 +653,7 @@ export default function AdminWhatsAppPage() {
                   }}
                 >
                   <LifeBuoy size={12} />
-                  <span>Support Desk ({generalLine?.displayNumber || "+1 711-091-5975"})</span>
+                  <span>Support Desk ({isTmi ? "+92 335 6701199" : (generalLine?.displayNumber || "+1 711-091-5975")})</span>
                 </button>
                 <button
                   type="button"
@@ -668,7 +668,7 @@ export default function AdminWhatsAppPage() {
                   }}
                 >
                   <ShieldCheck size={12} />
-                  <span>Executive Desk ({generalLine?.displayNumber || "+1 711-091-5975"})</span>
+                  <span>Executive Desk ({isTmi ? "+92 335 6701199" : (generalLine?.displayNumber || "+1 711-091-5975")})</span>
                 </button>
               </div>
             </div>

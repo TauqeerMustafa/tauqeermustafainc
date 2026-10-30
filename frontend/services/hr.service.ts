@@ -166,8 +166,12 @@ export const documentService = {
 };
 
 export const employeeService = {
-  list: () =>
-    apiRequest<EmployeeRecord[]>({ url: API_ENDPOINTS.employees.list, method: "GET" }),
+  list: (params?: { domain?: string }) =>
+    apiRequest<EmployeeRecord[]>({
+      url: API_ENDPOINTS.employees.list,
+      method: "GET",
+      params: params?.domain ? { domain: params.domain } : undefined,
+    }),
   detail: (id: string) =>
     apiRequest<EmployeeRecord>({
       url: API_ENDPOINTS.employees.detail(id),

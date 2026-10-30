@@ -19,6 +19,7 @@ import {
 import PeopleBanner from "@/components/portal/PeopleBanner";
 import { useEmployees, useSetEmployeeStatus } from "@/hooks/useEmployees";
 import { roleLabel } from "@/lib/rbac";
+import { getDomainConfig, getTenantFromEmail } from "@/lib/domain";
 
 function initials(name: string | null | undefined) {
   if (!name) return "E";
@@ -31,7 +32,17 @@ function initials(name: string | null | undefined) {
 }
 
 export default function AdminEmployeesPage() {
-  const { data, isLoading, isError, error, refetch } = useEmployees();
+  const domainCfg = useMemo(() => (typeof window !== "undefined" ? getDomainConfig(window.location.hostname) : getDomainConfig()), []);
+  const [domainScope, setDomainScope] = useState<"current" | "tauqeermustafa" | "qorlune" | "all">("current");
+
+  const resolvedDomain = useMemo(() => {
+    if (domainScope === "current") {
+      return domainCfg.isTmi ? "tauqeermustafa" : "qorlune";
+    }
+    return domainScope === "all" ? undefined : domainScope;
+  }, [domainScope, domainCfg.isTmi]);
+
+  const { data, isLoading, isError, error, refetch } = useEmployees({ domain: resolvedDomain });
   const setStatus = useSetEmployeeStatus();
   const [search, setSearch] = useState("");
 
@@ -57,6 +68,71 @@ export default function AdminEmployeesPage() {
           Add employee
         </PortalButton>
       </PortalPageHeader>
+
+      {/* Domain Scope Bar */}
+      <div className="flex flex-col gap-2 rounded border p-3 sm:flex-row sm:items-center sm:justify-between" style={{ borderColor: "var(--adm-border)", background: "var(--adm-surface)" }}>
+        <div className="flex items-center gap-2">
+          <span className="font-mono text-xs font-bold uppercase tracking-wider" style={{ color: "var(--adm-text-3)" }}>
+            Portal Filter:
+          </span>
+          <span className="text-xs" style={{ color: "var(--adm-text-2)" }}>
+            {domainScope === "current" && <span className="font-semibold text-adm-blue">Showing {domainCfg.shortName} roster only</span>}
+            {domainScope === "tauqeermustafa" && <span className="font-semibold" style={{ color: "var(--adm-blue)" }}>Showing Tauqeer Mustafa (.tech / tm.com) roster</span>}
+            {domainScope === "qorlune" && <span className="font-semibold" style={{ color: "var(--adm-green)" }}>Showing Qorlune (.co.uk / .com) roster</span>}
+            {domainScope === "all" && <span className="font-semibold text-adm-text">Showing all employees across all brands</span>}
+          </span>
+        </div>
+        <div className="inline-flex rounded border p-0.5" style={{ borderColor: "var(--adm-border)", background: "var(--adm-surface-2)" }}>
+          <button
+            type="button"
+            onClick={() => setDomainScope("current")}
+            className={`rounded px-2.5 py-1 text-xs font-semibold transition ${domainScope === "current" ? "shadow-sm" : ""}`}
+            style={{
+              background: domainScope === "current" ? "var(--adm-surface)" : "transparent",
+              color: domainScope === "current" ? "var(--adm-blue)" : "var(--adm-text-2)",
+              border: domainScope === "current" ? "1px solid var(--adm-border)" : "1px solid transparent",
+            }}
+          >
+            This Portal ({domainCfg.shortName})
+          </button>
+          <button
+            type="button"
+            onClick={() => setDomainScope("tauqeermustafa")}
+            className={`rounded px-2.5 py-1 text-xs font-semibold transition ${domainScope === "tauqeermustafa" ? "shadow-sm" : ""}`}
+            style={{
+              background: domainScope === "tauqeermustafa" ? "var(--adm-surface)" : "transparent",
+              color: domainScope === "tauqeermustafa" ? "var(--adm-blue)" : "var(--adm-text-2)",
+              border: domainScope === "tauqeermustafa" ? "1px solid var(--adm-border)" : "1px solid transparent",
+            }}
+          >
+            Tauqeer Mustafa
+          </button>
+          <button
+            type="button"
+            onClick={() => setDomainScope("qorlune")}
+            className={`rounded px-2.5 py-1 text-xs font-semibold transition ${domainScope === "qorlune" ? "shadow-sm" : ""}`}
+            style={{
+              background: domainScope === "qorlune" ? "var(--adm-surface)" : "transparent",
+              color: domainScope === "qorlune" ? "var(--adm-green)" : "var(--adm-text-2)",
+              border: domainScope === "qorlune" ? "1px solid var(--adm-border)" : "1px solid transparent",
+            }}
+          >
+            Qorlune
+          </button>
+          <button
+            type="button"
+            onClick={() => setDomainScope("all")}
+            className={`rounded px-2.5 py-1 text-xs font-semibold transition ${domainScope === "all" ? "shadow-sm" : ""}`}
+            style={{
+              background: domainScope === "all" ? "var(--adm-surface)" : "transparent",
+              color: domainScope === "all" ? "var(--adm-text)" : "var(--adm-text-2)",
+              border: domainScope === "all" ? "1px solid var(--adm-border)" : "1px solid transparent",
+            }}
+          >
+            All Portals
+          </button>
+        </div>
+      </div>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         <StatCard label="Total" value={employees.length} icon={Users} tone="blue" />
@@ -124,8 +200,17 @@ export default function AdminEmployeesPage() {
                       </span>
                       <span className="min-w-0">
                         <span className="block truncate">{employee.name ?? "Unnamed"}</span>
-                        <span className="block truncate text-xs font-normal text-adm-text-3">
-                          {employee.email ?? "—"}
+                        <span className="flex items-center gap-1.5 flex-wrap">
+                          <span className="text-xs font-normal text-adm-text-3">{employee.email ?? "—"}</span>
+                          {employee.email && getTenantFromEmail(employee.email) === "tauqeermustafa" ? (
+                            <span className="inline-flex items-center px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider rounded border" style={{ background: "rgba(59, 130, 246, 0.08)", color: "#2563eb", borderColor: "rgba(59, 130, 246, 0.25)" }}>
+                              TM Portal
+                            </span>
+                          ) : employee.email ? (
+                            <span className="inline-flex items-center px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider rounded border" style={{ background: "rgba(16, 185, 129, 0.08)", color: "#059669", borderColor: "rgba(16, 185, 129, 0.25)" }}>
+                              Qorlune
+                            </span>
+                          ) : null}
                         </span>
                       </span>
                     </span>

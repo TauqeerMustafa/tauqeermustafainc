@@ -16,6 +16,7 @@ import {
 import { useAdminRoles } from "@/hooks/useAdmin";
 import { useCreateEmployee } from "@/hooks/useEmployees";
 import type { CreateEmployeePayload } from "@/types";
+import { getDomainConfig } from "@/lib/domain";
 
 const EMPTY: CreateEmployeePayload = {
   firstName: "",
@@ -35,7 +36,19 @@ export default function CreateEmployeePage() {
   const router = useRouter();
   const create = useCreateEmployee();
   const { data: rolesResponse } = useAdminRoles();
-  const [form, setForm] = useState<CreateEmployeePayload>(EMPTY);
+  const domainCfg = typeof window !== "undefined" ? getDomainConfig(window.location.hostname) : getDomainConfig();
+  const [targetTenant, setTargetTenant] = useState<"tauqeermustafa" | "qorlune">(domainCfg.isTmi ? "tauqeermustafa" : "qorlune");
+  const [form, setForm] = useState<CreateEmployeePayload>(() => ({
+    ...EMPTY,
+    email: domainCfg.isTmi ? "user@tauqeermustafa.tech" : "user@qorlune.co.uk",
+  }));
+
+  function applyPreset(suffix: string) {
+    const cur = form.email.trim();
+    const local = cur.includes("@") ? cur.split("@")[0] : cur;
+    const base = local || (form.firstName ? `${form.firstName.toLowerCase()}` : "user");
+    set("email", `${base}${suffix}`);
+  }
 
   const roles = rolesResponse?.data ?? [];
 
@@ -181,6 +194,47 @@ export default function CreateEmployeePage() {
                 onChange={(e) => set("email", e.target.value)}
                 className={inputClass}
               />
+              <div className="flex items-center gap-1.5 flex-wrap pt-1.5">
+                <span className="text-[11px] font-medium text-adm-text-3">Quick Presets:</span>
+                <button
+                  type="button"
+                  onClick={() => applyPreset("@tauqeermustafa.tech")}
+                  className="px-2 py-0.5 rounded border border-adm-border bg-adm-surface text-[11px] font-mono hover:border-adm-blue hover:text-adm-blue transition"
+                >
+                  @tauqeermustafa.tech
+                </button>
+                <button
+                  type="button"
+                  onClick={() => applyPreset("@tauqeermustafa.com")}
+                  className="px-2 py-0.5 rounded border border-adm-border bg-adm-surface text-[11px] font-mono hover:border-adm-blue hover:text-adm-blue transition"
+                >
+                  @tauqeermustafa.com
+                </button>
+                <button
+                  type="button"
+                  onClick={() => applyPreset("@tm.com")}
+                  className="px-2 py-0.5 rounded border border-adm-border bg-adm-surface text-[11px] font-mono hover:border-adm-blue hover:text-adm-blue transition"
+                >
+                  @tm.com
+                </button>
+                <button
+                  type="button"
+                  onClick={() => applyPreset("@qorlune.co.uk")}
+                  className="px-2 py-0.5 rounded border border-adm-border bg-adm-surface text-[11px] font-mono hover:border-adm-green hover:text-adm-green transition"
+                >
+                  @qorlune.co.uk
+                </button>
+                <button
+                  type="button"
+                  onClick={() => applyPreset("@qorlune.com")}
+                  className="px-2 py-0.5 rounded border border-adm-border bg-adm-surface text-[11px] font-mono hover:border-adm-green hover:text-adm-green transition"
+                >
+                  @qorlune.com
+                </button>
+              </div>
+              <p className="text-[11px] text-adm-text-3 pt-1">
+                Accounts ending in @tauqeermustafa.* / @tm.com attach to the Tauqeer Mustafa admin panel. Accounts ending in @qorlune.* attach to the Qorlune portal.
+              </p>
             </Field>
             <Field
               label="Temporary password"

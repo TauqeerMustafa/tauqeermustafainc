@@ -16,16 +16,21 @@
  */
 export const OPENEMAIL_API_URL = "https://api.open.email/api/v1";
 
-// .co.uk primary accounts (all company departments)
-export const OPENEMAIL_TECH_API_KEY =
+// Qorlune primary account (holds @qorlune.co.uk & @qorlune.com mailboxes)
+export const OPENEMAIL_QORLUNE_API_KEY =
+  process.env.OPENEMAIL_QORLUNE_API_KEY ||
   process.env.OPENEMAIL_TECH_API_KEY ||
-  process.env.OPENEMAIL_API_KEY ||
   "oek_QvxyNrk1tAOyYzAlisEuyRa5mP3LRxSJmaZc_vaJ7es";
 
-// .com fallback accounts
-export const OPENEMAIL_COM_API_KEY =
+// Tauqeer Mustafa primary account (holds @tauqeermustafa.com & @tauqeermustafa.tech mailboxes)
+export const OPENEMAIL_TAUQEER_API_KEY =
+  process.env.OPENEMAIL_TAUQEER_API_KEY ||
   process.env.OPENEMAIL_COM_API_KEY ||
   "oek_vLhzeeO6fO_owBMaIIkLLzFPAWezb9I-f5H7isSGYug";
+
+// Backwards compatibility aliases
+export const OPENEMAIL_TECH_API_KEY = OPENEMAIL_QORLUNE_API_KEY;
+export const OPENEMAIL_COM_API_KEY = OPENEMAIL_TAUQEER_API_KEY;
 
 function authHeaders(json = false, customToken?: string): HeadersInit {
   const token = customToken || OPENEMAIL_TECH_API_KEY;
@@ -76,8 +81,10 @@ export async function fetchOpenEmailMailboxes(domain?: string) {
       ? data.data
       : [];
 
-  const isTM = domain === "tauqeermustafa" || domain === "tech" || domain === "tm";
-  const isQorlune = domain === "qorlune" || domain === "co.uk";
+  const d = (domain || "").toLowerCase().trim();
+  const isQorlune = d.includes("qorlune") || d.endsWith(".co.uk") || d === "qor";
+  // Default strictly to Tauqeer Mustafa unless explicitly requested for Qorlune
+  const isTM = !isQorlune;
 
   const promises: Promise<any>[] = [];
   if (isTM) {
@@ -85,17 +92,10 @@ export async function fetchOpenEmailMailboxes(domain?: string) {
       oeFetch(`/identities`, undefined, OPENEMAIL_COM_API_KEY),
       oeFetch(`/routes?limit=100`, undefined, OPENEMAIL_COM_API_KEY),
     );
-  } else if (isQorlune) {
-    promises.push(
-      oeFetch(`/identities`, undefined, OPENEMAIL_TECH_API_KEY),
-      oeFetch(`/routes?limit=100`, undefined, OPENEMAIL_TECH_API_KEY),
-    );
   } else {
     promises.push(
       oeFetch(`/identities`, undefined, OPENEMAIL_TECH_API_KEY),
-      oeFetch(`/identities`, undefined, OPENEMAIL_COM_API_KEY),
       oeFetch(`/routes?limit=100`, undefined, OPENEMAIL_TECH_API_KEY),
-      oeFetch(`/routes?limit=100`, undefined, OPENEMAIL_COM_API_KEY),
     );
   }
 
@@ -122,8 +122,13 @@ export async function fetchOpenEmailMailboxes(domain?: string) {
     if (!addr || addr.startsWith("*")) continue; // NEVER show wildcard catch-all in compose dropdown
 
     if (isTM) {
-      if (!addr.endsWith("@tauqeermustafa.com") && !addr.endsWith("@tauqeermustafa.tech")) continue;
-    } else if (isQorlune) {
+      if (
+        !addr.endsWith("@tauqeermustafa.com") &&
+        !addr.endsWith("@tauqeermustafa.tech") &&
+        !addr.endsWith("@tauqeerm.com") &&
+        !addr.endsWith("@tm.com")
+      ) continue;
+    } else {
       if (!addr.endsWith("@qorlune.co.uk") && !addr.endsWith("@qorlune.com")) continue;
     }
 
@@ -142,8 +147,13 @@ export async function fetchOpenEmailMailboxes(domain?: string) {
     if (!addr || addr.startsWith("*")) continue;
 
     if (isTM) {
-      if (!addr.endsWith("@tauqeermustafa.com") && !addr.endsWith("@tauqeermustafa.tech")) continue;
-    } else if (isQorlune) {
+      if (
+        !addr.endsWith("@tauqeermustafa.com") &&
+        !addr.endsWith("@tauqeermustafa.tech") &&
+        !addr.endsWith("@tauqeerm.com") &&
+        !addr.endsWith("@tm.com")
+      ) continue;
+    } else {
       if (!addr.endsWith("@qorlune.co.uk") && !addr.endsWith("@qorlune.com")) continue;
     }
 
@@ -155,6 +165,17 @@ export async function fetchOpenEmailMailboxes(domain?: string) {
       });
     }
   }
+
+  // Priority sorting: info@ and admin@ first
+  merged.sort((a, b) => {
+    const aP = a.primaryAddress.toLowerCase();
+    const bP = b.primaryAddress.toLowerCase();
+    if (aP.startsWith("info@")) return -1;
+    if (bP.startsWith("info@")) return 1;
+    if (aP.startsWith("admin@")) return -1;
+    if (bP.startsWith("admin@")) return 1;
+    return aP.localeCompare(bP);
+  });
 
   return { mailboxes: merged };
 }

@@ -1,0 +1,5 @@
+<svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="64" height="64" rx="8" fill="#0F172A"/>
+  <rect x="2" y="2" width="60" height="60" rx="6" stroke="#2563EB" stroke-width="2"/>
+  <text x="32" y="43" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-weight="900" font-size="26" fill="#38BDF8" text-anchor="middle" letter-spacing="1">TM</text>
+</svg>

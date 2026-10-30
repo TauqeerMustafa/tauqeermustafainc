@@ -57,6 +57,8 @@ function isMainSitePath(pathname: string): boolean {
 function getApexDomain(hostname: string): string {
   if (hostname.includes("tauqeermustafa.com")) return "tauqeermustafa.com";
   if (hostname.includes("tauqeermustafa.tech")) return "tauqeermustafa.com";
+  if (hostname.includes("tauqeerm.com")) return "tauqeermustafa.com";
+  if (hostname.includes("tm.com")) return "tauqeermustafa.com";
   if (hostname.includes("qorlune.com")) return "qorlune.com";
   return "qorlune.co.uk";
 }
@@ -70,7 +72,11 @@ function isMainDomainHost(hostname: string): boolean {
     hostname === "tauqeermustafa.com" ||
     hostname === "www.tauqeermustafa.com" ||
     hostname === "tauqeermustafa.tech" ||
-    hostname === "www.tauqeermustafa.tech"
+    hostname === "www.tauqeermustafa.tech" ||
+    hostname === "tauqeerm.com" ||
+    hostname === "www.tauqeerm.com" ||
+    hostname === "tm.com" ||
+    hostname === "www.tm.com"
   );
 }
 
@@ -256,6 +262,24 @@ export async function proxy(request: NextRequest) {
 
       // Secure Portals Suite redirects (portals.qorlune.com)
       // Disallow serving admin, employees, management, client or chooser directly on main domain
+      const isTauqeerDomain =
+        hostname.includes("tauqeermustafa") ||
+        hostname.includes("tauqeerm") ||
+        hostname.includes("tm.com");
+
+      if (isTauqeerDomain) {
+        // Dedicated admin portal directly on tauqeermustafa.com / tauqeerm.com
+        if (pathname === "/admin" || pathname.startsWith("/admin/")) {
+          return NextResponse.next();
+        }
+        if (pathname === "/login") {
+          return NextResponse.redirect(new URL(`/admin/login${search}`, request.url));
+        }
+        if (pathname === "/dashboard") {
+          return NextResponse.redirect(new URL(`/admin/dashboard${search}`, request.url));
+        }
+      }
+
       if (pathname === "/company-profile" || pathname.startsWith("/company-profile/")) {
         return NextResponse.redirect(`https://portals.${apex}/employees/company-profile${search}`);
       }

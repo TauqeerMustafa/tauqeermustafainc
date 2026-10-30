@@ -94,12 +94,21 @@ export async function allowedMailboxes(
 ): Promise<Mailbox[]> {
   let targetDomain = domain?.toLowerCase().trim() || undefined;
   if (!targetDomain && request) {
-    const origin = (request.headers.get("origin") || request.headers.get("referer") || request.headers.get("host") || "").toLowerCase();
-    if (origin.includes("tauqeermustafa") || origin.includes("tauqeerm") || origin.includes("tm.com")) {
-      targetDomain = "tauqeermustafa";
-    } else if (origin.includes("qorlune")) {
+    const origin = (
+      request.headers.get("x-forwarded-host") ||
+      request.headers.get("origin") ||
+      request.headers.get("referer") ||
+      request.headers.get("host") ||
+      ""
+    ).toLowerCase();
+    if (origin.includes("qorlune") || origin.includes("co.uk")) {
       targetDomain = "qorlune";
+    } else {
+      targetDomain = "tauqeermustafa";
     }
+  }
+  if (!targetDomain) {
+    targetDomain = "tauqeermustafa";
   }
 
   const data = await fetchOpenEmailMailboxes(targetDomain);

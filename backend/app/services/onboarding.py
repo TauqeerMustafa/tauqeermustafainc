@@ -146,16 +146,32 @@ _LOGIN_PATHS = {
 }
 
 
-def login_url_for_role(role_slug: str | None) -> str:
-    base = settings.client_portal_url.rstrip("/")
+def is_tauqeer_account(email: str | None) -> bool:
+    if not email:
+        return False
+    low = email.lower().strip()
+    return any(low.endswith(s) for s in ("@tauqeermustafa.com", "@tauqeermustafa.tech", "@tauqeerm.com", "@tm.com"))
+
+
+def login_url_for_role(role_slug: str | None, email: str | None = None) -> str:
+    if is_tauqeer_account(email):
+        base = "https://tauqeermustafa.com"
+    else:
+        base = settings.client_portal_url.rstrip("/") if settings.client_portal_url and "localhost" not in settings.client_portal_url else "https://portals.qorlune.co.uk"
     return f"{base}{_LOGIN_PATHS.get(role_slug or '', '/employees/login')}"
+
+
+def welcome_subject(email: str | None) -> str:
+    brand = "Tauqeer Mustafa Inc." if is_tauqeer_account(email) else "Qorlune LLC"
+    return f"Welcome to {brand} — your portal credentials"
 
 
 def _welcome_body(
     name: str, email: str, password: str, role_name: str, login_url: str
 ) -> str:
     first_name = name.split()[0] if name.strip() else "there"
-    return f"""Congratulations {first_name} — welcome to Qorlune LLC
+    brand = "Tauqeer Mustafa Inc." if is_tauqeer_account(email) else "Qorlune LLC"
+    return f"""Congratulations {first_name} — welcome to {brand}
 
 Your {role_name} account is live and you can start today. Here are your
 credentials:
@@ -180,7 +196,7 @@ ask before you guess.
 
 Welcome aboard.
 
-— Qorlune LLC
+— {brand}
 """
 
 
@@ -286,12 +302,13 @@ def send_welcome_email(
     and ``None`` so the admin knows to hand the credentials over another way.
     """
     body = _welcome_body(
-        name, account_email, password, role_name, login_url_for_role(role_slug)
+        name, account_email, password, role_name, login_url_for_role(role_slug, email=account_email)
     )
+    subject = welcome_subject(account_email)
 
     if _send_via_openemail(
         to_email=to_email,
-        subject=_WELCOME_SUBJECT,
+        subject=subject,
         text=body,
         sender_mailbox_id=sender_mailbox_id,
         sender_address=sender_address,

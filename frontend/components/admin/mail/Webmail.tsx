@@ -613,14 +613,21 @@ export default function Webmail({
     setError(null);
     try {
       const host = typeof window !== "undefined" ? window.location.hostname.toLowerCase() : "";
-      const domainScope = host.includes("tauqeermustafa") || host.includes("tauqeerm") || host.includes("tm.com") ? "tauqeermustafa" : "qorlune";
+      const isQor = host.includes("qorlune") || host.endsWith(".co.uk");
+      const domainScope = isQor ? "qorlune" : "tauqeermustafa";
       const res = await authFetch(`/api/mail/mailboxes?domain=${domainScope}`);
       const json = await res.json();
       if (!res.ok || json.error) throw new Error(json.error || "Could not load mailboxes.");
-      setMailboxes(json.mailboxes || []);
-      const initial = json.mailboxes?.[0];
-      setActiveId((prev) => prev || initial?.id || "");
-      setActiveAddress((prev) => prev || initial?.primaryAddress || "");
+      const list = json.mailboxes || [];
+      setMailboxes(list);
+      setActiveAddress((prevAddr) => {
+        const found = list.find((m: any) => m.primaryAddress?.toLowerCase() === prevAddr?.toLowerCase());
+        return found ? found.primaryAddress : (list[0]?.primaryAddress || "");
+      });
+      setActiveId((prevId) => {
+        const found = list.find((m: any) => m.id === prevId);
+        return found ? found.id : (list[0]?.id || "");
+      });
     } catch (e: any) {
       setError(e.message);
     } finally {

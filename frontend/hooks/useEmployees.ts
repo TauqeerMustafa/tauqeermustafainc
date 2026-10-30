@@ -11,11 +11,13 @@ import type { CreateEmployeePayload, UpdateEmployeePayload } from "@/types";
  * everyone (the document vault's assignee picker, say) pass `enabled` to hold the
  * request back rather than trip a 403.
  */
-export function useEmployees(enabled = true) {
+export function useEmployees(params?: { domain?: string } | boolean, enabled = true) {
+  const actualParams = typeof params === "object" ? params : undefined;
+  const isEnabled = typeof params === "boolean" ? params : enabled;
   return useQuery({
-    queryKey: queryKeys.employees.all,
-    queryFn: employeeService.list,
-    enabled,
+    queryKey: actualParams?.domain ? [...queryKeys.employees.all, actualParams.domain] : queryKeys.employees.all,
+    queryFn: () => employeeService.list(actualParams),
+    enabled: isEnabled,
   });
 }
 

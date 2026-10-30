@@ -15,6 +15,7 @@ export interface AdminUserListParams {
   pageSize?: number;
   search?: string;
   status?: UserStatus | "all";
+  domain?: string;
 }
 
 export interface CreateAdminUserPayload {
@@ -69,6 +70,7 @@ export const adminService = {
         page_size: params.pageSize ?? 20,
         ...(params.search ? { search: params.search } : {}),
         ...(params.status && params.status !== "all" ? { status: params.status } : {}),
+        ...(params.domain ? { domain: params.domain } : {}),
       },
     }),
   listAllUsers: async (params: Omit<AdminUserListParams, "page" | "pageSize"> = {}) => {

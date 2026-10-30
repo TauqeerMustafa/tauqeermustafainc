@@ -26,6 +26,15 @@ apiClient.interceptors.request.use((config) => {
     config.headers.Authorization = `Bearer ${token}`;
   }
 
+  if (typeof window !== "undefined") {
+    const host = window.location.hostname.toLowerCase();
+    const isTmi =
+      host.includes("tauqeermustafa") ||
+      host.includes("tauqeerm") ||
+      host.includes("tm.com");
+    config.headers["X-Portal-Domain"] = isTmi ? "tauqeermustafa" : "qorlune";
+  }
+
   // The instance sets `application/json` for every request, which would make a
   // file upload unparseable: multipart needs the boundary axios generates, and
   // it only does that when the header is absent. Let the browser fill it in.

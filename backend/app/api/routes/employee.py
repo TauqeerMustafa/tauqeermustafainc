@@ -1,5 +1,5 @@
 from uuid import UUID
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import Request, Query, APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel
 from typing import List, Optional
 from datetime import datetime, date
@@ -65,8 +65,40 @@ def _to_employee_response(employee: Employee) -> EmployeeResponse:
 def get_employees(
     db: DatabaseSession,
     current_manager: CurrentManager,
+    request: Request,
+    domain: Optional[str] = Query(default=None, max_length=50),
 ):
-    employees = db.query(Employee).all()
+    target_domain = domain.lower().strip() if domain else None
+    if not target_domain or target_domain == "current":
+        header_domain = request.headers.get("x-portal-domain", "").lower().strip()
+        origin = (request.headers.get("origin") or request.headers.get("referer") or "").lower()
+        if header_domain in ("tauqeermustafa", "tmi", "tm", "tech"):
+            target_domain = "tauqeermustafa"
+        elif header_domain in ("qorlune", "qor"):
+            target_domain = "qorlune"
+        elif any(k in origin for k in ("tauqeermustafa", "tauqeerm", "tm.com")):
+            target_domain = "tauqeermustafa"
+        elif "qorlune" in origin:
+            target_domain = "qorlune"
+
+    query = db.query(Employee).join(User, Employee.user_id == User.id)
+    if target_domain in ("tauqeermustafa", "tech", "tm"):
+        query = query.filter(
+            or_(
+                User.email.ilike("%@tauqeermustafa.com"),
+                User.email.ilike("%@tauqeermustafa.tech"),
+                User.email.ilike("%@tauqeerm.com"),
+                User.email.ilike("%@tm.com"),
+            )
+        )
+    elif target_domain in ("qorlune", "co.uk"):
+        query = query.filter(
+            or_(
+                User.email.ilike("%@qorlune.co.uk"),
+                User.email.ilike("%@qorlune.com"),
+            )
+        )
+    employees = query.all()
     return [_to_employee_response(e) for e in employees]
 
 

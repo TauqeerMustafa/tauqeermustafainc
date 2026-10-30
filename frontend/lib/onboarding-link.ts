@@ -1,3 +1,4 @@
+import { getDomainConfig } from "@/lib/domain";
 /**
  * Turns a job application (a `contact_messages` row of kind `job`) into an
  * onboarding action: a link from Admin → Messages straight to a prefilled
@@ -24,12 +25,19 @@ export function onboardHref(name: string, personalEmail: string): string {
  * starting point the admin edits, since the account email is what open.email
  * provisions the mailbox at. Falls back to blank if the name yields nothing.
  */
-export function suggestCompanyEmail(name: string): string {
-  let host = "qorlune.co.uk";
-  try {
-    host = new URL(appConfig.siteUrl).host;
-  } catch {
-    // Keep the fallback host.
+export function suggestCompanyEmail(name: string, domain?: string): string {
+  let host = domain || "qorlune.co.uk";
+  if (!domain) {
+    if (typeof window !== "undefined") {
+      const cfg = getDomainConfig(window.location.hostname);
+      host = cfg.isTmi ? "tauqeermustafa.com" : "qorlune.co.uk";
+    } else {
+      try {
+        host = new URL(appConfig.siteUrl).host;
+      } catch {
+        // Keep the fallback host.
+      }
+    }
   }
   const first = name.trim().split(/\s+/)[0]?.toLowerCase().replace(/[^a-z0-9]/g, "") ?? "";
   return first ? `${first}@${host}` : "";

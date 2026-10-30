@@ -1,7 +1,7 @@
 import uuid
 from datetime import datetime, timezone
 
-from fastapi import APIRouter, HTTPException, Query, status
+from fastapi import APIRouter, HTTPException, Query, Request, status
 from sqlalchemy import delete, func, select
 from sqlalchemy.orm import selectinload
 
@@ -152,10 +152,12 @@ def _to_project_read(project: ClientProject) -> ClientProjectRead:
 def list_users(
     db: DatabaseSession,
     _admin: CurrentAdmin,
+    request: Request,
     page: int = Query(default=1, ge=1),
     page_size: int = Query(default=20, ge=1, le=1000),
     search: str | None = Query(default=None, max_length=120),
     status_filter: str | None = Query(default=None, alias="status", max_length=20),
+    domain: str | None = Query(default=None, max_length=50),
 ) -> ApiResponse[PaginatedResult[AdminUserRead]]:
     filters = []
     if search:
@@ -163,6 +165,32 @@ def list_users(
         filters.append((User.first_name + " " + User.last_name).ilike(term) | User.email.ilike(term))
     if status_filter:
         filters.append(User.status == status_filter)
+
+    target_domain = domain.lower().strip() if domain else None
+    if not target_domain or target_domain == "current":
+        header_domain = request.headers.get("x-portal-domain", "").lower().strip()
+        origin = (request.headers.get("origin") or request.headers.get("referer") or "").lower()
+        if header_domain in ("tauqeermustafa", "tmi", "tm", "tech"):
+            target_domain = "tauqeermustafa"
+        elif header_domain in ("qorlune", "qor"):
+            target_domain = "qorlune"
+        elif any(k in origin for k in ("tauqeermustafa", "tauqeerm", "tm.com")):
+            target_domain = "tauqeermustafa"
+        elif "qorlune" in origin:
+            target_domain = "qorlune"
+
+    if target_domain in ("tauqeermustafa", "tech", "tm"):
+        filters.append(
+            User.email.ilike("%@tauqeermustafa.com")
+            | User.email.ilike("%@tauqeermustafa.tech")
+            | User.email.ilike("%@tauqeerm.com")
+            | User.email.ilike("%@tm.com")
+        )
+    elif target_domain in ("qorlune", "co.uk"):
+        filters.append(
+            User.email.ilike("%@qorlune.co.uk")
+            | User.email.ilike("%@qorlune.com")
+        )
 
     total = db.scalar(select(func.count()).select_from(User).where(*filters)) or 0
     users = db.scalars(
