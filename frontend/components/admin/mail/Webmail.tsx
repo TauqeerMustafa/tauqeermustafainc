@@ -540,7 +540,9 @@ export default function Webmail({
     setLoading(true);
     setError(null);
     try {
-      const res = await authFetch("/api/mail/mailboxes");
+      const host = typeof window !== "undefined" ? window.location.hostname.toLowerCase() : "";
+      const domainScope = host.includes("tauqeermustafa") || host.includes("tauqeerm") || host.includes("tm.com") ? "tauqeermustafa" : "qorlune";
+      const res = await authFetch(`/api/mail/mailboxes?domain=${domainScope}`);
       const json = await res.json();
       if (!res.ok || json.error) throw new Error(json.error || "Could not load mailboxes.");
       setMailboxes(json.mailboxes || []);

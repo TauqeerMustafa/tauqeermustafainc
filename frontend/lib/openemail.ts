@@ -25,7 +25,7 @@ export const OPENEMAIL_TECH_API_KEY =
 // .com fallback accounts
 export const OPENEMAIL_COM_API_KEY =
   process.env.OPENEMAIL_COM_API_KEY ||
-  "oek_QvxyNrk1tAOyYzAlisEuyRa5mP3LRxSJmaZc_vaJ7es";
+  "oek_vLhzeeO6fO_owBMaIIkLLzFPAWezb9I-f5H7isSGYug";
 
 function authHeaders(json = false, customToken?: string): HeadersInit {
   const token = customToken || OPENEMAIL_TECH_API_KEY;
@@ -64,7 +64,7 @@ async function oeFetch(path: string, init?: RequestInit, customToken?: string) {
   return text ? JSON.parse(text) : {};
 }
 
-export async function fetchOpenEmailMailboxes() {
+export async function fetchOpenEmailMailboxes(domain?: string) {
   const extractList = (data: any) =>
     Array.isArray(data)
       ? data
@@ -76,44 +76,82 @@ export async function fetchOpenEmailMailboxes() {
       ? data.data
       : [];
 
-  const [techRes, comRes, routesRes] = await Promise.allSettled([
-    oeFetch(`/identities`, undefined, OPENEMAIL_TECH_API_KEY),
-    oeFetch(`/identities`, undefined, OPENEMAIL_COM_API_KEY),
-    oeFetch(`/routes?limit=100`, undefined, OPENEMAIL_TECH_API_KEY),
-  ]);
+  const isTM = domain === "tauqeermustafa" || domain === "tech" || domain === "tm";
+  const isQorlune = domain === "qorlune" || domain === "co.uk";
 
-  const techList = techRes.status === "fulfilled" ? extractList(techRes.value) : [];
-  const comList = comRes.status === "fulfilled" ? extractList(comRes.value) : [];
-  const rawRoutes = routesRes.status === "fulfilled" && Array.isArray((routesRes.value as any)?.routes)
-    ? (routesRes.value as any).routes
-    : [];
-
-  // Also attempt page 2 if cursor exists
-  let extraRoutes: any[] = [];
-  if (routesRes.status === "fulfilled" && (routesRes.value as any)?.nextCursor) {
-    try {
-      const p2 = await oeFetch(`/routes?limit=100&cursor=${encodeURIComponent((routesRes.value as any).nextCursor)}`, undefined, OPENEMAIL_TECH_API_KEY);
-      if (Array.isArray(p2?.routes)) extraRoutes = p2.routes;
-    } catch {}
+  const promises: Promise<any>[] = [];
+  if (isTM) {
+    promises.push(
+      oeFetch(`/identities`, undefined, OPENEMAIL_COM_API_KEY),
+      oeFetch(`/routes?limit=100`, undefined, OPENEMAIL_COM_API_KEY),
+    );
+  } else if (isQorlune) {
+    promises.push(
+      oeFetch(`/identities`, undefined, OPENEMAIL_TECH_API_KEY),
+      oeFetch(`/routes?limit=100`, undefined, OPENEMAIL_TECH_API_KEY),
+    );
+  } else {
+    promises.push(
+      oeFetch(`/identities`, undefined, OPENEMAIL_TECH_API_KEY),
+      oeFetch(`/identities`, undefined, OPENEMAIL_COM_API_KEY),
+      oeFetch(`/routes?limit=100`, undefined, OPENEMAIL_TECH_API_KEY),
+      oeFetch(`/routes?limit=100`, undefined, OPENEMAIL_COM_API_KEY),
+    );
   }
 
-  const routeList = [...rawRoutes, ...extraRoutes]
-    .filter((r: any) => r.destinationType === "mailbox" && r.mailboxId && r.address)
-    .map((r: any) => ({
-      id: r.mailboxId,
-      primaryAddress: r.address,
-    }));
+  const results = await Promise.allSettled(promises);
+  const allIdentities: any[] = [];
+  const allRoutes: any[] = [];
+
+  for (const res of results) {
+    if (res.status === "fulfilled" && res.value) {
+      if (Array.isArray(res.value?.routes)) {
+        allRoutes.push(...res.value.routes);
+      } else {
+        allIdentities.push(...extractList(res.value));
+      }
+    }
+  }
 
   const seen = new Set<string>();
   const merged: any[] = [];
-  for (const m of [...routeList, ...comList, ...techList]) {
-    const addr = String(m.primaryAddress || m.id || "").toLowerCase().trim();
-    if (!addr || addr.endsWith("@tauqeermustafa.tech") || addr.endsWith("@tauqeermustafa.com")) continue;
+
+  // 1. Process routes
+  for (const r of allRoutes) {
+    const addr = String(r.address || "").toLowerCase().trim();
+    if (!addr || addr.startsWith("*")) continue; // NEVER show wildcard catch-all in compose dropdown
+
+    if (isTM) {
+      if (!addr.endsWith("@tauqeermustafa.com") && !addr.endsWith("@tauqeermustafa.tech")) continue;
+    } else if (isQorlune) {
+      if (!addr.endsWith("@qorlune.co.uk") && !addr.endsWith("@qorlune.com")) continue;
+    }
+
     if (!seen.has(addr)) {
       seen.add(addr);
       merged.push({
-        id: m.id,
-        primaryAddress: m.primaryAddress || m.id,
+        id: r.mailboxId || "01M17137MJNRTDR5N92QCAND0P",
+        primaryAddress: addr,
+      });
+    }
+  }
+
+  // 2. Process identities
+  for (const i of allIdentities) {
+    const addr = String(i.primaryAddress || i.email || "").toLowerCase().trim();
+    if (!addr || addr.startsWith("*")) continue;
+
+    if (isTM) {
+      if (!addr.endsWith("@tauqeermustafa.com") && !addr.endsWith("@tauqeermustafa.tech")) continue;
+    } else if (isQorlune) {
+      if (!addr.endsWith("@qorlune.co.uk") && !addr.endsWith("@qorlune.com")) continue;
+    }
+
+    if (!seen.has(addr)) {
+      seen.add(addr);
+      merged.push({
+        id: i.id || "01M17137MJNRTDR5N92QCAND0P",
+        primaryAddress: addr,
       });
     }
   }
@@ -172,8 +210,9 @@ export interface SendMessageInput {
 }
 
 export async function sendOpenEmailMessage(mailboxId: string, input: SendMessageInput) {
-  const isCom = input.from?.toLowerCase().endsWith(".com");
-  const token = isCom ? OPENEMAIL_COM_API_KEY : OPENEMAIL_TECH_API_KEY;
+  const fromAddr = (input.from || "").toLowerCase().trim();
+  const isComOrTech = fromAddr.endsWith(".com") || fromAddr.endsWith(".tech");
+  const token = isComOrTech ? OPENEMAIL_COM_API_KEY : OPENEMAIL_TECH_API_KEY;
 
   const save = input.save === false ? "" : "?save=true";
   const path = `/mailboxes/${mailboxId}/send${save}`;

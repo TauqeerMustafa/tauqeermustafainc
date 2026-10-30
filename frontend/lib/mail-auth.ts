@@ -87,8 +87,22 @@ export async function resolveMailUser(request: Request): Promise<MailUser> {
 }
 
 /** Mailboxes this user may see: all valid ones for admins, own address/mailbox only otherwise. */
-export async function allowedMailboxes(user: MailUser): Promise<Mailbox[]> {
-  const data = await fetchOpenEmailMailboxes();
+export async function allowedMailboxes(
+  user: MailUser,
+  domain?: string | null,
+  request?: Request,
+): Promise<Mailbox[]> {
+  let targetDomain = domain?.toLowerCase().trim() || undefined;
+  if (!targetDomain && request) {
+    const origin = (request.headers.get("origin") || request.headers.get("referer") || request.headers.get("host") || "").toLowerCase();
+    if (origin.includes("tauqeermustafa") || origin.includes("tauqeerm") || origin.includes("tm.com")) {
+      targetDomain = "tauqeermustafa";
+    } else if (origin.includes("qorlune")) {
+      targetDomain = "qorlune";
+    }
+  }
+
+  const data = await fetchOpenEmailMailboxes(targetDomain);
   const all: Mailbox[] = (data.mailboxes || [])
     .filter((m: { primaryAddress?: string }) => m.primaryAddress)
     .map((m: { id: string; primaryAddress: string }) => ({

@@ -6,7 +6,9 @@ export const dynamic = "force-dynamic";
 export async function GET(request: Request) {
   try {
     const user = await resolveMailUser(request);
-    const mailboxes = await allowedMailboxes(user);
+    const url = new URL(request.url);
+    const domain = url.searchParams.get("domain");
+    const mailboxes = await allowedMailboxes(user, domain, request);
     return NextResponse.json({ mailboxes });
   } catch (error: any) {
     return NextResponse.json(

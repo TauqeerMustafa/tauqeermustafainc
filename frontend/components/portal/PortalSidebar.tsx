@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
@@ -29,6 +30,18 @@ type Props = { portal: PortalId; isOpen: boolean; onClose: () => void };
 
 export default function PortalSidebar({ portal, isOpen, onClose }: Props) {
   const pathname = usePathname();
+  const [brandName, setBrandName] = useState(company.shortName);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const host = window.location.hostname.toLowerCase();
+      if (host.includes("tauqeermustafa") || host.includes("tauqeerm") || host.includes("tm.com")) {
+        setBrandName("Tauqeer Mustafa");
+      } else {
+        setBrandName(company.shortName);
+      }
+    }
+  }, []);
   const { data } = useCurrentUser();
   const { t } = useI18n();
   const user = data?.data ?? null;
@@ -76,7 +89,7 @@ export default function PortalSidebar({ portal, isOpen, onClose }: Props) {
             </span>
             <span className="min-w-0">
               <span className="block text-sm font-semibold leading-tight tracking-tight text-adm-text">
-                {company.shortName}
+                {brandName}
               </span>
               <span className="block truncate text-[11px] font-medium tracking-wide text-adm-blue">
                 {t(PORTAL_LABEL[portal])} {t("Portal")}
