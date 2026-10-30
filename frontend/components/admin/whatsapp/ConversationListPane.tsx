@@ -174,7 +174,7 @@ export function ConversationListPane({
           </div>
           <div>
             <h2 className="text-sm font-bold leading-tight" style={{ color: "var(--adm-text)" }}>
-              {isTmi ? "Tauqeer Mustafa Inbox" : "WhatsApp Inbox"}
+              {isTmi ? (typeof window !== "undefined" && window.location.hostname.includes("tech") ? "Tauqeer Mustafa Tech Inbox" : "Tauqeer Mustafa Inbox") : "WhatsApp Inbox"}
             </h2>
             <p className="text-[11px] font-medium" style={{ color: "var(--adm-text-3)" }}>
               {isTmi ? "+92 335 6701199 (Direct)" : "+1 711-091-5975 (Official)"}
@@ -379,8 +379,10 @@ export function ConversationListPane({
 
                     <div className="flex items-center gap-1 shrink-0">
                       {/* Department Line indicator */}
-                      <span className="rounded px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20">
-                        Official Line
+                      <span className={`rounded px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider ${
+                        isTmi ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20" : "bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20"
+                      }`}>
+                        {isTmi ? "Direct Line" : "Official Line"}
                       </span>
 
                       {/* Unread badge */}

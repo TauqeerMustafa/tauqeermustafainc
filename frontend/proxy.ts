@@ -55,8 +55,8 @@ function isMainSitePath(pathname: string): boolean {
 
 
 function getApexDomain(hostname: string): string {
+  if (hostname.includes("tauqeermustafa.tech")) return "tauqeermustafa.tech";
   if (hostname.includes("tauqeermustafa.com")) return "tauqeermustafa.com";
-  if (hostname.includes("tauqeermustafa.tech")) return "tauqeermustafa.com";
   if (hostname.includes("tauqeerm.com")) return "tauqeermustafa.com";
   if (hostname.includes("tm.com")) return "tauqeermustafa.com";
   if (hostname.includes("qorlune.com")) return "qorlune.com";
@@ -90,15 +90,7 @@ export async function proxy(request: NextRequest) {
   const hostname = request.headers.get("host") || "";
   const apex = getApexDomain(hostname);
 
-  // Forward legacy .tech requests to .com equivalent
-  if (
-    !hostname.includes("localhost") &&
-    !hostname.includes("127.0.0.1") &&
-    hostname.includes("tauqeermustafa.tech")
-  ) {
-    const targetHost = hostname.replace("tauqeermustafa.tech", "tauqeermustafa.com");
-    return NextResponse.redirect(`https://${targetHost}${pathname}${request.nextUrl.search}`, 308);
-  }
+  // .tech is a standalone isolated portal — no redirect
 
   // Handle direct subdomain entries for specific portals
   if (hostname.startsWith("admin.")) {

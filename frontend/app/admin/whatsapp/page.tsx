@@ -524,7 +524,11 @@ export default function AdminWhatsAppPage() {
                   className="text-xl font-bold tracking-tight sm:text-2xl"
                   style={{ color: "var(--adm-text)" }}
                 >
-                  {isTmi ? "Tauqeer Mustafa WhatsApp Desk" : "WhatsApp Command Center"}
+                  {isTmi
+                    ? (typeof window !== "undefined" && window.location.hostname.includes("tech")
+                        ? "Tauqeer Mustafa Tech WhatsApp Desk"
+                        : "Tauqeer Mustafa WhatsApp Desk")
+                    : "WhatsApp Command Center"}
                 </h1>
                 <span className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-semibold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
                   <span className="relative flex h-2 w-2">

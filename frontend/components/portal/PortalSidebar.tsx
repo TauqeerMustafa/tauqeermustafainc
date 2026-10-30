@@ -1,5 +1,7 @@
 "use client";
 
+import { useDomainConfig } from "@/lib/domain";
+
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
@@ -30,29 +32,10 @@ type Props = { portal: PortalId; isOpen: boolean; onClose: () => void };
 
 export default function PortalSidebar({ portal, isOpen, onClose }: Props) {
   const pathname = usePathname();
-  const [isTmi, setIsTmi] = useState(() => {
-    if (typeof window !== "undefined") {
-      const host = window.location.hostname.toLowerCase();
-      return !host.includes("qorlune") && !host.endsWith(".co.uk");
-    }
-    return true;
-  });
-  const [brandName, setBrandName] = useState(() => {
-    if (typeof window !== "undefined") {
-      const host = window.location.hostname.toLowerCase();
-      return host.includes("qorlune") || host.endsWith(".co.uk") ? "Qorlune" : "Tauqeer Mustafa";
-    }
-    return "Tauqeer Mustafa";
-  });
-
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      const host = window.location.hostname.toLowerCase();
-      const isQor = host.includes("qorlune") || host.endsWith(".co.uk");
-      setIsTmi(!isQor);
-      setBrandName(!isQor ? "Tauqeer Mustafa" : "Qorlune");
-    }
-  }, []);
+  const domainConfig = useDomainConfig();
+  const brandName = domainConfig.brandName;
+  const logoSrc = domainConfig.logoSrc;
+  const portalLabel = domainConfig.portalLabel;
   const { data } = useCurrentUser();
   const { t } = useI18n();
   const user = data?.data ?? null;
@@ -97,7 +80,7 @@ export default function PortalSidebar({ portal, isOpen, onClose }: Props) {
           >
             <span className="relative flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-none border border-adm-border transition group-hover:border-adm-border-2">
               <Image
-                src={isTmi ? "/tm-logo.svg" : "/logo.png"}
+                src={logoSrc}
                 alt={brandName}
                 fill
                 sizes="32px"
@@ -110,7 +93,7 @@ export default function PortalSidebar({ portal, isOpen, onClose }: Props) {
                 {brandName}
               </span>
               <span className="block truncate text-[11px] font-medium tracking-wide text-adm-blue">
-                {isTmi ? (portal === "admin" ? "Executive Portal" : `${t(PORTAL_LABEL[portal])} Portal`) : `${t(PORTAL_LABEL[portal])} ${t("Portal")}`}
+                {portalLabel}
               </span>
             </span>
           </Link>

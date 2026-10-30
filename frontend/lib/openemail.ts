@@ -82,20 +82,21 @@ export async function fetchOpenEmailMailboxes(domain?: string) {
       : [];
 
   const d = (domain || "").toLowerCase().trim();
-  const isQorlune = d.includes("qorlune") || d.endsWith(".co.uk") || d === "qor";
-  // Default strictly to Tauqeer Mustafa unless explicitly requested for Qorlune
-  const isTM = !isQorlune;
+  const isTech = d === "tech" || d.includes("tauqeermustafa.tech") || d.endsWith(".tech");
+  const isQorlune = d === "qorlune" || d.includes("qorlune") || d.endsWith(".co.uk") || d === "co.uk" || d === "qor";
+  const isCom = !isTech && !isQorlune;
 
   const promises: Promise<any>[] = [];
-  if (isTM) {
+  if (isQorlune) {
     promises.push(
-      oeFetch(`/identities`, undefined, OPENEMAIL_COM_API_KEY),
-      oeFetch(`/routes?limit=100`, undefined, OPENEMAIL_COM_API_KEY),
+      oeFetch(`/identities`, undefined, OPENEMAIL_QORLUNE_API_KEY),
+      oeFetch(`/routes?limit=100`, undefined, OPENEMAIL_QORLUNE_API_KEY),
     );
   } else {
+    // Both .tech and .com live on OPENEMAIL_TAUQEER_API_KEY
     promises.push(
-      oeFetch(`/identities`, undefined, OPENEMAIL_TECH_API_KEY),
-      oeFetch(`/routes?limit=100`, undefined, OPENEMAIL_TECH_API_KEY),
+      oeFetch(`/identities`, undefined, OPENEMAIL_TAUQEER_API_KEY),
+      oeFetch(`/routes?limit=100`, undefined, OPENEMAIL_TAUQEER_API_KEY),
     );
   }
 
@@ -121,14 +122,15 @@ export async function fetchOpenEmailMailboxes(domain?: string) {
     const addr = String(r.address || "").toLowerCase().trim();
     if (!addr || addr.startsWith("*")) continue; // NEVER show wildcard catch-all in compose dropdown
 
-    if (isTM) {
+    if (isTech) {
+      if (!addr.endsWith("@tauqeermustafa.tech")) continue;
+    } else if (isCom) {
       if (
         !addr.endsWith("@tauqeermustafa.com") &&
-        !addr.endsWith("@tauqeermustafa.tech") &&
         !addr.endsWith("@tauqeerm.com") &&
         !addr.endsWith("@tm.com")
       ) continue;
-    } else {
+    } else if (isQorlune) {
       if (!addr.endsWith("@qorlune.co.uk") && !addr.endsWith("@qorlune.com")) continue;
     }
 
@@ -146,14 +148,15 @@ export async function fetchOpenEmailMailboxes(domain?: string) {
     const addr = String(i.primaryAddress || i.email || "").toLowerCase().trim();
     if (!addr || addr.startsWith("*")) continue;
 
-    if (isTM) {
+    if (isTech) {
+      if (!addr.endsWith("@tauqeermustafa.tech")) continue;
+    } else if (isCom) {
       if (
         !addr.endsWith("@tauqeermustafa.com") &&
-        !addr.endsWith("@tauqeermustafa.tech") &&
         !addr.endsWith("@tauqeerm.com") &&
         !addr.endsWith("@tm.com")
       ) continue;
-    } else {
+    } else if (isQorlune) {
       if (!addr.endsWith("@qorlune.co.uk") && !addr.endsWith("@qorlune.com")) continue;
     }
 
@@ -166,14 +169,30 @@ export async function fetchOpenEmailMailboxes(domain?: string) {
     }
   }
 
-  // Priority sorting: info@ and admin@ first
+  // Priority sorting per portal
   merged.sort((a, b) => {
     const aP = a.primaryAddress.toLowerCase();
     const bP = b.primaryAddress.toLowerCase();
-    if (aP.startsWith("info@")) return -1;
-    if (bP.startsWith("info@")) return 1;
-    if (aP.startsWith("admin@")) return -1;
-    if (bP.startsWith("admin@")) return 1;
+    if (isTech) {
+      if (aP.startsWith("info@")) return -1;
+      if (bP.startsWith("info@")) return 1;
+      if (aP.startsWith("admin@")) return -1;
+      if (bP.startsWith("admin@")) return 1;
+    } else if (isCom) {
+      if (aP.startsWith("admin@")) return -1;
+      if (bP.startsWith("admin@")) return 1;
+      if (aP.startsWith("contact@")) return -1;
+      if (bP.startsWith("contact@")) return 1;
+      if (aP.startsWith("sales@")) return -1;
+      if (bP.startsWith("sales@")) return 1;
+    } else {
+      if (aP.startsWith("sales@")) return -1;
+      if (bP.startsWith("sales@")) return 1;
+      if (aP.startsWith("support@")) return -1;
+      if (bP.startsWith("support@")) return 1;
+      if (aP.startsWith("admin@")) return -1;
+      if (bP.startsWith("admin@")) return 1;
+    }
     return aP.localeCompare(bP);
   });
 

@@ -170,19 +170,18 @@ def list_users(
     if not target_domain or target_domain == "current":
         header_domain = request.headers.get("x-portal-domain", "").lower().strip()
         origin = (request.headers.get("origin") or request.headers.get("referer") or "").lower()
-        if header_domain in ("tauqeermustafa", "tmi", "tm", "tech"):
-            target_domain = "tauqeermustafa"
-        elif header_domain in ("qorlune", "qor"):
+        if header_domain == "tech" or "tauqeermustafa.tech" in origin or ".tech" in origin:
+            target_domain = "tech"
+        elif header_domain in ("qorlune", "qor") or "qorlune" in origin or ".co.uk" in origin:
             target_domain = "qorlune"
-        elif any(k in origin for k in ("tauqeermustafa", "tauqeerm", "tm.com")):
-            target_domain = "tauqeermustafa"
-        elif "qorlune" in origin:
-            target_domain = "qorlune"
+        elif header_domain in ("com", "tauqeermustafa", "tmi", "tm") or any(k in origin for k in ("tauqeermustafa.com", "tauqeerm", "tm.com")):
+            target_domain = "com"
 
-    if target_domain in ("tauqeermustafa", "tech", "tm"):
+    if target_domain == "tech":
+        filters.append(User.email.ilike("%@tauqeermustafa.tech"))
+    elif target_domain in ("com", "tauqeermustafa", "tm", "tauqeerm"):
         filters.append(
             User.email.ilike("%@tauqeermustafa.com")
-            | User.email.ilike("%@tauqeermustafa.tech")
             | User.email.ilike("%@tauqeerm.com")
             | User.email.ilike("%@tm.com")
         )

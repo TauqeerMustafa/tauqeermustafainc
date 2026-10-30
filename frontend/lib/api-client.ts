@@ -28,11 +28,15 @@ apiClient.interceptors.request.use((config) => {
 
   if (typeof window !== "undefined") {
     const host = window.location.hostname.toLowerCase();
-    const isTmi =
-      host.includes("tauqeermustafa") ||
-      host.includes("tauqeerm") ||
-      host.includes("tm.com");
-    config.headers["X-Portal-Domain"] = isTmi ? "tauqeermustafa" : "qorlune";
+    let portalDomain = "com";
+    if (host.includes("tauqeermustafa.tech") || host.endsWith(".tech") || host.includes("tech")) {
+      portalDomain = "tech";
+    } else if (host.includes("qorlune") || host.endsWith(".co.uk")) {
+      portalDomain = "qorlune";
+    } else {
+      portalDomain = "com";
+    }
+    config.headers["X-Portal-Domain"] = portalDomain;
   }
 
   // The instance sets `application/json` for every request, which would make a

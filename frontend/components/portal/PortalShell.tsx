@@ -6,6 +6,7 @@ import { useEffect, useState, type ReactNode } from "react";
 import PortalGuard from "@/components/portal/PortalGuard";
 import PortalHeader from "@/components/portal/PortalHeader";
 import PortalSidebar from "@/components/portal/PortalSidebar";
+import TenantHeadManager from "@/components/portal/TenantHeadManager";
 import { useI18n } from "@/lib/i18n";
 import { PORTAL, type PortalId } from "@/lib/rbac";
 
@@ -44,11 +45,17 @@ export default function PortalShell({
   );
 
   if (isPublic) {
-    return <>{children}</>;
+    return (
+      <>
+        <TenantHeadManager />
+        {children}
+      </>
+    );
   }
 
   return (
     <PortalGuard portal={portal}>
+      <TenantHeadManager />
       {/* `dir` sits here, not on <html>: Urdu and Arabic should flip the portal
           chrome without mirroring the marketing site rendered by the same root
           layout. */}

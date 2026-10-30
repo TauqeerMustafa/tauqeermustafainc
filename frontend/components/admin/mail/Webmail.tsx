@@ -468,18 +468,18 @@ function isInboxMsg(msg: Message, currentEmail: string): boolean {
   // 1. Direct recipient match
   if (recipients.includes(target)) return true;
 
-  // 2. Catch-all routing for tech@tauqeermustafa.com:
-  // Receives all typos and routing from @tauqeermustafa.tech and unrouted @tauqeermustafa.com
-  if (target === "tech@tauqeermustafa.com") {
-    const isTechCatchAll = recipients.some(
-      (r) => r.endsWith("@tauqeermustafa.tech") && !r.startsWith("admin@") && !r.startsWith("info@")
-    );
+  // 2. Catch-all for .tech mailboxes (admin@tauqeermustafa.tech, info@tauqeermustafa.tech)
+  if (target.endsWith("@tauqeermustafa.tech")) {
+    const isTechCatchAll = recipients.some((r) => r.endsWith("@tauqeermustafa.tech"));
     if (isTechCatchAll) return true;
+  }
 
+  // 3. Catch-all for .com mailboxes (tech@tauqeermustafa.com or admin@tauqeermustafa.com)
+  if (target === "tech@tauqeermustafa.com" || target === "admin@tauqeermustafa.com") {
     const isComCatchAll = recipients.some(
       (r) =>
         r.endsWith("@tauqeermustafa.com") &&
-        !["sales@", "support@", "billing@", "contact@", "hr@", "careers@", "legal@", "marketing@", "admin@", "tauqeer@"].some((p) => r.startsWith(p))
+        !["sales@", "support@", "billing@", "contact@", "hr@", "careers@", "legal@", "marketing@", "tauqeer@"].some((p) => r.startsWith(p))
     );
     if (isComCatchAll) return true;
   }
@@ -512,6 +512,14 @@ export default function Webmail({
   initialSubject?: string;
   autoCompose?: boolean;
 }) {
+  const [currentDomainScope, setCurrentDomainScope] = useState<"tech" | "com" | "qorlune">(() => {
+    if (typeof window !== "undefined") {
+      const host = window.location.hostname.toLowerCase();
+      if (host.includes(".tech") || host.includes("tech")) return "tech";
+      if (host.includes("qorlune") || host.endsWith(".co.uk")) return "qorlune";
+    }
+    return "com";
+  });
   const [mailboxes, setMailboxes] = useState<Mailbox[]>([]);
   const [activeId, setActiveId] = useState<string>("");
   const [activeAddress, setActiveAddress] = useState<string>("");
@@ -608,14 +616,12 @@ export default function Webmail({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const loadMailboxes = useCallback(async () => {
+  const loadMailboxes = useCallback(async (customScope?: string) => {
     setLoading(true);
     setError(null);
     try {
-      const host = typeof window !== "undefined" ? window.location.hostname.toLowerCase() : "";
-      const isQor = host.includes("qorlune") || host.endsWith(".co.uk");
-      const domainScope = isQor ? "qorlune" : "tauqeermustafa";
-      const res = await authFetch(`/api/mail/mailboxes?domain=${domainScope}`);
+      const scope = customScope || currentDomainScope;
+      const res = await authFetch(`/api/mail/mailboxes?domain=${scope}`);
       const json = await res.json();
       if (!res.ok || json.error) throw new Error(json.error || "Could not load mailboxes.");
       const list = json.mailboxes || [];
@@ -633,7 +639,7 @@ export default function Webmail({
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [currentDomainScope]);
 
   const loadMessages = useCallback(async (mailboxId: string, silent = false) => {
     if (!mailboxId) return;
@@ -1491,6 +1497,57 @@ export default function Webmail({
         } w-56 lg:w-60 shrink-0 flex-col border-r transition-all`}
         style={{ borderColor: "var(--adm-border)", background: "var(--adm-surface-2)" }}
       >
+        {/* Three-Way Isolated Portal Selector */}
+        <div className="border-b p-2.5" style={{ borderColor: "var(--adm-border)" }}>
+          <div className="flex items-center gap-1 rounded-lg border p-1" style={{ borderColor: "var(--adm-border)", background: "var(--adm-surface)" }}>
+            <button
+              type="button"
+              onClick={() => {
+                setCurrentDomainScope("com");
+                loadMailboxes("com");
+              }}
+              className={`flex-1 rounded-md px-1.5 py-1 text-[11px] font-bold transition ${
+                currentDomainScope === "com"
+                  ? "bg-blue-600 text-white shadow-sm"
+                  : "text-adm-text-3 hover:text-adm-text hover:bg-adm-surface-2"
+              }`}
+              title="Tauqeer Mustafa (.com)"
+            >
+              .com
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setCurrentDomainScope("tech");
+                loadMailboxes("tech");
+              }}
+              className={`flex-1 rounded-md px-1.5 py-1 text-[11px] font-bold transition ${
+                currentDomainScope === "tech"
+                  ? "bg-purple-600 text-white shadow-sm"
+                  : "text-adm-text-3 hover:text-adm-text hover:bg-adm-surface-2"
+              }`}
+              title="Tauqeer Mustafa Tech (.tech)"
+            >
+              .tech
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setCurrentDomainScope("qorlune");
+                loadMailboxes("qorlune");
+              }}
+              className={`flex-1 rounded-md px-1.5 py-1 text-[11px] font-bold transition ${
+                currentDomainScope === "qorlune"
+                  ? "bg-pink-600 text-white shadow-sm"
+                  : "text-adm-text-3 hover:text-adm-text hover:bg-adm-surface-2"
+              }`}
+              title="Qorlune LLC (.co.uk)"
+            >
+              Qorlune
+            </button>
+          </div>
+        </div>
+
         {/* Mailbox Switcher Header */}
         <div className="border-b p-3" style={{ borderColor: "var(--adm-border)" }} ref={mbDropdownRef}>
           <div className="relative">

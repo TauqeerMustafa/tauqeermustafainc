@@ -1,5 +1,7 @@
 "use client";
 
+import { useDomainConfig } from "@/lib/domain";
+
 import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -92,41 +94,42 @@ export default function PortalHeader({ portal, onMenuClick }: Props) {
 
   const derived = usePortalNotifications(portal);
 
-  const [isTmi, setIsTmi] = useState(() => {
-    if (typeof window !== "undefined") {
-      const host = window.location.hostname.toLowerCase();
-      return !host.includes("qorlune") && !host.endsWith(".co.uk");
-    }
-    return true;
-  });
+  const domainConfig = useDomainConfig();
 
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      const host = window.location.hostname.toLowerCase();
-      const tmi = !host.includes("qorlune") && !host.endsWith(".co.uk");
-      setIsTmi(tmi);
-      if (tmi && typeof document !== "undefined") {
+    if (typeof document !== "undefined") {
+      if (domainConfig.isTech) {
+        document.title = "Tauqeer Mustafa Tech Portal";
+      } else if (domainConfig.isCom) {
         document.title = "Tauqeer Mustafa Admin Portal";
+      } else {
+        document.title = "Qorlune Admin Portal";
       }
     }
-  }, []);
+  }, [domainConfig]);
 
   const displayName = useMemo(() => {
-    if (isTmi) {
+    if (domainConfig.isTech) {
+      if (!user?.name || user.name.toLowerCase().includes("qorlune")) {
+        return "Tauqeer Mustafa Tech";
+      }
+      return user.name;
+    }
+    if (domainConfig.isCom) {
       if (!user?.name || user.name.toLowerCase().includes("qorlune")) {
         return "Tauqeer Mustafa";
       }
       return user.name;
     }
     return user?.name ?? t("User");
-  }, [isTmi, user?.name, t]);
+  }, [domainConfig.isTech, domainConfig.isCom, user?.name, t]);
 
   const displayAvatar = useMemo(() => {
-    if (isTmi && (!user?.avatarUrl || user.avatarUrl.includes("qorlune"))) {
+    if ((domainConfig.isTech || domainConfig.isCom) && (!user?.avatarUrl || user.avatarUrl.includes("qorlune"))) {
       return "/founder.jpg";
     }
     return user?.avatarUrl;
-  }, [isTmi, user?.avatarUrl]);
+  }, [domainConfig.isTech, domainConfig.isCom, user?.avatarUrl]);
 
   const [notifOpen, setNotifOpen] = useState(false);
   const [paletteOpen, setPaletteOpen] = useState(false);
@@ -411,7 +414,7 @@ export default function PortalHeader({ portal, onMenuClick }: Props) {
               {displayName}
             </p>
             <p className="truncate text-[9px] font-medium uppercase tracking-wider text-adm-text-3">
-              {roleLabel(user?.role)}
+              {domainConfig.isTech ? "Tech Administrator" : domainConfig.isCom ? "Executive Administrator" : roleLabel(user?.role)}
             </p>
           </div>
         </div>

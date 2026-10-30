@@ -107,15 +107,15 @@ export default function AdminUsersPage() {
   const [provisioningId, setProvisioningId] = useState<string | null>(null);
 
   const domainCfg = useMemo(() => (typeof window !== "undefined" ? getDomainConfig(window.location.hostname) : getDomainConfig()), []);
-  const [domainScope, setDomainScope] = useState<"current" | "tauqeermustafa" | "qorlune" | "all">("current");
-  const [drawerTenant, setDrawerTenant] = useState<"tauqeermustafa" | "qorlune">(() => domainCfg.isTmi ? "tauqeermustafa" : "qorlune");
+  const [domainScope, setDomainScope] = useState<"current" | "com" | "tech" | "qorlune" | "all">("current");
+  const [drawerTenant, setDrawerTenant] = useState<"com" | "tech" | "qorlune">(() => domainCfg.tenant);
 
   const resolvedDomain = useMemo(() => {
     if (domainScope === "current") {
-      return domainCfg.isTmi ? "tauqeermustafa" : "qorlune";
+      return domainCfg.tenant;
     }
     return domainScope === "all" ? undefined : domainScope;
-  }, [domainScope, domainCfg.isTmi]);
+  }, [domainScope, domainCfg.tenant]);
 
   const queryParams = useMemo(
     () => ({
@@ -184,9 +184,12 @@ export default function AdminUsersPage() {
     setForm((prev) => ({ ...prev, email: `${base}${preset}` }));
   }
 
-  function handleTenantChange(tenant: "tauqeermustafa" | "qorlune") {
+  function handleTenantChange(tenant: "com" | "tech" | "qorlune") {
     setDrawerTenant(tenant);
-    const defaultSuffix = tenant === "tauqeermustafa" ? "@tauqeermustafa.tech" : "@qorlune.co.uk";
+    let defaultSuffix = "@tauqeermustafa.com";
+    if (tenant === "tech") defaultSuffix = "@tauqeermustafa.tech";
+    else if (tenant === "qorlune") defaultSuffix = "@qorlune.co.uk";
+
     const current = form.email.trim();
     const localPart = current.includes("@") ? current.split("@")[0] : current;
     const base = localPart || (form.name ? form.name.toLowerCase().replace(/[^a-z0-9]/g, "") : "user");
@@ -194,9 +197,13 @@ export default function AdminUsersPage() {
   }
 
   function openCreate() {
-    const defaultTenant = domainCfg.isTmi ? "tauqeermustafa" : "qorlune";
+    const defaultTenant = domainCfg.tenant;
     setDrawerTenant(defaultTenant);
-    const initialEmail = suggestCompanyEmail("", defaultTenant === "tauqeermustafa" ? "tauqeermustafa.tech" : "qorlune.co.uk");
+    let defaultDomain = "tauqeermustafa.com";
+    if (defaultTenant === "tech") defaultDomain = "tauqeermustafa.tech";
+    else if (defaultTenant === "qorlune") defaultDomain = "qorlune.co.uk";
+
+    const initialEmail = suggestCompanyEmail("", defaultDomain);
     setForm({ ...emptyForm, email: initialEmail });
     setFromApplication(false);
     setDrawerOpen(true);
@@ -429,14 +436,19 @@ export default function AdminUsersPage() {
                 Showing {domainCfg.shortName} portal accounts only
               </span>
             )}
-            {domainScope === "tauqeermustafa" && (
+            {domainScope === "com" && (
               <span className="font-semibold" style={{ color: "var(--adm-blue)" }}>
-                Showing Tauqeer Mustafa (.tech / tm.com) accounts
+                Showing Tauqeer Mustafa Inc. (.com) accounts
+              </span>
+            )}
+            {domainScope === "tech" && (
+              <span className="font-semibold" style={{ color: "#9333ea" }}>
+                Showing Tauqeer Mustafa Tech (.tech) accounts
               </span>
             )}
             {domainScope === "qorlune" && (
               <span className="font-semibold" style={{ color: "var(--adm-green)" }}>
-                Showing Qorlune (.co.uk / .com) accounts
+                Showing Qorlune (.co.uk) accounts
               </span>
             )}
             {domainScope === "all" && (
@@ -462,15 +474,27 @@ export default function AdminUsersPage() {
           </button>
           <button
             type="button"
-            onClick={() => setDomainScope("tauqeermustafa")}
-            className={`rounded px-2.5 py-1 text-xs font-semibold transition ${domainScope === "tauqeermustafa" ? "shadow-sm" : ""}`}
+            onClick={() => setDomainScope("com")}
+            className={`rounded px-2.5 py-1 text-xs font-semibold transition ${domainScope === "com" ? "shadow-sm" : ""}`}
             style={{
-              background: domainScope === "tauqeermustafa" ? "var(--adm-surface)" : "transparent",
-              color: domainScope === "tauqeermustafa" ? "var(--adm-blue)" : "var(--adm-text-2)",
-              border: domainScope === "tauqeermustafa" ? "1px solid var(--adm-border)" : "1px solid transparent",
+              background: domainScope === "com" ? "var(--adm-surface)" : "transparent",
+              color: domainScope === "com" ? "var(--adm-blue)" : "var(--adm-text-2)",
+              border: domainScope === "com" ? "1px solid var(--adm-border)" : "1px solid transparent",
             }}
           >
-            Tauqeer Mustafa
+            .com (TM Inc.)
+          </button>
+          <button
+            type="button"
+            onClick={() => setDomainScope("tech")}
+            className={`rounded px-2.5 py-1 text-xs font-semibold transition ${domainScope === "tech" ? "shadow-sm" : ""}`}
+            style={{
+              background: domainScope === "tech" ? "var(--adm-surface)" : "transparent",
+              color: domainScope === "tech" ? "#9333ea" : "var(--adm-text-2)",
+              border: domainScope === "tech" ? "1px solid var(--adm-border)" : "1px solid transparent",
+            }}
+          >
+            .tech (TM Tech)
           </button>
           <button
             type="button"
@@ -482,7 +506,7 @@ export default function AdminUsersPage() {
               border: domainScope === "qorlune" ? "1px solid var(--adm-border)" : "1px solid transparent",
             }}
           >
-            Qorlune
+            Qorlune (.co.uk)
           </button>
           <button
             type="button"
@@ -607,9 +631,13 @@ export default function AdminUsersPage() {
                           <p className="font-semibold" style={{ color: "var(--adm-text)" }}>{user.name}</p>
                           <div className="flex items-center gap-1.5 flex-wrap">
                             <span className="text-xs" style={{ color: "var(--adm-text-3)" }}>{user.email}</span>
-                            {getTenantFromEmail(user.email) === "tauqeermustafa" ? (
+                            {getTenantFromEmail(user.email) === "tech" ? (
+                              <span className="inline-flex items-center px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider rounded border" style={{ background: "rgba(147, 51, 234, 0.08)", color: "#9333ea", borderColor: "rgba(147, 51, 234, 0.25)" }}>
+                                TM Tech
+                              </span>
+                            ) : getTenantFromEmail(user.email) === "com" ? (
                               <span className="inline-flex items-center px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider rounded border" style={{ background: "rgba(59, 130, 246, 0.08)", color: "#2563eb", borderColor: "rgba(59, 130, 246, 0.25)" }}>
-                                TM Portal
+                                TM Inc.
                               </span>
                             ) : (
                               <span className="inline-flex items-center px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider rounded border" style={{ background: "rgba(16, 185, 129, 0.08)", color: "#059669", borderColor: "rgba(16, 185, 129, 0.25)" }}>
@@ -670,7 +698,7 @@ export default function AdminUsersPage() {
                   // If email is empty or has placeholder, auto-suggest
                   const currentEmail = prev.email || "";
                   if (!currentEmail || currentEmail.startsWith("user@") || !currentEmail.includes("@")) {
-                    const domainSuffix = drawerTenant === "tauqeermustafa" ? "tauqeermustafa.tech" : "qorlune.co.uk";
+                    const domainSuffix = drawerTenant === "tech" ? "tauqeermustafa.tech" : drawerTenant === "com" ? "tauqeermustafa.com" : "qorlune.co.uk";
                     return { ...prev, name: newName, email: suggestCompanyEmail(newName, domainSuffix) };
                   }
                   return { ...prev, name: newName };
@@ -684,21 +712,38 @@ export default function AdminUsersPage() {
             <label className="mb-2 block text-xs font-bold uppercase tracking-wider" style={{ color: "var(--adm-text-2)" }}>
               Target Portal & Brand Domain
             </label>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
               <button
                 type="button"
-                onClick={() => handleTenantChange("tauqeermustafa")}
-                className={`flex flex-col text-left p-2.5 rounded border transition ${drawerTenant === "tauqeermustafa" ? "border-blue-500 bg-blue-50/10 shadow-sm" : "hover:bg-adm-surface"}`}
+                onClick={() => handleTenantChange("com")}
+                className={`flex flex-col text-left p-2.5 rounded border transition ${drawerTenant === "com" ? "border-blue-500 bg-blue-50/10 shadow-sm" : "hover:bg-adm-surface"}`}
                 style={{
-                  borderColor: drawerTenant === "tauqeermustafa" ? "var(--adm-blue)" : "var(--adm-border)",
-                  background: drawerTenant === "tauqeermustafa" ? "var(--adm-surface)" : "transparent",
+                  borderColor: drawerTenant === "com" ? "var(--adm-blue)" : "var(--adm-border)",
+                  background: drawerTenant === "com" ? "var(--adm-surface)" : "transparent",
                 }}
               >
                 <span className="text-xs font-bold" style={{ color: "var(--adm-blue)" }}>
                   Tauqeer Mustafa Inc.
                 </span>
                 <span className="text-[11px]" style={{ color: "var(--adm-text-3)" }}>
-                  .tech / tm.com · Appears in tauqeermustafa.com admin
+                  .com · tauqeermustafa.com
+                </span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => handleTenantChange("tech")}
+                className={`flex flex-col text-left p-2.5 rounded border transition ${drawerTenant === "tech" ? "border-purple-500 bg-purple-50/10 shadow-sm" : "hover:bg-adm-surface"}`}
+                style={{
+                  borderColor: drawerTenant === "tech" ? "#9333ea" : "var(--adm-border)",
+                  background: drawerTenant === "tech" ? "var(--adm-surface)" : "transparent",
+                }}
+              >
+                <span className="text-xs font-bold" style={{ color: "#9333ea" }}>
+                  TM Tech
+                </span>
+                <span className="text-[11px]" style={{ color: "var(--adm-text-3)" }}>
+                  .tech · tauqeermustafa.tech
                 </span>
               </button>
 
@@ -715,7 +760,7 @@ export default function AdminUsersPage() {
                   Qorlune LLC
                 </span>
                 <span className="text-[11px]" style={{ color: "var(--adm-text-3)" }}>
-                  .co.uk / .com · Appears in Qorlune portal
+                  .co.uk · qorlune.co.uk
                 </span>
               </button>
             </div>
@@ -784,7 +829,7 @@ export default function AdminUsersPage() {
             </div>
             <p className="flex items-center gap-1.5 text-xs pt-1" style={{ color: "var(--adm-text-3)" }}>
               <Mail size={12} />
-              Mailbox is created and routed via OpenEmail. User will appear in the {drawerTenant === "tauqeermustafa" ? "Tauqeer Mustafa admin panel" : "Qorlune portal"}.
+              Mailbox is created and routed via OpenEmail. User will appear in the {drawerTenant === "tech" ? "Tauqeer Mustafa Tech admin panel" : drawerTenant === "com" ? "Tauqeer Mustafa Inc. admin panel" : "Qorlune portal"}.
             </p>
           </AdminField>
           <AdminField label="Temporary password" htmlFor="user-password">

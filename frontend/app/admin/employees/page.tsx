@@ -33,14 +33,14 @@ function initials(name: string | null | undefined) {
 
 export default function AdminEmployeesPage() {
   const domainCfg = useMemo(() => (typeof window !== "undefined" ? getDomainConfig(window.location.hostname) : getDomainConfig()), []);
-  const [domainScope, setDomainScope] = useState<"current" | "tauqeermustafa" | "qorlune" | "all">("current");
+  const [domainScope, setDomainScope] = useState<"current" | "com" | "tech" | "qorlune" | "all">("current");
 
   const resolvedDomain = useMemo(() => {
     if (domainScope === "current") {
-      return domainCfg.isTmi ? "tauqeermustafa" : "qorlune";
+      return domainCfg.tenant;
     }
     return domainScope === "all" ? undefined : domainScope;
-  }, [domainScope, domainCfg.isTmi]);
+  }, [domainScope, domainCfg.tenant]);
 
   const { data, isLoading, isError, error, refetch } = useEmployees({ domain: resolvedDomain });
   const setStatus = useSetEmployeeStatus();
@@ -77,8 +77,9 @@ export default function AdminEmployeesPage() {
           </span>
           <span className="text-xs" style={{ color: "var(--adm-text-2)" }}>
             {domainScope === "current" && <span className="font-semibold text-adm-blue">Showing {domainCfg.shortName} roster only</span>}
-            {domainScope === "tauqeermustafa" && <span className="font-semibold" style={{ color: "var(--adm-blue)" }}>Showing Tauqeer Mustafa (.tech / tm.com) roster</span>}
-            {domainScope === "qorlune" && <span className="font-semibold" style={{ color: "var(--adm-green)" }}>Showing Qorlune (.co.uk / .com) roster</span>}
+            {domainScope === "com" && <span className="font-semibold" style={{ color: "var(--adm-blue)" }}>Showing Tauqeer Mustafa Inc. (.com) roster</span>}
+            {domainScope === "tech" && <span className="font-semibold" style={{ color: "#9333ea" }}>Showing Tauqeer Mustafa Tech (.tech) roster</span>}
+            {domainScope === "qorlune" && <span className="font-semibold" style={{ color: "var(--adm-green)" }}>Showing Qorlune (.co.uk) roster</span>}
             {domainScope === "all" && <span className="font-semibold text-adm-text">Showing all employees across all brands</span>}
           </span>
         </div>
@@ -97,15 +98,27 @@ export default function AdminEmployeesPage() {
           </button>
           <button
             type="button"
-            onClick={() => setDomainScope("tauqeermustafa")}
-            className={`rounded px-2.5 py-1 text-xs font-semibold transition ${domainScope === "tauqeermustafa" ? "shadow-sm" : ""}`}
+            onClick={() => setDomainScope("com")}
+            className={`rounded px-2.5 py-1 text-xs font-semibold transition ${domainScope === "com" ? "shadow-sm" : ""}`}
             style={{
-              background: domainScope === "tauqeermustafa" ? "var(--adm-surface)" : "transparent",
-              color: domainScope === "tauqeermustafa" ? "var(--adm-blue)" : "var(--adm-text-2)",
-              border: domainScope === "tauqeermustafa" ? "1px solid var(--adm-border)" : "1px solid transparent",
+              background: domainScope === "com" ? "var(--adm-surface)" : "transparent",
+              color: domainScope === "com" ? "var(--adm-blue)" : "var(--adm-text-2)",
+              border: domainScope === "com" ? "1px solid var(--adm-border)" : "1px solid transparent",
             }}
           >
-            Tauqeer Mustafa
+            .com (TM Inc.)
+          </button>
+          <button
+            type="button"
+            onClick={() => setDomainScope("tech")}
+            className={`rounded px-2.5 py-1 text-xs font-semibold transition ${domainScope === "tech" ? "shadow-sm" : ""}`}
+            style={{
+              background: domainScope === "tech" ? "var(--adm-surface)" : "transparent",
+              color: domainScope === "tech" ? "#9333ea" : "var(--adm-text-2)",
+              border: domainScope === "tech" ? "1px solid var(--adm-border)" : "1px solid transparent",
+            }}
+          >
+            .tech (TM Tech)
           </button>
           <button
             type="button"
@@ -117,7 +130,7 @@ export default function AdminEmployeesPage() {
               border: domainScope === "qorlune" ? "1px solid var(--adm-border)" : "1px solid transparent",
             }}
           >
-            Qorlune
+            Qorlune (.co.uk)
           </button>
           <button
             type="button"
@@ -202,9 +215,13 @@ export default function AdminEmployeesPage() {
                         <span className="block truncate">{employee.name ?? "Unnamed"}</span>
                         <span className="flex items-center gap-1.5 flex-wrap">
                           <span className="text-xs font-normal text-adm-text-3">{employee.email ?? "—"}</span>
-                          {employee.email && getTenantFromEmail(employee.email) === "tauqeermustafa" ? (
+                          {employee.email && getTenantFromEmail(employee.email) === "tech" ? (
+                            <span className="inline-flex items-center px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider rounded border" style={{ background: "rgba(147, 51, 234, 0.08)", color: "#9333ea", borderColor: "rgba(147, 51, 234, 0.25)" }}>
+                              TM Tech
+                            </span>
+                          ) : employee.email && getTenantFromEmail(employee.email) === "com" ? (
                             <span className="inline-flex items-center px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider rounded border" style={{ background: "rgba(59, 130, 246, 0.08)", color: "#2563eb", borderColor: "rgba(59, 130, 246, 0.25)" }}>
-                              TM Portal
+                              TM Inc.
                             </span>
                           ) : employee.email ? (
                             <span className="inline-flex items-center px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider rounded border" style={{ background: "rgba(16, 185, 129, 0.08)", color: "#059669", borderColor: "rgba(16, 185, 129, 0.25)" }}>
