@@ -107,7 +107,13 @@ export function ConversationListPane({
   // Filter by line/department
   const lineFiltered = withDetails.filter(({ conv }) => {
     if (!currentDepartment || currentDepartment === "all") return true;
-    return true; // All conversations belong to the sole official Qorlune line
+    if (currentDepartment === "line1" || currentDepartment === "qorlune") {
+      return conv.lineKey === "line1" || conv.channel === "1433890589802290";
+    }
+    if (currentDepartment === "line2" || currentDepartment === "tauqeer") {
+      return conv.lineKey === "line2" || conv.channel === "1239592269240963";
+    }
+    return conv.lineKey === currentDepartment || conv.department === currentDepartment;
   });
 
   // Filter by search query
@@ -181,22 +187,42 @@ export function ConversationListPane({
       >
         {/* Line selection tabs */}
         <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
-          {/* Sole Official Qorlune Line */}
+          {/* Qorlune Official Line */}
           <button
             type="button"
             onClick={() => onDepartmentChange("line1")}
             className={`flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1 text-[11px] font-bold transition ${
-              currentDepartment !== "all"
+              currentDepartment === "line1"
                 ? "bg-blue-600 text-white shadow-sm"
                 : "bg-adm-surface-2 text-adm-text-2 border border-adm-border hover:border-adm-text-3 hover:text-adm-text"
             }`}
-            title="Qorlune Official (+1 711-091-5975)"
+            title="Qorlune Official (qorlune.co.uk | +1 711-091-5975)"
           >
             <span className="h-1.5 w-1.5 rounded-full bg-blue-400" />
-            <span>🇺🇸 Qorlune Official (+1 711-091-5975)</span>
-            {unreadCounts.total > 0 && (
+            <span>🇺🇸 Qorlune (+1 711)</span>
+            {(unreadCounts.line1 ?? 0) > 0 && (
               <span className="flex h-4 min-w-[16px] items-center justify-center rounded-full bg-blue-500 px-1 text-[9px] font-bold text-white">
-                {unreadCounts.total}
+                {unreadCounts.line1}
+              </span>
+            )}
+          </button>
+
+          {/* Tauqeer Mustafa Line */}
+          <button
+            type="button"
+            onClick={() => onDepartmentChange("line2")}
+            className={`flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1 text-[11px] font-bold transition ${
+              currentDepartment === "line2"
+                ? "bg-emerald-600 text-white shadow-sm"
+                : "bg-adm-surface-2 text-adm-text-2 border border-adm-border hover:border-adm-text-3 hover:text-adm-text"
+            }`}
+            title="Tauqeer Mustafa (tauqeermustafa.com | +92 335 6701199)"
+          >
+            <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
+            <span>🇵🇰 Tauqeer Mustafa (tauqeermustafa.com)</span>
+            {(unreadCounts.line2 ?? 0) > 0 && (
+              <span className="flex h-4 min-w-[16px] items-center justify-center rounded-full bg-emerald-500 px-1 text-[9px] font-bold text-white">
+                {unreadCounts.line2}
               </span>
             )}
           </button>

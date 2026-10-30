@@ -1,40 +1,8 @@
 /**
  * Which WhatsApp numbers this deployment can send from.
  *
- * WHY THIS EXISTS
- * ───────────────
- * Every route used to read `WHATSAPP_PHONE_NUMBER_ID` directly, so the app could
- * only ever speak as one number. A second number on the same WhatsApp Business
- * Account was effectively dead: messages arriving on it were stored, but every
- * reply — including auto-replies — went back out from the FIRST number. The
- * customer saw an answer from a business they had never written to, and the
- * 24-hour service window opened on the number they DID write to went unused.
- *
- * This module is the one list of sending identities. Routes resolve an id
- * through `resolveNumberId()` rather than reading the environment themselves,
- * which also closes a smaller hole: a caller cannot push an arbitrary
- * phone-number id through our access token, because anything not on this list is
- * refused.
- *
- * CONFIGURING
- * ───────────
- *   WHATSAPP_PHONE_NUMBER_ID     – the primary number (unchanged)
- *   WHATSAPP_PHONE_NUMBER_ID_2   – the second number; set it to "off" to drop
- *                                  the built-in default below
- *   WHATSAPP_PHONE_NUMBER_ID_3   – the third number; set it to "off" to drop
- *                                  the built-in default below
- *   WHATSAPP_PHONE_NUMBER_ID_4   – the fourth number; set it to "off" to drop
- *                                  the built-in default below
- *   WHATSAPP_PHONE_LABEL         – display label for the primary
- *   WHATSAPP_PHONE_LABEL_2       – display label for the second
- *   WHATSAPP_PHONE_LABEL_3       – display label for the third
- *   WHATSAPP_PHONE_LABEL_4       – display label for the fourth
- *   WHATSAPP_PHONE_NUMBERS       – explicit full list, "id|Label, id|Label",
- *                                  which overrides everything above
- *
- * A phone-number id is an identifier, not a credential — unlike WHATSAPP_TOKEN
- * it is safe in source. The second and third numbers are therefore defaulted in
- * code so they go live without waiting on an environment change, and env still wins.
+ * Line 1: Qorlune Official (+1 711-091-5975) - Slot 1 (qorlune.co.uk)
+ * Line 2: Tauqeer Mustafa (+92 335 6701199) - Slot 2 (tauqeermustafa.com)
  */
 
 export type WADepartment = "general" | "support" | "direct";
@@ -55,13 +23,22 @@ export type WANumber = {
 };
 
 /**
- * Sole Official Qorlune WhatsApp Line (+1 711-091-5975)
+ * Line 1: Official Qorlune WhatsApp Line (+1 711-091-5975)
  * Meta Phone Number ID: 1433890589802290
  * Meta WABA ID: 944973294966811
  */
 export const DEFAULT_QORLUNE_ID = "1433890589802290";
 export const DEFAULT_PRIMARY_ID = DEFAULT_QORLUNE_ID;
 export const DEFAULT_QORLUNE_DISPLAY = "+1 711-091-5975";
+
+/**
+ * Line 2: Tauqeer Mustafa Direct Line (+92 335 6701199)
+ * Used on: tauqeermustafa.com
+ */
+export const DEFAULT_PK_ID = "1239592269240963";
+export const ALIAS_PK_ID = "1363415125370805";
+export const DEFAULT_TAUQEER_ID = DEFAULT_PK_ID;
+export const DEFAULT_TAUQEER_DISPLAY = "+92 335 6701199";
 
 const FORBIDDEN_PHONE_IDS = new Set<string>([]);
 const FORBIDDEN_NUMBERS: string[] = [];
@@ -73,10 +50,7 @@ export function isForbiddenNumber(raw?: string | null): boolean {
   return FORBIDDEN_NUMBERS.some((f) => digits.includes(f.replace(/\D/g, "")));
 }
 
-
-// Deprecated line aliases mapped directly to the official Qorlune line
-export const DEFAULT_PK_ID = DEFAULT_QORLUNE_ID;
-export const ALIAS_PK_ID = DEFAULT_QORLUNE_ID;
+// Deprecated line aliases
 export const DEFAULT_SL_ID = DEFAULT_QORLUNE_ID;
 export const ALIAS_SL_ID = DEFAULT_QORLUNE_ID;
 export const DEFAULT_NL_PRIMARY_ID = DEFAULT_QORLUNE_ID;
@@ -92,7 +66,7 @@ export const ALIAS_UK_ID = DEFAULT_QORLUNE_ID;
 export const UK_WABA_ID = DEFAULT_QORLUNE_ID;
 
 // Backwards compatibility aliases
-export const DEFAULT_SECOND_ID = DEFAULT_QORLUNE_ID;
+export const DEFAULT_SECOND_ID = DEFAULT_TAUQEER_ID;
 export const DEFAULT_THIRD_ID = DEFAULT_QORLUNE_ID;
 export const LINE3_WABA_ID = DEFAULT_QORLUNE_ID;
 
@@ -119,7 +93,6 @@ function parseExplicitList(raw: string): WANumber[] {
     const id = (idPart ?? "").trim();
     if (!id || isDisabled(id)) continue;
     
-    // If there are more than 2 parts, the last part might be the slot
     let slot = 1;
     let labelParts = parts.slice(1);
     
@@ -152,7 +125,13 @@ function build(): WANumber[] {
   const primaryDisplay = clean(process.env.WHATSAPP_DISPLAY_NUMBER);
   const safeDisplayNumber = primaryDisplay && !isForbiddenNumber(primaryDisplay) ? primaryDisplay : DEFAULT_QORLUNE_DISPLAY;
 
-  // Sole Official Qorlune Line
+  const secondEnvId = clean(process.env.WHATSAPP_PHONE_NUMBER_ID_2);
+  const safeSecondId = secondEnvId && !isForbiddenNumber(secondEnvId) ? secondEnvId : DEFAULT_PK_ID;
+
+  const secondDisplay = clean(process.env.WHATSAPP_DISPLAY_NUMBER_2);
+  const safeSecondDisplay = secondDisplay && !isForbiddenNumber(secondDisplay) ? secondDisplay : DEFAULT_TAUQEER_DISPLAY;
+
+  // Canonical lines: Line 1 (Qorlune) + Line 2 (Tauqeer Mustafa)
   const canonicalLines: WANumber[] = [
     {
       id: safePrimaryId,
@@ -162,26 +141,13 @@ function build(): WANumber[] {
       department: "general",
       displayNumber: safeDisplayNumber,
     },
-  ];
-
-  return dedupe(canonicalLines);
-}
-
-function _unused_build(): WANumber[] {
-  const explicit = clean(process.env.WHATSAPP_PHONE_NUMBERS);
-  if (explicit) return dedupe(parseExplicitList(explicit));
-
-  const primaryEnvId = clean(process.env.WHATSAPP_PHONE_NUMBER_ID);
-
-  // Sole Official Qorlune Line
-  const canonicalLines: WANumber[] = [
     {
-      id: primaryEnvId || DEFAULT_QORLUNE_ID,
-      label: clean(process.env.WHATSAPP_PHONE_LABEL) || "Qorlune Official",
-      primary: true,
-      slot: 1,
-      department: "general",
-      displayNumber: clean(process.env.WHATSAPP_DISPLAY_NUMBER) || DEFAULT_QORLUNE_DISPLAY,
+      id: safeSecondId,
+      label: clean(process.env.WHATSAPP_PHONE_LABEL_2) || "Tauqeer Mustafa (tauqeermustafa.com)",
+      primary: false,
+      slot: 2,
+      department: "direct",
+      displayNumber: safeSecondDisplay,
     },
   ];
 
@@ -195,7 +161,6 @@ function dedupe(numbers: WANumber[]): WANumber[] {
   for (const n of numbers) {
     if (seen.has(n.id)) continue;
     seen.add(n.id);
-    // First survivor is the primary, whatever the input claimed.
     out.push({ ...n, primary: out.length === 0 });
   }
   return out;
@@ -203,11 +168,6 @@ function dedupe(numbers: WANumber[]): WANumber[] {
 
 let cached: WANumber[] | null = null;
 
-/**
- * Every number this deployment may send from, primary first. Resolved once per
- * server instance — the same lazy read `lib/kv.ts` uses, because on Vercel these
- * values are injected at request time rather than at module init.
- */
 export function waNumbers(): WANumber[] {
   if (!cached) cached = build();
   return cached;
@@ -236,7 +196,6 @@ export function registerKnownNumbers(extra: WANumber[]) {
   }
 }
 
-/** The default sender, or null when nothing is configured at all. */
 export function primaryNumberId(): string | null {
   return waNumbers().find((n) => n.primary)?.id ?? waNumbers()[0]?.id ?? null;
 }
@@ -246,50 +205,81 @@ export function isKnownNumber(id: string | null | undefined): boolean {
   if (!value) return false;
   const digits = value.replace(/[^0-9]/g, "");
 
-  if (digits === "17110915975" || digits === "17112494712" || value === DEFAULT_QORLUNE_ID || value === "944973294966811") {
+  if (
+    digits === "17110915975" ||
+    digits === "17112494712" ||
+    value === DEFAULT_QORLUNE_ID ||
+    value === "944973294966811" ||
+    value === DEFAULT_PK_ID ||
+    value === ALIAS_PK_ID ||
+    digits.includes("3356701199") ||
+    digits.includes("3335670119")
+  ) {
     return true;
   }
   return waNumbers().some((n) => n.id === value || (n.displayNumber && n.displayNumber.replace(/[^0-9]/g, "") === digits));
 }
 
-/** Label for an id — falls back to the id so the UI never renders blank. */
 export function labelFor(id: string | null | undefined): string {
   const value = (id ?? "").trim();
   const digits = value.replace(/[^0-9]/g, "");
   const found = waNumbers().find((n) => n.id === value || (n.displayNumber && n.displayNumber.replace(/[^0-9]/g, "") === digits));
-  return found?.label ?? "Qorlune Official";
+  if (found) return found.label;
+  if (digits.includes("3356701199") || digits.includes("3335670119") || value === DEFAULT_PK_ID) {
+    return "Tauqeer Mustafa";
+  }
+  return "Qorlune Official";
 }
 
 export type ResolvedNumber =
   | { ok: true; id: string }
   | { ok: false; error: string };
 
-/**
- * Turn a requested sender into an id we are willing to send from.
- * With Qorlune, all sends route through the sole official WhatsApp line.
- */
 export function resolveNumberId(requested?: string | null): ResolvedNumber {
   const primaryId = primaryNumberId() || DEFAULT_QORLUNE_ID;
   const wanted = (requested ?? "").trim();
   if (!wanted) return { ok: true, id: primaryId };
 
   const digits = wanted.replace(/[^0-9]/g, "");
-  if (digits === "17110915975" || digits === "17112494712" || wanted === DEFAULT_QORLUNE_ID || wanted === "944973294966811") {
+  if (
+    digits === "17110915975" ||
+    digits === "17112494712" ||
+    wanted === DEFAULT_QORLUNE_ID ||
+    wanted === "944973294966811" ||
+    wanted === "line1" ||
+    wanted.toLowerCase().includes("qorlune")
+  ) {
     return { ok: true, id: DEFAULT_QORLUNE_ID };
   }
 
-  // All traffic resolves to the official Qorlune number
+  if (
+    digits.includes("3356701199") ||
+    digits.includes("3335670119") ||
+    wanted === DEFAULT_PK_ID ||
+    wanted === ALIAS_PK_ID ||
+    wanted === "line2" ||
+    wanted.toLowerCase().includes("tauqeer")
+  ) {
+    return { ok: true, id: DEFAULT_PK_ID };
+  }
+
+  const found = waNumbers().find((n) => n.id === wanted || (n.displayNumber && n.displayNumber.replace(/[^0-9]/g, "") === digits));
+  if (found) return { ok: true, id: found.id };
+
   return { ok: true, id: primaryId };
 }
 
-/**
- * Return whether a line or message belongs to "general", "support", or "direct".
- */
 export function getChannelDepartment(
-  _idOrNumber?: string | null,
-  _allNumbers?: WANumber[]
+  idOrNumber?: string | null,
+  allNumbers?: WANumber[]
 ): WADepartment {
-  return "general";
+  const val = (idOrNumber ?? "").trim();
+  const digits = val.replace(/[^0-9]/g, "");
+  if (digits.includes("3356701199") || digits.includes("3335670119") || val === DEFAULT_PK_ID) {
+    return "direct";
+  }
+  const match = (allNumbers || waNumbers()).find((n) => n.id === val || (n.displayNumber && n.displayNumber.replace(/[^0-9]/g, "") === digits));
+  return match?.department ?? "general";
 }
 
 export type LineIdentifier = {
@@ -310,51 +300,122 @@ export const KNOWN_LINES: Record<string, LineIdentifier> = {
   },
   line2: {
     lineKey: "line2",
-    canonicalId: DEFAULT_QORLUNE_ID,
-    label: "Qorlune Official",
-    flag: "🇺🇸",
-    displayNumber: "+1 711-091-5975",
+    canonicalId: DEFAULT_PK_ID,
+    label: "Tauqeer Mustafa",
+    flag: "🇵🇰",
+    displayNumber: "+92 335 6701199",
   },
   line3: {
     lineKey: "line3",
     canonicalId: DEFAULT_QORLUNE_ID,
-    label: "Qorlune Official",
+    label: "Qorlune Support",
     flag: "🇺🇸",
     displayNumber: "+1 711-091-5975",
   },
   line4: {
     lineKey: "line4",
     canonicalId: DEFAULT_QORLUNE_ID,
-    label: "Qorlune Official",
+    label: "Qorlune Direct",
     flag: "🇺🇸",
     displayNumber: "+1 711-091-5975",
   },
   line5: {
     lineKey: "line5",
     canonicalId: DEFAULT_QORLUNE_ID,
-    label: "Qorlune Official",
+    label: "Qorlune Operations",
     flag: "🇺🇸",
     displayNumber: "+1 711-091-5975",
   },
   line6: {
     lineKey: "line6",
     canonicalId: DEFAULT_QORLUNE_ID,
-    label: "Qorlune Official",
+    label: "Qorlune VIP",
     flag: "🇺🇸",
     displayNumber: "+1 711-091-5975",
   },
   line7: {
     lineKey: "line7",
     canonicalId: DEFAULT_QORLUNE_ID,
-    label: "Qorlune Official",
+    label: "Qorlune Global",
     flag: "🇺🇸",
     displayNumber: "+1 711-091-5975",
   },
 };
 
 export function identifyMessageLine(
-  _m: { channel?: string; from?: string; to?: string; direction?: string },
-  _customNumbers?: WANumber[]
+  m: { channel?: string; from?: string; to?: string; direction?: string; jid?: string },
+  customNumbers?: WANumber[]
 ): LineIdentifier {
+  const ch = (m.channel || "").trim();
+  const chDigits = ch.replace(/[^0-9]/g, "");
+
+  const to = (m.to || "").trim();
+  const toDigits = to.replace(/[^0-9]/g, "");
+
+  const from = (m.from || "").trim();
+  const fromDigits = from.replace(/[^0-9]/g, "");
+
+  const candidates = [ch, chDigits, to, toDigits, from, fromDigits].filter(Boolean);
+  const matchesAny = (set: string[]) => candidates.some((c) => set.includes(c));
+
+  // 1. Direct Tauqeer Mustafa line identifiers (+92 335 6701199 / 033356701199 / Phone ID 1239592269240963)
+  if (
+    matchesAny([
+      "1239592269240963",
+      "1363415125370805",
+      "923356701199",
+      "3356701199",
+      "03356701199",
+      "923335670119",
+      "03335670119",
+      "033356701199",
+      "9233356701199",
+    ])
+  ) {
+    return KNOWN_LINES.line2;
+  }
+
+  // 2. Direct Qorlune line identifiers (+1 711-091-5975 / +1 711-249-4712 / Phone ID 1433890589802290 / WABA 944973294966811)
+  if (
+    matchesAny([
+      "1433890589802290",
+      "944973294966811",
+      "17110915975",
+      "17112494712",
+      "7110915975",
+      "7112494712",
+    ])
+  ) {
+    return KNOWN_LINES.line1;
+  }
+
+  // 3. Check customNumbers if provided
+  if (customNumbers && customNumbers.length > 0) {
+    for (const num of customNumbers) {
+      const numDigits = (num.id || "").replace(/[^0-9]/g, "");
+      const dispDigits = (num.displayNumber || "").replace(/[^0-9]/g, "");
+      if (
+        candidates.some(
+          (c) => c === num.id || (numDigits && c === numDigits) || (dispDigits && c === dispDigits)
+        )
+      ) {
+        const slotKey = `line${num.slot || 1}`;
+        if (KNOWN_LINES[slotKey]) return KNOWN_LINES[slotKey];
+        return {
+          lineKey: (slotKey as any) || "line1",
+          canonicalId: num.id,
+          label: num.label || `Line ${num.slot || 1}`,
+          flag: num.slot === 2 ? "🇵🇰" : "🇺🇸",
+          displayNumber: num.displayNumber || num.id,
+        };
+      }
+    }
+  }
+
+  // 4. Inbound / Outbound channel evaluation
+  if (ch === "1239592269240963" || ch.includes("3356701199") || ch.includes("3335670119")) {
+    return KNOWN_LINES.line2;
+  }
+
   return KNOWN_LINES.line1;
 }

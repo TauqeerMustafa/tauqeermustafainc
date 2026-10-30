@@ -195,29 +195,56 @@ export async function GET(request: Request) {
   }
 
   // Identify official primary Qorlune line
-  const primaryItem =
+  const qorluneItem =
     resultList.find(
       (n) => n.id === "1433890589802290" || (n.id !== "944973294966811" && n.primary)
     ) || resultList.find((n) => n.id !== "944973294966811") || resultList[0];
 
-  if (primaryItem) {
-    if (primaryItem.id === "944973294966811") {
-      primaryItem.id = "1433890589802290";
+  if (qorluneItem) {
+    if (qorluneItem.id === "944973294966811") {
+      qorluneItem.id = "1433890589802290";
     }
-    primaryItem.primary = true;
-    primaryItem.department = "general";
-    primaryItem.slot = 1;
-    primaryItem.label = "Qorlune Official";
-    primaryItem.canSend = true;
-    if (!primaryItem.displayNumber) primaryItem.displayNumber = "+1 711-091-5975";
-    if (!primaryItem.verifiedName) primaryItem.verifiedName = "Qorlune";
-    if (!primaryItem.nameStatus) primaryItem.nameStatus = "APPROVED";
-    if (!primaryItem.quality) primaryItem.quality = "GREEN";
-    if (!primaryItem.codeVerificationStatus) primaryItem.codeVerificationStatus = "VERIFIED";
+    qorluneItem.primary = true;
+    qorluneItem.department = "general";
+    qorluneItem.slot = 1;
+    qorluneItem.label = "Qorlune Official (qorlune.co.uk)";
+    qorluneItem.canSend = true;
+    if (!qorluneItem.displayNumber) qorluneItem.displayNumber = "+1 711-091-5975";
+    if (!qorluneItem.verifiedName) qorluneItem.verifiedName = "Qorlune";
+    if (!qorluneItem.nameStatus) qorluneItem.nameStatus = "APPROVED";
+    if (!qorluneItem.quality) qorluneItem.quality = "GREEN";
+    if (!qorluneItem.codeVerificationStatus) qorluneItem.codeVerificationStatus = "VERIFIED";
   }
 
-  // Sole official Qorlune line — purge all legacy lines
-  const finalNumbers = [primaryItem].filter(Boolean);
+  // Identify Tauqeer Mustafa (tauqeermustafa.com) line
+  let tauqeerItem = resultList.find(
+    (n) => n.id === "1239592269240963" || n.id === "1363415125370805" || n.slot === 2
+  );
+
+  if (!tauqeerItem) {
+    tauqeerItem = {
+      id: "1239592269240963",
+      label: "Tauqeer Mustafa (tauqeermustafa.com)",
+      primary: false,
+      slot: 2,
+      department: "direct",
+      displayNumber: "+92 335 6701199",
+      verifiedName: "Tauqeer Mustafa",
+      nameStatus: "APPROVED",
+      quality: "GREEN",
+      codeVerificationStatus: "VERIFIED",
+      canSend: true,
+      error: null,
+    };
+  } else {
+    tauqeerItem.label = "Tauqeer Mustafa (tauqeermustafa.com)";
+    tauqeerItem.slot = 2;
+    tauqeerItem.department = "direct";
+    if (!tauqeerItem.displayNumber) tauqeerItem.displayNumber = "+92 335 6701199";
+  }
+
+  // Separate channels for Qorlune and Tauqeer Mustafa
+  const finalNumbers = [qorluneItem, tauqeerItem].filter(Boolean);
 
   // Register discovered numbers so resolveNumberId accepts them
   registerKnownNumbers(finalNumbers);

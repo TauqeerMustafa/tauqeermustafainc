@@ -980,16 +980,20 @@ function InboxTab({
   );
 
   const unreadCounts = {
-    line1: totalUnreadCount,
-    line2: 0,
+    line1: allConversations
+      .filter((c) => c.lineKey === "line1" || c.channel === "1433890589802290")
+      .reduce((acc, c) => acc + (unreadCount(c, metaMap[c.key] || metaMap[`${c.department}_${c.number}`] || metaMap[c.number]) > 0 ? 1 : 0), 0),
+    line2: allConversations
+      .filter((c) => c.lineKey === "line2" || c.channel === "1239592269240963")
+      .reduce((acc, c) => acc + (unreadCount(c, metaMap[c.key] || metaMap[`${c.department}_${c.number}`] || metaMap[c.number]) > 0 ? 1 : 0), 0),
     line3: 0,
     line4: 0,
     line5: 0,
     line6: 0,
     line7: 0,
-    general: totalUnreadCount,
-    support: 0,
-    direct: 0,
+    general: generalConvs.reduce((acc, c) => acc + (unreadCount(c, metaMap[c.key] || metaMap[`${c.department}_${c.number}`] || metaMap[c.number]) > 0 ? 1 : 0), 0),
+    support: supportConvs.reduce((acc, c) => acc + (unreadCount(c, metaMap[c.key] || metaMap[`${c.department}_${c.number}`] || metaMap[c.number]) > 0 ? 1 : 0), 0),
+    direct: directConvs.reduce((acc, c) => acc + (unreadCount(c, metaMap[c.key] || metaMap[`${c.department}_${c.number}`] || metaMap[c.number]) > 0 ? 1 : 0), 0),
     total: totalUnreadCount,
   };
 
@@ -1252,8 +1256,16 @@ function ChatView({
 
   // Determine sender line ID strictly scoped to this conversation's department
   const defaultSenderId = useMemo(() => {
+    if (channelId) {
+      const match = numbers.find((n) => n.id === channelId || (n.displayNumber && cleanDigits(n.displayNumber) === cleanDigits(channelId)));
+      if (match) return match.id;
+    }
+    if (conv.lineKey === "line2") {
+      const tauqeer = numbers.find((n) => n.id === "1239592269240963" || n.slot === 2);
+      if (tauqeer) return tauqeer.id;
+    }
     return numbers.find((n) => n.id === "1433890589802290")?.id || numbers.find((n) => n.primary && n.id !== "944973294966811")?.id || numbers.find((n) => n.id !== "944973294966811")?.id || numbers[0]?.id || "1433890589802290";
-  }, [numbers]);
+  }, [numbers, channelId, conv.lineKey]);
 
   const [activeSenderId, setActiveSenderId] = useState<string>(defaultSenderId);
 
