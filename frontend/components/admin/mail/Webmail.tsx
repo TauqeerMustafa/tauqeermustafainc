@@ -334,8 +334,8 @@ function avatarColor(name: string): string {
   return colors[Math.abs(hash) % colors.length];
 }
 
-function mailKey(mailboxId: string, suffix: string): string {
-  return `tmi_mail:${mailboxId}:${suffix}`;
+function mailKey(mailboxIdOrAddress: string, suffix: string): string {
+  return `tmi_mail:${(mailboxIdOrAddress || "default").toLowerCase().trim()}:${suffix}`;
 }
 
 function loadSet(key: string): Set<string> {
@@ -403,30 +403,102 @@ function isArchiveMsg(msg: Message): boolean {
   return labelNames(msg).some((l) => ["archive", "archived"].includes(l));
 }
 
-function isSentMsg(msg: Message, currentEmail: string): boolean {
+function getMessageRecipients(msg: Message): string[] {
+  const addrs = new Set<string>();
+
+  const add = (v: any) => {
+    if (!v) return;
+    if (typeof v === "string") {
+      const parsed = parseAddrs(v);
+      for (const p of parsed) {
+        const match = p.match(/<([^>]+)>/);
+        const email = (match ? match[1] : p).toLowerCase().trim();
+        if (email && email.includes("@")) addrs.add(email);
+      }
+    } else if (Array.isArray(v)) {
+      for (const item of v) add(item);
+    } else if (typeof v === "object") {
+      const email = (v.email || v.address || "").toLowerCase().trim();
+      if (email && email.includes("@")) addrs.add(email);
+    }
+  };
+
+  add(msg.envelopeTo);
+  add(msg.to);
+  add(msg.cc);
+  add(msg.bcc);
+  add((msg as any).deliveredTo);
+  add((msg as any).recipient);
+
+  return Array.from(addrs);
+}
+
+function isSentDirection(msg: Message): boolean {
   if (msg.direction === "outbound" || msg.direction === "outgoing") return true;
   if (msg.is_sent === true || msg.sent === true || msg.isSent === true) return true;
   const f = String(msg.folder || msg.box || msg.folderName || "").toLowerCase();
   if (["sent", "outbox"].includes(f)) return true;
-  if (labelNames(msg).some((l) => ["sent", "outbox"].includes(l))) return true;
-  if (currentEmail) {
-    const sender = rawEmail(msg.from);
-    if (sender && sender === currentEmail.toLowerCase()) return true;
-  }
-  return false;
+  return labelNames(msg).some((l) => ["sent", "outbox"].includes(l));
+}
+
+function isSentMsg(msg: Message, currentEmail: string): boolean {
+  if (isTrashMsg(msg)) return false;
+  if (!isSentDirection(msg)) return false;
+  if (!currentEmail) return true;
+
+  const sender = rawEmail(msg.from);
+  return sender.toLowerCase() === currentEmail.toLowerCase().trim();
 }
 
 function isInboxMsg(msg: Message, currentEmail: string): boolean {
   if (isTrashMsg(msg)) return false;
   if (isSpamMsg(msg)) return false;
   if (isArchiveMsg(msg)) return false;
-  if (isSentMsg(msg, currentEmail)) {
-    // If sent to oneself (test emails, reminders), also show in Inbox
-    const recipientList = addrList(msg.to).map((t) => t.toLowerCase());
-    const toSelf = recipientList.some((r) => r.includes(currentEmail.toLowerCase()));
-    if (!toSelf) return false;
+
+  const target = currentEmail?.toLowerCase().trim() || "";
+  const recipients = getMessageRecipients(msg);
+
+  if (isSentDirection(msg)) {
+    // Only show in inbox if sent to oneself
+    return Boolean(target && recipients.includes(target));
   }
-  return true;
+
+  if (!target) return true;
+
+  // 1. Direct recipient match
+  if (recipients.includes(target)) return true;
+
+  // 2. Catch-all routing for tech@tauqeermustafa.com:
+  // Receives all typos and routing from @tauqeermustafa.tech and unrouted @tauqeermustafa.com
+  if (target === "tech@tauqeermustafa.com") {
+    const isTechCatchAll = recipients.some(
+      (r) => r.endsWith("@tauqeermustafa.tech") && !r.startsWith("admin@") && !r.startsWith("info@")
+    );
+    if (isTechCatchAll) return true;
+
+    const isComCatchAll = recipients.some(
+      (r) =>
+        r.endsWith("@tauqeermustafa.com") &&
+        !["sales@", "support@", "billing@", "contact@", "hr@", "careers@", "legal@", "marketing@", "admin@", "tauqeer@"].some((p) => r.startsWith(p))
+    );
+    if (isComCatchAll) return true;
+  }
+
+  // 3. Catch-all for admin@qorlune.co.uk:
+  // Receives unrecognized addresses on @qorlune.co.uk if no specific department was addressed
+  if (target === "admin@qorlune.co.uk") {
+    const knownQorluneDepts = [
+      "sales@", "support@", "billing@", "contact@", "hr@", "careers@",
+      "legal@", "marketing@", "engineering@", "partnerships@", "business@",
+      "notifications@", "tauqeer@"
+    ];
+    const isGeneralCatchAll = recipients.some(
+      (r) => r.endsWith("@qorlune.co.uk") && !knownQorluneDepts.some((dept) => r.startsWith(dept))
+    );
+    if (isGeneralCatchAll) return true;
+  }
+
+  return false;
 }
 
 const PAGE_SIZE = 25;
@@ -634,14 +706,16 @@ export default function Webmail({
     if (activeId) loadMessages(activeId);
   }, [activeId, activeAddress, loadMessages]);
 
+  const storageScope = activeAddress || activeId;
+
   useEffect(() => {
-    if (!activeId) return;
-    setReadIds(loadSet(mailKey(activeId, "read")));
-    setUnreadIds(loadSet(mailKey(activeId, "unread")));
-    setStarredIds(loadSet(mailKey(activeId, "star")));
-    setArchivedIds(loadSet(mailKey(activeId, "archive")));
-    setDrafts(loadDrafts(mailKey(activeId, "drafts")));
-  }, [activeId]);
+    if (!storageScope) return;
+    setReadIds(loadSet(mailKey(storageScope, "read")));
+    setUnreadIds(loadSet(mailKey(storageScope, "unread")));
+    setStarredIds(loadSet(mailKey(storageScope, "star")));
+    setArchivedIds(loadSet(mailKey(storageScope, "archive")));
+    setDrafts(loadDrafts(mailKey(storageScope, "drafts")));
+  }, [storageScope]);
 
   const isUnread = useCallback(
     (msg: Message) => {
@@ -659,13 +733,13 @@ export default function Webmail({
       setReadIds((prev) => {
         const next = new Set(prev);
         ids.forEach((id) => (read ? next.add(id) : next.delete(id)));
-        saveSet(mailKey(activeId, "read"), next);
+        saveSet(mailKey(storageScope, "read"), next);
         return next;
       });
       setUnreadIds((prev) => {
         const next = new Set(prev);
         ids.forEach((id) => (read ? next.delete(id) : next.add(id)));
-        saveSet(mailKey(activeId, "unread"), next);
+        saveSet(mailKey(storageScope, "unread"), next);
         return next;
       });
     },
@@ -682,7 +756,7 @@ export default function Webmail({
           if (on) next.add(id);
           else next.delete(id);
         });
-        saveSet(mailKey(activeId, "star"), next);
+        saveSet(mailKey(storageScope, "star"), next);
         return next;
       });
     },
@@ -699,7 +773,7 @@ export default function Webmail({
           if (on) next.add(id);
           else next.delete(id);
         });
-        saveSet(mailKey(activeId, "archive"), next);
+        saveSet(mailKey(storageScope, "archive"), next);
         return next;
       });
       setNotice(ids.length === 1 ? "Conversation archived" : `${ids.length} conversations archived`);
@@ -712,7 +786,7 @@ export default function Webmail({
       if (!id || !activeId) return;
       setDrafts((prev) => {
         const next = prev.filter((d) => d.id !== id);
-        saveDrafts(mailKey(activeId, "drafts"), next);
+        saveDrafts(mailKey(storageScope, "drafts"), next);
         return next;
       });
     },
@@ -729,7 +803,7 @@ export default function Webmail({
         setDrafts((prev) => {
           const draft: Draft = { id, to, cc, bcc, subject, body: bodyText, savedAt: Date.now() };
           const next = [draft, ...prev.filter((d) => d.id !== id)];
-          saveDrafts(mailKey(activeId, "drafts"), next);
+          saveDrafts(mailKey(storageScope, "drafts"), next);
           return next;
         });
         setDraftNotice("Draft saved");
@@ -1134,6 +1208,9 @@ export default function Webmail({
     };
 
     for (const msg of messages) {
+      const belongs = isInboxMsg(msg, selfEmail) || isSentMsg(msg, selfEmail);
+      if (!belongs) continue;
+
       const unread = isUnread(msg);
       const isArchived = archivedIds.has(idOf(msg)) || isArchiveMsg(msg);
       const isTr = isTrashMsg(msg);
@@ -1153,7 +1230,7 @@ export default function Webmail({
     c.starred = starredIds.size;
     c.drafts = drafts.length;
     c.scheduled = scheduledMail.filter((s) => s.status === "pending").length;
-    c.trash = trash.length;
+    c.trash = trash.filter((m) => isInboxMsg(m, selfEmail) || isSentMsg(m, selfEmail)).length;
 
     return c;
   }, [messages, trash, scheduledMail, starredIds, drafts, isUnread, selfEmail, archivedIds]);
@@ -1164,102 +1241,39 @@ export default function Webmail({
 
     if (folder === "trash") {
       const seen = new Set<string>();
-      list = [...trash, ...messages.filter(isTrashMsg)].filter((m) => {
-        const id = idOf(m);
-        if (!id || seen.has(id)) return false;
-        seen.add(id);
-        return true;
-      });
+      list = [...trash, ...messages.filter(isTrashMsg)]
+        .filter((m) => isInboxMsg(m, selfEmail) || isSentMsg(m, selfEmail))
+        .filter((m) => {
+          const id = idOf(m);
+          if (!id || seen.has(id)) return false;
+          seen.add(id);
+          return true;
+        });
     } else if (folder === "all") {
-      list = messages.filter((m) => !isTrashMsg(m));
+      list = messages.filter(
+        (m) => !isTrashMsg(m) && (isInboxMsg(m, selfEmail) || isSentMsg(m, selfEmail))
+      );
     } else if (folder === "starred") {
       list = [...messages, ...trash].filter(
-        (m) => starredIds.has(idOf(m)) || m.starred === true || m.isStarred === true,
+        (m) =>
+          (starredIds.has(idOf(m)) || m.starred === true || m.isStarred === true) &&
+          (isInboxMsg(m, selfEmail) || isSentMsg(m, selfEmail))
       );
     } else if (folder === "sent") {
-      list = messages.filter((m) => {
-        if (isTrashMsg(m)) return false;
-        if (!isSentMsg(m, selfEmail)) return false;
-
-        if (selfEmail) {
-          const userPrefix = selfEmail.split("@")[0].toLowerCase();
-          if (userPrefix === "sales") {
-            const senderEmail = rawEmail(m.from)?.toLowerCase() || "";
-            const recipientList = addrList(m.to).map((t) => t.toLowerCase());
-            const subj = (m.subject || "").toLowerCase();
-            const snip = (m.snippet || m.preview || "").toLowerCase();
-
-            // Match if sent from or to any sales@ address
-            if (senderEmail.startsWith("sales@") || recipientList.some((r) => r.startsWith("sales@"))) {
-              return true;
-            }
-
-            // Match all sales outreach, client acquisition & prospect proposals
-            if (
-              subj.includes("outreach") ||
-              subj.includes("telemetry") ||
-              subj.includes("website issues") ||
-              subj.includes("details on your website") ||
-              subj.includes("client") ||
-              subj.includes("proposal") ||
-              subj.includes("quote") ||
-              subj.includes("lead") ||
-              subj.includes("roadmap") ||
-              snip.includes("founder-to-founder") ||
-              snip.includes("pitch") ||
-              snip.includes("outreach")
-            ) {
-              return true;
-            }
-
-            // Filter out pure intern HR onboarding credentials from sales view
-            if (subj.includes("welcome to tauqeer mustafa inc") && !recipientList.some((r) => r.includes("sales"))) {
-              return false;
-            }
-            if (subj.includes("your password has been reset")) {
-              return false;
-            }
-          } else if (["support", "billing", "careers", "info", "hr", "contact", "marketing", "engineering", "legal"].includes(userPrefix)) {
-            const senderEmail = rawEmail(m.from)?.toLowerCase() || "";
-            const recipientList = addrList(m.to).map((t) => t.toLowerCase());
-            if (senderEmail.startsWith(`${userPrefix}@`) || recipientList.some((r) => r.startsWith(`${userPrefix}@`))) {
-              return true;
-            }
-            // For general admin emails, don't flood dedicated department sent folders
-            if (senderEmail.startsWith("admin@") && !recipientList.some((r) => r.startsWith(`${userPrefix}@`))) {
-              return false;
-            }
-          }
-        }
-        return true;
-      });
+      list = messages.filter((m) => isSentMsg(m, selfEmail));
     } else if (folder === "inbox") {
-      list = messages.filter((m) => {
-        if (!isInboxMsg(m, selfEmail) || archivedIds.has(idOf(m))) return false;
-        if (selfEmail) {
-          const userPrefix = selfEmail.split("@")[0].toLowerCase();
-          if (["sales", "support", "billing", "careers", "info", "hr", "contact", "marketing", "engineering", "legal"].includes(userPrefix)) {
-            const recipientList = addrList(m.to).map((t) => t.toLowerCase());
-            const ccList = addrList(m.cc).map((t) => t.toLowerCase());
-            const allRecipients = [...recipientList, ...ccList];
-            const matchesDept = allRecipients.some((r) => r.startsWith(`${userPrefix}@`));
-            if (matchesDept) return true;
-            // Filter out system login alerts from other departments
-            const subj = (m.subject || "").toLowerCase();
-            if (subj.includes("new sign-in to admin@") || subj.includes("postmaster")) {
-              return false;
-            }
-            if (allRecipients.some((r) => ["admin@", "info@", "contact@"].some((p) => r.startsWith(p)))) {
-              return false;
-            }
-          }
-        }
-        return true;
-      });
+      list = messages.filter((m) => isInboxMsg(m, selfEmail) && !archivedIds.has(idOf(m)));
     } else if (folder === "spam") {
-      list = messages.filter((m) => !isTrashMsg(m) && isSpamMsg(m));
+      list = messages.filter(
+        (m) => !isTrashMsg(m) && isSpamMsg(m) && getMessageRecipients(m).includes(selfEmail)
+      );
     } else if (folder === "archive") {
-      list = messages.filter((m) => !isTrashMsg(m) && (isArchiveMsg(m) || archivedIds.has(idOf(m))));
+      list = messages.filter(
+        (m) =>
+          !isTrashMsg(m) &&
+          (isArchiveMsg(m) || archivedIds.has(idOf(m))) &&
+          (isInboxMsg(m, selfEmail) || isSentMsg(m, selfEmail))
+      );
     } else {
       const def = FOLDERS.find((f) => f.key === folder);
       list = messages.filter((m) => {
