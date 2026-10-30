@@ -106,6 +106,7 @@ import { ConversationListPane } from "@/components/admin/whatsapp/ConversationLi
 import { BUTTON_TEMPLATES } from "@/lib/button-templates";
 import { countVariables } from "@/lib/meta-templates";
 import { identifyMessageLine, KNOWN_LINES } from "@/lib/wa-numbers";
+import { useDomainConfig } from "@/lib/domain";
 
 type MessageType = "text" | "media" | "buttons" | "list" | "template";
 type TabKey = "inbox" | "pipeline" | "send" | "templates" | "rules" | "flow" | "stats" | "numbers";
@@ -429,14 +430,22 @@ function SenderPicker({
 }
 
 export default function AdminWhatsAppPage() {
+  const { isTmi } = useDomainConfig();
+  const defaultLine = isTmi ? "line2" : "line1";
   const [activeTab, setActiveTab] = useState<TabKey>("inbox");
   const [department, setDepartment] = useState<"general" | "support" | "direct">("general");
   const [prefillRecipient, setPrefillRecipient] = useState<string | null>(null);
   const [prefillSender, setPrefillSender] = useState<string | null>(null);
   const [selectedChatRecipient, setSelectedChatRecipient] = useState<string | null>(null);
 
+  useEffect(() => {
+    if (typeof document !== "undefined") {
+      document.title = isTmi ? "WhatsApp Desk | Tauqeer Mustafa" : "WhatsApp Command Center | Qorlune";
+    }
+  }, [isTmi]);
+
   const { data: numbersData } = useWhatsAppNumbers();
-  const { data: messagesData } = useWhatsAppMessages();
+  const { data: messagesData } = useWhatsAppMessages(defaultLine);
   const { data: metaData } = useConversationMeta();
 
   const apiNumbers = Array.isArray(numbersData?.data) ? numbersData.data : [];
@@ -515,14 +524,14 @@ export default function AdminWhatsAppPage() {
                   className="text-xl font-bold tracking-tight sm:text-2xl"
                   style={{ color: "var(--adm-text)" }}
                 >
-                  WhatsApp Command Center
+                  {isTmi ? "Tauqeer Mustafa WhatsApp Desk" : "WhatsApp Command Center"}
                 </h1>
                 <span className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-semibold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
                   <span className="relative flex h-2 w-2">
                     <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
                     <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
                   </span>
-                  Meta Cloud API Active
+                  {isTmi ? "Direct Line Active" : "Meta Cloud API Active"}
                 </span>
                 <span
                   className="hidden sm:inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-medium border"
@@ -533,11 +542,13 @@ export default function AdminWhatsAppPage() {
                   }}
                 >
                   <Phone size={11} className="text-adm-blue" />
-                  {numbers.length || 4} Lines Live
+                  {isTmi ? "+92 335 6701199" : (generalLine?.displayNumber || "+1 711-091-5975")}
                 </span>
               </div>
               <p className="mt-0.5 text-xs" style={{ color: "var(--adm-text-3)" }}>
-                Omnichannel enterprise messaging: Line 1 (Sales), Line 2 (Support), Line 3 (Executive Desk), Line 4 (Operations)
+                {isTmi
+                  ? "Direct client inquiries & personal executive messaging desk for tauqeermustafa.com (+92 335 6701199)"
+                  : "Omnichannel enterprise messaging: Official Line (+1 711-091-5975)"}
               </p>
             </div>
           </div>
@@ -942,7 +953,9 @@ function InboxTab({
   selectedRecipient?: string | null;
   onClearSelectedRecipient?: () => void;
 }) {
-  const { data, isLoading, isError, refetch } = useWhatsAppMessages();
+  const { isTmi } = useDomainConfig();
+  const defaultLine = isTmi ? "line2" : "line1";
+  const { data, isLoading, isError, refetch } = useWhatsAppMessages(defaultLine);
   const { data: metaData } = useConversationMeta();
   const { data: numbersData } = useWhatsAppNumbers();
   const updateMeta = useUpdateConversationMeta();
@@ -951,8 +964,12 @@ function InboxTab({
   const metaMap = (metaData?.data && typeof metaData.data === "object" && !Array.isArray(metaData.data)) ? metaData.data : {};
   const apiNumbers = Array.isArray(numbersData?.data) ? numbersData.data : [];
 
-  const [lineFilter, setLineFilter] = useState<string>("line1");
+  const [lineFilter, setLineFilter] = useState<string>(defaultLine);
   const [selected, setSelected] = useState<string | null>(selectedRecipient || null);
+
+  useEffect(() => {
+    setLineFilter(defaultLine);
+  }, [defaultLine]);
 
   useEffect(() => {
     if (selectedRecipient) {
@@ -968,8 +985,14 @@ function InboxTab({
   const allMessages = Array.isArray(data?.data) ? data.data : [];
   const numbers = withSeenChannels(apiNumbers, allMessages);
 
-  // Group conversations across all lines and calculate counts
-  const allConversations = groupConversations(allMessages, numbers);
+  // Group conversations across lines and strictly isolate by tenant
+  const rawConversations = groupConversations(allMessages, numbers);
+  const allConversations = rawConversations.filter((c) => {
+    if (isTmi) {
+      return c.lineKey === "line2" || c.channel === "1239592269240963";
+    }
+    return c.lineKey !== "line2" && c.channel !== "1239592269240963";
+  });
   const generalConvs = groupConversations(allMessages, numbers, "general");
   const supportConvs = groupConversations(allMessages, numbers, "support");
   const directConvs = groupConversations(allMessages, numbers, "direct");
@@ -1260,9 +1283,11 @@ function ChatView({
       const match = numbers.find((n) => n.id === channelId || (n.displayNumber && cleanDigits(n.displayNumber) === cleanDigits(channelId)));
       if (match) return match.id;
     }
-    if (conv.lineKey === "line2") {
+    const { isTmi } = useDomainConfig();
+    if (conv.lineKey === "line2" || isTmi) {
       const tauqeer = numbers.find((n) => n.id === "1239592269240963" || n.slot === 2);
       if (tauqeer) return tauqeer.id;
+      return "1239592269240963";
     }
     return numbers.find((n) => n.id === "1433890589802290")?.id || numbers.find((n) => n.primary && n.id !== "944973294966811")?.id || numbers.find((n) => n.id !== "944973294966811")?.id || numbers[0]?.id || "1433890589802290";
   }, [numbers, channelId, conv.lineKey]);
@@ -1469,7 +1494,11 @@ function ChatView({
             title={showDossier ? "Click to toggle contact dossier" : "Click to view contact dossier"}
           >
             {(() => {
-              const lineTheme = { color: "#2563eb", dot: "bg-blue-500", label: "🇺🇸 Qorlune Official (+1 711-091-5975)" };
+              const { isTmi } = useDomainConfig();
+              const isLine2 = conv.lineKey === "line2" || isTmi;
+              const lineTheme = isLine2
+                ? { color: "#059669", dot: "bg-emerald-500", label: "🇵🇰 Tauqeer Mustafa (+92 335 6701199)" }
+                : { color: "#2563eb", dot: "bg-blue-500", label: "🇺🇸 Qorlune Official (+1 711-091-5975)" };
 
               return (
                 <>
@@ -2532,6 +2561,7 @@ function SendTab({
   defaultSender?: string;
   onSent?: (recipient?: string, senderId?: string) => void;
 }) {
+  const { isTmi } = useDomainConfig();
   const [messageType, setMessageType] = useState<MessageType>("text");
   const [recipient, setRecipient] = useState(defaultRecipient);
   const [messageText, setMessageText] = useState("");
@@ -2712,7 +2742,7 @@ function SendTab({
                   ? "Outbound messages will send from executive direct line (Line 3)"
                   : department === "support"
                   ? "Outbound messages will send from client support line"
-                  : "Outbound messages will send from official Qorlune line +1 711-091-5975"}
+                  : isTmi ? "Outbound messages will send from Tauqeer Mustafa direct line +92 335 6701199" : "Outbound messages will send from official Qorlune line +1 711-091-5975"}
               </p>
             </div>
           </div>

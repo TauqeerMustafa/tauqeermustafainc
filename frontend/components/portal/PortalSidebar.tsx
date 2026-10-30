@@ -30,16 +30,27 @@ type Props = { portal: PortalId; isOpen: boolean; onClose: () => void };
 
 export default function PortalSidebar({ portal, isOpen, onClose }: Props) {
   const pathname = usePathname();
-  const [brandName, setBrandName] = useState(company.shortName);
+  const [isTmi, setIsTmi] = useState(() => {
+    if (typeof window !== "undefined") {
+      const host = window.location.hostname.toLowerCase();
+      return !host.includes("qorlune") && !host.endsWith(".co.uk");
+    }
+    return true;
+  });
+  const [brandName, setBrandName] = useState(() => {
+    if (typeof window !== "undefined") {
+      const host = window.location.hostname.toLowerCase();
+      return host.includes("qorlune") || host.endsWith(".co.uk") ? "Qorlune" : "Tauqeer Mustafa";
+    }
+    return "Tauqeer Mustafa";
+  });
 
   useEffect(() => {
     if (typeof window !== "undefined") {
       const host = window.location.hostname.toLowerCase();
-      if (host.includes("tauqeermustafa") || host.includes("tauqeerm") || host.includes("tm.com")) {
-        setBrandName("Tauqeer Mustafa");
-      } else {
-        setBrandName(company.shortName);
-      }
+      const isQor = host.includes("qorlune") || host.endsWith(".co.uk");
+      setIsTmi(!isQor);
+      setBrandName(!isQor ? "Tauqeer Mustafa" : "Qorlune");
     }
   }, []);
   const { data } = useCurrentUser();
@@ -85,14 +96,21 @@ export default function PortalSidebar({ portal, isOpen, onClose }: Props) {
             onClick={onClose}
           >
             <span className="relative flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-none border border-adm-border transition group-hover:border-adm-border-2">
-              <Image src="/logo.png" alt={company.shortName} fill sizes="32px" className="object-contain p-0.5" />
+              <Image
+                src={isTmi ? "/tm-logo.svg" : "/logo.png"}
+                alt={brandName}
+                fill
+                sizes="32px"
+                className="object-contain p-0.5"
+                priority
+              />
             </span>
             <span className="min-w-0">
               <span className="block text-sm font-semibold leading-tight tracking-tight text-adm-text">
                 {brandName}
               </span>
               <span className="block truncate text-[11px] font-medium tracking-wide text-adm-blue">
-                {t(PORTAL_LABEL[portal])} {t("Portal")}
+                {isTmi ? (portal === "admin" ? "Executive Portal" : `${t(PORTAL_LABEL[portal])} Portal`) : `${t(PORTAL_LABEL[portal])} ${t("Portal")}`}
               </span>
             </span>
           </Link>

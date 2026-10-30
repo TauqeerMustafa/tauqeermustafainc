@@ -349,42 +349,55 @@ export function identifyMessageLine(
   const ch = (m.channel || "").trim();
   const chDigits = ch.replace(/[^0-9]/g, "");
 
-  const to = (m.to || "").trim();
-  const toDigits = to.replace(/[^0-9]/g, "");
-
-  const from = (m.from || "").trim();
-  const fromDigits = from.replace(/[^0-9]/g, "");
-
-  const candidates = [ch, chDigits, to, toDigits, from, fromDigits].filter(Boolean);
-  const matchesAny = (set: string[]) => candidates.some((c) => set.includes(c));
-
-  // 1. Direct Tauqeer Mustafa line identifiers (+92 335 6701199 / 033356701199 / Phone ID 1239592269240963)
+  // 1. Explicit business channel / Meta Phone Number ID (Most reliable)
   if (
-    matchesAny([
-      "1239592269240963",
-      "1363415125370805",
-      "923356701199",
-      "3356701199",
-      "03356701199",
-      "923335670119",
-      "03335670119",
-      "033356701199",
-      "9233356701199",
-    ])
+    ch === DEFAULT_PK_ID ||
+    ch === ALIAS_PK_ID ||
+    chDigits === "1239592269240963" ||
+    chDigits === "1363415125370805" ||
+    chDigits.includes("3356701199") ||
+    chDigits.includes("3335670119")
   ) {
     return KNOWN_LINES.line2;
   }
 
-  // 2. Direct Qorlune line identifiers (+1 711-091-5975 / +1 711-249-4712 / Phone ID 1433890589802290 / WABA 944973294966811)
   if (
-    matchesAny([
-      "1433890589802290",
-      "944973294966811",
-      "17110915975",
-      "17112494712",
-      "7110915975",
-      "7112494712",
-    ])
+    ch === DEFAULT_QORLUNE_ID ||
+    ch === "944973294966811" ||
+    chDigits === "1433890589802290" ||
+    chDigits === "944973294966811" ||
+    chDigits.includes("17110915975") ||
+    chDigits.includes("7110915975") ||
+    chDigits.includes("17112494712") ||
+    chDigits.includes("7112494712")
+  ) {
+    return KNOWN_LINES.line1;
+  }
+
+  // 2. Direction-aware business phone inspection when channel is omitted:
+  // Outbound: business is `from`. Inbound: business is `to`.
+  const bizNumber = (m.direction === "outbound" ? m.from : m.to) || "";
+  const bizDigits = bizNumber.replace(/[^0-9]/g, "");
+
+  if (
+    bizNumber === DEFAULT_PK_ID ||
+    bizNumber === ALIAS_PK_ID ||
+    bizDigits === "1239592269240963" ||
+    bizDigits === "1363415125370805" ||
+    bizDigits.includes("3356701199") ||
+    bizDigits.includes("3335670119")
+  ) {
+    return KNOWN_LINES.line2;
+  }
+
+  if (
+    bizNumber === DEFAULT_QORLUNE_ID ||
+    bizDigits === "1433890589802290" ||
+    bizDigits === "944973294966811" ||
+    bizDigits.includes("17110915975") ||
+    bizDigits.includes("7110915975") ||
+    bizDigits.includes("17112494712") ||
+    bizDigits.includes("7112494712")
   ) {
     return KNOWN_LINES.line1;
   }
@@ -395,9 +408,12 @@ export function identifyMessageLine(
       const numDigits = (num.id || "").replace(/[^0-9]/g, "");
       const dispDigits = (num.displayNumber || "").replace(/[^0-9]/g, "");
       if (
-        candidates.some(
-          (c) => c === num.id || (numDigits && c === numDigits) || (dispDigits && c === dispDigits)
-        )
+        ch === num.id ||
+        (numDigits && chDigits === numDigits) ||
+        (dispDigits && chDigits === dispDigits) ||
+        bizNumber === num.id ||
+        (numDigits && bizDigits === numDigits) ||
+        (dispDigits && bizDigits === dispDigits)
       ) {
         const slotKey = `line${num.slot || 1}`;
         if (KNOWN_LINES[slotKey]) return KNOWN_LINES[slotKey];
@@ -412,10 +428,6 @@ export function identifyMessageLine(
     }
   }
 
-  // 4. Inbound / Outbound channel evaluation
-  if (ch === "1239592269240963" || ch.includes("3356701199") || ch.includes("3335670119")) {
-    return KNOWN_LINES.line2;
-  }
-
+  // Default fallback is Qorlune Line 1
   return KNOWN_LINES.line1;
 }

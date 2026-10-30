@@ -92,6 +92,42 @@ export default function PortalHeader({ portal, onMenuClick }: Props) {
 
   const derived = usePortalNotifications(portal);
 
+  const [isTmi, setIsTmi] = useState(() => {
+    if (typeof window !== "undefined") {
+      const host = window.location.hostname.toLowerCase();
+      return !host.includes("qorlune") && !host.endsWith(".co.uk");
+    }
+    return true;
+  });
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const host = window.location.hostname.toLowerCase();
+      const tmi = !host.includes("qorlune") && !host.endsWith(".co.uk");
+      setIsTmi(tmi);
+      if (tmi && typeof document !== "undefined") {
+        document.title = "Tauqeer Mustafa Admin Portal";
+      }
+    }
+  }, []);
+
+  const displayName = useMemo(() => {
+    if (isTmi) {
+      if (!user?.name || user.name.toLowerCase().includes("qorlune")) {
+        return "Tauqeer Mustafa";
+      }
+      return user.name;
+    }
+    return user?.name ?? t("User");
+  }, [isTmi, user?.name, t]);
+
+  const displayAvatar = useMemo(() => {
+    if (isTmi && (!user?.avatarUrl || user.avatarUrl.includes("qorlune"))) {
+      return "/founder.jpg";
+    }
+    return user?.avatarUrl;
+  }, [isTmi, user?.avatarUrl]);
+
   const [notifOpen, setNotifOpen] = useState(false);
   const [paletteOpen, setPaletteOpen] = useState(false);
   const [state, setState] = useState<NotifState>(readState);
@@ -369,10 +405,10 @@ export default function PortalHeader({ portal, onMenuClick }: Props) {
 
         {/* Identity plate */}
         <div className="hidden items-center gap-2.5 rounded-none border border-adm-border bg-adm-surface-2/60 px-3 py-1 sm:flex">
-          <Avatar name={user?.name} src={user?.avatarUrl} size={26} />
+          <Avatar name={displayName} src={displayAvatar} size={26} />
           <div className="min-w-0">
             <p className="truncate text-xs font-semibold leading-tight text-adm-text">
-              {user?.name ?? t("User")}
+              {displayName}
             </p>
             <p className="truncate text-[9px] font-medium uppercase tracking-wider text-adm-text-3">
               {roleLabel(user?.role)}

@@ -1,4 +1,5 @@
 "use client";
+import { useDomainConfig } from "@/lib/domain";
 
 import { useState } from "react";
 import {
@@ -95,7 +96,17 @@ export function ConversationListPane({
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
 
-  const withDetails = conversations.map((conv) => {
+  const { isTmi } = useDomainConfig();
+
+  // Strict tenant segregation
+  const tenantConversations = conversations.filter((c) => {
+    if (isTmi) {
+      return c.lineKey === "line2" || c.channel === "1239592269240963";
+    }
+    return c.lineKey !== "line2" && c.channel !== "1239592269240963";
+  });
+
+  const withDetails = tenantConversations.map((conv) => {
     const meta = metaMap[conv.key] || metaMap[conv.number];
     const since = meta?.lastReadAt ? new Date(meta.lastReadAt).getTime() : 0;
     const unread = conv.messages.filter(
@@ -163,10 +174,10 @@ export function ConversationListPane({
           </div>
           <div>
             <h2 className="text-sm font-bold leading-tight" style={{ color: "var(--adm-text)" }}>
-              WhatsApp Inbox
+              {isTmi ? "Tauqeer Mustafa Inbox" : "WhatsApp Inbox"}
             </h2>
             <p className="text-[11px] font-medium" style={{ color: "var(--adm-text-3)" }}>
-              Unified Command Stream
+              {isTmi ? "+92 335 6701199 (Direct)" : "+1 711-091-5975 (Official)"}
             </p>
           </div>
         </div>
@@ -187,67 +198,39 @@ export function ConversationListPane({
       >
         {/* Line selection tabs */}
         <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
-          {/* Qorlune Official Line */}
-          <button
-            type="button"
-            onClick={() => onDepartmentChange("line1")}
-            className={`flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1 text-[11px] font-bold transition ${
-              currentDepartment === "line1"
-                ? "bg-blue-600 text-white shadow-sm"
-                : "bg-adm-surface-2 text-adm-text-2 border border-adm-border hover:border-adm-text-3 hover:text-adm-text"
-            }`}
-            title="Qorlune Official (qorlune.co.uk | +1 711-091-5975)"
-          >
-            <span className="h-1.5 w-1.5 rounded-full bg-blue-400" />
-            <span>🇺🇸 Qorlune (+1 711)</span>
-            {(unreadCounts.line1 ?? 0) > 0 && (
-              <span className="flex h-4 min-w-[16px] items-center justify-center rounded-full bg-blue-500 px-1 text-[9px] font-bold text-white">
-                {unreadCounts.line1}
-              </span>
-            )}
-          </button>
-
-          {/* Tauqeer Mustafa Line */}
-          <button
-            type="button"
-            onClick={() => onDepartmentChange("line2")}
-            className={`flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1 text-[11px] font-bold transition ${
-              currentDepartment === "line2"
-                ? "bg-emerald-600 text-white shadow-sm"
-                : "bg-adm-surface-2 text-adm-text-2 border border-adm-border hover:border-adm-text-3 hover:text-adm-text"
-            }`}
-            title="Tauqeer Mustafa (tauqeermustafa.com | +92 335 6701199)"
-          >
-            <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
-            <span>🇵🇰 Tauqeer Mustafa (tauqeermustafa.com)</span>
-            {(unreadCounts.line2 ?? 0) > 0 && (
-              <span className="flex h-4 min-w-[16px] items-center justify-center rounded-full bg-emerald-500 px-1 text-[9px] font-bold text-white">
-                {unreadCounts.line2}
-              </span>
-            )}
-          </button>
-
-          {/* All Messages */}
-          <button
-            type="button"
-            onClick={() => onDepartmentChange("all")}
-            className={`flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1 text-[11px] font-bold transition ${
-              currentDepartment === "all"
-                ? "bg-adm-text text-adm-bg shadow-sm"
-                : "bg-adm-surface-2 text-adm-text-2 border border-adm-border hover:border-adm-text-3 hover:text-adm-text"
-            }`}
-          >
-            <span>All Messages</span>
-            <span
-              className={`rounded-full px-1.5 py-0.2 text-[10px] font-semibold ${
-                currentDepartment === "all"
-                  ? "bg-adm-bg/20 text-adm-bg"
-                  : "bg-adm-surface text-adm-text-3"
-              }`}
+          {!isTmi ? (
+            /* Qorlune Line (Only on qorlune.co.uk) */
+            <button
+              type="button"
+              onClick={() => onDepartmentChange("line1")}
+              className="flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1 text-[11px] font-bold bg-blue-600 text-white shadow-sm"
+              title="Qorlune Official (qorlune.co.uk | +1 711-091-5975)"
             >
-              {unreadCounts.total}
-            </span>
-          </button>
+              <span className="h-1.5 w-1.5 rounded-full bg-blue-400" />
+              <span>🇺🇸 Qorlune (+1 711)</span>
+              {(unreadCounts.line1 ?? 0) > 0 && (
+                <span className="flex h-4 min-w-[16px] items-center justify-center rounded-full bg-blue-500 px-1 text-[9px] font-bold text-white">
+                  {unreadCounts.line1}
+                </span>
+              )}
+            </button>
+          ) : (
+            /* Tauqeer Mustafa Line (Only on tauqeermustafa.com) */
+            <button
+              type="button"
+              onClick={() => onDepartmentChange("line2")}
+              className="flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1 text-[11px] font-bold bg-emerald-600 text-white shadow-sm"
+              title="Tauqeer Mustafa (tauqeermustafa.com | +92 335 6701199)"
+            >
+              <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
+              <span>🇵🇰 Tauqeer Mustafa (+92 335 6701199)</span>
+              {(unreadCounts.line2 ?? 0) > 0 && (
+                <span className="flex h-4 min-w-[16px] items-center justify-center rounded-full bg-emerald-500 px-1 text-[9px] font-bold text-white">
+                  {unreadCounts.line2}
+                </span>
+              )}
+            </button>
+          )}
         </div>
 
         {/* Search Input */}

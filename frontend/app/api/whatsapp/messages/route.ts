@@ -37,7 +37,11 @@ export async function GET(request: Request) {
     }
 
     const { searchParams } = new URL(request.url);
-    const channelParam = (searchParams.get("channel") || searchParams.get("line") || "").trim();
+    const host = (request.headers.get("x-forwarded-host") || request.headers.get("host") || "").toLowerCase();
+    const isTmi = host.includes("tauqeermustafa") || host.includes("tauqeerm") || host.includes("tm.com") || searchParams.get("tenant") === "tauqeermustafa";
+
+    const explicitChannel = searchParams.get("channel") || searchParams.get("line");
+    const channelParam = (explicitChannel || (isTmi ? "line2" : "line1")).trim();
 
     let messages = await getMessages();
 
@@ -48,6 +52,12 @@ export async function GET(request: Request) {
           return line.lineKey === channelParam;
         }
         return line.canonicalId === channelParam || m.channel === channelParam;
+      });
+    } else {
+      // Default tenant guard when no specific channel is passed
+      messages = messages.filter((m) => {
+        const line = identifyMessageLine(m);
+        return isTmi ? line.lineKey === "line2" : line.lineKey === "line1";
       });
     }
 

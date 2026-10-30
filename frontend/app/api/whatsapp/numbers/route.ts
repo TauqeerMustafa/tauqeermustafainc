@@ -250,7 +250,15 @@ export async function GET(request: Request) {
   registerKnownNumbers(finalNumbers);
 
   cache = { at: Date.now(), data: finalNumbers };
-  return NextResponse.json({ success: true, data: finalNumbers });
+
+  // Tenant-specific isolation
+  const host = (request.headers.get("x-forwarded-host") || request.headers.get("host") || "").toLowerCase();
+  const isTmi = host.includes("tauqeermustafa") || host.includes("tauqeerm") || host.includes("tm.com") || new URL(request.url).searchParams.get("tenant") === "tauqeermustafa";
+
+  const tenantNumbers = isTmi ? [tauqeerItem].filter(Boolean) : [qorluneItem].filter(Boolean);
+
+  return NextResponse.json({ success: true, data: tenantNumbers.length ? tenantNumbers : finalNumbers });
+  
   } catch (err: any) {
     console.error("[numbers] GET error:", err);
     const configured = waNumbers();
