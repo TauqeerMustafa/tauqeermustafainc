@@ -430,7 +430,7 @@ function SenderPicker({
 }
 
 export default function AdminWhatsAppPage() {
-  const { isTmi } = useDomainConfig();
+  const { isTmi, isTech, isCom, isQorlune } = useDomainConfig();
   const defaultLine = isTmi ? "line2" : "line1";
   const [activeTab, setActiveTab] = useState<TabKey>("inbox");
   const [department, setDepartment] = useState<"general" | "support" | "direct">("general");
@@ -986,17 +986,19 @@ function InboxTab({
   if (isError)
     return <AdminErrorState message="Could not load messages. Check your WhatsApp configuration." />;
 
-  const allMessages = Array.isArray(data?.data) ? data.data : [];
+  const rawMessages = Array.isArray(data?.data) ? data.data : [];
+  const allMessages = rawMessages.filter((m) => {
+    const line = identifyMessageLine(m);
+    if (isTmi) {
+      return line.lineKey === "line2" || line.canonicalId === "1239592269240963" || m.channel === "1239592269240963";
+    }
+    return line.lineKey !== "line2" && line.canonicalId !== "1239592269240963" && m.channel !== "1239592269240963";
+  });
   const numbers = withSeenChannels(apiNumbers, allMessages);
 
   // Group conversations across lines and strictly isolate by tenant
   const rawConversations = groupConversations(allMessages, numbers);
-  const allConversations = rawConversations.filter((c) => {
-    if (isTmi) {
-      return c.lineKey === "line2" || c.channel === "1239592269240963";
-    }
-    return c.lineKey !== "line2" && c.channel !== "1239592269240963";
-  });
+  const allConversations = rawConversations;
   const generalConvs = groupConversations(allMessages, numbers, "general");
   const supportConvs = groupConversations(allMessages, numbers, "support");
   const directConvs = groupConversations(allMessages, numbers, "direct");

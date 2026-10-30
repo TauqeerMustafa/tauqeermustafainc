@@ -109,27 +109,39 @@ export default function PortalHeader({ portal, onMenuClick }: Props) {
   }, [domainConfig]);
 
   const displayName = useMemo(() => {
-    if (domainConfig.isTech) {
-      if (!user?.name || user.name.toLowerCase().includes("qorlune")) {
-        return "Tauqeer Mustafa Tech";
-      }
-      return user.name;
+    if (user?.role === "admin" || !user?.role) {
+      if (domainConfig.isTech) return "Tauqeer Mustafa Tech";
+      if (domainConfig.isCom) return "Tauqeer Mustafa";
+      return "Qorlune Admin";
     }
-    if (domainConfig.isCom) {
-      if (!user?.name || user.name.toLowerCase().includes("qorlune")) {
-        return "Tauqeer Mustafa";
-      }
-      return user.name;
+    if (domainConfig.isTech && user?.name?.toLowerCase().includes("qorlune")) {
+      return "Tauqeer Mustafa Tech";
+    }
+    if (domainConfig.isCom && user?.name?.toLowerCase().includes("qorlune")) {
+      return "Tauqeer Mustafa";
     }
     return user?.name ?? t("User");
-  }, [domainConfig.isTech, domainConfig.isCom, user?.name, t]);
+  }, [domainConfig.isTech, domainConfig.isCom, user?.name, user?.role, t]);
 
   const displayAvatar = useMemo(() => {
-    if ((domainConfig.isTech || domainConfig.isCom) && (!user?.avatarUrl || user.avatarUrl.includes("qorlune"))) {
+    if (user?.role === "admin" || !user?.role) {
+      if (domainConfig.isTech || domainConfig.isCom) return "/founder.jpg";
+      return "/logo.png";
+    }
+    if ((domainConfig.isTech || domainConfig.isCom) && (!user?.avatarUrl || user.avatarUrl.includes("logo") || user.avatarUrl.includes("qorlune"))) {
       return "/founder.jpg";
     }
     return user?.avatarUrl;
-  }, [domainConfig.isTech, domainConfig.isCom, user?.avatarUrl]);
+  }, [domainConfig.isTech, domainConfig.isCom, user?.avatarUrl, user?.role]);
+
+  const displayRoleLabel = useMemo(() => {
+    if (user?.role === "admin" || !user?.role) {
+      if (domainConfig.isTech) return "Tech Administrator";
+      if (domainConfig.isCom) return "Executive Administrator";
+      return "Administrator";
+    }
+    return roleLabel(user?.role);
+  }, [domainConfig.isTech, domainConfig.isCom, user?.role]);
 
   const [notifOpen, setNotifOpen] = useState(false);
   const [paletteOpen, setPaletteOpen] = useState(false);
@@ -414,7 +426,7 @@ export default function PortalHeader({ portal, onMenuClick }: Props) {
               {displayName}
             </p>
             <p className="truncate text-[9px] font-medium uppercase tracking-wider text-adm-text-3">
-              {domainConfig.isTech ? "Tech Administrator" : domainConfig.isCom ? "Executive Administrator" : roleLabel(user?.role)}
+              {displayRoleLabel}
             </p>
           </div>
         </div>

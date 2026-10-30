@@ -131,8 +131,16 @@ export async function allowedMailboxes(
 }
 
 /** Resolve + authorize one mailbox id, throwing 403 when it is out of the user's scope. */
-export async function assertMailboxAccess(user: MailUser, mailboxId: string): Promise<Mailbox> {
-  const all = await allowedMailboxes(user);
+export async function assertMailboxAccess(
+  user: MailUser,
+  mailboxId: string,
+  domain?: string | null,
+  request?: Request,
+): Promise<Mailbox> {
+  if (user.isAdmin) {
+    return { id: mailboxId, primaryAddress: mailboxId };
+  }
+  const all = await allowedMailboxes(user, domain, request);
   const mb = all.find((m) => m.id === mailboxId || m.primaryAddress.toLowerCase() === mailboxId.toLowerCase());
   if (!mb) throw new MailAuthError(403, "You do not have access to that mailbox.");
   return mb;

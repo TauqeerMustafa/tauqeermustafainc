@@ -42,6 +42,7 @@ import {
   XCircle,
 } from "lucide-react";
 
+import { useDomainConfig } from "@/lib/domain";
 import { getStoredToken } from "@/lib/auth-storage";
 import { apiRequest } from "@/lib/api-client";
 import { sanitizeHtml } from "@/lib/sanitize-html";
@@ -450,6 +451,26 @@ function isSentMsg(msg: Message, currentEmail: string): boolean {
   return sender.toLowerCase() === currentEmail.toLowerCase().trim();
 }
 
+function isDomainMessage(msg: Message, scope: "tech" | "com" | "qorlune"): boolean {
+  const recipients = getMessageRecipients(msg);
+  const fromAddr = rawEmail(msg.from);
+  const allAddrs = [...recipients, fromAddr];
+  if (scope === "tech") {
+    return allAddrs.some((a) => a.endsWith("@tauqeermustafa.tech"));
+  }
+  if (scope === "com") {
+    return allAddrs.some(
+      (a) =>
+        a.endsWith("@tauqeermustafa.com") ||
+        a.endsWith("@tauqeerm.com") ||
+        a.endsWith("@tm.com")
+    );
+  }
+  return allAddrs.some(
+    (a) => a.endsWith("@qorlune.co.uk") || a.endsWith("@qorlune.com")
+  );
+}
+
 function isInboxMsg(msg: Message, currentEmail: string): boolean {
   if (isTrashMsg(msg)) return false;
   if (isSpamMsg(msg)) return false;
@@ -469,17 +490,21 @@ function isInboxMsg(msg: Message, currentEmail: string): boolean {
   if (recipients.includes(target)) return true;
 
   // 2. Catch-all for .tech mailboxes (admin@tauqeermustafa.tech, info@tauqeermustafa.tech)
-  if (target.endsWith("@tauqeermustafa.tech")) {
-    const isTechCatchAll = recipients.some((r) => r.endsWith("@tauqeermustafa.tech"));
+  if (target === "admin@tauqeermustafa.tech" || target === "info@tauqeermustafa.tech") {
+    const knownTechDepts = ["contact@", "support@", "sales@", "billing@"];
+    const isTechCatchAll = recipients.some(
+      (r) => r.endsWith("@tauqeermustafa.tech") && !knownTechDepts.some((dept) => r.startsWith(dept))
+    );
     if (isTechCatchAll) return true;
   }
 
   // 3. Catch-all for .com mailboxes (tech@tauqeermustafa.com or admin@tauqeermustafa.com)
   if (target === "tech@tauqeermustafa.com" || target === "admin@tauqeermustafa.com") {
+    const knownComDepts = ["sales@", "support@", "billing@", "contact@", "hr@", "careers@", "legal@", "marketing@", "tauqeer@", "engineering@", "business@"];
     const isComCatchAll = recipients.some(
       (r) =>
         r.endsWith("@tauqeermustafa.com") &&
-        !["sales@", "support@", "billing@", "contact@", "hr@", "careers@", "legal@", "marketing@", "tauqeer@"].some((p) => r.startsWith(p))
+        !knownComDepts.some((dept) => r.startsWith(dept))
     );
     if (isComCatchAll) return true;
   }
@@ -512,14 +537,11 @@ export default function Webmail({
   initialSubject?: string;
   autoCompose?: boolean;
 }) {
-  const [currentDomainScope, setCurrentDomainScope] = useState<"tech" | "com" | "qorlune">(() => {
-    if (typeof window !== "undefined") {
-      const host = window.location.hostname.toLowerCase();
-      if (host.includes(".tech") || host.includes("tech")) return "tech";
-      if (host.includes("qorlune") || host.endsWith(".co.uk")) return "qorlune";
-    }
-    return "com";
-  });
+  const domainConfig = useDomainConfig();
+  const [currentDomainScope, setCurrentDomainScope] = useState<"tech" | "com" | "qorlune">(() => domainConfig.tenant);
+  useEffect(() => {
+    setCurrentDomainScope(domainConfig.tenant);
+  }, [domainConfig.tenant]);
   const [mailboxes, setMailboxes] = useState<Mailbox[]>([]);
   const [activeId, setActiveId] = useState<string>("");
   const [activeAddress, setActiveAddress] = useState<string>("");
@@ -597,12 +619,29 @@ export default function Webmail({
   const searchRef = useRef<HTMLInputElement>(null);
   const mbDropdownRef = useRef<HTMLDivElement>(null);
 
+  const filteredMailboxes = useMemo(() => {
+    return mailboxes.filter((mb) => {
+      const addr = (mb.primaryAddress || "").toLowerCase().trim();
+      if (currentDomainScope === "tech") {
+        return addr.endsWith("@tauqeermustafa.tech");
+      }
+      if (currentDomainScope === "com") {
+        return (
+          addr.endsWith("@tauqeermustafa.com") ||
+          addr.endsWith("@tauqeerm.com") ||
+          addr.endsWith("@tm.com")
+        );
+      }
+      return addr.endsWith("@qorlune.co.uk") || addr.endsWith("@qorlune.com");
+    });
+  }, [mailboxes, currentDomainScope]);
+
   const active =
-    mailboxes.find(
+    filteredMailboxes.find(
       (m) =>
         (activeAddress && m.primaryAddress?.toLowerCase() === activeAddress.toLowerCase()) ||
         (!activeAddress && m.id === activeId),
-    ) ?? null;
+    ) ?? filteredMailboxes[0] ?? null;
   const selfEmail = active?.primaryAddress?.toLowerCase() ?? "";
 
   // Close mailbox dropdown when clicking outside
@@ -1264,7 +1303,11 @@ export default function Webmail({
         });
     } else if (folder === "all") {
       list = messages.filter(
-        (m) => !isTrashMsg(m) && (isInboxMsg(m, selfEmail) || isSentMsg(m, selfEmail))
+        (m) =>
+          !isTrashMsg(m) &&
+          (isDomainMessage(m, currentDomainScope) ||
+            isInboxMsg(m, selfEmail) ||
+            isSentMsg(m, selfEmail))
       );
     } else if (folder === "starred") {
       list = [...messages, ...trash].filter(
@@ -1497,54 +1540,33 @@ export default function Webmail({
         } w-56 lg:w-60 shrink-0 flex-col border-r transition-all`}
         style={{ borderColor: "var(--adm-border)", background: "var(--adm-surface-2)" }}
       >
-        {/* Three-Way Isolated Portal Selector */}
+        {/* Isolated Portal Indicator */}
         <div className="border-b p-2.5" style={{ borderColor: "var(--adm-border)" }}>
-          <div className="flex items-center gap-1 rounded-lg border p-1" style={{ borderColor: "var(--adm-border)", background: "var(--adm-surface)" }}>
-            <button
-              type="button"
-              onClick={() => {
-                setCurrentDomainScope("com");
-                loadMailboxes("com");
-              }}
-              className={`flex-1 rounded-md px-1.5 py-1 text-[11px] font-bold transition ${
-                currentDomainScope === "com"
-                  ? "bg-blue-600 text-white shadow-sm"
-                  : "text-adm-text-3 hover:text-adm-text hover:bg-adm-surface-2"
-              }`}
-              title="Tauqeer Mustafa (.com)"
-            >
-              .com
-            </button>
-            <button
-              type="button"
-              onClick={() => {
-                setCurrentDomainScope("tech");
-                loadMailboxes("tech");
-              }}
-              className={`flex-1 rounded-md px-1.5 py-1 text-[11px] font-bold transition ${
+          <div
+            className={`flex items-center justify-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-[11px] font-bold ${
+              currentDomainScope === "tech"
+                ? "border-purple-500/20 bg-purple-500/10 text-purple-600 dark:text-purple-400"
+                : currentDomainScope === "com"
+                ? "border-blue-500/20 bg-blue-500/10 text-blue-600 dark:text-blue-400"
+                : "border-pink-500/20 bg-pink-500/10 text-pink-600 dark:text-pink-400"
+            }`}
+          >
+            <span
+              className={`h-1.5 w-1.5 rounded-full ${
                 currentDomainScope === "tech"
-                  ? "bg-purple-600 text-white shadow-sm"
-                  : "text-adm-text-3 hover:text-adm-text hover:bg-adm-surface-2"
+                  ? "bg-purple-500"
+                  : currentDomainScope === "com"
+                  ? "bg-blue-500"
+                  : "bg-pink-500"
               }`}
-              title="Tauqeer Mustafa Tech (.tech)"
-            >
-              .tech
-            </button>
-            <button
-              type="button"
-              onClick={() => {
-                setCurrentDomainScope("qorlune");
-                loadMailboxes("qorlune");
-              }}
-              className={`flex-1 rounded-md px-1.5 py-1 text-[11px] font-bold transition ${
-                currentDomainScope === "qorlune"
-                  ? "bg-pink-600 text-white shadow-sm"
-                  : "text-adm-text-3 hover:text-adm-text hover:bg-adm-surface-2"
-              }`}
-              title="Qorlune LLC (.co.uk)"
-            >
-              Qorlune
-            </button>
+            />
+            <span>
+              {currentDomainScope === "tech"
+                ? "Tauqeer Mustafa Tech (.tech)"
+                : currentDomainScope === "com"
+                ? "Tauqeer Mustafa Inc. (.com)"
+                : "Qorlune LLC (.co.uk)"}
+            </span>
           </div>
         </div>
 
@@ -1573,13 +1595,13 @@ export default function Webmail({
               <ChevronDown size={13} style={{ color: "var(--adm-text-3)" }} />
             </button>
 
-            {mbOpen && mailboxes.length > 0 && (
+            {mbOpen && filteredMailboxes.length > 0 && (
               <div
                 className="absolute left-0 top-full z-40 mt-1 max-h-60 w-full overflow-y-auto rounded-xl border shadow-xl"
                 style={{ borderColor: "var(--adm-border)", background: "var(--adm-surface)" }}
               >
                 <div className="p-1">
-                  {mailboxes.map((mb) => {
+                  {filteredMailboxes.map((mb) => {
                     const isCur =
                       (activeAddress && mb.primaryAddress?.toLowerCase() === activeAddress.toLowerCase()) ||
                       (!activeAddress && mb.id === activeId);

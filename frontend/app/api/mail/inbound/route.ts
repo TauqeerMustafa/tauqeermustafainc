@@ -44,15 +44,31 @@ export async function POST(request: Request) {
     // 2. Dispatch automated email reply with resolution
     if (autoReply && analysis.replyText) {
       try {
+        let replyFrom = "notifications@qorlune.co.uk";
+        let replyFromName = "Qorlune LLC Support Desk";
+        const lowerTo = String(body.to || body.recipient || body.envelopeTo || "").toLowerCase();
+
+        if (lowerTo.endsWith("@tauqeermustafa.tech")) {
+          replyFrom = "info@tauqeermustafa.tech";
+          replyFromName = "Tauqeer Mustafa Tech Helpdesk";
+        } else if (
+          lowerTo.endsWith("@tauqeermustafa.com") ||
+          lowerTo.endsWith("@tauqeerm.com") ||
+          lowerTo.endsWith("@tm.com")
+        ) {
+          replyFrom = "contact@tauqeermustafa.com";
+          replyFromName = "Tauqeer Mustafa Inc. Desk";
+        }
+
         await sendOpenEmailMessage(mailboxId, {
-          from: "notifications@qorlune.co.uk",
-          fromName: "Qorlune LLC Support Desk",
+          from: replyFrom,
+          fromName: replyFromName,
           to: [from],
           subject: subject.toLowerCase().startsWith("re:") ? subject : `Re: ${subject}`,
           text: analysis.replyText,
         });
         replied = true;
-        console.log(`[mail/inbound] Automated resolution sent to ${from}`);
+        console.log(`[mail/inbound] Automated resolution sent to ${from} from ${replyFrom}`);
       } catch (err: any) {
         replyError = err?.message || String(err);
         console.error(`[mail/inbound] Failed to dispatch email reply:`, err);
