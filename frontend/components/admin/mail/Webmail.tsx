@@ -442,13 +442,35 @@ function isSentDirection(msg: Message): boolean {
   return labelNames(msg).some((l) => ["sent", "outbox"].includes(l));
 }
 
-function isSentMsg(msg: Message, currentEmail: string): boolean {
+function isSentMsg(msg: Message, currentEmail: string, scope?: "tech" | "com" | "qorlune"): boolean {
   if (isTrashMsg(msg)) return false;
   if (!isSentDirection(msg)) return false;
-  if (!currentEmail) return true;
+  const target = currentEmail?.toLowerCase().trim() || "";
+  const sender = rawEmail(msg.from).toLowerCase().trim();
 
-  const sender = rawEmail(msg.from);
-  return sender.toLowerCase() === currentEmail.toLowerCase().trim();
+  if (!target || target.startsWith("all ") || target.startsWith("all@")) {
+    if (scope) return isDomainMessage(msg, scope);
+    return true;
+  }
+
+  if (sender === target) return true;
+
+  // Primary administrator address sees all domain outbound mail
+  if (target === "admin@tauqeermustafa.tech" || target === "info@tauqeermustafa.tech") {
+    return sender.endsWith("@tauqeermustafa.tech");
+  }
+  if (target === "admin@tauqeermustafa.com" || target === "tech@tauqeermustafa.com") {
+    return (
+      sender.endsWith("@tauqeermustafa.com") ||
+      sender.endsWith("@tauqeerm.com") ||
+      sender.endsWith("@tm.com")
+    );
+  }
+  if (target === "admin@qorlune.co.uk") {
+    return sender.endsWith("@qorlune.co.uk") || sender.endsWith("@qorlune.com");
+  }
+
+  return false;
 }
 
 function isDomainMessage(msg: Message, scope: "tech" | "com" | "qorlune"): boolean {
@@ -471,7 +493,7 @@ function isDomainMessage(msg: Message, scope: "tech" | "com" | "qorlune"): boole
   );
 }
 
-function isInboxMsg(msg: Message, currentEmail: string): boolean {
+function isInboxMsg(msg: Message, currentEmail: string, scope?: "tech" | "com" | "qorlune"): boolean {
   if (isTrashMsg(msg)) return false;
   if (isSpamMsg(msg)) return false;
   if (isArchiveMsg(msg)) return false;
@@ -484,43 +506,31 @@ function isInboxMsg(msg: Message, currentEmail: string): boolean {
     return Boolean(target && recipients.includes(target));
   }
 
-  if (!target) return true;
+  // Unified "All Domain Mailboxes" selection
+  if (!target || target.startsWith("all ") || target.startsWith("all@")) {
+    if (scope) return isDomainMessage(msg, scope);
+    return true;
+  }
 
   // 1. Direct recipient match
   if (recipients.includes(target)) return true;
 
-  // 2. Catch-all for .tech mailboxes (admin@tauqeermustafa.tech, info@tauqeermustafa.tech)
+  // 2. Main administrator mailboxes show all incoming domain mail so zero emails are dropped
   if (target === "admin@tauqeermustafa.tech" || target === "info@tauqeermustafa.tech") {
-    const knownTechDepts = ["contact@", "support@", "sales@", "billing@"];
-    const isTechCatchAll = recipients.some(
-      (r) => r.endsWith("@tauqeermustafa.tech") && !knownTechDepts.some((dept) => r.startsWith(dept))
-    );
-    if (isTechCatchAll) return true;
+    return recipients.some((r) => r.endsWith("@tauqeermustafa.tech"));
   }
 
-  // 3. Catch-all for .com mailboxes (tech@tauqeermustafa.com or admin@tauqeermustafa.com)
-  if (target === "tech@tauqeermustafa.com" || target === "admin@tauqeermustafa.com") {
-    const knownComDepts = ["sales@", "support@", "billing@", "contact@", "hr@", "careers@", "legal@", "marketing@", "tauqeer@", "engineering@", "business@"];
-    const isComCatchAll = recipients.some(
+  if (target === "admin@tauqeermustafa.com" || target === "tech@tauqeermustafa.com") {
+    return recipients.some(
       (r) =>
-        r.endsWith("@tauqeermustafa.com") &&
-        !knownComDepts.some((dept) => r.startsWith(dept))
+        r.endsWith("@tauqeermustafa.com") ||
+        r.endsWith("@tauqeerm.com") ||
+        r.endsWith("@tm.com")
     );
-    if (isComCatchAll) return true;
   }
 
-  // 3. Catch-all for admin@qorlune.co.uk:
-  // Receives unrecognized addresses on @qorlune.co.uk if no specific department was addressed
   if (target === "admin@qorlune.co.uk") {
-    const knownQorluneDepts = [
-      "sales@", "support@", "billing@", "contact@", "hr@", "careers@",
-      "legal@", "marketing@", "engineering@", "partnerships@", "business@",
-      "notifications@", "tauqeer@"
-    ];
-    const isGeneralCatchAll = recipients.some(
-      (r) => r.endsWith("@qorlune.co.uk") && !knownQorluneDepts.some((dept) => r.startsWith(dept))
-    );
-    if (isGeneralCatchAll) return true;
+    return recipients.some((r) => r.endsWith("@qorlune.co.uk") || r.endsWith("@qorlune.com"));
   }
 
   return false;
@@ -620,7 +630,7 @@ export default function Webmail({
   const mbDropdownRef = useRef<HTMLDivElement>(null);
 
   const filteredMailboxes = useMemo(() => {
-    return mailboxes.filter((mb) => {
+    const list = mailboxes.filter((mb) => {
       const addr = (mb.primaryAddress || "").toLowerCase().trim();
       if (currentDomainScope === "tech") {
         return addr.endsWith("@tauqeermustafa.tech");
@@ -634,6 +644,20 @@ export default function Webmail({
       }
       return addr.endsWith("@qorlune.co.uk") || addr.endsWith("@qorlune.com");
     });
+
+    const unifiedLabel =
+      currentDomainScope === "tech"
+        ? "All @tauqeermustafa.tech Mailboxes"
+        : currentDomainScope === "com"
+        ? "All @tauqeermustafa.com Mailboxes"
+        : "All @qorlune.co.uk Mailboxes";
+
+    const defaultMbId = list[0]?.id || "01M17137MJNRTDR5N92QCAND0P";
+
+    return [
+      { id: defaultMbId, primaryAddress: unifiedLabel },
+      ...list,
+    ];
   }, [mailboxes, currentDomainScope]);
 
   const active =
@@ -689,7 +713,7 @@ export default function Webmail({
       let nextCur: string | null = null;
       let pageCount = 0;
 
-      while (pageCount < 10) {
+      while (pageCount < 25) {
         pageCount++;
         const fetchUrl: string = `/api/mail/messages?mailbox=${mailboxId}&limit=100${
           nextCur ? `&cursor=${encodeURIComponent(nextCur)}` : ""
@@ -1260,7 +1284,7 @@ export default function Webmail({
     };
 
     for (const msg of messages) {
-      const belongs = isInboxMsg(msg, selfEmail) || isSentMsg(msg, selfEmail);
+      const belongs = isInboxMsg(msg, selfEmail, currentDomainScope) || isSentMsg(msg, selfEmail, currentDomainScope);
       if (!belongs) continue;
 
       const unread = isUnread(msg);
@@ -1272,7 +1296,7 @@ export default function Webmail({
 
       if (unread) {
         c.all++;
-        if (isInboxMsg(msg, selfEmail) && !isArchived) {
+        if (isInboxMsg(msg, selfEmail, currentDomainScope) && !isArchived) {
           c.inbox++;
         }
         if (isSp) c.spam++;
@@ -1282,10 +1306,10 @@ export default function Webmail({
     c.starred = starredIds.size;
     c.drafts = drafts.length;
     c.scheduled = scheduledMail.filter((s) => s.status === "pending").length;
-    c.trash = trash.filter((m) => isInboxMsg(m, selfEmail) || isSentMsg(m, selfEmail)).length;
+    c.trash = trash.filter((m) => isInboxMsg(m, selfEmail, currentDomainScope) || isSentMsg(m, selfEmail, currentDomainScope)).length;
 
     return c;
-  }, [messages, trash, scheduledMail, starredIds, drafts, isUnread, selfEmail, archivedIds]);
+  }, [messages, trash, scheduledMail, starredIds, drafts, isUnread, selfEmail, archivedIds, currentDomainScope]);
 
   // Master Visible Filter: Correctly categorizes and orders every email
   const visible = useMemo(() => {
@@ -1294,7 +1318,7 @@ export default function Webmail({
     if (folder === "trash") {
       const seen = new Set<string>();
       list = [...trash, ...messages.filter(isTrashMsg)]
-        .filter((m) => isInboxMsg(m, selfEmail) || isSentMsg(m, selfEmail))
+        .filter((m) => isInboxMsg(m, selfEmail, currentDomainScope) || isSentMsg(m, selfEmail, currentDomainScope))
         .filter((m) => {
           const id = idOf(m);
           if (!id || seen.has(id)) return false;
@@ -1306,19 +1330,19 @@ export default function Webmail({
         (m) =>
           !isTrashMsg(m) &&
           (isDomainMessage(m, currentDomainScope) ||
-            isInboxMsg(m, selfEmail) ||
-            isSentMsg(m, selfEmail))
+            isInboxMsg(m, selfEmail, currentDomainScope) ||
+            isSentMsg(m, selfEmail, currentDomainScope))
       );
     } else if (folder === "starred") {
       list = [...messages, ...trash].filter(
         (m) =>
           (starredIds.has(idOf(m)) || m.starred === true || m.isStarred === true) &&
-          (isInboxMsg(m, selfEmail) || isSentMsg(m, selfEmail))
+          (isInboxMsg(m, selfEmail, currentDomainScope) || isSentMsg(m, selfEmail, currentDomainScope))
       );
     } else if (folder === "sent") {
-      list = messages.filter((m) => isSentMsg(m, selfEmail));
+      list = messages.filter((m) => isSentMsg(m, selfEmail, currentDomainScope));
     } else if (folder === "inbox") {
-      list = messages.filter((m) => isInboxMsg(m, selfEmail) && !archivedIds.has(idOf(m)));
+      list = messages.filter((m) => isInboxMsg(m, selfEmail, currentDomainScope) && !archivedIds.has(idOf(m)));
     } else if (folder === "spam") {
       list = messages.filter(
         (m) => !isTrashMsg(m) && isSpamMsg(m) && getMessageRecipients(m).includes(selfEmail)
@@ -1328,7 +1352,7 @@ export default function Webmail({
         (m) =>
           !isTrashMsg(m) &&
           (isArchiveMsg(m) || archivedIds.has(idOf(m))) &&
-          (isInboxMsg(m, selfEmail) || isSentMsg(m, selfEmail))
+          (isInboxMsg(m, selfEmail, currentDomainScope) || isSentMsg(m, selfEmail, currentDomainScope))
       );
     } else {
       const def = FOLDERS.find((f) => f.key === folder);
@@ -1365,7 +1389,7 @@ export default function Webmail({
     });
 
     return list;
-  }, [folder, messages, trash, starredIds, archivedIds, query, selfEmail]);
+  }, [folder, messages, trash, starredIds, archivedIds, query, selfEmail, currentDomainScope]);
 
   // Pagination calculation
   const totalPages = Math.max(1, Math.ceil(visible.length / PAGE_SIZE));
@@ -1919,7 +1943,7 @@ export default function Webmail({
                 <h1 className="text-xl font-bold tracking-tight" style={{ color: "var(--adm-text)" }}>
                   {selected.subject || "(No subject)"}
                 </h1>
-                {isSentMsg(selected, selfEmail) && (
+                {isSentMsg(selected, selfEmail, currentDomainScope) && (
                   <span
                     className="shrink-0 rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider"
                     style={{ background: "var(--adm-surface-2)", color: "var(--adm-text-3)" }}
@@ -2494,7 +2518,7 @@ export default function Webmail({
                     const isChecked = selectedIds.has(id);
                     const starred = starredIds.has(id);
                     const hasAttachment = Boolean(msg.attachments?.length || msg.hasAttachments || msg.attachmentCount);
-                    const isSent = isSentMsg(msg, selfEmail);
+                    const isSent = isSentMsg(msg, selfEmail, currentDomainScope);
                     const displayName = isSent ? `To: ${addrList(msg.to)[0] || addr(msg.to)}` : addr(msg.from);
 
                     return (
