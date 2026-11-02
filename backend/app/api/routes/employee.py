@@ -81,13 +81,21 @@ def get_employees(
 
     query = db.query(Employee).join(User, Employee.user_id == User.id)
     if target_domain == "tech":
-        query = query.filter(User.email.ilike("%@tauqeermustafa.tech"))
+        query = query.filter(
+            or_(
+                User.email.ilike("%@tauqeermustafa.tech"),
+                User.openemail_address.ilike("%@tauqeermustafa.tech"),
+            )
+        )
     elif target_domain in ("com", "tauqeermustafa", "tm", "tauqeerm"):
         query = query.filter(
             or_(
                 User.email.ilike("%@tauqeermustafa.com"),
                 User.email.ilike("%@tauqeerm.com"),
                 User.email.ilike("%@tm.com"),
+                User.openemail_address.ilike("%@tauqeermustafa.com"),
+                User.openemail_address.ilike("%@tauqeerm.com"),
+                User.openemail_address.ilike("%@tm.com"),
             )
         )
     elif target_domain in ("qorlune", "co.uk"):
@@ -95,6 +103,8 @@ def get_employees(
             or_(
                 User.email.ilike("%@qorlune.co.uk"),
                 User.email.ilike("%@qorlune.com"),
+                User.openemail_address.ilike("%@qorlune.co.uk"),
+                User.openemail_address.ilike("%@qorlune.com"),
             )
         )
     employees = query.all()

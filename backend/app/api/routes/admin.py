@@ -2,7 +2,7 @@ import uuid
 from datetime import datetime, timezone
 
 from fastapi import APIRouter, HTTPException, Query, Request, status
-from sqlalchemy import delete, func, select
+from sqlalchemy import delete, func, select, or_
 from sqlalchemy.orm import selectinload
 
 from app.api.deps import CurrentAdmin, DatabaseSession
@@ -178,17 +178,31 @@ def list_users(
             target_domain = "com"
 
     if target_domain == "tech":
-        filters.append(User.email.ilike("%@tauqeermustafa.tech"))
+        filters.append(
+            or_(
+                User.email.ilike("%@tauqeermustafa.tech"),
+                User.openemail_address.ilike("%@tauqeermustafa.tech"),
+            )
+        )
     elif target_domain in ("com", "tauqeermustafa", "tm", "tauqeerm"):
         filters.append(
-            User.email.ilike("%@tauqeermustafa.com")
-            | User.email.ilike("%@tauqeerm.com")
-            | User.email.ilike("%@tm.com")
+            or_(
+                User.email.ilike("%@tauqeermustafa.com"),
+                User.email.ilike("%@tauqeerm.com"),
+                User.email.ilike("%@tm.com"),
+                User.openemail_address.ilike("%@tauqeermustafa.com"),
+                User.openemail_address.ilike("%@tauqeerm.com"),
+                User.openemail_address.ilike("%@tm.com"),
+            )
         )
     elif target_domain in ("qorlune", "co.uk"):
         filters.append(
-            User.email.ilike("%@qorlune.co.uk")
-            | User.email.ilike("%@qorlune.com")
+            or_(
+                User.email.ilike("%@qorlune.co.uk"),
+                User.email.ilike("%@qorlune.com"),
+                User.openemail_address.ilike("%@qorlune.co.uk"),
+                User.openemail_address.ilike("%@qorlune.com"),
+            )
         )
 
     total = db.scalar(select(func.count()).select_from(User).where(*filters)) or 0

@@ -25,11 +25,23 @@ function authHeaders(extra?: Record<string, string>): Record<string, string> {
   const token = getStoredToken();
   const headers: Record<string, string> = { ...extra };
   if (token) headers.Authorization = `Bearer ${token}`;
+  if (typeof window !== "undefined") {
+    const host = window.location.hostname.toLowerCase();
+    const isQor = host.includes("qorlune") || host.endsWith(".co.uk");
+    headers["x-portal-domain"] = isQor ? "qorlune" : "tauqeermustafa";
+  }
   return headers;
 }
 
 async function getJSON(path: string) {
-  const res = await fetch(`${API_BASE}${path}`, { headers: authHeaders() });
+  let url = `${API_BASE}${path}`;
+  if (typeof window !== "undefined") {
+    const host = window.location.hostname.toLowerCase();
+    const isQor = host.includes("qorlune") || host.endsWith(".co.uk");
+    const sep = url.includes("?") ? "&" : "?";
+    url = `${url}${sep}tenant=${isQor ? "qorlune" : "tauqeermustafa"}`;
+  }
+  const res = await fetch(url, { headers: authHeaders() });
   if (!res.ok) throw new Error(`Request failed: ${path}`);
   return res.json();
 }

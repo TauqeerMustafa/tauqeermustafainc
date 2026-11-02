@@ -102,9 +102,38 @@ async function describe(number: WANumber, token: string): Promise<WANumberInfo> 
 
 export async function GET(request: Request) {
   try {
+    const host = (
+      request.headers.get("x-forwarded-host") ||
+      request.headers.get("x-portal-domain") ||
+      request.headers.get("host") ||
+      ""
+    ).toLowerCase();
+    const queryTenant = new URL(request.url).searchParams.get("tenant") || "";
+    const isTmi =
+      host.includes("tauqeermustafa") ||
+      host.includes("tauqeerm") ||
+      host.includes("tm.com") ||
+      host === "tech" ||
+      host === "com" ||
+      queryTenant === "tauqeermustafa" ||
+      queryTenant === "tech" ||
+      queryTenant === "com";
+
     const fresh = new URL(request.url).searchParams.get("refresh") === "1";
     if (!fresh && cache && Date.now() - cache.at < TTL_MS) {
-      return NextResponse.json({ success: true, data: cache.data, cached: true });
+      const qorluneItem =
+        cache.data.find(
+          (n) => n.id === "1433890589802290" || (n.id !== "944973294966811" && n.primary)
+        ) || cache.data[0];
+      const tauqeerItem = cache.data.find(
+        (n) => n.id === "1239592269240963" || n.id === "1363415125370805" || n.slot === 2
+      );
+      const tenantNumbers = isTmi ? [tauqeerItem].filter(Boolean) : [qorluneItem].filter(Boolean);
+      return NextResponse.json({
+        success: true,
+        data: tenantNumbers.length ? tenantNumbers : cache.data,
+        cached: true,
+      });
     }
 
     const configured = waNumbers();
@@ -251,10 +280,7 @@ export async function GET(request: Request) {
 
   cache = { at: Date.now(), data: finalNumbers };
 
-  // Tenant-specific isolation
-  const host = (request.headers.get("x-forwarded-host") || request.headers.get("host") || "").toLowerCase();
-  const isTmi = host.includes("tauqeermustafa") || host.includes("tauqeerm") || host.includes("tm.com") || new URL(request.url).searchParams.get("tenant") === "tauqeermustafa";
-
+  // Tenant-specific isolation (uses isTmi computed at function start)
   const tenantNumbers = isTmi ? [tauqeerItem].filter(Boolean) : [qorluneItem].filter(Boolean);
 
   return NextResponse.json({ success: true, data: tenantNumbers.length ? tenantNumbers : finalNumbers });
