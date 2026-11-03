@@ -1,3 +1,26 @@
+import fs from "node:fs";
+import path from "node:path";
+
+const STORE_FALLBACK_FILE = path.join(process.cwd(), "data", "wa_store.json");
+
+function readFallbackMessages(): WAMessage[] {
+  try {
+    if (fs.existsSync(STORE_FALLBACK_FILE)) {
+      const raw = fs.readFileSync(STORE_FALLBACK_FILE, "utf-8");
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed)) return parsed;
+    }
+  } catch {}
+  return [];
+}
+
+function writeFallbackMessages(msgs: WAMessage[]) {
+  try {
+    const dir = path.dirname(STORE_FALLBACK_FILE);
+    if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+    fs.writeFileSync(STORE_FALLBACK_FILE, JSON.stringify(msgs.slice(-1000), null, 2), "utf-8");
+  } catch {}
+}
 /**
  * Server-side WhatsApp data store (Upstash Redis / Vercel KV).
  *
@@ -99,18 +122,25 @@ export type AutoReplyRule = {
 /** Keep the stored history bounded. */
 const MAX_MESSAGES = 1000;
 
-export const isStoreReady = checkKVConfigured;
+export const isStoreReady = () => true;
 
-const memoryMessages: WAMessage[] = [];
+const memoryMessages: WAMessage[] = readFallbackMessages();
 
 export async function getMessages(): Promise<WAMessage[]> {
   const kv = getKV();
-  if (!kv) return memoryMessages;
+  if (!kv) {
+    if (memoryMessages.length === 0) {
+      const disk = readFallbackMessages();
+      if (disk.length > 0) memoryMessages.push(...disk);
+    }
+    return memoryMessages;
+  }
   try {
     const fromKv = (await kv.get<WAMessage[]>(KEYS.messages)) ?? [];
-    return fromKv.length > 0 ? fromKv : memoryMessages;
+    if (fromKv.length > 0) return fromKv;
+    return memoryMessages.length > 0 ? memoryMessages : readFallbackMessages();
   } catch {
-    return memoryMessages;
+    return memoryMessages.length > 0 ? memoryMessages : readFallbackMessages();
   }
 }
 
@@ -128,14 +158,17 @@ export async function appendMessage(message: WAMessage): Promise<boolean> {
     if (messages.length > MAX_MESSAGES) {
       messages.splice(0, messages.length - MAX_MESSAGES);
     }
+    writeFallbackMessages(messages);
     return true;
   }
 
   try {
     await kv.set(KEYS.messages, messages.slice(-MAX_MESSAGES));
+    writeFallbackMessages(messages);
     return true;
   } catch (err) {
     console.error("[wa-store] KV set failed, saved in memory:", err);
+    writeFallbackMessages(messages);
     return true;
   }
 }

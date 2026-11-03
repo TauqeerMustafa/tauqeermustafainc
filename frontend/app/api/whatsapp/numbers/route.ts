@@ -126,8 +126,21 @@ export async function GET(request: Request) {
           (n) => n.id === "1433890589802290" || (n.id !== "944973294966811" && n.primary)
         ) || cache.data[0];
       const tauqeerItem = cache.data.find(
-        (n) => n.id === "1239592269240963" || n.id === "1363415125370805" || n.slot === 2
-      );
+        (n) => n.id === "03356701199" || n.id === "1239592269240963" || n.id === "1363415125370805" || n.slot === 2
+      ) || {
+        id: "03356701199",
+        label: "Tauqeer Mustafa (03356701199)",
+        primary: true,
+        slot: 2,
+        department: "direct",
+        displayNumber: "+92 335 6701199",
+        verifiedName: "Tauqeer Mustafa",
+        nameStatus: "APPROVED",
+        quality: "GREEN",
+        codeVerificationStatus: "VERIFIED",
+        canSend: true,
+        error: null,
+      };
       const tenantNumbers = isTmi ? [tauqeerItem].filter(Boolean) : [qorluneItem].filter(Boolean);
       return NextResponse.json({
         success: true,
@@ -247,14 +260,14 @@ export async function GET(request: Request) {
 
   // Identify Tauqeer Mustafa (tauqeermustafa.com) line
   let tauqeerItem = resultList.find(
-    (n) => n.id === "1239592269240963" || n.id === "1363415125370805" || n.slot === 2
+    (n) => n.id === "03356701199" || n.id === "1239592269240963" || n.id === "1363415125370805" || n.slot === 2
   );
 
   if (!tauqeerItem) {
     tauqeerItem = {
-      id: "1239592269240963",
-      label: "Tauqeer Mustafa (tauqeermustafa.com)",
-      primary: false,
+      id: "03356701199",
+      label: "Tauqeer Mustafa (03356701199)",
+      primary: true,
       slot: 2,
       department: "direct",
       displayNumber: "+92 335 6701199",
@@ -266,10 +279,11 @@ export async function GET(request: Request) {
       error: null,
     };
   } else {
-    tauqeerItem.label = "Tauqeer Mustafa (tauqeermustafa.com)";
+    tauqeerItem.id = "03356701199";
+    tauqeerItem.label = "Tauqeer Mustafa (03356701199)";
     tauqeerItem.slot = 2;
     tauqeerItem.department = "direct";
-    if (!tauqeerItem.displayNumber) tauqeerItem.displayNumber = "+92 335 6701199";
+    tauqeerItem.displayNumber = "+92 335 6701199";
   }
 
   // Separate channels for Qorlune and Tauqeer Mustafa
@@ -287,18 +301,39 @@ export async function GET(request: Request) {
   
   } catch (err: any) {
     console.error("[numbers] GET error:", err);
-    const configured = waNumbers();
-    const fallbackNumbers: WANumberInfo[] = configured.map((n) => ({
-      ...n,
+    const fallbackTauqeer: WANumberInfo = {
+      id: "03356701199",
+      label: "Tauqeer Mustafa (03356701199)",
+      primary: true,
+      slot: 2,
+      department: "direct",
+      displayNumber: "+92 335 6701199",
+      verifiedName: "Tauqeer Mustafa",
+      nameStatus: "APPROVED",
+      quality: "GREEN",
+      codeVerificationStatus: "VERIFIED",
       canSend: true,
-      displayNumber: n.displayNumber || "+1 711-091-5975",
+      error: null,
+    };
+    const fallbackQorlune: WANumberInfo = {
+      id: "1433890589802290",
+      label: "Qorlune Official (+1 711-091-5975)",
+      primary: true,
+      slot: 1,
+      department: "general",
+      displayNumber: "+1 711-091-5975",
       verifiedName: "Qorlune",
       nameStatus: "APPROVED",
       quality: "GREEN",
       codeVerificationStatus: "VERIFIED",
+      canSend: true,
       error: null,
-    }));
-    return NextResponse.json({ success: true, data: fallbackNumbers, fallback: true });
+    };
+    return NextResponse.json({
+      success: true,
+      data: isTmi ? [fallbackTauqeer] : [fallbackQorlune],
+      fallback: true,
+    });
   }
 }
 

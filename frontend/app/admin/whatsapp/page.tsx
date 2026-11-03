@@ -990,9 +990,23 @@ function InboxTab({
   const allMessages = rawMessages.filter((m) => {
     const line = identifyMessageLine(m);
     if (isTmi) {
-      return line.lineKey === "line2" || line.canonicalId === "1239592269240963" || m.channel === "1239592269240963";
+      return (
+        line.lineKey === "line2" ||
+        line.canonicalId === "03356701199" ||
+        line.canonicalId === "1239592269240963" ||
+        m.channel === "03356701199" ||
+        m.channel === "1239592269240963" ||
+        m.department === "direct" ||
+        (m.from && m.from.includes("3356701199")) ||
+        (m.to && m.to.includes("3356701199"))
+      );
     }
-    return line.lineKey !== "line2" && line.canonicalId !== "1239592269240963" && m.channel !== "1239592269240963";
+    return (
+      line.lineKey === "line1" ||
+      line.canonicalId === "1433890589802290" ||
+      m.channel === "1433890589802290" ||
+      (m.department !== "direct" && !line.canonicalId?.includes("3356701199"))
+    );
   });
   const numbers = withSeenChannels(apiNumbers, allMessages);
 
@@ -1013,7 +1027,7 @@ function InboxTab({
       .filter((c) => c.lineKey === "line1" || c.channel === "1433890589802290")
       .reduce((acc, c) => acc + (unreadCount(c, metaMap[c.key] || metaMap[`${c.department}_${c.number}`] || metaMap[c.number]) > 0 ? 1 : 0), 0),
     line2: allConversations
-      .filter((c) => c.lineKey === "line2" || c.channel === "1239592269240963")
+      .filter((c) => c.lineKey === "line2" || c.channel === "03356701199" || c.channel === "1239592269240963")
       .reduce((acc, c) => acc + (unreadCount(c, metaMap[c.key] || metaMap[`${c.department}_${c.number}`] || metaMap[c.number]) > 0 ? 1 : 0), 0),
     line3: 0,
     line4: 0,
@@ -1291,7 +1305,7 @@ function ChatView({
     }
     const { isTmi } = useDomainConfig();
     if (conv.lineKey === "line2" || isTmi) {
-      const tauqeer = numbers.find((n) => n.id === "1239592269240963" || n.slot === 2);
+      const tauqeer = numbers.find((n) => n.id === "03356701199" || n.id === "1239592269240963" || n.slot === 2);
       if (tauqeer) return tauqeer.id;
       return "1239592269240963";
     }
@@ -1500,10 +1514,9 @@ function ChatView({
             title={showDossier ? "Click to toggle contact dossier" : "Click to view contact dossier"}
           >
             {(() => {
-              const { isTmi } = useDomainConfig();
               const isLine2 = conv.lineKey === "line2" || isTmi;
               const lineTheme = isLine2
-                ? { color: "#059669", dot: "bg-emerald-500", label: "🇵🇰 Tauqeer Mustafa (+92 335 6701199)" }
+                ? { color: "#059669", dot: "bg-emerald-500", label: "🇵🇰 Tauqeer Mustafa (03356701199 / +92 335 6701199)" }
                 : { color: "#2563eb", dot: "bg-blue-500", label: "🇺🇸 Qorlune Official (+1 711-091-5975)" };
 
               return (

@@ -35,9 +35,10 @@ export const DEFAULT_QORLUNE_DISPLAY = "+1 711-091-5975";
  * Line 2: Tauqeer Mustafa Direct Line (+92 335 6701199)
  * Used on: tauqeermustafa.com
  */
-export const DEFAULT_PK_ID = "1239592269240963";
-export const ALIAS_PK_ID = "1363415125370805";
-export const DEFAULT_TAUQEER_ID = DEFAULT_PK_ID;
+export const DEFAULT_PK_ID = "03356701199";
+export const ALIAS_PK_ID = "1239592269240963";
+export const SECOND_ALIAS_PK_ID = "1363415125370805";
+export const DEFAULT_TAUQEER_ID = "03356701199";
 export const DEFAULT_TAUQEER_DISPLAY = "+92 335 6701199";
 
 const FORBIDDEN_PHONE_IDS = new Set<string>([]);
@@ -142,12 +143,12 @@ function build(): WANumber[] {
       displayNumber: safeDisplayNumber,
     },
     {
-      id: safeSecondId,
-      label: clean(process.env.WHATSAPP_PHONE_LABEL_2) || "Tauqeer Mustafa (tauqeermustafa.com)",
+      id: "03356701199",
+      label: clean(process.env.WHATSAPP_PHONE_LABEL_2) || "Tauqeer Mustafa (03356701199)",
       primary: false,
       slot: 2,
       department: "direct",
-      displayNumber: safeSecondDisplay,
+      displayNumber: "+92 335 6701199",
     },
   ];
 
@@ -255,12 +256,14 @@ export function resolveNumberId(requested?: string | null): ResolvedNumber {
   if (
     digits.includes("3356701199") ||
     digits.includes("3335670119") ||
+    wanted === "03356701199" ||
+    wanted === "+923356701199" ||
     wanted === DEFAULT_PK_ID ||
     wanted === ALIAS_PK_ID ||
     wanted === "line2" ||
     wanted.toLowerCase().includes("tauqeer")
   ) {
-    return { ok: true, id: DEFAULT_PK_ID };
+    return { ok: true, id: "03356701199" };
   }
 
   const found = waNumbers().find((n) => n.id === wanted || (n.displayNumber && n.displayNumber.replace(/[^0-9]/g, "") === digits));
@@ -300,7 +303,7 @@ export const KNOWN_LINES: Record<string, LineIdentifier> = {
   },
   line2: {
     lineKey: "line2",
-    canonicalId: DEFAULT_PK_ID,
+    canonicalId: "03356701199",
     label: "Tauqeer Mustafa",
     flag: "🇵🇰",
     displayNumber: "+92 335 6701199",
@@ -351,12 +354,20 @@ export function identifyMessageLine(
 
   // 1. Explicit business channel / Meta Phone Number ID (Most reliable)
   if (
+    ch === "03356701199" ||
+    ch === "923356701199" ||
+    ch === "+923356701199" ||
     ch === DEFAULT_PK_ID ||
     ch === ALIAS_PK_ID ||
+    ch === "line2" ||
+    chDigits === "03356701199" ||
+    chDigits === "923356701199" ||
+    chDigits === "3356701199" ||
+    chDigits.includes("3356701199") ||
+    chDigits.includes("3335670119") ||
     chDigits === "1239592269240963" ||
     chDigits === "1363415125370805" ||
-    chDigits.includes("3356701199") ||
-    chDigits.includes("3335670119")
+    (m as any).department === "direct"
   ) {
     return KNOWN_LINES.line2;
   }
@@ -380,12 +391,17 @@ export function identifyMessageLine(
   const bizDigits = bizNumber.replace(/[^0-9]/g, "");
 
   if (
+    bizNumber === "03356701199" ||
+    bizNumber === "+923356701199" ||
     bizNumber === DEFAULT_PK_ID ||
     bizNumber === ALIAS_PK_ID ||
-    bizDigits === "1239592269240963" ||
-    bizDigits === "1363415125370805" ||
+    bizDigits === "03356701199" ||
+    bizDigits === "923356701199" ||
+    bizDigits === "3356701199" ||
     bizDigits.includes("3356701199") ||
-    bizDigits.includes("3335670119")
+    bizDigits.includes("3335670119") ||
+    bizDigits === "1239592269240963" ||
+    bizDigits === "1363415125370805"
   ) {
     return KNOWN_LINES.line2;
   }

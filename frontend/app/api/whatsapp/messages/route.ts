@@ -27,39 +27,55 @@ export type { WAMessage };
 
 export async function GET(request: Request) {
   try {
-    if (!isStoreReady()) {
-      return NextResponse.json({
-        success: true,
-        data: [],
-        count: 0,
-        notice: "KV not configured — messages not persisted. Create Upstash Redis database on Vercel.",
-      });
-    }
-
     const { searchParams } = new URL(request.url);
-    const host = (request.headers.get("x-forwarded-host") || request.headers.get("host") || "").toLowerCase();
-    const isTmi = host.includes("tauqeermustafa") || host.includes("tauqeerm") || host.includes("tm.com") || searchParams.get("tenant") === "tauqeermustafa";
+    const host = (
+      request.headers.get("x-forwarded-host") ||
+      request.headers.get("x-portal-domain") ||
+      request.headers.get("host") ||
+      ""
+    ).toLowerCase();
+    const queryTenant = searchParams.get("tenant") || "";
+    const isTmi =
+      host.includes("tauqeermustafa") ||
+      host.includes("tauqeerm") ||
+      host.includes("tm.com") ||
+      host === "tech" ||
+      host === "com" ||
+      queryTenant === "tauqeermustafa" ||
+      queryTenant === "tech" ||
+      queryTenant === "com";
 
     const explicitChannel = searchParams.get("channel") || searchParams.get("line");
     const channelParam = (explicitChannel || (isTmi ? "line2" : "line1")).trim();
 
     let messages = await getMessages();
 
-    if (channelParam && channelParam !== "all") {
-      messages = messages.filter((m) => {
-        const line = identifyMessageLine(m);
+    messages = messages.filter((m) => {
+      const line = identifyMessageLine(m);
+      const isMsgTmi =
+        line.lineKey === "line2" ||
+        m.department === "direct" ||
+        m.channel === "03356701199" ||
+        m.channel === "line2" ||
+        m.channel === "1239592269240963" ||
+        m.channel === "1363415125370805" ||
+        (m.from && (m.from.includes("3356701199") || m.from === "1239592269240963")) ||
+        (m.to && (m.to.includes("3356701199") || m.to === "1239592269240963"));
+
+      if (isTmi) {
+        if (!isMsgTmi) return false;
+      } else {
+        if (isMsgTmi) return false;
+      }
+
+      if (channelParam && channelParam !== "all") {
         if (channelParam.startsWith("line")) {
           return line.lineKey === channelParam;
         }
         return line.canonicalId === channelParam || m.channel === channelParam;
-      });
-    } else {
-      // Default tenant guard when no specific channel is passed
-      messages = messages.filter((m) => {
-        const line = identifyMessageLine(m);
-        return isTmi ? line.lineKey === "line2" : line.lineKey === "line1";
-      });
-    }
+      }
+      return true;
+    });
 
     return NextResponse.json({
       success: true,
@@ -81,11 +97,6 @@ export async function GET(request: Request) {
  */
 export async function POST(request: Request) {
   try {
-    if (!isStoreReady()) {
-      console.warn("[messages] POST: KV not configured, message not persisted");
-      return NextResponse.json({ success: true, notice: "KV not configured" });
-    }
-
     const message: WAMessage = await request.json();
     const stored = await appendMessage(message);
     return NextResponse.json({ success: true, messageId: message.id, stored });
