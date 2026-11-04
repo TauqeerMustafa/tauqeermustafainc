@@ -48,7 +48,7 @@ export async function GET(request: Request) {
     const domainParam = searchParams.get("domain")?.toLowerCase().trim();
     const effectiveDomain =
       domainParam ||
-      (host.includes("tauqeermustafa.tech") || host === "tech"
+      (host.includes("tauqeermustafa.tech") || host.includes(".tech") || host === "tech"
         ? "tech"
         : host.includes("qorlune") || host.endsWith(".co.uk")
         ? "qorlune"
@@ -79,17 +79,24 @@ export async function GET(request: Request) {
     }
 
     const filteredMessages = rawList.filter((msg: any) => {
+      if (effectiveDomain === "all") return true;
       const addrs = getMsgAddresses(msg);
       if (addrs.length === 0) return true; // Keep system/bounce messages
       if (effectiveDomain === "tech") {
-        return addrs.some((a) => a.endsWith("@tauqeermustafa.tech"));
+        return addrs.some(
+          (a) =>
+            a.endsWith(".tech") ||
+            a.includes("tauqeermustafa.tech") ||
+            a.includes("theqorlune.tech") ||
+            a.includes("qorlune.tech"),
+        );
       }
       if (effectiveDomain === "com") {
         return addrs.some(
           (a) =>
             a.endsWith("@tauqeermustafa.com") ||
             a.endsWith("@tauqeerm.com") ||
-            a.endsWith("@tm.com")
+            a.endsWith("@tm.com"),
         );
       }
       if (effectiveDomain === "qorlune") {

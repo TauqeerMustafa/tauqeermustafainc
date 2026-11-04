@@ -478,7 +478,7 @@ function isDomainMessage(msg: Message, scope: "tech" | "com" | "qorlune"): boole
   const fromAddr = rawEmail(msg.from);
   const allAddrs = [...recipients, fromAddr];
   if (scope === "tech") {
-    return allAddrs.some((a) => a.endsWith("@tauqeermustafa.tech"));
+    return allAddrs.some((a) => a.endsWith(".tech") || a.includes("tauqeermustafa.tech") || a.includes("theqorlune.tech") || a.includes("qorlune.tech"));
   }
   if (scope === "com") {
     return allAddrs.some(
@@ -516,8 +516,8 @@ function isInboxMsg(msg: Message, currentEmail: string, scope?: "tech" | "com" |
   if (recipients.includes(target)) return true;
 
   // 2. Main administrator mailboxes show all incoming domain mail so zero emails are dropped
-  if (target === "admin@tauqeermustafa.tech" || target === "info@tauqeermustafa.tech") {
-    return recipients.some((r) => r.endsWith("@tauqeermustafa.tech"));
+  if (target.endsWith(".tech") || target === "admin@tauqeermustafa.tech" || target === "info@tauqeermustafa.tech") {
+    return recipients.some((r) => r.endsWith(".tech") || r.includes("tauqeermustafa.tech") || r.includes("theqorlune.tech") || r.includes("qorlune.tech"));
   }
 
   if (target === "admin@tauqeermustafa.com" || target === "tech@tauqeermustafa.com") {
@@ -715,7 +715,7 @@ export default function Webmail({
 
       while (pageCount < 25) {
         pageCount++;
-        const fetchUrl: string = `/api/mail/messages?mailbox=${mailboxId}&limit=100${
+        const fetchUrl: string = `/api/mail/messages?mailbox=${mailboxId}&domain=${encodeURIComponent(currentDomainScope || "")}&limit=100${
           nextCur ? `&cursor=${encodeURIComponent(nextCur)}` : ""
         }`;
         const fetchRes = await authFetch(fetchUrl);
@@ -728,7 +728,7 @@ export default function Webmail({
       }
 
       const expunged = await authFetch(
-        `/api/mail/messages?mailbox=${mailboxId}&state=expunged&limit=100`,
+        `/api/mail/messages?mailbox=${mailboxId}&domain=${encodeURIComponent(currentDomainScope || "")}&state=expunged&limit=100`,
       )
         .then((r) => r.json())
         .catch(() => ({ messages: [] }));

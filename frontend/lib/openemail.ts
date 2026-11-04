@@ -69,6 +69,22 @@ async function oeFetch(path: string, init?: RequestInit, customToken?: string) {
   return text ? JSON.parse(text) : {};
 }
 
+async function fetchAllRoutes(token?: string) {
+  let all: any[] = [];
+  let cursor: string | null = null;
+  let page = 0;
+  while (page < 10) {
+    page++;
+    const path: string = `/routes?limit=100${cursor ? `&cursor=${encodeURIComponent(cursor)}` : ""}`;
+    const res = await oeFetch(path, undefined, token);
+    const list = Array.isArray(res?.routes) ? res.routes : [];
+    all.push(...list);
+    if (!res?.nextCursor || list.length === 0) break;
+    cursor = res.nextCursor;
+  }
+  return { routes: all };
+}
+
 export async function fetchOpenEmailMailboxes(domain?: string) {
   const extractList = (data: any) =>
     Array.isArray(data)
@@ -90,13 +106,13 @@ export async function fetchOpenEmailMailboxes(domain?: string) {
   if (isQorlune) {
     promises.push(
       oeFetch(`/identities`, undefined, OPENEMAIL_QORLUNE_API_KEY),
-      oeFetch(`/routes?limit=100`, undefined, OPENEMAIL_QORLUNE_API_KEY),
+      fetchAllRoutes(OPENEMAIL_QORLUNE_API_KEY),
     );
   } else {
     // Both .tech and .com live on OPENEMAIL_TAUQEER_API_KEY
     promises.push(
       oeFetch(`/identities`, undefined, OPENEMAIL_TAUQEER_API_KEY),
-      oeFetch(`/routes?limit=100`, undefined, OPENEMAIL_TAUQEER_API_KEY),
+      fetchAllRoutes(OPENEMAIL_TAUQEER_API_KEY),
     );
   }
 
