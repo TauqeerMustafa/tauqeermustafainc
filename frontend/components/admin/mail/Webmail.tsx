@@ -413,23 +413,39 @@ function getMessageRecipients(msg: Message): string[] {
       const parsed = parseAddrs(v);
       for (const p of parsed) {
         const match = p.match(/<([^>]+)>/);
-        const email = (match ? match[1] : p).toLowerCase().trim();
-        if (email && email.includes("@")) addrs.add(email);
+        const raw = (match ? match[1] : p).toLowerCase().trim();
+        if (raw && raw.includes("@")) {
+          const cleaned = raw.replace(/^[<"']+|[>"']+$/g, "");
+          addrs.add(cleaned);
+        }
       }
     } else if (Array.isArray(v)) {
       for (const item of v) add(item);
     } else if (typeof v === "object") {
-      const email = (v.email || v.address || "").toLowerCase().trim();
-      if (email && email.includes("@")) addrs.add(email);
+      if (v.email) add(v.email);
+      if (v.address) add(v.address);
+      for (const k of Object.keys(v)) {
+        if (typeof v[k] === "string" || typeof v[k] === "object") {
+          add(v[k]);
+        }
+      }
     }
   };
 
   add(msg.envelopeTo);
+  add((msg as any).envelope_to);
   add(msg.to);
   add(msg.cc);
   add(msg.bcc);
   add((msg as any).deliveredTo);
+  add((msg as any).delivered_to);
   add((msg as any).recipient);
+  if (msg.headers) {
+    add((msg.headers as any)["delivered-to"]);
+    add((msg.headers as any)["x-original-to"]);
+    add((msg.headers as any)["envelope-to"]);
+    add((msg.headers as any)["to"]);
+  }
 
   return Array.from(addrs);
 }
@@ -459,14 +475,20 @@ function isSentMsg(msg: Message, currentEmail: string, scope?: "tech" | "com" | 
   if (target === "admin@tauqeermustafa.tech" || target === "info@tauqeermustafa.tech") {
     return sender.endsWith("@tauqeermustafa.tech");
   }
-  if (target === "admin@tauqeermustafa.com" || target === "tech@tauqeermustafa.com") {
+  if (
+    target === "info@tauqeermustafa.com" ||
+    target === "admin@tauqeermustafa.com" ||
+    target === "tech@tauqeermustafa.com" ||
+    target === "tauqeer@tauqeermustafa.com" ||
+    target === "contact@tauqeermustafa.com"
+  ) {
     return (
       sender.endsWith("@tauqeermustafa.com") ||
       sender.endsWith("@tauqeerm.com") ||
       sender.endsWith("@tm.com")
     );
   }
-  if (target === "admin@qorlune.co.uk") {
+  if (target === "admin@qorlune.co.uk" || target === "info@qorlune.co.uk") {
     return sender.endsWith("@qorlune.co.uk") || sender.endsWith("@qorlune.com");
   }
 
@@ -515,22 +537,57 @@ function isInboxMsg(msg: Message, currentEmail: string, scope?: "tech" | "com" |
   // 1. Direct recipient match
   if (recipients.includes(target)) return true;
 
-  // 2. Main administrator mailboxes show all incoming domain mail so zero emails are dropped
-  if (target.endsWith(".tech") || target === "admin@tauqeermustafa.tech" || target === "info@tauqeermustafa.tech") {
-    return recipients.some((r) => r.endsWith(".tech") || r.includes("tauqeermustafa.tech") || r.includes("theqorlune.tech") || r.includes("qorlune.tech"));
+  // 2. Catch-all / unassigned / wrong inboxes:
+  // If an incoming email was sent to ANY uncreated, misspelled, or catch-all address on this domain
+  // (e.g. .....@tauqeermustafa.com, wrong@tauqeermustafa.com, etc.),
+  // show it in the primary master inboxes:
+  if (
+    scope === "com" ||
+    target.endsWith("@tauqeermustafa.com") ||
+    target.endsWith("@tauqeerm.com") ||
+    target.endsWith("@tm.com")
+  ) {
+    const isMasterInbox =
+      target === "info@tauqeermustafa.com" ||
+      target === "admin@tauqeermustafa.com" ||
+      target === "tauqeer@tauqeermustafa.com" ||
+      target === "contact@tauqeermustafa.com" ||
+      target === "tech@tauqeermustafa.com";
+
+    if (isMasterInbox) {
+      return (
+        recipients.some(
+          (r) =>
+            r.endsWith("@tauqeermustafa.com") ||
+            r.endsWith("@tauqeerm.com") ||
+            r.endsWith("@tm.com")
+        ) || isDomainMessage(msg, "com")
+      );
+    }
   }
 
-  if (target === "admin@tauqeermustafa.com" || target === "tech@tauqeermustafa.com") {
-    return recipients.some(
-      (r) =>
-        r.endsWith("@tauqeermustafa.com") ||
-        r.endsWith("@tauqeerm.com") ||
-        r.endsWith("@tm.com")
+  if (
+    target.endsWith(".tech") ||
+    target === "admin@tauqeermustafa.tech" ||
+    target === "info@tauqeermustafa.tech"
+  ) {
+    return (
+      recipients.some(
+        (r) =>
+          r.endsWith(".tech") ||
+          r.includes("tauqeermustafa.tech") ||
+          r.includes("theqorlune.tech") ||
+          r.includes("qorlune.tech")
+      ) || isDomainMessage(msg, "tech")
     );
   }
 
-  if (target === "admin@qorlune.co.uk") {
-    return recipients.some((r) => r.endsWith("@qorlune.co.uk") || r.endsWith("@qorlune.com"));
+  if (target === "admin@qorlune.co.uk" || target === "info@qorlune.co.uk") {
+    return (
+      recipients.some(
+        (r) => r.endsWith("@qorlune.co.uk") || r.endsWith("@qorlune.com")
+      ) || isDomainMessage(msg, "qorlune")
+    );
   }
 
   return false;
@@ -748,7 +805,7 @@ export default function Webmail({
     setLoadingMore(true);
     try {
       const res = await authFetch(
-        `/api/mail/messages?mailbox=${activeId}&cursor=${encodeURIComponent(cursor)}&limit=100`,
+        `/api/mail/messages?mailbox=${activeId}&domain=${encodeURIComponent(currentDomainScope || "")}&cursor=${encodeURIComponent(cursor)}&limit=100`,
       ).then((r) => r.json());
       if (res.error) throw new Error(res.error);
       setMessages((prev) => {

@@ -59,13 +59,18 @@ export async function GET(request: Request) {
       const extract = (val: any) => {
         if (!val) return;
         if (typeof val === "string") {
-          const m = val.match(/[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+/g);
-          if (m) addrs.push(...m.map((s) => s.toLowerCase()));
+          const m = val.match(/[^\s<>,;:]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+/g);
+          if (m) addrs.push(...m.map((s) => s.replace(/^[<"']+|[>"']+$/g, "").toLowerCase()));
         } else if (Array.isArray(val)) {
           val.forEach(extract);
         } else if (typeof val === "object") {
           if (val.address) extract(val.address);
           if (val.email) extract(val.email);
+          for (const k of Object.keys(val)) {
+            if (typeof val[k] === "string" || typeof val[k] === "object") {
+              extract(val[k]);
+            }
+          }
         }
       };
       extract(msg.from);
@@ -73,8 +78,21 @@ export async function GET(request: Request) {
       extract(msg.cc);
       extract(msg.bcc);
       extract(msg.envelope);
+      extract(msg.envelopeTo);
+      extract(msg.envelope_to);
+      extract(msg.envelopeFrom);
+      extract(msg.envelope_from);
+      extract(msg.recipient);
+      extract(msg.deliveredTo);
+      extract(msg.delivered_to);
       extract(msg.headers?.to);
       extract(msg.headers?.from);
+      extract(msg.headers?.["delivered-to"]);
+      extract(msg.headers?.["x-original-to"]);
+      extract(msg.headers?.["envelope-to"]);
+      if (typeof msg.raw === "string") {
+        extract(msg.raw);
+      }
       return addrs;
     }
 
@@ -92,12 +110,23 @@ export async function GET(request: Request) {
         );
       }
       if (effectiveDomain === "com") {
-        return addrs.some(
+        const hasCom = addrs.some(
           (a) =>
             a.endsWith("@tauqeermustafa.com") ||
             a.endsWith("@tauqeerm.com") ||
-            a.endsWith("@tm.com"),
+            a.endsWith("@tm.com") ||
+            a.includes("tauqeermustafa.com"),
         );
+        if (hasCom) return true;
+        const hasOtherTenant = addrs.some(
+          (a) =>
+            a.endsWith("@qorlune.co.uk") ||
+            a.endsWith("@qorlune.com") ||
+            a.endsWith("@tauqeermustafa.tech") ||
+            a.endsWith(".tech"),
+        );
+        // Retain unrouted/catch-all messages so arbitrary or misspelled inboxes never get dropped
+        return !hasOtherTenant;
       }
       if (effectiveDomain === "qorlune") {
         return addrs.some((a) => a.endsWith("@qorlune.co.uk") || a.endsWith("@qorlune.com"));
