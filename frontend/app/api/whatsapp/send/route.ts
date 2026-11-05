@@ -118,7 +118,13 @@ export async function POST(request: Request) {
 
     const numberDef = waNumbers().find((n) => n.id === phoneNumberId);
     const account = accountAt(numberDef?.slot ?? (isTmi ? 2 : 1));
-    let token = account.token || accountAt(1).token;
+    let token: string = (account.token || accountAt(1).token || "").trim();
+    if (!token) {
+      return NextResponse.json(
+        { success: false, error: "WhatsApp access token is not configured" },
+        { status: 500 }
+      );
+    }
 
     // Dynamically resolve WABA ID to active Phone Number ID if needed
     if (phoneNumberId === "944973294966811" || phoneNumberId === account.wabaId) {

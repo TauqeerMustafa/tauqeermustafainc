@@ -101,6 +101,7 @@ async function describe(number: WANumber, token: string): Promise<WANumberInfo> 
 }
 
 export async function GET(request: Request) {
+  let isTmi = false;
   try {
     const host = (
       request.headers.get("x-forwarded-host") ||
@@ -109,7 +110,7 @@ export async function GET(request: Request) {
       ""
     ).toLowerCase();
     const queryTenant = new URL(request.url).searchParams.get("tenant") || "";
-    const isTmi =
+    isTmi =
       host.includes("tauqeermustafa") ||
       host.includes("tauqeerm") ||
       host.includes("tm.com") ||

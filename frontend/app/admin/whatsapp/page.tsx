@@ -1293,6 +1293,7 @@ function ChatView({
   onTemplate: () => void;
   onRefresh: () => void;
 }) {
+  const { isTmi } = useDomainConfig();
   const sendMessage = useSendWhatsAppMessage();
   const { data: numbersData } = useWhatsAppNumbers();
   const numbers = numbersData?.data ?? [];
@@ -1303,14 +1304,13 @@ function ChatView({
       const match = numbers.find((n) => n.id === channelId || (n.displayNumber && cleanDigits(n.displayNumber) === cleanDigits(channelId)));
       if (match) return match.id;
     }
-    const { isTmi } = useDomainConfig();
     if (conv.lineKey === "line2" || isTmi) {
       const tauqeer = numbers.find((n) => n.id === "03356701199" || n.id === "1239592269240963" || n.slot === 2);
       if (tauqeer) return tauqeer.id;
       return "1239592269240963";
     }
     return numbers.find((n) => n.id === "1433890589802290")?.id || numbers.find((n) => n.primary && n.id !== "944973294966811")?.id || numbers.find((n) => n.id !== "944973294966811")?.id || numbers[0]?.id || "1433890589802290";
-  }, [numbers, channelId, conv.lineKey]);
+  }, [numbers, channelId, conv.lineKey, isTmi]);
 
   const [activeSenderId, setActiveSenderId] = useState<string>(defaultSenderId);
 

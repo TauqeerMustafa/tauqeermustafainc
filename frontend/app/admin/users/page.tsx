@@ -779,7 +779,7 @@ export default function AdminUsersPage() {
             {/* Quick Domain Presets */}
             <div className="flex items-center gap-1.5 flex-wrap pt-1">
               <span className="text-[11px] font-medium" style={{ color: "var(--adm-text-3)" }}>Presets:</span>
-              {drawerTenant === "tauqeermustafa" ? (
+              {drawerTenant === "com" || drawerTenant === "tech" ? (
                 <>
                   <button
                     type="button"

@@ -68,7 +68,7 @@ const principles = [
 
     description:
 
-      "Secure defaults, threat modeling, and practical risk decisions are embedded in the delivery process  not added as a final audit. Every system is reviewed with an adversarial mindset before it ships.",
+      "Secure defaults, threat modeling, and practical risk decisions are embedded in the delivery process — not added as a final audit. Every system is reviewed with an adversarial mindset before it ships.",
 
     icon: Award,
 
@@ -100,7 +100,7 @@ const timeline = [
 
     description:
 
-      "Qorlune was established to deliver integrated engineering and security work for companies that needed systems built with discipline  web platforms, security audits, AI automation, and cloud infrastructure managed as a unified practice.",
+      "Qorlune was established to deliver integrated engineering and security work for companies that needed systems built with discipline — web platforms, security audits, AI automation, and cloud infrastructure managed as a unified practice.",
 
   },
 
@@ -144,7 +144,7 @@ export default function AboutPage() {
 
         title="Built around systems that need to work."
 
-        description="A digital agency delivering integrated web engineering, cybersecurity, AI, cloud, and design services. We work with companies that need platforms built to handle real operational pressure  not just prototypes."
+        description="A digital agency delivering integrated web engineering, cybersecurity, AI, cloud, and design services. We work with companies that need platforms built to handle real operational pressure — not just prototypes."
 
       />
 
@@ -178,7 +178,7 @@ export default function AboutPage() {
 
               <p>
 
-                The agency was built around a different model  five disciplines delivered as one integrated practice.
+                The agency was built around a different model — five disciplines delivered as one integrated practice.
 
                 Web engineering, cybersecurity, AI automation, cloud infrastructure, and product design, handled by a team
 
@@ -194,9 +194,9 @@ export default function AboutPage() {
 
                 initial architecture, and enterprises that need operational systems rebuilt with modern tooling.
 
-                Engagements run 816 weeks on average, from discovery through launch support. Clients work directly with
+                Engagements run 8–16 weeks on average, from discovery through launch support. Clients work directly with
 
-                our team  no account managers, no bloated markup, no surprises in scope.
+                our team — no account managers, no bloated markup, no surprises in scope.
 
               </p>
 
@@ -204,7 +204,7 @@ export default function AboutPage() {
 
                 We&apos;re not trying to be the biggest agency. We&apos;re trying to be the one companies return to when the
 
-                work actually matters  when downtime has real cost, when a breach would end the business, when the
+                work actually matters — when downtime has real cost, when a breach would end the business, when the
 
                 system needs to work under pressure.
 
