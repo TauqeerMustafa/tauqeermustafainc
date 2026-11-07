@@ -38,9 +38,9 @@ export default function Footer() {
               className="inline-flex items-center gap-2.5 text-[15px] font-bold uppercase tracking-[0.01em] text-ink transition-opacity hover:opacity-80"
             >
               <span className="relative flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden border border-ink/15 bg-ink/[0.06]">
-                <Image src="/logo.png" alt={company.name} fill sizes="36px" className="object-contain p-0.5" />
+                <Image src="/logo.png" alt={company.legalName} fill sizes="36px" className="object-contain p-0.5" />
               </span>
-              {company.name}
+              {company.legalName}
             </Link>
 
             <p className="mt-5 text-[15px] font-light leading-[1.6] tracking-[-0.01em] text-ink/55">

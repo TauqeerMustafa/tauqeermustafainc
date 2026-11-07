@@ -69,7 +69,7 @@ export interface CompanyData {
 }
 
 export const qorluneCompany: CompanyData = {
-  name: "Qorlune LLC",
+  name: "Qorlune",
   legalName: "Qorlune LLC",
   shortName: "Qorlune",
   tagline: "Engineering that ships. Security that holds.",

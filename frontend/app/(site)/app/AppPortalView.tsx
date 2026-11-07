@@ -115,7 +115,7 @@ export default function AppPortalView() {
               transition={{ duration: 0.6, delay: 0.18, ease: [0.22, 1, 0.36, 1] }}
               className="mt-6 max-w-3xl text-pretty text-[17px] font-light leading-[1.6] tracking-[-0.01em] text-ink/70 sm:text-[20px]"
             >
-              The unified mobile suite for Qorlune LLC Engineered for Employees, Management,
+              The unified mobile suite for Qorlune Engineered for Employees, Management,
               and Administrators. Download the direct Android APK or install the universal Progressive Web App with zero friction.
             </motion.p>
 
@@ -294,7 +294,7 @@ export default function AppPortalView() {
             Three Desks. One Mobile Suite.
           </h2>
           <p className="mt-4 max-w-2xl text-pretty text-[17px] font-light leading-[1.6] text-ink/70">
-            Every operational role inside Qorlune LLC is powered by a specialized, mobile-optimized workspace.
+            Every operational role inside Qorlune is powered by a specialized, mobile-optimized workspace.
           </p>
         </div>
 
