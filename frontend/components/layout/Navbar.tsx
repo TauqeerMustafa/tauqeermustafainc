@@ -71,7 +71,7 @@ function getSubdomainHref(sub: string) {
 }
 
 const linkClass =
-  "relative flex h-9 items-center px-3 font-mono text-[11px] font-semibold uppercase tracking-[0.1em] text-ink/55 transition-colors hover:bg-tint-blue hover:text-action focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-action";
+  "relative flex h-9 items-center px-3 font-mono text-[11px] font-semibold uppercase tracking-[0.1em] text-ink/55 transition-colors hover:text-ink focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-action";
 
 /**
  * Close the menus when the route changes.
@@ -245,7 +245,7 @@ export default function Navbar() {
                         target="_blank"
                         rel="noopener noreferrer"
                         onClick={() => setIsDropdownOpen(false)}
-                        className="group/tag flex items-center justify-between border border-transparent bg-ink/[0.03] dark:bg-white/[0.04] px-3 py-2 text-ink dark:text-white transition-all hover:border-action hover:bg-tint-blue-2 hover:text-action focus-visible:outline focus-visible:outline-2 focus-visible:outline-action"
+                        className="group/tag flex items-center justify-between border border-transparent bg-ink/[0.03] dark:bg-white/[0.04] px-3 py-2 text-ink dark:text-white transition-all hover:border-action hover:bg-action/[0.08] hover:text-action focus-visible:outline focus-visible:outline-2 focus-visible:outline-action"
                         role="menuitem"
                       >
                         <span className="flex items-center gap-2">
@@ -329,7 +329,7 @@ export default function Navbar() {
                       target="_blank"
                       rel="noopener noreferrer"
                       onClick={() => setIsOpen(false)}
-                      className="block border-l-2 border-transparent px-4 py-2.5 font-mono text-[11px] font-semibold uppercase tracking-[0.1em] text-ink/60 transition hover:border-action hover:bg-tint-blue hover:text-action focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-action"
+                      className="block border-l-2 border-transparent px-4 py-2.5 font-mono text-[11px] font-semibold uppercase tracking-[0.1em] text-ink/60 transition hover:border-action hover:bg-ink/[0.06] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-action"
                     >
                       <div className="flex items-center justify-between">
                         <span className="flex items-center gap-1.5">

@@ -597,11 +597,15 @@ const PAGE_SIZE = 25;
 
 export default function Webmail({
   initialTo = "",
+  initialCc = "",
   initialSubject = "",
+  initialBody = "",
   autoCompose = false,
 }: {
   initialTo?: string;
+  initialCc?: string;
   initialSubject?: string;
+  initialBody?: string;
   autoCompose?: boolean;
 }) {
   const domainConfig = useDomainConfig();
@@ -641,12 +645,12 @@ export default function Webmail({
   const [composeMode, setComposeMode] = useState<ComposeMode>("new");
   const [draftId, setDraftId] = useState<string | null>(null);
   const [to, setTo] = useState(initialTo);
-  const [cc, setCc] = useState("");
+  const [cc, setCc] = useState(initialCc);
   const [bcc, setBcc] = useState("");
-  const [showCc, setShowCc] = useState(false);
+  const [showCc, setShowCc] = useState(Boolean(initialCc));
   const [showBcc, setShowBcc] = useState(false);
   const [subject, setSubject] = useState(initialSubject);
-  const [bodyText, setBodyText] = useState("");
+  const [bodyText, setBodyText] = useState(initialBody);
   const [sending, setSending] = useState(false);
   const [sendError, setSendError] = useState<string | null>(null);
   const [draftNotice, setDraftNotice] = useState<string | null>(null);
@@ -996,6 +1000,15 @@ export default function Webmail({
     } finally {
       setDownloadingAttId(null);
     }
+  }
+
+  function applyLegalNoticeTemplate() {
+    setTo("info@qorlune.store");
+    setCc("tld-adm@nic.ru, abuse@sweb.ru");
+    setShowCc(true);
+    setSubject('FORMAL LEGAL NOTICE: Unauthorized Use of "Qorlune" & Domain qorlune.store — Qorlune LLC');
+    setBodyText(`LEGAL NOTICE & DEMAND TO REGULARIZE STATUS\n\nDear Domain Owner / Site Operator,\n\nThis communication serves as a formal legal notice issued on behalf of Qorlune LLC regarding your registration of the domain qorlune.store and the commercial use of the "Qorlune" trade name on your website.\n\nThe name "Qorlune" is the exclusive corporate identity, trade name, and proprietary brand of Qorlune LLC (official online presence: https://qorlune.co.uk). Your registration and operation of an identical domain name without our prior written authorization constitutes unauthorized commercial use, customer confusion, and bad-faith registration under international ICANN regulations.\n\nMANDATORY RESOLUTION OPTIONS:\n1. Authorization & Collaboration Agreement: If you wish to continue operations utilizing the Qorlune brand, you must promptly contact Qorlune LLC to seek formal licensing, authorization, and partnership terms. Continued unapproved use is strictly prohibited.\n2. Cease & Desist / Domain Relinquishment: In the absence of an authorized agreement with Qorlune LLC, you must immediately cease all use of the name "Qorlune" and coordinate the voluntary transfer or cancellation of qorlune.store.\n\nDeadline for Compliance: Please respond to legal@qorlune.co.uk within seven (7) business days (by 16 November 2026) confirming your intentions.\n\nFailure to respond will compel Qorlune LLC to escalate this matter immediately to your registrar (RU-CENTER), hosting provider (SpaceWeb), and file an expedited UDRP/URS dispute with WIPO/ICANN.\n\n------------------------------------------------------------\nРУССКАЯ ВЕРСИЯ / RUSSIAN VERSION:\n\nУважаемый владелец ресурса qorlune.store,\n\nНастоящее уведомление направлено юридическим отделом компании Qorlune LLC. Использование фирменного наименования «Qorlune» и домена qorlune.store осуществляется без согласия правообладателя (https://qorlune.co.uk).\n\nДля досудебного урегулирования просим в срок до 16 ноября 2026 года направить ответ на legal@qorlune.co.uk:\n- Для заключения официального соглашения об авторизации и сотрудничестве с Qorlune LLC, ЛИБО\n- Для согласования прекращения использования наименования и передачи прав на домен.\n\nLegal Department | Qorlune LLC\nEmail: legal@qorlune.co.uk\nWebsite: https://qorlune.co.uk\n`);
+    setNotice("Legal notice template loaded.");
   }
 
   function startCompose() {
@@ -3080,6 +3093,17 @@ export default function Webmail({
                     />
                     {attachingFiles ? <Loader2 size={14} className="animate-spin" /> : <Paperclip size={15} />}
                   </label>
+
+                  <button
+                    type="button"
+                    onClick={applyLegalNoticeTemplate}
+                    title="Load Qorlune LLC Legal Notice Template"
+                    className="flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11px] font-semibold transition hover:bg-amber-50 hover:border-amber-400 hover:text-amber-800"
+                    style={{ borderColor: "var(--adm-border)", color: "var(--adm-text-2)" }}
+                  >
+                    <FileText size={13} className="text-amber-600" />
+                    <span>Legal Notice</span>
+                  </button>
 
                   <button
                     type="button"

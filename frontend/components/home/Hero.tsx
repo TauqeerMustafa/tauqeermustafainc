@@ -74,15 +74,9 @@ export default function Hero() {
 
   return (
     <section
-      className="relative overflow-hidden bg-tint-blue px-5 pb-20 pt-24 sm:px-6 sm:pt-32 lg:pt-36"
+      className="relative overflow-hidden bg-canvas px-5 pb-20 pt-24 sm:px-6 sm:pt-32 lg:pt-36"
       aria-label="Hero"
     >
-      {/* Ambient background brand washes */}
-      <div className="pointer-events-none absolute inset-0" aria-hidden>
-        <div className="absolute -left-40 -top-40 h-[36rem] w-[36rem] rounded-full bg-action/[0.07] blur-3xl" />
-        <div className="absolute -right-32 top-24 h-[30rem] w-[30rem] rounded-full bg-signal/[0.05] blur-3xl" />
-      </div>
-
       {/* M-stripe — signature brand element at top */}
       <div className="absolute left-0 right-0 top-0 m-stripe" />
 
