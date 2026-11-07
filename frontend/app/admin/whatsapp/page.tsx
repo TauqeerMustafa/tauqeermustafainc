@@ -268,7 +268,7 @@ function withSeenChannels(
 
     extras.push({
       id: ch,
-      label: typeof window !== "undefined" && !window.location.hostname.includes("qorlune") ? "Tauqeer Mustafa Official" : "Qorlune Official",
+      label: typeof window !== "undefined" && !window.location.hostname.includes("qorlune") ? "Qorlune Official" : "Qorlune Official",
       primary: true,
       slot: 1,
       canSend: true,
@@ -440,7 +440,7 @@ export default function AdminWhatsAppPage() {
 
   useEffect(() => {
     if (typeof document !== "undefined") {
-      document.title = isTmi ? "WhatsApp Desk | Tauqeer Mustafa" : "WhatsApp Command Center | Qorlune";
+      document.title = isTmi ? "WhatsApp Command Center | Qorlune" : "WhatsApp Command Center | Qorlune";
     }
   }, [isTmi]);
 
@@ -526,8 +526,8 @@ export default function AdminWhatsAppPage() {
                 >
                   {isTmi
                     ? (typeof window !== "undefined" && window.location.hostname.includes("tech")
-                        ? "Tauqeer Mustafa Tech WhatsApp Desk"
-                        : "Tauqeer Mustafa WhatsApp Desk")
+                        ? "Qorlune WhatsApp Desk"
+                        : "Qorlune WhatsApp Desk")
                     : "WhatsApp Command Center"}
                 </h1>
                 <span className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-semibold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
@@ -642,7 +642,7 @@ export default function AdminWhatsAppPage() {
                   }}
                 >
                   <Briefcase size={12} />
-                  <span>{isTmi ? "Tauqeer Mustafa Official" : "Qorlune Official"} ({isTmi ? "+92 335 6701199" : (generalLine?.displayNumber || "+1 711-091-5975")})</span>
+                  <span>{isTmi ? "Qorlune Official" : "Qorlune Official"} ({isTmi ? "+92 335 6701199" : (generalLine?.displayNumber || "+1 711-091-5975")})</span>
                 </button>
                 <button
                   type="button"
@@ -1516,7 +1516,7 @@ function ChatView({
             {(() => {
               const isLine2 = conv.lineKey === "line2" || isTmi;
               const lineTheme = isLine2
-                ? { color: "#059669", dot: "bg-emerald-500", label: "🇵🇰 Tauqeer Mustafa (03356701199 / +92 335 6701199)" }
+                ? { color: "#059669", dot: "bg-emerald-500", label: "🇵🇰 Qorlune Direct Desk (03356701199 / +92 335 6701199)" }
                 : { color: "#2563eb", dot: "bg-blue-500", label: "🇺🇸 Qorlune Official (+1 711-091-5975)" };
 
               return (
@@ -2761,7 +2761,7 @@ function SendTab({
                   ? "Outbound messages will send from executive direct line (Line 3)"
                   : department === "support"
                   ? "Outbound messages will send from client support line"
-                  : isTmi ? "Outbound messages will send from Tauqeer Mustafa direct line +92 335 6701199" : "Outbound messages will send from official Qorlune line +1 711-091-5975"}
+                  : isTmi ? "Outbound messages will send from Qorlune direct line +92 335 6701199" : "Outbound messages will send from official Qorlune line +1 711-091-5975"}
               </p>
             </div>
           </div>

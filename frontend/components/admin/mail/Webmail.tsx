@@ -1656,9 +1656,9 @@ export default function Webmail({
             />
             <span>
               {currentDomainScope === "tech"
-                ? "Tauqeer Mustafa Tech (.tech)"
+                ? "Qorlune Tech"
                 : currentDomainScope === "com"
-                ? "Tauqeer Mustafa Inc. (.com)"
+                ? "Qorlune LLC"
                 : "Qorlune LLC (.co.uk)"}
             </span>
           </div>

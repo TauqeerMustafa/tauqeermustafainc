@@ -59,7 +59,7 @@ function getCuratedProspects(niche: string, location: string): any[] {
       industry: "Supply Chain & Logistics SaaS",
       targetRole: "Chief Technology Officer / VP Engineering",
       keyPainPoint: "Real-time fleet telemetry sync latency and bloated cloud microservice costs",
-      valueAngle: "High-performance distributed event streaming & database optimization by Tauqeer Mustafa",
+      valueAngle: "High-performance distributed event streaming & database optimization by Qorlune",
       estimatedDealSize: "£8,000 - £18,000"
     },
     {
@@ -99,7 +99,7 @@ function getCuratedProspects(niche: string, location: string): any[] {
       industry: "LegalTech & Enterprise SaaS",
       targetRole: "Founding Partner / Head of Tech",
       keyPainPoint: "Unreliable off-the-shelf LLM wrappers causing document hallucination and security concerns",
-      valueAngle: "Private enterprise RAG deployment with strict data governance engineered directly by Tauqeer",
+      valueAngle: "Private enterprise RAG deployment with strict data governance engineered directly by Qorlune",
       estimatedDealSize: "£14,000 - £30,000"
     }
   ];
@@ -130,7 +130,7 @@ export async function POST(req: NextRequest) {
       const { niche, location, count = 5 } = body;
 
       const systemPrompt = `You are an elite B2B sales researcher and executive talent partner for Qorlune (qorlune.co.uk).
-Tauqeer Mustafa is a Senior Software Engineer, Technology Architect, and AI Operations Consultant specializing in:
+Qorlune is a Senior Software Engineer, Technology Architect, and AI Operations Consultant specializing in:
 - High-performance web and cloud architectures (Next.js, Python, PostgreSQL, Distributed Systems)
 - Enterprise AI Workflows & Automation
 - Reducing technical debt, replacing overpriced agency contracts, and scaling digital infrastructure.
@@ -146,7 +146,7 @@ For each prospect, return an object with:
 - industry: Specific sector
 - targetRole: e.g. "Founder & CEO", "Chief Technology Officer"
 - keyPainPoint: Specific technical or operational bottleneck
-- valueAngle: The precise hook Tauqeer Mustafa brings to solve it
+- valueAngle: The precise hook Qorlune brings to solve it
 - estimatedDealSize: e.g. "£8,000 - £20,000"
 
 Return as JSON array.`;
@@ -168,7 +168,7 @@ Return as JSON array.`;
     if (action === "compose_email") {
       const { prospect, senderEmail = "admin@qorlune.co.uk" } = body;
 
-      const systemPrompt = `You are Tauqeer Mustafa, Founder & Executive at Qorlune writing from your corporate executive email (${senderEmail}).
+      const systemPrompt = `You are Qorlune, Founder & Executive at Qorlune writing from your corporate executive email (${senderEmail}).
 Tone: Sharp, respectful, founder-to-founder, concise (under 110 words), zero marketing fluff, zero buzzwords.
 Value proposition: You build robust scalable software architectures, AI automated pipelines, and resolve critical bottlenecks without bloated agency overhead.
 Goal: Offer a brief 10-minute diagnostic exchange or tailored architectural teardown.
@@ -185,12 +185,12 @@ Company: ${prospect.companyName} (${prospect.domain})
 Target Decision Maker: ${prospect.targetRole} (${prospect.contactName || "Decision Maker"})
 Pain Point: ${prospect.keyPainPoint}
 Value Angle: ${prospect.valueAngle}
-Sender: Tauqeer Mustafa | Qorlune (qorlune.co.uk)`;
+Sender: Qorlune | Qorlune (qorlune.co.uk)`;
 
       let emailContent = {
         subject: `Quick thought regarding ${prospect.companyName}'s engineering roadmap`,
-        html: `<p>Hi there,</p><p>I've been closely following ${prospect.companyName} and your trajectory in ${prospect.industry}.</p><p>Given your focus on scaling, many teams run into friction around ${prospect.keyPainPoint}. As an independent software architect and AI engineer, I partner directly with founders to streamline high-throughput systems and eliminate technical bottlenecks without agency bloat.</p><p>Would you be open to a brief 10-minute conversation this Thursday to see if there is an angle worth exploring?</p><p>Best regards,<br><strong>Tauqeer Mustafa</strong><br>Founder &amp; Principal Architect<br><a href="https://qorlune.co.uk">qorlune.co.uk</a></p>`,
-        text: `Hi there,\n\nI've been closely following ${prospect.companyName} and your trajectory in ${prospect.industry}.\n\nGiven your focus on scaling, many teams run into friction around ${prospect.keyPainPoint}. As an independent software architect and AI engineer, I partner directly with founders to streamline high-throughput systems and eliminate technical bottlenecks without agency bloat.\n\nWould you be open to a brief 10-minute conversation this Thursday to see if there is an angle worth exploring?\n\nBest regards,\nTauqeer Mustafa\nFounder & Principal Architect\ntauqeermustafa.com`
+        html: `<p>Hi there,</p><p>I've been closely following ${prospect.companyName} and your trajectory in ${prospect.industry}.</p><p>Given your focus on scaling, many teams run into friction around ${prospect.keyPainPoint}. As an independent software architect and AI engineer, I partner directly with founders to streamline high-throughput systems and eliminate technical bottlenecks without agency bloat.</p><p>Would you be open to a brief 10-minute conversation this Thursday to see if there is an angle worth exploring?</p><p>Best regards,<br><strong>Qorlune</strong><br>Founder &amp; Principal Architect<br><a href="https://qorlune.co.uk">qorlune.co.uk</a></p>`,
+        text: `Hi there,\n\nI've been closely following ${prospect.companyName} and your trajectory in ${prospect.industry}.\n\nGiven your focus on scaling, many teams run into friction around ${prospect.keyPainPoint}. As an independent software architect and AI engineer, I partner directly with founders to streamline high-throughput systems and eliminate technical bottlenecks without agency bloat.\n\nWould you be open to a brief 10-minute conversation this Thursday to see if there is an angle worth exploring?\n\nBest regards,\nQorlune\nFounder & Principal Architect\nqorlune.co.uk`
       };
 
       try {
@@ -215,7 +215,7 @@ Sender: Tauqeer Mustafa | Qorlune (qorlune.co.uk)`;
       const payload = {
         from: {
           email: fromEmail,
-          name: "Tauqeer Mustafa | Qorlune"
+          name: "Qorlune | Qorlune"
         },
         to: [{
           email: toEmail,

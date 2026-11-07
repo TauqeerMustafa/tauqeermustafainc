@@ -438,12 +438,12 @@ export default function AdminUsersPage() {
             )}
             {domainScope === "com" && (
               <span className="font-semibold" style={{ color: "var(--adm-blue)" }}>
-                Showing Tauqeer Mustafa Inc. (.com) accounts
+                Showing Qorlune LLC (.com) accounts
               </span>
             )}
             {domainScope === "tech" && (
               <span className="font-semibold" style={{ color: "#9333ea" }}>
-                Showing Tauqeer Mustafa Tech (.tech) accounts
+                Showing Qorlune Tech (.tech) accounts
               </span>
             )}
             {domainScope === "qorlune" && (
@@ -723,7 +723,7 @@ export default function AdminUsersPage() {
                 }}
               >
                 <span className="text-xs font-bold" style={{ color: "var(--adm-blue)" }}>
-                  Tauqeer Mustafa Inc.
+                  Qorlune LLC
                 </span>
                 <span className="text-[11px]" style={{ color: "var(--adm-text-3)" }}>
                   .com · tauqeermustafa.com
@@ -829,7 +829,7 @@ export default function AdminUsersPage() {
             </div>
             <p className="flex items-center gap-1.5 text-xs pt-1" style={{ color: "var(--adm-text-3)" }}>
               <Mail size={12} />
-              Mailbox is created and routed via OpenEmail. User will appear in the {drawerTenant === "tech" ? "Tauqeer Mustafa Tech admin panel" : drawerTenant === "com" ? "Tauqeer Mustafa Inc. admin panel" : "Qorlune portal"}.
+              Mailbox is created and routed via OpenEmail. User will appear in the {drawerTenant === "tech" ? "Qorlune Tech admin panel" : drawerTenant === "com" ? "Qorlune LLC admin panel" : "Qorlune portal"}.
             </p>
           </AdminField>
           <AdminField label="Temporary password" htmlFor="user-password">

@@ -50,14 +50,14 @@ export async function POST(request: Request) {
 
         if (lowerTo.endsWith("@tauqeermustafa.tech")) {
           replyFrom = "info@tauqeermustafa.tech";
-          replyFromName = "Tauqeer Mustafa Tech Helpdesk";
+          replyFromName = "Qorlune Helpdesk";
         } else if (
           lowerTo.endsWith("@tauqeermustafa.com") ||
           lowerTo.endsWith("@tauqeerm.com") ||
           lowerTo.endsWith("@tm.com")
         ) {
           replyFrom = "contact@tauqeermustafa.com";
-          replyFromName = "Tauqeer Mustafa Inc. Desk";
+          replyFromName = "Qorlune Inc. Desk";
         }
 
         await sendOpenEmailMessage(mailboxId, {

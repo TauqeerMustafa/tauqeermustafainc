@@ -29,7 +29,7 @@ export async function GET(req: NextRequest) {
       status: waData.status || "UNKNOWN",
       quality: waData.quality_rating || "UNKNOWN",
       displayPhone: waData.display_phone_number || "+1 711-091-5975",
-      verifiedName: waData.verified_name || "Tauqeer Mustafa",
+      verifiedName: waData.verified_name || "Qorlune LLC",
       antiBanArmed: true,
       rateLimitTier: "Tier 1 (1,000 unique customers / 24h rolling)",
     };

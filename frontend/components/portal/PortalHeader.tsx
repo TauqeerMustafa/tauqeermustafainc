@@ -98,50 +98,30 @@ export default function PortalHeader({ portal, onMenuClick }: Props) {
 
   useEffect(() => {
     if (typeof document !== "undefined") {
-      if (domainConfig.isTech) {
-        document.title = "Tauqeer Mustafa Tech Portal";
-      } else if (domainConfig.isCom) {
-        document.title = "Tauqeer Mustafa Admin Portal";
-      } else {
-        document.title = "Qorlune Admin Portal";
-      }
+      document.title = "Qorlune Admin Portal";
     }
   }, [domainConfig]);
 
   const displayName = useMemo(() => {
     if (user?.role === "admin" || !user?.role) {
-      if (domainConfig.isTech) return "Tauqeer Mustafa Tech";
-      if (domainConfig.isCom) return "Tauqeer Mustafa";
       return "Qorlune Admin";
     }
-    if (domainConfig.isTech && user?.name?.toLowerCase().includes("qorlune")) {
-      return "Tauqeer Mustafa Tech";
-    }
-    if (domainConfig.isCom && user?.name?.toLowerCase().includes("qorlune")) {
-      return "Tauqeer Mustafa";
-    }
     return user?.name ?? t("User");
-  }, [domainConfig.isTech, domainConfig.isCom, user?.name, user?.role, t]);
+  }, [user?.name, user?.role, t]);
 
   const displayAvatar = useMemo(() => {
     if (user?.role === "admin" || !user?.role) {
-      if (domainConfig.isTech || domainConfig.isCom) return "/founder.jpg";
       return "/logo.png";
     }
-    if ((domainConfig.isTech || domainConfig.isCom) && (!user?.avatarUrl || user.avatarUrl.includes("logo") || user.avatarUrl.includes("qorlune"))) {
-      return "/founder.jpg";
-    }
-    return user?.avatarUrl;
-  }, [domainConfig.isTech, domainConfig.isCom, user?.avatarUrl, user?.role]);
+    return user?.avatarUrl || "/logo.png";
+  }, [user?.avatarUrl, user?.role]);
 
   const displayRoleLabel = useMemo(() => {
     if (user?.role === "admin" || !user?.role) {
-      if (domainConfig.isTech) return "Tech Administrator";
-      if (domainConfig.isCom) return "Executive Administrator";
       return "Administrator";
     }
     return roleLabel(user?.role);
-  }, [domainConfig.isTech, domainConfig.isCom, user?.role]);
+  }, [user?.role]);
 
   const [notifOpen, setNotifOpen] = useState(false);
   const [paletteOpen, setPaletteOpen] = useState(false);

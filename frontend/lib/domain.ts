@@ -2,14 +2,14 @@
 
 import { useState, useEffect } from "react";
 
-export type TenantKey = "tech" | "com" | "qorlune";
+export type TenantKey = "qorlune" | "tech" | "com";
 
 export interface DomainConfig {
   tenant: TenantKey;
   isTech: boolean;
   isCom: boolean;
   isQorlune: boolean;
-  isTmi: boolean; // true for tech and com
+  isTmi: boolean;
   apex: string;
   brandName: string;
   shortName: string;
@@ -36,10 +36,7 @@ export function getTenantFromEmail(email: string): TenantKey {
   ) {
     return "com";
   }
-  if (lower.endsWith("@qorlune.co.uk") || lower.endsWith("@qorlune.com")) {
-    return "qorlune";
-  }
-  return "com";
+  return "qorlune";
 }
 
 export function getDomainConfig(hostname?: string): DomainConfig {
@@ -56,14 +53,11 @@ export function getDomainConfig(hostname?: string): DomainConfig {
   }
   const lower = host.toLowerCase().trim();
 
-  // 1. .tech Portal (tauqeermustafa.tech)
+  // 1. .tech Portal (tauqeermustafa.tech) - only if explicitly requested
   if (
     queryTenant === "tech" ||
     lower.includes("tauqeermustafa.tech") ||
-    lower === "tech" ||
-    lower.endsWith(".tech") ||
-    lower.startsWith("tech.") ||
-    lower.includes("-tech")
+    lower.endsWith(".tech")
   ) {
     return {
       tenant: "tech",
@@ -72,38 +66,9 @@ export function getDomainConfig(hostname?: string): DomainConfig {
       isQorlune: false,
       isTmi: true,
       apex: "tauqeermustafa.tech",
-      brandName: "Tauqeer Mustafa Tech",
-      shortName: "TM Tech",
+      brandName: "Qorlune Tech",
+      shortName: "Qorlune Tech",
       portalLabel: "Tech Portal",
-      email: "info@tauqeermustafa.tech",
-      portalsUrl: "https://portals.tauqeermustafa.tech",
-      billingUrl: "https://billing.tauqeermustafa.tech",
-      docsUrl: "https://docs.tauqeermustafa.tech",
-      supportUrl: "https://support.tauqeermustafa.tech",
-      appUrl: "https://app.tauqeermustafa.tech",
-      mainUrl: "https://tauqeermustafa.tech",
-      logoSrc: "/tm-logo.svg",
-    };
-  }
-
-  // 2. Qorlune Portal (qorlune.co.uk)
-  if (
-    queryTenant === "qorlune" ||
-    lower.includes("qorlune") ||
-    lower.endsWith(".co.uk") ||
-    lower === "co.uk" ||
-    lower === "qor"
-  ) {
-    return {
-      tenant: "qorlune",
-      isTech: false,
-      isCom: false,
-      isQorlune: true,
-      isTmi: false,
-      apex: "qorlune.co.uk",
-      brandName: "Qorlune LLC",
-      shortName: "Qorlune",
-      portalLabel: "Admin Portal",
       email: "support@qorlune.co.uk",
       portalsUrl: "https://portals.qorlune.co.uk",
       billingUrl: "https://billing.qorlune.co.uk",
@@ -115,25 +80,52 @@ export function getDomainConfig(hostname?: string): DomainConfig {
     };
   }
 
-  // 3. .com Portal (tauqeermustafa.com)
+  // 2. .com Portal - only if explicitly requested
+  if (
+    queryTenant === "com" ||
+    lower.includes("tauqeermustafa.com") ||
+    lower.includes("tauqeerm.com")
+  ) {
+    return {
+      tenant: "com",
+      isTech: false,
+      isCom: true,
+      isQorlune: true,
+      isTmi: false,
+      apex: "qorlune.co.uk",
+      brandName: "Qorlune LLC",
+      shortName: "Qorlune",
+      portalLabel: "Executive Portal",
+      email: "contact@qorlune.co.uk",
+      portalsUrl: "https://portals.qorlune.co.uk",
+      billingUrl: "https://billing.qorlune.co.uk",
+      docsUrl: "https://docs.qorlune.co.uk",
+      supportUrl: "https://support.qorlune.co.uk",
+      appUrl: "https://app.qorlune.co.uk",
+      mainUrl: "https://qorlune.co.uk",
+      logoSrc: "/logo.png",
+    };
+  }
+
+  // DEFAULT: Primary Qorlune Portal (qorlune.co.uk)
   return {
-    tenant: "com",
+    tenant: "qorlune",
     isTech: false,
-    isCom: true,
-    isQorlune: false,
-    isTmi: true,
-    apex: "tauqeermustafa.com",
-    brandName: "Tauqeer Mustafa Inc.",
-    shortName: "Tauqeer Mustafa",
-    portalLabel: "Executive Portal",
-    email: "contact@tauqeermustafa.com",
-    portalsUrl: "https://portals.tauqeermustafa.com",
-    billingUrl: "https://billing.tauqeermustafa.com",
-    docsUrl: "https://docs.tauqeermustafa.com",
-    supportUrl: "https://support.tauqeermustafa.com",
-    appUrl: "https://app.tauqeermustafa.com",
-    mainUrl: "https://tauqeermustafa.com",
-    logoSrc: "/tm-logo.svg",
+    isCom: false,
+    isQorlune: true,
+    isTmi: false,
+    apex: "qorlune.co.uk",
+    brandName: "Qorlune LLC",
+    shortName: "Qorlune",
+    portalLabel: "Client Portal",
+    email: "contact@qorlune.co.uk",
+    portalsUrl: "https://portals.qorlune.co.uk",
+    billingUrl: "https://billing.qorlune.co.uk",
+    docsUrl: "https://docs.qorlune.co.uk",
+    supportUrl: "https://support.qorlune.co.uk",
+    appUrl: "https://app.qorlune.co.uk",
+    mainUrl: "https://qorlune.co.uk",
+    logoSrc: "/logo.png",
   };
 }
 
@@ -146,9 +138,11 @@ export function useDomainConfig(): DomainConfig {
   });
 
   useEffect(() => {
-    if (typeof window !== "undefined") {
+    function update() {
       setConfig(getDomainConfig(window.location.hostname));
     }
+    window.addEventListener("popstate", update);
+    return () => window.removeEventListener("popstate", update);
   }, []);
 
   return config;

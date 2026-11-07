@@ -144,7 +144,7 @@ function build(): WANumber[] {
     },
     {
       id: "03356701199",
-      label: clean(process.env.WHATSAPP_PHONE_LABEL_2) || "Tauqeer Mustafa (03356701199)",
+      label: clean(process.env.WHATSAPP_PHONE_LABEL_2) || "Qorlune Direct Desk",
       primary: false,
       slot: 2,
       department: "direct",
@@ -227,7 +227,7 @@ export function labelFor(id: string | null | undefined): string {
   const found = waNumbers().find((n) => n.id === value || (n.displayNumber && n.displayNumber.replace(/[^0-9]/g, "") === digits));
   if (found) return found.label;
   if (digits.includes("3356701199") || digits.includes("3335670119") || value === DEFAULT_PK_ID) {
-    return "Tauqeer Mustafa";
+    return "Qorlune Direct Desk";
   }
   return "Qorlune Official";
 }
@@ -304,7 +304,7 @@ export const KNOWN_LINES: Record<string, LineIdentifier> = {
   line2: {
     lineKey: "line2",
     canonicalId: "03356701199",
-    label: "Tauqeer Mustafa",
+    label: "Qorlune Direct Desk",
     flag: "🇵🇰",
     displayNumber: "+92 335 6701199",
   },

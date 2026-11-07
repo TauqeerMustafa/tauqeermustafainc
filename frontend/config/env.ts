@@ -20,7 +20,7 @@ if (process.env.NODE_ENV === "production" && !rawApiUrl) {
       "network error for real visitors.",
       "",
       "Set it in Vercel -> Settings -> Environment Variables -> Production:",
-      "  NEXT_PUBLIC_API_URL=https://tauqeer-inc-backend.onrender.com",
+      "  NEXT_PUBLIC_API_URL=https://api.qorlune.co.uk",
       "",
       "Then redeploy. NEXT_PUBLIC_* values are inlined at build time, so",
       "changing the variable alone will not affect a site that is already",
@@ -52,7 +52,7 @@ if (!parsedEnv.success) {
   throw new Error(
     `Invalid frontend environment configuration:\n${details}\n\n` +
       "NEXT_PUBLIC_API_URL must be an absolute URL, e.g. " +
-      "https://tauqeer-inc-backend.onrender.com",
+      "https://api.qorlune.co.uk",
   );
 }
 

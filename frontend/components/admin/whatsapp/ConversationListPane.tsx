@@ -174,7 +174,7 @@ export function ConversationListPane({
           </div>
           <div>
             <h2 className="text-sm font-bold leading-tight" style={{ color: "var(--adm-text)" }}>
-              {isTmi ? (typeof window !== "undefined" && window.location.hostname.includes("tech") ? "Tauqeer Mustafa Tech Inbox" : "Tauqeer Mustafa Inbox") : "WhatsApp Inbox"}
+              {isTmi ? (typeof window !== "undefined" && window.location.hostname.includes("tech") ? "Qorlune Inbox" : "Qorlune Inbox") : "WhatsApp Inbox"}
             </h2>
             <p className="text-[11px] font-medium" style={{ color: "var(--adm-text-3)" }}>
               {isTmi ? "+92 335 6701199 (Direct)" : "+1 711-091-5975 (Official)"}
@@ -220,10 +220,10 @@ export function ConversationListPane({
               type="button"
               onClick={() => onDepartmentChange("line2")}
               className="flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1 text-[11px] font-bold bg-emerald-600 text-white shadow-sm"
-              title="Tauqeer Mustafa (tauqeermustafa.com | +92 335 6701199)"
+              title="Qorlune Direct Desk (tauqeermustafa.com | +92 335 6701199)"
             >
               <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
-              <span>🇵🇰 Tauqeer Mustafa (+92 335 6701199)</span>
+              <span>🇵🇰 Qorlune Direct Desk (+92 335 6701199)</span>
               {(unreadCounts.line2 ?? 0) > 0 && (
                 <span className="flex h-4 min-w-[16px] items-center justify-center rounded-full bg-emerald-500 px-1 text-[9px] font-bold text-white">
                   {unreadCounts.line2}

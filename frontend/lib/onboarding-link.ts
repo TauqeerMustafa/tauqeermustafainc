@@ -30,7 +30,7 @@ export function suggestCompanyEmail(name: string, domain?: string): string {
   if (!domain) {
     if (typeof window !== "undefined") {
       const cfg = getDomainConfig(window.location.hostname);
-      host = cfg.isTmi ? "tauqeermustafa.com" : "qorlune.co.uk";
+      host = "qorlune.co.uk";
     } else {
       try {
         host = new URL(appConfig.siteUrl).host;

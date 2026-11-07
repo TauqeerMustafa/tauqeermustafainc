@@ -28,7 +28,7 @@ function authHeaders(extra?: Record<string, string>): Record<string, string> {
   if (typeof window !== "undefined") {
     const host = window.location.hostname.toLowerCase();
     const isQor = host.includes("qorlune") || host.endsWith(".co.uk");
-    headers["x-portal-domain"] = isQor ? "qorlune" : "tauqeermustafa";
+    headers["x-portal-domain"] = "qorlune";
   }
   return headers;
 }
@@ -39,7 +39,7 @@ async function getJSON(path: string) {
     const host = window.location.hostname.toLowerCase();
     const isQor = host.includes("qorlune") || host.endsWith(".co.uk");
     const sep = url.includes("?") ? "&" : "?";
-    url = `${url}${sep}tenant=${isQor ? "qorlune" : "tauqeermustafa"}`;
+    url = `${url}${sep}tenant=qorlune`;
   }
   const res = await fetch(url, { headers: authHeaders() });
   if (!res.ok) throw new Error(`Request failed: ${path}`);

@@ -1,7 +1,6 @@
 /**
- * Multi-Tenant Company Profile
- * Defaults strictly to Tauqeer Mustafa Inc. (tauqeermustafa.com)
- * Dynamically switches to Qorlune LLC only when accessed from qorlune.co.uk / qorlune.com
+ * Company Profile — Qorlune LLC (Official)
+ * All public touchpoints resolve strictly to Qorlune LLC.
  */
 
 export interface Office {
@@ -69,95 +68,6 @@ export interface CompanyData {
   };
 }
 
-export const tauqeerCompany: CompanyData = {
-  name: "Tauqeer Mustafa Inc.",
-  legalName: "Tauqeer Mustafa Inc.",
-  shortName: "Tauqeer Mustafa",
-  tagline: "Systems Architect & Cybersecurity Consultant",
-  description:
-    "Enterprise systems architecture, high-throughput cloud runtimes, zero-trust resilience, and defensive security engineering for enterprise platforms worldwide.",
-  mission:
-    "To architect and secure resilient, high-throughput systems that hold under real operational load.",
-  vision:
-    "To lead modern enterprise systems architecture and security consulting with uncompromising engineering rigor.",
-  founded: "2024",
-  hq: "Islamabad, Pakistan",
-  city: "Islamabad, Pakistan",
-  offices: [
-    {
-      label: "Headquarters",
-      city: "Islamabad, Pakistan",
-      address: "Islamabad, Pakistan",
-      mapEmbedUrl: "",
-    },
-  ],
-  email: "info@tauqeermustafa.com",
-  emails: {
-    general: "info@tauqeermustafa.com",
-    contact: "contact@tauqeermustafa.com",
-    support: "support@tauqeermustafa.com",
-    sales: "sales@tauqeermustafa.com",
-    marketing: "marketing@tauqeermustafa.com",
-    legal: "legal@tauqeermustafa.com",
-    careers: "careers@tauqeermustafa.com",
-    business: "business@tauqeermustafa.com",
-    billing: "billing@tauqeermustafa.com",
-  },
-  mapEmbedUrl: "",
-  phone: "+92 335 6701199",
-  whatsapp: "https://wa.me/923356701199",
-  whatsappChannels: {
-    general: {
-      name: "Tauqeer Mustafa Inc. Official Desk",
-      number: "+92 335 6701199",
-      url: "https://wa.me/923356701199",
-      displayNumber: "+92 335 6701199",
-      description: "Direct client consultation, inquiries, enterprise proposals, and official support",
-      action: "Chat with Tauqeer Mustafa",
-      badge: "Official Line",
-    },
-    support: {
-      name: "Technical & Architecture Support",
-      number: "+92 335 6701199",
-      url: "https://wa.me/923356701199",
-      displayNumber: "+92 335 6701199",
-      description: "24/7 enterprise systems helpdesk, cloud SLA, and live technical support",
-      action: "Contact Support Desk",
-      badge: "24/7 Support",
-    },
-    direct: {
-      name: "Executive & Priority Desk",
-      number: "+92 335 6701199",
-      url: "https://wa.me/923356701199",
-      displayNumber: "+92 335 6701199",
-      description: "Executive desk, enterprise architecture proposals & strategic advisory",
-      action: "Chat with Executive Desk",
-      badge: "Priority Desk",
-    },
-  },
-  website: "https://tauqeermustafa.com",
-  workingHours: "Monday - Saturday | 9:00 AM - 6:00 PM PKT",
-  slogan: "High-Throughput Cloud Runtimes, Zero-Trust Resilience & Enterprise Systems.",
-  targetClients: [
-    "Startups",
-    "SMEs",
-    "Enterprise Organizations",
-    "Cloud Platforms",
-    "Financial Services",
-    "International Businesses",
-  ],
-  colors: {
-    primary: "#0f172a",
-    secondary: "#ffffff",
-    accent: "#2563eb",
-  },
-  social: {
-    github: "https://github.com/TauqeerMustafa",
-    linkedin: "https://linkedin.com/in/tauqeer-mustafa",
-    twitter: "https://x.com/tauqeermustafa",
-  },
-};
-
 export const qorluneCompany: CompanyData = {
   name: "Qorlune LLC",
   legalName: "Qorlune LLC",
@@ -181,7 +91,7 @@ export const qorluneCompany: CompanyData = {
         "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3456.4971033504817!2d-90.07737629016616!3d29.96514072222164!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x8620a50056d541c1%3A0xd62188e30053c7ed!2sQorlune!5e0!3m2!1sen!2s!4v1792247708181!5m2!1sen!2s",
     },
   ],
-  email: "support@qorlune.co.uk",
+  email: "contact@qorlune.co.uk",
   emails: {
     general: "info@qorlune.co.uk",
     contact: "contact@qorlune.co.uk",
@@ -251,22 +161,13 @@ export const qorluneCompany: CompanyData = {
   },
 };
 
+/** Backward compatibility alias */
+export const tauqeerCompany: CompanyData = qorluneCompany;
+
 export function getCompany(hostname?: string): CompanyData {
-  let host = (hostname || "").toLowerCase();
-  if (!host && typeof window !== "undefined") {
-    host = window.location.hostname.toLowerCase();
-  }
-  if (host.includes("qorlune") || host.endsWith(".co.uk")) {
-    return qorluneCompany;
-  }
-  return tauqeerCompany;
+  return qorluneCompany;
 }
 
-export const company: CompanyData = new Proxy(tauqeerCompany, {
-  get(target, prop: keyof CompanyData) {
-    const active = getCompany();
-    return active[prop] ?? target[prop];
-  },
-});
+export const company: CompanyData = qorluneCompany;
 
 export default company;

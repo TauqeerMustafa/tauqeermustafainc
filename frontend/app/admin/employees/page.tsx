@@ -77,8 +77,8 @@ export default function AdminEmployeesPage() {
           </span>
           <span className="text-xs" style={{ color: "var(--adm-text-2)" }}>
             {domainScope === "current" && <span className="font-semibold text-adm-blue">Showing {domainCfg.shortName} roster only</span>}
-            {domainScope === "com" && <span className="font-semibold" style={{ color: "var(--adm-blue)" }}>Showing Tauqeer Mustafa Inc. (.com) roster</span>}
-            {domainScope === "tech" && <span className="font-semibold" style={{ color: "#9333ea" }}>Showing Tauqeer Mustafa Tech (.tech) roster</span>}
+            {domainScope === "com" && <span className="font-semibold" style={{ color: "var(--adm-blue)" }}>Showing Qorlune LLC (.com) roster</span>}
+            {domainScope === "tech" && <span className="font-semibold" style={{ color: "#9333ea" }}>Showing Qorlune Tech (.tech) roster</span>}
             {domainScope === "qorlune" && <span className="font-semibold" style={{ color: "var(--adm-green)" }}>Showing Qorlune (.co.uk) roster</span>}
             {domainScope === "all" && <span className="font-semibold text-adm-text">Showing all employees across all brands</span>}
           </span>

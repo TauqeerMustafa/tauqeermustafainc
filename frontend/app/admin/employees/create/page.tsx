@@ -233,7 +233,7 @@ export default function CreateEmployeePage() {
                 </button>
               </div>
               <p className="text-[11px] text-adm-text-3 pt-1">
-                Accounts ending in @tauqeermustafa.* / @tm.com attach to the Tauqeer Mustafa admin panel. Accounts ending in @qorlune.* attach to the Qorlune portal.
+                Accounts ending in @tauqeermustafa.* / @tm.com attach to the Qorlune admin panel. Accounts ending in @qorlune.* attach to the Qorlune portal.
               </p>
             </Field>
             <Field
