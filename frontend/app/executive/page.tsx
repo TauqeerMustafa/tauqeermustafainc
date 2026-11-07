@@ -148,7 +148,7 @@ export default function ExecutiveOutreachPortal() {
     }
   };
 
-  // 4. Send Verified Email from tauqeermustafa.com
+  // 4. Send Verified Email from qorlune.co.uk
   const handleSendEmail = async () => {
     if (!recipientEmail || !emailSubject || !emailBody) {
       alert("Please provide recipient email, subject, and body.");
@@ -380,15 +380,15 @@ export default function ExecutiveOutreachPortal() {
                 </span>
                 <div className="flex flex-col gap-2 font-mono text-xs">
                   <div className="p-2.5 rounded-lg bg-slate-950/80 border border-slate-800/80 flex items-center justify-between">
-                    <span className="text-cyan-300">tauqeer@tauqeermustafa.com</span>
+                    <span className="text-cyan-300">admin@qorlune.co.uk</span>
                     <span className="text-[10px] text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded">Active</span>
                   </div>
                   <div className="p-2.5 rounded-lg bg-slate-950/80 border border-slate-800/80 flex items-center justify-between">
-                    <span className="text-slate-300">contact@tauqeermustafa.com</span>
+                    <span className="text-slate-300">contact@qorlune.co.uk</span>
                     <span className="text-[10px] text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded">Active</span>
                   </div>
                   <div className="p-2.5 rounded-lg bg-slate-950/80 border border-slate-800/80 flex items-center justify-between">
-                    <span className="text-slate-300">admin@tauqeermustafa.com</span>
+                    <span className="text-slate-300">support@qorlune.co.uk</span>
                     <span className="text-[10px] text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded">Active</span>
                   </div>
                 </div>
@@ -522,7 +522,7 @@ export default function ExecutiveOutreachPortal() {
                         <div className="text-slate-300 mt-0.5">{selectedProspect.keyPainPoint}</div>
                       </div>
                       <div>
-                        <span className="text-slate-400 font-medium">Tauqeer&apos;s Strategic Angle:</span>
+                        <span className="text-slate-400 font-medium">Strategic Angle:</span>
                         <div className="text-cyan-300 mt-0.5">{selectedProspect.valueAngle}</div>
                       </div>
                     </div>
@@ -641,7 +641,7 @@ export default function ExecutiveOutreachPortal() {
                 {/* Send Button */}
                 <div className="flex items-center justify-between pt-2">
                   <span className="text-xs text-slate-400">
-                    Signing as: <strong className="text-slate-200">Tauqeer Mustafa ({senderMailbox})</strong>
+                    Signing as: <strong className="text-slate-200">Qorlune Executive ({senderMailbox})</strong>
                   </span>
 
                   <button

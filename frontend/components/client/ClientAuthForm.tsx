@@ -25,16 +25,16 @@ export default function ClientAuthForm({ mode }: Props) {
     let cleanEmail = form.email.trim().toLowerCase();
 
 
-    if (cleanEmail.endsWith("@tauqeermustafa.tech")) {
+    if (cleanEmail.endsWith("@legacy.tech")) {
 
 
-      cleanEmail = cleanEmail.replace("@tauqeermustafa.tech", "@qorlune.co.uk");
+      cleanEmail = cleanEmail.replace("@legacy.tech", "@qorlune.co.uk");
 
 
-    } else if (cleanEmail.endsWith("@tauqeermustafa.com")) {
+    } else if (cleanEmail.endsWith("@legacy.com")) {
 
 
-      cleanEmail = cleanEmail.replace("@tauqeermustafa.com", "@qorlune.co.uk");
+      cleanEmail = cleanEmail.replace("@legacy.com", "@qorlune.co.uk");
 
 
     }
