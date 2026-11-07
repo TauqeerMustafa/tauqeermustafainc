@@ -98,8 +98,8 @@
   --m-red:        #e22718;
 
   /* ── shadcn / Tailwind compat ── */
-  --background:             #ffffff;
-  --foreground:             #111827;
+  --background:             var(--canvas);
+  --foreground:             var(--ink);
   --card:                   #ffffff;
   --card-foreground:        #141413;
   --popover:                #ffffff;

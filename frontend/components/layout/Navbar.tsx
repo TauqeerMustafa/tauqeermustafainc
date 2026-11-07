@@ -13,16 +13,21 @@ import {
   LifeBuoy,
   Menu,
   ShieldCheck,
+  Smartphone,
+  Users,
   X,
 } from "lucide-react";
 
 import ThemeToggle from "@/components/layout/ThemeToggle";
+import { company } from "@/data/company";
 
-/** Main domain navigation links */
-const navLinks = [
-  { name: "Home", href: "/" },
+/* ── BMW / BMW M navbar — theme-flipping chrome, M-stripe rail, uppercase utility nav ── */
+
+/** Main domain pages (no subdomains) */
+const primaryNav = [
   { name: "About", href: "/about" },
   { name: "Services", href: "/services" },
+  { name: "Pricing", href: "/pricing" },
   { name: "Portfolio", href: "/portfolio" },
   { name: "Careers", href: "/careers" },
   { name: "Blog", href: "/blog" },
@@ -67,11 +72,15 @@ function getSubdomainHref(sub: string) {
   return `https://${sub}.qorlune.co.uk`;
 }
 
+const linkClass =
+  "relative flex h-9 items-center px-3 font-mono text-[11px] font-semibold uppercase tracking-[0.1em] text-ink/55 transition-colors hover:text-ink focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-action";
+
 export default function Navbar() {
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
+  const detailsRef = useRef<HTMLDetailsElement>(null);
   const dropdownRef = useRef<HTMLLIElement>(null);
   const closeTimerRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -97,7 +106,8 @@ export default function Navbar() {
   // Close menus on route change
   useEffect(() => {
     setIsDropdownOpen(false);
-    setIsOpen(false);
+    const closeMenu = window.setTimeout(() => setIsOpen(false), 0);
+    return () => window.clearTimeout(closeMenu);
   }, [pathname]);
 
   // Close dropdown on click outside
@@ -119,7 +129,6 @@ export default function Navbar() {
     function handleKeyDown(e: KeyboardEvent) {
       if (e.key === "Escape") {
         setIsDropdownOpen(false);
-        setIsOpen(false);
       }
     }
     window.addEventListener("keydown", handleKeyDown);
@@ -127,51 +136,47 @@ export default function Navbar() {
   }, []);
 
   return (
-    <header className="sticky top-0 z-50 bg-white/95 backdrop-blur border-b border-zinc-200 dark:bg-zinc-950/95 dark:border-zinc-800">
-      {/* M-stripe rail — signature brand element */}
+    <header className="sticky top-0 z-50 border-b border-ink/10 bg-canvas/95 supports-[backdrop-filter]:bg-canvas/85 supports-[backdrop-filter]:backdrop-blur-xl">
+      {/* 12:00 AM Takeover Notification Banner */}
+      <div className="bg-ink text-canvas px-4 py-1.5 text-center text-[11px] sm:text-xs font-mono tracking-wide flex items-center justify-center gap-2 border-b border-ink/20">
+        <span className="inline-block h-2 w-2 rounded-full bg-red-500 animate-pulse shrink-0" aria-hidden="true" />
+        <span><strong>Official Notice:</strong> Qorlune officially takes over full operations at 12:00 AM.</span>
+      </div>
+
+      {/* M-stripe rail — signature brand element (literal tricolor) */}
       <div className="m-stripe" aria-hidden="true" />
 
-      <nav className="mx-auto flex min-h-[4.25rem] max-w-[1200px] items-center justify-between gap-4 px-5 py-3 sm:px-6">
+      <nav className="mx-auto flex min-h-[4.5rem] max-w-[1200px] items-center gap-4 px-5 py-3 sm:px-6">
         {/* Brand — left */}
         <Link
           href="/"
-          className="inline-flex min-h-10 shrink-0 items-center gap-2.5 text-[15px] font-bold uppercase tracking-[0.01em] text-zinc-900 transition-opacity hover:opacity-80 dark:text-white"
+          className="inline-flex min-h-10 shrink-0 items-center gap-2.5 text-[15px] font-bold uppercase tracking-[0.01em] text-ink transition-opacity hover:opacity-80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-action"
         >
-          <span className="relative flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-md border border-zinc-200 bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-900">
-            <Image
-              src="/logo.png"
-              alt="Qorlune LLC"
-              fill
-              sizes="36px"
-              className="object-contain p-1"
-              priority
-            />
+          <span className="relative flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden border border-ink/15 bg-ink/[0.06]">
+            <Image src="/logo.png" alt={company.name} fill sizes="36px" className="object-contain p-0.5" priority />
           </span>
-          <span className="text-zinc-900 dark:text-white">Qorlune LLC</span>
+          <span className="hidden sm:inline">{company.name}</span>
+          <span className="sm:hidden">{company.shortName}</span>
         </Link>
 
-        {/* Nav options — desktop */}
-        <ul className="hidden items-center gap-1 lg:flex">
-          {navLinks.map((link) => {
+        {/* Nav options — centred with balanced spacing */}
+        <ul className="hidden flex-1 items-center justify-center gap-0.5 lg:flex">
+          {primaryNav.map((link) => {
             const isActive = pathname === link.href;
             return (
               <li key={link.name}>
                 <Link
                   href={link.href}
                   aria-current={isActive ? "page" : undefined}
-                  className={`relative flex h-9 items-center px-3 text-sm font-medium transition-colors ${
-                    isActive
-                      ? "text-zinc-900 font-semibold dark:text-white"
-                      : "text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white"
-                  }`}
+                  className={`${linkClass} ${isActive ? "text-ink" : ""}`}
                 >
                   {link.name}
-                  {isActive && (
-                    <span
-                      className="absolute inset-x-3 -bottom-[1px] h-[2px] bg-zinc-900 dark:bg-white"
-                      aria-hidden="true"
-                    />
-                  )}
+                  <span
+                    className={`absolute inset-x-3 -bottom-[7px] h-[2px] bg-action transition-transform duration-300 ${
+                      isActive ? "scale-x-100" : "scale-x-0"
+                    }`}
+                    aria-hidden
+                  />
                 </Link>
               </li>
             );
@@ -189,34 +194,33 @@ export default function Navbar() {
               onClick={handleDropdownToggle}
               aria-expanded={isDropdownOpen}
               aria-haspopup="true"
-              className={`flex h-9 cursor-pointer items-center gap-1 px-3 text-sm font-medium transition-colors ${
-                isDropdownOpen
-                  ? "text-zinc-900 dark:text-white"
-                  : "text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white"
+              className={`${linkClass} cursor-pointer gap-1.5 ${
+                isDropdownOpen ? "text-ink" : ""
               }`}
             >
               <span>Company</span>
               <ChevronDown
-                className={`h-3.5 w-3.5 transition-transform duration-200 ${
-                  isDropdownOpen ? "rotate-180 text-zinc-900 dark:text-white" : "text-zinc-400"
+                className={`h-3 w-3 text-ink/50 transition-transform duration-200 ${
+                  isDropdownOpen ? "rotate-180 text-action" : ""
                 }`}
                 aria-hidden="true"
               />
             </button>
 
-            {/* Subdomains Flyout Panel */}
+            {/* Precision Subdomains Flyout Panel - Solid Opaque Background */}
             {isDropdownOpen && (
               <div
                 role="menu"
-                className="absolute right-0 top-full mt-2 w-64 rounded-lg border border-zinc-200 bg-white p-2 shadow-xl dark:border-zinc-800 dark:bg-zinc-900 z-50 animate-in fade-in-0 zoom-in-95 duration-150"
+                className="absolute right-0 top-full mt-1.5 w-48 border border-ink/20 dark:border-white/20 bg-surface dark:bg-[#0c111a] p-2 shadow-[0_20px_50px_rgba(0,0,0,0.6)] z-50 animate-in fade-in-0 zoom-in-95 duration-150"
               >
-                {/* M-stripe top accent rail */}
-                <div className="flex h-[2px] w-full mb-2 overflow-hidden rounded-full" aria-hidden="true">
+                {/* Subtle M-stripe top accent rail */}
+                <div className="flex h-[2px] w-full mb-2" aria-hidden="true">
                   <span className="flex-1 bg-m-blue" />
                   <span className="flex-1 bg-m-blue-mid" />
                   <span className="flex-1 bg-m-red" />
                 </div>
 
+                {/* Clean Subdomain Tag Grid — Names only */}
                 <div className="grid grid-cols-1 gap-1">
                   {companySubdomains.map((item) => {
                     const Icon = item.icon;
@@ -227,16 +231,16 @@ export default function Navbar() {
                         target="_blank"
                         rel="noopener noreferrer"
                         onClick={() => setIsDropdownOpen(false)}
-                        className="group/tag flex items-center justify-between rounded-md px-3 py-2 text-zinc-700 transition-colors hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-300 dark:hover:bg-zinc-800 dark:hover:text-white"
+                        className="group/tag flex items-center justify-between border border-transparent bg-ink/[0.03] dark:bg-white/[0.04] px-3 py-2 text-ink dark:text-white transition-all hover:border-action hover:bg-action/[0.08] hover:text-action focus-visible:outline focus-visible:outline-2 focus-visible:outline-action"
                         role="menuitem"
                       >
-                        <span className="flex items-center gap-2.5">
-                          <Icon className="h-4 w-4 text-zinc-500 group-hover/tag:text-zinc-900 dark:text-zinc-400 dark:group-hover/tag:text-white shrink-0" aria-hidden="true" />
-                          <span className="text-xs font-semibold">
+                        <span className="flex items-center gap-2">
+                          <Icon className="h-3.5 w-3.5 text-action shrink-0" aria-hidden="true" />
+                          <span className="font-mono text-[11px] font-bold uppercase tracking-[0.08em]">
                             {item.name}
                           </span>
                         </span>
-                        <ArrowUpRight className="h-3 w-3 shrink-0 text-zinc-400 group-hover/tag:text-zinc-900 dark:group-hover/tag:text-white group-hover/tag:translate-x-0.5 transition-all" aria-hidden="true" />
+                        <ArrowUpRight className="h-3 w-3 shrink-0 text-ink/40 dark:text-white/40 group-hover/tag:text-action group-hover/tag:translate-x-0.5 transition-all" aria-hidden="true" />
                       </a>
                     );
                   })}
@@ -246,106 +250,96 @@ export default function Navbar() {
           </li>
         </ul>
 
-        {/* Right cluster — theme switch, CTA, mobile menu */}
-        <div className="flex items-center gap-3">
+        {/* Right cluster — theme switch, quote, mobile menu */}
+        <div className="ml-auto flex items-center gap-3 lg:ml-0">
           <ThemeToggle />
 
           <Link
             href="/contact"
-            className="group hidden shrink-0 items-center gap-2 rounded-md bg-zinc-900 px-4 py-2 text-xs sm:text-sm font-medium text-white transition-colors hover:bg-zinc-800 dark:bg-white dark:text-zinc-900 dark:hover:bg-zinc-200 sm:inline-flex"
+            className="group hidden shrink-0 items-center gap-2 bg-action px-6 py-3 font-mono text-[11px] font-bold uppercase tracking-[0.1em] text-on-action transition-colors hover:bg-action-strong focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-action sm:inline-flex"
           >
-            Start a Project
-            <ArrowRight className="h-3.5 w-3.5 transition-transform duration-300 group-hover:translate-x-0.5" aria-hidden="true" />
+            Get a Quote
+            <ArrowRight className="h-3.5 w-3.5 transition-transform duration-300 group-hover:translate-x-0.5" aria-hidden />
           </Link>
 
-          {/* Mobile hamburger */}
-          <button
-            type="button"
-            onClick={() => setIsOpen((prev) => !prev)}
-            aria-expanded={isOpen}
-            aria-label={isOpen ? "Close navigation" : "Open navigation"}
-            className="flex h-9 w-9 items-center justify-center rounded-md border border-zinc-200 text-zinc-600 transition hover:bg-zinc-100 hover:text-zinc-900 dark:border-zinc-800 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-white lg:hidden"
-          >
-            {isOpen ? <X className="h-5 w-5" aria-hidden="true" /> : <Menu className="h-5 w-5" aria-hidden="true" />}
-          </button>
-        </div>
-      </nav>
+          <details ref={detailsRef} open={isOpen} className="group relative lg:hidden">
+            {isOpen ? (
+              <div className="fixed inset-0 z-40 lg:hidden" aria-hidden="true" onClick={() => setIsOpen(false)} />
+            ) : null}
+            <summary
+              onClick={(event) => {
+                event.preventDefault();
+                setIsOpen((prev) => !prev);
+              }}
+              className="relative z-50 flex h-11 w-11 cursor-pointer list-none items-center justify-center border border-ink/15 bg-ink/[0.06] text-ink transition hover:bg-ink/[0.12] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-action [&::-webkit-details-marker]:hidden"
+            >
+              {isOpen ? <X className="h-5 w-5" aria-hidden="true" /> : <Menu className="h-5 w-5" aria-hidden="true" />}
+              <span className="sr-only">{isOpen ? "Close navigation" : "Open navigation"}</span>
+            </summary>
 
-      {/* Mobile Drawer / Dropdown */}
-      {isOpen && (
-        <div className="lg:hidden">
-          <div
-            className="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm"
-            aria-hidden="true"
-            onClick={() => setIsOpen(false)}
-          />
-          <div className="absolute right-4 top-16 z-50 w-[min(22rem,calc(100vw-2rem))] rounded-xl border border-zinc-200 bg-white p-4 shadow-2xl dark:border-zinc-800 dark:bg-zinc-900">
-            {/* Primary links */}
-            <ul className="space-y-1">
-              {navLinks.map((link) => {
-                const isActive = pathname === link.href;
-                return (
+            <div className="absolute right-0 top-14 z-50 w-[min(22rem,calc(100vw-2.5rem))] border border-line bg-surface p-3 shadow-[0_16px_40px_rgba(0,0,0,0.4)]">
+              {/* Primary links */}
+              <ul className="grid gap-0.5">
+                {primaryNav.map((link) => (
                   <li key={link.name}>
                     <Link
                       href={link.href}
                       onClick={() => setIsOpen(false)}
-                      aria-current={isActive ? "page" : undefined}
-                      className={`block rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
-                        isActive
-                          ? "bg-zinc-100 text-zinc-900 font-semibold dark:bg-zinc-800 dark:text-white"
-                          : "text-zinc-600 hover:bg-zinc-50 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-800/50 dark:hover:text-white"
+                      aria-current={pathname === link.href ? "page" : undefined}
+                      className={`block border-l-2 px-4 py-2.5 font-mono text-[11px] font-semibold uppercase tracking-[0.1em] transition hover:bg-ink/[0.06] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-action ${
+                        pathname === link.href
+                          ? "border-action bg-ink/[0.06] text-ink"
+                          : "border-transparent text-ink/60"
                       }`}
                     >
                       {link.name}
                     </Link>
                   </li>
-                );
-              })}
-            </ul>
-
-            {/* Subdomains section */}
-            <div className="my-3 border-t border-zinc-200 pt-3 dark:border-zinc-800">
-              <span className="block px-3 pb-2 text-[10px] font-bold uppercase tracking-wider text-zinc-400 dark:text-zinc-500">
-                Company Subdomains
-              </span>
-              <ul className="space-y-0.5">
-                {companySubdomains.map((item) => {
-                  const Icon = item.icon;
-                  return (
-                    <li key={item.name}>
-                      <a
-                        href={getSubdomainHref(item.subdomain)}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        onClick={() => setIsOpen(false)}
-                        className="flex items-center justify-between rounded-lg px-3 py-2 text-sm text-zinc-600 transition-colors hover:bg-zinc-50 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-800/50 dark:hover:text-white"
-                      >
-                        <span className="flex items-center gap-2">
-                          <Icon className="h-4 w-4 text-zinc-400 shrink-0" aria-hidden="true" />
-                          <span>{item.name}</span>
-                        </span>
-                        <ArrowUpRight className="h-3.5 w-3.5 text-zinc-400" aria-hidden="true" />
-                      </a>
-                    </li>
-                  );
-                })}
+                ))}
               </ul>
-            </div>
 
-            {/* CTA */}
-            <div className="mt-4 pt-2 border-t border-zinc-200 dark:border-zinc-800">
+              {/* Group divider */}
+              <div className="my-2 border-t border-ink/10 pt-2 px-4 flex items-center justify-between">
+                <span className="font-mono text-[10px] font-bold uppercase tracking-[0.14em] text-ink/40">
+                  Company Subdomains
+                </span>
+                <span className="h-1.5 w-1.5 rounded-full bg-action animate-pulse" />
+              </div>
+
+              {/* Subdomain links */}
+              <ul className="grid gap-0.5">
+                {companySubdomains.map((link) => (
+                  <li key={link.name}>
+                    <a
+                      href={getSubdomainHref(link.subdomain)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      onClick={() => setIsOpen(false)}
+                      className="block border-l-2 border-transparent px-4 py-2.5 font-mono text-[11px] font-semibold uppercase tracking-[0.1em] text-ink/60 transition hover:border-action hover:bg-ink/[0.06] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-action"
+                    >
+                      <div className="flex items-center justify-between">
+                        <span className="flex items-center gap-1.5">
+                          {link.name}
+                        </span>
+                        <ArrowUpRight className="h-3 w-3 text-ink/40" aria-hidden="true" />
+                      </div>
+                    </a>
+                  </li>
+                ))}
+              </ul>
+
               <Link
                 href="/contact"
                 onClick={() => setIsOpen(false)}
-                className="flex w-full items-center justify-center gap-2 rounded-lg bg-zinc-900 px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-zinc-800 dark:bg-white dark:text-zinc-900 dark:hover:bg-zinc-200"
+                className="mt-3 flex items-center justify-center gap-2 bg-action px-6 py-3.5 font-mono text-[11px] font-bold uppercase tracking-[0.1em] text-on-action transition-colors hover:bg-action-strong"
               >
-                Start a Project
-                <ArrowRight className="h-4 w-4" aria-hidden="true" />
+                Get a Quote
+                <ArrowRight className="h-3.5 w-3.5" aria-hidden />
               </Link>
             </div>
-          </div>
+          </details>
         </div>
-      )}
+      </nav>
     </header>
   );
 }
