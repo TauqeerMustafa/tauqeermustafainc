@@ -458,7 +458,7 @@ function isSentDirection(msg: Message): boolean {
   return labelNames(msg).some((l) => ["sent", "outbox"].includes(l));
 }
 
-function isSentMsg(msg: Message, currentEmail: string, scope?: "tech" | "com" | "qorlune"): boolean {
+function isSentMsg(msg: Message, currentEmail: string, scope?: "com" | "qorlune"): boolean {
   if (isTrashMsg(msg)) return false;
   if (!isSentDirection(msg)) return false;
   const target = currentEmail?.toLowerCase().trim() || "";
@@ -471,19 +471,19 @@ function isSentMsg(msg: Message, currentEmail: string, scope?: "tech" | "com" | 
 
   if (sender === target) return true;
 
-  // Primary administrator address sees all domain outbound mail
-  if (target === "admin@tauqeermustafa.tech" || target === "info@tauqeermustafa.tech") {
-    return sender.endsWith("@tauqeermustafa.tech");
-  }
   if (
     target === "info@tauqeermustafa.com" ||
     target === "admin@tauqeermustafa.com" ||
     target === "tech@tauqeermustafa.com" ||
     target === "tauqeer@tauqeermustafa.com" ||
-    target === "contact@tauqeermustafa.com"
+    target === "contact@tauqeermustafa.com" ||
+    target === "admin@tauqeermustafa.tech" ||
+    target === "info@tauqeermustafa.tech"
   ) {
     return (
       sender.endsWith("@tauqeermustafa.com") ||
+      sender.endsWith("@tauqeermustafa.tech") ||
+      sender.endsWith(".tech") ||
       sender.endsWith("@tauqeerm.com") ||
       sender.endsWith("@tm.com")
     );
@@ -495,17 +495,16 @@ function isSentMsg(msg: Message, currentEmail: string, scope?: "tech" | "com" | 
   return false;
 }
 
-function isDomainMessage(msg: Message, scope: "tech" | "com" | "qorlune"): boolean {
+function isDomainMessage(msg: Message, scope: "com" | "qorlune"): boolean {
   const recipients = getMessageRecipients(msg);
   const fromAddr = rawEmail(msg.from);
   const allAddrs = [...recipients, fromAddr];
-  if (scope === "tech") {
-    return allAddrs.some((a) => a.endsWith(".tech") || a.includes("tauqeermustafa.tech") || a.includes("theqorlune.tech") || a.includes("qorlune.tech"));
-  }
   if (scope === "com") {
     return allAddrs.some(
       (a) =>
         a.endsWith("@tauqeermustafa.com") ||
+        a.endsWith("@tauqeermustafa.tech") ||
+        a.endsWith(".tech") ||
         a.endsWith("@tauqeerm.com") ||
         a.endsWith("@tm.com")
     );
@@ -515,7 +514,7 @@ function isDomainMessage(msg: Message, scope: "tech" | "com" | "qorlune"): boole
   );
 }
 
-function isInboxMsg(msg: Message, currentEmail: string, scope?: "tech" | "com" | "qorlune"): boolean {
+function isInboxMsg(msg: Message, currentEmail: string, scope?: "com" | "qorlune"): boolean {
   if (isTrashMsg(msg)) return false;
   if (isSpamMsg(msg)) return false;
   if (isArchiveMsg(msg)) return false;
@@ -544,6 +543,8 @@ function isInboxMsg(msg: Message, currentEmail: string, scope?: "tech" | "com" |
   if (
     scope === "com" ||
     target.endsWith("@tauqeermustafa.com") ||
+    target.endsWith("@tauqeermustafa.tech") ||
+    target.endsWith(".tech") ||
     target.endsWith("@tauqeerm.com") ||
     target.endsWith("@tm.com")
   ) {
@@ -552,34 +553,22 @@ function isInboxMsg(msg: Message, currentEmail: string, scope?: "tech" | "com" |
       target === "admin@tauqeermustafa.com" ||
       target === "tauqeer@tauqeermustafa.com" ||
       target === "contact@tauqeermustafa.com" ||
-      target === "tech@tauqeermustafa.com";
+      target === "tech@tauqeermustafa.com" ||
+      target === "admin@tauqeermustafa.tech" ||
+      target === "info@tauqeermustafa.tech";
 
     if (isMasterInbox) {
       return (
         recipients.some(
           (r) =>
             r.endsWith("@tauqeermustafa.com") ||
+            r.endsWith("@tauqeermustafa.tech") ||
+            r.endsWith(".tech") ||
             r.endsWith("@tauqeerm.com") ||
             r.endsWith("@tm.com")
         ) || isDomainMessage(msg, "com")
       );
     }
-  }
-
-  if (
-    target.endsWith(".tech") ||
-    target === "admin@tauqeermustafa.tech" ||
-    target === "info@tauqeermustafa.tech"
-  ) {
-    return (
-      recipients.some(
-        (r) =>
-          r.endsWith(".tech") ||
-          r.includes("tauqeermustafa.tech") ||
-          r.includes("theqorlune.tech") ||
-          r.includes("qorlune.tech")
-      ) || isDomainMessage(msg, "tech")
-    );
   }
 
   if (target === "admin@qorlune.co.uk" || target === "info@qorlune.co.uk") {
@@ -609,7 +598,7 @@ export default function Webmail({
   autoCompose?: boolean;
 }) {
   const domainConfig = useDomainConfig();
-  const [currentDomainScope, setCurrentDomainScope] = useState<"tech" | "com" | "qorlune">(() => domainConfig.tenant);
+  const [currentDomainScope, setCurrentDomainScope] = useState<"com" | "qorlune">(() => domainConfig.tenant);
   useEffect(() => {
     setCurrentDomainScope(domainConfig.tenant);
   }, [domainConfig.tenant]);
@@ -693,12 +682,11 @@ export default function Webmail({
   const filteredMailboxes = useMemo(() => {
     const list = mailboxes.filter((mb) => {
       const addr = (mb.primaryAddress || "").toLowerCase().trim();
-      if (currentDomainScope === "tech") {
-        return addr.endsWith("@tauqeermustafa.tech");
-      }
       if (currentDomainScope === "com") {
         return (
           addr.endsWith("@tauqeermustafa.com") ||
+          addr.endsWith("@tauqeermustafa.tech") ||
+          addr.endsWith(".tech") ||
           addr.endsWith("@tauqeerm.com") ||
           addr.endsWith("@tm.com")
         );
@@ -707,10 +695,8 @@ export default function Webmail({
     });
 
     const unifiedLabel =
-      currentDomainScope === "tech"
-        ? "All @tauqeermustafa.tech Mailboxes"
-        : currentDomainScope === "com"
-        ? "All @tauqeermustafa.com Mailboxes"
+      currentDomainScope === "com"
+        ? "All @tauqeermustafa.com & .tech Mailboxes"
         : "All @qorlune.co.uk Mailboxes";
 
     const defaultMbId = list[0]?.id || "01M17137MJNRTDR5N92QCAND0P";

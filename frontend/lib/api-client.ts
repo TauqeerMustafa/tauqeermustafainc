@@ -29,9 +29,7 @@ apiClient.interceptors.request.use((config) => {
   if (typeof window !== "undefined") {
     const host = window.location.hostname.toLowerCase();
     let portalDomain = "com";
-    if (host.includes("tauqeermustafa.tech") || host.endsWith(".tech") || host.includes("tech")) {
-      portalDomain = "tech";
-    } else if (host.includes("qorlune") || host.endsWith(".co.uk")) {
+    if (host.includes("qorlune") || host.endsWith(".co.uk")) {
       portalDomain = "qorlune";
     } else {
       portalDomain = "com";

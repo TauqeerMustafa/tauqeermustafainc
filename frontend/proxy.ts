@@ -55,7 +55,6 @@ function isMainSitePath(pathname: string): boolean {
 
 
 function getApexDomain(hostname: string): string {
-  if (hostname.includes("tauqeermustafa.tech")) return "tauqeermustafa.tech";
   if (hostname.includes("tauqeermustafa.com")) return "tauqeermustafa.com";
   if (hostname.includes("tauqeerm.com")) return "tauqeermustafa.com";
   if (hostname.includes("tm.com")) return "tauqeermustafa.com";
@@ -71,8 +70,6 @@ function isMainDomainHost(hostname: string): boolean {
     hostname === "www.qorlune.com" ||
     hostname === "tauqeermustafa.com" ||
     hostname === "www.tauqeermustafa.com" ||
-    hostname === "tauqeermustafa.tech" ||
-    hostname === "www.tauqeermustafa.tech" ||
     hostname === "tauqeerm.com" ||
     hostname === "www.tauqeerm.com" ||
     hostname === "tm.com" ||

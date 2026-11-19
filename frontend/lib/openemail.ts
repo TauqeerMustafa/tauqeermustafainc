@@ -98,9 +98,8 @@ export async function fetchOpenEmailMailboxes(domain?: string) {
       : [];
 
   const d = (domain || "").toLowerCase().trim();
-  const isTech = d === "tech" || d.includes("tauqeermustafa.tech") || d.endsWith(".tech");
   const isQorlune = d === "qorlune" || d.includes("qorlune") || d.endsWith(".co.uk") || d === "co.uk" || d === "qor";
-  const isCom = !isTech && !isQorlune;
+  const isCom = !isQorlune;
 
   const promises: Promise<any>[] = [];
   if (isQorlune) {
@@ -138,11 +137,11 @@ export async function fetchOpenEmailMailboxes(domain?: string) {
     const addr = String(r.address || "").toLowerCase().trim();
     if (!addr || addr.startsWith("*")) continue; // NEVER show wildcard catch-all in compose dropdown
 
-    if (isTech) {
-      if (!addr.endsWith("@tauqeermustafa.tech")) continue;
-    } else if (isCom) {
+    if (isCom) {
       if (
         !addr.endsWith("@tauqeermustafa.com") &&
+        !addr.endsWith("@tauqeermustafa.tech") &&
+        !addr.endsWith(".tech") &&
         !addr.endsWith("@tauqeerm.com") &&
         !addr.endsWith("@tm.com")
       ) continue;
@@ -164,11 +163,11 @@ export async function fetchOpenEmailMailboxes(domain?: string) {
     const addr = String(i.primaryAddress || i.email || "").toLowerCase().trim();
     if (!addr || addr.startsWith("*")) continue;
 
-    if (isTech) {
-      if (!addr.endsWith("@tauqeermustafa.tech")) continue;
-    } else if (isCom) {
+    if (isCom) {
       if (
         !addr.endsWith("@tauqeermustafa.com") &&
+        !addr.endsWith("@tauqeermustafa.tech") &&
+        !addr.endsWith(".tech") &&
         !addr.endsWith("@tauqeerm.com") &&
         !addr.endsWith("@tm.com")
       ) continue;

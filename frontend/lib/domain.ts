@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 
-export type TenantKey = "qorlune" | "tech" | "com";
+export type TenantKey = "qorlune" | "com";
 
 export interface DomainConfig {
   tenant: TenantKey;
@@ -26,9 +26,6 @@ export interface DomainConfig {
 
 export function getTenantFromEmail(email: string): TenantKey {
   const lower = email.toLowerCase().trim();
-  if (lower.endsWith("@tauqeermustafa.tech")) {
-    return "tech";
-  }
   if (
     lower.endsWith("@tauqeermustafa.com") ||
     lower.endsWith("@tauqeerm.com") ||
@@ -53,34 +50,7 @@ export function getDomainConfig(hostname?: string): DomainConfig {
   }
   const lower = host.toLowerCase().trim();
 
-  // 1. .tech Portal (tauqeermustafa.tech) - only if explicitly requested
-  if (
-    queryTenant === "tech" ||
-    lower.includes("tauqeermustafa.tech") ||
-    lower.endsWith(".tech")
-  ) {
-    return {
-      tenant: "tech",
-      isTech: true,
-      isCom: false,
-      isQorlune: false,
-      isTmi: true,
-      apex: "tauqeermustafa.tech",
-      brandName: "Qorlune Tech",
-      shortName: "Qorlune Tech",
-      portalLabel: "Tech Portal",
-      email: "support@qorlune.co.uk",
-      portalsUrl: "https://portals.qorlune.co.uk",
-      billingUrl: "https://billing.qorlune.co.uk",
-      docsUrl: "https://docs.qorlune.co.uk",
-      supportUrl: "https://support.qorlune.co.uk",
-      appUrl: "https://app.qorlune.co.uk",
-      mainUrl: "https://qorlune.co.uk",
-      logoSrc: "/logo.png",
-    };
-  }
-
-  // 2. .com Portal - only if explicitly requested
+  // 1. .com Portal - if on tauqeermustafa.com or explicitly requested
   if (
     queryTenant === "com" ||
     lower.includes("tauqeermustafa.com") ||
@@ -92,17 +62,17 @@ export function getDomainConfig(hostname?: string): DomainConfig {
       isCom: true,
       isQorlune: true,
       isTmi: false,
-      apex: "qorlune.co.uk",
+      apex: "tauqeermustafa.com",
       brandName: "Qorlune",
       shortName: "Qorlune",
       portalLabel: "Executive Portal",
-      email: "contact@qorlune.co.uk",
-      portalsUrl: "https://portals.qorlune.co.uk",
-      billingUrl: "https://billing.qorlune.co.uk",
-      docsUrl: "https://docs.qorlune.co.uk",
-      supportUrl: "https://support.qorlune.co.uk",
-      appUrl: "https://app.qorlune.co.uk",
-      mainUrl: "https://qorlune.co.uk",
+      email: "contact@tauqeermustafa.com",
+      portalsUrl: "https://portals.tauqeermustafa.com",
+      billingUrl: "https://billing.tauqeermustafa.com",
+      docsUrl: "https://docs.tauqeermustafa.com",
+      supportUrl: "https://support.tauqeermustafa.com",
+      appUrl: "https://app.tauqeermustafa.com",
+      mainUrl: "https://tauqeermustafa.com",
       logoSrc: "/logo.png",
     };
   }

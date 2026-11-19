@@ -101,9 +101,7 @@ export async function allowedMailboxes(
       request.headers.get("host") ||
       ""
     ).toLowerCase();
-    if (origin.includes("tauqeermustafa.tech") || origin.includes(".tech")) {
-      targetDomain = "tech";
-    } else if (origin.includes("qorlune") || origin.includes("co.uk")) {
+    if (origin.includes("qorlune") || origin.includes("co.uk")) {
       targetDomain = "qorlune";
     } else {
       targetDomain = "com";

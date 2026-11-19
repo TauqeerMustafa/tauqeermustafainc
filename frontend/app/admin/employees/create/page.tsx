@@ -40,7 +40,7 @@ export default function CreateEmployeePage() {
   const [targetTenant, setTargetTenant] = useState<"tauqeermustafa" | "qorlune">(domainCfg.isTmi ? "tauqeermustafa" : "qorlune");
   const [form, setForm] = useState<CreateEmployeePayload>(() => ({
     ...EMPTY,
-    email: domainCfg.isTmi ? "user@tauqeermustafa.tech" : "user@qorlune.co.uk",
+    email: domainCfg.isCom ? "user@tauqeermustafa.com" : "user@qorlune.co.uk",
   }));
 
   function applyPreset(suffix: string) {
@@ -196,13 +196,6 @@ export default function CreateEmployeePage() {
               />
               <div className="flex items-center gap-1.5 flex-wrap pt-1.5">
                 <span className="text-[11px] font-medium text-adm-text-3">Quick Presets:</span>
-                <button
-                  type="button"
-                  onClick={() => applyPreset("@tauqeermustafa.tech")}
-                  className="px-2 py-0.5 rounded border border-adm-border bg-adm-surface text-[11px] font-mono hover:border-adm-blue hover:text-adm-blue transition"
-                >
-                  @tauqeermustafa.tech
-                </button>
                 <button
                   type="button"
                   onClick={() => applyPreset("@tauqeermustafa.com")}

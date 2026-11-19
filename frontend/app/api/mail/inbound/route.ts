@@ -48,10 +48,7 @@ export async function POST(request: Request) {
         let replyFromName = "Qorlune LLC Support Desk";
         const lowerTo = String(body.to || body.recipient || body.envelopeTo || "").toLowerCase();
 
-        if (lowerTo.endsWith("@tauqeermustafa.tech")) {
-          replyFrom = "info@tauqeermustafa.tech";
-          replyFromName = "Qorlune Helpdesk";
-        } else if (
+        if (
           lowerTo.endsWith("@tauqeermustafa.com") ||
           lowerTo.endsWith("@tauqeerm.com") ||
           lowerTo.endsWith("@tm.com")

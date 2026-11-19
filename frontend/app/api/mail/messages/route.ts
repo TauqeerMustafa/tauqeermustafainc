@@ -48,9 +48,7 @@ export async function GET(request: Request) {
     const domainParam = searchParams.get("domain")?.toLowerCase().trim();
     const effectiveDomain =
       domainParam ||
-      (host.includes("tauqeermustafa.tech") || host.includes(".tech") || host === "tech"
-        ? "tech"
-        : host.includes("qorlune") || host.endsWith(".co.uk")
+      (host.includes("qorlune") || host.endsWith(".co.uk")
         ? "qorlune"
         : "com");
 
@@ -100,30 +98,23 @@ export async function GET(request: Request) {
       if (effectiveDomain === "all") return true;
       const addrs = getMsgAddresses(msg);
       if (addrs.length === 0) return true; // Keep system/bounce messages
-      if (effectiveDomain === "tech") {
-        return addrs.some(
-          (a) =>
-            a.endsWith(".tech") ||
-            a.includes("tauqeermustafa.tech") ||
-            a.includes("theqorlune.tech") ||
-            a.includes("qorlune.tech"),
-        );
-      }
       if (effectiveDomain === "com") {
         const hasCom = addrs.some(
           (a) =>
             a.endsWith("@tauqeermustafa.com") ||
+            a.endsWith("@tauqeermustafa.tech") ||
+            a.endsWith(".tech") ||
             a.endsWith("@tauqeerm.com") ||
             a.endsWith("@tm.com") ||
-            a.includes("tauqeermustafa.com"),
+            a.includes("tauqeermustafa.com") ||
+            a.includes("tauqeermustafa.tech") ||
+            a.includes(".tech"),
         );
         if (hasCom) return true;
         const hasOtherTenant = addrs.some(
           (a) =>
             a.endsWith("@qorlune.co.uk") ||
-            a.endsWith("@qorlune.com") ||
-            a.endsWith("@tauqeermustafa.tech") ||
-            a.endsWith(".tech"),
+            a.endsWith("@qorlune.com"),
         );
         // Retain unrouted/catch-all messages so arbitrary or misspelled inboxes never get dropped
         return !hasOtherTenant;

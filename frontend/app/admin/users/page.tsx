@@ -107,8 +107,8 @@ export default function AdminUsersPage() {
   const [provisioningId, setProvisioningId] = useState<string | null>(null);
 
   const domainCfg = useMemo(() => (typeof window !== "undefined" ? getDomainConfig(window.location.hostname) : getDomainConfig()), []);
-  const [domainScope, setDomainScope] = useState<"current" | "com" | "tech" | "qorlune" | "all">("current");
-  const [drawerTenant, setDrawerTenant] = useState<"com" | "tech" | "qorlune">(() => domainCfg.tenant);
+  const [domainScope, setDomainScope] = useState<"current" | "com" | "qorlune" | "all">("current");
+  const [drawerTenant, setDrawerTenant] = useState<"com" | "qorlune">(() => domainCfg.tenant);
 
   const resolvedDomain = useMemo(() => {
     if (domainScope === "current") {
@@ -184,11 +184,9 @@ export default function AdminUsersPage() {
     setForm((prev) => ({ ...prev, email: `${base}${preset}` }));
   }
 
-  function handleTenantChange(tenant: "com" | "tech" | "qorlune") {
+  function handleTenantChange(tenant: "com" | "qorlune") {
     setDrawerTenant(tenant);
-    let defaultSuffix = "@tauqeermustafa.com";
-    if (tenant === "tech") defaultSuffix = "@tauqeermustafa.tech";
-    else if (tenant === "qorlune") defaultSuffix = "@qorlune.co.uk";
+    const defaultSuffix = tenant === "qorlune" ? "@qorlune.co.uk" : "@tauqeermustafa.com";
 
     const current = form.email.trim();
     const localPart = current.includes("@") ? current.split("@")[0] : current;
@@ -199,9 +197,7 @@ export default function AdminUsersPage() {
   function openCreate() {
     const defaultTenant = domainCfg.tenant;
     setDrawerTenant(defaultTenant);
-    let defaultDomain = "tauqeermustafa.com";
-    if (defaultTenant === "tech") defaultDomain = "tauqeermustafa.tech";
-    else if (defaultTenant === "qorlune") defaultDomain = "qorlune.co.uk";
+    const defaultDomain = defaultTenant === "qorlune" ? "qorlune.co.uk" : "tauqeermustafa.com";
 
     const initialEmail = suggestCompanyEmail("", defaultDomain);
     setForm({ ...emptyForm, email: initialEmail });
@@ -486,18 +482,6 @@ export default function AdminUsersPage() {
           </button>
           <button
             type="button"
-            onClick={() => setDomainScope("tech")}
-            className={`rounded px-2.5 py-1 text-xs font-semibold transition ${domainScope === "tech" ? "shadow-sm" : ""}`}
-            style={{
-              background: domainScope === "tech" ? "var(--adm-surface)" : "transparent",
-              color: domainScope === "tech" ? "#9333ea" : "var(--adm-text-2)",
-              border: domainScope === "tech" ? "1px solid var(--adm-border)" : "1px solid transparent",
-            }}
-          >
-            .tech (TM Tech)
-          </button>
-          <button
-            type="button"
             onClick={() => setDomainScope("qorlune")}
             className={`rounded px-2.5 py-1 text-xs font-semibold transition ${domainScope === "qorlune" ? "shadow-sm" : ""}`}
             style={{
@@ -730,22 +714,6 @@ export default function AdminUsersPage() {
                 </span>
               </button>
 
-              <button
-                type="button"
-                onClick={() => handleTenantChange("tech")}
-                className={`flex flex-col text-left p-2.5 rounded border transition ${drawerTenant === "tech" ? "border-purple-500 bg-purple-50/10 shadow-sm" : "hover:bg-adm-surface"}`}
-                style={{
-                  borderColor: drawerTenant === "tech" ? "#9333ea" : "var(--adm-border)",
-                  background: drawerTenant === "tech" ? "var(--adm-surface)" : "transparent",
-                }}
-              >
-                <span className="text-xs font-bold" style={{ color: "#9333ea" }}>
-                  TM Tech
-                </span>
-                <span className="text-[11px]" style={{ color: "var(--adm-text-3)" }}>
-                  .tech · tauqeermustafa.tech
-                </span>
-              </button>
 
               <button
                 type="button"
@@ -779,16 +747,8 @@ export default function AdminUsersPage() {
             {/* Quick Domain Presets */}
             <div className="flex items-center gap-1.5 flex-wrap pt-1">
               <span className="text-[11px] font-medium" style={{ color: "var(--adm-text-3)" }}>Presets:</span>
-              {drawerTenant === "com" || drawerTenant === "tech" ? (
+              {drawerTenant === "com" ? (
                 <>
-                  <button
-                    type="button"
-                    onClick={() => applyDomainPreset("@tauqeermustafa.tech")}
-                    className="px-2 py-0.5 rounded border text-[11px] font-mono font-medium hover:border-adm-blue hover:text-adm-blue transition"
-                    style={{ borderColor: "var(--adm-border)", background: "var(--adm-surface)" }}
-                  >
-                    @tauqeermustafa.tech
-                  </button>
                   <button
                     type="button"
                     onClick={() => applyDomainPreset("@tauqeermustafa.com")}
@@ -829,7 +789,7 @@ export default function AdminUsersPage() {
             </div>
             <p className="flex items-center gap-1.5 text-xs pt-1" style={{ color: "var(--adm-text-3)" }}>
               <Mail size={12} />
-              Mailbox is created and routed via OpenEmail. User will appear in the {drawerTenant === "tech" ? "Qorlune Tech admin panel" : drawerTenant === "com" ? "Qorlune LLC admin panel" : "Qorlune portal"}.
+              Mailbox is created and routed via OpenEmail. User will appear in the {drawerTenant === "com" ? "Qorlune LLC admin panel" : "Qorlune portal"}.
             </p>
           </AdminField>
           <AdminField label="Temporary password" htmlFor="user-password">

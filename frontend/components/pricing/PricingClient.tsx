@@ -2,615 +2,466 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   Check,
-  ArrowRight,
-  ShieldCheck,
   Zap,
-  Building2,
-  Lock,
-  Globe,
+  Sparkles,
+  ShieldCheck,
+  HelpCircle,
   ChevronDown,
   ChevronUp,
-  Sparkles,
-  HelpCircle,
-  Clock,
+  ArrowRight,
+  Video,
+  Scissors,
   Layers,
-  Code2,
-  Server,
+  Cpu,
+  Monitor,
+  Flame,
+  Download,
+  Infinity as InfinityIcon,
+  HardDrive,
+  Smile,
 } from "lucide-react";
 
-import {
-  PageHero,
-  Section,
-  SectionHeader,
-  Badge,
-  BadgeMuted,
-  MStripe,
-} from "@/components/home/ui";
+type BillingCycle = "monthly" | "yearly" | "lifetime";
 
-type BillingCadence = "monthly" | "quarterly";
-
-interface PricingTier {
+interface PricingPlan {
   id: string;
   name: string;
-  monthlyPrice: number;
-  quarterlyPrice: number;
-  isFixed?: boolean;
-  fixedPriceText?: string;
-  cadenceNote: string;
+  tagline: string;
   badge?: string;
-  featured?: boolean;
-  description: string;
-  deliverables: string[];
+  popular?: boolean;
+  monthlyPrice: number;
+  yearlyPrice: number;
+  lifetimePrice: number;
+  originalPrice?: number;
+  periodText: {
+    monthly: string;
+    yearly: string;
+    lifetime: string;
+  };
+  features: string[];
   ctaText: string;
-  idealFor: string;
+  ctaSubtext: string;
+  ctaHref: string;
 }
 
-const PRICING_TIERS: PricingTier[] = [
+const PLANS: PricingPlan[] = [
   {
-    id: "discovery-sprint",
-    name: "Architecture & Discovery Sprint",
-    monthlyPrice: 1500,
-    quarterlyPrice: 1500,
-    isFixed: true,
-    fixedPriceText: "$1,500",
-    cadenceNote: "fixed milestone // 2 weeks",
-    description:
-      "A focused, high-impact architectural deep-dive to define system specifications, database schemas, and delivery blueprints before full-scale build.",
-    idealFor: "Founders, early-stage startups, and new technical ventures.",
-    deliverables: [
-      "Complete System Architecture & Cloud Topology",
-      "Database Schema (PostgreSQL / Redis) & Entity Models",
-      "API Contracts & Microservice Boundary Mapping",
-      "Tech Stack & Infrastructure Cost Projections",
-      "Security Threat Model & Data Privacy Review",
-      "Actionable Sprint Roadmap & Backlog for Engineering",
-      "14 Days Post-Delivery Clarification Support",
+    id: "free",
+    name: "Free Starter",
+    tagline: "Test ClipSonic on your own PC with zero commitment.",
+    monthlyPrice: 0,
+    yearlyPrice: 0,
+    lifetimePrice: 0,
+    periodText: {
+      monthly: "Free forever",
+      yearly: "Free forever",
+      lifetime: "Free forever",
+    },
+    features: [
+      "Up to 60-second clips",
+      "Standard 720p HD export",
+      "Fixed-Length clipping mode",
+      "Local FFmpeg rendering (100% private)",
+      "Standard subtitle presets",
+      "Single device installation",
+      "Community support",
     ],
-    ctaText: "Start Architecture Sprint",
+    ctaText: "Download Free",
+    ctaSubtext: "No credit card required",
+    ctaHref: "#download",
   },
   {
-    id: "dedicated-retainer",
-    name: "Dedicated Engineering Retainer",
-    monthlyPrice: 3500,
-    quarterlyPrice: 3150,
-    cadenceNote: "per month // weekly releases",
-    badge: "Most Popular",
-    featured: true,
-    description:
-      "Full-cycle dedicated engineering commitment embedded into your product team. Continuous shipping, weekly releases, and direct technical leadership.",
-    idealFor: "Growing SaaS, scaling companies, and active product teams.",
-    deliverables: [
-      "Dedicated Senior Full-Stack Engineering (40+ hrs/wk)",
-      "Next.js 16 (Turbopack) & React 19 Frontend Engineering",
-      "Python (FastAPI) & Node.js Microservices Architecture",
-      "Automated CI/CD Pipelines (GitHub Actions / Vercel)",
-      "Weekly Production Deployments & Code Reviews",
-      "Real-Time Slack & WhatsApp Engineering Channel Access",
-      "Continuous Performance & Security Hardening",
-      "30-Day Workmanship Warranty on All Shipped Code",
+    id: "pro",
+    name: "Pro Subscription",
+    tagline: "For active content creators wanting complete flexibility.",
+    badge: "MOST POPULAR",
+    popular: true,
+    monthlyPrice: 19,
+    yearlyPrice: 114, // $9.50/mo billed annually
+    lifetimePrice: 99,
+    originalPrice: 197,
+    periodText: {
+      monthly: "/ month",
+      yearly: "/ year ($9.50/mo)",
+      lifetime: "one-time payment",
+    },
+    features: [
+      "Unlimited clip exports — zero monthly caps",
+      "Full 1080x1920 (9:16) 60 FPS Ultra HD export",
+      "Smart Viral & Audio Highlight detection (hears the action)",
+      "All 3 Layouts: Split Top/Bottom, Inset PiP & 9:16 Full",
+      "Auto facecam tracking & centering",
+      "Clips up to 5 minutes long (no 25-clip ceiling)",
+      "Animated viral subtitles (MrBeast & Hormozi bold styles)",
+      "100% Commercial license (no watermark)",
+      "Local Whisper AI transcription support",
+      "Install on up to 2 machines (deactivate anytime)",
     ],
-    ctaText: "Engage Dedicated Retainer",
+    ctaText: "Get Pro Access",
+    ctaSubtext: "Instant download + activation key",
+    ctaHref: "#checkout-pro",
   },
   {
-    id: "enterprise-scale",
-    name: "Enterprise Scale & Cloud",
-    monthlyPrice: 6000,
-    quarterlyPrice: 5400,
-    cadenceNote: "per month // custom SLA",
-    badge: "Mission-Critical",
-    description:
-      "Comprehensive architectural leadership and engineering team allocation for high-throughput, mission-critical platforms requiring strict SLAs.",
-    idealFor: "Enterprise platforms, fintech, healthcare, and high-load architectures.",
-    deliverables: [
-      "Principal Architect + Dedicated Senior Engineering Team",
-      "High-Availability Multi-Region Cloud Topology",
-      "Zero-Downtime Database Migration & Replication",
-      "SOC2, ISO27001 & GDPR Compliance Engineering",
-      "24/7 Incident Response & Uptime SLA Guarantee",
-      "Executive Technical Reviews & Board-Ready Architecture",
-      "Bespoke AI Pipeline & LLM Agent Infrastructure",
-      "Dedicated Treasury Billing & Commercial Account Manager",
+    id: "lifetime",
+    name: "Pro Lifetime Deal",
+    tagline: "Pay once, own it forever. Includes all future updates.",
+    badge: "FOUNDER OFFER — SAVE $98",
+    monthlyPrice: 99,
+    yearlyPrice: 99,
+    lifetimePrice: 99,
+    originalPrice: 197,
+    periodText: {
+      monthly: "one-time (pay once)",
+      yearly: "one-time (pay once)",
+      lifetime: "one-time payment",
+    },
+    features: [
+      "Everything in Pro, forever with zero subscriptions",
+      "Lifetime updates to all future versions & AI models",
+      "Unlimited 9:16 vertical exports at 1080p 60 FPS",
+      "Audio Action & Killstreak highlight detector",
+      "All stream layouts: Split-Screen, Webcam PiP, Centered",
+      "No API key needed for Fixed-Length & Smart modes",
+      "High-energy animated subtitles with custom color palettes",
+      "Install on up to 3 workstations / editing rigs",
+      "Full commercial rights for YouTube, TikTok & clients",
+      "Priority VIP developer support",
     ],
-    ctaText: "Engage Enterprise Team",
-  },
-];
-
-const ADDONS = [
-  {
-    title: "Cybersecurity & Penetration Audit",
-    price: "$2,200",
-    cadence: "per audit milestone",
-    description:
-      "Comprehensive white-box / black-box penetration testing, OWASP Top 10 vulnerability scan, and verified remediation report.",
-    icon: ShieldCheck,
-    href: "/billing/pay?service=Cybersecurity%20Penetration%20Audit&amount=2200",
-  },
-  {
-    title: "AI Pipeline & LLM Agent Architecture",
-    price: "$2,800",
-    cadence: "fixed sprint",
-    description:
-      "Bespoke retrieval-augmented generation (RAG), vector database indexing, local LLM orchestration, and function calling tools.",
-    icon: Sparkles,
-    href: "/billing/pay?service=AI%20Pipeline%20Architecture&amount=2800",
-  },
-  {
-    title: "Cloud & Database Migration",
-    price: "$1,900",
-    cadence: "fixed milestone",
-    description:
-      "Zero-downtime database migration to managed PostgreSQL (Supabase / AWS RDS) with automated backups and failover setup.",
-    icon: Server,
-    href: "/billing/pay?service=Cloud%20Database%20Migration&amount=1900",
+    ctaText: "Get Lifetime Access — $99",
+    ctaSubtext: "One-time payment • Lifetime updates",
+    ctaHref: "#checkout-lifetime",
   },
 ];
 
 const COMPARISON_ROWS = [
-  { feature: "Primary Engagement Model", discovery: "Fixed Scope (2 Weeks)", retainer: "Ongoing Monthly Retainer", enterprise: "Dedicated Team & SLA" },
-  { feature: "Dedicated Engineering Commitment", discovery: "Full Architecture Sprint", retainer: "40+ Hours / Week", enterprise: "Multi-Engineer Allocation" },
-  { feature: "Frontend Rails (Next.js 16, React 19, TypeScript)", discovery: "Scaffold & UI System", retainer: "Full Continuous Build", enterprise: "Full Build + Micro-frontends" },
-  { feature: "Backend Rails (FastAPI, PostgreSQL, Redis)", discovery: "Schema & Architecture", retainer: "Full API & Data Pipeline", enterprise: "Distributed Architecture" },
-  { feature: "Cloud Infrastructure (Docker, AWS, Vercel)", discovery: "Terraform / Blueprint", retainer: "Production CI/CD Automation", enterprise: "Multi-Region HA & Kubernetes" },
-  { feature: "Communication Channels", discovery: "Scheduled Reviews & Email", retainer: "Direct Slack & WhatsApp", retainerBold: true, enterprise: "Dedicated VIP Desk (24/7)" },
-  { feature: "Post-Launch Warranty", discovery: "14 Days", retainer: "30 Days Continuous", enterprise: "Continuous Under Active SLA" },
-  { feature: "Settlement Rails", discovery: "Paddle / Wise / Meezan / Raast", retainer: "Paddle / Wise / Meezan / Raast", enterprise: "Custom Master Service Agreement" },
+  { feature: "Maximum Clip Length", free: "60 seconds", pro: "5 minutes", lifetime: "5 minutes" },
+  { feature: "Export Resolution & FPS", free: "720p @ 30 FPS", pro: "1080x1920 @ 60 FPS", lifetime: "1080x1920 @ 60 FPS" },
+  { feature: "Monthly Clip Ceiling", free: "10 clips / month", pro: "Unlimited (no caps)", lifetime: "Unlimited (no caps)" },
+  { feature: "Watermark", free: "Discreet watermark", pro: "Zero watermark", lifetime: "Zero watermark" },
+  { feature: "Local Processing (Zero Cloud Fees)", free: "Yes (100% on PC)", pro: "Yes (100% on PC)", lifetime: "Yes (100% on PC)" },
+  { feature: "Layout: Split Screen (Webcam on top)", free: "Basic", pro: "Full customizable", lifetime: "Full customizable" },
+  { feature: "Layout: Fullscreen Gameplay + Inset", free: "No", pro: "Yes", lifetime: "Yes" },
+  { feature: "Layout: 9:16 Centered Crop with Blur Padding", free: "Yes", pro: "Yes", lifetime: "Yes" },
+  { feature: "Audio Action & Highlight Detection", free: "No", pro: "Yes (Hears the action)", lifetime: "Yes (Hears the action)" },
+  { feature: "Facecam Auto-Framing", free: "No", pro: "Yes (corner box support)", lifetime: "Yes (corner box support)" },
+  { feature: "Animated Word-by-Word Captions", free: "Static only", pro: "Viral animated highlight", lifetime: "Viral animated highlight" },
+  { feature: "Device Activations", free: "1 device", pro: "2 devices", lifetime: "3 devices (portable)" },
+  { feature: "Future Updates", free: "Minor bug fixes", pro: "Included with subscription", lifetime: "Lifetime updates forever" },
+  { feature: "Commercial Rights", free: "Personal use only", pro: "Full commercial license", lifetime: "Full commercial license" },
 ];
 
 const FAQS = [
   {
-    question: "How are milestone tranches and disbursements structured?",
-    answer:
-      "For fixed sprints, we typically work on a 50% kick-off deposit and 50% upon completed delivery and sign-off. For dedicated monthly retainers, disbursements are handled bi-weekly or monthly in advance to ensure guaranteed engineer allocation.",
+    q: "How does local processing work?",
+    a: "Unlike web-based tools that charge high recurring fees and upload your heavy gigabytes to slow cloud servers, ClipSonic executes directly on your machine using optimized FFmpeg and your local hardware. Your stream recordings and raw footage never leave your hard drive.",
   },
   {
-    question: "What payment rails do you accept?",
-    answer:
-      "We accept international Credit/Debit cards, Apple Pay, Google Pay, and PayPal via Paddle (Merchant of Record), international USD/EUR wire transfers via Wise, direct Meezan Bank IBAN wire, and instant Pakistani State Bank Raast transfers (0% fee).",
+    q: "Do I need an internet connection or expensive AI API key?",
+    a: "No! Internet is only used to pull YouTube videos if downloading from a link. Fixed-Length clipping, webcam framing, cropping, and rendering require zero internet and zero API keys. For captions, you can use local Whisper completely free or connect OpenAI/Groq keys if you prefer cloud speed.",
   },
   {
-    question: "What is your workmanship warranty on shipped deliverables?",
-    answer:
-      "Every production milestone delivered by Qorlune includes an unconditional 30-day workmanship warranty covering any bug fixes, edge-case remediation, or performance anomalies at zero additional fee.",
+    q: "Can I use the clips for monetized YouTube Shorts, TikTok, and Reels?",
+    a: "Yes! Both Pro and Lifetime licenses include a full commercial license with zero watermarks. You own 100% of all generated clips and can monetize them across YouTube, TikTok, Instagram Reels, Facebook, or deliver them to paying editing clients.",
   },
   {
-    question: "Can retainers be paused, adjusted, or canceled?",
-    answer:
-      "Yes. Retainers operate on flexible monthly agreements with a standard 14-day notice period. You can scale capacity up during intense build sprints or scale down to maintenance as your product stabilizes.",
+    q: "What is the difference between Pro Monthly, Yearly, and Lifetime?",
+    a: "All Pro plans have identical feature access, resolution, and unlimited clipping capabilities. The only difference is the billing model: Pro Monthly is flexible ($19/mo), Yearly saves 50% ($9.50/mo), and Lifetime ($99) is a one-time payment that gives you perpetual access and all future upgrades forever.",
   },
   {
-    question: "Do you sign Non-Disclosure Agreements (NDAs)?",
-    answer:
-      "Yes. We execute mutual corporate NDAs and intellectual property assignment contracts prior to reviewing proprietary codebases, models, or sensitive internal data.",
+    q: "Can I move my license to a new PC or laptop?",
+    a: "Yes. You can deactivate an old device with a single click from your license portal and immediately activate your new machine without having to purchase a new key.",
   },
   {
-    question: "Do I own 100% of the code and intellectual property?",
-    answer:
-      "Yes. Upon invoice settlement, 100% of intellectual property, git repositories, architecture schematics, and design assets are transferred fully and exclusively to your company.",
+    q: "What is your refund policy?",
+    a: "We offer a 100% risk-free 14-day money-back guarantee. If ClipSonic does not drastically accelerate your Shorts production workflow on your machine, simply email support and we will issue a full prompt refund — no questions asked.",
   },
 ];
 
 export default function PricingClient() {
-  const [cadence, setCadence] = useState<BillingCadence>("monthly");
+  const [billing, setBilling] = useState<BillingCycle>("lifetime");
   const [openFaq, setOpenFaq] = useState<number | null>(0);
 
-  const toggleFaq = (idx: number) => {
-    setOpenFaq((prev) => (prev === idx ? null : idx));
-  };
-
   return (
-    <>
-      {/* Precision Hero */}
-      <PageHero
-        eyebrow="Commercial Terms // Engineering Retainers"
-        title="Predictable investment. High-velocity engineering."
-        description="Transparent milestone sprints and dedicated engineering retainers designed for high-growth tech companies, founders, and enterprise platforms."
-        image="https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=1600&q=80"
-        imageTitle="Transparent Corporate Engineering"
-        imageCaption="Clear tranches, decoupled treasury settlements, and 30-day workmanship warranties."
-      >
-        <Badge>Paddle Merchant of Record</Badge>
-        <BadgeMuted>30-Day Workmanship Warranty</BadgeMuted>
-        <BadgeMuted>100% IP Ownership</BadgeMuted>
-      </PageHero>
+    <div className="relative min-h-screen bg-[#07090e] text-white selection:bg-purple-500/30 selection:text-purple-200 overflow-hidden font-sans">
+      {/* Background Gradients & Ambient Glow */}
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[550px] bg-gradient-to-b from-purple-600/20 via-indigo-600/10 to-transparent blur-[140px] pointer-events-none -z-10" />
+      <div className="absolute top-[600px] right-0 w-[500px] h-[500px] bg-blue-600/10 blur-[150px] pointer-events-none -z-10" />
+      <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-purple-900/10 blur-[160px] pointer-events-none -z-10" />
 
-      {/* Main Pricing Cards Section */}
-      <Section className="bg-surface" labelledBy="pricing-plans">
-        <div className="flex flex-col items-center text-center max-w-2xl mx-auto mb-10">
-          <MStripe />
-          <p className="font-mono text-[11px] font-semibold uppercase tracking-[0.14em] text-action mt-4">
-            Engagement Tiers
-          </p>
-          <h2 id="pricing-plans" className="text-3xl sm:text-4xl font-bold uppercase tracking-tight text-ink mt-2">
-            Select your delivery model
-          </h2>
-          <p className="text-sm sm:text-base text-ink-muted font-light leading-relaxed mt-2">
-            Choose a fixed discovery sprint or embed a dedicated engineering retainer into your team.
+      {/* Grid Pattern Overlay */}
+      <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff05_1px,transparent_1px),linear-gradient(to_bottom,#ffffff05_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)] pointer-events-none -z-10" />
+
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-32">
+        {/* Header Hero */}
+        <div className="text-center max-w-3xl mx-auto">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-purple-500/10 border border-purple-500/20 text-purple-300 text-xs font-semibold tracking-wider uppercase mb-6 backdrop-blur-md">
+            <Flame className="w-3.5 h-3.5 text-purple-400" />
+            <span>AI Video Clipper For YouTube Shorts & Reels</span>
+          </div>
+
+          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-white leading-tight">
+            One price,{" "}
+            <span className="bg-gradient-to-r from-purple-400 via-pink-400 to-indigo-400 bg-clip-text text-transparent">
+              unlimited clips.
+            </span>
+          </h1>
+
+          <p className="mt-5 text-lg sm:text-xl text-neutral-400 leading-relaxed">
+            No per-clip fees, no monthly caps, no watermark. Free tier to start — or{" "}
+            <span className="text-white font-medium">pay once and clip forever</span> with the lifetime deal.
           </p>
 
-          {/* Cadence Toggle Switch */}
-          <div className="mt-8 inline-flex items-center p-1 border border-line bg-card">
+          {/* Billing Switcher */}
+          <div className="mt-10 inline-flex p-1.5 rounded-2xl bg-neutral-900/80 border border-neutral-800 shadow-2xl backdrop-blur-xl">
             <button
-              type="button"
-              onClick={() => setCadence("monthly")}
-              className={`px-5 py-2 font-mono text-xs font-bold uppercase tracking-wider transition cursor-pointer ${
-                cadence === "monthly"
-                  ? "bg-action text-on-action"
-                  : "text-ink-muted hover:text-ink"
+              onClick={() => setBilling("monthly")}
+              className={`px-5 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 ${
+                billing === "monthly"
+                  ? "bg-neutral-800 text-white shadow-lg shadow-black/40"
+                  : "text-neutral-400 hover:text-white"
               }`}
             >
-              Monthly Retainer
+              Monthly
             </button>
             <button
-              type="button"
-              onClick={() => setCadence("quarterly")}
-              className={`px-5 py-2 font-mono text-xs font-bold uppercase tracking-wider transition cursor-pointer flex items-center gap-1.5 ${
-                cadence === "quarterly"
-                  ? "bg-action text-on-action"
-                  : "text-ink-muted hover:text-ink"
+              onClick={() => setBilling("yearly")}
+              className={`relative px-5 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 ${
+                billing === "yearly"
+                  ? "bg-neutral-800 text-white shadow-lg shadow-black/40"
+                  : "text-neutral-400 hover:text-white"
               }`}
             >
-              <span>Quarterly</span>
-              <span className="bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-[9px] px-1.5 py-0.2 uppercase font-bold">
-                Save 10%
+              Yearly
+              <span className="ml-2 px-2 py-0.5 text-[10px] font-extrabold uppercase bg-emerald-500/20 text-emerald-400 rounded-full border border-emerald-500/30">
+                Save 50%
+              </span>
+            </button>
+            <button
+              onClick={() => setBilling("lifetime")}
+              className={`relative px-6 py-2.5 rounded-xl text-sm font-bold transition-all duration-200 ${
+                billing === "lifetime"
+                  ? "bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-lg shadow-purple-500/25"
+                  : "text-neutral-300 hover:text-white"
+              }`}
+            >
+              Pro Lifetime
+              <span className="ml-2 px-2 py-0.5 text-[10px] font-black uppercase bg-white/20 text-white rounded-full">
+                $99 Deal
               </span>
             </button>
           </div>
         </div>
 
-        {/* 3 Pricing Cards Grid */}
-        <div className="grid gap-6 lg:grid-cols-3 items-stretch">
-          {PRICING_TIERS.map((tier) => {
-            const priceVal =
-              tier.isFixed
-                ? tier.fixedPriceText
-                : cadence === "quarterly"
-                ? `$${tier.quarterlyPrice.toLocaleString()}`
-                : `$${tier.monthlyPrice.toLocaleString()}`;
-
-            const calculatedAmount =
-              tier.isFixed
-                ? tier.monthlyPrice
-                : cadence === "quarterly"
-                ? tier.quarterlyPrice * 3
-                : tier.monthlyPrice;
-
-            const ctaUrl = `/billing/pay?service=${encodeURIComponent(
-              tier.name
-            )}&amount=${calculatedAmount}`;
+        {/* Pricing Cards Grid */}
+        <div className="mt-16 grid grid-cols-1 md:grid-cols-3 gap-8 items-stretch">
+          {PLANS.map((plan) => {
+            const isFeatured = plan.id === (billing === "lifetime" ? "lifetime" : "pro");
+            const price =
+              billing === "monthly"
+                ? plan.monthlyPrice
+                : billing === "yearly"
+                ? plan.yearlyPrice
+                : plan.lifetimePrice;
 
             return (
-              <div
-                key={tier.id}
-                className={`relative border flex flex-col justify-between p-8 sm:p-10 transition ${
-                  tier.featured
-                    ? "border-action bg-canvas shadow-xl ring-1 ring-action"
-                    : "border-line bg-card hover:border-action/40"
+              <motion.div
+                key={plan.id}
+                whileHover={{ y: -6 }}
+                transition={{ duration: 0.2 }}
+                className={`relative flex flex-col justify-between rounded-3xl p-8 transition-all duration-300 ${
+                  isFeatured
+                    ? "bg-gradient-to-b from-neutral-900/90 to-neutral-950/90 border-2 border-purple-500/50 shadow-2xl shadow-purple-900/20 ring-1 ring-purple-500/30"
+                    : "bg-neutral-900/40 border border-neutral-800/80 hover:border-neutral-700/80 shadow-xl backdrop-blur-xl"
                 }`}
               >
-                {tier.featured && (
-                  <span className="absolute -top-3 left-8 bg-action text-white font-mono text-[10px] font-bold uppercase tracking-[0.14em] px-3 py-1">
-                    {tier.badge}
-                  </span>
+                {/* Badge Header */}
+                {plan.badge && (
+                  <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full bg-gradient-to-r from-purple-600 to-indigo-600 text-white text-[11px] font-extrabold tracking-wider uppercase shadow-md shadow-purple-600/30">
+                    {plan.badge}
+                  </div>
                 )}
 
                 <div>
                   <div className="flex items-center justify-between">
-                    <h3 className="text-xl font-bold uppercase text-ink tracking-tight">
-                      {tier.name}
-                    </h3>
-                    {!tier.featured && tier.badge && (
-                      <span className="font-mono text-[9px] font-bold uppercase bg-surface border border-line text-ink-muted px-2 py-0.5">
-                        {tier.badge}
+                    <h3 className="text-xl font-bold text-white tracking-tight">{plan.name}</h3>
+                    {plan.id === "lifetime" && (
+                      <span className="p-1.5 rounded-lg bg-purple-500/10 text-purple-400">
+                        <InfinityIcon className="w-5 h-5" />
                       </span>
                     )}
                   </div>
+                  <p className="mt-2 text-sm text-neutral-400 leading-relaxed">{plan.tagline}</p>
 
+                  {/* Price display */}
                   <div className="mt-6 flex items-baseline gap-2">
-                    <span className="text-4xl sm:text-5xl font-bold tracking-tight text-ink">
-                      {priceVal}
+                    {plan.originalPrice && billing === "lifetime" && (
+                      <span className="text-xl text-neutral-500 line-through font-semibold">
+                        ${plan.originalPrice}
+                      </span>
+                    )}
+                    <span className="text-5xl font-black text-white tracking-tight">
+                      ${price}
                     </span>
-                    <span className="font-mono text-[11px] text-ink-muted uppercase">
-                      // {tier.cadenceNote}
-                    </span>
-                  </div>
-
-                  {cadence === "quarterly" && !tier.isFixed && (
-                    <span className="inline-block mt-1 font-mono text-[10px] text-emerald-600 dark:text-emerald-400 font-bold uppercase">
-                      Billed quarterly ($
-                      {(tier.quarterlyPrice * 3).toLocaleString()} total &bull; Save $
-                      {((tier.monthlyPrice - tier.quarterlyPrice) * 3).toLocaleString()})
-                    </span>
-                  )}
-
-                  <p className="mt-4 text-xs sm:text-sm text-ink-muted font-light leading-relaxed">
-                    {tier.description}
-                  </p>
-
-                  <div className="mt-6 pt-6 border-t border-line">
-                    <span className="font-mono text-[10px] uppercase tracking-wider text-ink-muted block mb-1">
-                      Ideal For:
-                    </span>
-                    <span className="font-mono text-xs font-bold text-ink block">
-                      {tier.idealFor}
+                    <span className="text-sm font-medium text-neutral-400">
+                      {plan.periodText[billing]}
                     </span>
                   </div>
 
-                  <div className="mt-6 space-y-3">
-                    <span className="font-mono text-[10px] font-bold uppercase tracking-wider text-action block">
-                      Key Scope Deliverables:
-                    </span>
-                    <ul className="space-y-2.5">
-                      {tier.deliverables.map((item, idx) => (
-                        <li key={idx} className="flex items-start gap-2.5 text-xs text-ink-muted">
-                          <Check size={14} className="text-action shrink-0 mt-0.5" />
-                          <span className="leading-snug">{item}</span>
-                        </li>
-                      ))}
-                    </ul>
+                  {/* Divider */}
+                  <div className="my-7 h-px bg-neutral-800/80" />
+
+                  {/* Features list */}
+                  <div className="space-y-3.5">
+                    <div className="text-xs font-semibold text-neutral-400 uppercase tracking-wider">
+                      Included with {plan.name}:
+                    </div>
+                    {plan.features.map((feat, idx) => (
+                      <div key={idx} className="flex items-start gap-3">
+                        <div
+                          className={`mt-0.5 rounded-full p-0.5 ${
+                            isFeatured
+                              ? "bg-purple-500/20 text-purple-400"
+                              : "bg-neutral-800 text-neutral-300"
+                          }`}
+                        >
+                          <Check className="w-3.5 h-3.5 stroke-[2.5]" />
+                        </div>
+                        <span className="text-sm text-neutral-300 leading-snug">{feat}</span>
+                      </div>
+                    ))}
                   </div>
                 </div>
 
-                <div className="mt-10 pt-6 border-t border-line">
+                {/* Card CTA Footer */}
+                <div className="mt-10 pt-4">
                   <Link
-                    href={ctaUrl}
-                    className={`w-full py-3.5 px-4 font-mono text-xs font-bold uppercase tracking-[0.12em] flex items-center justify-center gap-2 transition ${
-                      tier.featured
-                        ? "bg-action text-white hover:bg-action-strong"
-                        : "border border-line bg-surface text-ink hover:border-action hover:text-action"
+                    href={plan.ctaHref}
+                    className={`w-full flex items-center justify-center gap-2 py-3.5 px-6 rounded-2xl text-sm font-bold transition-all duration-200 ${
+                      isFeatured
+                        ? "bg-gradient-to-r from-purple-600 via-indigo-600 to-purple-600 bg-[length:200%_auto] hover:bg-right text-white shadow-lg shadow-purple-600/30 hover:shadow-purple-600/50"
+                        : "bg-neutral-800 hover:bg-neutral-700 text-white border border-neutral-700/60"
                     }`}
                   >
-                    <span>{tier.ctaText}</span>
-                    <ArrowRight size={14} />
+                    <span>{plan.ctaText}</span>
+                    <ArrowRight className="w-4 h-4" />
                   </Link>
+                  <p className="mt-2.5 text-center text-xs text-neutral-500">{plan.ctaSubtext}</p>
                 </div>
-              </div>
+              </motion.div>
             );
           })}
         </div>
 
-        {/* Specialized Scoped Add-ons */}
-        <div className="mt-16 pt-12 border-t border-line">
-          <div className="mb-8">
-            <span className="font-mono text-[11px] font-bold uppercase tracking-[0.14em] text-action">
-              Specialized Modules // Fixed-Bid Sprints
-            </span>
-            <h3 className="mt-2 text-2xl font-bold uppercase text-ink">
-              Targeted Technical Add-ons
-            </h3>
-            <p className="mt-1 text-sm text-ink-muted font-light">
-              Add specialized capabilities to your retainer or execute them as standalone milestones.
+        {/* Feature Comparison Matrix */}
+        <section className="mt-32">
+          <div className="text-center max-w-2xl mx-auto mb-14">
+            <h2 className="text-3xl font-extrabold text-white tracking-tight">Compare Plans In-Depth</h2>
+            <p className="mt-3 text-neutral-400 text-base">
+              Every detail of what is unlocked between Free, Pro, and Lifetime.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {ADDONS.map((addon) => {
-              const Icon = addon.icon;
+          <div className="overflow-x-auto rounded-3xl border border-neutral-800 bg-neutral-900/30 backdrop-blur-xl shadow-2xl">
+            <table className="w-full text-left border-collapse">
+              <thead>
+                <tr className="border-b border-neutral-800 bg-neutral-900/60 text-xs uppercase tracking-wider text-neutral-400">
+                  <th className="py-5 px-6 font-semibold">Capabilities</th>
+                  <th className="py-5 px-6 font-semibold">Free Starter</th>
+                  <th className="py-5 px-6 font-semibold">Pro Subscription</th>
+                  <th className="py-5 px-6 font-bold text-purple-400">Pro Lifetime ($99)</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-neutral-800/60 text-sm">
+                {COMPARISON_ROWS.map((row, i) => (
+                  <tr
+                    key={i}
+                    className={`hover:bg-neutral-800/20 transition-colors ${
+                      i % 2 === 0 ? "bg-transparent" : "bg-neutral-900/20"
+                    }`}
+                  >
+                    <td className="py-4 px-6 font-medium text-neutral-200">{row.feature}</td>
+                    <td className="py-4 px-6 text-neutral-400">{row.free}</td>
+                    <td className="py-4 px-6 text-neutral-200 font-medium">{row.pro}</td>
+                    <td className="py-4 px-6 text-purple-300 font-semibold">{row.lifetime}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        {/* FAQ Accordion */}
+        <section className="mt-32 max-w-3xl mx-auto">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-extrabold text-white tracking-tight">Frequently Asked Questions</h2>
+            <p className="mt-2 text-neutral-400 text-sm">
+              Everything you need to know about local rendering, licenses, and AI keys.
+            </p>
+          </div>
+
+          <div className="space-y-4">
+            {FAQS.map((faq, idx) => {
+              const isOpen = openFaq === idx;
               return (
                 <div
-                  key={addon.title}
-                  className="border border-line bg-card p-6 flex flex-col justify-between hover:border-action/40 transition"
+                  key={idx}
+                  className="rounded-2xl border border-neutral-800 bg-neutral-900/40 backdrop-blur-lg overflow-hidden transition-colors"
                 >
-                  <div>
-                    <div className="flex items-center justify-between">
-                      <div className="p-2.5 border border-line bg-surface text-action">
-                        <Icon size={18} />
-                      </div>
-                      <span className="text-xl font-bold text-ink">{addon.price}</span>
-                    </div>
-
-                    <h4 className="mt-4 text-base font-bold text-ink uppercase">
-                      {addon.title}
-                    </h4>
-                    <span className="font-mono text-[10px] text-ink-muted uppercase block mt-0.5">
-                      // {addon.cadence}
+                  <button
+                    onClick={() => setOpenFaq(isOpen ? null : idx)}
+                    className="w-full py-4 px-6 text-left flex items-center justify-between gap-4 font-semibold text-neutral-200 hover:text-white"
+                  >
+                    <span>{faq.q}</span>
+                    <span className="p-1 rounded-lg bg-neutral-800 text-neutral-400">
+                      {isOpen ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
                     </span>
-                    <p className="mt-2.5 text-xs text-ink-muted font-light leading-relaxed">
-                      {addon.description}
-                    </p>
-                  </div>
-
-                  <div className="mt-6 pt-4 border-t border-line">
-                    <Link
-                      href={addon.href}
-                      className="inline-flex items-center gap-1.5 font-mono text-xs font-bold uppercase tracking-wider text-action hover:underline"
-                    >
-                      <span>Engage Module</span>
-                      <ArrowRight size={12} />
-                    </Link>
-                  </div>
+                  </button>
+                  <AnimatePresence>
+                    {isOpen && (
+                      <motion.div
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: "auto", opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        transition={{ duration: 0.2 }}
+                      >
+                        <div className="px-6 pb-5 text-sm text-neutral-400 leading-relaxed border-t border-neutral-800/40 pt-3">
+                          {faq.a}
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
                 </div>
               );
             })}
           </div>
-        </div>
+        </section>
 
-        {/* Custom SOW Proposal Banner */}
-        <div className="mt-14 border border-line bg-canvas p-8 sm:p-12 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
-          <div className="max-w-2xl">
-            <span className="font-mono text-[11px] font-bold uppercase tracking-[0.14em] text-action">
-              Custom Statement of Work (SOW)
-            </span>
-            <h3 className="mt-2 text-2xl font-bold uppercase text-ink">
-              Need custom enterprise architecture or a formal RFP review?
-            </h3>
-            <p className="mt-2 text-sm text-ink-muted font-light leading-relaxed">
-              We engineer custom enterprise solutions under fixed-bid or milestone-based contracts. Mutual NDA executed prior to discovery.
-            </p>
+        {/* 100% Risk-Free Guarantee Banner */}
+        <section className="mt-24 p-8 sm:p-10 rounded-3xl bg-gradient-to-r from-purple-950/40 via-indigo-950/30 to-neutral-900 border border-purple-500/20 text-center max-w-4xl mx-auto shadow-2xl relative overflow-hidden">
+          <div className="absolute -right-10 -bottom-10 w-44 h-44 bg-purple-500/10 rounded-full blur-3xl pointer-events-none" />
+          <div className="inline-flex p-3 rounded-2xl bg-purple-500/10 text-purple-400 mb-4 border border-purple-500/20">
+            <ShieldCheck className="w-8 h-8" />
           </div>
-          <Link
-            href="/contact"
-            className="inline-flex items-center gap-2 bg-action text-white px-6 py-3.5 font-mono text-xs font-bold uppercase tracking-wider hover:bg-action-strong transition shrink-0"
-          >
-            <span>Request Scoped Proposal</span>
-            <ArrowRight size={14} />
-          </Link>
-        </div>
-      </Section>
-
-      {/* Feature Comparison Matrix */}
-      <Section className="bg-canvas border-t border-line" labelledBy="comparison-matrix">
-        <SectionHeader
-          id="comparison-matrix"
-          eyebrow="Capability Breakdown"
-          title="Compare engagement tiers"
-          description="Detailed deliverables and commitments across our standard service packages."
-        />
-
-        <div className="mt-12 overflow-x-auto border border-line bg-surface">
-          <table className="w-full text-left border-collapse text-xs font-mono">
-            <thead>
-              <tr className="border-b border-line bg-card">
-                <th className="p-4 sm:p-5 font-bold uppercase text-ink text-sm">Capability / Deliverable</th>
-                <th className="p-4 sm:p-5 font-bold uppercase text-ink">Discovery ($1.5k)</th>
-                <th className="p-4 sm:p-5 font-bold uppercase text-action">Retainer ($3.5k/mo)</th>
-                <th className="p-4 sm:p-5 font-bold uppercase text-ink">Enterprise ($6k/mo)</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-line text-ink-muted">
-              {COMPARISON_ROWS.map((row, idx) => (
-                <tr key={idx} className="hover:bg-canvas/50 transition">
-                  <td className="p-4 sm:p-5 font-bold text-ink">{row.feature}</td>
-                  <td className="p-4 sm:p-5">{row.discovery}</td>
-                  <td className={`p-4 sm:p-5 ${row.retainerBold ? "font-bold text-action" : "text-ink"}`}>
-                    {row.retainer}
-                  </td>
-                  <td className="p-4 sm:p-5">{row.enterprise}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </Section>
-
-      {/* Commercial Settlement Rails */}
-      <Section className="bg-surface border-t border-line" labelledBy="settlement-rails">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-          <div className="lg:col-span-5 space-y-4">
-            <span className="font-mono text-[11px] font-bold uppercase tracking-[0.14em] text-action">
-              Institutional Settlement Rails
-            </span>
-            <h2 className="text-2xl sm:text-3xl font-bold uppercase text-ink">
-              Global B2B invoicing with zero friction.
-            </h2>
-            <p className="text-sm text-ink-muted font-light leading-relaxed">
-              We provide seamless cross-border settlement rails. Whether paying via Paddle (Cards/Apple Pay), wiring international USD via Wise, or settling in PKR via Raast, all invoices are tax-compliant with formal commercial receipts.
-            </p>
-            <div className="pt-4">
-              <Link
-                href="/billing"
-                className="inline-flex items-center gap-1.5 font-mono text-xs font-bold uppercase tracking-wider text-action hover:underline"
-              >
-                <span>Visit Treasury & Billing Portal</span>
-                <ArrowRight size={13} />
-              </Link>
-            </div>
-          </div>
-
-          <div className="lg:col-span-7 grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div className="border border-line bg-card p-6 space-y-2.5">
-              <div className="flex items-center gap-2 font-mono text-xs font-bold uppercase text-action">
-                <Globe size={16} />
-                <span>Paddle Merchant of Record</span>
-              </div>
-              <p className="text-xs text-ink-muted font-light leading-relaxed">
-                Instant card checkout, Apple Pay, Google Pay, and PayPal with automatic tax calculation and instant PDF invoices.
-              </p>
-            </div>
-
-            <div className="border border-line bg-card p-6 space-y-2.5">
-              <div className="flex items-center gap-2 font-mono text-xs font-bold uppercase text-action">
-                <Globe size={16} />
-                <span>Wise Multi-Currency Wire</span>
-              </div>
-              <p className="text-xs text-ink-muted font-light leading-relaxed">
-                Direct local clearing in USD (ACH), EUR (SEPA), and GBP (BACS) with zero foreign exchange markups.
-              </p>
-            </div>
-
-            <div className="border border-line bg-card p-6 space-y-2.5">
-              <div className="flex items-center gap-2 font-mono text-xs font-bold uppercase text-action">
-                <Zap size={16} />
-                <span>Raast Instant Clearance (PKR)</span>
-              </div>
-              <p className="text-xs text-ink-muted font-light leading-relaxed">
-                Zero fee, real-time PKR settlements directly to Meezan Bank with automated transaction reconciliation.
-              </p>
-            </div>
-
-            <div className="border border-line bg-card p-6 space-y-2.5">
-              <div className="flex items-center gap-2 font-mono text-xs font-bold uppercase text-action">
-                <Lock size={16} />
-                <span>30-Day Workmanship Warranty</span>
-              </div>
-              <p className="text-xs text-ink-muted font-light leading-relaxed">
-                All delivered codebases include a full 30-day post-launch warranty covering any bugs or defect remediation.
-              </p>
-            </div>
-          </div>
-        </div>
-      </Section>
-
-      {/* Commercial FAQ Accordion */}
-      <Section className="bg-canvas border-t border-line" labelledBy="pricing-faq">
-        <SectionHeader
-          id="pricing-faq"
-          eyebrow="Commercial FAQ"
-          title="Frequently Asked Questions"
-          description="Everything you need to know about milestone governance, billing schedules, and engineering delivery."
-        />
-
-        <div className="mt-12 max-w-3xl mx-auto space-y-3">
-          {FAQS.map((faq, idx) => {
-            const isOpen = openFaq === idx;
-            return (
-              <div
-                key={idx}
-                className="border border-line bg-surface transition overflow-hidden"
-              >
-                <button
-                  type="button"
-                  onClick={() => toggleFaq(idx)}
-                  className="w-full p-6 text-left flex items-center justify-between gap-4 cursor-pointer"
-                >
-                  <span className="text-sm sm:text-base font-bold text-ink uppercase tracking-tight flex items-center gap-2.5">
-                    <span className="font-mono text-action text-xs">0{idx + 1} //</span>
-                    <span>{faq.question}</span>
-                  </span>
-                  {isOpen ? (
-                    <ChevronUp className="h-4 w-4 text-action shrink-0" />
-                  ) : (
-                    <ChevronDown className="h-4 w-4 text-ink-muted shrink-0" />
-                  )}
-                </button>
-
-                {isOpen && (
-                  <div className="px-6 pb-6 pt-1 border-t border-line/50 text-xs sm:text-sm text-ink-muted font-light leading-relaxed pl-12 animate-in fade-in duration-150">
-                    {faq.answer}
-                  </div>
-                )}
-              </div>
-            );
-          })}
-        </div>
-
-        {/* Bottom Contact Prompt */}
-        <div className="mt-14 text-center">
-          <p className="text-xs font-mono text-ink-muted">
-            Have custom contract requirements or need an RFP review?
+          <h3 className="text-2xl font-bold text-white">100% Risk-Free Money-Back Guarantee</h3>
+          <p className="mt-3 text-neutral-300 text-sm max-w-xl mx-auto leading-relaxed">
+            Try ClipSonic for a full 14 days. If it doesn't dramatically cut down your YouTube Shorts and TikTok workflow time, email us and we will promptly refund every single penny. No questions asked.
           </p>
-          <div className="mt-3 flex items-center justify-center gap-4">
-            <Link
-              href="/contact"
-              className="inline-flex items-center gap-1.5 font-mono text-xs font-bold uppercase tracking-wider text-action hover:underline"
-            >
-              <span>Speak with Treasury & Technical Sales</span>
-              <ArrowRight size={13} />
-            </Link>
+          <div className="mt-6 flex flex-wrap justify-center gap-4 text-xs text-neutral-400 font-medium">
+            <span className="flex items-center gap-1.5">
+              <Check className="w-4 h-4 text-emerald-400" /> Instant Key Delivery
+            </span>
+            <span className="flex items-center gap-1.5">
+              <Check className="w-4 h-4 text-emerald-400" /> 14-Day Money Back
+            </span>
+            <span className="flex items-center gap-1.5">
+              <Check className="w-4 h-4 text-emerald-400" /> Commercial Rights Included
+            </span>
           </div>
-        </div>
-      </Section>
-    </>
+        </section>
+      </main>
+    </div>
   );
 }
