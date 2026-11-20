@@ -2,9 +2,10 @@
  * Server-only open.email REST client. Holds OPENEMAIL_API_KEY — never import
  * into a client component; go through the /api/mail/* routes instead.
  *
- * Supports Dual Domain Routing:
- * 1. OPENEMAIL_TECH_API_KEY: Handles all employee mailboxes on qorlune.com
- * 2. OPENEMAIL_COM_API_KEY: Dedicated scoped key for executive qorlune.com
+ * Supports Dual Domain Routing & Multi-Account Consolidation:
+ * 1. OPENEMAIL_COM_API_KEY: Dedicated key for tauqeermustafa.com
+ * 2. OPENEMAIL_TECH_API_KEY: Dedicated key for tauqeermustafa.tech
+ * 3. OPENEMAIL_QORLUNE_API_KEY: Dedicated key for qorlune.co.uk / qorlune.com
  *
  * Endpoints (verified against open.email docs):
  *   GET  /mailboxes
@@ -16,24 +17,59 @@
  */
 export const OPENEMAIL_API_URL = "https://api.open.email/api/v1";
 
-// Qorlune primary account (holds @qorlune.co.uk & @qorlune.com mailboxes)
+// 1. Tauqeer Mustafa .com primary account key (holds @tauqeermustafa.com mailboxes)
+export const OPENEMAIL_COM_API_KEY =
+  process.env.OPENEMAIL_COM_API_KEY ||
+  process.env.OPENEMAIL_TAUQEER_API_KEY ||
+  process.env.OPENEMAIL_API_KEY ||
+  "oek_vLhzeeO6fO_owBMaIIkLLzFPAWezb9I-f5H7isSGYug";
+
+// 2. Tauqeer Mustafa .tech account key (holds @tauqeermustafa.tech mailboxes)
+export const OPENEMAIL_TECH_API_KEY =
+  process.env.OPENEMAIL_TECH_API_KEY ||
+  "oek_QvxyNrk1tAOyYzAlisEuyRa5mP3LRxSJmaZc_vaJ7es";
+
+// 3. Qorlune primary account key (holds @qorlune.co.uk & @qorlune.com mailboxes)
 export const OPENEMAIL_QORLUNE_API_KEY =
   process.env.OPENEMAIL_QORLUNE_API_KEY ||
   process.env.OPENEMAIL_TECH_API_KEY ||
   "oek_QvxyNrk1tAOyYzAlisEuyRa5mP3LRxSJmaZc_vaJ7es";
 
-// Tauqeer Mustafa primary account (holds @tauqeermustafa.com & @tauqeermustafa.tech mailboxes)
-export const OPENEMAIL_TAUQEER_API_KEY =
-  process.env.OPENEMAIL_TAUQEER_API_KEY ||
-  process.env.OPENEMAIL_COM_API_KEY ||
-  "oek_vLhzeeO6fO_owBMaIIkLLzFPAWezb9I-f5H7isSGYug";
-
 // Backwards compatibility aliases
-export const OPENEMAIL_TECH_API_KEY = OPENEMAIL_QORLUNE_API_KEY;
-export const OPENEMAIL_COM_API_KEY = OPENEMAIL_TAUQEER_API_KEY;
+export const OPENEMAIL_TAUQEER_API_KEY = OPENEMAIL_COM_API_KEY;
+
+export function getAllKeysForScope(isQorlune: boolean): string[] {
+  if (isQorlune) {
+    return Array.from(
+      new Set(
+        [
+          OPENEMAIL_QORLUNE_API_KEY,
+          OPENEMAIL_TECH_API_KEY,
+          process.env.OPENEMAIL_API_KEY,
+        ].filter(Boolean) as string[],
+      ),
+    );
+  }
+  // Both .tech and .com live together in the .com portal with different API keys:
+  // query both keys to pull all mailboxes and messages
+  return Array.from(
+    new Set(
+      [
+        OPENEMAIL_COM_API_KEY,
+        OPENEMAIL_TECH_API_KEY,
+        OPENEMAIL_TAUQEER_API_KEY,
+        process.env.OPENEMAIL_API_KEY,
+      ].filter(Boolean) as string[],
+    ),
+  );
+}
 
 function authHeaders(json = false, customToken?: string): HeadersInit {
-  const token = customToken || OPENEMAIL_TECH_API_KEY;
+  const token =
+    customToken ||
+    OPENEMAIL_COM_API_KEY ||
+    OPENEMAIL_TECH_API_KEY ||
+    process.env.OPENEMAIL_API_KEY;
   if (!token) throw new Error("OPENEMAIL_API_KEY is missing");
   const headers: Record<string, string> = {
     Authorization: `Bearer ${token}`,
@@ -101,17 +137,14 @@ export async function fetchOpenEmailMailboxes(domain?: string) {
   const isQorlune = d === "qorlune" || d.includes("qorlune") || d.endsWith(".co.uk") || d === "co.uk" || d === "qor";
   const isCom = !isQorlune;
 
+  // Query all distinct API keys for this scope
+  const keysToQuery = getAllKeysForScope(isQorlune);
   const promises: Promise<any>[] = [];
-  if (isQorlune) {
+
+  for (const key of keysToQuery) {
     promises.push(
-      oeFetch(`/identities`, undefined, OPENEMAIL_QORLUNE_API_KEY),
-      fetchAllRoutes(OPENEMAIL_QORLUNE_API_KEY),
-    );
-  } else {
-    // Both .tech and .com live on OPENEMAIL_TAUQEER_API_KEY
-    promises.push(
-      oeFetch(`/identities`, undefined, OPENEMAIL_TAUQEER_API_KEY),
-      fetchAllRoutes(OPENEMAIL_TAUQEER_API_KEY),
+      oeFetch(`/identities`, undefined, key),
+      fetchAllRoutes(key),
     );
   }
 
@@ -188,25 +221,27 @@ export async function fetchOpenEmailMailboxes(domain?: string) {
   merged.sort((a, b) => {
     const aP = a.primaryAddress.toLowerCase();
     const bP = b.primaryAddress.toLowerCase();
-    if (isTech) {
-      if (aP.startsWith("info@")) return -1;
-      if (bP.startsWith("info@")) return 1;
-      if (aP.startsWith("admin@")) return -1;
-      if (bP.startsWith("admin@")) return 1;
-    } else if (isCom) {
-      if (aP.startsWith("admin@")) return -1;
-      if (bP.startsWith("admin@")) return 1;
-      if (aP.startsWith("contact@")) return -1;
-      if (bP.startsWith("contact@")) return 1;
-      if (aP.startsWith("sales@")) return -1;
-      if (bP.startsWith("sales@")) return 1;
-    } else {
+    if (isQorlune) {
       if (aP.startsWith("sales@")) return -1;
       if (bP.startsWith("sales@")) return 1;
       if (aP.startsWith("support@")) return -1;
       if (bP.startsWith("support@")) return 1;
       if (aP.startsWith("admin@")) return -1;
       if (bP.startsWith("admin@")) return 1;
+    } else {
+      // Unified .com & .tech
+      if (aP.startsWith("admin@tauqeermustafa.com")) return -1;
+      if (bP.startsWith("admin@tauqeermustafa.com")) return 1;
+      if (aP.startsWith("admin@")) return -1;
+      if (bP.startsWith("admin@")) return 1;
+      if (aP.startsWith("contact@")) return -1;
+      if (bP.startsWith("contact@")) return 1;
+      if (aP.startsWith("info@")) return -1;
+      if (bP.startsWith("info@")) return 1;
+      if (aP.startsWith("sales@")) return -1;
+      if (bP.startsWith("sales@")) return 1;
+      if (aP.startsWith("support@")) return -1;
+      if (bP.startsWith("support@")) return 1;
     }
     return aP.localeCompare(bP);
   });
@@ -229,20 +264,65 @@ export async function fetchOpenEmailMessages(mailboxId: string, opts: MessageLis
   if (opts.cursor) params.set("cursor", opts.cursor);
 
   const path = `/mailboxes/${mailboxId}/messages?${params.toString()}`;
-  try {
-    return await oeFetch(path, undefined, OPENEMAIL_COM_API_KEY);
-  } catch {
-    return await oeFetch(path, undefined, OPENEMAIL_TECH_API_KEY);
+  const keys = Array.from(
+    new Set(
+      [
+        OPENEMAIL_COM_API_KEY,
+        OPENEMAIL_TECH_API_KEY,
+        OPENEMAIL_QORLUNE_API_KEY,
+        process.env.OPENEMAIL_API_KEY,
+      ].filter(Boolean) as string[],
+    ),
+  );
+
+  let lastError: any = null;
+  for (const token of keys) {
+    try {
+      const res = await oeFetch(path, undefined, token);
+      const list = Array.isArray(res)
+        ? res
+        : Array.isArray(res?.messages)
+        ? res.messages
+        : Array.isArray(res?.data)
+        ? res.data
+        : Array.isArray(res?.items)
+        ? res.items
+        : null;
+      if (list !== null) {
+        return res;
+      }
+    } catch (err: any) {
+      lastError = err;
+    }
   }
+  if (lastError) throw lastError;
+  return { messages: [] };
 }
 
 export async function fetchOpenEmailMessageContent(mailboxId: string, messageId: string) {
   const path = `/mailboxes/${mailboxId}/messages/${messageId}/content`;
-  try {
-    return await oeFetch(path, undefined, OPENEMAIL_COM_API_KEY);
-  } catch {
-    return await oeFetch(path, undefined, OPENEMAIL_TECH_API_KEY);
+  const keys = Array.from(
+    new Set(
+      [
+        OPENEMAIL_COM_API_KEY,
+        OPENEMAIL_TECH_API_KEY,
+        OPENEMAIL_QORLUNE_API_KEY,
+        process.env.OPENEMAIL_API_KEY,
+      ].filter(Boolean) as string[],
+    ),
+  );
+
+  let lastError: any = null;
+  for (const token of keys) {
+    try {
+      const res = await oeFetch(path, undefined, token);
+      if (res) return res;
+    } catch (err: any) {
+      lastError = err;
+    }
   }
+  if (lastError) throw lastError;
+  return {};
 }
 
 export interface OpenEmailAttachment {
@@ -266,8 +346,32 @@ export interface SendMessageInput {
 
 export async function sendOpenEmailMessage(mailboxId: string, input: SendMessageInput) {
   const fromAddr = (input.from || "").toLowerCase().trim();
-  const isComOrTech = fromAddr.endsWith(".com") || fromAddr.endsWith(".tech");
-  const token = isComOrTech ? OPENEMAIL_COM_API_KEY : OPENEMAIL_TECH_API_KEY;
+  const isTech = fromAddr.endsWith(".tech");
+  const isCoUk = fromAddr.endsWith(".co.uk");
+
+  const primaryKey = isTech
+    ? OPENEMAIL_TECH_API_KEY
+    : isCoUk
+    ? OPENEMAIL_QORLUNE_API_KEY
+    : OPENEMAIL_COM_API_KEY;
+
+  const fallbackKey = isTech
+    ? OPENEMAIL_COM_API_KEY
+    : isCoUk
+    ? OPENEMAIL_TECH_API_KEY
+    : OPENEMAIL_TECH_API_KEY;
+
+  const keysToTry = Array.from(
+    new Set(
+      [
+        primaryKey,
+        fallbackKey,
+        OPENEMAIL_COM_API_KEY,
+        OPENEMAIL_TECH_API_KEY,
+        process.env.OPENEMAIL_API_KEY,
+      ].filter(Boolean) as string[],
+    ),
+  );
 
   const save = input.save === false ? "" : "?save=true";
   const path = `/mailboxes/${mailboxId}/send${save}`;
@@ -303,42 +407,52 @@ export async function sendOpenEmailMessage(mailboxId: string, input: SendMessage
   const cc = asEmails(input.cc);
   const bcc = asEmails(input.bcc);
 
-  try {
-    return await oeFetch(
-      path,
-      {
-        method: "POST",
-        body: JSON.stringify({
-          ...base,
-          to,
-          ...(cc.length ? { cc } : {}),
-          ...(bcc.length ? { bcc } : {}),
-        }),
-      },
-      token,
-    );
-  } catch (err) {
-    const hasExtra = cc.length || bcc.length;
-    const message = err instanceof Error ? err.message : "";
-    if (!hasExtra || !/\b400\b|validation|\bcc\b|\bbcc\b/i.test(message)) throw err;
-
-    const result = await oeFetch(
-      path,
-      {
-        method: "POST",
-        body: JSON.stringify({ ...base, to: [...to, ...cc] }),
-      },
-      token,
-    );
-    if (bcc.length) {
-      await oeFetch(
+  let lastError: any = null;
+  for (const token of keysToTry) {
+    try {
+      return await oeFetch(
         path,
-        { method: "POST", body: JSON.stringify({ ...base, to: bcc }) },
+        {
+          method: "POST",
+          body: JSON.stringify({
+            ...base,
+            to,
+            ...(cc.length ? { cc } : {}),
+            ...(bcc.length ? { bcc } : {}),
+          }),
+        },
         token,
       );
+    } catch (err: any) {
+      lastError = err;
+      const hasExtra = cc.length || bcc.length;
+      const message = err instanceof Error ? err.message : "";
+      if (hasExtra && /\b400\b|validation|\bcc\b|\bbcc\b/i.test(message)) {
+        try {
+          const result = await oeFetch(
+            path,
+            {
+              method: "POST",
+              body: JSON.stringify({ ...base, to: [...to, ...cc] }),
+            },
+            token,
+          );
+          if (bcc.length) {
+            await oeFetch(
+              path,
+              { method: "POST", body: JSON.stringify({ ...base, to: bcc }) },
+              token,
+            );
+          }
+          return result;
+        } catch (innerErr) {
+          lastError = innerErr;
+        }
+      }
     }
-    return result;
   }
+
+  throw lastError || new Error("Failed to send message via available OpenEmail keys");
 }
 
 /**
@@ -348,11 +462,25 @@ export async function sendOpenEmailMessage(mailboxId: string, input: SendMessage
  */
 export async function deleteOpenEmailMessage(mailboxId: string, messageId: string) {
   const path = `/mailboxes/${mailboxId}/messages/${messageId}`;
-  try {
-    return await oeFetch(path, { method: "DELETE" }, OPENEMAIL_COM_API_KEY);
-  } catch {
-    return await oeFetch(path, { method: "DELETE" }, OPENEMAIL_TECH_API_KEY);
+  const keys = Array.from(
+    new Set(
+      [
+        OPENEMAIL_COM_API_KEY,
+        OPENEMAIL_TECH_API_KEY,
+        process.env.OPENEMAIL_API_KEY,
+      ].filter(Boolean) as string[],
+    ),
+  );
+
+  let lastError: any = null;
+  for (const token of keys) {
+    try {
+      return await oeFetch(path, { method: "DELETE" }, token);
+    } catch (err) {
+      lastError = err;
+    }
   }
+  throw lastError || new Error("Failed to delete message");
 }
 
 export async function fetchOpenEmailAttachmentPart(
@@ -361,39 +489,45 @@ export async function fetchOpenEmailAttachmentPart(
   section: string,
 ) {
   const path = `/mailboxes/${mailboxId}/messages/${messageId}/parts/${section}`;
-  let token = OPENEMAIL_COM_API_KEY;
-  let res = await fetch(`${OPENEMAIL_API_URL}${path}`, {
-    headers: { Authorization: `Bearer ${token}` },
-    cache: "no-store",
-  });
+  const keys = Array.from(
+    new Set(
+      [
+        OPENEMAIL_COM_API_KEY,
+        OPENEMAIL_TECH_API_KEY,
+        process.env.OPENEMAIL_API_KEY,
+      ].filter(Boolean) as string[],
+    ),
+  );
 
-  if (!res.ok) {
-    token = OPENEMAIL_TECH_API_KEY;
-    res = await fetch(`${OPENEMAIL_API_URL}${path}`, {
-      headers: { Authorization: `Bearer ${token}` },
-      cache: "no-store",
-    });
-  }
-
-  if (!res.ok) {
-    let detail = res.statusText;
+  let lastRes: Response | null = null;
+  for (const token of keys) {
     try {
-      const body = await res.json();
-      detail = body?.error || body?.message || detail;
+      const res = await fetch(`${OPENEMAIL_API_URL}${path}`, {
+        headers: { Authorization: `Bearer ${token}` },
+        cache: "no-store",
+      });
+      if (res.ok) {
+        const contentType = res.headers.get("content-type") || "application/octet-stream";
+        const disposition = res.headers.get("content-disposition") || "";
+        let filename = "";
+        const match = disposition.match(/filename="?([^"]+)"?/i);
+        if (match) filename = match[1];
+
+        const arrayBuffer = await res.arrayBuffer();
+        return {
+          buffer: Buffer.from(arrayBuffer),
+          contentType,
+          filename,
+        };
+      }
+      lastRes = res;
     } catch {}
-    throw new Error(`open.email ${res.status}: ${detail}`);
   }
 
-  const contentType = res.headers.get("content-type") || "application/octet-stream";
-  const disposition = res.headers.get("content-disposition") || "";
-  let filename = "";
-  const match = disposition.match(/filename="?([^"]+)"?/i);
-  if (match) filename = match[1];
-
-  const arrayBuffer = await res.arrayBuffer();
-  return {
-    buffer: Buffer.from(arrayBuffer),
-    contentType,
-    filename,
-  };
+  let detail = lastRes ? lastRes.statusText : "Failed to fetch attachment part";
+  try {
+    const body = await lastRes?.json();
+    detail = body?.error || body?.message || detail;
+  } catch {}
+  throw new Error(`open.email ${lastRes?.status || 500}: ${detail}`);
 }
