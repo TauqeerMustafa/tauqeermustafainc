@@ -55,7 +55,7 @@ export default function ExecutiveOutreachPortal() {
 
   // Email Composition State
   const [isComposing, setIsComposing] = useState(false);
-  const [senderMailbox, setSenderMailbox] = useState("admin@qorlune.co.uk");
+  const [senderMailbox, setSenderMailbox] = useState("sales@qorlune.co.uk");
   const [emailSubject, setEmailSubject] = useState("");
   const [emailBody, setEmailBody] = useState("");
   const [recipientEmail, setRecipientEmail] = useState("");
@@ -556,9 +556,9 @@ export default function ExecutiveOutreachPortal() {
                     onChange={(e) => setSenderMailbox(e.target.value)}
                     className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-slate-200 text-xs focus:outline-none focus:border-cyan-500"
                   >
+                    <option value="sales@qorlune.co.uk">sales@qorlune.co.uk (B2B Executive Sales & Outreach)</option>
                     <option value="admin@qorlune.co.uk">admin@qorlune.co.uk (Primary Corporate)</option>
                     <option value="contact@qorlune.co.uk">contact@qorlune.co.uk (Client Relations)</option>
-                    <option value="sales@qorlune.co.uk">sales@qorlune.co.uk (B2B Executive Sales)</option>
                   </select>
                 </div>
 

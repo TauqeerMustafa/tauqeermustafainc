@@ -205,9 +205,9 @@ Sender: Qorlune | Qorlune (qorlune.co.uk)`;
       return NextResponse.json({ success: true, email: emailContent });
     }
 
-    // 3. SEND DIRECTLY FROM TAUQEERMUSTAFA.COM MAILBOX (WITH MULTI-PROVIDER FAILOVER)
+    // 3. SEND DIRECTLY FROM QORLUNE MAILBOX (WITH MULTI-PROVIDER FAILOVER)
     if (action === "send_email") {
-      const { toEmail, toName, subject, html, text, fromEmail = "admin@tauqeermustafa.com", prospectId } = body;
+      const { toEmail, toName, subject, html, text, fromEmail = "sales@qorlune.co.uk", prospectId } = body;
 
       if (!toEmail) {
         return NextResponse.json({ success: false, error: "Recipient email is required" }, { status: 400 });
