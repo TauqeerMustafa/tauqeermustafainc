@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getKV } from "@/lib/kv";
+import { sendOpenEmailMessage } from "@/lib/openemail";
 
 const GEMINI_API_KEY =
   process.env.GEMINI_API_KEY ||
@@ -204,48 +205,30 @@ Sender: Qorlune | Qorlune (qorlune.co.uk)`;
       return NextResponse.json({ success: true, email: emailContent });
     }
 
-    // 3. SEND DIRECTLY FROM TAUQEERMUSTAFA.COM MAILBOX
+    // 3. SEND DIRECTLY FROM TAUQEERMUSTAFA.COM MAILBOX (WITH MULTI-PROVIDER FAILOVER)
     if (action === "send_email") {
-      const { toEmail, toName, subject, html, text, fromEmail = "admin@qorlune.co.uk", prospectId } = body;
+      const { toEmail, toName, subject, html, text, fromEmail = "admin@tauqeermustafa.com", prospectId } = body;
 
       if (!toEmail) {
         return NextResponse.json({ success: false, error: "Recipient email is required" }, { status: 400 });
       }
 
-      const payload = {
-        from: {
-          email: fromEmail,
-          name: "Qorlune | Qorlune"
-        },
-        to: [{
-          email: toEmail,
-          name: toName || toEmail
-        }],
-        subject: subject,
-        text: text,
-        html: html
-      };
-
-      const url = `https://api.open.email/api/v1/mailboxes/${TAUQEER_MAILBOX_ID}/send?save=true`;
-      const openEmailRes = await fetch(url, {
-        method: "POST",
-        headers: {
-          "Authorization": `Bearer ${OPENEMAIL_API_KEY}`,
-          "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify(payload)
-      });
-
-      const resText = await openEmailRes.text();
-      let resJson: any = {};
-      try { resJson = JSON.parse(resText); } catch {}
-
-      if (!openEmailRes.ok) {
-        return NextResponse.json({
-          success: false,
-          error: resJson?.error || `Open.email error (${openEmailRes.status}): ${resText}`
-        }, { status: openEmailRes.status });
+      let resData: any;
+      try {
+        resData = await sendOpenEmailMessage(TAUQEER_MAILBOX_ID, {
+          from: fromEmail,
+          fromName: "Tauqeer Mustafa | Qorlune",
+          to: [toEmail],
+          subject,
+          text,
+          html,
+          save: true,
+        });
+      } catch (sendErr: any) {
+        return NextResponse.json(
+          { success: false, error: sendErr.message || "Outreach dispatch failed across all providers" },
+          { status: 502 },
+        );
       }
 
       // Record in Pipeline
@@ -256,8 +239,9 @@ Sender: Qorlune | Qorlune (qorlune.co.uk)`;
         subject,
         sentFrom: fromEmail,
         sentAt: new Date().toISOString(),
-        deliveryId: resJson?.deliveryId || "queued",
-        status: "sent"
+        deliveryId: resData?.deliveryId || "queued",
+        provider: resData?.provider || "openemail",
+        status: "sent",
       };
 
       const kv = getKV();
@@ -271,8 +255,10 @@ Sender: Qorlune | Qorlune (qorlune.co.uk)`;
 
       return NextResponse.json({
         success: true,
-        deliveryId: resJson?.deliveryId,
-        record
+        deliveryId: resData?.deliveryId,
+        provider: resData?.provider,
+        notice: resData?.notice,
+        record,
       });
     }
 
